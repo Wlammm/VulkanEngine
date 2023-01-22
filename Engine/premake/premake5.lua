@@ -7,9 +7,13 @@ workspace "Engine"
 
 project "Launcher"
     kind "ConsoleApp"
+	location "../Launcher"
+	files = { "**.cpp", "**.h", "**.hpp" }
 
 project "Engine"
     kind "StaticLib"
+	location "../Engine"
 
 project "Editor"
     kind "StaticLib"
+	location "../Editor"
