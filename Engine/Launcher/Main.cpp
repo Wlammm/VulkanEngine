@@ -1,8 +1,18 @@
 #include <iostream>
+#include "Engine/Engine.h"
 
 int main()
 {
-	std::cout << "Engine startup\n";
+	Engine engine{};
+
+	bool isRunning = true;
+	while(isRunning)
+	{
+		engine.Tick();
+
+		if (!engine.ShouldRun())
+			isRunning = false;
+	}
 
 	return 0;
 }
