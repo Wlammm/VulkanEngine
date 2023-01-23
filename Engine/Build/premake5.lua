@@ -1,9 +1,12 @@
 workspace "Engine"
     configurations { "Debug", "Release" }
+	platforms { "Win64" }
     location "../"
     startproject "Launcher"
     language "C++"
     cppdialect "C++20"
+	targetdir  "../../Temp/"
+	objdir  "../../Temp/"
 	files 
 	{ 
 		"../%{prj.name}/**.cpp", 
@@ -11,11 +14,11 @@ workspace "Engine"
 		"../%{prj.name}/**.hpp",
 		"../%{prj.name}/**.h"
 	}
-	outdir "../../Bin/"
 
 project "Launcher"
     kind "ConsoleApp"
 	location "../%{prj.name}"
+	targetdir  "../../Bin/"
 	includedirs
 	{
 		"../"
@@ -23,7 +26,8 @@ project "Launcher"
 	
 	links
 	{
-		"Engine"
+		"Engine",
+		"Editor",
 	}
 
 project "Engine"
