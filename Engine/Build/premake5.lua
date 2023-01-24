@@ -33,6 +33,8 @@ project "Launcher"
 project "Engine"
     kind "StaticLib"
 	location "../%{prj.name}"
+	pchheader "EnginePch.h"
+	pchsource "EnginePch.cpp"
 
 project "Editor"
     kind "StaticLib"
