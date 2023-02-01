@@ -21,7 +21,8 @@ project "Launcher"
 	targetdir  "../../Bin/"
 	includedirs
 	{
-		"../"
+		"../",
+		".",
 	}
 	
 	links
@@ -34,7 +35,7 @@ project "Engine"
     kind "StaticLib"
 	location "../%{prj.name}"
 	pchheader "EnginePch.h"
-	pchsource "EnginePch.cpp"
+	pchsource "../Engine/EnginePch.cpp"
 
 project "Editor"
     kind "StaticLib"
