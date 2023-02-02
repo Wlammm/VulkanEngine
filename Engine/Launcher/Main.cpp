@@ -3,7 +3,10 @@
 
 int main()
 {
-	Engine engine{};
+	EngineProperties properties{};
+	properties.Title = L"Engine";
+
+	Engine engine{ properties };
 
 	bool isRunning = true;
 	while(isRunning)

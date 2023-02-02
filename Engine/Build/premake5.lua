@@ -1,3 +1,5 @@
+VULKAN_SDK = os.getenv("VULKAN_SDK")
+
 workspace "Engine"
     configurations { "Debug", "Release" }
 	platforms { "Win64" }
@@ -36,6 +38,14 @@ project "Engine"
 	location "../%{prj.name}"
 	pchheader "EnginePch.h"
 	pchsource "../Engine/EnginePch.cpp"
+	includedirs
+	{
+		"%{VULKAN_SDK}/Include/",
+	}
+	links
+	{
+		"%{VULKAN_SDK}/Lib/vulkan-1.lib",
+	}
 
 project "Editor"
     kind "StaticLib"

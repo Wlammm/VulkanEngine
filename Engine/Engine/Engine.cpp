@@ -4,8 +4,9 @@
 #include <iostream>
 #include "WindowHandler.h"
 
-Engine::Engine()
+Engine::Engine(const EngineProperties inEngineProperties)
 {
+	myEngineProperties = inEngineProperties;
 	instance = this;
 	WindowHandler::Create();
 }
@@ -32,4 +33,9 @@ bool Engine::ShouldRun() const
 void Engine::SetIsRunning(const bool inIsRunning)
 {
 	instance->myIsRunning = inIsRunning;
+}
+
+const EngineProperties& Engine::GetEngineProperties()
+{
+	return instance->myEngineProperties;
 }

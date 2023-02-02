@@ -4,16 +4,14 @@
 
 void WindowHandler::Create()
 {
-	std::wstring title = L"Default Title";
-
 	WNDCLASS wndClass{};
 	wndClass.style = CS_VREDRAW | CS_HREDRAW | CS_OWNDC;
 	wndClass.lpfnWndProc = WindowHandler::WndProc;
 	wndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wndClass.lpszClassName = title.c_str();
+	wndClass.lpszClassName = Engine::GetEngineProperties().Title.c_str();
 	RegisterClass(&wndClass);
 
-	myHWND = CreateWindow(title.c_str(), title.c_str(), WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE, 100, 100, 1600, 900, nullptr, nullptr, nullptr, nullptr);
+	myHWND = CreateWindow(Engine::GetEngineProperties().Title.c_str(), Engine::GetEngineProperties().Title.c_str(), WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE, 100, 100, 1600, 900, nullptr, nullptr, nullptr, nullptr);
 }
 
 void WindowHandler::Destroy()
