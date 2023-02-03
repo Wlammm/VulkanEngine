@@ -2,28 +2,32 @@
 #include "Engine.h"
 
 #include "Utils/Time.h"
-#include <iostream>
 #include "Windows/WindowHandler.h"
+#include "Rendering/VulkanContext.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
+	: myEngineProperties { inEngineProperties }
 {
-	myEngineProperties = inEngineProperties;
-	instance = this;
-	WindowHandler::Create();
+	myInstance = this;
+
+	myConsole = new Console();
+	myWindowHandler = new WindowHandler();
+	myVulkanContext = new VulkanContext();
 }
 
 Engine::~Engine()
 {
-	WindowHandler::Destroy();
-	instance = nullptr;
+	del(myVulkanContext);
+	del(myWindowHandler);
+	del(myConsole);
+
+	myInstance = nullptr;
 }
 
 void Engine::Tick()
 {
 	Time::Tick();
-	WindowHandler::Tick();
-
-	std::cout << Time::GetDeltaTime() << std::endl;
+	myWindowHandler->Tick();
 }
 
 bool Engine::ShouldRun() const
@@ -33,10 +37,10 @@ bool Engine::ShouldRun() const
 
 void Engine::SetIsRunning(const bool inIsRunning)
 {
-	instance->myIsRunning = inIsRunning;
+	myInstance->myIsRunning = inIsRunning;
 }
 
 const EngineProperties& Engine::GetEngineProperties()
 {
-	return instance->myEngineProperties;
+	return myInstance->myEngineProperties;
 }

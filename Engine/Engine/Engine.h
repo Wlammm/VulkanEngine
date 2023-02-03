@@ -20,6 +20,10 @@ private:
 
 	EngineProperties myEngineProperties;
 
+	class Console* myConsole = nullptr;
+	class WindowHandler* myWindowHandler = nullptr;
+	class VulkanContext* myVulkanContext = nullptr;
+
 private:
-	inline static Engine* instance = nullptr;
+	inline static Engine* myInstance = nullptr;
 };

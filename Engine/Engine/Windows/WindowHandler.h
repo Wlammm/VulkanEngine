@@ -3,15 +3,17 @@
 class WindowHandler
 {
 public:
-	static void Create();
-	static void Destroy();
+	WindowHandler();
+	~WindowHandler();
 
-	static void Tick();
+	void Tick();
 	
 private:
 	static LRESULT WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
-	inline static HWND myHWND;
+	HWND myHWND;
+
+	inline static WindowHandler* myInstance = nullptr;
 
 };

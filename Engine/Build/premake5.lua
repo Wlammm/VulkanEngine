@@ -16,6 +16,12 @@ workspace "Engine"
 		"../%{prj.name}/**.hpp",
 		"../%{prj.name}/**.h"
 	}
+	filter "configurations:Debug"
+		defines { "DEBUG" }
+		symbols "On"
+	filter "configurations:Release"
+		defines { "" }
+		optimize "On"
 
 project "Launcher"
     kind "ConsoleApp"
@@ -23,6 +29,7 @@ project "Launcher"
 	targetdir  "../../Bin/"
 	includedirs
 	{
+		"%{VULKAN_SDK}/Include/",
 		"$(SolutionDir)",
 	}
 	

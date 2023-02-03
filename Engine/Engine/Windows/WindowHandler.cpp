@@ -2,8 +2,11 @@
 #include "Windows/WindowHandler.h"
 #include "Engine.h"
 
-void WindowHandler::Create()
+WindowHandler::WindowHandler()
 {
+	check(!myInstance && "Only one instance of this class can exist at once.");
+	myInstance = this;
+
 	WNDCLASS wndClass{};
 	wndClass.style = CS_VREDRAW | CS_HREDRAW | CS_OWNDC;
 	wndClass.lpfnWndProc = WindowHandler::WndProc;
@@ -12,11 +15,13 @@ void WindowHandler::Create()
 	RegisterClass(&wndClass);
 
 	myHWND = CreateWindow(Engine::GetEngineProperties().Title.c_str(), Engine::GetEngineProperties().Title.c_str(), WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE, 100, 100, 1600, 900, nullptr, nullptr, nullptr, nullptr);
+
 }
 
-void WindowHandler::Destroy()
+WindowHandler::~WindowHandler()
 {
-
+	DestroyWindow(myHWND);
+	myInstance = nullptr;
 }
 
 void WindowHandler::Tick()
