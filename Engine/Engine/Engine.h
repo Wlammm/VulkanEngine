@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EngineProperties.hpp"
+#include "Engine/EngineProperties.hpp"
 
 class Engine
 {

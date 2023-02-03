@@ -1,8 +1,9 @@
 #include "EnginePch.h"
 #include "Engine.h"
-#include "Time.h"
+
+#include "Utils/Time.h"
 #include <iostream>
-#include "WindowHandler.h"
+#include "Windows/WindowHandler.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 {

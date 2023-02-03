@@ -23,8 +23,7 @@ project "Launcher"
 	targetdir  "../../Bin/"
 	includedirs
 	{
-		"../",
-		".",
+		"$(SolutionDir)",
 	}
 	
 	links
@@ -40,6 +39,8 @@ project "Engine"
 	pchsource "../Engine/EnginePch.cpp"
 	includedirs
 	{
+		"$(SolutionDir)",
+		"$(ProjectDir)",
 		"%{VULKAN_SDK}/Include/",
 	}
 	links
