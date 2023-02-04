@@ -33,7 +33,7 @@ VulkanContext::VulkanContext()
 
 VulkanContext::~VulkanContext()
 {
-	//myVulkanInstance.destroyDebugUtilsMessengerEXT(myDebugMessenger);
+	myVulkanInstance.destroyDebugUtilsMessengerEXT(myDebugMessenger);
 	myVulkanInstance.destroy();
 }
 
