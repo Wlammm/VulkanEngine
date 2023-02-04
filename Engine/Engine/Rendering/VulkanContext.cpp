@@ -3,17 +3,37 @@
 #include "Engine.h"
 #include "Utils/String.hpp"
 
+PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
+PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
+
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(VkInstance instance,
+	const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+	const VkAllocationCallbacks* pAllocator,
+	VkDebugUtilsMessengerEXT* pMessenger)
+{
+	return pfnVkCreateDebugUtilsMessengerEXT(instance, pCreateInfo, pAllocator, pMessenger);
+}
+
+VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT messenger,
+	VkAllocationCallbacks const* pAllocator)
+{
+	return pfnVkDestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
+}
+
 VulkanContext::VulkanContext()
 {
 	check(!myInstance && "There can only be one vulkan context at the same time.");
 	myInstance = this;
 
 	CheckValidationLayerSupport();
-	CreateVulkanInstance();
+	CheckExtensionSupport();
+	CreateInstance();
+	CreateDebugLayer();
 }
 
 VulkanContext::~VulkanContext()
 {
+	//myVulkanInstance.destroyDebugUtilsMessengerEXT(myDebugMessenger);
 	myVulkanInstance.destroy();
 }
 
@@ -38,7 +58,25 @@ void VulkanContext::CheckValidationLayerSupport()
 	}
 }
 
-void VulkanContext::CreateVulkanInstance()
+void VulkanContext::CheckExtensionSupport()
+{
+	auto extensionsAvailable = vk::enumerateInstanceExtensionProperties();
+
+	for(const auto& requiredExtension : myExtensions)
+	{
+		bool foundExtension = false;
+		for(const auto& availableExtension : extensionsAvailable)
+		{
+			if (!strcmp(requiredExtension, availableExtension.extensionName))
+				foundExtension = true;
+		}
+
+		if (!foundExtension)
+			THROW("Failed to find required vulkan extensions.");
+	}
+}
+
+void VulkanContext::CreateInstance()
 {
 	std::string appName = String::ToString(Engine::GetEngineProperties().Title);
 
@@ -59,4 +97,54 @@ void VulkanContext::CreateVulkanInstance()
 
 	myVulkanInstance = vk::createInstance(instInfo);
 	LOG("Vulkan instance created successfully.");
+}
+
+void VulkanContext::CreateDebugLayer()
+{
+#ifndef DEBUG
+	if(!Engine::GetEngineProperties().HasStartupArgument("-VulkanDebug"))
+		return;
+#endif
+
+	vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(
+		vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
+		vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+		vk::DebugUtilsMessageSeverityFlagBitsEXT::eError |
+		vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose);
+
+	vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
+		vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+		vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+		vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
+
+	pfnVkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(myVulkanInstance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
+	pfnVkDestroyDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(myVulkanInstance.getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
+
+	vk::DebugUtilsMessengerCreateInfoEXT createInfo = vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &DebugMessageCallback, static_cast<void*>(this));
+	myDebugMessenger = myVulkanInstance.createDebugUtilsMessengerEXT(createInfo);
+	LOG("Vulkan debug layer attached.");
+}
+
+VkBool32 VulkanContext::DebugMessageCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+{
+	std::ostringstream ss;
+
+	ss << vk::to_string(vk::DebugUtilsMessageTypeFlagsEXT(messageType)) << " ";
+	ss << pCallbackData->pMessage;
+	ss << "\n" << "Object Names: \n";
+	for(int i = 0; i < pCallbackData->objectCount; ++i)
+	{
+		if(pCallbackData->pObjects[i].pObjectName)
+			ss << " - " << pCallbackData->pObjects[i].pObjectName << "\n";
+	}
+
+	if(vk::DebugUtilsMessageTypeFlagsEXT(messageType) & vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation)
+	{
+		LOG_ERROR(ss.str());
+		check(false);
+		return false;
+	}
+
+	LOG(ss.str());
+	return false;
 }

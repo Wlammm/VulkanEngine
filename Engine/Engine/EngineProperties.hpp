@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/EnginePch.h"
+#include "Utils/String.hpp"
 
 struct EngineProperties
 {
@@ -13,4 +14,25 @@ struct EngineProperties
 	// Start position of window.
 	uint WindowX = 100;
 	uint WindowY = 100;
+
+	void AddStartupArguments(int inArgC, char** inArgv)
+	{
+		for(int i = 0; i < inArgC; ++i)
+		{
+			StartupArguments.insert(String::ToLowerCopy(inArgv[i]));
+		}
+	}
+
+	void AddStartupArgument(const std::string& inArg)
+	{
+		StartupArguments.insert(String::ToLowerCopy(inArg));
+	}
+
+	bool HasStartupArgument(const std::string& inArg) const
+	{
+		return StartupArguments.count(String::ToLowerCopy(inArg));
+	}
+
+private:
+	std::unordered_set<std::string> StartupArguments;
 };

@@ -1,0 +1,10 @@
+Temp/
+Engine/.vs
+Engine/JSON
+
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.exe
+*.pdb

@@ -1,13 +1,13 @@
 #include <iostream>
 #include "Engine/Engine.h"
 
-int main()
+int main(int argc, char** argv)
 {
-
 	try
 	{
 		EngineProperties properties{};
 		properties.Title = L"Engine";
+		properties.AddStartupArguments(argc, argv);
 
 		Engine engine{ properties };
 

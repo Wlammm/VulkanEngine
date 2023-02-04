@@ -34,7 +34,9 @@ void Console::LogWarning(const std::string& inString)
 
 void Console::LogError(const std::string& inString)
 {
+	const std::string msg = "[ERROR]: " + inString + "\n";
 	SetConsoleTextAttribute(myConsoleHandle, 12);
-	std::cout << "[ERROR]: " << inString << std::endl;
+	std::cout << msg;
 	SetConsoleTextAttribute(myConsoleHandle, 15);
+	OutputDebugStringA(msg.c_str());
 }
