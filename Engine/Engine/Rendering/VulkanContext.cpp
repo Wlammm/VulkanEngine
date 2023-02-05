@@ -2,6 +2,8 @@
 #include "VulkanContext.h"
 #include "Engine.h"
 #include "Utils/String.hpp"
+#include "VulkanPhysicalDevice.h"
+#include "VulkanDevice.h"
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
@@ -29,12 +31,22 @@ VulkanContext::VulkanContext()
 	CheckExtensionSupport();
 	CreateInstance();
 	CreateDebugLayer();
+
+	myPhysicalDevice = new VulkanPhysicalDevice();
+	myDevice = new VulkanDevice(*myPhysicalDevice);
 }
 
 VulkanContext::~VulkanContext()
 {
+	del(myDevice);
+	del(myPhysicalDevice);
 	myVulkanInstance.destroyDebugUtilsMessengerEXT(myDebugMessenger);
 	myVulkanInstance.destroy();
+}
+
+vk::Instance& VulkanContext::GetInstance()
+{
+	return myInstance->myVulkanInstance;
 }
 
 void VulkanContext::CheckValidationLayerSupport()
@@ -53,8 +65,7 @@ void VulkanContext::CheckValidationLayerSupport()
 			}
 		}
 
-		if(!foundLayer)
-			THROW("Failed to find required vulkan layers.");
+		THROW_IF(!foundLayer, "Failed to find required vulkan layers.");
 	}
 }
 
@@ -71,8 +82,7 @@ void VulkanContext::CheckExtensionSupport()
 				foundExtension = true;
 		}
 
-		if (!foundExtension)
-			THROW("Failed to find required vulkan extensions.");
+		THROW_IF(!foundExtension, "Failed to find required vulkan extensions.");
 	}
 }
 
@@ -113,7 +123,7 @@ void VulkanContext::CreateDebugLayer()
 		vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose);
 
 	vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
-		vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+		//vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
 		vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
 		vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
 
