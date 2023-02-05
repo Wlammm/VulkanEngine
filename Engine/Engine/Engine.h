@@ -23,6 +23,7 @@ private:
 	class Console* myConsole = nullptr;
 	class WindowHandler* myWindowHandler = nullptr;
 	class VulkanContext* myVulkanContext = nullptr;
+	class VulkanRenderer* myRenderer = nullptr;
 
 private:
 	inline static Engine* myInstance = nullptr;

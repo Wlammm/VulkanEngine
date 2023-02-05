@@ -4,6 +4,7 @@
 #include "Utils/Time.h"
 #include "Windows/WindowHandler.h"
 #include "Rendering/VulkanContext.h"
+#include "Rendering/VulkanRenderer.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties { inEngineProperties }
@@ -13,10 +14,12 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	myConsole = new Console();
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
+	myRenderer = new VulkanRenderer();
 }
 
 Engine::~Engine()
 {
+	del(myRenderer);
 	del(myVulkanContext);
 	del(myWindowHandler);
 	del(myConsole);
@@ -28,6 +31,8 @@ void Engine::Tick()
 {
 	Time::Tick();
 	myWindowHandler->Tick();
+
+	myRenderer->Tick();
 }
 
 bool Engine::ShouldRun() const
