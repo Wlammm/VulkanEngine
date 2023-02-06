@@ -4,6 +4,7 @@
 #include "Utils/String.hpp"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
+#include "VulkanSwapchain.h"
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
@@ -34,10 +35,12 @@ VulkanContext::VulkanContext()
 
 	myPhysicalDevice = new VulkanPhysicalDevice();
 	myDevice = new VulkanDevice(*myPhysicalDevice);
+	mySwapChain = new VulkanSwapChain(*myDevice);
 }
 
 VulkanContext::~VulkanContext()
 {
+	del(mySwapChain);
 	del(myDevice);
 	del(myPhysicalDevice);
 	myVulkanInstance.destroyDebugUtilsMessengerEXT(myDebugMessenger);
@@ -47,6 +50,16 @@ VulkanContext::~VulkanContext()
 vk::Instance& VulkanContext::GetInstance()
 {
 	return myInstance->myVulkanInstance;
+}
+
+VulkanPhysicalDevice& VulkanContext::GetPhysicalDevice()
+{
+	return *myInstance->myPhysicalDevice;
+}
+
+VulkanDevice& VulkanContext::GetDevice()
+{
+	return *myInstance->myDevice;
 }
 
 void VulkanContext::CheckValidationLayerSupport()

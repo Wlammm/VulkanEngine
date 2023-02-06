@@ -52,6 +52,11 @@ int VulkanPhysicalDevice::GetTransferQueueIndex() const
 	return myTransferQueueIndex;
 }
 
+const std::vector<vk::QueueFamilyProperties> VulkanPhysicalDevice::GetQueueFamilyProperties() const
+{
+	return myQueueFamilyProperties;
+}
+
 bool VulkanPhysicalDevice::CheckDeviceExtensionSupport(const vk::PhysicalDevice& inDevice) const
 {
 	const auto availableExtensions = inDevice.enumerateDeviceExtensionProperties();

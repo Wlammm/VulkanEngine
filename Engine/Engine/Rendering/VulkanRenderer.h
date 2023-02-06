@@ -9,9 +9,6 @@ public:
 	void Tick();
 
 private:
-	void CreateBackBuffer();
-
-private:
 	vk::SurfaceKHR myBackBuffer;
 
 };

@@ -1,0 +1,188 @@
+#include "EnginePch.h"
+#include "VulkanSwapChain.h"
+#include "Windows/WindowHandler.h"
+#include "VulkanContext.h"
+#include "VulkanPhysicalDevice.h"
+#include "VulkanDevice.h"
+#include "Engine.h"
+
+VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
+	: myDevice{ inDevice }
+{
+	CreateWindowSurface();
+	CreateSyncObjects();
+	CreateSwapChain();
+
+}
+
+VulkanSwapChain::~VulkanSwapChain()
+{
+	for(int i = 0; i < myFrameLag; ++i)
+	{
+		myDevice->destroyFence(myFences[i]);
+		myDevice->destroySemaphore(myImageAcquiredSemaphores[i]);
+		myDevice->destroySemaphore(myDrawCompleteSemaphores[i]);
+	}
+
+	for(int i = 0; i < myImageViews.size(); ++i)
+	{
+		myDevice->destroyImageView(myImageViews[i]);
+	}
+
+	myDevice->destroySwapchainKHR(mySwapChain);
+
+	VulkanContext::GetInstance().destroySurfaceKHR(myWindowSurface);
+}
+
+void VulkanSwapChain::CreateWindowSurface()
+{
+	vk::Win32SurfaceCreateInfoKHR createInfo = vk::Win32SurfaceCreateInfoKHR().setHinstance(WindowHandler::GetHInstance()).setHwnd(WindowHandler::GetHWND());
+	vk::Result result = VulkanContext::GetInstance().createWin32SurfaceKHR(&createInfo, nullptr, &myWindowSurface);
+	check(result == vk::Result::eSuccess);
+}
+
+void VulkanSwapChain::CreateSyncObjects()
+{
+	vk::FenceCreateInfo fenceCreateInfo = vk::FenceCreateInfo().setFlags(vk::FenceCreateFlagBits::eSignaled);
+	vk::SemaphoreCreateInfo semaCreateInfo = vk::SemaphoreCreateInfo();
+
+	for(int i = 0; i < myFrameLag; ++i)
+	{
+		myFences.push_back(myDevice->createFence(fenceCreateInfo));
+		myImageAcquiredSemaphores.push_back(myDevice->createSemaphore(semaCreateInfo));
+		myDrawCompleteSemaphores.push_back(myDevice->createSemaphore(semaCreateInfo));
+	}
+}
+
+void VulkanSwapChain::CreateSwapChain()
+{
+	vk::SwapchainKHR oldSwapChain = mySwapChain;
+
+	const int presentQueueIndex = GetPresentQueueIndex();
+	const vk::SurfaceFormatKHR imageFormat = PickSurfaceFormat();
+
+	vk::SurfaceCapabilitiesKHR surfaceCapabilities = VulkanContext::GetPhysicalDevice()->getSurfaceCapabilitiesKHR(myWindowSurface);
+
+	vk::Extent2D swapchainExtent;
+	if(surfaceCapabilities.currentExtent.width == (uint32_t)-1)
+	{
+		mySwapChainWidth = swapchainExtent.width = Engine::GetEngineProperties().WindowWidth;
+		mySwapChainHeight = swapchainExtent.height = Engine::GetEngineProperties().WindowHeight;
+	}
+	else
+	{
+		swapchainExtent = surfaceCapabilities.currentExtent;
+		mySwapChainWidth = surfaceCapabilities.currentExtent.width;
+		mySwapChainHeight = surfaceCapabilities.currentExtent.height;
+	}
+
+	// Disable vsync if possible. The only mode that is required to be implemented is fifo so use as fallback in-case immediate does not exists.
+	vk::PresentModeKHR swapChainPresentMode = vk::PresentModeKHR::eFifo;
+	std::vector<vk::PresentModeKHR> availablePresentModes = VulkanContext::GetPhysicalDevice()->getSurfacePresentModesKHR(myWindowSurface);
+	for(const auto& mode : availablePresentModes)
+	{
+		if (mode == vk::PresentModeKHR::eImmediate)
+			swapChainPresentMode = vk::PresentModeKHR::eImmediate;
+	}
+
+	uint32_t numSwapchainImages = 3;
+	if (numSwapchainImages < surfaceCapabilities.minImageCount)
+		numSwapchainImages = surfaceCapabilities.minImageCount;
+
+	if (surfaceCapabilities.maxImageCount > 0 && numSwapchainImages > surfaceCapabilities.maxImageCount)
+		numSwapchainImages = surfaceCapabilities.maxImageCount;
+
+	vk::SurfaceTransformFlagBitsKHR preTransform;
+	if (surfaceCapabilities.supportedTransforms & vk::SurfaceTransformFlagBitsKHR::eIdentity)
+		preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
+	else
+		preTransform = surfaceCapabilities.currentTransform;
+
+	// One of these flags are guaranteed to be set. Pick one and use.
+	const std::array<vk::CompositeAlphaFlagBitsKHR, 4> compositeAlphaFlags = {
+		vk::CompositeAlphaFlagBitsKHR::eOpaque,
+		vk::CompositeAlphaFlagBitsKHR::ePreMultiplied,
+		vk::CompositeAlphaFlagBitsKHR::ePostMultiplied,
+		vk::CompositeAlphaFlagBitsKHR::eInherit,
+	};
+
+	vk::CompositeAlphaFlagBitsKHR compositeAlpha;
+	for(const auto& alphaFlag : compositeAlphaFlags)
+	{
+		if (surfaceCapabilities.supportedCompositeAlpha & alphaFlag)
+			compositeAlpha = alphaFlag;
+	}
+
+	mySwapChain = myDevice->createSwapchainKHR(vk::SwapchainCreateInfoKHR()
+		.setSurface(myWindowSurface)
+		.setMinImageCount(numSwapchainImages)
+		.setImageFormat(imageFormat.format)
+		.setImageColorSpace(imageFormat.colorSpace)
+		.setImageExtent(swapchainExtent)
+		.setImageArrayLayers(1)
+		.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
+		.setImageSharingMode(vk::SharingMode::eExclusive)
+		.setPreTransform(preTransform)
+		.setCompositeAlpha(compositeAlpha)
+		.setPresentMode(swapChainPresentMode)
+		.setClipped(true)
+		.setOldSwapchain(oldSwapChain)
+	);
+
+	if (oldSwapChain)
+		myDevice->destroySwapchainKHR(oldSwapChain);
+
+	myImages = myDevice->getSwapchainImagesKHR(mySwapChain);
+
+	for(int i = 0; i < myImages.size(); ++i)
+	{
+		vk::ImageViewCreateInfo imageViewCreateInfo = vk::ImageViewCreateInfo()
+			.setViewType(vk::ImageViewType::e2D)
+			.setFormat(imageFormat.format)
+			.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
+		imageViewCreateInfo.image = myImages[i];
+
+		myImageViews.push_back(myDevice->createImageView(imageViewCreateInfo));
+	}
+}
+
+int VulkanSwapChain::GetPresentQueueIndex() const
+{
+	if (VulkanContext::GetPhysicalDevice()->getSurfaceSupportKHR(VulkanContext::GetPhysicalDevice().GetGraphicsQueueIndex(), myWindowSurface))
+		return VulkanContext::GetPhysicalDevice().GetGraphicsQueueIndex();
+
+	THROW("Separate present queues are not supported at the moment.");
+	/*const auto& queueProperties = VulkanContext::GetPhysicalDevice().GetQueueFamilyProperties();
+
+	for(int i  = 0; i < queueProperties.size(); ++i)
+	{
+		uint32_t supports = VulkanContext::GetPhysicalDevice()->getSurfaceSupportKHR(i, myWindowSurface);
+		if(supports)
+			return i;
+	}
+
+	THROW("Failed to find present queue index.");
+	return -1;*/
+}
+
+vk::SurfaceFormatKHR VulkanSwapChain::PickSurfaceFormat() const
+{
+	auto availableFormats = VulkanContext::GetPhysicalDevice()->getSurfaceFormatsKHR(myWindowSurface);
+
+	for(const auto& entry : availableFormats)
+	{
+		const vk::Format& format = entry.format;
+
+		if(format == vk::Format::eR8G8B8A8Unorm || format == vk::Format::eB8G8R8A8Unorm ||
+			format == vk::Format::eA2B10G10R10UnormPack32 || format == vk::Format::eA2R10G10B10UnormPack32 ||
+			format == vk::Format::eR16G16B16A16Sfloat)
+		{
+			return entry;
+		}
+	}
+
+	check(false && "Failed to find preferable surface format. Fallback to first format. Rendering may be incorrect.");
+	THROW_IF(availableFormats.empty(), "No surface formats exists.");
+
+	return availableFormats[0];
+}

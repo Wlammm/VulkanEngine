@@ -16,6 +16,8 @@ public:
 	vk::PhysicalDevice* operator->() { return &myDevice; }
 	const vk::PhysicalDevice* operator->() const { return &myDevice; }
 
+	const std::vector<vk::QueueFamilyProperties> GetQueueFamilyProperties() const;
+
 private:
 	bool CheckDeviceExtensionSupport(const vk::PhysicalDevice& inDevice) const;
 
@@ -29,6 +31,7 @@ private:
 	int myGraphicsQueueIndex = -1;
 	int myComputeQueueIndex = -1;
 	int myTransferQueueIndex = -1;
+	int myPresentQueueIndex = -1;
 
 	const std::vector<const char*> myDeviceExtensions
 	{

@@ -7,6 +7,8 @@ public:
 	~VulkanContext();
 
 	static vk::Instance& GetInstance();
+	static class VulkanPhysicalDevice& GetPhysicalDevice();
+	static class VulkanDevice& GetDevice();
 
 private:
 	void CheckValidationLayerSupport();
@@ -23,6 +25,7 @@ private:
 
 	class VulkanPhysicalDevice* myPhysicalDevice = nullptr;
 	class VulkanDevice* myDevice = nullptr;
+	class VulkanSwapChain* mySwapChain = nullptr;
 
 	const std::vector<const char*> myExtensions
 	{
