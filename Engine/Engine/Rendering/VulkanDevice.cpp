@@ -22,6 +22,27 @@ VulkanDevice::~VulkanDevice()
 	myDevice.destroy();
 }
 
+const vk::Queue& VulkanDevice::GetGraphicsQueue() const
+{
+	return myGraphicsQueue;
+}
+
+const vk::Queue& VulkanDevice::GetComputeQueue() const
+{
+	return myComputeQueue;
+}
+
+const vk::Queue& VulkanDevice::GetTransferQueue() const
+{
+	return myTransferQueue;
+}
+
+const vk::Queue& VulkanDevice::GetPresentQueue() const
+{
+	// Return graphics queue temporarily until we support separate present queues.
+	return myGraphicsQueue;
+}
+
 std::vector<vk::DeviceQueueCreateInfo> VulkanDevice::GetQueueFamilyCreateInfos()
 {
 	float priorities = 0.0f;

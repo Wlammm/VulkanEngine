@@ -1,10 +1,10 @@
 #include "EnginePch.h"
 #include "VulkanContext.h"
 #include "Engine.h"
-#include "Utils/String.hpp"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapchain.h"
+#include "Utils/String.hpp"
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
@@ -60,6 +60,21 @@ VulkanPhysicalDevice& VulkanContext::GetPhysicalDevice()
 VulkanDevice& VulkanContext::GetDevice()
 {
 	return *myInstance->myDevice;
+}
+
+VulkanSwapChain& VulkanContext::GetSwapChain()
+{
+	return *myInstance->mySwapChain;
+}
+
+void VulkanContext::BeginFrame()
+{
+	myInstance->mySwapChain->BeginFrame();
+}
+
+void VulkanContext::EndFrame()
+{
+	myInstance->mySwapChain->EndFrame();
 }
 
 void VulkanContext::CheckValidationLayerSupport()

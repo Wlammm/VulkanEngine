@@ -12,7 +12,9 @@ VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
 	CreateWindowSurface();
 	CreateSyncObjects();
 	CreateSwapChain();
+	CreateCommandPoolAndBuffers();
 
+	LOG("Swapchain created.");
 }
 
 VulkanSwapChain::~VulkanSwapChain()
@@ -32,6 +34,97 @@ VulkanSwapChain::~VulkanSwapChain()
 	myDevice->destroySwapchainKHR(mySwapChain);
 
 	VulkanContext::GetInstance().destroySurfaceKHR(myWindowSurface);
+}
+
+void VulkanSwapChain::BeginFrame()
+{
+	// Wait for gpu to finish.
+	myDevice->waitForFences(myFences[myFrameIndex], VK_TRUE, UINT64_MAX);
+	myDevice->resetFences({ myFences[myFrameIndex] });
+
+	vk::Result result;
+	do
+	{
+		result = myDevice->acquireNextImageKHR(mySwapChain, UINT64_MAX, myImageAcquiredSemaphores[myFrameIndex], vk::Fence(), &mySwapChainImageIndex);
+
+		if(result == vk::Result::eErrorOutOfDateKHR)
+		{
+			Resize();
+		}
+		else if(result == vk::Result::eSuboptimalKHR)
+		{
+			LOG("Swapchain is suboptimal.");
+			break;
+		}
+		else if(result == vk::Result::eErrorSurfaceLostKHR)
+		{
+			LOG("Swapchain lost window surface. Recreating..");
+			VulkanContext::GetInstance().destroySurfaceKHR(myWindowSurface);
+			CreateWindowSurface();
+			Resize();
+		}
+		else
+		{
+			THROW_IF(result != vk::Result::eSuccess, "Swapchain error cannot be handled.");
+		}
+	} while (result != vk::Result::eSuccess);
+}
+
+void VulkanSwapChain::EndFrame()
+{
+	vk::PipelineStageFlags pipelineStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+
+	VulkanContext::GetDevice().GetGraphicsQueue().submit(vk::SubmitInfo()
+		.setWaitDstStageMask(pipelineStageFlags)
+		.setWaitSemaphores(myImageAcquiredSemaphores[myFrameIndex])
+		.setCommandBuffers(myCommandBuffers[myFrameIndex])
+		.setSignalSemaphores(myDrawCompleteSemaphores[myFrameIndex]),
+		myFences[myFrameIndex]);
+
+	const vk::PresentInfoKHR presentInfo = vk::PresentInfoKHR()
+		.setWaitSemaphores(myDrawCompleteSemaphores[myFrameIndex])
+		.setSwapchains(mySwapChain)
+		.setImageIndices(mySwapChainImageIndex);
+
+	vk::Result result = VulkanContext::GetDevice().GetPresentQueue().presentKHR(&presentInfo);
+
+	myFrameIndex += 1;
+	myFrameIndex %= myFrameLag;
+
+	if(result == vk::Result::eErrorOutOfDateKHR)
+	{
+		Resize();
+	}
+	else if(result == vk::Result::eSuboptimalKHR)
+	{
+		vk::SurfaceCapabilitiesKHR surfCapabilities;
+		auto caps_result = VulkanContext::GetPhysicalDevice()->getSurfaceCapabilitiesKHR(myWindowSurface, &surfCapabilities);
+		check(caps_result == vk::Result::eSuccess);
+		if (surfCapabilities.currentExtent.width != mySwapChainWidth || surfCapabilities.currentExtent.height != mySwapChainHeight)
+		{
+			Resize();
+		}
+	}
+	else if(result == vk::Result::eErrorSurfaceLostKHR)
+	{
+		VulkanContext::GetInstance().destroySurfaceKHR(myWindowSurface);
+		CreateWindowSurface();
+		Resize();
+	}
+	else
+	{
+		check(result == vk::Result::eSuccess);
+	}
+}
+
+const vk::CommandBuffer& VulkanSwapChain::GetCommandBuffer() const
+{
+	return myCommandBuffers[myFrameIndex];
+}
+
+const vk::Image& VulkanSwapChain::GetImage() const
+{
+	return myImages[mySwapChainImageIndex];
 }
 
 void VulkanSwapChain::CreateWindowSurface()
@@ -144,6 +237,20 @@ void VulkanSwapChain::CreateSwapChain()
 
 		myImageViews.push_back(myDevice->createImageView(imageViewCreateInfo));
 	}
+}
+
+void VulkanSwapChain::CreateCommandPoolAndBuffers()
+{
+	myCommandPool = myDevice->createCommandPool(vk::CommandPoolCreateInfo().setQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetGraphicsQueueIndex()));
+	
+	myCommandBuffers = myDevice->allocateCommandBuffers(vk::CommandBufferAllocateInfo()
+		.setCommandPool(myCommandPool)
+		.setLevel(vk::CommandBufferLevel::ePrimary)
+		.setCommandBufferCount(myFrameLag));
+}
+
+void VulkanSwapChain::Resize()
+{
 }
 
 int VulkanSwapChain::GetPresentQueueIndex() const

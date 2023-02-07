@@ -11,6 +11,11 @@ public:
 	vk::Device* operator->() { return &myDevice; }
 	const vk::Device* operator->() const { return &myDevice; }
 
+	const vk::Queue& GetGraphicsQueue() const;
+	const vk::Queue& GetComputeQueue() const;
+	const vk::Queue& GetTransferQueue() const;
+	const vk::Queue& GetPresentQueue() const;
+
 private:
 	std::vector<vk::DeviceQueueCreateInfo> GetQueueFamilyCreateInfos();
 

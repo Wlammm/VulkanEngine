@@ -52,6 +52,11 @@ int VulkanPhysicalDevice::GetTransferQueueIndex() const
 	return myTransferQueueIndex;
 }
 
+int VulkanPhysicalDevice::GetPresentQueueIndex() const
+{
+	return myPresentQueueIndex;
+}
+
 const std::vector<vk::QueueFamilyProperties> VulkanPhysicalDevice::GetQueueFamilyProperties() const
 {
 	return myQueueFamilyProperties;

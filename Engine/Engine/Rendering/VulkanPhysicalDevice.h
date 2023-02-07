@@ -12,6 +12,7 @@ public:
 	int GetGraphicsQueueIndex() const;
 	int GetComputeQueueIndex() const;
 	int GetTransferQueueIndex() const;
+	int GetPresentQueueIndex() const;
 
 	vk::PhysicalDevice* operator->() { return &myDevice; }
 	const vk::PhysicalDevice* operator->() const { return &myDevice; }

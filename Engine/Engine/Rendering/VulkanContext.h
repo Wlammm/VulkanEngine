@@ -9,6 +9,10 @@ public:
 	static vk::Instance& GetInstance();
 	static class VulkanPhysicalDevice& GetPhysicalDevice();
 	static class VulkanDevice& GetDevice();
+	static class VulkanSwapChain& GetSwapChain();
+
+	static void BeginFrame();
+	static void EndFrame();
 
 private:
 	void CheckValidationLayerSupport();

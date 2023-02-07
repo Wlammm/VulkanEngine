@@ -32,7 +32,11 @@ void Engine::Tick()
 	Time::Tick();
 	myWindowHandler->Tick();
 
+	VulkanContext::BeginFrame();
+
 	myRenderer->Tick();
+
+	VulkanContext::EndFrame();
 }
 
 bool Engine::ShouldRun() const
