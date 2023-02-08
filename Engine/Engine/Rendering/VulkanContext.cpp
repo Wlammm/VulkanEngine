@@ -176,7 +176,7 @@ VkBool32 VulkanContext::DebugMessageCallback(VkDebugUtilsMessageSeverityFlagBits
 			ss << " - " << pCallbackData->pObjects[i].pObjectName << "\n";
 	}
 
-	if(vk::DebugUtilsMessageTypeFlagsEXT(messageType) & vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation)
+	if(vk::DebugUtilsMessageTypeFlagsEXT(messageType) & vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation && !(vk::DebugUtilsMessageSeverityFlagsEXT(messageSeverity) & vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo))
 	{
 		LOG_ERROR(ss.str());
 		check(false);
