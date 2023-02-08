@@ -13,6 +13,8 @@ VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
 	CreateSyncObjects();
 	CreateSwapChain();
 	CreateCommandPoolAndBuffers();
+	CreateRenderPass();
+	CreateFrameBuffers();
 
 	LOG("Swapchain created.");
 }
@@ -127,6 +129,16 @@ const vk::Image& VulkanSwapChain::GetImage() const
 	return myImages[mySwapChainImageIndex];
 }
 
+const vk::RenderPass& VulkanSwapChain::GetRenderPass() const
+{
+	return myRenderPass;
+}
+
+const vk::Framebuffer& VulkanSwapChain::GetFrameBuffer() const
+{
+	return myFrameBuffers[myFrameIndex];
+}
+
 void VulkanSwapChain::CreateWindowSurface()
 {
 	vk::Win32SurfaceCreateInfoKHR createInfo = vk::Win32SurfaceCreateInfoKHR().setHinstance(WindowHandler::GetHInstance()).setHwnd(WindowHandler::GetHWND());
@@ -153,6 +165,7 @@ void VulkanSwapChain::CreateSwapChain()
 
 	const int presentQueueIndex = GetPresentQueueIndex();
 	const vk::SurfaceFormatKHR imageFormat = PickSurfaceFormat();
+	myFormat = imageFormat.format;
 
 	vk::SurfaceCapabilitiesKHR surfaceCapabilities = VulkanContext::GetPhysicalDevice()->getSurfaceCapabilitiesKHR(myWindowSurface);
 
@@ -241,12 +254,62 @@ void VulkanSwapChain::CreateSwapChain()
 
 void VulkanSwapChain::CreateCommandPoolAndBuffers()
 {
-	myCommandPool = myDevice->createCommandPool(vk::CommandPoolCreateInfo().setQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetGraphicsQueueIndex()));
+	myCommandPool = myDevice->createCommandPool(vk::CommandPoolCreateInfo().setQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetGraphicsQueueIndex()).setFlags(vk::CommandPoolCreateFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)));
 	
 	myCommandBuffers = myDevice->allocateCommandBuffers(vk::CommandBufferAllocateInfo()
 		.setCommandPool(myCommandPool)
 		.setLevel(vk::CommandBufferLevel::ePrimary)
 		.setCommandBufferCount(myFrameLag));
+}
+
+void VulkanSwapChain::CreateRenderPass()
+{
+	const std::array<vk::AttachmentDescription, 1> attachments = {
+		vk::AttachmentDescription()
+			.setFormat(myFormat)
+			.setSamples(vk::SampleCountFlagBits::e1)
+			.setLoadOp(vk::AttachmentLoadOp::eClear)
+			.setStoreOp(vk::AttachmentStoreOp::eStore)
+			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
+			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
+			.setInitialLayout(vk::ImageLayout::eUndefined)
+			.setFinalLayout(vk::ImageLayout::ePresentSrcKHR),
+	};
+
+	const auto colorReference = vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eColorAttachmentOptimal);
+
+	const auto subpass = vk::SubpassDescription()
+		.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
+		.setColorAttachments(colorReference);
+
+	const std::array<vk::SubpassDependency, 1> dependencies = {
+		vk::SubpassDependency()
+			.setSrcSubpass(VK_SUBPASS_EXTERNAL)
+			.setDstSubpass(0)
+			.setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+			.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+			.setSrcAccessMask(vk::AccessFlagBits())
+			.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead)
+			.setDependencyFlags(vk::DependencyFlags())
+	};
+
+	myRenderPass = myDevice->createRenderPass(vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass).setDependencies(dependencies));
+}
+
+void VulkanSwapChain::CreateFrameBuffers()
+{
+	std::array<vk::ImageView, 1> attachments;
+
+	for(int i = 0; i < myFrameLag; ++i)
+	{
+		attachments[0] = myImageViews[i];
+		myFrameBuffers.push_back(myDevice->createFramebuffer(vk::FramebufferCreateInfo()
+			.setRenderPass(myRenderPass)
+			.setAttachments(attachments)
+			.setWidth(mySwapChainWidth)
+			.setHeight(mySwapChainHeight)
+			.setLayers(1)));
+	}
 }
 
 void VulkanSwapChain::Resize()

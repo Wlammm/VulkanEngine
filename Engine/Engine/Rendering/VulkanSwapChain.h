@@ -13,12 +13,16 @@ public:
 
 	const vk::CommandBuffer& GetCommandBuffer() const;
 	const vk::Image& GetImage() const;
+	const vk::RenderPass& GetRenderPass() const;
+	const vk::Framebuffer& GetFrameBuffer() const;
 
 private:
 	void CreateWindowSurface();
 	void CreateSyncObjects();
 	void CreateSwapChain();
 	void CreateCommandPoolAndBuffers();
+	void CreateRenderPass();
+	void CreateFrameBuffers();
 
 	void Resize();
 
@@ -30,6 +34,7 @@ private:
 	const VulkanDevice& myDevice;
 
 	vk::SurfaceKHR myWindowSurface;
+	vk::Format myFormat;
 
 	const int myFrameLag = 3;
 	std::vector<vk::Fence> myFences;
@@ -50,4 +55,8 @@ private:
 
 	vk::CommandPool myCommandPool;
 	std::vector<vk::CommandBuffer> myCommandBuffers;
+
+	vk::RenderPass myRenderPass;
+
+	std::vector<vk::Framebuffer> myFrameBuffers;
 };
