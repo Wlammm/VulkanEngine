@@ -24,6 +24,10 @@ private:
 	void CreateRenderPass();
 	void CreateFrameBuffers();
 
+	void Init();
+	void DestroySwapChainRelatedObjects();
+
+
 	void Resize();
 
 	int GetPresentQueueIndex() const;

@@ -10,31 +10,17 @@ VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
 	: myDevice{ inDevice }
 {
 	CreateWindowSurface();
-	CreateSyncObjects();
-	CreateSwapChain();
-	CreateCommandPoolAndBuffers();
-	CreateRenderPass();
-	CreateFrameBuffers();
+	Init();
 
 	LOG("Swapchain created.");
 }
 
 VulkanSwapChain::~VulkanSwapChain()
 {
-	for(int i = 0; i < myFrameLag; ++i)
-	{
-		myDevice->destroyFence(myFences[i]);
-		myDevice->destroySemaphore(myImageAcquiredSemaphores[i]);
-		myDevice->destroySemaphore(myDrawCompleteSemaphores[i]);
-	}
-
-	for(int i = 0; i < myImageViews.size(); ++i)
-	{
-		myDevice->destroyImageView(myImageViews[i]);
-	}
+	myDevice->waitIdle();
+	DestroySwapChainRelatedObjects();
 
 	myDevice->destroySwapchainKHR(mySwapChain);
-
 	VulkanContext::GetInstance().destroySurfaceKHR(myWindowSurface);
 }
 
@@ -312,8 +298,52 @@ void VulkanSwapChain::CreateFrameBuffers()
 	}
 }
 
+void VulkanSwapChain::Init()
+{
+	CreateSyncObjects();
+	CreateSwapChain();
+	CreateCommandPoolAndBuffers();
+	CreateRenderPass();
+	CreateFrameBuffers();
+}
+
+void VulkanSwapChain::DestroySwapChainRelatedObjects()
+{
+	for (int i = 0; i < myFrameLag; ++i)
+	{
+		myDevice->destroyFence(myFences[i]);
+		myDevice->destroySemaphore(myImageAcquiredSemaphores[i]);
+		myDevice->destroySemaphore(myDrawCompleteSemaphores[i]);
+		myDevice->destroyFramebuffer(myFrameBuffers[i]);
+	}
+	myFences.clear();
+	myImageAcquiredSemaphores.clear();
+	myDrawCompleteSemaphores.clear();
+	myFrameBuffers.clear();
+
+	for (int i = 0; i < myImageViews.size(); ++i)
+	{
+		myDevice->destroyImageView(myImageViews[i]);
+	}
+
+	myDevice->freeCommandBuffers(myCommandPool, myCommandBuffers);
+	myCommandBuffers.clear();
+
+	myDevice->destroyRenderPass(myRenderPass);
+	myDevice->destroyCommandPool(myCommandPool);
+
+	myImageViews.clear();
+	myImages.clear();
+
+	myFrameIndex = 0;
+}
+
 void VulkanSwapChain::Resize()
 {
+	myDevice->waitIdle();
+	DestroySwapChainRelatedObjects();
+	Init();
+	LOG("Resize")
 }
 
 int VulkanSwapChain::GetPresentQueueIndex() const
