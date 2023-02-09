@@ -16,7 +16,7 @@ VulkanRenderer::~VulkanRenderer()
 void VulkanRenderer::Tick()
 {
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
-	//commandBuffer.reset();
+	commandBuffer.reset();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
 
 	vk::ClearValue clearValue = vk::ClearColorValue(std::array<float, 4>({ {0.0f, 0.0f, 0.0f, 0.0f} }));
@@ -30,7 +30,7 @@ void VulkanRenderer::Tick()
 
 	commandBuffer.endRenderPass();
 
-	commandBuffer.pipelineBarrier(
+	/*commandBuffer.pipelineBarrier(
 		vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eBottomOfPipe, vk::DependencyFlagBits(), {}, {}, 
 		vk::ImageMemoryBarrier()
 		.setSrcAccessMask(vk::AccessFlags())
@@ -40,7 +40,7 @@ void VulkanRenderer::Tick()
 		.setSrcQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetGraphicsQueueIndex())
 		.setDstQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetPresentQueueIndex())
 		.setImage(VulkanContext::GetSwapChain().GetImage())
-		.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));
+		.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));*/
 
 	commandBuffer.end();
 }

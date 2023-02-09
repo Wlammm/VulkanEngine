@@ -75,6 +75,7 @@ void VulkanContext::BeginFrame()
 void VulkanContext::EndFrame()
 {
 	myInstance->mySwapChain->EndFrame();
+	LOG("Frame");
 }
 
 void VulkanContext::CheckValidationLayerSupport()
