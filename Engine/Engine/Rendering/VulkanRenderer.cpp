@@ -3,14 +3,17 @@
 #include "VulkanContext.h"
 #include "VulkanSwapChain.h"
 #include "VulkanPhysicalDevice.h"
+#include "VulkanDevice.h"
 #include "Windows/WindowHandler.h"
 
 VulkanRenderer::VulkanRenderer()
 {
+	CreatePipelines();
 }
 
 VulkanRenderer::~VulkanRenderer()
 {
+	VulkanContext::GetDevice()->destroyPipelineCache(myPipelineCache);
 }
 
 void VulkanRenderer::Tick()
@@ -19,7 +22,7 @@ void VulkanRenderer::Tick()
 	commandBuffer.reset();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
 
-	vk::ClearValue clearValue = vk::ClearColorValue(std::array<float, 4>({ {0.0f, 0.0f, 0.0f, 0.0f} }));
+	vk::ClearValue clearValue = vk::ClearColorValue(std::array<float, 4>({ {1.0f, 0.0f, 0.0f, 0.0f} }));
 
 	commandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
 		.setRenderPass(VulkanContext::GetSwapChain().GetRenderPass())
@@ -27,6 +30,8 @@ void VulkanRenderer::Tick()
 		.setPClearValues(&clearValue)
 		.setClearValueCount(1)
 		, vk::SubpassContents::eInline);
+
+
 
 	commandBuffer.endRenderPass();
 
@@ -43,4 +48,11 @@ void VulkanRenderer::Tick()
 		.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));*/
 
 	commandBuffer.end();
+}
+
+void VulkanRenderer::CreatePipelines()
+{
+	myPipelineCache = VulkanContext::GetDevice()->createPipelineCache(vk::PipelineCacheCreateInfo(), nullptr);
+
+
 }

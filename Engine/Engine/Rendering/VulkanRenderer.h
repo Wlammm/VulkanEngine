@@ -9,6 +9,10 @@ public:
 	void Tick();
 
 private:
-	vk::SurfaceKHR myBackBuffer;
+	void CreatePipelines();
+
+private:
+	vk::PipelineCache myPipelineCache;
+
 
 };
