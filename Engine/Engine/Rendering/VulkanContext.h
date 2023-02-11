@@ -10,6 +10,7 @@ public:
 	static class VulkanPhysicalDevice& GetPhysicalDevice();
 	static class VulkanDevice& GetDevice();
 	static class VulkanSwapChain& GetSwapChain();
+	static vk::PipelineCache& GetPipelineCache();
 
 	static void BeginFrame();
 	static void EndFrame();
@@ -26,6 +27,7 @@ private:
 
 	vk::Instance myVulkanInstance;
 	vk::DebugUtilsMessengerEXT myDebugMessenger;
+	vk::PipelineCache myPipelineCache;
 
 	class VulkanPhysicalDevice* myPhysicalDevice = nullptr;
 	class VulkanDevice* myDevice = nullptr;

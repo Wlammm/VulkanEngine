@@ -11,8 +11,4 @@ public:
 private:
 	void CreatePipelines();
 
-private:
-	vk::PipelineCache myPipelineCache;
-
-
 };

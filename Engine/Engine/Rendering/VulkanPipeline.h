@@ -17,10 +17,14 @@ public:
 	~VulkanPipeline();
 
 private:
-	vk::ShaderModule CompileAndGetShaderFromFile(const std::string& inPath);
+	vk::ShaderModule CreateShaderFromFile(const std::string& inPath);
 
-	vk::Pipeline myPipeline;
+	void CreateDescriptorsAndPipelineLayout();
+	void CreatePipeline(const CreateInfo& inCreateInfo);
 
 private:
-	inline static vk::PipelineCache* myPipelineCache;
+	vk::Pipeline myPipeline;
+	vk::PipelineLayout myPipelineLayout;
+
+	vk::DescriptorSetLayout myDescLayout;
 };

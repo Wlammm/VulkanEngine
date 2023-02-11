@@ -5,9 +5,59 @@
 
 VulkanPipeline::VulkanPipeline(const CreateInfo& inCreateInfo)
 {
+	CreateDescriptorsAndPipelineLayout();
+	CreatePipeline(inCreateInfo);
+}
+
+VulkanPipeline::~VulkanPipeline()
+{
+}
+
+vk::ShaderModule VulkanPipeline::CreateShaderFromFile(const std::string& inPath)
+{
+	std::ifstream stream(inPath, std::ios::binary);
+	std::string data = { std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>() };
+	stream.close();
+
+	return VulkanContext::GetDevice()->createShaderModule(vk::ShaderModuleCreateInfo().setCodeSize(data.size()).setPCode((uint32_t*)data.data()));
+}
+
+void VulkanPipeline::CreateDescriptorsAndPipelineLayout()
+{
+	std::array<vk::DescriptorSetLayoutBinding, 2> const layout_bindings = {
+		vk::DescriptorSetLayoutBinding()
+			.setBinding(0)
+			.setDescriptorType(vk::DescriptorType::eUniformBuffer)
+			.setDescriptorCount(1)
+			.setStageFlags(vk::ShaderStageFlagBits::eVertex)
+			.setPImmutableSamplers(nullptr),
+		vk::DescriptorSetLayoutBinding()
+			.setBinding(1)
+			.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+			.setDescriptorCount(0)
+			.setStageFlags(vk::ShaderStageFlagBits::eFragment)
+			.setPImmutableSamplers(nullptr) };
+
+
+	const auto descriptor_layout = vk::DescriptorSetLayoutCreateInfo().setBindings(layout_bindings);
+
+	auto result = VulkanContext::GetDevice()->createDescriptorSetLayout(&descriptor_layout, nullptr, &myDescLayout);
+	check(result == vk::Result::eSuccess);
+
+	const auto pPipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo().setSetLayouts(myDescLayout);
+
+	result = VulkanContext::GetDevice()->createPipelineLayout(&pPipelineLayoutCreateInfo, nullptr, &myPipelineLayout);
+	check(result == vk::Result::eSuccess);
+}
+
+void VulkanPipeline::CreatePipeline(const CreateInfo& inCreateInfo)
+{
+	const vk::ShaderModule vertexShader = CreateShaderFromFile(inCreateInfo.VertexShaderPath);
+	const vk::ShaderModule fragmentShader = CreateShaderFromFile(inCreateInfo.FragmentShaderPath);
+
 	const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(CompileAndGetShaderFromFile(inCreateInfo.VertexShaderPath)).setPName("main"),
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(CompileAndGetShaderFromFile(inCreateInfo.FragmentShaderPath)).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(vertexShader).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(fragmentShader).setPName("main"),
 	};
 
 	const vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
@@ -39,9 +89,9 @@ VulkanPipeline::VulkanPipeline(const CreateInfo& inCreateInfo)
 
 	const std::array<vk::PipelineColorBlendAttachmentState, 1> colorBlendAttachments = {
 		vk::PipelineColorBlendAttachmentState().setColorWriteMask(
-			vk::ColorComponentFlagBits::eR | 
-			vk::ColorComponentFlagBits::eG | 
-			vk::ColorComponentFlagBits::eB | 
+			vk::ColorComponentFlagBits::eR |
+			vk::ColorComponentFlagBits::eG |
+			vk::ColorComponentFlagBits::eB |
 			vk::ColorComponentFlagBits::eA) };
 
 	const auto colorBlendInfo = vk::PipelineColorBlendStateCreateInfo().setAttachments(colorBlendAttachments);
@@ -50,7 +100,7 @@ VulkanPipeline::VulkanPipeline(const CreateInfo& inCreateInfo)
 
 	const auto dynamicStateInfo = vk::PipelineDynamicStateCreateInfo().setDynamicStates(dynamicStates);
 
-	auto pipeline_return = VulkanContext::GetDevice()->createGraphicsPipeline(*myPipelineCache, vk::GraphicsPipelineCreateInfo()
+	auto pipeline_return = VulkanContext::GetDevice()->createGraphicsPipeline(VulkanContext::GetPipelineCache(), vk::GraphicsPipelineCreateInfo()
 		.setStages(shaderStageInfo)
 		.setPVertexInputState(&vertexInputInfo)
 		.setPInputAssemblyState(&inputAssemblyInfo)
@@ -60,20 +110,12 @@ VulkanPipeline::VulkanPipeline(const CreateInfo& inCreateInfo)
 		.setPDepthStencilState(&depthStencilInfo)
 		.setPColorBlendState(&colorBlendInfo)
 		.setPDynamicState(&dynamicStateInfo)
-		.setLayout(pipeline_layout)
+		.setLayout(myPipelineLayout)
 		.setRenderPass(inCreateInfo.RenderPass));
 
 	THROW_IF(pipeline_return.result != vk::Result::eSuccess, "Failed to create pipeline");
 	myPipeline = pipeline_return.value;
 
-	// destroy shader modules.
-}
-
-VulkanPipeline::~VulkanPipeline()
-{
-}
-
-vk::ShaderModule VulkanPipeline::CompileAndGetShaderFromFile(const std::string& inPath)
-{
-	return vk::ShaderModule();
+	VulkanContext::GetDevice()->destroyShaderModule(vertexShader);
+	VulkanContext::GetDevice()->destroyShaderModule(fragmentShader);
 }

@@ -5,6 +5,7 @@
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "Windows/WindowHandler.h"
+#include "VulkanPipeline.h"
 
 VulkanRenderer::VulkanRenderer()
 {
@@ -52,7 +53,7 @@ void VulkanRenderer::Tick()
 
 void VulkanRenderer::CreatePipelines()
 {
-	myPipelineCache = VulkanContext::GetDevice()->createPipelineCache(vk::PipelineCacheCreateInfo(), nullptr);
+	VulkanPipeline::CreateInfo createInfo;
 
 
 }

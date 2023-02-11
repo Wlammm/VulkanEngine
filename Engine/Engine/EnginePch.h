@@ -6,6 +6,8 @@
 #include <sstream>
 #include <vector>
 #include <unordered_set>
+#include <fstream>
+#include <filesystem>
 
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>
