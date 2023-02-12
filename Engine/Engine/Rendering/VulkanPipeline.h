@@ -16,15 +16,22 @@ public:
 	VulkanPipeline(const CreateInfo& inCreateInfo);
 	~VulkanPipeline();
 
+	const vk::Pipeline& GetPipeline() const;
+	const vk::PipelineLayout& GetPipelineLayout() const;
+	const vk::DescriptorSet& GetDescriptorSet() const;
+
 private:
 	vk::ShaderModule CreateShaderFromFile(const std::string& inPath);
 
-	void CreateDescriptorsAndPipelineLayout();
+	void CreateDescriptorPool();
+	void CreateDescriptors();
 	void CreatePipeline(const CreateInfo& inCreateInfo);
 
 private:
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;
 
+	vk::DescriptorPool myDescriptorPool;
 	vk::DescriptorSetLayout myDescLayout;
+	std::vector<vk::DescriptorSet> myDescriptorSets;
 };

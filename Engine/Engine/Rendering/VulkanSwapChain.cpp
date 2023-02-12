@@ -65,7 +65,7 @@ void VulkanSwapChain::EndFrame()
 	VulkanContext::GetDevice().GetGraphicsQueue().submit(vk::SubmitInfo()
 		.setWaitDstStageMask(pipelineStageFlags)
 		.setWaitSemaphores(myImageAcquiredSemaphores[myFrameIndex])
-		.setCommandBuffers(myCommandBuffers[myFrameIndex])
+		.setCommandBuffers(GetCommandBuffer())
 		.setSignalSemaphores(myDrawCompleteSemaphores[myFrameIndex]),
 		myFences[myFrameIndex]);
 
@@ -75,9 +75,6 @@ void VulkanSwapChain::EndFrame()
 		.setImageIndices(mySwapChainImageIndex);
 
 	vk::Result result = VulkanContext::GetDevice().GetPresentQueue().presentKHR(&presentInfo);
-
-	myFrameIndex += 1;
-	myFrameIndex %= myFrameLag;
 
 	if(result == vk::Result::eErrorOutOfDateKHR)
 	{
@@ -103,11 +100,13 @@ void VulkanSwapChain::EndFrame()
 	{
 		check(result == vk::Result::eSuccess);
 	}
+	myFrameIndex += 1;
+	myFrameIndex %= myFrameLag;
 }
 
 const vk::CommandBuffer& VulkanSwapChain::GetCommandBuffer() const
 {
-	return myCommandBuffers[myFrameIndex];
+	return myCommandBuffers[mySwapChainImageIndex];
 }
 
 const vk::Image& VulkanSwapChain::GetImage() const
@@ -122,7 +121,32 @@ const vk::RenderPass& VulkanSwapChain::GetRenderPass() const
 
 const vk::Framebuffer& VulkanSwapChain::GetFrameBuffer() const
 {
-	return myFrameBuffers[myFrameIndex];
+	return myFrameBuffers[mySwapChainImageIndex];
+}
+
+uint VulkanSwapChain::GetFrameIndex() const
+{
+	return myFrameIndex;
+}
+
+uint VulkanSwapChain::GetSwapChainIndex() const
+{
+	return mySwapChainImageIndex;
+}
+
+uint VulkanSwapChain::GetFrameLag() const
+{
+	return myFrameLag;
+}
+
+uint VulkanSwapChain::GetWidth() const
+{
+	return mySwapChainWidth;
+}
+
+uint VulkanSwapChain::GetHeight() const
+{
+	return mySwapChainHeight;
 }
 
 void VulkanSwapChain::CreateWindowSurface()
@@ -305,6 +329,9 @@ void VulkanSwapChain::Init()
 	CreateCommandPoolAndBuffers();
 	CreateRenderPass();
 	CreateFrameBuffers();
+
+	mySwapChainImageIndex = 0;
+	myFrameIndex = 0;
 }
 
 void VulkanSwapChain::DestroySwapChainRelatedObjects()
@@ -336,6 +363,7 @@ void VulkanSwapChain::DestroySwapChainRelatedObjects()
 	myImages.clear();
 
 	myFrameIndex = 0;
+	mySwapChainImageIndex = 0;
 }
 
 void VulkanSwapChain::Resize()

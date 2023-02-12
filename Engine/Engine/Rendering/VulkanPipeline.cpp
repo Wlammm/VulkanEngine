@@ -2,10 +2,12 @@
 #include "VulkanPipeline.h"
 #include "VulkanContext.h"
 #include "VulkanDevice.h"
+#include "VulkanSwapChain.h"
 
 VulkanPipeline::VulkanPipeline(const CreateInfo& inCreateInfo)
 {
-	CreateDescriptorsAndPipelineLayout();
+	CreateDescriptorPool();
+	CreateDescriptors();
 	CreatePipeline(inCreateInfo);
 }
 
@@ -13,8 +15,25 @@ VulkanPipeline::~VulkanPipeline()
 {
 }
 
+const vk::Pipeline& VulkanPipeline::GetPipeline() const
+{
+	return myPipeline;
+}
+
+const vk::PipelineLayout& VulkanPipeline::GetPipelineLayout() const
+{
+	return myPipelineLayout;
+}
+
+const vk::DescriptorSet& VulkanPipeline::GetDescriptorSet() const
+{
+	return myDescriptorSets[VulkanContext::GetSwapChain().GetSwapChainIndex()];
+}
+
 vk::ShaderModule VulkanPipeline::CreateShaderFromFile(const std::string& inPath)
 {
+	check(std::filesystem::exists(inPath) && "Invalid path");
+
 	std::ifstream stream(inPath, std::ios::binary);
 	std::string data = { std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>() };
 	stream.close();
@@ -22,36 +41,13 @@ vk::ShaderModule VulkanPipeline::CreateShaderFromFile(const std::string& inPath)
 	return VulkanContext::GetDevice()->createShaderModule(vk::ShaderModuleCreateInfo().setCodeSize(data.size()).setPCode((uint32_t*)data.data()));
 }
 
-void VulkanPipeline::CreateDescriptorsAndPipelineLayout()
-{
-	std::array<vk::DescriptorSetLayoutBinding, 2> const layout_bindings = {
-		vk::DescriptorSetLayoutBinding()
-			.setBinding(0)
-			.setDescriptorType(vk::DescriptorType::eUniformBuffer)
-			.setDescriptorCount(1)
-			.setStageFlags(vk::ShaderStageFlagBits::eVertex)
-			.setPImmutableSamplers(nullptr),
-		vk::DescriptorSetLayoutBinding()
-			.setBinding(1)
-			.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-			.setDescriptorCount(0)
-			.setStageFlags(vk::ShaderStageFlagBits::eFragment)
-			.setPImmutableSamplers(nullptr) };
-
-
-	const auto descriptor_layout = vk::DescriptorSetLayoutCreateInfo().setBindings(layout_bindings);
-
-	auto result = VulkanContext::GetDevice()->createDescriptorSetLayout(&descriptor_layout, nullptr, &myDescLayout);
-	check(result == vk::Result::eSuccess);
-
-	const auto pPipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo().setSetLayouts(myDescLayout);
-
-	result = VulkanContext::GetDevice()->createPipelineLayout(&pPipelineLayoutCreateInfo, nullptr, &myPipelineLayout);
-	check(result == vk::Result::eSuccess);
-}
-
 void VulkanPipeline::CreatePipeline(const CreateInfo& inCreateInfo)
 {
+	const auto pPipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo().setSetLayouts(myDescLayout);
+
+	vk::Result result = VulkanContext::GetDevice()->createPipelineLayout(&pPipelineLayoutCreateInfo, nullptr, &myPipelineLayout);
+	check(result == vk::Result::eSuccess);
+
 	const vk::ShaderModule vertexShader = CreateShaderFromFile(inCreateInfo.VertexShaderPath);
 	const vk::ShaderModule fragmentShader = CreateShaderFromFile(inCreateInfo.FragmentShaderPath);
 
@@ -118,4 +114,42 @@ void VulkanPipeline::CreatePipeline(const CreateInfo& inCreateInfo)
 
 	VulkanContext::GetDevice()->destroyShaderModule(vertexShader);
 	VulkanContext::GetDevice()->destroyShaderModule(fragmentShader);
+}
+
+void VulkanPipeline::CreateDescriptorPool()
+{
+	std::array<vk::DescriptorPoolSize, 0> poolSizes = { };
+
+	const auto createInfo = vk::DescriptorPoolCreateInfo().setMaxSets(VulkanContext::GetSwapChain().GetFrameLag()).setPoolSizes(poolSizes);
+	myDescriptorPool = VulkanContext::GetDevice()->createDescriptorPool(createInfo);
+}
+
+void VulkanPipeline::CreateDescriptors()
+{
+	std::array<vk::DescriptorSetLayoutBinding, 2> const layout_bindings = {
+		   vk::DescriptorSetLayoutBinding()
+			   .setBinding(0)
+			   .setDescriptorType(vk::DescriptorType::eUniformBuffer)
+			   .setDescriptorCount(1)
+			   .setStageFlags(vk::ShaderStageFlagBits::eVertex)
+			   .setPImmutableSamplers(nullptr),
+		   vk::DescriptorSetLayoutBinding()
+			   .setBinding(1)
+			   .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+			   .setDescriptorCount(0)
+			   .setStageFlags(vk::ShaderStageFlagBits::eFragment)
+			   .setPImmutableSamplers(nullptr) };
+
+
+	const auto descriptor_layout = vk::DescriptorSetLayoutCreateInfo().setBindings(layout_bindings);
+
+	auto result = VulkanContext::GetDevice()->createDescriptorSetLayout(&descriptor_layout, nullptr, &myDescLayout);
+	check(result == vk::Result::eSuccess);
+
+	const auto allocInfo = vk::DescriptorSetAllocateInfo().setDescriptorPool(myDescriptorPool).setSetLayouts(myDescLayout);
+
+	for(int i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
+	{
+		myDescriptorSets.push_back(VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front());
+	}
 }

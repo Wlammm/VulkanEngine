@@ -11,4 +11,7 @@ public:
 private:
 	void CreatePipelines();
 
+private:
+	class VulkanPipeline* myPipeline = nullptr;
+
 };

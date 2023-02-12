@@ -16,6 +16,13 @@ public:
 	const vk::RenderPass& GetRenderPass() const;
 	const vk::Framebuffer& GetFrameBuffer() const;
 
+	uint GetFrameIndex() const;
+	uint GetSwapChainIndex() const;
+	uint GetFrameLag() const;
+
+	uint GetWidth() const;
+	uint GetHeight() const;
+
 private:
 	void CreateWindowSurface();
 	void CreateSyncObjects();
