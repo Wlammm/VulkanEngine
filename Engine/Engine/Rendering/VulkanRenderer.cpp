@@ -30,6 +30,7 @@ void VulkanRenderer::Tick()
 		.setFramebuffer(VulkanContext::GetSwapChain().GetFrameBuffer())
 		.setPClearValues(&clearValue)
 		.setClearValueCount(1)
+		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
 		, vk::SubpassContents::eInline);
 
 	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline->GetPipeline());
