@@ -13,6 +13,12 @@ VulkanPipeline::VulkanPipeline(const CreateInfo& inCreateInfo)
 
 VulkanPipeline::~VulkanPipeline()
 {
+	VulkanContext::GetDevice()->waitIdle();
+
+	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
+	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
+	VulkanContext::GetDevice()->destroyDescriptorSetLayout(myDescLayout);
+	VulkanContext::GetDevice()->destroyDescriptorPool(myDescriptorPool);
 }
 
 const vk::Pipeline& VulkanPipeline::GetPipeline() const

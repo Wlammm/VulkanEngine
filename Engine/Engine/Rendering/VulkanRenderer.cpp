@@ -14,7 +14,7 @@ VulkanRenderer::VulkanRenderer()
 
 VulkanRenderer::~VulkanRenderer()
 {
-
+	del(myPipeline);
 }
 
 void VulkanRenderer::Tick()
