@@ -45,6 +45,7 @@ project "Engine"
 	location "../%{prj.name}"
 	pchheader "EnginePch.h"
 	pchsource "../Engine/EnginePch.cpp"
+	prebuildcommands { "cd Shaders", "CompileAllShaders.bat" }
 	includedirs
 	{
 		"$(SolutionDir)",

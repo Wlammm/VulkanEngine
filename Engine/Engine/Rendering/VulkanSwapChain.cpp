@@ -27,10 +27,11 @@ VulkanSwapChain::~VulkanSwapChain()
 void VulkanSwapChain::BeginFrame()
 {
 	// Wait for gpu to finish.
-	myDevice->waitForFences(myFences[myFrameIndex], VK_TRUE, UINT64_MAX);
+	vk::Result result = myDevice->waitForFences(myFences[myFrameIndex], VK_TRUE, UINT64_MAX);
+	check(result == vk::Result::eSuccess);
+
 	myDevice->resetFences({ myFences[myFrameIndex] });
 
-	vk::Result result;
 	do
 	{
 		result = myDevice->acquireNextImageKHR(mySwapChain, UINT64_MAX, myImageAcquiredSemaphores[myFrameIndex], vk::Fence(), &mySwapChainImageIndex);

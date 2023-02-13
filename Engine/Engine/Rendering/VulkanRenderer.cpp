@@ -20,10 +20,9 @@ VulkanRenderer::~VulkanRenderer()
 void VulkanRenderer::Tick()
 {
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
-	//commandBuffer.reset();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
 
-	vk::ClearValue clearValue = vk::ClearColorValue(std::array<float, 4>({ {1.0f, 0.0f, 0.0f, 1.0f} }));
+	vk::ClearValue clearValue = vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1, 1.0f} }));
 
 	commandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
 		.setRenderPass(VulkanContext::GetSwapChain().GetRenderPass())
