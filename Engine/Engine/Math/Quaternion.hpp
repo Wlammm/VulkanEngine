@@ -350,3 +350,5 @@ QuaternionT<T> operator/(const QuaternionT<T>& aQuaternion, T aScalar)
 	T factor = static_cast<T>(1) / aScalar;
 	return aQuaternion * factor;
 }
+
+using Quatf = QuaternionT<float>;

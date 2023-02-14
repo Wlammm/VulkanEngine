@@ -9,6 +9,7 @@ public:
 	T z;
 
 	Vector3<T>() : x(0), y(0), z(0) {}
+	Vector3<T>(const T& inScalar) : x(inScalar), y(inScalar), z(inScalar) {}
 	Vector3<T>(const T& aX, const T& aY, const T& aZ) : x(aX), y(aY), z(aZ) {}
 
 	Vector3<T>(const Vector3<T>& aVector) = default;

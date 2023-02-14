@@ -72,6 +72,30 @@ void Matrix4x4<T>::SetColumn(const int aColumn, const Vector4<T>& aValue)
 	(*this)(4, aColumn) = aValue.w;
 }
 
+template<class T>
+inline const Vector3<T>& Matrix4x4<T>::GetRight() const
+{
+	return myX;
+}
+
+template<class T>
+inline const Vector3<T>& Matrix4x4<T>::GetUp() const
+{
+	return myY;
+}
+
+template<class T>
+inline const Vector3<T>& Matrix4x4<T>::GetForward() const
+{
+	return myZ;
+}
+
+template<class T>
+inline const Vector3<T>& Matrix4x4<T>::GetTranslation() const
+{
+	return myW;
+}
+
 template <class T>
 Matrix4x4<T> Matrix4x4<T>::CreateRotationAroundX(T aAngleInRadians)
 {
@@ -143,12 +167,6 @@ template<class T>
 inline Matrix4x4<T> Matrix4x4<T>::FastInverse() const
 {
 	return Matrix4x4<T>::GetFastInverse(*this);
-}
-
-template<class T>
-inline Vector3<T> Matrix4x4<T>::GetTranslation() const
-{
-	return Vector3<T>{ myData[3][0], myData[3][1], myData[3][2] };
 }
 
 template<class T>
@@ -500,7 +518,7 @@ inline void Matrix4x4<T>::LookTowards(const Vector3<T>& aPosition)
 
 	Vector3<T> f = Vector3<T>(aPosition - currentPos).GetNormalized();
 	Vector3<T> s = Vector3<T>(up.Cross(f)).GetNormalized();
-	Vector3<T> u = Vector3<T>(f.Cross(s));
+	Vector3<T> u = Vector3<T>(f.Cross(s).GetNormalized());
 
 	myData[0][0] = s.x;
 	myData[0][1] = s.y;
@@ -596,3 +614,5 @@ inline Matrix4x4<T> Matrix4x4<T>::ColumnToColumn(T* aFirst)
 
 	return mat;
 }
+
+using Mat4f = Matrix4x4<float>;

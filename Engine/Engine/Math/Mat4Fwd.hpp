@@ -31,6 +31,11 @@ public:
 	[[nodiscard]] Vector4<T> GetColumn(const int aColumn) const;
 	void SetColumn(const int aColumn, const Vector4<T>& aValue);
 
+	[[nodiscard]] const Vector3<T>& GetRight() const;
+	[[nodiscard]] const Vector3<T>& GetUp() const;
+	[[nodiscard]] const Vector3<T>& GetForward() const;
+	[[nodiscard]] const Vector3<T>& GetTranslation() const;
+
 	[[nodiscard]] T Minor(const int aX, const int aY) const;
 	[[nodiscard]] T Cofactor(const int aX, const int aY) const;
 	[[nodiscard]] T Determinant() const;
@@ -39,7 +44,6 @@ public:
 	[[nodiscard]] Matrix4x4<T> Inverse() const;
 	[[nodiscard]] Matrix4x4<T> Transposed() const;
 	[[nodiscard]] Matrix4x4<T> FastInverse() const;
-	[[nodiscard]] Vector3<T> GetTranslation() const;
 	[[nodiscard]] Vector3<T> GetScale() const;
 	[[nodiscard]] QuaternionT<T> GetRotation() const;
 	[[nodiscard]] static Matrix4x4<T> Transpose(const Matrix4x4<T>& aMatrixToTranspose);
@@ -65,7 +69,38 @@ public:
 	static Matrix4x4<T> ColumnToColumn(T* aFirst);
 
 private:
-	T myData[4][4];
+	union
+	{
+		T myData[4][4];
+
+		struct
+		{
+			T m11, m12, m13, m14,
+				m21, m22, m23, m24,
+				m31, m32, m33, m34,
+				m41, m42, m43, m44;
+		};
+
+		struct
+		{
+			Vector3<T> myX;
+			float myXW;
+			Vector3<T> myY;
+			float myYW;
+			Vector3<T> myZ;
+			float myZW;
+			Vector3<T> myW;
+			float myWW;
+		};
+
+		struct
+		{
+			Vector4<T> myX4;
+			Vector4<T> myY4;
+			Vector4<T> myZ4;
+			Vector4<T> myW4;
+		};
+	};
 };
 
 template <class T>
