@@ -16,7 +16,12 @@ public:
 
 	~SystemDispatcher()
 	{
-
+		for (auto* system : mySystems)
+		{
+			del(system);
+		}
+		mySystems.clear();
+		myQueue.clear();
 	}
 
 	template<typename T>

@@ -20,6 +20,8 @@ public:
 	static const class World& GetWorld();
 	static void SetWorld(World* inWorld);
 
+private:
+	void CreateSystems();
 
 private:
 	bool myIsRunning = true;
@@ -29,7 +31,6 @@ private:
 	class Console* myConsole = nullptr;
 	class WindowHandler* myWindowHandler = nullptr;
 	class VulkanContext* myVulkanContext = nullptr;
-	class VulkanRenderer* myRenderer = nullptr;
 	class SystemDispatcher* mySystemDispatcher = nullptr;
 
 	class World* myWorld = nullptr;

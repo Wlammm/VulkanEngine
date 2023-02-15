@@ -3,18 +3,24 @@
 class ISystem
 {
 public:
+	virtual ~ISystem() {}
+
 	virtual void Tick() = 0;
 	virtual const std::unordered_set<std::string>& GetDependencies() = 0; 
 };
 
+class None {};
+
 template<typename... ComponentDependencies>
-class System : ISystem
+class System : public ISystem
 {
 public:
 	System()
 	{
 		Emplace<ComponentDependencies...>();
 	}
+
+	virtual ~System() {}
 
 	virtual const std::unordered_set<std::string>& GetDependencies() override final
 	{
@@ -40,6 +46,9 @@ private:
 	template<typename T>
 	void Emplace()
 	{
+		if (typeid(T).name() == typeid(None).name())
+			return;
+
 		myDependencies.emplace(typeid(T).name());
 	}
 

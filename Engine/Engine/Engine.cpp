@@ -3,10 +3,9 @@
 
 #include "Utils/Time.h"
 #include "Windows/WindowHandler.h"
-#include "Rendering/VulkanContext.h"
-#include "Rendering/VulkanRenderer.h"
+#include "Vulkan/VulkanContext.h"
 #include "ECS/SystemDispatcher.h"
-#include "ECS/TEstSystem.h"
+#include "ECS/Systems/RenderSystem.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties { inEngineProperties }
@@ -17,17 +16,14 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	myConsole = new Console();
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
-	myRenderer = new VulkanRenderer();
 	mySystemDispatcher = new SystemDispatcher();
 
-	auto testsystem = new TestSystem(3);
-	int a = 10;
+	CreateSystems();
 }
 
 Engine::~Engine()
 {
 	del(mySystemDispatcher);
-	del(myRenderer);
 	del(myVulkanContext);
 	del(myWindowHandler);
 	del(myConsole);
@@ -42,7 +38,7 @@ void Engine::Tick()
 
 	VulkanContext::BeginFrame();
 
-	myRenderer->Tick();
+	mySystemDispatcher->DispatchSystems();
 
 	VulkanContext::EndFrame();
 }
@@ -75,4 +71,9 @@ const World& Engine::GetWorld()
 void Engine::SetWorld(World* inWorld)
 {
 	myInstance->myWorld = inWorld;
+}
+
+void Engine::CreateSystems()
+{
+	mySystemDispatcher->AddSystem<RenderSystem>();
 }

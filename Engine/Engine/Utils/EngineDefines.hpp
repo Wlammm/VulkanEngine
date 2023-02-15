@@ -11,4 +11,4 @@
 
 #define THROW_IF(x, message) if(x) THROW(message)
 
-#define del(x) delete x; x = nullptr
+#define del(x) { delete x; x = nullptr; }

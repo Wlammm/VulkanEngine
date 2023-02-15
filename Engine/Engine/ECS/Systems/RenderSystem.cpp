@@ -1,23 +1,20 @@
 #include "EnginePch.h"
-#include "VulkanRenderer.h"
-#include "VulkanContext.h"
-#include "VulkanSwapChain.h"
-#include "VulkanPhysicalDevice.h"
-#include "VulkanDevice.h"
-#include "Windows/WindowHandler.h"
-#include "VulkanPipeline.h"
+#include "RenderSystem.h"
+#include "Vulkan/VulkanPipeline.h"
+#include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanSwapChain.h"
 
-VulkanRenderer::VulkanRenderer()
+RenderSystem::RenderSystem()
 {
 	CreatePipelines();
 }
 
-VulkanRenderer::~VulkanRenderer()
+RenderSystem::~RenderSystem()
 {
 	del(myPipeline);
 }
 
-void VulkanRenderer::Tick()
+void RenderSystem::Tick()
 {
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
@@ -63,7 +60,7 @@ void VulkanRenderer::Tick()
 	commandBuffer.endRenderPass();
 
 	/*commandBuffer.pipelineBarrier(
-		vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eBottomOfPipe, vk::DependencyFlagBits(), {}, {}, 
+		vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eBottomOfPipe, vk::DependencyFlagBits(), {}, {},
 		vk::ImageMemoryBarrier()
 		.setSrcAccessMask(vk::AccessFlags())
 		.setDstAccessMask(vk::AccessFlags())
@@ -77,7 +74,7 @@ void VulkanRenderer::Tick()
 	commandBuffer.end();
 }
 
-void VulkanRenderer::CreatePipelines()
+void RenderSystem::CreatePipelines()
 {
 	VulkanPipeline::CreateInfo createInfo;
 	createInfo.VertexShaderPath = "../Engine/Engine/Shaders/VertexShader.spv";
