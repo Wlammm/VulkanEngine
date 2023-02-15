@@ -9,6 +9,7 @@ public:
 	virtual const std::unordered_set<std::string>& GetDependencies() = 0; 
 };
 
+// Use this if you dont have any ComponentDependencies.
 class None {};
 
 template<typename... ComponentDependencies>
