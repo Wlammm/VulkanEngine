@@ -17,6 +17,10 @@ public:
 	void SetScaleLocal(const Vec3f& inScale);
 	void SetScaleLocal(const float inScale);
 
+	void SetPosition(const Vec3f& inPosition);
+	void SetScale(const Vec3f& inScale);
+	void SetRotation(const Quatf& inQuat);
+
 	const Vec3f& GetPositionLocal() const;
 	const Quatf& GetRotationLocal() const;
 	const Vec3f& GetScaleLocal() const;
@@ -26,10 +30,18 @@ public:
 	const Vec3f	LocalUp() const;
 
 	Mat4f GetMatrix() const;
+	Mat4f GetMatrixLocal() const;
 
 	Vec3f GetPosition() const;
 	Quatf GetRotation() const;
 	Vec3f GetScale() const;
+
+	Transform* GetParent() const;
+	bool HasParent() const;
+
+	Vec3f GetForward() const;
+	Vec3f GetUp() const;
+	Vec3f GetRight() const;
 
 private:
 	Vec3f myPosition;

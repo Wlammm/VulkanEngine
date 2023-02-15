@@ -60,6 +60,16 @@ public:
 		return static_cast<T>(sqrt(LengthSqr()));
 	}
 
+	Vector3<T> ToVec3() const
+	{
+		return Vector3<T>{ x / w, y / w, z / w };
+	}
+
+	Vector3<T> ToVec3IgnoreW() const 
+	{
+		return Vector3<T> { x, y, z };
+	}
+
 	Vector4<T> GetNormalized() const
 	{
 		T length = Length();

@@ -1,5 +1,8 @@
 #pragma once
 
+template<class T>
+class Vector4;
+
 template <class T>
 class Vector3
 {
@@ -59,6 +62,11 @@ public:
 	T LengthSqr() const
 	{
 		return x * x + y * y + z * z;
+	}
+
+	Vector4<T> ToVec4(const T& inW) const
+	{
+		return Vector4<T>{ x, y, z, inW }; 
 	}
 
 	T Length() const
@@ -149,6 +157,17 @@ Vector3<T> operator/(const Vector3<T>& aVector, const T& aScalar)
 	T multiplier = static_cast<T>(1) / aScalar;
 	return Vector3<T>(aVector.x * multiplier, aVector.y * multiplier, aVector.z * multiplier);
 }
+
+template <class T>
+Vector3<T> operator/(const T& aScalar, const Vector3<T>& aVector)
+{
+	check(aScalar != 0 && "Cannot divide by zero");
+	if (aScalar == static_cast<T>(0))
+		return aVector;
+
+	return Vector3<T>(aScalar / aVector.x, aScalar / aVector.y, aScalar / aVector.z);
+}
+
 
 template <class T>
 void operator+=(Vector3<T>& aVector0, const Vector3<T>& aVector1)
