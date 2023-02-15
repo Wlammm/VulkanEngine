@@ -1,7 +1,10 @@
 #pragma once
 
-#include <iostream>
 #include <Windows.h>
+#undef max
+#undef min
+
+#include <iostream>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -11,6 +14,8 @@
 
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>
+
+#include <entt/entt.hpp>
 
 #include "Engine/Utils/EngineDefines.hpp"
 #include "Engine/Math/Defines.hpp"

@@ -15,6 +15,12 @@ public:
 	static void SetIsRunning(const bool inIsRunning);
 	static const EngineProperties& GetEngineProperties();
 
+	static const class SystemDispatcher& GetSystemDispatcher();
+
+	static const class World& GetWorld();
+	static void SetWorld(World* inWorld);
+
+
 private:
 	bool myIsRunning = true;
 
@@ -24,6 +30,9 @@ private:
 	class WindowHandler* myWindowHandler = nullptr;
 	class VulkanContext* myVulkanContext = nullptr;
 	class VulkanRenderer* myRenderer = nullptr;
+	class SystemDispatcher* mySystemDispatcher = nullptr;
+
+	class World* myWorld = nullptr;
 
 private:
 	inline static Engine* myInstance = nullptr;
