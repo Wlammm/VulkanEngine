@@ -32,6 +32,7 @@ project "Launcher"
 	{
 		"%{VULKAN_SDK}/Include/",
 		"$(SolutionDir)",
+		"$(SolutionDir)External/",
 	}
 	
 	links
@@ -51,6 +52,7 @@ project "Engine"
 		"$(SolutionDir)",
 		"$(ProjectDir)",
 		"%{VULKAN_SDK}/Include/",
+		"$(SolutionDir)External/",
 	}
 	links
 	{
