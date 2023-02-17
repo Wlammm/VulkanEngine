@@ -154,7 +154,7 @@ void VulkanPipeline::CreateDescriptors()
 
 	const auto allocInfo = vk::DescriptorSetAllocateInfo().setDescriptorPool(myDescriptorPool).setSetLayouts(myDescLayout);
 
-	for(int i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
+	for(uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
 	{
 		myDescriptorSets.push_back(VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front());
 	}

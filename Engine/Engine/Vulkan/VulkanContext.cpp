@@ -179,7 +179,7 @@ VkBool32 VulkanContext::DebugMessageCallback(VkDebugUtilsMessageSeverityFlagBits
 	ss << vk::to_string(vk::DebugUtilsMessageTypeFlagsEXT(messageType)) << " ";
 	ss << pCallbackData->pMessage;
 	ss << "\n" << "Object Names: \n";
-	for(int i = 0; i < pCallbackData->objectCount; ++i)
+	for(uint i = 0; i < pCallbackData->objectCount; ++i)
 	{
 		if(pCallbackData->pObjects[i].pObjectName)
 			ss << " - " << pCallbackData->pObjects[i].pObjectName << "\n";

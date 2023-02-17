@@ -7,6 +7,7 @@ workspace "Engine"
     startproject "Launcher"
     language "C++"
     cppdialect "C++20"
+	flags { "FatalWarnings" }
 	debugdir "$(SolutionDir)../Bin/"
 	targetdir  "../../Temp/"
 	objdir  "../../Temp/"
