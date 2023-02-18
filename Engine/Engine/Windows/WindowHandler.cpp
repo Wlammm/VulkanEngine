@@ -1,6 +1,7 @@
 #include "EnginePch.h"
 #include "Windows/WindowHandler.h"
 #include "Engine.h"
+#include "Core\Input.h"
 
 WindowHandler::WindowHandler()
 {
@@ -56,6 +57,9 @@ LRESULT WindowHandler::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		PostQuitMessage(0);
 		return 0;
 	}
+
+	if (Input::UpdateEvents(uMsg, wParam, lParam))
+		return 0;
 
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }

@@ -17,7 +17,7 @@
 
 #include <entt/entt.hpp>
 
-#include "Engine/Utils/EngineDefines.hpp"
+#include "Engine/Core/EngineDefines.hpp"
 #include "Engine/Math/Defines.hpp"
 
 #include "Engine/Math/Constants.hpp"
@@ -31,4 +31,4 @@
 #include "Engine/Math/io.hpp"
 #include "Engine/Math/Maths.hpp"
 
-#include "Utils/Console.h"
+#include "Engine/Core/Console.h"

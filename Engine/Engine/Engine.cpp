@@ -1,11 +1,12 @@
 #include "EnginePch.h"
 #include "Engine.h"
 
-#include "Utils/Time.h"
+#include "Core/Time.h"
 #include "Windows/WindowHandler.h"
 #include "Vulkan/VulkanContext.h"
 #include "ECS/SystemDispatcher.h"
 #include "ECS/Systems/RenderSystem.h"
+#include "Core\Input.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties { inEngineProperties }
@@ -36,11 +37,15 @@ void Engine::Tick()
 	Time::Tick();
 	myWindowHandler->Tick();
 
+	if (Input::IsKeyDown(KeyCode::Escape))
+		PostQuitMessage(0);
+
 	VulkanContext::BeginFrame();
 
 	mySystemDispatcher->DispatchSystems();
 
 	VulkanContext::EndFrame();
+	Input::EndFrame();
 }
 
 bool Engine::ShouldRun() const

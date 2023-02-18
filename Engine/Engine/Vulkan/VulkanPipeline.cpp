@@ -132,20 +132,7 @@ void VulkanPipeline::CreateDescriptorPool()
 
 void VulkanPipeline::CreateDescriptors()
 {
-	std::array<vk::DescriptorSetLayoutBinding, 2> const layout_bindings = {
-		   vk::DescriptorSetLayoutBinding()
-			   .setBinding(0)
-			   .setDescriptorType(vk::DescriptorType::eUniformBuffer)
-			   .setDescriptorCount(1)
-			   .setStageFlags(vk::ShaderStageFlagBits::eVertex)
-			   .setPImmutableSamplers(nullptr),
-		   vk::DescriptorSetLayoutBinding()
-			   .setBinding(1)
-			   .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-			   .setDescriptorCount(0)
-			   .setStageFlags(vk::ShaderStageFlagBits::eFragment)
-			   .setPImmutableSamplers(nullptr) };
-
+	std::array<vk::DescriptorSetLayoutBinding, 0> const layout_bindings = {};
 
 	const auto descriptor_layout = vk::DescriptorSetLayoutCreateInfo().setBindings(layout_bindings);
 
