@@ -12,6 +12,8 @@ public:
 	static class VulkanSwapChain& GetSwapChain();
 	static vk::PipelineCache& GetPipelineCache();
 
+	static Vec2f GetRenderResolution();
+
 	static void BeginFrame();
 	static void EndFrame();
 

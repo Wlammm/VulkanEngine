@@ -44,9 +44,9 @@ public:
 	Vec3f GetRight() const;
 
 private:
-	Vec3f myPosition;
-	Quatf myRotation;
-	Vec3f myScale = { 1, 1, 1 };
+	Vec3f myPosition { 0, 0, 0 };
+	Quatf myRotation {};
+	Vec3f myScale { 1, 1, 1 };
 
 	Transform* myParent = nullptr;
 	std::vector<Transform*> myChildren;

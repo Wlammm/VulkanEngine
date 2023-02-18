@@ -76,6 +76,11 @@ vk::PipelineCache& VulkanContext::GetPipelineCache()
 	return myInstance->myPipelineCache;
 }
 
+Vec2f VulkanContext::GetRenderResolution()
+{
+	return Vec2f{ static_cast<float>(GetSwapChain().GetWidth()), static_cast<float>(GetSwapChain().GetHeight()) };
+}
+
 void VulkanContext::BeginFrame()
 {
 	myInstance->mySwapChain->BeginFrame();
