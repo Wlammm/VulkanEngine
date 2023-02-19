@@ -8,6 +8,8 @@
 #include "ECS/Systems/RenderSystem.h"
 #include "Core\Input.h"
 
+#include "Containers/List.hpp"
+
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties { inEngineProperties }
 {
@@ -20,6 +22,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	mySystemDispatcher = new SystemDispatcher();
 
 	CreateSystems();
+
 }
 
 Engine::~Engine()
