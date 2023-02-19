@@ -22,3 +22,9 @@ void Time::SetTimeScale(const float inTimeScale)
 {
 	myTimeScale = inTimeScale;
 }
+
+double Time::GetSeconds()
+{
+	static std::chrono::high_resolution_clock timer;
+	return timer.now().time_since_epoch().count() / 1000000000.0;
+}

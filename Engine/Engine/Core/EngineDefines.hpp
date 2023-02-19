@@ -1,11 +1,16 @@
 #pragma once
 
+#ifdef DEBUG
 #define check(x) if(!(x)) __debugbreak()
 #define checkif(x) check(!(x))
+#else
+#define check(x)
+#define checkif(x)
+#endif
 
 #ifdef DEBUG
 #define THROW(x) { __debugbreak(); throw std::runtime_error(x); }
-#elif
+#else
 #define THROW(x) throw std::runtime_error(x);
 #endif
 
