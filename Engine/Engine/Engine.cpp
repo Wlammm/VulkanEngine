@@ -62,6 +62,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	//{
 	//	vector.erase(vector.begin() + i);
 	//}
+
 	totSeconds = Time::GetSeconds() - seconds;
 	std::cout << "Vector time: " << totSeconds << " capacity: " << vector.capacity() << std::endl;
 }

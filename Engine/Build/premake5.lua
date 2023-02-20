@@ -63,3 +63,21 @@ project "Engine"
 project "Editor"
     kind "StaticLib"
 	location "../%{prj.name}"
+	
+project "Unit Tests"
+	kind "ConsoleApp"
+	location "../%{prj.name}"
+	targetdir  "../../Bin/"
+	includedirs
+	{
+		"$(SolutionDir)",
+	}
+	
+	links
+	{
+		"Engine",
+	}
+	nuget
+	{
+		"Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn:1.8.1.7",
+	}
