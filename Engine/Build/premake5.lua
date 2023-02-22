@@ -64,7 +64,7 @@ project "Editor"
     kind "StaticLib"
 	location "../%{prj.name}"
 	
-project "Unit Tests"
+project "UnitTests"
 	kind "ConsoleApp"
 	location "../%{prj.name}"
 	targetdir  "../../Bin/"
