@@ -64,20 +64,22 @@ project "Editor"
     kind "StaticLib"
 	location "../%{prj.name}"
 	
-project "UnitTests"
-	kind "ConsoleApp"
+project "Unit Test"
+    kind "ConsoleApp"
 	location "../%{prj.name}"
-	targetdir  "../../Bin/"
-	includedirs
-	{
-		"$(SolutionDir)",
-	}
-	
+	pchheader "UnitTestPch.h"
+	pchsource "../Unit Test/UnitTestPch.cpp"
+	staticruntime "off"
+	runtime "Release"
 	links
 	{
 		"Engine",
 	}
+	includedirs
+	{
+		"$(SolutionDir)",
+	}
 	nuget
 	{
-		"Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn:1.8.1.7",
+		"Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn:1.8.1.7"
 	}

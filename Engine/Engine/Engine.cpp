@@ -23,48 +23,8 @@ Engine::Engine(const EngineProperties inEngineProperties)
 
 	CreateSystems();
 
-	auto itemcount = 100000;
-	auto seconds = Time::GetSeconds();
-	List<int> list{};
-	for (int i = 0; i < itemcount; ++i)
-	{
-		list.Add(i);
-	}
-
-	//long long val = 0;
-	//for (const auto& value : list)
-	//{
-	//	val += value;
-	//}
-
-	//for (int i = 0; i < itemcount / 2 - 1; ++i)
-	//{
-	//	list.RemoveIndex(i);
-	//}
-
-	auto totSeconds = Time::GetSeconds() - seconds;
-	std::cout << "List time: " <<  totSeconds << " capacity: " << list.GetCapacity() << std::endl;
-
-	seconds = Time::GetSeconds();
-	std::vector<int> vector{};
-	for (int i = 0; i < itemcount; ++i)
-	{
-		vector.push_back(i);
-	}
-
-	//val = 0;
-	//for (const auto& value : vector)
-	//{
-	//	val += value;
-	//}
-
-	//for (int i = 0; i < itemcount / 2 - 1; ++i)
-	//{
-	//	vector.erase(vector.begin() + i);
-	//}
-
-	totSeconds = Time::GetSeconds() - seconds;
-	std::cout << "Vector time: " << totSeconds << " capacity: " << vector.capacity() << std::endl;
+	List<int> list;
+	list = List<int>();
 }
 
 Engine::~Engine()

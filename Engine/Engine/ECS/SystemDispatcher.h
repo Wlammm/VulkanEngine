@@ -20,14 +20,14 @@ public:
 		{
 			del(system);
 		}
-		mySystems.clear();
-		myQueue.clear();
+		mySystems.Clear();
+		myQueue.Clear();
 	}
 
 	template<typename T>
 	void AddSystem()
 	{
-		mySystems.emplace_back(new T());
+		mySystems.Add(new T());
 		myRequireRebuild = true;
 	}
 
@@ -40,10 +40,11 @@ public:
 
 		for (auto& entry : myQueue)
 		{
-			std::vector<std::future<void>> futures;
+			List<std::future<void>> futures;
 			for (auto& tickable : entry.second)
 			{
-				futures.emplace_back(std::async(&ISystem::Tick, tickable));
+				std::vector<std::future<void>> fut;
+				futures.Add(std::async(&ISystem::Tick, tickable));
 			}
 
 			for (auto& future : futures)
@@ -57,7 +58,7 @@ private:
 	void RebuildSystemsQueue()
 	{
 		myRequireRebuild = false;
-		myQueue.clear();
+		myQueue.Clear();
 		for (ISystem* system : mySystems)
 		{
 			bool foundSuitableQueue = false;
@@ -76,7 +77,7 @@ private:
 					{
 						entry.first.insert(dependency);
 					}
-					entry.second.emplace_back(system);
+					entry.second.Add(system);
 					foundSuitableQueue = true;
 					break;
 				}
@@ -84,18 +85,18 @@ private:
 
 			if (!foundSuitableQueue)
 			{
-				auto& newQueue = myQueue.emplace_back();
+				auto& newQueue = myQueue.Add();
 
 				for (auto& dependency : system->GetDependencies())
 					newQueue.first.insert(dependency);
 
-				newQueue.second.emplace_back(system);
+				newQueue.second.Add(system);
 			}
 		}
 	}
 
 private:
-	std::vector<ISystem*> mySystems{};
-	std::vector<std::pair<std::unordered_set<std::string>, std::vector<ISystem*>>> myQueue;
+	List<ISystem*> mySystems{};
+	List<std::pair<std::unordered_set<std::string>, List<ISystem*>>> myQueue;
 	bool myRequireRebuild = false;
 };

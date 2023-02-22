@@ -1,6 +1,7 @@
 Temp/
 Engine/.vs
 Engine/JSON
+Engine/packages
 
 *.sln
 *.vcxproj

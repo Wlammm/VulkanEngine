@@ -1,6 +1,6 @@
 #pragma once
 
-template<typename T, bool allowCopy = true>
+template<typename T>
 class List
 {
 public:
@@ -31,9 +31,16 @@ public:
 		}
 	}
 
+	void operator=(const List<T>& inCopy)
+	{
+		Clear();
+		AddRange(inCopy);
+	}
+
 	~List()
 	{
 		delete[] myPtr;
+		myPtr = nullptr;
 		myCapacity = 0;
 		mySize = 0;
 	}
@@ -75,6 +82,21 @@ public:
 		CheckCapacityForAdd(1);
 		myPtr[mySize] = inValue;
 		mySize++;
+	}
+
+	void Add(T&& inValue)
+	{
+		CheckCapacityForAdd(1);
+		myPtr[mySize] = std::move(inValue);
+		mySize++;
+	}
+
+	T& Add()
+	{
+		CheckCapacityForAdd(1);
+		myPtr[mySize] = T();
+		mySize++;
+		return myPtr[mySize - 1];
 	}
 
 	void AddRange(const List<T>& inList)
@@ -188,26 +210,30 @@ public:
 private:
 	void Construct()
 	{
+		if (myPtr)
+			delete[] myPtr;
+
 		myPtr = new T[myGrowthMultiplier];
 		myCapacity = myGrowthMultiplier;
 	}
 
 	void CheckCapacityForAdd(const uint inNumNewElements)
 	{
-		if (mySize + inNumNewElements <= myCapacity)
+		const uint requiredSize = mySize + inNumNewElements;
+		if (requiredSize <= myCapacity)
 			return;
 
-		Grow(mySize + inNumNewElements);
+		uint newSize = myCapacity;
+		while (newSize < requiredSize)
+			newSize *= 2;
+
+		Grow(newSize);
 	}
 
-	void Grow(const uint inRequiredCapacity)
+	void Grow(const uint inNewCapacity)
 	{
-		uint newCapacity = myCapacity * 2;
-		while (newCapacity < inRequiredCapacity)
-			newCapacity *= myGrowthMultiplier;
-
 		T* oldPtr = myPtr;
-		myPtr = new T[newCapacity];
+		myPtr = new T[inNewCapacity];
 		
 		if(CanCopy())
 		{
@@ -217,18 +243,19 @@ private:
 		{
 			for (uint i = 0; i < mySize; ++i)
 			{
-				myPtr[i] = oldPtr[i];
+				myPtr[i] = std::move(oldPtr[i]);
 			}
 		}
 		
-		myCapacity = newCapacity;
+		myCapacity = inNewCapacity;
 
 		delete[] oldPtr;
+		oldPtr = nullptr;
 	}
 
 	__forceinline constexpr bool CanCopy() const
 	{
-		return allowCopy && std::is_trivially_copyable<T>::value;
+		return std::is_trivially_copyable<T>::value;
 	}
 
 private:
