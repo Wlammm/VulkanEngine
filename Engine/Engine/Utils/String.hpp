@@ -43,18 +43,18 @@ public:
 		return result;
 	}
 
-	static std::vector<std::string> SplitString(const std::string& string, const std::string& delimiters)
+	static List<std::string> SplitString(const std::string& string, const std::string& delimiters)
 	{
 		size_t start = 0;
 		size_t end = string.find_first_of(delimiters);
 
-		std::vector<std::string> result;
+		List<std::string> result;
 
 		while (end <= std::string::npos)
 		{
 			std::string token = string.substr(start, end - start);
 			if (!token.empty())
-				result.push_back(token);
+				result.Add(token);
 
 			if (end == std::string::npos)
 				break;
@@ -66,7 +66,7 @@ public:
 		return result;
 	}
 
-	static std::vector<std::string> SplitString(const std::string& string, const char delimiter)
+	static List<std::string> SplitString(const std::string& string, const char delimiter)
 	{
 		return SplitString(string, std::string(1, delimiter));
 	}

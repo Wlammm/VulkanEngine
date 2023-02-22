@@ -49,5 +49,5 @@ private:
 	Vec3f myScale { 1, 1, 1 };
 
 	Transform* myParent = nullptr;
-	std::vector<Transform*> myChildren;
+	List<Transform*> myChildren;
 };

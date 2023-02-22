@@ -37,6 +37,30 @@ public:
 		AddRange(inCopy);
 	}
 
+	void operator=(const std::vector<T>& inCopy)
+	{
+		Clear();
+		Grow(inCopy.capacity());
+
+		if(CanCopy())
+		{
+			mySize = inCopy.size();
+			memcpy(myPtr, inCopy.data(), sizeof(T) * inCopy.size());
+		}
+		else
+		{
+			for(int i = 0; i < inCopy.size(); ++i)
+			{
+				myPtr[i] = inCopy[i];
+			}
+		}
+	}
+
+	/*operator std::vector<T>() const
+	{
+
+	}*/
+
 	~List()
 	{
 		delete[] myPtr;
@@ -74,6 +98,16 @@ public:
 	void Reserve(const uint inSize)
 	{
 		Grow(inSize);
+	}
+
+	bool Contains(const T& inValue)
+	{
+		for(const T& value : *this)
+		{
+			if (value == inValue)
+				return true;
+		}
+		return false;
 	}
 
 #pragma region Add

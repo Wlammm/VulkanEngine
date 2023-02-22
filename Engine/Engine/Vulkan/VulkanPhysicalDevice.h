@@ -7,7 +7,7 @@ public:
 	VulkanPhysicalDevice();
 	~VulkanPhysicalDevice();
 
-	const std::vector<const char*>& GetExtensions() const;
+	const List<const char*>& GetExtensions() const;
 
 	int GetGraphicsQueueIndex() const;
 	int GetComputeQueueIndex() const;
@@ -17,7 +17,7 @@ public:
 	vk::PhysicalDevice* operator->() { return &myDevice; }
 	const vk::PhysicalDevice* operator->() const { return &myDevice; }
 
-	const std::vector<vk::QueueFamilyProperties> GetQueueFamilyProperties() const;
+	const List<vk::QueueFamilyProperties> GetQueueFamilyProperties() const;
 
 private:
 	bool CheckDeviceExtensionSupport(const vk::PhysicalDevice& inDevice) const;
@@ -27,14 +27,14 @@ private:
 private:
 	vk::PhysicalDevice myDevice;
 	vk::PhysicalDeviceFeatures myFeatures;
-	std::vector<vk::QueueFamilyProperties> myQueueFamilyProperties;
+	List<vk::QueueFamilyProperties> myQueueFamilyProperties;
 
 	int myGraphicsQueueIndex = -1;
 	int myComputeQueueIndex = -1;
 	int myTransferQueueIndex = -1;
 	int myPresentQueueIndex = -1;
 
-	const std::vector<const char*> myDeviceExtensions
+	const List<const char*> myDeviceExtensions
 	{
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 	};

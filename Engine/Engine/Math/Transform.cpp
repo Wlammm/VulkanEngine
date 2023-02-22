@@ -46,14 +46,14 @@ void Transform::RemoveParent()
 
 void Transform::AddChild(Transform* inChild)
 {
-	check(std::find(myChildren.begin(), myChildren.end(), inChild) == myChildren.end());
-	myChildren.push_back(inChild);
+	check(!myChildren.Contains(inChild));
+	myChildren.Add(inChild);
 }
 
 void Transform::RemoveChild(Transform* inChild)
 {
-	check(std::find(myChildren.begin(), myChildren.end(), inChild) != myChildren.end());
-	myChildren.erase(std::remove(myChildren.begin(), myChildren.end(), inChild));
+	check(myChildren.Contains(inChild));
+	myChildren.Remove(inChild);
 }
 
 void Transform::SetRotationLocal(const Quatf& inQuaternion)

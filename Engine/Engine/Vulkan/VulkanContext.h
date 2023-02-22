@@ -35,7 +35,7 @@ private:
 	class VulkanDevice* myDevice = nullptr;
 	class VulkanSwapChain* mySwapChain = nullptr;
 
-	const std::vector<const char*> myExtensions
+	const List<const char*> myExtensions
 	{
 #ifdef DEBUG
 		VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
@@ -44,7 +44,7 @@ private:
 		VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 	};
 
-	const std::vector<const char*> myLayers
+	const List<const char*> myLayers
 	{ 
 #ifdef DEBUG
 		"VK_LAYER_KHRONOS_validation",

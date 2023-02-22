@@ -5,8 +5,7 @@
 VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	: myPhysicalDevice{ inPhysicalDevice }
 {
-	const std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos = GetQueueFamilyCreateInfos();
-
+	const List<vk::DeviceQueueCreateInfo> queueCreateInfos = GetQueueFamilyCreateInfos();
 	vk::DeviceCreateInfo createInfo = vk::DeviceCreateInfo().setQueueCreateInfos(queueCreateInfos).setPEnabledExtensionNames(myPhysicalDevice.GetExtensions());
 	myDevice = myPhysicalDevice->createDevice(createInfo);
 
@@ -43,24 +42,24 @@ const vk::Queue& VulkanDevice::GetPresentQueue() const
 	return myGraphicsQueue;
 }
 
-std::vector<vk::DeviceQueueCreateInfo> VulkanDevice::GetQueueFamilyCreateInfos()
+List<vk::DeviceQueueCreateInfo> VulkanDevice::GetQueueFamilyCreateInfos()
 {
 	float priorities = 0.0f;
 
-	std::vector<vk::DeviceQueueCreateInfo> returnVal;
+	List<vk::DeviceQueueCreateInfo> returnVal;
 
-	returnVal.push_back(vk::DeviceQueueCreateInfo().setQueueFamilyIndex(myPhysicalDevice.GetGraphicsQueueIndex()).setQueuePriorities(priorities));
+	returnVal.Add(vk::DeviceQueueCreateInfo().setQueueFamilyIndex(myPhysicalDevice.GetGraphicsQueueIndex()).setQueuePriorities(priorities));
 	
 	if(ShouldAddQueueWithIndex(myPhysicalDevice.GetComputeQueueIndex(), returnVal))
-		returnVal.push_back(vk::DeviceQueueCreateInfo().setQueueFamilyIndex(myPhysicalDevice.GetComputeQueueIndex()).setQueuePriorities(priorities));
+		returnVal.Add(vk::DeviceQueueCreateInfo().setQueueFamilyIndex(myPhysicalDevice.GetComputeQueueIndex()).setQueuePriorities(priorities));
 	
 	if(ShouldAddQueueWithIndex(myPhysicalDevice.GetTransferQueueIndex(), returnVal))
-		returnVal.push_back(vk::DeviceQueueCreateInfo().setQueueFamilyIndex(myPhysicalDevice.GetTransferQueueIndex()).setQueuePriorities(priorities));
+		returnVal.Add(vk::DeviceQueueCreateInfo().setQueueFamilyIndex(myPhysicalDevice.GetTransferQueueIndex()).setQueuePriorities(priorities));
 
 	return returnVal;
 }
 
-bool VulkanDevice::ShouldAddQueueWithIndex(const int inIndex, const std::vector<vk::DeviceQueueCreateInfo>& inCreateInfos) const
+bool VulkanDevice::ShouldAddQueueWithIndex(const int inIndex, const List<vk::DeviceQueueCreateInfo>& inCreateInfos) const
 {
 	for(const auto& entry : inCreateInfos)
 	{

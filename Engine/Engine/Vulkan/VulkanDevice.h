@@ -17,10 +17,10 @@ public:
 	const vk::Queue& GetPresentQueue() const;
 
 private:
-	std::vector<vk::DeviceQueueCreateInfo> GetQueueFamilyCreateInfos();
+	List<vk::DeviceQueueCreateInfo> GetQueueFamilyCreateInfos();
 
 	// You cant create 2 queues with the same index. This method is used to make sure we do not add duplicate create infos with same index.
-	bool ShouldAddQueueWithIndex(const int inIndex, const std::vector<vk::DeviceQueueCreateInfo>& inCreateInfos) const;
+	bool ShouldAddQueueWithIndex(const int inIndex, const List<vk::DeviceQueueCreateInfo>& inCreateInfos) const;
 
 private:
 	const VulkanPhysicalDevice& myPhysicalDevice;

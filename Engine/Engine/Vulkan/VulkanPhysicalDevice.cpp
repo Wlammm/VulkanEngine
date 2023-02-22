@@ -32,7 +32,7 @@ VulkanPhysicalDevice::~VulkanPhysicalDevice()
 {
 }
 
-const std::vector<const char*>& VulkanPhysicalDevice::GetExtensions() const
+const List<const char*>& VulkanPhysicalDevice::GetExtensions() const
 {
 	return myDeviceExtensions;
 }
@@ -57,7 +57,7 @@ int VulkanPhysicalDevice::GetPresentQueueIndex() const
 	return myPresentQueueIndex;
 }
 
-const std::vector<vk::QueueFamilyProperties> VulkanPhysicalDevice::GetQueueFamilyProperties() const
+const List<vk::QueueFamilyProperties> VulkanPhysicalDevice::GetQueueFamilyProperties() const
 {
 	return myQueueFamilyProperties;
 }
@@ -85,7 +85,7 @@ bool VulkanPhysicalDevice::CheckDeviceExtensionSupport(const vk::PhysicalDevice&
 void VulkanPhysicalDevice::GetQueueIndices()
 {
 	// Check for queue with only graphics support.
-	for (int i = 0; i < myQueueFamilyProperties.size(); ++i)
+	for (int i = 0; i < myQueueFamilyProperties.GetSize(); ++i)
 	{
 		const vk::QueueFamilyProperties& queueFamily = myQueueFamilyProperties[i];
 		if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics && !(queueFamily.queueFlags & vk::QueueFlagBits::eCompute || queueFamily.queueFlags & vk::QueueFlagBits::eTransfer))
@@ -98,7 +98,7 @@ void VulkanPhysicalDevice::GetQueueIndices()
 	if(myGraphicsQueueIndex == -1)
 	{
 		// Pick first queue with graphics support.
-		for (int i = 0; i < myQueueFamilyProperties.size(); ++i)
+		for (int i = 0; i < myQueueFamilyProperties.GetSize(); ++i)
 		{
 			const vk::QueueFamilyProperties& queueFamily = myQueueFamilyProperties[i];
 			if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
@@ -111,7 +111,7 @@ void VulkanPhysicalDevice::GetQueueIndices()
 	THROW_IF(myGraphicsQueueIndex == -1, "Could not find a graphics queue.");
 	
 	// Check for queue with only compute support.
-	for (int i = 0; i < myQueueFamilyProperties.size(); ++i)
+	for (int i = 0; i < myQueueFamilyProperties.GetSize(); ++i)
 	{
 		const vk::QueueFamilyProperties& queueFamily = myQueueFamilyProperties[i];
 		if (queueFamily.queueFlags & vk::QueueFlagBits::eCompute && !(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics || queueFamily.queueFlags & vk::QueueFlagBits::eTransfer))
@@ -124,7 +124,7 @@ void VulkanPhysicalDevice::GetQueueIndices()
 	if (myComputeQueueIndex == -1)
 	{
 		// Pick first queue with compute support.
-		for (int i = 0; i < myQueueFamilyProperties.size(); ++i)
+		for (int i = 0; i < myQueueFamilyProperties.GetSize(); ++i)
 		{
 			const vk::QueueFamilyProperties& queueFamily = myQueueFamilyProperties[i];
 			if (queueFamily.queueFlags & vk::QueueFlagBits::eCompute)
@@ -138,7 +138,7 @@ void VulkanPhysicalDevice::GetQueueIndices()
 
 
 	// Check for queue with only transfer support.
-	for (int i = 0; i < myQueueFamilyProperties.size(); ++i)
+	for (int i = 0; i < myQueueFamilyProperties.GetSize(); ++i)
 	{
 		const vk::QueueFamilyProperties& queueFamily = myQueueFamilyProperties[i];
 		if (queueFamily.queueFlags & vk::QueueFlagBits::eTransfer && !(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics || queueFamily.queueFlags & vk::QueueFlagBits::eCompute))
@@ -151,7 +151,7 @@ void VulkanPhysicalDevice::GetQueueIndices()
 	if (myTransferQueueIndex == -1)
 	{
 		// Pick first queue with transfer support.
-		for (int i = 0; i < myQueueFamilyProperties.size(); ++i)
+		for (int i = 0; i < myQueueFamilyProperties.GetSize(); ++i)
 		{
 			const vk::QueueFamilyProperties& queueFamily = myQueueFamilyProperties[i];
 			if (queueFamily.queueFlags & vk::QueueFlagBits::eTransfer)

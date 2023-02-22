@@ -43,7 +43,6 @@ public:
 			List<std::future<void>> futures;
 			for (auto& tickable : entry.second)
 			{
-				std::vector<std::future<void>> fut;
 				futures.Add(std::async(&ISystem::Tick, tickable));
 			}
 
