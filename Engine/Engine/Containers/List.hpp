@@ -1,6 +1,7 @@
 #pragma once
+#include "ContainerTypes.hpp"
 
-#define CanCopy std::is_trivially_copyable<T>::value
+#define CanCopy std::is_trivially_copyable<T>::value || IsCopyable<T>::value
 
 template<typename T, typename SizeType = size_t>
 class List
