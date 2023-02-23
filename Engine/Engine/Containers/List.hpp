@@ -1,5 +1,7 @@
 #pragma once
 
+#define CanCopy std::is_trivially_copyable<T>::value
+
 template<typename T, typename SizeType = size_t>
 class List
 {
@@ -24,9 +26,9 @@ public:
 	List(const std::vector<T>& inCopy)
 	{
 		Construct();
-		Grow(static_cast<SizeType>(inCopy.capacity()));
+		Grow(inCopy.capacity());
 
-		if (CanCopy())
+		if constexpr (CanCopy)
 		{
 			mySize = static_cast<SizeType>(inCopy.size());
 			memcpy(myPtr, inCopy.data(), sizeof(T) * inCopy.size());
@@ -61,7 +63,7 @@ public:
 		Clear();
 		Grow(static_cast<SizeType>(inCopy.capacity()));
 
-		if(CanCopy())
+		if constexpr (CanCopy)
 		{
 			mySize = static_cast<SizeType>(inCopy.size());
 			memcpy(myPtr, inCopy.data(), sizeof(T) * inCopy.size());
@@ -151,7 +153,7 @@ public:
 	{
 		CheckCapacityForAdd(inList.size());
 
-		if (CanCopy())
+		if constexpr (CanCopy)
 		{
 			memcpy(&myPtr[mySize], inList.myPtr, sizeof(T) * inList.mySize);
 			mySize += inList.mySize;
@@ -172,7 +174,7 @@ public:
 	{
 		check(inIndex >= 0 && inIndex < mySize && "Index out of range.");
 
-		if (CanCopy())
+		if constexpr (CanCopy)
 		{
 			memcpy(&myPtr[inIndex], &myPtr[inIndex + 1], sizeof(T) * mySize - inIndex);
 		}
@@ -283,7 +285,7 @@ private:
 		T* oldPtr = myPtr;
 		myPtr = new T[inNewCapacity];
 		
-		if(CanCopy())
+		if constexpr (CanCopy)
 		{
 			memcpy(myPtr, oldPtr, sizeof(T) * mySize);
 		}
@@ -299,11 +301,6 @@ private:
 
 		delete[] oldPtr;
 		oldPtr = nullptr;
-	}
-
-	__forceinline constexpr bool CanCopy() const
-	{
-		return std::is_trivially_copyable<T>::value;
 	}
 
 private:
