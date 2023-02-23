@@ -164,9 +164,9 @@ void VulkanSwapChain::CreateSyncObjects()
 
 	for(int i = 0; i < myFrameLag; ++i)
 	{
-		myFences.push_back(myDevice->createFence(fenceCreateInfo));
-		myImageAcquiredSemaphores.push_back(myDevice->createSemaphore(semaCreateInfo));
-		myDrawCompleteSemaphores.push_back(myDevice->createSemaphore(semaCreateInfo));
+		myFences.Add(myDevice->createFence(fenceCreateInfo));
+		myImageAcquiredSemaphores.Add(myDevice->createSemaphore(semaCreateInfo));
+		myDrawCompleteSemaphores.Add(myDevice->createSemaphore(semaCreateInfo));
 	}
 }
 
@@ -195,7 +195,7 @@ void VulkanSwapChain::CreateSwapChain()
 
 	// Disable vsync if possible. The only mode that is required to be implemented is fifo so use as fallback in-case immediate does not exists.
 	vk::PresentModeKHR swapChainPresentMode = vk::PresentModeKHR::eFifo;
-	std::vector<vk::PresentModeKHR> availablePresentModes = VulkanContext::GetPhysicalDevice()->getSurfacePresentModesKHR(myWindowSurface);
+	List<vk::PresentModeKHR> availablePresentModes = VulkanContext::GetPhysicalDevice()->getSurfacePresentModesKHR(myWindowSurface);
 	for(const auto& mode : availablePresentModes)
 	{
 		if (mode == vk::PresentModeKHR::eImmediate)
@@ -259,7 +259,7 @@ void VulkanSwapChain::CreateSwapChain()
 			.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
 		imageViewCreateInfo.image = myImages[i];
 
-		myImageViews.push_back(myDevice->createImageView(imageViewCreateInfo));
+		myImageViews.Add(myDevice->createImageView(imageViewCreateInfo));
 	}
 }
 
@@ -314,7 +314,7 @@ void VulkanSwapChain::CreateFrameBuffers()
 	for(int i = 0; i < myFrameLag; ++i)
 	{
 		attachments[0] = myImageViews[i];
-		myFrameBuffers.push_back(myDevice->createFramebuffer(vk::FramebufferCreateInfo()
+		myFrameBuffers.Add(myDevice->createFramebuffer(vk::FramebufferCreateInfo()
 			.setRenderPass(myRenderPass)
 			.setAttachments(attachments)
 			.setWidth(mySwapChainWidth)
@@ -344,10 +344,10 @@ void VulkanSwapChain::DestroySwapChainRelatedObjects()
 		myDevice->destroySemaphore(myDrawCompleteSemaphores[i]);
 		myDevice->destroyFramebuffer(myFrameBuffers[i]);
 	}
-	myFences.clear();
-	myImageAcquiredSemaphores.clear();
-	myDrawCompleteSemaphores.clear();
-	myFrameBuffers.clear();
+	myFences.Clear();
+	myImageAcquiredSemaphores.Clear();
+	myDrawCompleteSemaphores.Clear();
+	myFrameBuffers.Clear();
 
 	for (int i = 0; i < myImageViews.size(); ++i)
 	{
@@ -355,13 +355,13 @@ void VulkanSwapChain::DestroySwapChainRelatedObjects()
 	}
 
 	myDevice->freeCommandBuffers(myCommandPool, myCommandBuffers);
-	myCommandBuffers.clear();
+	myCommandBuffers.Clear();
 
 	myDevice->destroyRenderPass(myRenderPass);
 	myDevice->destroyCommandPool(myCommandPool);
 
-	myImageViews.clear();
-	myImages.clear();
+	myImageViews.Clear();
+	myImages.Clear();
 
 	myFrameIndex = 0;
 	mySwapChainImageIndex = 0;

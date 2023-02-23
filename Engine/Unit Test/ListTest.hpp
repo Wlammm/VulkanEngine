@@ -4,13 +4,13 @@
 TEST(List, DefaultConstruct)
 {
 	List<int> list{};
-	EXPECT_EQ(list.GetSize(), 0);
+	EXPECT_EQ(list.size(), 0);
 }
 
 TEST(List, ConstructWithCapacity)
 {
 	List<int> list(10);
-	EXPECT_EQ(list.GetCapacity(), 10);
+	EXPECT_EQ(list.capacity(), 10);
 }
 
 TEST(List, CopyConstruct)
@@ -21,8 +21,8 @@ TEST(List, CopyConstruct)
 	other.Add(5);
 
 	List<int> list(other);
-	EXPECT_EQ(list.GetSize(), other.GetSize());
-	EXPECT_EQ(list.GetCapacity(), other.GetCapacity());
+	EXPECT_EQ(list.size(), other.size());
+	EXPECT_EQ(list.capacity(), other.capacity());
 	EXPECT_EQ(list[0], other[0]);
 	EXPECT_EQ(list[1], other[1]);
 	EXPECT_EQ(list[2], other[2]);
@@ -42,8 +42,8 @@ TEST(List, EqualsOperator)
 {
 	List<int> other{ 1, 2, 3, 4, 5 };
 	List<int> list = other;
-	EXPECT_EQ(list.GetSize(), other.GetSize());
-	EXPECT_EQ(list.GetCapacity(), other.GetCapacity());
+	EXPECT_EQ(list.size(), other.size());
+	EXPECT_EQ(list.capacity(), other.capacity());
 	EXPECT_EQ(list[0], other[0]);
 	EXPECT_EQ(list[1], other[1]);
 	EXPECT_EQ(list[2], other[2]);
@@ -67,7 +67,7 @@ TEST(List, Clear)
 	List<int> list{ 3, 4, 5, 7, 5, 4 };
 	list.Clear();
 	EXPECT_TRUE(list.IsEmpty());
-	EXPECT_TRUE(list.GetCapacity() != defaultList.GetCapacity());
+	EXPECT_TRUE(list.capacity() != defaultList.capacity());
 }
 
 TEST(List, Add)
@@ -76,7 +76,7 @@ TEST(List, Add)
 	list.Add(0);
 	list.Add(3);
 	list.Add(34);
-	EXPECT_EQ(list.GetSize(), 3);
+	EXPECT_EQ(list.size(), 3);
 	EXPECT_EQ(list[0], 0);
 	EXPECT_EQ(list[1], 3);
 	EXPECT_EQ(list[2], 34);
@@ -88,7 +88,7 @@ TEST(List, AddRange)
 	list.AddRange({ 3, 4, 5,6, 8 });
 	EXPECT_EQ(list[0], 2);
 	EXPECT_EQ(list[5], 5);
-	EXPECT_EQ(list.GetSize(), 8);
+	EXPECT_EQ(list.size(), 8);
 }
 
 TEST(List, RemoveIndex)
@@ -113,5 +113,5 @@ TEST(List, Reserve)
 {
 	List<int> list;
 	list.Reserve(10);
-	EXPECT_EQ(list.GetCapacity(), 10);
+	EXPECT_EQ(list.capacity(), 10);
 }

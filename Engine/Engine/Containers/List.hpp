@@ -1,6 +1,6 @@
 #pragma once
 
-template<typename T>
+template<typename T, typename SizeType = size_t>
 class List
 {
 public:
@@ -9,7 +9,7 @@ public:
 		Construct();
 	}
 
-	List(const uint inCapacity)
+	List(const SizeType inCapacity)
 	{
 		Construct();
 		Grow(inCapacity);
@@ -19,6 +19,25 @@ public:
 	{
 		Construct();
 		AddRange(inCopy);
+	}
+
+	List(const std::vector<T>& inCopy)
+	{
+		Construct();
+		Grow(static_cast<SizeType>(inCopy.capacity()));
+
+		if (CanCopy())
+		{
+			mySize = static_cast<SizeType>(inCopy.size());
+			memcpy(myPtr, inCopy.data(), sizeof(T) * inCopy.size());
+		}
+		else
+		{
+			for (int i = 0; i < inCopy.size(); ++i)
+			{
+				myPtr[i] = inCopy[i];
+			}
+		}
 	}
 
 	List(const std::initializer_list<T>& inInitList)
@@ -40,11 +59,11 @@ public:
 	void operator=(const std::vector<T>& inCopy)
 	{
 		Clear();
-		Grow(inCopy.capacity());
+		Grow(static_cast<SizeType>(inCopy.capacity()));
 
 		if(CanCopy())
 		{
-			mySize = inCopy.size();
+			mySize = static_cast<SizeType>(inCopy.size());
 			memcpy(myPtr, inCopy.data(), sizeof(T) * inCopy.size());
 		}
 		else
@@ -56,11 +75,6 @@ public:
 		}
 	}
 
-	/*operator std::vector<T>() const
-	{
-
-	}*/
-
 	~List()
 	{
 		delete[] myPtr;
@@ -69,18 +83,18 @@ public:
 		mySize = 0;
 	}
 
-	void SetGrowthMultiplier(const uint inGrowthMultiplier)
+	void SetGrowthMultiplier(const SizeType inGrowthMultiplier)
 	{
 		check(inGrowthMultiplier > 0 && "Growth size must be more than 0.");
 		myGrowthMultiplier = inGrowthMultiplier;
 	}
 
-	uint GetSize() const
+	SizeType size() const noexcept
 	{
 		return mySize;
 	}
 
-	uint GetCapacity() const
+	SizeType capacity() const noexcept
 	{
 		return myCapacity;
 	}
@@ -95,7 +109,7 @@ public:
 		mySize = 0;
 	}
 
-	void Reserve(const uint inSize)
+	void Reserve(const SizeType inSize)
 	{
 		Grow(inSize);
 	}
@@ -135,7 +149,7 @@ public:
 
 	void AddRange(const List<T>& inList)
 	{
-		CheckCapacityForAdd(inList.GetSize());
+		CheckCapacityForAdd(inList.size());
 
 		if (CanCopy())
 		{
@@ -154,7 +168,7 @@ public:
 #pragma endregion
 
 #pragma region Remove
-	void RemoveIndex(const uint inIndex)
+	void RemoveIndex(const SizeType inIndex)
 	{
 		check(inIndex >= 0 && inIndex < mySize && "Index out of range.");
 
@@ -164,7 +178,7 @@ public:
 		}
 		else
 		{
-			for (uint i = inIndex; i < mySize - 1; ++i)
+			for (SizeType i = inIndex; i < mySize - 1; ++i)
 			{
 				myPtr[i] = myPtr[i + 1];
 			}
@@ -174,7 +188,7 @@ public:
 
 	void Remove(const T& inValue)
 	{
-		for (uint i = 0; i < mySize; ++i)
+		for (SizeType i = 0; i < mySize; ++i)
 		{
 			if (myPtr[i] == inValue)
 			{
@@ -186,13 +200,13 @@ public:
 #pragma endregion
 
 #pragma region Data Accessors
-	const T& operator[] (const uint inIndex) const
+	const T& operator[] (const SizeType inIndex) const
 	{
 		check(inIndex >= 0 && inIndex < mySize && "Index out of range.");
 		return myPtr[inIndex];
 	}
 
-	T& operator[] (const uint inIndex)
+	T& operator[] (const SizeType inIndex)
 	{
 		check(inIndex >= 0 && inIndex < mySize && "Index out of range.");
 		return myPtr[inIndex];
@@ -222,7 +236,7 @@ public:
 		return myPtr[mySize - 1];
 	}
 
-	const T* Data() const
+	T* data() const
 	{
 		return myPtr;
 	}
@@ -251,20 +265,20 @@ private:
 		myCapacity = myGrowthMultiplier;
 	}
 
-	void CheckCapacityForAdd(const uint inNumNewElements)
+	void CheckCapacityForAdd(const SizeType inNumNewElements)
 	{
-		const uint requiredSize = mySize + inNumNewElements;
+		const SizeType requiredSize = mySize + inNumNewElements;
 		if (requiredSize <= myCapacity)
 			return;
 
-		uint newSize = myCapacity;
+		SizeType newSize = myCapacity;
 		while (newSize < requiredSize)
 			newSize *= 2;
 
 		Grow(newSize);
 	}
 
-	void Grow(const uint inNewCapacity)
+	void Grow(const SizeType inNewCapacity)
 	{
 		T* oldPtr = myPtr;
 		myPtr = new T[inNewCapacity];
@@ -275,7 +289,7 @@ private:
 		}
 		else
 		{
-			for (uint i = 0; i < mySize; ++i)
+			for (SizeType i = 0; i < mySize; ++i)
 			{
 				myPtr[i] = std::move(oldPtr[i]);
 			}
@@ -294,8 +308,8 @@ private:
 
 private:
 	T* myPtr = nullptr;
-	uint mySize = 0;
-	uint myCapacity = 0;
+	SizeType mySize = 0;
+	SizeType myCapacity = 0;
 
-	uint myGrowthMultiplier = 2;
+	SizeType myGrowthMultiplier = 2;
 };

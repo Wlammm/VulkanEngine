@@ -143,6 +143,6 @@ void VulkanPipeline::CreateDescriptors()
 
 	for(uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
 	{
-		myDescriptorSets.push_back(VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front());
+		myDescriptorSets.Add(VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front());
 	}
 }

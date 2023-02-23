@@ -142,10 +142,10 @@ void VulkanContext::CreateInstance()
 	vk::InstanceCreateInfo instInfo = vk::InstanceCreateInfo()
 		.setFlags(vk::InstanceCreateFlags())
 		.setPApplicationInfo(&appInfo)
-		.setEnabledExtensionCount(static_cast<uint32_t>(myExtensions.GetSize()))
-		.setPpEnabledExtensionNames(myExtensions.Data())
-		.setEnabledLayerCount(static_cast<uint32_t>(myLayers.GetSize()))
-		.setPpEnabledLayerNames(myLayers.Data());
+		.setEnabledExtensionCount(static_cast<uint32_t>(myExtensions.size()))
+		.setPpEnabledExtensionNames(myExtensions.data())
+		.setEnabledLayerCount(static_cast<uint32_t>(myLayers.size()))
+		.setPpEnabledLayerNames(myLayers.data());
 
 	myVulkanInstance = vk::createInstance(instInfo);
 	LOG("Vulkan instance created successfully.");

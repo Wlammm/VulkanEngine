@@ -33,5 +33,5 @@ private:
 
 	vk::DescriptorPool myDescriptorPool;
 	vk::DescriptorSetLayout myDescLayout;
-	std::vector<vk::DescriptorSet> myDescriptorSets;
+	List<vk::DescriptorSet> myDescriptorSets;
 };
