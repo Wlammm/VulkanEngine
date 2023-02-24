@@ -1,15 +1,15 @@
 #pragma once
 #include "ContainerTypes.hpp"
 
-#define CanCopy std::is_trivially_copyable<T>::value || IsCopyable<T>::value
+#define CanCopy std::is_trivially_copyable<ElementType>::value || IsCopyable<ElementType>::value
 
-template<typename T>
-concept ComparisonOperator = requires(T a)
+template<typename ElementType>
+concept ComparisonOperator = requires(ElementType a)
 {
 	a == a;
 };
 
-template<typename T, typename SizeType = size_t>
+template<typename ElementType, typename SizeType = size_t>
 class List
 {
 public:
@@ -24,13 +24,13 @@ public:
 		Grow(inCapacity);
 	}
 
-	List(const List<T>& inCopy)
+	List(const List<ElementType>& inCopy)
 	{
 		Construct();
 		AddRange(inCopy);
 	}
 
-	List(const std::vector<T>& inCopy)
+	List(const std::vector<ElementType>& inCopy)
 	{
 		Construct();
 		Grow(inCopy.capacity());
@@ -38,7 +38,7 @@ public:
 		if constexpr (CanCopy)
 		{
 			mySize = static_cast<SizeType>(inCopy.size());
-			memcpy(myPtr, inCopy.data(), sizeof(T) * inCopy.size());
+			memcpy(myPtr, inCopy.data(), sizeof(ElementType) * inCopy.size());
 		}
 		else
 		{
@@ -49,7 +49,7 @@ public:
 		}
 	}
 
-	List(const std::initializer_list<T>& inInitList)
+	List(const std::initializer_list<ElementType>& inInitList)
 	{
 		Construct();
 
@@ -71,13 +71,13 @@ public:
 		mySize = 0;
 	}
 
-	void operator=(const List<T>& inCopy)
+	void operator=(const List<ElementType>& inCopy)
 	{
 		Clear();
 		AddRange(inCopy);
 	}
 
-	void operator=(const std::vector<T>& inCopy)
+	void operator=(const std::vector<ElementType>& inCopy)
 	{
 		Clear();
 		Grow(static_cast<SizeType>(inCopy.capacity()));
@@ -85,7 +85,7 @@ public:
 		if constexpr (CanCopy)
 		{
 			mySize = static_cast<SizeType>(inCopy.size());
-			memcpy(myPtr, inCopy.data(), sizeof(T) * inCopy.size());
+			memcpy(myPtr, inCopy.data(), sizeof(ElementType) * inCopy.size());
 		}
 		else
 		{
@@ -121,7 +121,7 @@ public:
 	{
 		for (const auto& value : *this)
 		{
-			value.~T();
+			value.~ElementType();
 		}
 
 		mySize = 0;
@@ -132,9 +132,9 @@ public:
 		Grow(inSize);
 	}
 
-	bool Contains(const T& inValue)
+	bool Contains(const ElementType& inValue) requires ComparisonOperator<ElementType>
 	{
-		for(const T& value : *this)
+		for(const ElementType& value : *this)
 		{
 			if (value == inValue)
 				return true;
@@ -143,42 +143,42 @@ public:
 	}
 
 #pragma region Add
-	void Add(const T& inValue)
+	void Add(const ElementType& inValue)
 	{
 		CheckCapacityForAdd(1);
-		new(myPtr + mySize) T();
+		new(myPtr + mySize) ElementType();
 		myPtr[mySize] = inValue;
 		mySize++;
 	}
 
-	void Add(T&& inValue)
+	void Add(ElementType&& inValue)
 	{
 		CheckCapacityForAdd(1);
-		new(myPtr + mySize) T();
+		new(myPtr + mySize) ElementType();
 		myPtr[mySize] = std::move(inValue);
 		mySize++;
 	}
 
-	T& Add()
+	ElementType& Add()
 	{
 		CheckCapacityForAdd(1);
 		mySize++;
-		new(myPtr + mySize - 1) T();
+		new(myPtr + mySize - 1) ElementType();
 		return myPtr[mySize - 1];
 	}
 
-	void AddRange(const List<T>& inList)
+	void AddRange(const List<ElementType>& inList)
 	{
 		CheckCapacityForAdd(inList.size());
 
 		if constexpr (CanCopy)
 		{
-			memcpy(&myPtr[mySize], inList.myPtr, sizeof(T) * inList.mySize);
+			memcpy(&myPtr[mySize], inList.myPtr, sizeof(ElementType) * inList.mySize);
 			mySize += inList.mySize;
 		}
 		else
 		{
-			for (const T& value : inList)
+			for (const ElementType& value : inList)
 			{
 				myPtr[mySize] = value;
 				mySize++;
@@ -192,11 +192,11 @@ public:
 	{
 		check(inIndex >= 0 && inIndex < mySize && "Index out of range.");
 
-		myPtr[inIndex].~T();
+		myPtr[inIndex].~ElementType();
 
 		if constexpr (CanCopy)
 		{
-			memcpy(&myPtr[inIndex], &myPtr[inIndex + 1], sizeof(T) * mySize - inIndex);
+			memcpy(&myPtr[inIndex], &myPtr[inIndex + 1], sizeof(ElementType) * mySize - inIndex);
 		}
 		else
 		{
@@ -208,7 +208,7 @@ public:
 		mySize--;
 	}
 
-	void Remove(const T& inValue) requires ComparisonOperator<T>
+	void Remove(const ElementType& inValue) requires ComparisonOperator<ElementType>
 	{
 		for (SizeType i = 0; i < mySize; ++i)
 		{
@@ -222,43 +222,43 @@ public:
 #pragma endregion
 
 #pragma region Data Accessors
-	const T& operator[] (const SizeType inIndex) const
+	const ElementType& operator[] (const SizeType inIndex) const
 	{
 		check(inIndex >= 0 && inIndex < mySize && "Index out of range.");
 		return myPtr[inIndex];
 	}
 
-	T& operator[] (const SizeType inIndex)
+	ElementType& operator[] (const SizeType inIndex)
 	{
 		check(inIndex >= 0 && inIndex < mySize && "Index out of range.");
 		return myPtr[inIndex];
 	}
 
-	const T& First() const
+	const ElementType& First() const
 	{
 		check(!IsEmpty());
 		return myPtr[0];
 	}
 
-	T& First()
+	ElementType& First()
 	{
 		check(!IsEmpty());
 		return myPtr[0];
 	}
 
-	const T& Last() const
+	const ElementType& Last() const
 	{
 		check(!IsEmpty());
 		return myPtr[mySize - 1];
 	}
 
-	T& Last()
+	ElementType& Last()
 	{
 		check(!IsEmpty());
 		return myPtr[mySize - 1];
 	}
 
-	T* data() const
+	ElementType* data() const
 	{
 		return myPtr;
 	}
@@ -266,12 +266,12 @@ public:
 #pragma endregion
 
 #pragma region Iterators
-	T* begin() const
+	ElementType* begin() const
 	{
 		return myPtr;
 	}
 
-	T* end() const
+	ElementType* end() const
 	{
 		return myPtr + mySize;
 	}
@@ -299,12 +299,12 @@ private:
 
 	void Grow(const SizeType inNewCapacity)
 	{
-		T* oldPtr = myPtr;
-		myPtr = reinterpret_cast<T*>(malloc(sizeof(T) * inNewCapacity));
+		ElementType* oldPtr = myPtr;
+		myPtr = reinterpret_cast<ElementType*>(malloc(sizeof(ElementType) * inNewCapacity));
 		
 		if constexpr (CanCopy)
 		{
-			memcpy(myPtr, oldPtr, sizeof(T) * mySize);
+			memcpy(myPtr, oldPtr, sizeof(ElementType) * mySize);
 		}
 		else
 		{
@@ -324,7 +324,7 @@ private:
 	}
 
 private:
-	T* myPtr = nullptr;
+	ElementType* myPtr = nullptr;
 	SizeType mySize = 0;
 	SizeType myCapacity = 0;
 

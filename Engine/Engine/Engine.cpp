@@ -22,25 +22,6 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	mySystemDispatcher = new SystemDispatcher();
 
 	CreateSystems();
-
-	class CoolType
-	{
-	public:
-		CoolType()
-		{
-			LOG("Construct");
-		}
-
-		~CoolType()
-		{
-			LOG("Destruct");
-		}
-
-		bool operator==(const CoolType& inOther) const
-		{
-			return true;
-		}
-	};
 }
 
 Engine::~Engine()
