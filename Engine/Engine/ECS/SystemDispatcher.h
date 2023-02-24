@@ -41,12 +41,12 @@ public:
 		for (auto& entry : myQueue)
 		{
 			List<std::future<void>> futures;
-			for (auto& tickable : entry.second)
+			for (const auto& tickable : entry.second)
 			{
 				futures.Add(std::async(&ISystem::Tick, tickable));
 			}
 
-			for (auto& future : futures)
+			for (const auto& future : futures)
 			{
 				future.wait();
 			}

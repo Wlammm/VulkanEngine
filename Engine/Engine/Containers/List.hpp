@@ -3,6 +3,12 @@
 
 #define CanCopy std::is_trivially_copyable<T>::value || IsCopyable<T>::value
 
+template<typename T>
+concept ComparisonOperator = requires(T a)
+{
+	a == a;
+};
+
 template<typename T, typename SizeType = size_t>
 class List
 {
@@ -53,6 +59,18 @@ public:
 		}
 	}
 
+	~List()
+	{
+		Clear();
+		if (myPtr)
+		{
+			free(myPtr);
+			myPtr = nullptr;
+		}
+		myCapacity = 0;
+		mySize = 0;
+	}
+
 	void operator=(const List<T>& inCopy)
 	{
 		Clear();
@@ -78,14 +96,6 @@ public:
 		}
 	}
 
-	~List()
-	{
-		delete[] myPtr;
-		myPtr = nullptr;
-		myCapacity = 0;
-		mySize = 0;
-	}
-
 	void SetGrowthMultiplier(const SizeType inGrowthMultiplier)
 	{
 		check(inGrowthMultiplier > 0 && "Growth size must be more than 0.");
@@ -109,6 +119,11 @@ public:
 
 	void Clear()
 	{
+		for (const auto& value : *this)
+		{
+			value.~T();
+		}
+
 		mySize = 0;
 	}
 
@@ -131,6 +146,7 @@ public:
 	void Add(const T& inValue)
 	{
 		CheckCapacityForAdd(1);
+		new(myPtr + mySize) T();
 		myPtr[mySize] = inValue;
 		mySize++;
 	}
@@ -138,6 +154,7 @@ public:
 	void Add(T&& inValue)
 	{
 		CheckCapacityForAdd(1);
+		new(myPtr + mySize) T();
 		myPtr[mySize] = std::move(inValue);
 		mySize++;
 	}
@@ -145,8 +162,8 @@ public:
 	T& Add()
 	{
 		CheckCapacityForAdd(1);
-		myPtr[mySize] = T();
 		mySize++;
+		new(myPtr + mySize - 1) T();
 		return myPtr[mySize - 1];
 	}
 
@@ -175,6 +192,8 @@ public:
 	{
 		check(inIndex >= 0 && inIndex < mySize && "Index out of range.");
 
+		myPtr[inIndex].~T();
+
 		if constexpr (CanCopy)
 		{
 			memcpy(&myPtr[inIndex], &myPtr[inIndex + 1], sizeof(T) * mySize - inIndex);
@@ -189,7 +208,7 @@ public:
 		mySize--;
 	}
 
-	void Remove(const T& inValue)
+	void Remove(const T& inValue) requires ComparisonOperator<T>
 	{
 		for (SizeType i = 0; i < mySize; ++i)
 		{
@@ -261,10 +280,7 @@ public:
 private:
 	void Construct()
 	{
-		if (myPtr)
-			delete[] myPtr;
-
-		myPtr = new T[myGrowthMultiplier];
+		Grow(myGrowthMultiplier);
 		myCapacity = myGrowthMultiplier;
 	}
 
@@ -284,7 +300,7 @@ private:
 	void Grow(const SizeType inNewCapacity)
 	{
 		T* oldPtr = myPtr;
-		myPtr = new T[inNewCapacity];
+		myPtr = reinterpret_cast<T*>(malloc(sizeof(T) * inNewCapacity));
 		
 		if constexpr (CanCopy)
 		{
@@ -300,8 +316,11 @@ private:
 		
 		myCapacity = inNewCapacity;
 
-		delete[] oldPtr;
-		oldPtr = nullptr;
+		if(oldPtr)
+		{
+			free(oldPtr);
+			oldPtr = nullptr;
+		}
 	}
 
 private:

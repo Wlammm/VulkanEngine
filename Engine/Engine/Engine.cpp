@@ -11,7 +11,7 @@
 #include "Containers/List.hpp"
 
 Engine::Engine(const EngineProperties inEngineProperties)
-	: myEngineProperties { inEngineProperties }
+	: myEngineProperties{ inEngineProperties }
 {
 	check(!myInstance && "Cant have multiple Engine instances.");
 	myInstance = this;
@@ -23,8 +23,24 @@ Engine::Engine(const EngineProperties inEngineProperties)
 
 	CreateSystems();
 
-	List<int> list;
-	list = List<int>();
+	class CoolType
+	{
+	public:
+		CoolType()
+		{
+			LOG("Construct");
+		}
+
+		~CoolType()
+		{
+			LOG("Destruct");
+		}
+
+		bool operator==(const CoolType& inOther) const
+		{
+			return true;
+		}
+	};
 }
 
 Engine::~Engine()
