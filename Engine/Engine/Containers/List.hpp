@@ -9,7 +9,7 @@ concept ComparisonOperator = requires(ElementType a)
 	a == a;
 };
 
-template<typename ElementType, typename SizeType = size_t>
+template<typename ElementType, typename SizeType = size_t> 
 class List
 {
 public:
