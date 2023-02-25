@@ -1,5 +1,7 @@
-#include "Time.h"
+module;
 #include <chrono>
+
+module Time;
 
 void Time::Tick()
 {

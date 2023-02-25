@@ -1,5 +1,4 @@
 module;
-#include "Core/Time.h"
 #include "Windows/WindowHandler.h"
 #include "Vulkan/VulkanContext.h"
 #include "ECS/SystemDispatcher.h"
@@ -10,9 +9,12 @@ module;
 #include "Core/EngineDefines.hpp"
 #include "Core/Console.h"
 
+#include <iostream>
+
 module Engine;
 
 import EngineProperties;
+import Time;
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }

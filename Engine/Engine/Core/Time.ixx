@@ -1,6 +1,6 @@
-#pragma once
+export module Time;
 
-class Time
+export class Time
 {
 public:
 	static void Tick();
