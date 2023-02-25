@@ -2,8 +2,7 @@ module;
 #include "Vulkan/VulkanContext.h"
 #include "ECS/SystemDispatcher.h"
 #include "ECS/Systems/RenderSystem.h"
-#include "Core\Input.h"
-
+#include "Core/Input.h"
 #include "Containers/List.hpp"
 #include "Core/EngineDefines.hpp"
 #include "Core/Console.h"
