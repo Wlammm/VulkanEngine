@@ -1,4 +1,3 @@
-#include "EnginePch.h"
 #include "RenderSystem.h"
 #include "Vulkan/VulkanPipeline.h"
 #include "Vulkan/VulkanContext.h"

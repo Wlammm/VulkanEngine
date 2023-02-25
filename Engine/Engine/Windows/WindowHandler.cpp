@@ -1,6 +1,5 @@
-#include "EnginePch.h"
 #include "Windows/WindowHandler.h"
-#include "Engine.h"
+import Engine;
 #include "Core\Input.h"
 #include "Core/EngineDefines.hpp"
 

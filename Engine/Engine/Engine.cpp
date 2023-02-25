@@ -1,6 +1,4 @@
-#include "EnginePch.h"
-#include "Engine.h"
-
+module;
 #include "Core/Time.h"
 #include "Windows/WindowHandler.h"
 #include "Vulkan/VulkanContext.h"
@@ -11,6 +9,8 @@
 #include "Containers/List.hpp"
 #include "Core/EngineDefines.hpp"
 #include "Core/Console.h"
+
+module Engine;
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }

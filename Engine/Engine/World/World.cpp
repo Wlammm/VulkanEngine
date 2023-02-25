@@ -1,4 +1,3 @@
-#include "EnginePch.h"
 #include "World.h"
 #include "Math/Camera.h"
 #include "Vulkan/VulkanContext.h"

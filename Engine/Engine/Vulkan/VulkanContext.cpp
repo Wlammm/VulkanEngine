@@ -1,6 +1,5 @@
-#include "EnginePch.h"
 #include "VulkanContext.h"
-#include "Engine.h"
+import Engine;
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapchain.h"

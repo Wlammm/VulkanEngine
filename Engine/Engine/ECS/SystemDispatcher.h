@@ -1,6 +1,5 @@
 #pragma once
 
-#include "EnginePch.h"
 #include <future>
 #include "System.h"
 #include "Core/EngineDefines.hpp"

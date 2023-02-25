@@ -1,8 +1,9 @@
-#pragma once
-
+module;
 #include "Engine/EngineProperties.hpp"
 
-class Engine
+export module Engine;
+
+export class Engine
 {
 public:
 	Engine(const EngineProperties inEngineProperties);

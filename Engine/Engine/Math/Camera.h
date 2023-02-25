@@ -1,6 +1,5 @@
 #pragma once
 
-#include "EnginePch.h"
 #include "Math/Vector2.hpp"
 #include "Math/Matrix4x4.hpp"
 #include "Math/Constants.hpp"

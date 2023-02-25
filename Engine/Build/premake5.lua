@@ -16,6 +16,7 @@ workspace "Engine"
 		"../%{prj.name}/**.cpp", 
 		"../%{prj.name}/**.c", 
 		"../%{prj.name}/**.hpp",
+		"../%{prj.name}/**.ixx",
 		"../%{prj.name}/**.h"
 	}
 	filter "configurations:Debug"

@@ -1,10 +1,9 @@
-#include "EnginePch.h"
 #include "VulkanSwapChain.h"
 #include "Windows/WindowHandler.h"
 #include "VulkanContext.h"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
-#include "Engine.h"
+import Engine;
 #include "Core/Console.h"
 #include "Core/EngineDefines.hpp"
 
