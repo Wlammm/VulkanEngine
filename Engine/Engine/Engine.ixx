@@ -1,7 +1,7 @@
 module;
 
 export module Engine;
-import EngineProperties;
+export import EngineProperties;
 
 export class Engine
 {

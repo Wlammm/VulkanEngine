@@ -1,6 +1,5 @@
 #include <iostream>
 import Engine;
-import EngineProperties;
 #include "Engine/Core/Console.h"
 
 int main(int argc, char** argv)
