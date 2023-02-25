@@ -1,5 +1,8 @@
 #pragma once
 
+#include <windows.h>
+#include "Math/Vector2.hpp"
+
 class Input
 {
 public:

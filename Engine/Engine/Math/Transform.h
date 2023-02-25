@@ -1,5 +1,10 @@
 #pragma once
 
+#include "Math/Vector3.hpp"
+#include "Math/Quaternion.hpp"
+#include "Containers/List.hpp"
+#include "Math/Matrix4x4.hpp"
+
 class Transform 
 {
 public:

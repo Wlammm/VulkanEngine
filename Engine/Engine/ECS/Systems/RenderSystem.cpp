@@ -3,6 +3,7 @@
 #include "Vulkan/VulkanPipeline.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanSwapChain.h"
+#include "Core/EngineDefines.hpp"
 
 RenderSystem::RenderSystem()
 {

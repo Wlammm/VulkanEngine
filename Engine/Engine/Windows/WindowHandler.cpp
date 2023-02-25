@@ -2,6 +2,7 @@
 #include "Windows/WindowHandler.h"
 #include "Engine.h"
 #include "Core\Input.h"
+#include "Core/EngineDefines.hpp"
 
 WindowHandler::WindowHandler()
 {

@@ -1,6 +1,7 @@
 #pragma once
 #include <assert.h>
 #include "Matrix4x4.hpp"
+#include "Constants.hpp"
 
 template <typename T>
 T DegreesToRadians(T someDegrees);

@@ -1,6 +1,12 @@
 #include "EnginePch.h"
 #include "Transform.h"
 
+#include "Math/Vector3.hpp"
+#include "Math/Vector4.hpp"
+#include "Math/Matrix4x4.hpp"
+#include "Math/Quaternion.hpp"
+#include "Core/EngineDefines.hpp"
+
 Transform::Transform()
 {
 

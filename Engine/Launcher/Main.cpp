@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Engine/Engine.h"
+#include "Engine/Core/Console.h"
 
 int main(int argc, char** argv)
 {

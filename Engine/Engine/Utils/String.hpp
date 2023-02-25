@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+#include "Containers/List.hpp"
+#include <algorithm>
+
 class String 
 {
 public:

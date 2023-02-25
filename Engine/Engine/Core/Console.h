@@ -1,4 +1,6 @@
 #pragma once
+#include <windows.h>
+#include <string>
 
 #define LOG(x) Console::Get().Log(x);
 #define LOG_WARNING(x) Console::Get().LogWarning(x);

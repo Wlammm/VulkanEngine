@@ -3,6 +3,9 @@
 #include "VulkanContext.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
+#include <filesystem>
+#include "Core/EngineDefines.hpp"
+#include <fstream>
 
 VulkanPipeline::VulkanPipeline(const CreateInfo& inCreateInfo)
 {

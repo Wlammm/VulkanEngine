@@ -1,5 +1,10 @@
 #pragma once
 
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <vulkan/vulkan.hpp>
+#include "Math/Vector2.hpp"
+#include "Containers/List.hpp"
+
 class VulkanContext
 {
 public:

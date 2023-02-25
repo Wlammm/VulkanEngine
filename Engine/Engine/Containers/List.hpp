@@ -1,5 +1,7 @@
 #pragma once
 #include "ContainerTypes.hpp"
+#include <vector>
+#include "Core/EngineDefines.hpp"
 
 #define CanCopy std::is_trivially_copyable<ElementType>::value || IsCopyable<ElementType>::value
 

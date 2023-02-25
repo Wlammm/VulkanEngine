@@ -1,5 +1,7 @@
 #include "EnginePch.h"
 #include "Console.h"
+#include "EngineDefines.hpp"
+#include <iostream>
 
 Console::Console()
 {

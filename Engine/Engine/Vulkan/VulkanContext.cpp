@@ -5,6 +5,9 @@
 #include "VulkanDevice.h"
 #include "VulkanSwapchain.h"
 #include "Utils/String.hpp"
+#include "Core/EngineDefines.hpp"
+#include <sstream>
+#include "Core/Console.h"
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;

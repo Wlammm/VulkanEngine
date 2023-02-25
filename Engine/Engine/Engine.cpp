@@ -9,6 +9,8 @@
 #include "Core\Input.h"
 
 #include "Containers/List.hpp"
+#include "Core/EngineDefines.hpp"
+#include "Core/Console.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }

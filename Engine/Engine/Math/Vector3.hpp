@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/EngineDefines.hpp"
+
 template<class T>
 class Vector4;
 

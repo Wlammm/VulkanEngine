@@ -5,6 +5,8 @@
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "Engine.h"
+#include "Core/Console.h"
+#include "Core/EngineDefines.hpp"
 
 VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
 	: myDevice{ inDevice }

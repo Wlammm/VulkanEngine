@@ -1,6 +1,7 @@
 #include "EnginePch.h"
 #include "VulkanDevice.h"
 #include "VulkanPhysicalDevice.h"
+#include "Core/Console.h"
 
 VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	: myPhysicalDevice{ inPhysicalDevice }

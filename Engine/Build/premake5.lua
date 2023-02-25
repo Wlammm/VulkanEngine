@@ -45,8 +45,6 @@ project "Launcher"
 project "Engine"
     kind "StaticLib"
 	location "../%{prj.name}"
-	pchheader "EnginePch.h"
-	pchsource "../Engine/EnginePch.cpp"
 	prebuildcommands { "cd Shaders", "CompileAllShaders.bat" }
 	includedirs
 	{
@@ -67,8 +65,6 @@ project "Editor"
 project "Unit Test"
     kind "ConsoleApp"
 	location "../%{prj.name}"
-	pchheader "UnitTestPch.h"
-	pchsource "../Unit Test/UnitTestPch.cpp"
 	staticruntime "off"
 	runtime "Release"
 	links

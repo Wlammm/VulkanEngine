@@ -2,6 +2,8 @@
 
 #include "Engine/EnginePch.h"
 #include "Utils/String.hpp"
+#include "Math/Defines.hpp"
+#include <unordered_set>
 
 struct EngineProperties
 {
