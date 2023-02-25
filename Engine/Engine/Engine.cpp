@@ -12,6 +12,8 @@ module;
 
 module Engine;
 
+import EngineProperties;
+
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
 {

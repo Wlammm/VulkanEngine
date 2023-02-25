@@ -1,11 +1,11 @@
-#pragma once
-
-#include "Engine/EnginePch.h"
+module;
 #include "Utils/String.hpp"
 #include "Math/Defines.hpp"
 #include <unordered_set>
 
-struct EngineProperties
+export module EngineProperties;
+
+export struct EngineProperties
 {
 	std::wstring Title = L"Default Engine";
 

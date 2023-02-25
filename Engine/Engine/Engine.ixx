@@ -1,7 +1,7 @@
 module;
-#include "Engine/EngineProperties.hpp"
 
 export module Engine;
+import EngineProperties;
 
 export class Engine
 {
