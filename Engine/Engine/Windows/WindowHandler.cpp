@@ -1,7 +1,10 @@
-#include "Windows/WindowHandler.h"
-import Engine;
-#include "Core\Input.h"
+module;
+#include <windows.h>
+#include "Core/Input.h"
 #include "Core/EngineDefines.hpp"
+
+module WindowHandler;
+import Engine;
 
 WindowHandler::WindowHandler()
 {

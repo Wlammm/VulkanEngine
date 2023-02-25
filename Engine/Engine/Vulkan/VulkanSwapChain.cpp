@@ -1,5 +1,5 @@
 #include "VulkanSwapChain.h"
-#include "Windows/WindowHandler.h"
+import WindowHandler;
 #include "VulkanContext.h"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"

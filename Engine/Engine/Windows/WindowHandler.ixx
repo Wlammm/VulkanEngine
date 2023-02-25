@@ -1,8 +1,9 @@
-#pragma once
+module;
+#include <wtypes.h>
 
-#include <windows.h>
+export module WindowHandler;
 
-class WindowHandler
+export class WindowHandler
 {
 public:
 	WindowHandler();
