@@ -1,5 +1,5 @@
 #include "VulkanPipeline.h"
-#include "VulkanContext.h"
+import VulkanContext;
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
 #include <filesystem>

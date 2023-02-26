@@ -1,6 +1,6 @@
 #include "World.h"
 #include "Math/Camera.h"
-#include "Vulkan/VulkanContext.h"
+import VulkanContext;
 #include "Math/Transform.h"
 
 World::World()

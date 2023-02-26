@@ -1,16 +1,19 @@
-#pragma once
+module;
 
-#define VK_USE_PLATFORM_WIN32_KHR
-#include <vulkan/vulkan.hpp>
 #include "Math/Vector2.hpp"
 #include "Containers/List.hpp"
 
-class VulkanContext
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <vulkan/vulkan.hpp>
+
+export module VulkanContext;
+
+export class VulkanContext
 {
 public:
 	VulkanContext();
 	~VulkanContext();
-
 	static vk::Instance& GetInstance();
 	static class VulkanPhysicalDevice& GetPhysicalDevice();
 	static class VulkanDevice& GetDevice();
@@ -32,6 +35,7 @@ private:
 private:
 	inline static VulkanContext* myInstance = nullptr;
 
+	vk::DynamicLoader myDynamicLoader;
 	vk::Instance myVulkanInstance;
 	vk::DebugUtilsMessengerEXT myDebugMessenger;
 	vk::PipelineCache myPipelineCache;
@@ -46,7 +50,7 @@ private:
 		VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
 		VK_KHR_SURFACE_EXTENSION_NAME,
-		VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+		"VK_KHR_win32_surface",
 	};
 
 	const List<const char*> myLayers

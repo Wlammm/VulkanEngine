@@ -1,5 +1,4 @@
-#include "VulkanContext.h"
-import Engine;
+module;
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapchain.h"
@@ -7,6 +6,10 @@ import Engine;
 #include "Core/EngineDefines.hpp"
 #include <sstream>
 #include "Core/Console.h"
+#include "Math/Vector2.hpp"
+
+module VulkanContext;
+import Engine;
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
@@ -27,6 +30,9 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance instance, 
 
 VulkanContext::VulkanContext()
 {
+	PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = myDynamicLoader.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
+
 	check(!myInstance && "There can only be one vulkan context at the same time.");
 	myInstance = this;
 
@@ -150,6 +156,8 @@ void VulkanContext::CreateInstance()
 		.setPpEnabledLayerNames(myLayers.data());
 
 	myVulkanInstance = vk::createInstance(instInfo);
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(myVulkanInstance);
+
 	LOG("Vulkan instance created successfully.");
 }
 

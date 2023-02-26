@@ -1,5 +1,5 @@
 module;
-#include "Vulkan/VulkanContext.h"
+
 #include "ECS/SystemDispatcher.h"
 #include "ECS/Systems/RenderSystem.h"
 #include "Core/Input.h"
@@ -10,7 +10,7 @@ module;
 #include <iostream>
 
 module Engine;
-
+import VulkanContext;
 import Time;
 import WindowHandler;
 

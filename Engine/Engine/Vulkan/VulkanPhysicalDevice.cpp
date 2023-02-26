@@ -1,11 +1,11 @@
 #include "VulkanPhysicalDevice.h"
-#include "VulkanContext.h"
+import VulkanContext;
 #include "Core/EngineDefines.hpp"
 
 VulkanPhysicalDevice::VulkanPhysicalDevice()
 {
 	vk::Instance& instance = VulkanContext::GetInstance();
-
+	
 	List<vk::PhysicalDevice> physicalDevices = instance.enumeratePhysicalDevices();
 	THROW_IF(physicalDevices.IsEmpty(), "No physical devices available.");
 

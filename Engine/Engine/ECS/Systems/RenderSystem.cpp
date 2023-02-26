@@ -1,6 +1,6 @@
 #include "RenderSystem.h"
 #include "Vulkan/VulkanPipeline.h"
-#include "Vulkan/VulkanContext.h"
+import VulkanContext;
 #include "Vulkan/VulkanSwapChain.h"
 #include "Core/EngineDefines.hpp"
 

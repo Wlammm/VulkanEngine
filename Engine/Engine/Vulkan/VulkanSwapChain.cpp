@@ -1,6 +1,6 @@
 #include "VulkanSwapChain.h"
 import WindowHandler;
-#include "VulkanContext.h"
+import VulkanContext;
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 import Engine;

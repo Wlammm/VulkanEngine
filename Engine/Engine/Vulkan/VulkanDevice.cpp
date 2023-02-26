@@ -8,6 +8,7 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	const List<vk::DeviceQueueCreateInfo> queueCreateInfos = GetQueueFamilyCreateInfos();
 	vk::DeviceCreateInfo createInfo = vk::DeviceCreateInfo().setQueueCreateInfos(queueCreateInfos).setPEnabledExtensionNames(myPhysicalDevice.GetExtensions());
 	myDevice = myPhysicalDevice->createDevice(createInfo);
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(myDevice);
 
 	myGraphicsQueue = myDevice.getQueue(myPhysicalDevice.GetGraphicsQueueIndex(), 0);
 	myComputeQueue = myDevice.getQueue(myPhysicalDevice.GetComputeQueueIndex(), 0);
