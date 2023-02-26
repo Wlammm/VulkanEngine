@@ -11,7 +11,6 @@ module;
 
 module Engine;
 
-import EngineProperties;
 import Time;
 import WindowHandler;
 
