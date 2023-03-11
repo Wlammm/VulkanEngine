@@ -2,13 +2,17 @@
 #include "Engine.h"
 
 #include "Core/Time.h"
+#include "Core/Input.h"
+#include "Containers/List.hpp"
+
 #include "Windows/WindowHandler.h"
 #include "Vulkan/VulkanContext.h"
+
 #include "ECS/SystemDispatcher.h"
 #include "ECS/Systems/RenderSystem.h"
-#include "Core\Input.h"
 
-#include "Containers/List.hpp"
+#include "World/World.h"
+#include "ECS/Systems/CameraSystem.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -22,6 +26,8 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	mySystemDispatcher = new SystemDispatcher();
 
 	CreateSystems();
+
+	SetWorld(new World());
 }
 
 Engine::~Engine()
@@ -70,7 +76,7 @@ const SystemDispatcher& Engine::GetSystemDispatcher()
 	return *myInstance->mySystemDispatcher;
 }
 
-const World& Engine::GetWorld()
+World& Engine::GetWorld()
 {
 	return *myInstance->myWorld;
 }
@@ -83,4 +89,5 @@ void Engine::SetWorld(World* inWorld)
 void Engine::CreateSystems()
 {
 	mySystemDispatcher->AddSystem<RenderSystem>();
+	mySystemDispatcher->AddSystem<CameraSystem>();
 }

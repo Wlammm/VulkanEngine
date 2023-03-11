@@ -23,6 +23,7 @@ private:
 
 	void CreateInstance();
 	void CreateDebugLayer();
+	void DestroyDebugLayer();
 
 private:
 	inline static VulkanContext* myInstance = nullptr;

@@ -6,7 +6,7 @@ public:
 	World();
 	~World();
 
-	const entt::registry& GetRegistry() const;
+	entt::registry& GetRegistry();
 
 private:
 	entt::registry myRegistry{};

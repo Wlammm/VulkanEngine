@@ -5,11 +5,22 @@
 #include "VulkanDevice.h"
 #include "VulkanPhysicalDevice.h"
 
-template<typename T>
-class VulkanUniformBuffer
+class IVulkanUniformBuffer
 {
 public:
-	VulkanUniformBuffer()
+	virtual vk::ShaderStageFlags GetShaderStageFlags() const = 0;
+	virtual uint GetBindingIndex() const = 0;
+	virtual constexpr uint GetBufferSize() const = 0;
+	virtual vk::Buffer GetBuffer(const uint inIndex) const = 0;
+};
+
+template<typename T>
+class VulkanUniformBuffer : public IVulkanUniformBuffer
+{
+public:
+	VulkanUniformBuffer(const vk::ShaderStageFlags inShaderStageFlags, const uint inBindingIndex)
+		: myShaderStageFlags{ inShaderStageFlags }
+		, myBindingIndex{ inBindingIndex }
 	{
 		const auto createInfo = vk::BufferCreateInfo().setSize(sizeof(T)).setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
 
@@ -44,7 +55,27 @@ public:
 
 	T& Get()
 	{
-		return *(T*)myMemoryPtrs[VulkanContext::GetSwapChain().GetFrameIndex()];
+		return *(T*)myMemoryPtrs[VulkanContext::GetSwapChain().GetSwapChainIndex()];
+	}
+
+	vk::ShaderStageFlags GetShaderStageFlags() const override final
+	{
+		return myShaderStageFlags;
+	}
+
+	uint GetBindingIndex() const override final
+	{
+		return myBindingIndex;
+	}
+
+	constexpr uint GetBufferSize() const override final
+	{
+		return sizeof(T);
+	}
+
+	vk::Buffer GetBuffer(const uint inIndex) const override final
+	{
+		return myBuffers[inIndex];
 	}
 
 private:
@@ -69,4 +100,7 @@ private:
 	List<vk::DeviceMemory> myMemory{};
 	List<vk::Buffer> myBuffers{};
 	List<void*> myMemoryPtrs{};
+
+	vk::ShaderStageFlags myShaderStageFlags;
+	uint myBindingIndex;
 };

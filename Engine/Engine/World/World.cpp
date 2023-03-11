@@ -11,6 +11,7 @@ World::World()
 	auto& camera = myRegistry.emplace<Camera>(entity);
 	camera.CreatePerspective(VulkanContext::GetRenderResolution());
 	auto& transform = myRegistry.emplace<Transform>(entity);
+	transform.SetPosition(0, 0, -10);
 }
 
 World::~World()
@@ -18,7 +19,7 @@ World::~World()
 
 }
 
-const entt::registry& World::GetRegistry() const
+entt::registry& World::GetRegistry()
 {
 	return myRegistry;
 }

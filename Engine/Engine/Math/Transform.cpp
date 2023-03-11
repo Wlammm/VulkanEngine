@@ -79,6 +79,11 @@ void Transform::SetPosition(const Vec3f& inPosition)
 		myPosition = inPosition;
 }
 
+void Transform::SetPosition(const float inX, const float inY, const float inZ)
+{
+	SetPosition({ inX, inY, inZ });
+}
+
 void Transform::SetScale(const Vec3f& inScale)
 {
 	if (myParent)
@@ -167,6 +172,11 @@ Vec3f Transform::GetUp() const
 Vec3f Transform::GetRight() const
 {
 	return GetMatrix().GetRight();
+}
+
+void Transform::Move(const Vec3f& inDisplacement)
+{
+	myPosition += inDisplacement;
 }
 
 const Vec3f& Transform::GetPositionLocal() const

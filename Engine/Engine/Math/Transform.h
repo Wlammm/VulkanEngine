@@ -18,6 +18,7 @@ public:
 	void SetScaleLocal(const float inScale);
 
 	void SetPosition(const Vec3f& inPosition);
+	void SetPosition(const float inX, const float inY, const float inZ);
 	void SetScale(const Vec3f& inScale);
 	void SetRotation(const Quatf& inQuat);
 
@@ -42,6 +43,8 @@ public:
 	Vec3f GetForward() const;
 	Vec3f GetUp() const;
 	Vec3f GetRight() const;
+
+	void Move(const Vec3f& inDisplacement);
 
 private:
 	Vec3f myPosition { 0, 0, 0 };

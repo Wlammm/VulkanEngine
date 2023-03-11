@@ -77,24 +77,24 @@ public:
 		AddRange(inCopy);
 	}
 
-	void operator=(const std::vector<ElementType>& inCopy)
-	{
-		Clear();
-		Grow(static_cast<SizeType>(inCopy.capacity()));
-
-		if constexpr (CanCopy)
-		{
-			mySize = static_cast<SizeType>(inCopy.size());
-			memcpy(myPtr, inCopy.data(), sizeof(ElementType) * inCopy.size());
-		}
-		else
-		{
-			for(int i = 0; i < inCopy.size(); ++i)
-			{
-				myPtr[i] = inCopy[i];
-			}
-		}
-	}
+	//void operator=(const std::vector<ElementType>& inCopy)
+	//{
+	//	Clear();
+	//	Grow(static_cast<SizeType>(inCopy.capacity()));
+	//
+	//	if constexpr (CanCopy)
+	//	{
+	//		mySize = static_cast<SizeType>(inCopy.size());
+	//		memcpy(myPtr, inCopy.data(), sizeof(ElementType) * inCopy.size());
+	//	}
+	//	else
+	//	{
+	//		for(int i = 0; i < inCopy.size(); ++i)
+	//		{
+	//			myPtr[i] = inCopy[i];
+	//		}
+	//	}
+	//}
 
 	void SetGrowthMultiplier(const SizeType inGrowthMultiplier)
 	{

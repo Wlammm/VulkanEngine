@@ -10,6 +10,8 @@ public:
 		std::string FragmentShaderPath = "";
 
 		vk::RenderPass RenderPass;
+
+		List<class IVulkanUniformBuffer*> UniformBuffers{};
 	};
 
 	VulkanPipeline() = delete;
@@ -23,8 +25,8 @@ public:
 private:
 	vk::ShaderModule CreateShaderFromFile(const std::string& inPath);
 
-	void CreateDescriptorPool();
-	void CreateDescriptors();
+	void CreateDescriptorPool(const CreateInfo& inCreateInfo);
+	void CreateDescriptors(const CreateInfo& inCreateInfo);
 	void CreatePipeline(const CreateInfo& inCreateInfo);
 
 private:

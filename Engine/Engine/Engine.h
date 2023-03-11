@@ -17,7 +17,7 @@ public:
 
 	static const class SystemDispatcher& GetSystemDispatcher();
 
-	static const class World& GetWorld();
+	static class World& GetWorld();
 	static void SetWorld(World* inWorld);
 
 private:

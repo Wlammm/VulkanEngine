@@ -59,6 +59,8 @@ void RenderSystem::Tick()
 		.setMaxDepth(1.0f));
 
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
+
+	UpdateObjectBuffer(Transform());
 	commandBuffer.draw(3, 1, 0, 0);
 
 	commandBuffer.endRenderPass();
@@ -84,6 +86,7 @@ void RenderSystem::CreatePipelines()
 	createInfo.VertexShaderPath = "../Engine/Engine/Shaders/VertexShader.spv";
 	createInfo.FragmentShaderPath = "../Engine/Engine/Shaders/FragmentShader.spv";
 	createInfo.RenderPass = VulkanContext::GetSwapChain().GetRenderPass();
+	createInfo.UniformBuffers = { &myFrameBuffer, &myObjectBuffer };
 	myPipeline = new VulkanPipeline(createInfo);
 }
 
@@ -92,10 +95,18 @@ void RenderSystem::UpdateFrameBuffer()
 	FrameBuffer& buffer = myFrameBuffer.Get();
 	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const Camera>();
 
-	for(auto ent : view)
+	for (auto ent : view)
 	{
-		buffer.myProjection = view.get<const Camera>(ent).myProjection;
-		buffer.myToView = view.get<const Transform>(ent).GetMatrix().FastInverse();
-		break;
+		buffer.myProjection = view.get<const Camera>(ent).myProjection.Transposed();
+		buffer.myToView = view.get<const Transform>(ent).GetMatrix().FastInverse().Transposed();
+		return;
 	}
+
+	LOG("No render camera found.");
+}
+
+void RenderSystem::UpdateObjectBuffer(const Transform& inTransform)
+{
+	ObjectBuffer& buffer = myObjectBuffer.Get();
+	buffer.myToWorld = inTransform.GetMatrix();
 }

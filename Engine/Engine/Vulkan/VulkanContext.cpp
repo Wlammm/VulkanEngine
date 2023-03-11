@@ -47,7 +47,7 @@ VulkanContext::~VulkanContext()
 	del(mySwapChain);
 	del(myDevice);
 	del(myPhysicalDevice);
-	myVulkanInstance.destroyDebugUtilsMessengerEXT(myDebugMessenger);
+	DestroyDebugLayer();
 	myVulkanInstance.destroy();
 }
 
@@ -175,6 +175,16 @@ void VulkanContext::CreateDebugLayer()
 	vk::DebugUtilsMessengerCreateInfoEXT createInfo = vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &DebugMessageCallback, static_cast<void*>(this));
 	myDebugMessenger = myVulkanInstance.createDebugUtilsMessengerEXT(createInfo);
 	LOG("Vulkan debug layer attached.");
+}
+
+void VulkanContext::DestroyDebugLayer()
+{
+#ifndef DEBUG
+	if (!Engine::GetEngineProperties().HasStartupArgument("-VulkanDebug"))
+		return;
+#endif
+
+	myVulkanInstance.destroyDebugUtilsMessengerEXT(myDebugMessenger);
 }
 
 VkBool32 VulkanContext::DebugMessageCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)

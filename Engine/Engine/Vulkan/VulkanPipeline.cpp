@@ -3,11 +3,12 @@
 #include "VulkanContext.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
+#include "VulkanUniformBuffer.hpp"
 
 VulkanPipeline::VulkanPipeline(const CreateInfo& inCreateInfo)
 {
-	CreateDescriptorPool();
-	CreateDescriptors();
+	CreateDescriptorPool(inCreateInfo);
+	CreateDescriptors(inCreateInfo);
 	CreatePipeline(inCreateInfo);
 }
 
@@ -122,27 +123,69 @@ void VulkanPipeline::CreatePipeline(const CreateInfo& inCreateInfo)
 	VulkanContext::GetDevice()->destroyShaderModule(fragmentShader);
 }
 
-void VulkanPipeline::CreateDescriptorPool()
+void VulkanPipeline::CreateDescriptorPool(const CreateInfo& inCreateInfo)
 {
-	std::array<vk::DescriptorPoolSize, 0> poolSizes = { };
+	List<vk::DescriptorPoolSize> poolSizes;
+	for (const auto& buffer : inCreateInfo.UniformBuffers)
+	{
+		poolSizes.Add(vk::DescriptorPoolSize()
+			.setType(vk::DescriptorType::eUniformBuffer)
+			.setDescriptorCount(static_cast<uint32_t>(VulkanContext::GetSwapChain().GetFrameLag()))
+		);
+	}
 
 	const auto createInfo = vk::DescriptorPoolCreateInfo().setMaxSets(VulkanContext::GetSwapChain().GetFrameLag()).setPoolSizes(poolSizes);
 	myDescriptorPool = VulkanContext::GetDevice()->createDescriptorPool(createInfo);
 }
 
-void VulkanPipeline::CreateDescriptors()
+void VulkanPipeline::CreateDescriptors(const CreateInfo& inCreateInfo)
 {
-	std::array<vk::DescriptorSetLayoutBinding, 0> const layout_bindings = {};
+	List<vk::DescriptorSetLayoutBinding> layoutBindings;
+	for (const auto& buffer : inCreateInfo.UniformBuffers)
+	{
+		layoutBindings.Add(vk::DescriptorSetLayoutBinding()
+			.setBinding(buffer->GetBindingIndex())
+			.setDescriptorType(vk::DescriptorType::eUniformBuffer)
+			.setDescriptorCount(1)
+			.setStageFlags(buffer->GetShaderStageFlags())
+			.setPImmutableSamplers(nullptr));
+	};
 
-	const auto descriptor_layout = vk::DescriptorSetLayoutCreateInfo().setBindings(layout_bindings);
+	const auto descriptor_layout = vk::DescriptorSetLayoutCreateInfo().setBindings(layoutBindings);
 
 	auto result = VulkanContext::GetDevice()->createDescriptorSetLayout(&descriptor_layout, nullptr, &myDescLayout);
 	check(result == vk::Result::eSuccess);
 
-	const auto allocInfo = vk::DescriptorSetAllocateInfo().setDescriptorPool(myDescriptorPool).setSetLayouts(myDescLayout);
 
-	for(uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
+	const auto allocInfo = vk::DescriptorSetAllocateInfo().setDescriptorPool(myDescriptorPool).setSetLayouts(myDescLayout);
+	for (uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
 	{
 		myDescriptorSets.Add(VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front());
+
+		List<vk::DescriptorBufferInfo, uint> bufferInfos;
+		for (const auto& buffer : inCreateInfo.UniformBuffers)
+		{
+			bufferInfos.Add(vk::DescriptorBufferInfo().setOffset(0).setRange(buffer->GetBufferSize()).setBuffer(buffer->GetBuffer(i)));
+		}
+		std::array<vk::WriteDescriptorSet, 1> writes;
+		writes[0].setDescriptorCount(bufferInfos.size()).setDescriptorType(vk::DescriptorType::eUniformBuffer).setPBufferInfo(bufferInfos.data());
+		writes[0].setDstSet(myDescriptorSets[i]);
+		VulkanContext::GetDevice()->updateDescriptorSets(writes, {});
 	}
+
+	/*for (const auto& buffer : inCreateInfo.UniformBuffers)
+	{
+		List< vk::DescriptorBufferInfo> bufferInfos;
+		for(int i = 0 ; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
+		{
+			auto bufferInfo = vk::DescriptorBufferInfo().setOffset(0).setRange(buffer->GetBufferSize());
+			bufferInfo.setBuffer(buffer->GetBuffer(i));
+			bufferInfos.Add(bufferInfo);
+		}
+
+		std::array<vk::WriteDescriptorSet, 1> writes;
+		writes[0].setDescriptorCount(bufferInfos.size()).setDescriptorType(vk::DescriptorType::eUniformBuffer).setPBufferInfo(bufferInfos.data());
+		writes[0].setDstSet(myDescriptorSets[]);
+		VulkanContext::GetDevice()->updateDescriptorSets(writes, {});
+	}*/
 }

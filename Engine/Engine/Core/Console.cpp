@@ -21,22 +21,26 @@ Console& Console::Get()
 
 void Console::Log(const std::string& inString)
 {
+	const std::string msg = "[LOG]: " + inString + "\n";
 	SetConsoleTextAttribute(myConsoleHandle, 15);
-	std::cout << "[LOG]: " << inString << std::endl;
+	std::cout << msg;
+	OutputDebugStringA(msg.c_str());
 }
 
 void Console::LogWarning(const std::string& inString)
 {
+	const std::string msg = "[WARNING]: " + inString + "\n";
 	SetConsoleTextAttribute(myConsoleHandle, 14);
-	std::cout << "[WARNING]: " << inString << std::endl;
+	std::cout << msg;
 	SetConsoleTextAttribute(myConsoleHandle, 15);
+	OutputDebugStringA(msg.c_str());
 }
 
 void Console::LogError(const std::string& inString)
 {
 	const std::string msg = "[ERROR]: " + inString + "\n";
 	SetConsoleTextAttribute(myConsoleHandle, 12);
-	std::cout << msg;
+	std::cout <<  msg;
 	SetConsoleTextAttribute(myConsoleHandle, 15);
 	OutputDebugStringA(msg.c_str());
 }

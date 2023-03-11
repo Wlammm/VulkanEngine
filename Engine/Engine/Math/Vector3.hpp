@@ -100,7 +100,7 @@ public:
 
 	Vector3<T> operator-() const
 	{
-		return *this * -1;
+		return *this * static_cast<T>(-1.0);
 	}
 
 	Vector3<T> Reflect(const Vector3<T>& aNormal) const
