@@ -180,8 +180,8 @@ public:
 	static const Vec2ui& GetMousePosition();
 	static const Vec2ui& GetMousePositionClientRelative();
 
-	static const Vec2ui GetMouseDelta();
-	static const Vec2ui GetMouseDeltaClientRelative();
+	static const Vec2i GetMouseDelta();
+	static const Vec2i GetMouseDeltaClientRelative();
 
 	static bool UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam);
 	static void EndFrame();

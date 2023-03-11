@@ -86,6 +86,11 @@ void Engine::SetWorld(World* inWorld)
 	myInstance->myWorld = inWorld;
 }
 
+Vec2ui Engine::GetRenderResolution()
+{
+	return { myInstance->myVulkanContext->GetSwapChain().GetWidth(), myInstance->myVulkanContext->GetSwapChain().GetHeight() };
+}
+
 void Engine::CreateSystems()
 {
 	mySystemDispatcher->AddSystem<RenderSystem>();

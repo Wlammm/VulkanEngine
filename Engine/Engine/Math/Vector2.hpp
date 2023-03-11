@@ -18,6 +18,17 @@ public:
 	Vector2<T>(const Vector2<T>& aVector) = default;
 	~Vector2<T>() = default;
 
+	std::string ToString() const
+	{
+		std::string s = "";
+		s += "{ X: ";
+		s += std::to_string(x);
+		s += ", Y: ";
+		s += std::to_string(y);
+		s += " }";
+		return s;
+	}
+
 	T LengthSqr() const
 	{
 		return x * x + y * y;
@@ -25,11 +36,7 @@ public:
 
 	T Length() const
 	{
-		T length = Length();
-		if (length == 0)
-			return *this;
-
-		return *this / length;
+		return sqrt(LengthSqr());
 	}
 
 	Vector2<T> GetNormalized() const

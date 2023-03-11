@@ -20,6 +20,8 @@ public:
 	static class World& GetWorld();
 	static void SetWorld(World* inWorld);
 
+	static Vec2ui GetRenderResolution();
+
 private:
 	void CreateSystems();
 

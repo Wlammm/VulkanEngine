@@ -92,12 +92,36 @@ void Transform::SetScale(const Vec3f& inScale)
 		myScale = inScale;
 }
 
+void Transform::SetScale(const float inX, const float inY, const float inZ)
+{
+	SetScale({ inX, inY, inZ });
+}
+
+void Transform::SetScale(const float inScalar)
+{
+	SetScale({ inScalar, inScalar, inScalar });
+}
+
 void Transform::SetRotation(const Quatf& inQuat)
 {
 	if (myParent)
 		myRotation = inQuat * myParent->GetRotation().GetInverse();
 	else
 		myRotation = inQuat;
+}
+
+void Transform::SetRotationRad(const Vec3f& inRotation)
+{
+	Mat4f rotMatrix =
+		Mat4f::CreateRotationAroundZ(inRotation.z) *
+		Mat4f::CreateRotationAroundX(inRotation.x) *
+		Mat4f::CreateRotationAroundY(inRotation.y);
+	myRotation = Quatf(rotMatrix);
+}
+
+void Transform::SetRotationDeg(const Vec3f& inRotation)
+{
+	SetRotationRad(inRotation * Deg2Rad);
 }
 
 const Vec3f& Transform::GetScaleLocal() const
@@ -139,6 +163,45 @@ Quatf Transform::GetRotation() const
 		return myRotation * myParent->GetRotation();
 	else
 		return myRotation;
+}
+
+Vec3f Transform::GetRotationRad() const
+{
+	float h, b, p;
+	Mat4f transpose = myRotation.ToMatrix();
+	transpose = Mat4f::Transpose(transpose);
+
+	float sp = -transpose(3, 2);
+	if (sp <= -1.0f)
+	{
+		p = PI * -0.5f;
+	}
+	else if (sp >= 1.0f)
+	{
+		p = PI * 0.5f;
+	}
+	else
+	{
+		p = asin(sp);
+	}
+
+	if (abs(sp) > 0.9999f)
+	{
+		b = 0.0f;
+		h = atan2(-transpose(1, 3), transpose(1, 1));
+	}
+	else
+	{
+		h = atan2(transpose(3, 1), transpose(3, 3));
+		b = atan2(transpose(1, 2), transpose(2, 2));
+	}
+
+	return { p, h, b };
+}
+
+Vec3f Transform::GetRotationDeg() const
+{
+	return GetRotationRad() * Rad2Deg;
 }
 
 Vec3f Transform::GetScale() const

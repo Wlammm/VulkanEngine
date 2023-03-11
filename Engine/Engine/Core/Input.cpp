@@ -57,14 +57,14 @@ const Vec2ui& Input::GetMousePositionClientRelative()
 	return myMousePosClientRelative;
 }
 
-const Vec2ui Input::GetMouseDelta()
+const Vec2i Input::GetMouseDelta()
 {
-	return { myMousePos.x - myMousePosLastFrame.x, myMousePos.y - myMousePosLastFrame.y };
+	return { static_cast<int>(myMousePos.x) - static_cast<int>(myMousePosLastFrame.x), static_cast<int>(myMousePos.y) - static_cast<int>(myMousePosLastFrame.y) };
 }
 
-const Vec2ui Input::GetMouseDeltaClientRelative()
+const Vec2i Input::GetMouseDeltaClientRelative()
 {
-	return { myMousePosClientRelative.x - myMousePosClientRelativeLastFrame.x, myMousePosClientRelative.y - myMousePosClientRelativeLastFrame.y };
+	return { static_cast<int>(myMousePosClientRelative.x) - static_cast<int>(myMousePosClientRelativeLastFrame.x), static_cast<int>(myMousePosClientRelative.y) - static_cast<int>(myMousePosClientRelativeLastFrame.y) };
 }
 
 bool Input::UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam)

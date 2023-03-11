@@ -183,7 +183,6 @@ void VulkanContext::DestroyDebugLayer()
 	if (!Engine::GetEngineProperties().HasStartupArgument("-VulkanDebug"))
 		return;
 #endif
-
 	myVulkanInstance.destroyDebugUtilsMessengerEXT(myDebugMessenger);
 }
 
