@@ -57,7 +57,6 @@ void CameraSystem::Tick()
 		if (Input::IsKeyDown(MouseButton::ScrollBackwards))
 			myMovementSpeed /= myScrollMultiplier;
 
-
 		transform.Move(movement * myMovementSpeed);
 
 		if (Input::IsKeyPressed(MouseButton::Right))

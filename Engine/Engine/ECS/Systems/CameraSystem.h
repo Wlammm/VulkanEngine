@@ -8,7 +8,7 @@ class CameraSystem : public System<Transform, const Camera>
 public:
 	CameraSystem();
 
-	void Tick() override;
+	void Tick() override final;
 
 private:
 	static constexpr float myMouseSensitivity = 5.f;

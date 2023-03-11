@@ -36,25 +36,11 @@ void RenderSystem::Tick()
 	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline->GetPipeline());
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipeline->GetPipelineLayout(), 0, myPipeline->GetDescriptorSet(), {});
 
-	float viewport_dimension;
-	float viewport_x = 0.0f;
-	float viewport_y = 0.0f;
-	if (VulkanContext::GetSwapChain().GetWidth() < VulkanContext::GetSwapChain().GetHeight())
-	{
-		viewport_dimension = static_cast<float>(VulkanContext::GetSwapChain().GetWidth());
-		viewport_y = (VulkanContext::GetSwapChain().GetHeight() - VulkanContext::GetSwapChain().GetWidth()) / 2.0f;
-	}
-	else
-	{
-		viewport_dimension = static_cast<float>(VulkanContext::GetSwapChain().GetHeight());
-		viewport_x = (VulkanContext::GetSwapChain().GetWidth() - VulkanContext::GetSwapChain().GetHeight()) / 2.0f;
-	}
-
 	commandBuffer.setViewport(0, vk::Viewport()
-		.setX(viewport_x)
-		.setY(viewport_y)
-		.setWidth(viewport_dimension)
-		.setHeight(viewport_dimension)
+		.setX(0)
+		.setY(0)
+		.setWidth(static_cast<float>(Engine::GetRenderResolution().x))
+		.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
 		.setMinDepth(0.0f)
 		.setMaxDepth(1.0f));
 
