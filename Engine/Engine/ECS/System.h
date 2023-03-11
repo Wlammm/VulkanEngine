@@ -9,16 +9,13 @@ public:
 	virtual const std::unordered_set<std::string>& GetDependencies() = 0; 
 };
 
-// Use this if you dont have any ComponentDependencies.
-class None {};
-
-template<typename... ComponentDependencies>
+template<typename... Dependencies>
 class System : public ISystem
 {
 public:
 	System()
 	{
-		Emplace<ComponentDependencies...>();
+		myDependencies = { GetTypeName<Dependencies>()... };
 	}
 
 	virtual ~System() {}
@@ -29,30 +26,16 @@ public:
 	}
 
 private:
-	template<typename Head, typename Mid, typename... Tail>
-	void Emplace()
-	{
-		Emplace<Head>();
-		Emplace<Mid>();
-		Emplace<Tail...>();
-	}
-
-	template<typename Head, typename Tail>
-	void Emplace()
-	{
-		Emplace<Head>();
-		Emplace<Tail>();
-	}
-
 	template<typename T>
-	void Emplace()
+	std::string GetTypeName()
 	{
-		if (typeid(T).name() == typeid(None).name())
-			return;
+		std::string returnVal = "";
+		if constexpr (std::is_const<T>::value)
+			returnVal += "const ";
 
-		myDependencies.emplace(typeid(T).name());
+		return returnVal + typeid(T).name();
 	}
-
+	
 private:
 	std::unordered_set<std::string> myDependencies{};
 };

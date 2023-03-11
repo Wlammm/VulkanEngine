@@ -504,6 +504,39 @@ Matrix4x4<T> Matrix4x4<T>::TRS(const Vector3<T>& aTranslation, const Vector3<T>&
 	return CreateScale(aScale) * CreateRotation(aRotation) * CreateTranslation(aTranslation);
 }
 
+template<class T>
+inline Matrix4x4<T> Matrix4x4<T>::CreatePerspective(const Vec2f& inResolution, const float inFov, const float inNearPlane, const float inFarPlane)
+{
+	Matrix4x4<T> mat{};
+	const float hFoVRad = inFov * (PI / 180.0f);
+	const float vFoVRad = 2.f * std::atan(std::tan(hFoVRad / 2.f) * (inResolution.y / inResolution.x));
+
+	const float scaleX = 1.f / std::tan(hFoVRad * .5f);
+	const float scaleY = 1.f / std::tan(vFoVRad * .5f);
+
+	const float Q = inFarPlane / (inFarPlane - inNearPlane);
+
+	mat(1, 1) = scaleX;
+	mat(2, 2) = scaleY;
+	mat(3, 3) = Q;
+	mat(3, 4) = 1.f / Q;
+	mat(4, 3) = -Q * inNearPlane;
+	mat(4, 4) = 0.0f;
+	return mat;
+}
+
+template<class T>
+inline Matrix4x4<T> Matrix4x4<T>::CreateOrthographic(const Vec2f& inResolution, const float inNearPlane, const float inFarPlane)
+{
+	Matrix4x4<T> mat{};
+	mat(1, 1) = 2.f / inResolution.x;
+	mat(2, 2) = 2.f / inResolution.y;
+	mat(3, 3) = 1.f / (inFarPlane - inNearPlane);
+	mat(4, 3) = inNearPlane / (inNearPlane - inFarPlane);
+	mat(4, 4) = 1.f;
+	return mat;
+}
+
 template <class T>
 Matrix4x4<T> Matrix4x4<T>::TRS(const Vector3<T>& aTranslation, const QuaternionT<T>& aRotation, const Vector3<T>& aScale)
 {

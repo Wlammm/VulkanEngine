@@ -3,6 +3,8 @@
 #include "Vulkan/VulkanPipeline.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanSwapChain.h"
+#include "Engine.h"
+#include "World/World.h"
 
 RenderSystem::RenderSystem()
 {
@@ -16,6 +18,8 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::Tick()
 {
+	UpdateFrameBuffer();
+
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
 
@@ -81,4 +85,17 @@ void RenderSystem::CreatePipelines()
 	createInfo.FragmentShaderPath = "../Engine/Engine/Shaders/FragmentShader.spv";
 	createInfo.RenderPass = VulkanContext::GetSwapChain().GetRenderPass();
 	myPipeline = new VulkanPipeline(createInfo);
+}
+
+void RenderSystem::UpdateFrameBuffer()
+{
+	FrameBuffer& buffer = myFrameBuffer.Get();
+	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const Camera>();
+
+	for(auto ent : view)
+	{
+		buffer.myProjection = view.get<const Camera>(ent).myProjection;
+		buffer.myToView = view.get<const Transform>(ent).GetMatrix().FastInverse();
+		break;
+	}
 }

@@ -24,7 +24,7 @@ VulkanPhysicalDevice::VulkanPhysicalDevice()
 
 	myFeatures = myDevice.getFeatures();
 	myQueueFamilyProperties = myDevice.getQueueFamilyProperties();
-
+	myMemoryProperties = myDevice.getMemoryProperties();
 	GetQueueIndices();
 }
 
@@ -60,6 +60,11 @@ int VulkanPhysicalDevice::GetPresentQueueIndex() const
 const List<vk::QueueFamilyProperties> VulkanPhysicalDevice::GetQueueFamilyProperties() const
 {
 	return myQueueFamilyProperties;
+}
+
+const vk::PhysicalDeviceMemoryProperties& VulkanPhysicalDevice::GetMemoryProperties() const
+{
+	return myMemoryProperties;
 }
 
 bool VulkanPhysicalDevice::CheckDeviceExtensionSupport(const vk::PhysicalDevice& inDevice) const

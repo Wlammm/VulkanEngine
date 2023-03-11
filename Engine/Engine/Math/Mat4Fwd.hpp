@@ -58,6 +58,8 @@ public:
 	[[nodiscard]] static Matrix4x4<T> CreateRotation(const Vector3<T>& aRotation);
 	[[nodiscard]] static Matrix4x4<T> CreateScale(const Vector3<T>& aScale);
 	[[nodiscard]] static Matrix4x4<T> TRS(const Vector3<T>& aTranslation, const Vector3<T>& aRotation, const Vector3<T>& aScale);
+	[[nodiscard]] static Matrix4x4<T> CreatePerspective(const Vec2f& inResolution, const float inFov, const float inNearPlane, const float inFarPlane);
+	[[nodiscard]] static Matrix4x4<T> CreateOrthographic(const Vec2f& inResolution, const float inNearPlane, const float inFarPlane);
 
 	[[nodiscard]] static Matrix4x4<T> TRS(const Vector3<T>& aTranslation, const QuaternionT<T>& aRotation, const Vector3<T>& aScale);
 

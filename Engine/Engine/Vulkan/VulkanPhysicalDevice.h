@@ -18,6 +18,7 @@ public:
 	const vk::PhysicalDevice* operator->() const { return &myDevice; }
 
 	const List<vk::QueueFamilyProperties> GetQueueFamilyProperties() const;
+	const vk::PhysicalDeviceMemoryProperties& GetMemoryProperties() const;
 
 private:
 	bool CheckDeviceExtensionSupport(const vk::PhysicalDevice& inDevice) const;
@@ -27,6 +28,7 @@ private:
 private:
 	vk::PhysicalDevice myDevice;
 	vk::PhysicalDeviceFeatures myFeatures;
+	vk::PhysicalDeviceMemoryProperties myMemoryProperties;
 	List<vk::QueueFamilyProperties> myQueueFamilyProperties;
 
 	int myGraphicsQueueIndex = -1;

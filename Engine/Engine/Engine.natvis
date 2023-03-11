@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="List&lt;*&gt;">
+		<DisplayString Condition="mySize != 0">Num={mySize}</DisplayString>
+		<DisplayString Condition="mySize == 0">Empty</DisplayString>
+		<Expand>
+			<ArrayItems>
+				<Size>mySize</Size>
+				<ValuePointer>myPtr</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+</AutoVisualizer>
