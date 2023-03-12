@@ -5,7 +5,7 @@
 #include "Vulkan/VulkanSwapChain.h"
 #include "Engine.h"
 #include "World/World.h"
-#include "Rendering/Model.h"
+#include "Assets/Model.h"
 
 RenderSystem::RenderSystem()
 {
@@ -52,7 +52,7 @@ void RenderSystem::Tick()
 
 	UpdateObjectBuffer(Transform());
 	myModel->Bind(commandBuffer);
-	commandBuffer.draw(3, 1, 0, 0);
+	commandBuffer.drawIndexed(3, 1, 0, 0, 0);
 
 	commandBuffer.endRenderPass();
 

@@ -1,4 +1,5 @@
 VULKAN_SDK = os.getenv("VULKAN_SDK")
+EXTERNAL = "$(SolutionDir)External"
 
 workspace "Engine"
     configurations { "Debug", "Release" }
@@ -40,6 +41,8 @@ project "Launcher"
 	{
 		"Engine",
 		"Editor",
+		"%{VULKAN_SDK}/Lib/vulkan-1.lib",
+		"%{EXTERNAL}/assimp/lib/assimp-vc143-mt.lib",
 	}
 
 project "Engine"
@@ -54,10 +57,7 @@ project "Engine"
 		"$(ProjectDir)",
 		"%{VULKAN_SDK}/Include/",
 		"$(SolutionDir)External/",
-	}
-	links
-	{
-		"%{VULKAN_SDK}/Lib/vulkan-1.lib",
+		"%{EXTERNAL}/assimp/include/",
 	}
 
 project "Editor"

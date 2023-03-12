@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../System.h"
+#include "ECS/System.h"
 #include "Vulkan/VulkanUniformBuffer.hpp"
-#include "Math/Camera.h"
-#include "Math/Transform.h"
+#include "ECS/Components/Transform.h"
+#include "ECS/Components/Camera.h"
 
 class RenderSystem : public System<const Transform, const Camera>
 {

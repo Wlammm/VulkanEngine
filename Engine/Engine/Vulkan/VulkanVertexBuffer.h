@@ -6,6 +6,7 @@
 class VulkanVertexBuffer
 {
 public:
+	VulkanVertexBuffer() = delete;
 	VulkanVertexBuffer(const List<Vertex>& inVertices);
 	~VulkanVertexBuffer();
 

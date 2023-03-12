@@ -7,7 +7,9 @@ public:
 	~World();
 
 	entt::registry& GetRegistry();
+	class AssetRegistry& GetAssetRegistry();
 
 private:
 	entt::registry myRegistry{};
+	class AssetRegistry* myAssetRegistry = nullptr;
 };

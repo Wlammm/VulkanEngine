@@ -1,7 +1,7 @@
 #pragma once
-#include "../System.h"
-#include "Math/Transform.h"
-#include "Math/Camera.h"
+#include "ECS/System.h"
+#include "ECS/Components/Transform.h"
+#include "ECS/Components/Camera.h"
 
 class CameraSystem : public System<Transform, const Camera>
 {
