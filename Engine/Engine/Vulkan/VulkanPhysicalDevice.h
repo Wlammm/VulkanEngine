@@ -20,6 +20,8 @@ public:
 	const List<vk::QueueFamilyProperties> GetQueueFamilyProperties() const;
 	const vk::PhysicalDeviceMemoryProperties& GetMemoryProperties() const;
 
+	vk::PhysicalDevice GetPhysicalDevice() const;
+
 private:
 	bool CheckDeviceExtensionSupport(const vk::PhysicalDevice& inDevice) const;
 

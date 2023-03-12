@@ -4,6 +4,7 @@
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
 #include "VulkanUniformBuffer.hpp"
+#include "Rendering/Vertex.hpp"
 
 VulkanPipeline::VulkanPipeline(const CreateInfo& inCreateInfo)
 {
@@ -63,7 +64,7 @@ void VulkanPipeline::CreatePipeline(const CreateInfo& inCreateInfo)
 		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(fragmentShader).setPName("main"),
 	};
 
-	const vk::PipelineVertexInputStateCreateInfo vertexInputInfo;
+	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo().setVertexAttributeDescriptions(Vertex::GetAttributeDescriptions()).setVertexBindingDescriptions(Vertex::GetBindingDescriptions());
 
 	const auto inputAssemblyInfo = vk::PipelineInputAssemblyStateCreateInfo().setTopology(vk::PrimitiveTopology::eTriangleList);
 

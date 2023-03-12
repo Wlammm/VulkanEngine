@@ -5,6 +5,7 @@
 #include "VulkanDevice.h"
 #include "VulkanSwapchain.h"
 #include "Utils/String.hpp"
+#include "VulkanAllocator.h"
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
@@ -36,6 +37,7 @@ VulkanContext::VulkanContext()
 	myPhysicalDevice = new VulkanPhysicalDevice();
 	myDevice = new VulkanDevice(*myPhysicalDevice);
 	mySwapChain = new VulkanSwapChain(*myDevice);
+	myAllocator = new VulkanAllocator(myVulkanInstance, *myPhysicalDevice, *myDevice);
 
 	myPipelineCache = GetDevice()->createPipelineCache(vk::PipelineCacheCreateInfo(), nullptr);
 }
@@ -44,6 +46,7 @@ VulkanContext::~VulkanContext()
 {
 	GetDevice()->destroyPipelineCache(myPipelineCache);
 
+	del(myAllocator);
 	del(mySwapChain);
 	del(myDevice);
 	del(myPhysicalDevice);
@@ -74,6 +77,11 @@ VulkanSwapChain& VulkanContext::GetSwapChain()
 vk::PipelineCache& VulkanContext::GetPipelineCache()
 {
 	return myInstance->myPipelineCache;
+}
+
+VulkanAllocator& VulkanContext::GetAllocator()
+{
+	return *myInstance->myAllocator;
 }
 
 Vec2f VulkanContext::GetRenderResolution()

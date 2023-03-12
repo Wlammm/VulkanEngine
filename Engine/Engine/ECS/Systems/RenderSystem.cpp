@@ -5,14 +5,18 @@
 #include "Vulkan/VulkanSwapChain.h"
 #include "Engine.h"
 #include "World/World.h"
+#include "Rendering/Model.h"
 
 RenderSystem::RenderSystem()
 {
 	CreatePipelines();
+
+	myModel = new Model();
 }
 
 RenderSystem::~RenderSystem()
 {
+	del(myModel);
 	del(myPipeline);
 }
 
@@ -47,6 +51,7 @@ void RenderSystem::Tick()
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
 
 	UpdateObjectBuffer(Transform());
+	myModel->Bind(commandBuffer);
 	commandBuffer.draw(3, 1, 0, 0);
 
 	commandBuffer.endRenderPass();

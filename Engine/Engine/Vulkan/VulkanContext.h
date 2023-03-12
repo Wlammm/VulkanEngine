@@ -11,6 +11,7 @@ public:
 	static class VulkanDevice& GetDevice();
 	static class VulkanSwapChain& GetSwapChain();
 	static vk::PipelineCache& GetPipelineCache();
+	static class VulkanAllocator& GetAllocator();
 
 	static Vec2f GetRenderResolution();
 
@@ -35,6 +36,7 @@ private:
 	class VulkanPhysicalDevice* myPhysicalDevice = nullptr;
 	class VulkanDevice* myDevice = nullptr;
 	class VulkanSwapChain* mySwapChain = nullptr;
+	class VulkanAllocator* myAllocator = nullptr;
 
 	const List<const char*> myExtensions
 	{

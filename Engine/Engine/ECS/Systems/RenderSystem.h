@@ -34,4 +34,6 @@ private:
 		Mat4f myToWorld;
 	};
 	VulkanUniformBuffer<ObjectBuffer> myObjectBuffer{ vk::ShaderStageFlagBits::eVertex, 1 };
+
+	class Model* myModel = nullptr;
 };

@@ -67,6 +67,11 @@ const vk::PhysicalDeviceMemoryProperties& VulkanPhysicalDevice::GetMemoryPropert
 	return myMemoryProperties;
 }
 
+vk::PhysicalDevice VulkanPhysicalDevice::GetPhysicalDevice() const
+{
+	return myDevice;
+}
+
 bool VulkanPhysicalDevice::CheckDeviceExtensionSupport(const vk::PhysicalDevice& inDevice) const
 {
 	const auto availableExtensions = inDevice.enumerateDeviceExtensionProperties();

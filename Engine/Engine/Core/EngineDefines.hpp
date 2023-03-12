@@ -16,4 +16,6 @@
 
 #define THROW_IF(x, message) if(x) THROW(message)
 
+#define DO_ONCE(x) { static bool firstRun = true; if(firstRun) { firstRun = false; x } }
+
 #define del(x) { delete x; x = nullptr; }
