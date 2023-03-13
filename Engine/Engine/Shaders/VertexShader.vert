@@ -7,7 +7,7 @@ layout(location = 3) in vec4 inTangent;
 layout(location = 4) in vec4 inBinormals;
 layout(location = 5) in vec2 inTexCoords[4];
 
-layout(location = 0) out vec3 outFragColor;
+layout(location = 0) out vec3 outNormal;
 
 layout(binding = 0) uniform FrameBuffer 
 {
@@ -28,5 +28,5 @@ void main()
 	vec4 viewPos = worldPos * myToView;
 	vec4 projPos = viewPos * myProjection;
 	gl_Position = projPos;
-	outFragColor = inColor.xyz;
+	outNormal = inNormal.xyz;
 }
