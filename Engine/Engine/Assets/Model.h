@@ -1,11 +1,13 @@
 #pragma once
 
+#include "Rendering/Mesh.h"
+
 class Model
 {
 public:
-	void Bind(vk::CommandBuffer inCommandBuffer);
-
 	bool IsValid() const;
+
+	const List<Mesh>& GetMeshes() const;
 
 private:
 	// ------- TEMP -------
@@ -17,10 +19,9 @@ private:
 	Model(const std::filesystem::path& inPath);
 	~Model();
 
+
 private:
 	bool myIsValid = false;
 	std::filesystem::path myPath = "";
-
-	class VulkanVertexBuffer* myVertexBuffer = nullptr;
-	class VulkanIndexBuffer* myIndexBuffer = nullptr;
+	List<Mesh> myMeshes{};
 };

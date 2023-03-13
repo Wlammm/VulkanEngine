@@ -17,7 +17,8 @@ workspace "Engine"
 		"../%{prj.name}/**.cpp", 
 		"../%{prj.name}/**.c", 
 		"../%{prj.name}/**.hpp",
-		"../%{prj.name}/**.h"
+		"../%{prj.name}/**.h",
+		"../%{prj.name}/**.natvis",
 	}
 	filter "configurations:Debug"
 		defines { "DEBUG" }

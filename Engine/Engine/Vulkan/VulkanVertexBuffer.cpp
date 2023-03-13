@@ -3,6 +3,7 @@
 #include "VulkanContext.h"
 #include "VulkanAllocator.h"
 #include "VulkanDevice.h"
+#include "VulkanBuffer.h"
 
 VulkanVertexBuffer::VulkanVertexBuffer(const List<Vertex>& inVertices)
 {
@@ -20,7 +21,7 @@ VulkanVertexBuffer::VulkanVertexBuffer(const List<Vertex>& inVertices)
 		.setSize(inVertices.size() * sizeof(Vertex))
 		.setUsage(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
 
-	myBuffer = VulkanContext::GetAllocator().AllocateBuffer("VertexBuffer", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+	myBuffer = VulkanContext::GetAllocator().AllocateBuffer("Vertex buffer", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 
 	vk::CommandBuffer copyCmd = VulkanContext::GetDevice().CreateCommandBuffer(true);
 
@@ -37,7 +38,7 @@ VulkanVertexBuffer::~VulkanVertexBuffer()
 	myBuffer = nullptr;
 }
 
-void VulkanVertexBuffer::Bind(vk::CommandBuffer inCommandBuffer)
+void VulkanVertexBuffer::Bind(vk::CommandBuffer inCommandBuffer) const
 {
 	inCommandBuffer.bindVertexBuffers(0, { *myBuffer }, { 0 });
 }

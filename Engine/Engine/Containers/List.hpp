@@ -162,8 +162,8 @@ public:
 	ElementType& Add()
 	{
 		CheckCapacityForAdd(1);
+		new(myPtr + mySize) ElementType();
 		mySize++;
-		new(myPtr + mySize - 1) ElementType();
 		return myPtr[mySize - 1];
 	}
 
@@ -196,7 +196,7 @@ public:
 
 		if constexpr (CanCopy)
 		{
-			memcpy(&myPtr[inIndex], &myPtr[inIndex + 1], sizeof(ElementType) * mySize - inIndex);
+			memcpy(&myPtr[inIndex], &myPtr[inIndex + 1], sizeof(ElementType) * (mySize - inIndex));
 		}
 		else
 		{
@@ -301,23 +301,22 @@ private:
 	{
 		ElementType* oldPtr = myPtr;
 		myPtr = reinterpret_cast<ElementType*>(malloc(sizeof(ElementType) * inNewCapacity));
-		
-		if constexpr (CanCopy)
-		{
-			memcpy(myPtr, oldPtr, sizeof(ElementType) * mySize);
-		}
-		else
-		{
-			for (SizeType i = 0; i < mySize; ++i)
-			{
-				myPtr[i] = std::move(oldPtr[i]);
-			}
-		}
-		
 		myCapacity = inNewCapacity;
 
 		if(oldPtr)
 		{
+			if constexpr (CanCopy)
+			{
+				memcpy(myPtr, oldPtr, sizeof(ElementType) * mySize);
+			}
+			else
+			{
+				for (SizeType i = 0; i < mySize; ++i)
+				{
+					myPtr[i] = std::move(oldPtr[i]);
+				}
+			}
+
 			free(oldPtr);
 			oldPtr = nullptr;
 		}

@@ -1,7 +1,5 @@
 #pragma once
-#include "VulkanBuffer.h"
 #include "Rendering/Vertex.hpp"
-
 
 class VulkanVertexBuffer
 {
@@ -10,9 +8,9 @@ public:
 	VulkanVertexBuffer(const List<Vertex>& inVertices);
 	~VulkanVertexBuffer();
 
-	void Bind(vk::CommandBuffer inCommandBuffer);
+	void Bind(vk::CommandBuffer inCommandBuffer) const;
 
 private:
-	VulkanBuffer* myBuffer = nullptr;
+	class VulkanBuffer* myBuffer = nullptr;
 	
 };

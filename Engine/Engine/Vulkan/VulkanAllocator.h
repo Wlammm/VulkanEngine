@@ -18,6 +18,6 @@ private:
 	VmaAllocator myAllocator;
 
 #ifdef DEBUG
-	List<VulkanBuffer*> myBuffers{};
+	List<class VulkanBuffer*> myBuffers{};
 #endif
 };

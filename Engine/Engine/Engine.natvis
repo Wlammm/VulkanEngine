@@ -10,4 +10,12 @@
 			</ArrayItems>
 		</Expand>
 	</Type>
+
+	<Type Name="Vector4&lt;*&gt;">
+		<DisplayString>(x={x} y={y} z={z} w={w})</DisplayString>
+	</Type>
+
+	<Type Name="Color&lt;*&gt;">
+		<DisplayString>r:{x} g:{y} b:{z} a:{w}</DisplayString>
+	</Type>
 </AutoVisualizer>

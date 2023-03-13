@@ -1,9 +1,13 @@
 #version 450
 
-layout(location = 0) in vec4 position;
-layout(location = 1) in vec4 color;
+layout(location = 0) in vec4 inPosition;
+layout(location = 1) in vec4 inColor;
+layout(location = 2) in vec4 inNormal;
+layout(location = 3) in vec4 inTangent;
+layout(location = 4) in vec4 inBinormals;
+layout(location = 5) in vec2 inTexCoords[4];
 
-layout(location = 0) out vec3 fragColor;
+layout(location = 0) out vec3 outFragColor;
 
 layout(binding = 0) uniform FrameBuffer 
 {
@@ -18,11 +22,11 @@ layout(binding = 1) uniform ObjectBuffer
 
 void main()
 {
-	vec4 objectPos = position;
-	objectPos.xy *= 10;
+	vec4 objectPos = inPosition;
+	//objectPos.xy *= 10;
 	vec4 worldPos = objectPos * myToWorld;
 	vec4 viewPos = worldPos * myToView;
 	vec4 projPos = viewPos * myProjection;
 	gl_Position = projPos;
-	fragColor = color.xyz;
+	outFragColor = inColor.xyz;
 }

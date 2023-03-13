@@ -6,12 +6,13 @@
 #include "Engine.h"
 #include "World/World.h"
 #include "Assets/Model.h"
+#include "Rendering/Mesh.h"
 
 RenderSystem::RenderSystem()
 {
 	CreatePipelines();
 
-	myModel = new Model();
+	myModel = new Model("Assets/Chest.fbx");
 }
 
 RenderSystem::~RenderSystem()
@@ -51,8 +52,12 @@ void RenderSystem::Tick()
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
 
 	UpdateObjectBuffer(Transform());
-	myModel->Bind(commandBuffer);
-	commandBuffer.drawIndexed(3, 1, 0, 0, 0);
+
+	for(const Mesh& mesh : myModel->GetMeshes())
+	{
+		mesh.Bind(commandBuffer);
+		commandBuffer.drawIndexed(mesh.NumIndices, 1, 0, 0, 0);
+	}
 
 	commandBuffer.endRenderPass();
 

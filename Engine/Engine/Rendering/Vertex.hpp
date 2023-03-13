@@ -6,6 +6,10 @@ struct Vertex
 {
 	Vec4f myPosition;
 	Color myColor;
+	Vec4f myNormal;
+	Vec4f myTangents;
+	Vec4f myBinormals;
+	std::array<Vec2f, 4> myTexCoords;
 
 	static List<vk::VertexInputBindingDescription>& GetBindingDescriptions()
 	{
@@ -29,6 +33,14 @@ struct Vertex
 		DO_ONCE(
 			descs.Add({ 0, 0, vk::Format::eR32G32B32A32Sfloat, offsetof(Vertex, myPosition) });
 			descs.Add({ 1, 0, vk::Format::eR32G32B32A32Sfloat, offsetof(Vertex, myColor) });
+			descs.Add({ 2, 0, vk::Format::eR32G32B32A32Sfloat, offsetof(Vertex, myNormal) });
+			descs.Add({ 3, 0, vk::Format::eR32G32B32A32Sfloat, offsetof(Vertex, myTangents) });
+			descs.Add({ 4, 0, vk::Format::eR32G32B32A32Sfloat, offsetof(Vertex, myBinormals) });
+
+			descs.Add({ 5, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, myTexCoords) + sizeof(Vec2f) * 0 });
+			descs.Add({ 6, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, myTexCoords) + sizeof(Vec2f) * 1 });
+			descs.Add({ 7, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, myTexCoords) + sizeof(Vec2f) * 2 });
+			descs.Add({ 8, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, myTexCoords) + sizeof(Vec2f) * 3 });
 		);
 		return descs;
 	}
