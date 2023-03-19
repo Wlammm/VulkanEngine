@@ -28,13 +28,15 @@ void RenderSystem::Tick()
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
 
-	vk::ClearValue clearValue = vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} }));
+	vk::ClearValue clearValues[2] = { 
+		vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })), 
+		vk::ClearDepthStencilValue(1.0f, 0u) };
 
 	commandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
 		.setRenderPass(VulkanContext::GetSwapChain().GetRenderPass())
 		.setFramebuffer(VulkanContext::GetSwapChain().GetFrameBuffer())
-		.setPClearValues(&clearValue)
-		.setClearValueCount(1)
+		.setPClearValues(clearValues)
+		.setClearValueCount(2)
 		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
 		, vk::SubpassContents::eInline);
 

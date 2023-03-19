@@ -5,6 +5,7 @@
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "Engine.h"
+#include "VulkanDepthBuffer.h"
 
 VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
 	: myDevice{ inDevice }
@@ -261,6 +262,8 @@ void VulkanSwapChain::CreateSwapChain()
 
 		myImageViews.Add(myDevice->createImageView(imageViewCreateInfo));
 	}
+
+	myDepthBuffer = new VulkanDepthBuffer({ mySwapChainWidth, mySwapChainHeight });
 }
 
 void VulkanSwapChain::CreateCommandPoolAndBuffers()
@@ -275,7 +278,7 @@ void VulkanSwapChain::CreateCommandPoolAndBuffers()
 
 void VulkanSwapChain::CreateRenderPass()
 {
-	const std::array<vk::AttachmentDescription, 1> attachments = {
+	const std::array<vk::AttachmentDescription, 2> attachments = {
 		vk::AttachmentDescription()
 			.setFormat(myFormat)
 			.setSamples(vk::SampleCountFlagBits::e1)
@@ -285,15 +288,35 @@ void VulkanSwapChain::CreateRenderPass()
 			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
 			.setInitialLayout(vk::ImageLayout::eUndefined)
 			.setFinalLayout(vk::ImageLayout::ePresentSrcKHR),
+		vk::AttachmentDescription()
+			.setFormat(myDepthBuffer->GetFormat())
+			.setSamples(vk::SampleCountFlagBits::e1)
+			.setLoadOp(vk::AttachmentLoadOp::eClear)
+			.setStoreOp(vk::AttachmentStoreOp::eDontCare)
+			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
+			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
+			.setInitialLayout(vk::ImageLayout::eUndefined)
+			.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal),
 	};
 
 	const auto colorReference = vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eColorAttachmentOptimal);
+	const auto depthReference = vk::AttachmentReference().setAttachment(1).setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
 	const auto subpass = vk::SubpassDescription()
 		.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
-		.setColorAttachments(colorReference);
+		.setColorAttachments(colorReference)
+		.setPDepthStencilAttachment(&depthReference);
 
-	const std::array<vk::SubpassDependency, 1> dependencies = {
+	vk::PipelineStageFlags stages = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+	const std::array<vk::SubpassDependency, 2> dependencies = {
+		vk::SubpassDependency()  // Depth buffer is shared between swapchain images
+			.setSrcSubpass(VK_SUBPASS_EXTERNAL)
+			.setDstSubpass(0)
+			.setSrcStageMask(stages)
+			.setDstStageMask(stages)
+			.setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+			.setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+			.setDependencyFlags(vk::DependencyFlags()),
 		vk::SubpassDependency()
 			.setSrcSubpass(VK_SUBPASS_EXTERNAL)
 			.setDstSubpass(0)
@@ -309,7 +332,8 @@ void VulkanSwapChain::CreateRenderPass()
 
 void VulkanSwapChain::CreateFrameBuffers()
 {
-	std::array<vk::ImageView, 1> attachments;
+	std::array<vk::ImageView, 2> attachments;
+	attachments[1] = myDepthBuffer->GetImageView();
 
 	for(int i = 0; i < myFrameLag; ++i)
 	{
@@ -353,6 +377,7 @@ void VulkanSwapChain::DestroySwapChainRelatedObjects()
 	{
 		myDevice->destroyImageView(myImageViews[i]);
 	}
+	del(myDepthBuffer);
 
 	myDevice->freeCommandBuffers(myCommandPool, myCommandBuffers);
 	myCommandBuffers.Clear();

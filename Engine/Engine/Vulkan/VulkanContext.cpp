@@ -36,8 +36,8 @@ VulkanContext::VulkanContext()
 
 	myPhysicalDevice = new VulkanPhysicalDevice();
 	myDevice = new VulkanDevice(*myPhysicalDevice);
-	mySwapChain = new VulkanSwapChain(*myDevice);
 	myAllocator = new VulkanAllocator(myVulkanInstance, *myPhysicalDevice, *myDevice);
+	mySwapChain = new VulkanSwapChain(*myDevice);
 
 	myPipelineCache = GetDevice()->createPipelineCache(vk::PipelineCacheCreateInfo(), nullptr);
 }
@@ -46,8 +46,8 @@ VulkanContext::~VulkanContext()
 {
 	GetDevice()->destroyPipelineCache(myPipelineCache);
 
-	del(myAllocator);
 	del(mySwapChain);
+	del(myAllocator);
 	del(myDevice);
 	del(myPhysicalDevice);
 	DestroyDebugLayer();

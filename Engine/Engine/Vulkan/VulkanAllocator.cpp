@@ -6,6 +6,7 @@
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "VulkanBuffer.h"
+#include "VulkanImage.h"
 
 VulkanAllocator::VulkanAllocator(vk::Instance inInstance, const VulkanPhysicalDevice& inPhysicalDevice, const VulkanDevice& inDevice)
 {
@@ -23,6 +24,12 @@ VulkanAllocator::~VulkanAllocator()
 	for(const auto& buffer : myBuffers)
 	{
 		std::string s = "GPU buffer allocated but never freed: " + buffer->myName;
+		LOG_ERROR(s);
+	}
+
+	for (const auto& image : myImages)
+	{
+		std::string s = "GPU image allocated but never freed: " + image->myName;
 		LOG_ERROR(s);
 	}
 
@@ -55,4 +62,33 @@ void VulkanAllocator::DestroyBuffer(VulkanBuffer* inBuffer)
 	myBuffers.Remove(inBuffer);
 #endif
 	del(inBuffer);
+}
+
+VulkanImage* VulkanAllocator::AllocateImage(const std::string& inName, const vk::ImageCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
+{
+	VulkanImage* outImage = new VulkanImage();
+#ifdef DEBUG
+	outImage->myName = inName;
+	myImages.Add(outImage);
+#endif
+
+	VmaAllocationCreateInfo allocCreateInfo{};
+	allocCreateInfo.usage = inUsage;
+
+	VkImage image;
+	const VkImageCreateInfo info = inCreateInfo;
+	vmaCreateImage(myAllocator, &info, &allocCreateInfo, &image, &outImage->myAllocation, nullptr);
+	outImage->myImage = image;
+	outImage->myFormat = inCreateInfo.format;
+	return outImage;
+}
+
+void VulkanAllocator::DestroyImage(VulkanImage* inImage)
+{
+	vmaDestroyImage(myAllocator, inImage->myImage, inImage->myAllocation);
+
+#ifdef DEBUG
+	myImages.Remove(inImage);
+#endif
+	del(inImage);
 }

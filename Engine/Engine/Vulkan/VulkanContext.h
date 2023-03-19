@@ -35,8 +35,8 @@ private:
 
 	class VulkanPhysicalDevice* myPhysicalDevice = nullptr;
 	class VulkanDevice* myDevice = nullptr;
-	class VulkanSwapChain* mySwapChain = nullptr;
 	class VulkanAllocator* myAllocator = nullptr;
+	class VulkanSwapChain* mySwapChain = nullptr;
 
 	const List<const char*> myExtensions
 	{

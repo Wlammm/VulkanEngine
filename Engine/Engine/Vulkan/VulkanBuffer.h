@@ -16,12 +16,10 @@ public:
 	void* Map();
 	void Unmap();
 
-protected:
-	vk::Buffer myBuffer;
-
 private:
 	friend class VulkanAllocator;
 
+	vk::Buffer myBuffer;
 	VmaAllocation myAllocation;
 
 #ifdef DEBUG
