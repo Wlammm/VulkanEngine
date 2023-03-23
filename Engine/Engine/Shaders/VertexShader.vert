@@ -8,6 +8,7 @@ layout(location = 4) in vec4 inBinormals;
 layout(location = 5) in vec2 inTexCoords[4];
 
 layout(location = 0) out vec3 outNormal;
+layout(location = 1) out vec2 outTexCoord;
 
 layout(binding = 0) uniform FrameBuffer 
 {
@@ -29,4 +30,5 @@ void main()
 	vec4 projPos = viewPos * myProjection;
 	gl_Position = projPos;
 	outNormal = inNormal.xyz;
+	outTexCoord = inTexCoords[0];
 }

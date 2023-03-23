@@ -30,13 +30,20 @@ Model::Model()
 	myIsValid = true;
 }
 
-Model::Model(const std::filesystem::path& inPath)
+Model::Model(const std::filesystem::path& inPath, const CreateInfo& inCreateInfo)
 	: myPath{ inPath }
 {
+	bool flipIndices = false;
+
+	if (inCreateInfo.InvertY)
+		flipIndices = !flipIndices;
+	if (inCreateInfo.FlipIndicies)
+		flipIndices = !flipIndices;
+
 	Assimp::Importer importer;
-	
+
 	uint flags = aiProcessPreset_TargetRealtime_MaxQuality |
-		aiProcess_ConvertToLeftHanded |
+		//aiProcess_ConvertToLeftHanded |
 		aiProcess_Triangulate |
 		aiProcess_CalcTangentSpace |
 		aiProcess_SortByPType;
@@ -70,7 +77,7 @@ Model::Model(const std::filesystem::path& inPath)
 		for (uint vertexIndex = 0; vertexIndex < mesh.NumVertices; ++vertexIndex)
 		{
 			Vertex vertex{};
-			vertex.myPosition = { aiMesh->mVertices[vertexIndex].x, aiMesh->mVertices[vertexIndex].y, aiMesh->mVertices[vertexIndex].z, 1.0f };
+			vertex.myPosition = { aiMesh->mVertices[vertexIndex].x, inCreateInfo.InvertY ? -aiMesh->mVertices[vertexIndex].y : aiMesh->mVertices[vertexIndex].y, aiMesh->mVertices[vertexIndex].z, 1.0f };
 			vertex.myColor = { 1, 1, 1, 1 };
 
 			if (aiMesh->GetNumColorChannels() > 0)
@@ -99,7 +106,7 @@ Model::Model(const std::filesystem::path& inPath)
 		{
 			for (uint index = 0; index < 3; ++index)
 			{
-				indices.Add(aiMesh->mFaces[faceIndex].mIndices[index]);
+				indices.Add(aiMesh->mFaces[faceIndex].mIndices[flipIndices ? 2 - index : index]);
 				indicesIndex++;
 			}
 			faceIndex++;

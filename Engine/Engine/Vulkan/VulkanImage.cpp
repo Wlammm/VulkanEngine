@@ -2,6 +2,7 @@
 #include "VulkanImage.h"
 #include "VulkanContext.h"
 #include "VulkanDevice.h"
+#include "VulkanAllocator.h"
 
 VulkanImage::~VulkanImage()
 {
@@ -41,4 +42,16 @@ vk::ImageView VulkanImage::GetImageView() const
 vk::Format VulkanImage::GetFormat()
 {
 	return myFormat;
+}
+
+void* VulkanImage::Map()
+{
+	void* ptr;
+	vmaMapMemory(VulkanContext::GetAllocator(), myAllocation, &ptr);
+	return ptr;
+}
+
+void VulkanImage::Unmap()
+{
+	vmaUnmapMemory(VulkanContext::GetAllocator(), myAllocation);
 }

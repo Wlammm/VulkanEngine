@@ -15,6 +15,9 @@ public:
 
 	vk::Format GetFormat();
 
+	void* Map();
+	void Unmap();
+
 private:
 	friend class VulkanAllocator;
 	VmaAllocation myAllocation;

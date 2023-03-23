@@ -4,6 +4,7 @@
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
 #include "VulkanUniformBuffer.hpp"
+#include "VulkanTexture.h"
 #include "Rendering/Vertex.hpp"
 
 VulkanPipeline::VulkanPipeline(const CreateInfo& inCreateInfo)
@@ -152,25 +153,62 @@ void VulkanPipeline::CreateDescriptors(const CreateInfo& inCreateInfo)
 			.setPImmutableSamplers(nullptr));
 	};
 
+	for(const auto& texture : inCreateInfo.Textures)
+	{
+		// hard coded in binding for now. Need better solution.
+		layoutBindings.Add(vk::DescriptorSetLayoutBinding()
+			.setBinding(2)
+			.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+			.setDescriptorCount(1)
+			.setStageFlags(vk::ShaderStageFlagBits::eFragment)
+			.setPImmutableSamplers(nullptr));
+	}
+
 	const auto descriptor_layout = vk::DescriptorSetLayoutCreateInfo().setBindings(layoutBindings);
 
 	auto result = VulkanContext::GetDevice()->createDescriptorSetLayout(&descriptor_layout, nullptr, &myDescLayout);
 	check(result == vk::Result::eSuccess);
 
-
 	const auto allocInfo = vk::DescriptorSetAllocateInfo().setDescriptorPool(myDescriptorPool).setSetLayouts(myDescLayout);
+	
 	for (uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
 	{
 		myDescriptorSets.Add(VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front());
 
+		List<vk::WriteDescriptorSet> writes;
+
 		List<vk::DescriptorBufferInfo, uint> bufferInfos;
+		writes.Add();
 		for (const auto& buffer : inCreateInfo.UniformBuffers)
 		{
 			bufferInfos.Add(vk::DescriptorBufferInfo().setOffset(0).setRange(buffer->GetBufferSize()).setBuffer(buffer->GetBuffer(i)));
 		}
-		std::array<vk::WriteDescriptorSet, 1> writes;
-		writes[0].setDescriptorCount(bufferInfos.size()).setDescriptorType(vk::DescriptorType::eUniformBuffer).setPBufferInfo(bufferInfos.data());
+		writes[0]
+			.setDescriptorCount(bufferInfos.size())
+			.setDescriptorType(vk::DescriptorType::eUniformBuffer)
+			.setPBufferInfo(bufferInfos.data());
 		writes[0].setDstSet(myDescriptorSets[i]);
+
+
+		List<vk::DescriptorImageInfo, uint> textureInfos;
+		if (!inCreateInfo.Textures.IsEmpty())
+		{
+			writes.Add();
+			for (const auto& texture : inCreateInfo.Textures)
+			{
+				textureInfos.Add(vk::DescriptorImageInfo()
+					.setSampler(texture->GetSampler())
+					.setImageView(texture->GetImageView())
+					.setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal));
+			}
+			writes[1]
+				.setDstBinding(2)
+				.setDescriptorCount(textureInfos.size())
+				.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+				.setImageInfo(textureInfos);
+			writes[1].setDstSet(myDescriptorSets[i]);
+		}
+
 		VulkanContext::GetDevice()->updateDescriptorSets(writes, {});
 	}
 

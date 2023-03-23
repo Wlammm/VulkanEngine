@@ -7,16 +7,21 @@
 #include "World/World.h"
 #include "Assets/Model.h"
 #include "Rendering/Mesh.h"
+#include "Vulkan/VulkanTexture.h"
 
 RenderSystem::RenderSystem()
 {
-	CreatePipelines();
+	Model::CreateInfo createInfo{};
+	createInfo.InvertY = true;
+	myModel = new Model("Assets/Tree.fbx", createInfo);
+	myTexture = new VulkanTexture("Assets/Bark.tga", SamplerMode::Wrap);
 
-	myModel = new Model("Assets/Chest.fbx");
+	CreatePipelines();
 }
 
 RenderSystem::~RenderSystem()
 {
+	del(myTexture);
 	del(myModel);
 	del(myPipeline);
 }
@@ -85,6 +90,7 @@ void RenderSystem::CreatePipelines()
 	createInfo.FragmentShaderPath = "../Engine/Engine/Shaders/FragmentShader.spv";
 	createInfo.RenderPass = VulkanContext::GetSwapChain().GetRenderPass();
 	createInfo.UniformBuffers = { &myFrameBuffer, &myObjectBuffer };
+	createInfo.Textures = { myTexture };
 	myPipeline = new VulkanPipeline(createInfo);
 }
 

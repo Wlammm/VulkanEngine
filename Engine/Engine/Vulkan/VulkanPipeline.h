@@ -12,6 +12,7 @@ public:
 		vk::RenderPass RenderPass;
 
 		List<class IVulkanUniformBuffer*> UniformBuffers{};
+		List<class VulkanTexture*> Textures{};
 	};
 
 	VulkanPipeline() = delete;

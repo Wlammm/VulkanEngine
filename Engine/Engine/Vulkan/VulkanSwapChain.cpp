@@ -335,7 +335,7 @@ void VulkanSwapChain::CreateFrameBuffers()
 	std::array<vk::ImageView, 2> attachments;
 	attachments[1] = myDepthBuffer->GetImageView();
 
-	for(int i = 0; i < myFrameLag; ++i)
+	for (int i = 0; i < myFrameLag; ++i)
 	{
 		attachments[0] = myImageViews[i];
 		myFrameBuffers.Add(myDevice->createFramebuffer(vk::FramebufferCreateInfo()
