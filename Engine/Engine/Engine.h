@@ -17,6 +17,8 @@ public:
 
 	static const class SystemDispatcher& GetSystemDispatcher();
 
+	static const class WindowHandler& GetWindowHandler();
+
 	static class World& GetWorld();
 	static void SetWorld(World* inWorld);
 

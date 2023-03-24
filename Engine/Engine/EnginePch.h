@@ -18,6 +18,11 @@
 
 #include <entt/entt.hpp>
 
+#include <imgui.h>
+#include <imgui_stdlib.h>
+#include <imgui_impl_win32.h>
+#include <imgui_impl_vulkan.h>
+
 #include "Engine/Core/EngineDefines.hpp"
 #include "Engine/Math/Defines.hpp"
 

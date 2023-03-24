@@ -8,6 +8,7 @@
 #include "Assets/Model.h"
 #include "Rendering/Mesh.h"
 #include "Vulkan/VulkanTexture.h"
+#include "Vulkan/VulkanImGui.h"
 
 RenderSystem::RenderSystem()
 {
@@ -66,6 +67,7 @@ void RenderSystem::Tick()
 		commandBuffer.drawIndexed(mesh.NumIndices, 1, 0, 0, 0);
 	}
 
+	VulkanImGui::Render(commandBuffer);
 	commandBuffer.endRenderPass();
 
 	/*commandBuffer.pipelineBarrier(

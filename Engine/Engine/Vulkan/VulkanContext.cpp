@@ -6,6 +6,7 @@
 #include "VulkanSwapchain.h"
 #include "Utils/String.hpp"
 #include "VulkanAllocator.h"
+#include "VulkanImGui.h"
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
@@ -40,10 +41,13 @@ VulkanContext::VulkanContext()
 	mySwapChain = new VulkanSwapChain(*myDevice);
 
 	myPipelineCache = GetDevice()->createPipelineCache(vk::PipelineCacheCreateInfo(), nullptr);
+
+	VulkanImGui::Start();
 }
 
 VulkanContext::~VulkanContext()
 {
+	VulkanImGui::Destroy();
 	GetDevice()->destroyPipelineCache(myPipelineCache);
 
 	del(mySwapChain);
@@ -92,6 +96,7 @@ Vec2f VulkanContext::GetRenderResolution()
 void VulkanContext::BeginFrame()
 {
 	myInstance->mySwapChain->BeginFrame();
+	VulkanImGui::BeginFrame();
 }
 
 void VulkanContext::EndFrame()

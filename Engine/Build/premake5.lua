@@ -36,6 +36,7 @@ project "Launcher"
 		"%{VULKAN_SDK}/Include/",
 		"$(SolutionDir)",
 		"$(SolutionDir)External/",
+		"$(SolutionDir)ImGui/",
 	}
 	
 	links
@@ -82,6 +83,7 @@ project "ImGui"
 	includedirs
 	{
 		"$(ProjectDir)",
+		"%{VULKAN_SDK}/Include/",
 	}
 	
 project "Unit Test"

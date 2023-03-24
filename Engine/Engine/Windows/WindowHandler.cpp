@@ -3,6 +3,8 @@
 #include "Engine.h"
 #include "Core\Input.h"
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 WindowHandler::WindowHandler()
 {
 	check(!myInstance && "Only one instance of this class can exist at once.");
@@ -52,6 +54,11 @@ HINSTANCE WindowHandler::GetHInstance()
 
 LRESULT WindowHandler::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
+	{
+		return true;
+	}
+
 	if (uMsg == WM_DESTROY || uMsg == WM_CLOSE)
 	{
 		PostQuitMessage(0);

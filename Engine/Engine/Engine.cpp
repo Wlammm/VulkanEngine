@@ -50,6 +50,8 @@ void Engine::Tick()
 
 	VulkanContext::BeginFrame();
 
+	ImGui::ShowDemoWindow();
+
 	mySystemDispatcher->DispatchSystems();
 
 	VulkanContext::EndFrame();
@@ -74,6 +76,11 @@ const EngineProperties& Engine::GetEngineProperties()
 const SystemDispatcher& Engine::GetSystemDispatcher()
 {
 	return *myInstance->mySystemDispatcher;
+}
+
+const WindowHandler& Engine::GetWindowHandler()
+{
+	return *myInstance->myWindowHandler;
 }
 
 World& Engine::GetWorld()
