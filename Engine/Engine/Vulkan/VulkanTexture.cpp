@@ -17,7 +17,11 @@ VulkanTexture::VulkanTexture(const std::filesystem::path& inPath, SamplerMode in
 
 VulkanTexture::~VulkanTexture()
 {
+	LOG_WARNING("Textures waits for device idle. Fix");
+	VulkanContext::GetDevice()->waitIdle();
+
 	VulkanContext::GetAllocator().DestroyImage(myImage);
+	VulkanContext::GetDevice()->destroySampler(mySampler);
 }
 
 vk::Sampler VulkanTexture::GetSampler() const
@@ -94,6 +98,17 @@ void VulkanTexture::CreateImage(const std::filesystem::path& inPath)
 	bufferCopyRegion.setBufferOffset(0);
 
 	commandBuffer.copyBufferToImage(*stagingBuffer, *myImage, vk::ImageLayout::eTransferDstOptimal, { bufferCopyRegion });
+
+	commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader, vk::DependencyFlagBits(), {}, {},
+		vk::ImageMemoryBarrier()
+		.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+		.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eInputAttachmentRead)
+		.setOldLayout(vk::ImageLayout::eTransferDstOptimal)
+		.setNewLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		.setImage(*myImage)
+		.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));
 
 	VulkanContext::GetDevice().FlushCommandBuffer(commandBuffer);
 	VulkanContext::GetAllocator().DestroyBuffer(stagingBuffer);
