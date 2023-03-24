@@ -65,6 +65,10 @@ project "Editor"
     kind "StaticLib"
 	location "../%{prj.name}"
 	
+project "ImGui"
+    kind "StaticLib"
+	location "../%{prj.name}"
+	
 project "Unit Test"
     kind "ConsoleApp"
 	location "../%{prj.name}"
