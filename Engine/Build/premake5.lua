@@ -44,6 +44,7 @@ project "Launcher"
 		"Editor",
 		"%{VULKAN_SDK}/Lib/vulkan-1.lib",
 		"%{EXTERNAL}/assimp/lib/assimp-vc143-mt.lib",
+		"ImGui",
 	}
 
 project "Engine"
@@ -59,15 +60,29 @@ project "Engine"
 		"%{VULKAN_SDK}/Include/",
 		"$(SolutionDir)External/",
 		"%{EXTERNAL}/assimp/include/",
+		"$(SolutionDir)ImGui/",
 	}
 
 project "Editor"
     kind "StaticLib"
 	location "../%{prj.name}"
+	includedirs
+	{
+		"$(SolutionDir)",
+		"$(ProjectDir)",
+		"%{VULKAN_SDK}/Include/",
+		"$(SolutionDir)External/",
+		"%{EXTERNAL}/assimp/include/",
+		"$(SolutionDir)ImGui/",
+	}
 	
 project "ImGui"
     kind "StaticLib"
 	location "../%{prj.name}"
+	includedirs
+	{
+		"$(ProjectDir)",
+	}
 	
 project "Unit Test"
     kind "ConsoleApp"
