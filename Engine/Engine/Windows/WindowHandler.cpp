@@ -55,9 +55,7 @@ HINSTANCE WindowHandler::GetHInstance()
 LRESULT WindowHandler::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
-	{
 		return true;
-	}
 
 	if (uMsg == WM_DESTROY || uMsg == WM_CLOSE)
 	{

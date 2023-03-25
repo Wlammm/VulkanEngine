@@ -126,6 +126,11 @@ const vk::Framebuffer& VulkanSwapChain::GetFrameBuffer() const
 	return myFrameBuffers[mySwapChainImageIndex];
 }
 
+const vk::SurfaceKHR& VulkanSwapChain::GetSurface() const
+{
+	return myWindowSurface;
+}
+
 uint VulkanSwapChain::GetFrameIndex() const
 {
 	return myFrameIndex;
@@ -149,6 +154,11 @@ uint VulkanSwapChain::GetWidth() const
 uint VulkanSwapChain::GetHeight() const
 {
 	return mySwapChainHeight;
+}
+
+uint VulkanSwapChain::GetMinImageCount() const
+{
+	return myMinImageCount;
 }
 
 void VulkanSwapChain::CreateWindowSurface()
@@ -204,6 +214,9 @@ void VulkanSwapChain::CreateSwapChain()
 	}
 
 	uint32_t numSwapchainImages = 3;
+
+	myMinImageCount = surfaceCapabilities.minImageCount;
+
 	if (numSwapchainImages < surfaceCapabilities.minImageCount)
 		numSwapchainImages = surfaceCapabilities.minImageCount;
 

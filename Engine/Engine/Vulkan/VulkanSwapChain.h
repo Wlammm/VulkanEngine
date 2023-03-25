@@ -15,6 +15,7 @@ public:
 	const vk::Image& GetImage() const;
 	const vk::RenderPass& GetRenderPass() const;
 	const vk::Framebuffer& GetFrameBuffer() const;
+	const vk::SurfaceKHR& GetSurface() const;
 
 	uint GetFrameIndex() const;
 	uint GetSwapChainIndex() const;
@@ -22,6 +23,8 @@ public:
 
 	uint GetWidth() const;
 	uint GetHeight() const;
+
+	uint GetMinImageCount() const;
 
 private:
 	void CreateWindowSurface();
@@ -60,6 +63,8 @@ private:
 
 	uint mySwapChainWidth;
 	uint mySwapChainHeight;
+
+	uint myMinImageCount = 0;
 	
 	List<vk::Image> myImages;
 	List<vk::ImageView> myImageViews;

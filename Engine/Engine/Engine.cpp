@@ -56,6 +56,9 @@ void Engine::Tick()
 
 	VulkanContext::EndFrame();
 	Input::EndFrame();
+
+	ImGui::UpdatePlatformWindows();
+	ImGui::RenderPlatformWindowsDefault();
 }
 
 bool Engine::ShouldRun() const

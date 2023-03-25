@@ -9,4 +9,3 @@ Engine/packages
 *.vcxproj.user
 *.exe
 *.pdb
-Engine/imgui

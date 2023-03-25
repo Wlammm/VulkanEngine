@@ -13,7 +13,11 @@ void VulkanImGui::Start()
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
 
-	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+	ImGui::GetPlatformIO().Platform_CreateVkSurface = ImGuiCreateWindowSurfaceImpl;
 
 	ImGui_ImplWin32_Init(Engine::GetWindowHandler().GetHWND());
 
@@ -47,10 +51,12 @@ void VulkanImGui::Start()
 	createInfo.PhysicalDevice = VulkanContext::GetPhysicalDevice().GetPhysicalDevice();
 	createInfo.Device = VulkanContext::GetDevice().GetDevice();
 	createInfo.Queue = VulkanContext::GetDevice().GetGraphicsQueue();
+	createInfo.QueueFamily = VulkanContext::GetPhysicalDevice().GetGraphicsQueueIndex();
 	createInfo.DescriptorPool = imguiPool;
-	createInfo.MinImageCount = 3;
-	createInfo.ImageCount = 3;
+	createInfo.MinImageCount = VulkanContext::GetSwapChain().GetMinImageCount();
+	createInfo.ImageCount = VulkanContext::GetSwapChain().GetFrameLag();
 	createInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+	createInfo.CheckVkResultFn = VulkanCheckResult;
 
 	ImGui_ImplVulkan_Init(&createInfo, VulkanContext::GetSwapChain().GetRenderPass());
 
@@ -87,9 +93,19 @@ void VulkanImGui::Render(vk::CommandBuffer inCommandBuffer)
 
 	ImGui::Render();
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), inCommandBuffer);
-	ImGui::GetIO().DisplaySize = ImGui::GetMainViewport()->WorkSize;
+}
 
-	ImGui::UpdatePlatformWindows();
-	ImGui::RenderPlatformWindowsDefault();
-	ImGui::EndFrame();
+int VulkanImGui::ImGuiCreateWindowSurfaceImpl(ImGuiViewport* viewport, ImU64 vk_instance, const void* vk_allocator, ImU64* out_vk_surface)
+{
+	vk::SurfaceKHR surface;
+	HWND wnd = (HWND)viewport->PlatformHandleRaw;
+	HINSTANCE inst = (HINSTANCE)GetWindowLongPtr(wnd, GWLP_HINSTANCE);
+	VkWin32SurfaceCreateInfoKHR createInfo = vk::Win32SurfaceCreateInfoKHR().setHinstance(inst).setHwnd(wnd);
+	VkResult result = vkCreateWin32SurfaceKHR((VkInstance)vk_instance, &createInfo, (VkAllocationCallbacks*)vk_allocator, (VkSurfaceKHR*)out_vk_surface);
+	return (int)result;
+}
+
+void VulkanImGui::VulkanCheckResult(VkResult result)
+{
+	check(result == VkResult::VK_SUCCESS);
 }
