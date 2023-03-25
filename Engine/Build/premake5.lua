@@ -2,7 +2,7 @@ VULKAN_SDK = os.getenv("VULKAN_SDK")
 EXTERNAL = "$(SolutionDir)External"
 
 workspace "Engine"
-    configurations { "Debug", "Release" }
+    configurations { "Game Debug", "Game Release", "Editor Debug", "Editor Release" }
 	platforms { "Win64" }
     location "../"
     startproject "Launcher"
@@ -20,13 +20,19 @@ workspace "Engine"
 		"../%{prj.name}/**.h",
 		"../%{prj.name}/**.natvis",
 	}
-	filter "configurations:Debug"
+	filter "configurations:Game Debug"
 		defines { "DEBUG" }
 		symbols "On"
-	filter "configurations:Release"
+	filter "configurations:Game Release"
 		defines { "" }
 		optimize "On"
-
+	filter "configurations:Editor Debug"
+		defines { "DEBUG", "EDITOR" }
+		symbols "On"
+	filter "configurations:Editor Release"
+		defines { "EDITOR" }
+		optimize "On"
+		
 project "Launcher"
     kind "ConsoleApp"
 	location "../%{prj.name}"
@@ -67,6 +73,8 @@ project "Engine"
 project "Editor"
     kind "StaticLib"
 	location "../%{prj.name}"
+	pchheader "EditorPch.h"
+	pchsource "../Editor/EditorPch.cpp"
 	includedirs
 	{
 		"$(SolutionDir)",

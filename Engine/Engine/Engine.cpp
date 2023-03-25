@@ -52,6 +52,10 @@ void Engine::Tick()
 
 	ImGui::ShowDemoWindow();
 
+	ImGui::Begin("FPS");
+	ImGui::Text("%f", 1.f / Time::GetDeltaTime());
+	ImGui::End();
+
 	mySystemDispatcher->DispatchSystems();
 
 	VulkanContext::EndFrame();

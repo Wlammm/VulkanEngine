@@ -11,6 +11,10 @@ int main(int argc, char** argv)
 
 		Engine engine{ properties };
 
+#if EDITOR
+
+#endif
+
 		bool isRunning = true;
 		while (isRunning)
 		{
