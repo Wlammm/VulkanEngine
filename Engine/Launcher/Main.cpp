@@ -1,6 +1,10 @@
 #include <iostream>
 #include "Engine/Engine.h"
 
+#if EDITOR
+#include <Editor/Editor.h>
+#endif
+
 int main(int argc, char** argv)
 {
 	try
@@ -12,7 +16,8 @@ int main(int argc, char** argv)
 		Engine engine{ properties };
 
 #if EDITOR
-
+		Editor editor{};
+		Engine::SetEditorTickFunction(Editor::StaticTick);
 #endif
 
 		bool isRunning = true;

@@ -24,6 +24,10 @@ public:
 
 	static Vec2ui GetRenderResolution();
 
+#if EDITOR
+	static void SetEditorTickFunction(const std::function<void()> inEditorTickFunction);
+#endif
+
 private:
 	void CreateSystems();
 
@@ -38,6 +42,10 @@ private:
 	class SystemDispatcher* mySystemDispatcher = nullptr;
 
 	class World* myWorld = nullptr;
+
+#if EDITOR
+	std::function<void()> myEditorTick = nullptr;
+#endif
 
 private:
 	inline static Engine* myInstance = nullptr;

@@ -1,11 +1,6 @@
 #pragma once
 
-enum class SamplerMode
-{
-	Clamp,
-	Wrap,
-	Count
-};
+#include "VulkanUTils.hpp"
 
 class VulkanTexture
 {

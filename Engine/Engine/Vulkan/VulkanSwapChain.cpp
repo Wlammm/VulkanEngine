@@ -161,6 +161,11 @@ uint VulkanSwapChain::GetMinImageCount() const
 	return myMinImageCount;
 }
 
+const vk::ImageView& VulkanSwapChain::GetImageView(const uint inIndex) const
+{
+	return myImageViews[inIndex];
+}
+
 void VulkanSwapChain::CreateWindowSurface()
 {
 	vk::Win32SurfaceCreateInfoKHR createInfo = vk::Win32SurfaceCreateInfoKHR().setHinstance(WindowHandler::GetHInstance()).setHwnd(WindowHandler::GetHWND());
@@ -264,7 +269,6 @@ void VulkanSwapChain::CreateSwapChain()
 		myDevice->destroySwapchainKHR(oldSwapChain);
 
 	myImages = myDevice->getSwapchainImagesKHR(mySwapChain);
-
 	for(int i = 0; i < myImages.size(); ++i)
 	{
 		vk::ImageViewCreateInfo imageViewCreateInfo = vk::ImageViewCreateInfo()

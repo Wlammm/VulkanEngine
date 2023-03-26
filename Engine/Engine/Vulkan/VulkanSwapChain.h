@@ -26,6 +26,8 @@ public:
 
 	uint GetMinImageCount() const;
 
+	const vk::ImageView& GetImageView(const uint inIndex) const;
+
 private:
 	void CreateWindowSurface();
 	void CreateSyncObjects();

@@ -50,11 +50,9 @@ void Engine::Tick()
 
 	VulkanContext::BeginFrame();
 
-	ImGui::ShowDemoWindow();
-
-	ImGui::Begin("FPS");
-	ImGui::Text("%f", 1.f / Time::GetDeltaTime());
-	ImGui::End();
+#if EDITOR
+	myEditorTick();
+#endif
 
 	mySystemDispatcher->DispatchSystems();
 
@@ -104,6 +102,13 @@ Vec2ui Engine::GetRenderResolution()
 {
 	return { myInstance->myVulkanContext->GetSwapChain().GetWidth(), myInstance->myVulkanContext->GetSwapChain().GetHeight() };
 }
+
+#if EDITOR
+void Engine::SetEditorTickFunction(const std::function<void()> inEditorTickFunction)
+{
+	myInstance->myEditorTick = inEditorTickFunction;
+}
+#endif
 
 void Engine::CreateSystems()
 {
