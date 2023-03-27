@@ -18,8 +18,8 @@ public:
 	VulkanRenderState() = delete;
 	VulkanRenderState(const CreateInfo& inCreateInfo);
 
-	void Begin();
-	void End();
+	void Begin(vk::CommandBuffer inCommandBuffer);
+	void End(vk::CommandBuffer inCommandBuffer);
 
 private:
 	void CreateRenderPass(const CreateInfo& inCreateInfo);

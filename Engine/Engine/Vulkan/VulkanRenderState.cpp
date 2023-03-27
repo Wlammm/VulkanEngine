@@ -5,6 +5,8 @@
 #include "VulkanContext.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
+#include "VulkanRenderImages.h"
+#include "Engine.h"
 
 VulkanRenderState::VulkanRenderState(const CreateInfo& inCreateInfo)
 {
@@ -12,19 +14,32 @@ VulkanRenderState::VulkanRenderState(const CreateInfo& inCreateInfo)
 	CreateFramebuffer(inCreateInfo);
 }
 
-void VulkanRenderState::Begin()
+void VulkanRenderState::Begin(vk::CommandBuffer inCommandBuffer)
 {
+	vk::ClearValue clearValues[2] = {
+	vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })),
+	vk::ClearDepthStencilValue(1.0f, 0u) };
+
+	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
+		.setRenderPass(myRenderPass)
+		.setFramebuffer(myFrameBuffers[VulkanContext::GetSwapChain().GetSwapChainIndex()])
+		.setPClearValues(clearValues)
+		.setClearValueCount(2)
+		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
+		, vk::SubpassContents::eInline);
+
 }
 
-void VulkanRenderState::End()
+void VulkanRenderState::End(vk::CommandBuffer inCommandBuffer)
 {
+
 }
 
 void VulkanRenderState::CreateRenderPass(const CreateInfo& inCreateInfo)
 {
 	List<vk::AttachmentDescription> attachments = {
 		vk::AttachmentDescription()
-			.setFormat(inCreateInfo.ColorTarget->GetFormat())
+			.setFormat(inCreateInfo.ColorTargets->GetFormat())
 			.setSamples(vk::SampleCountFlagBits::e1)
 			.setLoadOp(vk::AttachmentLoadOp::eClear)
 			.setStoreOp(vk::AttachmentStoreOp::eStore)
@@ -91,8 +106,8 @@ void VulkanRenderState::CreateFramebuffer(const CreateInfo& inCreateInfo)
 		myFrameBuffers.Add(VulkanContext::GetDevice()->createFramebuffer(vk::FramebufferCreateInfo()
 			.setRenderPass(myRenderPass)
 			.setAttachments(attachments)
-			.setWidth(mySwapChainWidth)
-			.setHeight(mySwapChainHeight)
+			.setWidth(Engine::GetRenderResolution().x)
+			.setHeight(Engine::GetRenderResolution().y)
 			.setLayers(1)));
 	}
 }
