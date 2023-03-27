@@ -9,6 +9,8 @@
 #include "Rendering/Mesh.h"
 #include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanImGui.h"
+#include "Vulkan/VulkanImage.h"
+#include "Vulkan/VulkanAllocator.h"
 
 RenderSystem::RenderSystem()
 {
@@ -87,13 +89,27 @@ void RenderSystem::Tick()
 
 void RenderSystem::CreatePipelines()
 {
-	VulkanPipeline::CreateInfo createInfo;
-	createInfo.VertexShaderPath = "../Engine/Engine/Shaders/VertexShader.spv";
-	createInfo.FragmentShaderPath = "../Engine/Engine/Shaders/FragmentShader.spv";
-	createInfo.RenderPass = VulkanContext::GetSwapChain().GetRenderPass();
-	createInfo.UniformBuffers = { &myFrameBuffer, &myObjectBuffer };
-	createInfo.Textures = { myTexture };
-	myPipeline = new VulkanPipeline(createInfo);
+	{
+		VulkanPipeline::CreateInfo createInfo;
+		createInfo.VertexShaderPath = "../Engine/Engine/Shaders/VertexShader.spv";
+		createInfo.FragmentShaderPath = "../Engine/Engine/Shaders/FragmentShader.spv";
+		createInfo.RenderPass = VulkanContext::GetSwapChain().GetRenderPass();
+		createInfo.UniformBuffers = { &myFrameBuffer, &myObjectBuffer };
+		createInfo.Textures = { myTexture };
+		myPipeline = new VulkanPipeline(createInfo);
+	}
+	
+	{
+		vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
+			.setMipLevels(1)
+			.setArrayLayers(1)
+			.setFormat(vk::Format::eR32G32B32Sfloat)
+			.setImageType(vk::ImageType::e2D)
+			.setInitialLayout(vk::ImageLayout::eUndefined)
+			.setExtent({ Engine::GetRenderResolution().x, Engine::GetRenderResolution().y, 1 });
+		myRenderTexture = VulkanContext::GetAllocator().AllocateImage("Render texture", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+		myRenderTexture->CreateView(vk::ImageViewType::e2D, vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
+	}
 }
 
 void RenderSystem::UpdateFrameBuffer()

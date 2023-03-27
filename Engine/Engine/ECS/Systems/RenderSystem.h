@@ -35,6 +35,8 @@ private:
 	};
 	VulkanUniformBuffer<ObjectBuffer> myObjectBuffer{ vk::ShaderStageFlagBits::eVertex, 1 };
 
+	class VulkanImage* myRenderTexture = nullptr;
+
 	class Model* myModel = nullptr;
 	class VulkanTexture* myTexture = nullptr;
 };

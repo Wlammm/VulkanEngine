@@ -127,6 +127,12 @@ public:
 		mySize = 0;
 	}
 
+	void Resize(const SizeType inSize)
+	{
+		Grow(inSize);
+		mySize = inSize;
+	}
+
 	void Reserve(const SizeType inSize)
 	{
 		Grow(inSize);
