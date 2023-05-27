@@ -13,6 +13,7 @@
 
 #include "World/World.h"
 #include "ECS/Systems/CameraSystem.h"
+#include "Vulkan/VulkanImGui.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -26,6 +27,8 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	mySystemDispatcher = new SystemDispatcher();
 
 	CreateSystems();
+
+	VulkanImGui::Start();
 
 	SetWorld(new World());
 }

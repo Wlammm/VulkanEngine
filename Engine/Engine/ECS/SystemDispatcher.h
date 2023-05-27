@@ -53,6 +53,17 @@ public:
 		}
 	}
 
+	template<typename T>
+	T* GetSystem()
+	{
+		for(ISystem* system : mySystems)
+		{
+			if (T* castedSystem = dynamic_cast<T*>(system))
+				return castedSystem;
+		}
+		return nullptr;
+	}
+
 private:
 	void RebuildSystemsQueue()
 	{

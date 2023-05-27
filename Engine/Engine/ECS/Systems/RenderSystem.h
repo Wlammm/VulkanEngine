@@ -13,27 +13,38 @@ public:
 
 	virtual void Tick() override final;
 
+	vk::RenderPass& GetRenderPass();
+
 private:
+	void CreateRenderPass();
+	void CreateFrameBuffer();
 	void CreatePipelines();
 
 	void UpdateFrameBuffer();
 	void UpdateObjectBuffer(const Transform& inTransform);
 
+	vk::Framebuffer GetFrameBuffer() const;
+
 private:
 	class VulkanPipeline* myPipeline = nullptr;
 
-	struct FrameBuffer
+	vk::RenderPass myRenderPass;
+	List<vk::Framebuffer> myFrameBuffers;
+
+	class VulkanDepthBuffer* myDepthBuffer = nullptr;
+
+	struct FrameData
 	{
 		Mat4f myToView;
 		Mat4f myProjection;
 	};
-	VulkanUniformBuffer<FrameBuffer> myFrameBuffer{vk::ShaderStageFlagBits::eVertex, 0 };
+	VulkanUniformBuffer<FrameData> myFrameData{vk::ShaderStageFlagBits::eVertex, 0 };
 
-	struct ObjectBuffer
+	struct ObjectData
 	{
 		Mat4f myToWorld;
 	};
-	VulkanUniformBuffer<ObjectBuffer> myObjectBuffer{ vk::ShaderStageFlagBits::eVertex, 1 };
+	VulkanUniformBuffer<ObjectData> myObjectData{ vk::ShaderStageFlagBits::eVertex, 1 };
 
 	class VulkanImage* myRenderTexture = nullptr;
 

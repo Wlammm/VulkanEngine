@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/EngineProperties.hpp"
+#include "ECS/SystemDispatcher.h"
 
 class Engine
 {
@@ -23,6 +24,12 @@ public:
 	static void SetWorld(World* inWorld);
 
 	static Vec2ui GetRenderResolution();
+
+	template<typename T>
+	static T* GetSystem()
+	{
+		return myInstance->mySystemDispatcher->GetSystem<T>();
+	}
 
 #if EDITOR
 	static void SetEditorTickFunction(const std::function<void()> inEditorTickFunction);

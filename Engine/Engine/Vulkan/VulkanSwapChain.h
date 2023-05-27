@@ -13,9 +13,8 @@ public:
 
 	const vk::CommandBuffer& GetCommandBuffer() const;
 	const vk::Image& GetImage() const;
-	const vk::RenderPass& GetRenderPass() const;
-	const vk::Framebuffer& GetFrameBuffer() const;
 	const vk::SurfaceKHR& GetSurface() const;
+	const vk::Format& GetFormat() const;
 
 	uint GetFrameIndex() const;
 	uint GetSwapChainIndex() const;
@@ -33,8 +32,6 @@ private:
 	void CreateSyncObjects();
 	void CreateSwapChain();
 	void CreateCommandPoolAndBuffers();
-	void CreateRenderPass();
-	void CreateFrameBuffers();
 
 	void Init();
 	void DestroySwapChainRelatedObjects();
@@ -74,8 +71,4 @@ private:
 
 	vk::CommandPool myCommandPool;
 	List<vk::CommandBuffer> myCommandBuffers;
-
-	vk::RenderPass myRenderPass;
-
-	List<vk::Framebuffer> myFrameBuffers;
 };

@@ -41,8 +41,6 @@ VulkanContext::VulkanContext()
 	mySwapChain = new VulkanSwapChain(*myDevice);
 
 	myPipelineCache = GetDevice()->createPipelineCache(vk::PipelineCacheCreateInfo(), nullptr);
-
-	VulkanImGui::Start();
 }
 
 VulkanContext::~VulkanContext()

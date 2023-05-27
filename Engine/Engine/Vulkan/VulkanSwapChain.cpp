@@ -116,19 +116,14 @@ const vk::Image& VulkanSwapChain::GetImage() const
 	return myImages[mySwapChainImageIndex];
 }
 
-const vk::RenderPass& VulkanSwapChain::GetRenderPass() const
-{
-	return myRenderPass;
-}
-
-const vk::Framebuffer& VulkanSwapChain::GetFrameBuffer() const
-{
-	return myFrameBuffers[mySwapChainImageIndex];
-}
-
 const vk::SurfaceKHR& VulkanSwapChain::GetSurface() const
 {
 	return myWindowSurface;
+}
+
+const vk::Format& VulkanSwapChain::GetFormat() const
+{
+	return myFormat;
 }
 
 uint VulkanSwapChain::GetFrameIndex() const
@@ -293,84 +288,11 @@ void VulkanSwapChain::CreateCommandPoolAndBuffers()
 		.setCommandBufferCount(myFrameLag));
 }
 
-void VulkanSwapChain::CreateRenderPass()
-{
-	const std::array<vk::AttachmentDescription, 2> attachments = {
-		vk::AttachmentDescription()
-			.setFormat(myFormat)
-			.setSamples(vk::SampleCountFlagBits::e1)
-			.setLoadOp(vk::AttachmentLoadOp::eClear)
-			.setStoreOp(vk::AttachmentStoreOp::eStore)
-			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-			.setInitialLayout(vk::ImageLayout::eUndefined)
-			.setFinalLayout(vk::ImageLayout::ePresentSrcKHR),
-		vk::AttachmentDescription()
-			.setFormat(myDepthBuffer->GetFormat())
-			.setSamples(vk::SampleCountFlagBits::e1)
-			.setLoadOp(vk::AttachmentLoadOp::eClear)
-			.setStoreOp(vk::AttachmentStoreOp::eDontCare)
-			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-			.setInitialLayout(vk::ImageLayout::eUndefined)
-			.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal),
-	};
-
-	const auto colorReference = vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eColorAttachmentOptimal);
-	const auto depthReference = vk::AttachmentReference().setAttachment(1).setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
-
-	const auto subpass = vk::SubpassDescription()
-		.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
-		.setColorAttachments(colorReference)
-		.setPDepthStencilAttachment(&depthReference);
-
-	vk::PipelineStageFlags stages = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
-	const std::array<vk::SubpassDependency, 2> dependencies = {
-		vk::SubpassDependency()  // Depth buffer is shared between swapchain images
-			.setSrcSubpass(VK_SUBPASS_EXTERNAL)
-			.setDstSubpass(0)
-			.setSrcStageMask(stages)
-			.setDstStageMask(stages)
-			.setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
-			.setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
-			.setDependencyFlags(vk::DependencyFlags()),
-		vk::SubpassDependency()
-			.setSrcSubpass(VK_SUBPASS_EXTERNAL)
-			.setDstSubpass(0)
-			.setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
-			.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
-			.setSrcAccessMask(vk::AccessFlagBits())
-			.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead)
-			.setDependencyFlags(vk::DependencyFlags())
-	};
-
-	myRenderPass = myDevice->createRenderPass(vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass).setDependencies(dependencies));
-}
-
-void VulkanSwapChain::CreateFrameBuffers()
-{
-	std::array<vk::ImageView, 2> attachments;
-	attachments[1] = myDepthBuffer->GetImageView();
-
-	for (int i = 0; i < myFrameLag; ++i)
-	{
-		attachments[0] = myImageViews[i];
-		myFrameBuffers.Add(myDevice->createFramebuffer(vk::FramebufferCreateInfo()
-			.setRenderPass(myRenderPass)
-			.setAttachments(attachments)
-			.setWidth(mySwapChainWidth)
-			.setHeight(mySwapChainHeight)
-			.setLayers(1)));
-	}
-}
-
 void VulkanSwapChain::Init()
 {
 	CreateSyncObjects();
 	CreateSwapChain();
 	CreateCommandPoolAndBuffers();
-	CreateRenderPass();
-	CreateFrameBuffers();
 
 	mySwapChainImageIndex = 0;
 	myFrameIndex = 0;
@@ -383,12 +305,10 @@ void VulkanSwapChain::DestroySwapChainRelatedObjects()
 		myDevice->destroyFence(myFences[i]);
 		myDevice->destroySemaphore(myImageAcquiredSemaphores[i]);
 		myDevice->destroySemaphore(myDrawCompleteSemaphores[i]);
-		myDevice->destroyFramebuffer(myFrameBuffers[i]);
 	}
 	myFences.Clear();
 	myImageAcquiredSemaphores.Clear();
 	myDrawCompleteSemaphores.Clear();
-	myFrameBuffers.Clear();
 
 	for (int i = 0; i < myImageViews.size(); ++i)
 	{
@@ -399,7 +319,6 @@ void VulkanSwapChain::DestroySwapChainRelatedObjects()
 	myDevice->freeCommandBuffers(myCommandPool, myCommandBuffers);
 	myCommandBuffers.Clear();
 
-	myDevice->destroyRenderPass(myRenderPass);
 	myDevice->destroyCommandPool(myCommandPool);
 
 	myImageViews.Clear();
