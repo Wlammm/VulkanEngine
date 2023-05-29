@@ -14,11 +14,11 @@ public:
 	bool ShouldRun() const;
 	
 	static void SetIsRunning(const bool inIsRunning);
+
 	static const EngineProperties& GetEngineProperties();
-
 	static const class SystemDispatcher& GetSystemDispatcher();
-
 	static const class WindowHandler& GetWindowHandler();
+	static class EventHandler& GetEventHandler();
 
 	static class World& GetWorld();
 	static void SetWorld(World* inWorld);
@@ -43,6 +43,7 @@ private:
 
 	EngineProperties myEngineProperties;
 
+	class EventHandler* myPostMaster = nullptr;
 	class Console* myConsole = nullptr;
 	class WindowHandler* myWindowHandler = nullptr;
 	class VulkanContext* myVulkanContext = nullptr;

@@ -148,7 +148,7 @@ void VulkanContext::CreateInstance()
 		.setApplicationVersion(1)
 		.setPEngineName("Engine")
 		.setEngineVersion(1)
-		.setApiVersion(VK_API_VERSION_1_0);
+		.setApiVersion(VK_API_VERSION_1_3);
 
 	vk::InstanceCreateInfo instInfo = vk::InstanceCreateInfo()
 		.setFlags(vk::InstanceCreateFlags())

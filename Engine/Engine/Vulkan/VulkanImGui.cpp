@@ -16,7 +16,7 @@ void VulkanImGui::Start()
 
 	//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 	ImGui::GetPlatformIO().Platform_CreateVkSurface = ImGuiCreateWindowSurfaceImpl;
 

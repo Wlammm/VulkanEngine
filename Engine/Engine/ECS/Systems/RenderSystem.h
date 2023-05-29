@@ -1,11 +1,12 @@
 #pragma once
 
-#include "ECS/System.h"
-#include "Vulkan/VulkanUniformBuffer.hpp"
-#include "ECS/Components/Transform.h"
-#include "ECS/Components/Camera.h"
+#include "Engine/ECS/System.h"
+#include "Engine/Vulkan/VulkanUniformBuffer.hpp"
+#include "Engine/ECS/Components/Transform.h"
+#include "Engine/ECS/Components/Camera.h"
+#include "Engine/Events/EventObserver.h"
 
-class RenderSystem : public System<const Transform, const Camera>
+class RenderSystem : public System<const Transform, const Camera>, public EventObserver
 {
 public:
 	RenderSystem();
@@ -14,10 +15,17 @@ public:
 	virtual void Tick() override final;
 
 	vk::RenderPass& GetRenderPass();
+	class VulkanImage* GetRenderTexture();
+
+	void OnSwapChainResize();
 
 private:
+	void CreateRenderResources();
+	void DestroyRenderResources();
+
+	void CreateRenderTextures();
 	void CreateRenderPass();
-	void CreateFrameBuffer();
+	void CreateFrameBuffers();
 	void CreatePipelines();
 
 	void UpdateFrameBuffer();
@@ -27,9 +35,13 @@ private:
 
 private:
 	class VulkanPipeline* myPipeline = nullptr;
+	class VulkanPipeline* myFullscreenCopyPipeline = nullptr;
 
 	vk::RenderPass myRenderPass;
 	List<vk::Framebuffer> myFrameBuffers;
+
+	vk::Framebuffer myRenderTextureFrameBuffer;
+	vk::RenderPass myRenderTextureRenderPass;
 
 	class VulkanDepthBuffer* myDepthBuffer = nullptr;
 
@@ -46,7 +58,7 @@ private:
 	};
 	VulkanUniformBuffer<ObjectData> myObjectData{ vk::ShaderStageFlagBits::eVertex, 1 };
 
-	class VulkanImage* myRenderTexture = nullptr;
+	class VulkanTexture* myRenderTexture = nullptr;
 
 	class Model* myModel = nullptr;
 	class VulkanTexture* myTexture = nullptr;

@@ -9,7 +9,6 @@ Editor::Editor()
 	myInstance = this;
 
 	AddWindow<Viewport>();
-	AddWindow<Viewport>();
 }
 
 Editor::~Editor()

@@ -1,34 +1,57 @@
 #include "EditorPch.h"
 #include "Viewport.h"
 #include "Engine/Vulkan/VulkanContext.h"
-#include "Engine/VUlkan/VulkanSwapChain.h"
+#include "Engine/Vulkan/VulkanSwapChain.h"
 #include "Engine/Vulkan/VulkanUtils.hpp"
+#include "Engine/Vulkan/VulkanImage.h"
 #include "Engine/Engine.h"
+#include "Engine/ECS/Systems/RenderSystem.h"
 
 Viewport::Viewport()
 	: EditorWindow("Viewport", false)
 {
-	CreateDescriptorSets();
+	mySampler = VulkanUtils::CreateSampler(SamplerMode::Clamp);
+
+	myDescriptorSets.Add();
+	myDescriptorSets.Add();
+	myDescriptorSets.Add();
+}
+
+Viewport::~Viewport()
+{
+	LOG_WARNING("Viewport::~Viewport waits device idle");
+	VulkanContext::GetDevice()->waitIdle();
+
+	VulkanContext::GetDevice()->destroySampler(mySampler);
+
+	for(uint i  = 0; i < 3; ++i)
+	{
+		if (myDescriptorSets[i])
+		{
+			ImGui_ImplVulkan_RemoveTexture(myDescriptorSets[i]);
+			myDescriptorSets[i] = nullptr;
+		}
+	}
 }
 
 void Viewport::Tick()
 {
+	UpdateCurrentTexture();
 	ImVec2 size = { static_cast<float>(Engine::GetRenderResolution().x), static_cast<float>(Engine::GetRenderResolution().y) };
 	ImGui::Image(GetCurrentDescriptorSet(), size);
-}
-
-void Viewport::CreateDescriptorSets()
-{
-	mySampler = VulkanUtils::CreateSampler(SamplerMode::Clamp);
-
-	for(uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
-	{
-		auto& ds = myDescriptorSets.Add();
-		ds = ImGui_ImplVulkan_AddTexture(mySampler, VulkanContext::GetSwapChain().GetImageView(i), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-	}
 }
 
 vk::DescriptorSet Viewport::GetCurrentDescriptorSet()
 {
 	return myDescriptorSets[VulkanContext::GetSwapChain().GetSwapChainIndex()];
+}
+
+void Viewport::UpdateCurrentTexture()
+{
+	const uint currentIndex = VulkanContext::GetSwapChain().GetSwapChainIndex();
+	RenderSystem* renderSystem = Engine::GetSystem<RenderSystem>();
+	check(renderSystem);
+
+	ImGui_ImplVulkan_RemoveTexture(myDescriptorSets[currentIndex]);
+	myDescriptorSets[currentIndex] = ImGui_ImplVulkan_AddTexture(mySampler, renderSystem->GetRenderTexture()->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }

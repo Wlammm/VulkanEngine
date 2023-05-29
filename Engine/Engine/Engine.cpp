@@ -14,6 +14,7 @@
 #include "World/World.h"
 #include "ECS/Systems/CameraSystem.h"
 #include "Vulkan/VulkanImGui.h"
+#include "Events/EventHandler.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -21,6 +22,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	check(!myInstance && "Cant have multiple Engine instances.");
 	myInstance = this;
 
+	myPostMaster = new EventHandler();
 	myConsole = new Console();
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
@@ -39,6 +41,7 @@ Engine::~Engine()
 	del(myVulkanContext);
 	del(myWindowHandler);
 	del(myConsole);
+	del(myPostMaster);
 
 	myInstance = nullptr;
 }
@@ -89,6 +92,11 @@ const SystemDispatcher& Engine::GetSystemDispatcher()
 const WindowHandler& Engine::GetWindowHandler()
 {
 	return *myInstance->myWindowHandler;
+}
+
+EventHandler& Engine::GetEventHandler()
+{
+	return *myInstance->myPostMaster;
 }
 
 World& Engine::GetWorld()

@@ -6,10 +6,12 @@ class VulkanTexture
 {
 public:
 	VulkanTexture(const std::filesystem::path& inPath, SamplerMode inSamplerMode);
+	VulkanTexture(class VulkanImage* inImage, SamplerMode inSamplerMode);
 	~VulkanTexture();
 
 	vk::Sampler GetSampler() const;
 	vk::ImageView GetImageView() const;
+	class VulkanImage* GetImage() const;
 
 private:
 	void CreateImage(const std::filesystem::path& inPath);

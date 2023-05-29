@@ -15,6 +15,8 @@ VulkanImage::~VulkanImage()
 
 void VulkanImage::CreateView(vk::ImageViewType inViewType, vk::ImageSubresourceRange inSubResourceRange)
 {
+	check(!myView);
+
 	auto createInfo = vk::ImageViewCreateInfo()
 		.setImage(myImage)
 		.setViewType(inViewType)

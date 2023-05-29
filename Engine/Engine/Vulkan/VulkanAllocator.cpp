@@ -11,7 +11,7 @@
 VulkanAllocator::VulkanAllocator(vk::Instance inInstance, const VulkanPhysicalDevice& inPhysicalDevice, const VulkanDevice& inDevice)
 {
 	VmaAllocatorCreateInfo createInfo{};
-	createInfo.vulkanApiVersion = VK_API_VERSION_1_2;
+	createInfo.vulkanApiVersion = VK_API_VERSION_1_3;
 	createInfo.instance = inInstance;
 	createInfo.physicalDevice = inPhysicalDevice.GetPhysicalDevice();
 	createInfo.device = inDevice.GetDevice();

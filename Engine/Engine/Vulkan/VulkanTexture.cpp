@@ -15,6 +15,19 @@ VulkanTexture::VulkanTexture(const std::filesystem::path& inPath, SamplerMode in
 	CreateSampler(inSamplerMode);
 }
 
+VulkanTexture::VulkanTexture(VulkanImage* inImage, SamplerMode inSamplerMode)
+{
+	myImage = inImage;
+	CreateSampler(inSamplerMode);
+
+	vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
+		.setAspectMask(vk::ImageAspectFlagBits::eColor)
+		.setBaseMipLevel(0)
+		.setLevelCount(1)
+		.setLayerCount(1);
+	myImage->CreateView(vk::ImageViewType::e2D, subresourceRange);
+}
+
 VulkanTexture::~VulkanTexture()
 {
 	LOG_WARNING("Textures waits for device idle. Fix");
@@ -32,6 +45,11 @@ vk::Sampler VulkanTexture::GetSampler() const
 vk::ImageView VulkanTexture::GetImageView() const
 {
 	return myImage->GetImageView();
+}
+
+VulkanImage* VulkanTexture::GetImage() const
+{
+	return myImage;
 }
 
 void VulkanTexture::CreateImage(const std::filesystem::path& inPath)

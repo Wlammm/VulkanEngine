@@ -67,7 +67,6 @@ private:
 	
 	List<vk::Image> myImages;
 	List<vk::ImageView> myImageViews;
-	class VulkanDepthBuffer* myDepthBuffer = nullptr;
 
 	vk::CommandPool myCommandPool;
 	List<vk::CommandBuffer> myCommandBuffers;

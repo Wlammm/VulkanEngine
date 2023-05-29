@@ -5,7 +5,7 @@ class EditorWindow
 public:
 	EditorWindow() = delete;
 	EditorWindow(const std::string& inWindowName, const bool inClosable);
-
+	virtual ~EditorWindow() {};
 	void DoTick();
 
 protected:

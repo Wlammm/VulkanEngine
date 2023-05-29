@@ -6,6 +6,8 @@
 #include "VulkanDevice.h"
 #include "Engine.h"
 #include "VulkanDepthBuffer.h"
+#include "ECS/Systems/RenderSystem.h"
+#include "Events/EventHandler.h"
 
 VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
 	: myDevice{ inDevice }
@@ -274,8 +276,6 @@ void VulkanSwapChain::CreateSwapChain()
 
 		myImageViews.Add(myDevice->createImageView(imageViewCreateInfo));
 	}
-
-	myDepthBuffer = new VulkanDepthBuffer({ mySwapChainWidth, mySwapChainHeight });
 }
 
 void VulkanSwapChain::CreateCommandPoolAndBuffers()
@@ -314,7 +314,6 @@ void VulkanSwapChain::DestroySwapChainRelatedObjects()
 	{
 		myDevice->destroyImageView(myImageViews[i]);
 	}
-	del(myDepthBuffer);
 
 	myDevice->freeCommandBuffers(myCommandPool, myCommandBuffers);
 	myCommandBuffers.Clear();
@@ -333,6 +332,9 @@ void VulkanSwapChain::Resize()
 	myDevice->waitIdle();
 	DestroySwapChainRelatedObjects();
 	Init();
+
+	Engine::GetEventHandler().FireEvent(EventType::SwapchainResized);
+
 	LOG("Resize")
 }
 

@@ -19,7 +19,6 @@ VulkanDepthBuffer::VulkanDepthBuffer(const Vec2ui& inResolution)
 		.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment)
 		.setSharingMode(vk::SharingMode::eExclusive)
 		.setInitialLayout(vk::ImageLayout::eUndefined);
-
 	myImage = VulkanContext::GetAllocator().AllocateImage("Depth buffer", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 	myImage->CreateView(vk::ImageViewType::e2D, vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1));
 }
