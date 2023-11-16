@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Engine/ECS/System.h"
-#include "Engine/Vulkan/VulkanUniformBuffer.hpp"
+#include "Engine/Events/EventObserver.h"
 #include "Engine/ECS/Components/Transform.h"
 #include "Engine/ECS/Components/Camera.h"
-#include "Engine/Events/EventObserver.h"
+#include "Engine/ECS/Components/StaticMesh.h"
+#include "Engine/Vulkan/VulkanUniformBuffer.hpp"
 
-class RenderSystem : public System<const Transform, const Camera>, public EventObserver
+class RenderSystem : public System<const Transform, const Camera, const StaticMesh>, public EventObserver
 {
 public:
 	RenderSystem();
@@ -18,6 +19,9 @@ public:
 	class VulkanImage* GetRenderTexture();
 
 	void OnSwapChainResize();
+
+private:
+	void AddMeshPass(vk::CommandBuffer inCommandBuffer);
 
 private:
 	void CreateRenderResources();
@@ -42,6 +46,14 @@ private:
 
 	vk::Framebuffer myRenderTextureFrameBuffer;
 	vk::RenderPass myRenderTextureRenderPass;
+
+	/*
+	* Index 0 is for main texture.
+	* Index 1 is for depth texture.
+	*/
+	vk::ClearValue myClearValues[2] = {
+		vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })),
+		vk::ClearDepthStencilValue(1.0f, 0u) };
 
 	class VulkanDepthBuffer* myDepthBuffer = nullptr;
 

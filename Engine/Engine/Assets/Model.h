@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rendering/Mesh.h"
+#include "Engine/Rendering/Mesh.h"
 
 class Model
 {
@@ -25,7 +25,6 @@ private:
 	Model();
 	Model(const std::filesystem::path& inPath, const CreateInfo& inCreateInfo);
 	~Model();
-
 
 private:
 	bool myIsValid = false;

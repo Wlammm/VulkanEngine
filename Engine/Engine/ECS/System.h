@@ -9,6 +9,7 @@ public:
 	virtual const std::unordered_set<std::string>& GetDependencies() = 0; 
 };
 
+// Dependencies here means that nothing else are allowed to interact with any of these classes while this is running.
 template<typename... Dependencies>
 class System : public ISystem
 {

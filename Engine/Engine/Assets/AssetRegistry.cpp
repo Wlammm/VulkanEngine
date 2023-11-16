@@ -8,9 +8,14 @@ AssetRegistry::AssetRegistry()
 
 AssetRegistry::~AssetRegistry()
 {
+	for(auto& [path, model] : myModels)
+	{
+		del(model);
+	}
+	myModels.clear();
 }
 
-Model* AssetRegistry::GetModel(const std::filesystem::path& inPath)
+Model* AssetRegistry::GetModel(const std::filesystem::path& inPath, const Model::CreateInfo& inCreateInfo)
 {
 	if (!std::filesystem::exists(inPath))
 	{
@@ -21,6 +26,6 @@ Model* AssetRegistry::GetModel(const std::filesystem::path& inPath)
 	if(myModels.find(inPath) != myModels.end())
 		return myModels[inPath];
 
-	myModels[inPath] = new Model(inPath, {});
+	myModels[inPath] = new Model(inPath, inCreateInfo);
 	return myModels[inPath];
 }

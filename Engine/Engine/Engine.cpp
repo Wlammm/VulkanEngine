@@ -33,10 +33,12 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	VulkanImGui::Start();
 
 	SetWorld(new World());
+	GetWorld().Init();
 }
 
 Engine::~Engine()
 {
+	del(myWorld);
 	del(mySystemDispatcher);
 	del(myVulkanContext);
 	del(myWindowHandler);

@@ -6,6 +6,8 @@ public:
 	World();
 	~World();
 
+	void Init();
+
 	entt::registry& GetRegistry();
 	class AssetRegistry& GetAssetRegistry();
 

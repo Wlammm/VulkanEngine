@@ -9,7 +9,15 @@
 World::World()
 {
 	myAssetRegistry = new AssetRegistry();
+}
 
+World::~World()
+{
+	del(myAssetRegistry);
+}
+
+void World::Init()
+{
 	auto entity = myRegistry.create();
 
 	{
@@ -21,12 +29,10 @@ World::World()
 
 	entity = myRegistry.create();
 	auto& transform = myRegistry.emplace<Transform>(entity);
-	auto& staticMesh = myRegistry.emplace<StaticMesh>(entity);
-}
 
-World::~World()
-{
-	del(myAssetRegistry);
+	Model::CreateInfo createInfo{};
+	createInfo.InvertY = true;
+	auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Tree.fbx", createInfo);
 }
 
 entt::registry& World::GetRegistry()

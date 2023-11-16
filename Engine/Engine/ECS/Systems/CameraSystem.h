@@ -13,7 +13,7 @@ public:
 private:
 	static constexpr float myMouseSensitivity = 5.f;
 
-	float myMovementSpeed = 0.025f;
+	float myMovementSpeed = 2.0f;
 	float myShiftMultiplier = 5.f;
 	float myScrollMultiplier = 1.25f;
 };

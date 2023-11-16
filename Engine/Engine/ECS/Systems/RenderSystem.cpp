@@ -12,6 +12,7 @@
 #include "Vulkan/VulkanImage.h"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanDepthBuffer.h"
+#include "ECS/Components/StaticMesh.h"
 
 RenderSystem::RenderSystem()
 {
@@ -39,49 +40,17 @@ void RenderSystem::Tick()
 {
 	UpdateFrameBuffer();
 
+
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
 
-	vk::ClearValue clearValues[2] = { 
-		vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })), 
-		vk::ClearDepthStencilValue(1.0f, 0u) };
-
-	commandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-		.setRenderPass(myRenderTextureRenderPass)
-		.setFramebuffer(myRenderTextureFrameBuffer)
-		.setPClearValues(clearValues)
-		.setClearValueCount(2)
-		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
-		, vk::SubpassContents::eInline);
-
-	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline->GetPipeline());
-	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipeline->GetPipelineLayout(), 0, myPipeline->GetDescriptorSet(), {});
-
-	commandBuffer.setViewport(0, vk::Viewport()
-		.setX(0)
-		.setY(0)
-		.setWidth(static_cast<float>(Engine::GetRenderResolution().x))
-		.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
-		.setMinDepth(0.0f)
-		.setMaxDepth(1.0f));
-
-	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
-
-	UpdateObjectBuffer(Transform());
-
-	for(const Mesh& mesh : myModel->GetMeshes())
-	{
-		mesh.Bind(commandBuffer);
-		commandBuffer.drawIndexed(mesh.NumIndices, 1, 0, 0, 0);
-	}
-
-	commandBuffer.endRenderPass();
-
+	AddMeshPass(commandBuffer);
+	
 	// Temporary to change image format of swapchain textures.
 	commandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
 		.setRenderPass(myRenderPass)
 		.setFramebuffer(GetFrameBuffer())
-		.setPClearValues(clearValues)
+		.setPClearValues(myClearValues)
 		.setClearValueCount(2)
 		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
 		, vk::SubpassContents::eInline);
@@ -132,6 +101,50 @@ void RenderSystem::OnSwapChainResize()
 {
 	DestroyRenderResources();
 	CreateRenderResources();
+}
+
+void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
+{
+	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const StaticMesh>();
+	if (view.size_hint() == 0)
+		return;
+
+	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
+		.setRenderPass(myRenderTextureRenderPass)
+		.setFramebuffer(myRenderTextureFrameBuffer)
+		.setPClearValues(myClearValues)
+		.setClearValueCount(2)
+		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
+		, vk::SubpassContents::eInline);
+
+	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline->GetPipeline());
+	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipeline->GetPipelineLayout(), 0, myPipeline->GetDescriptorSet(), {});
+
+	inCommandBuffer.setViewport(0, vk::Viewport()
+		.setX(0)
+		.setY(0)
+		.setWidth(static_cast<float>(Engine::GetRenderResolution().x))
+		.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
+		.setMinDepth(0.0f)
+		.setMaxDepth(1.0f));
+
+	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
+
+	UpdateObjectBuffer(Transform());
+
+	for (const auto [entity, transform, mesh] : view.each())
+	{
+		if (!mesh.myModel)
+			continue;
+
+		for (const Mesh& mesh : mesh.myModel->GetMeshes())
+		{
+			mesh.Bind(inCommandBuffer);
+			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, 0, 0, 0);
+		}
+	}
+
+	inCommandBuffer.endRenderPass();
 }
 
 void RenderSystem::CreateRenderResources()
