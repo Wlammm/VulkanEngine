@@ -27,6 +27,7 @@ public:
 	void SetRotation(const Quatf& inQuat);
 	void SetRotationRad(const Vec3f& inRotation);
 	void SetRotationDeg(const Vec3f& inRotation);
+	void SetRotationDeg(const float inX, const float inY, const float inZ);
 
 	const Vec3f& GetPositionLocal() const;
 	const Quatf& GetRotationLocal() const;

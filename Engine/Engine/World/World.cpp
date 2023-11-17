@@ -29,10 +29,12 @@ void World::Init()
 
 	entity = myRegistry.create();
 	auto& transform = myRegistry.emplace<Transform>(entity);
+	transform.SetScale(1);
+	transform.SetRotationDeg(0, 0, 0);
 
 	Model::CreateInfo createInfo{};
 	createInfo.InvertY = true;
-	auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Tree.fbx", createInfo);
+	auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Cactus.fbx", createInfo);
 }
 
 entt::registry& World::GetRegistry()

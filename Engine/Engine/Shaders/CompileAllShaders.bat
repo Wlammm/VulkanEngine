@@ -1,6 +1,3 @@
-glslc.exe VertexShader.vert -o VertexShader.spv
-glslc.exe FragmentShader.frag -o FragmentShader.spv
-
-glslc.exe FullscreenVS.vert -o FullscreenVS.spv
-glslc.exe FullscreenCopy.frag -o FullscreenCopy.spv
+@echo off
+for %%i in (*.*) do if NOT %%i == %~n0%~x0 glslc.exe %%i -o ../../../Bin/CompiledShaders/%%i.spv
 pause

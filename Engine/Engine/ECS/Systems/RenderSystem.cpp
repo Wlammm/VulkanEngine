@@ -19,7 +19,7 @@ RenderSystem::RenderSystem()
 	Model::CreateInfo createInfo{};
 	createInfo.InvertY = true;
 	myModel = new Model("Assets/Tree.fbx", createInfo);
-	myTexture = new VulkanTexture("Assets/Bark.tga", SamplerMode::Wrap);
+	myTexture = new VulkanTexture("Assets/Leaves.tga", SamplerMode::Wrap);
 
 	CreateRenderResources();
 
@@ -40,50 +40,12 @@ void RenderSystem::Tick()
 {
 	UpdateFrameBuffer();
 
-
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
 
 	AddMeshPass(commandBuffer);
+	AddEditorPass(commandBuffer);
 	
-	// Temporary to change image format of swapchain textures.
-	commandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-		.setRenderPass(myRenderPass)
-		.setFramebuffer(GetFrameBuffer())
-		.setPClearValues(myClearValues)
-		.setClearValueCount(2)
-		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
-		, vk::SubpassContents::eInline);
-
-	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myFullscreenCopyPipeline->GetPipeline());
-	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myFullscreenCopyPipeline->GetPipelineLayout(), 0, myFullscreenCopyPipeline->GetDescriptorSet(), {});
-
-	commandBuffer.setViewport(0, vk::Viewport()
-		.setX(0)
-		.setY(0)
-		.setWidth(static_cast<float>(Engine::GetRenderResolution().x))
-		.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
-		.setMinDepth(0.0f)
-		.setMaxDepth(1.0f));
-
-	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
-	commandBuffer.drawIndexed(3, 1, 0, 0, 0);
-
-	VulkanImGui::Render(commandBuffer);
-	commandBuffer.endRenderPass();
-
-	/*commandBuffer.pipelineBarrier(
-		vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eBottomOfPipe, vk::DependencyFlagBits(), {}, {},
-		vk::ImageMemoryBarrier()
-		.setSrcAccessMask(vk::AccessFlags())
-		.setDstAccessMask(vk::AccessFlags())
-		.setOldLayout(vk::ImageLayout::ePresentSrcKHR)
-		.setNewLayout(vk::ImageLayout::ePresentSrcKHR)
-		.setSrcQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetGraphicsQueueIndex())
-		.setDstQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetPresentQueueIndex())
-		.setImage(VulkanContext::GetSwapChain().GetImage())
-		.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));*/
-
 	commandBuffer.end();
 }
 
@@ -130,13 +92,13 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 
 	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
 
-	UpdateObjectBuffer(Transform());
 
 	for (const auto [entity, transform, mesh] : view.each())
 	{
 		if (!mesh.myModel)
 			continue;
 
+		UpdateObjectBuffer(transform);
 		for (const Mesh& mesh : mesh.myModel->GetMeshes())
 		{
 			mesh.Bind(inCommandBuffer);
@@ -145,6 +107,48 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 	}
 
 	inCommandBuffer.endRenderPass();
+}
+
+void RenderSystem::AddEditorPass(vk::CommandBuffer inCommandBuffer)
+{
+	// Temporary to change image format of swapchain textures.
+	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
+		.setRenderPass(myRenderPass)
+		.setFramebuffer(GetFrameBuffer())
+		.setPClearValues(myClearValues)
+		.setClearValueCount(2)
+		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
+		, vk::SubpassContents::eInline);
+
+	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myFullscreenCopyPipeline->GetPipeline());
+	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myFullscreenCopyPipeline->GetPipelineLayout(), 0, myFullscreenCopyPipeline->GetDescriptorSet(), {});
+
+	inCommandBuffer.setViewport(0, vk::Viewport()
+		.setX(0)
+		.setY(0)
+		.setWidth(static_cast<float>(Engine::GetRenderResolution().x))
+		.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
+		.setMinDepth(0.0f)
+		.setMaxDepth(1.0f));
+
+	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
+	inCommandBuffer.drawIndexed(3, 1, 0, 0, 0);
+
+	VulkanImGui::Render(inCommandBuffer);
+	inCommandBuffer.endRenderPass();
+
+	/*commandBuffer.pipelineBarrier(
+		vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eBottomOfPipe, vk::DependencyFlagBits(), {}, {},
+		vk::ImageMemoryBarrier()
+		.setSrcAccessMask(vk::AccessFlags())
+		.setDstAccessMask(vk::AccessFlags())
+		.setOldLayout(vk::ImageLayout::ePresentSrcKHR)
+		.setNewLayout(vk::ImageLayout::ePresentSrcKHR)
+		.setSrcQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetGraphicsQueueIndex())
+		.setDstQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetPresentQueueIndex())
+		.setImage(VulkanContext::GetSwapChain().GetImage())
+		.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));*/
+
 }
 
 void RenderSystem::CreateRenderResources()
@@ -177,8 +181,8 @@ void RenderSystem::CreatePipelines()
 {
 	{
 		VulkanPipeline::CreateInfo createInfo;
-		createInfo.VertexShaderPath = "../Engine/Engine/Shaders/VertexShader.spv";
-		createInfo.FragmentShaderPath = "../Engine/Engine/Shaders/FragmentShader.spv";
+		createInfo.VertexShaderPath = "VertexShader.vert";
+		createInfo.FragmentShaderPath = "FragmentShader.frag";
 		createInfo.RenderPass = myRenderPass;
 		createInfo.UniformBuffers = { &myFrameData, &myObjectData };
 		createInfo.Textures = { myTexture };
@@ -187,8 +191,8 @@ void RenderSystem::CreatePipelines()
 
 	{
 		VulkanPipeline::CreateInfo createInfo;
-		createInfo.VertexShaderPath = "../Engine/Engine/Shaders/FullscreenVS.spv";
-		createInfo.FragmentShaderPath = "../Engine/Engine/Shaders/FullscreenCopy.spv";
+		createInfo.VertexShaderPath = "FullscreenVS.vert";
+		createInfo.FragmentShaderPath = "FullscreenCopy.frag";
 		createInfo.RenderPass = myRenderPass;
 		createInfo.UniformBuffers = { };
 		createInfo.Textures = { myRenderTexture };

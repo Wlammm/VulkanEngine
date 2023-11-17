@@ -124,6 +124,11 @@ void Transform::SetRotationDeg(const Vec3f& inRotation)
 	SetRotationRad(inRotation * Deg2Rad);
 }
 
+void Transform::SetRotationDeg(const float inX, const float inY, const float inZ)
+{
+	SetRotationDeg({ inX, inY, inZ });
+}
+
 const Vec3f& Transform::GetScaleLocal() const
 {
 	return myScale;

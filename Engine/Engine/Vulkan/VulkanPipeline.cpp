@@ -41,9 +41,11 @@ const vk::DescriptorSet& VulkanPipeline::GetDescriptorSet() const
 
 vk::ShaderModule VulkanPipeline::CreateShaderFromFile(const std::string& inPath)
 {
-	check(std::filesystem::exists(inPath) && "Invalid path");
+	const std::filesystem::path path = "CompiledShaders/" + inPath + ".spv";
 
-	std::ifstream stream(inPath, std::ios::binary);
+	check(std::filesystem::exists(path) && "Invalid path");
+
+	std::ifstream stream(path, std::ios::binary);
 	std::string data = { std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>() };
 	stream.close();
 

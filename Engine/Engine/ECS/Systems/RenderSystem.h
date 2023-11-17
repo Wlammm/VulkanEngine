@@ -22,6 +22,7 @@ public:
 
 private:
 	void AddMeshPass(vk::CommandBuffer inCommandBuffer);
+	void AddEditorPass(vk::CommandBuffer inCommandBuffer);
 
 private:
 	void CreateRenderResources();
