@@ -9,7 +9,7 @@ concept ComparisonOperator = requires(ElementType a)
 	a == a;
 };
 
-template<typename ElementType, typename SizeType = size_t> 
+template<typename ElementType, typename SizeType = size_t>
 class List
 {
 public:
@@ -140,7 +140,7 @@ public:
 
 	bool Contains(const ElementType& inValue) requires ComparisonOperator<ElementType>
 	{
-		for(const ElementType& value : *this)
+		for (const ElementType& value : *this)
 		{
 			if (value == inValue)
 				return true;
@@ -151,26 +151,21 @@ public:
 #pragma region Add
 	void Add(const ElementType& inValue)
 	{
-		CheckCapacityForAdd(1);
-		new(myPtr + mySize) ElementType();
-		myPtr[mySize] = inValue;
-		mySize++;
+		Emplace(inValue);
 	}
 
 	void Add(ElementType&& inValue)
 	{
-		CheckCapacityForAdd(1);
-		new(myPtr + mySize) ElementType();
-		myPtr[mySize] = std::move(inValue);
-		mySize++;
+		Emplace(std::move(inValue));
 	}
 
-	ElementType& Add()
+	template<typename... ArgsType>
+	ElementType& Emplace(ArgsType&&... InArgs)
 	{
 		CheckCapacityForAdd(1);
-		new(myPtr + mySize) ElementType();
+		new (myPtr + mySize) ElementType(std::forward<ArgsType>(InArgs)...);
 		mySize++;
-		return myPtr[mySize - 1];
+		return Last();
 	}
 
 	void AddRange(const List<ElementType>& inList)
@@ -208,7 +203,7 @@ public:
 		{
 			for (SizeType i = inIndex; i < mySize - 1; ++i)
 			{
-				myPtr[i] = myPtr[i + 1];
+				new (myPtr + i) ElementType(std::move(myPtr[i + 1]));
 			}
 		}
 		mySize--;
@@ -284,6 +279,8 @@ public:
 #pragma endregion
 
 private:
+
+
 	void Construct()
 	{
 		Grow(myGrowthMultiplier);
@@ -309,7 +306,7 @@ private:
 		myPtr = reinterpret_cast<ElementType*>(malloc(sizeof(ElementType) * inNewCapacity));
 		myCapacity = inNewCapacity;
 
-		if(oldPtr)
+		if (oldPtr)
 		{
 			if constexpr (CanCopy)
 			{
@@ -319,7 +316,7 @@ private:
 			{
 				for (SizeType i = 0; i < mySize; ++i)
 				{
-					myPtr[i] = std::move(oldPtr[i]);
+					new (myPtr + i) ElementType(std::move(oldPtr[i]));
 				}
 			}
 

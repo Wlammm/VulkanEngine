@@ -12,9 +12,9 @@ Viewport::Viewport()
 {
 	mySampler = VulkanUtils::CreateSampler(SamplerMode::Clamp);
 
-	myDescriptorSets.Add();
-	myDescriptorSets.Add();
-	myDescriptorSets.Add();
+	myDescriptorSets.Emplace();
+	myDescriptorSets.Emplace();
+	myDescriptorSets.Emplace();
 }
 
 Viewport::~Viewport()

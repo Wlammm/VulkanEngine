@@ -19,6 +19,7 @@ public:
 	static const class SystemDispatcher& GetSystemDispatcher();
 	static const class WindowHandler& GetWindowHandler();
 	static class EventHandler& GetEventHandler();
+	static class ThreadPool& GetThreadPool();
 
 	static class World& GetWorld();
 	static void SetWorld(World* inWorld);
@@ -48,6 +49,7 @@ private:
 	class WindowHandler* myWindowHandler = nullptr;
 	class VulkanContext* myVulkanContext = nullptr;
 	class SystemDispatcher* mySystemDispatcher = nullptr;
+	class ThreadPool* myThreadPool = nullptr;
 
 	class World* myWorld = nullptr;
 

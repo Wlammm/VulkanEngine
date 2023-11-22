@@ -9,6 +9,8 @@ struct Camera
 	float myNearPlane = 1.0f;
 	float myFarPlane = 100000.0f;
 
+	bool myIsOrthographic = false;
+
 	void CreateOrthographic(const Vec2f& inResolution, const float inNearPlane = 1.0f, const float inFarPlane = 100000.0f)
 	{
 		myNearPlane = inNearPlane;
@@ -16,6 +18,7 @@ struct Camera
 		myResolution = inResolution;
 
 		myProjection = Mat4f::CreateOrthographic(inResolution, inNearPlane, inFarPlane);
+		myIsOrthographic = true;
 	}
 
 	void CreatePerspective(const Vec2f& inResolution, const float inFov = 90.0f, const float inNearPlane = 1.0f, const float inFarPlane = 100000.0f)
@@ -26,5 +29,6 @@ struct Camera
 		myResolution = inResolution;
 
 		myProjection = Mat4f::CreatePerspective(inResolution, inFov, inNearPlane, inFarPlane);
+		myIsOrthographic = false;
 	}
 };

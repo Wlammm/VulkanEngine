@@ -15,6 +15,7 @@
 #include "ECS/Systems/CameraSystem.h"
 #include "Vulkan/VulkanImGui.h"
 #include "Events/EventHandler.h"
+#include "Core/ThreadPool.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -26,6 +27,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	myConsole = new Console();
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
+	myThreadPool = new ThreadPool();
 	mySystemDispatcher = new SystemDispatcher();
 
 	CreateSystems();
@@ -40,6 +42,7 @@ Engine::~Engine()
 {
 	del(myWorld);
 	del(mySystemDispatcher);
+	del(myThreadPool);
 	del(myVulkanContext);
 	del(myWindowHandler);
 	del(myConsole);
@@ -99,6 +102,11 @@ const WindowHandler& Engine::GetWindowHandler()
 EventHandler& Engine::GetEventHandler()
 {
 	return *myInstance->myPostMaster;
+}
+
+ThreadPool& Engine::GetThreadPool()
+{
+	return *myInstance->myThreadPool;
 }
 
 World& Engine::GetWorld()
