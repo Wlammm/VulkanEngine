@@ -20,6 +20,7 @@ public:
 	static const class WindowHandler& GetWindowHandler();
 	static class EventHandler& GetEventHandler();
 	static class AssetRegistry& GetAssetRegistry();
+	static class ThreadPool& GetThreadPool();
 
 	static class World& GetWorld();
 	static void SetWorld(World* inWorld);
@@ -49,6 +50,7 @@ private:
 	class WindowHandler* myWindowHandler = nullptr;
 	class VulkanContext* myVulkanContext = nullptr;
 	class SystemDispatcher* mySystemDispatcher = nullptr;
+	class ThreadPool* myThreadPool = nullptr;
 
 	// This asset registry holds engine related data. If you need a game resource, use the worlds asset registry instead.
 	class AssetRegistry* myAssetRegistry = nullptr;

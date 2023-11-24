@@ -171,7 +171,7 @@ void VulkanPipeline::CreateDescriptors(const CreateInfo& inCreateInfo)
 		List<vk::DescriptorBufferInfo, uint> bufferInfos;
 		if(!inCreateInfo.UniformBuffers.IsEmpty())
 		{
-			writes.Add();
+			writes.Emplace();
 			for (const auto& buffer : inCreateInfo.UniformBuffers)
 			{
 				bufferInfos.Add(vk::DescriptorBufferInfo().setOffset(0).setRange(buffer->GetBufferSize()).setBuffer(buffer->GetBuffer(i)));
@@ -186,7 +186,7 @@ void VulkanPipeline::CreateDescriptors(const CreateInfo& inCreateInfo)
 		List<vk::DescriptorImageInfo, uint> textureInfos;
 		if (!inCreateInfo.Textures.IsEmpty())
 		{
-			writes.Add();
+			writes.Emplace();
 			for (const auto& texture : inCreateInfo.Textures)
 			{
 				textureInfos.Add(vk::DescriptorImageInfo()

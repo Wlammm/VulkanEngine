@@ -95,6 +95,7 @@ TEST(List, RemoveIndex)
 {
 	List<int> list{ 1, 2, 3, 4, 5 };
 	list.RemoveIndex(2);
+	EXPECT_EQ(list[0], 1);
 	EXPECT_EQ(list[1], 2);
 	EXPECT_EQ(list[2], 4);
 	EXPECT_EQ(list[3], 5);
@@ -114,4 +115,19 @@ TEST(List, Reserve)
 	List<int> list;
 	list.Reserve(10);
 	EXPECT_EQ(list.capacity(), 10);
+}
+
+TEST(List, Grow)
+{
+	List<int> list{};
+	for(int i = 0; i < 10; ++i)
+	{
+		list.Add(i);
+	}
+
+	for(int i = 0; i < 10; ++i)
+	{
+		EXPECT_EQ(list[i], i);
+	}
+	EXPECT_EQ(list.size(), 10);
 }

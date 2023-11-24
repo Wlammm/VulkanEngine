@@ -16,6 +16,7 @@
 #include "Vulkan/VulkanImGui.h"
 #include "Events/EventHandler.h"
 #include "Assets/AssetRegistry.h"
+#include "Core/ThreadPool.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -27,6 +28,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	myConsole = new Console();
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
+	myThreadPool = new ThreadPool();
 	mySystemDispatcher = new SystemDispatcher();
 	myAssetRegistry = new AssetRegistry();
 
@@ -43,6 +45,7 @@ Engine::~Engine()
 	del(myWorld);
 	del(myAssetRegistry);
 	del(mySystemDispatcher);
+	del(myThreadPool);
 	del(myVulkanContext);
 	del(myWindowHandler);
 	del(myConsole);
@@ -108,6 +111,11 @@ EventHandler& Engine::GetEventHandler()
 AssetRegistry& Engine::GetAssetRegistry()
 {
 	return *myInstance->myAssetRegistry;
+}
+
+ThreadPool& Engine::GetThreadPool()
+{
+	return *myInstance->myThreadPool;
 }
 
 World& Engine::GetWorld()

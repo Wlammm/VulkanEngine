@@ -12,6 +12,8 @@
 #include <fstream>
 #include <filesystem>
 #include <functional>
+#include <queue>
+#include <future>
 
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>

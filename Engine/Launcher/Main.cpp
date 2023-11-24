@@ -35,7 +35,8 @@ int main(int argc, char** argv)
 	{
 		std::string s = "CRASH due to: ";
 		s += e.what();
-		LOG_ERROR(s);
+		std::cout << s << std::endl;
+		check(false);
 		return 1;
 	}
 }
