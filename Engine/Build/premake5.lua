@@ -50,7 +50,6 @@ project "Launcher"
 		"Engine",
 		"Editor",
 		"%{VULKAN_SDK}/Lib/vulkan-1.lib",
-		"%{EXTERNAL}/assimp/lib/assimp-vc143-mt.lib",
 		"ImGui",
 	}
 
