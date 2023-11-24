@@ -6,8 +6,8 @@ class VulkanPipeline
 public:
 	struct CreateInfo
 	{
-		std::string VertexShaderPath = "";
-		std::string FragmentShaderPath = "";
+		class VulkanShader* VertexShader = nullptr;
+		class VulkanShader* FragmentShader = nullptr;
 
 		vk::RenderPass RenderPass;
 
@@ -24,8 +24,6 @@ public:
 	const vk::DescriptorSet& GetDescriptorSet() const;
 
 private:
-	vk::ShaderModule CreateShaderFromFile(const std::string& inPath);
-
 	void CreateDescriptorPool(const CreateInfo& inCreateInfo);
 	void CreateDescriptors(const CreateInfo& inCreateInfo);
 	void CreatePipeline(const CreateInfo& inCreateInfo);
@@ -37,4 +35,6 @@ private:
 	vk::DescriptorPool myDescriptorPool;
 	vk::DescriptorSetLayout myDescLayout;
 	List<vk::DescriptorSet> myDescriptorSets;
+
+	CreateInfo myCreateInfo;
 };

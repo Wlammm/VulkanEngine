@@ -1,6 +1,7 @@
 #include "EnginePch.h"
 #include "AssetRegistry.h"
 #include "Model.h"
+#include "Vulkan/VulkanShader.h"
 
 AssetRegistry::AssetRegistry()
 {
@@ -28,4 +29,13 @@ Model* AssetRegistry::GetModel(const std::filesystem::path& inPath, const Model:
 
 	myModels[inPath] = new Model(inPath, inCreateInfo);
 	return myModels[inPath];
+}
+
+VulkanShader* AssetRegistry::GetShader(const std::filesystem::path& inPath)
+{
+	if (myShaders.find(inPath) != myShaders.end())
+		return myShaders[inPath];
+
+	myShaders[inPath] = new VulkanShader(inPath);
+	return myShaders[inPath];
 }

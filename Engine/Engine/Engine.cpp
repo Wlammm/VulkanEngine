@@ -15,6 +15,7 @@
 #include "ECS/Systems/CameraSystem.h"
 #include "Vulkan/VulkanImGui.h"
 #include "Events/EventHandler.h"
+#include "Assets/AssetRegistry.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -27,6 +28,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
 	mySystemDispatcher = new SystemDispatcher();
+	myAssetRegistry = new AssetRegistry();
 
 	CreateSystems();
 
@@ -39,6 +41,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 Engine::~Engine()
 {
 	del(myWorld);
+	del(myAssetRegistry);
 	del(mySystemDispatcher);
 	del(myVulkanContext);
 	del(myWindowHandler);
@@ -51,6 +54,7 @@ Engine::~Engine()
 void Engine::Tick()
 {
 	Time::Tick();
+
 	myWindowHandler->Tick();
 
 	if (Input::IsKeyDown(KeyCode::Escape))
@@ -99,6 +103,11 @@ const WindowHandler& Engine::GetWindowHandler()
 EventHandler& Engine::GetEventHandler()
 {
 	return *myInstance->myPostMaster;
+}
+
+AssetRegistry& Engine::GetAssetRegistry()
+{
+	return *myInstance->myAssetRegistry;
 }
 
 World& Engine::GetWorld()

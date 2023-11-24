@@ -7,4 +7,5 @@ struct StaticMesh
 	StaticMesh(const std::filesystem::path& inPath, const Model::CreateInfo& inCreateInfo = Model::CreateInfo());
 
 	class Model* myModel = nullptr;
+	List<class Material*> myMaterials{};
 };

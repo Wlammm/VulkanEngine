@@ -21,6 +21,7 @@ VulkanAllocator::VulkanAllocator(vk::Instance inInstance, const VulkanPhysicalDe
 
 VulkanAllocator::~VulkanAllocator()
 {
+#if DEBUG
 	for(const auto& buffer : myBuffers)
 	{
 		std::string s = "GPU buffer allocated but never freed: " + buffer->myName;
@@ -32,6 +33,7 @@ VulkanAllocator::~VulkanAllocator()
 		std::string s = "GPU image allocated but never freed: " + image->myName;
 		LOG_ERROR(s);
 	}
+#endif
 
 	vmaDestroyAllocator(myAllocator);
 }

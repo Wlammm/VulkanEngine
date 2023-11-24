@@ -6,8 +6,10 @@
 #include "VulkanUniformBuffer.hpp"
 #include "VulkanTexture.h"
 #include "Rendering/Vertex.hpp"
+#include "Vulkan/VulkanShader.h"
 
 VulkanPipeline::VulkanPipeline(const CreateInfo& inCreateInfo)
+	: myCreateInfo{ inCreateInfo }
 {
 	CreateDescriptorPool(inCreateInfo);
 	CreateDescriptors(inCreateInfo);
@@ -39,19 +41,6 @@ const vk::DescriptorSet& VulkanPipeline::GetDescriptorSet() const
 	return myDescriptorSets[VulkanContext::GetSwapChain().GetSwapChainIndex()];
 }
 
-vk::ShaderModule VulkanPipeline::CreateShaderFromFile(const std::string& inPath)
-{
-	const std::filesystem::path path = "CompiledShaders/" + inPath + ".spv";
-
-	check(std::filesystem::exists(path) && "Invalid path");
-
-	std::ifstream stream(path, std::ios::binary);
-	std::string data = { std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>() };
-	stream.close();
-
-	return VulkanContext::GetDevice()->createShaderModule(vk::ShaderModuleCreateInfo().setCodeSize(data.size()).setPCode((uint32_t*)data.data()));
-}
-
 void VulkanPipeline::CreatePipeline(const CreateInfo& inCreateInfo)
 {
 	const auto pPipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo().setSetLayouts(myDescLayout);
@@ -59,8 +48,8 @@ void VulkanPipeline::CreatePipeline(const CreateInfo& inCreateInfo)
 	vk::Result result = VulkanContext::GetDevice()->createPipelineLayout(&pPipelineLayoutCreateInfo, nullptr, &myPipelineLayout);
 	check(result == vk::Result::eSuccess);
 
-	const vk::ShaderModule vertexShader = CreateShaderFromFile(inCreateInfo.VertexShaderPath);
-	const vk::ShaderModule fragmentShader = CreateShaderFromFile(inCreateInfo.FragmentShaderPath);
+	const vk::ShaderModule vertexShader = *inCreateInfo.VertexShader;
+	const vk::ShaderModule fragmentShader = *inCreateInfo.FragmentShader;
 
 	const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
 		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(vertexShader).setPName("main"),

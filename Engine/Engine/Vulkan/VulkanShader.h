@@ -3,11 +3,18 @@
 class VulkanShader
 {
 public:
-	VulkanShader() = delete;
-	VulkanShader(const std::string& inPath, const bool inShouldCompile = false);
-	~VulkanShader();
+
+	operator vk::ShaderModule();
 
 private:
+	friend class AssetRegistry;
 
+	VulkanShader(const std::filesystem::path& inPath);
+	void InitFromFile();
 
+	void Compile();
+
+private:
+	std::filesystem::path myPath;
+	vk::ShaderModule myShaderModule;
 };

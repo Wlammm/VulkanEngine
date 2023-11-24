@@ -13,6 +13,8 @@
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanDepthBuffer.h"
 #include "ECS/Components/StaticMesh.h"
+#include "Assets/AssetRegistry.h"
+#include "Vulkan/VulkanShader.h"
 
 RenderSystem::RenderSystem()
 {
@@ -181,8 +183,8 @@ void RenderSystem::CreatePipelines()
 {
 	{
 		VulkanPipeline::CreateInfo createInfo;
-		createInfo.VertexShaderPath = "VertexShader.vert";
-		createInfo.FragmentShaderPath = "FragmentShader.frag";
+		createInfo.VertexShader = Engine::GetAssetRegistry().GetShader("VertexShader.vert");
+		createInfo.FragmentShader = Engine::GetAssetRegistry().GetShader("FragmentShader.frag");
 		createInfo.RenderPass = myRenderPass;
 		createInfo.UniformBuffers = { &myFrameData, &myObjectData };
 		createInfo.Textures = { myTexture };
@@ -191,8 +193,8 @@ void RenderSystem::CreatePipelines()
 
 	{
 		VulkanPipeline::CreateInfo createInfo;
-		createInfo.VertexShaderPath = "FullscreenVS.vert";
-		createInfo.FragmentShaderPath = "FullscreenCopy.frag";
+		createInfo.VertexShader = Engine::GetAssetRegistry().GetShader("FullscreenVS.vert");
+		createInfo.FragmentShader = Engine::GetAssetRegistry().GetShader("FullscreenCopy.frag");
 		createInfo.RenderPass = myRenderPass;
 		createInfo.UniformBuffers = { };
 		createInfo.Textures = { myRenderTexture };

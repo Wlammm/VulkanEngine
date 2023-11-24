@@ -46,8 +46,11 @@ Model::Model(const std::filesystem::path& inPath, const CreateInfo& inCreateInfo
 		//aiProcess_ConvertToLeftHanded |
 		aiProcess_Triangulate |
 		aiProcess_CalcTangentSpace |
-		aiProcess_SortByPType;
+		aiProcess_SortByPType |
+		aiProcess_PreTransformVertices;
 	flags &= ~aiProcess_JoinIdenticalVertices;
+
+	importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
 
 	const aiScene* scene = importer.ReadFile(inPath.string(), flags);
 	if(!scene)
@@ -81,11 +84,11 @@ Model::Model(const std::filesystem::path& inPath, const CreateInfo& inCreateInfo
 			vertex.myColor = { 1, 1, 1, 1 };
 
 			if (aiMesh->GetNumColorChannels() > 0)
-				vertex.myColor = { aiMesh->mColors[vertexIndex][0].r, aiMesh->mColors[vertexIndex][0].g, aiMesh->mColors[vertexIndex][0].b, aiMesh->mColors[vertexIndex][0].a };
-
+				vertex.myColor = { aiMesh->mColors[0][vertexIndex].r, aiMesh->mColors[0][vertexIndex].g, aiMesh->mColors[0][vertexIndex].b, aiMesh->mColors[0][vertexIndex].a };
+			aiMesh->mNumBones;
 			if (aiMesh->mNormals)
 				vertex.myNormal = { aiMesh->mNormals[vertexIndex].x, aiMesh->mNormals[vertexIndex].y, aiMesh->mNormals[vertexIndex].z, 0.0f };
-
+				
 			if (aiMesh->mTangents)
 				vertex.myTangents = { aiMesh->mTangents[vertexIndex].x,aiMesh->mTangents[vertexIndex].y, aiMesh->mTangents[vertexIndex].z, 0.0f };
 
