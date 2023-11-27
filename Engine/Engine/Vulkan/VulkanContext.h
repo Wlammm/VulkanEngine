@@ -1,5 +1,7 @@
 #pragma once
 
+
+
 class VulkanContext
 {
 public:
@@ -17,6 +19,12 @@ public:
 
 	static void BeginFrame();
 	static void EndFrame();
+
+	template<typename T>
+	static uint64_t GetVulkanHandle(T const& inCppHandle)
+	{
+		return uint64_t(static_cast<T::CType>(inCppHandle));
+	}
 
 private:
 	void CheckValidationLayerSupport();

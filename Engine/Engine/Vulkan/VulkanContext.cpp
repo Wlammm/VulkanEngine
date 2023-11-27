@@ -25,6 +25,12 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT(VkInstance instance, 
 	return pfnVkDestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
 }
 
+PFN_vkSetDebugUtilsObjectNameEXT pfnVkSetDebugUtilsObjectNameEXT;
+VKAPI_ATTR VkResult VKAPI_CALL vkSetDebugUtilsObjectNameEXT(VkDevice inDevice, VkDebugUtilsObjectNameInfoEXT const* inDebugUtilsObjectNameInfo)
+{
+	return pfnVkSetDebugUtilsObjectNameEXT(inDevice, inDebugUtilsObjectNameInfo);
+}
+
 VulkanContext::VulkanContext()
 {
 	check(!myInstance && "There can only be one vulkan context at the same time.");
@@ -182,6 +188,7 @@ void VulkanContext::CreateDebugLayer()
 
 	pfnVkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(myVulkanInstance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
 	pfnVkDestroyDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(myVulkanInstance.getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
+	pfnVkSetDebugUtilsObjectNameEXT = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(myVulkanInstance.getProcAddr("vkSetDebugUtilsObjectNameEXT"));
 
 	vk::DebugUtilsMessengerCreateInfoEXT createInfo = vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &DebugMessageCallback, static_cast<void*>(this));
 	myDebugMessenger = myVulkanInstance.createDebugUtilsMessengerEXT(createInfo);

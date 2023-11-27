@@ -15,14 +15,10 @@
 #include "ECS/Components/StaticMesh.h"
 #include "Assets/AssetRegistry.h"
 #include "Vulkan/VulkanShader.h"
+#include "Assets/Material.h"
 
 RenderSystem::RenderSystem()
 {
-	Model::CreateInfo createInfo{};
-	createInfo.InvertY = true;
-	myModel = new Model("Assets/Tree.fbx", createInfo);
-	myTexture = new VulkanTexture("Assets/Leaves.tga", SamplerMode::Wrap);
-
 	CreateRenderResources();
 
 	SubscribeToEvent(EventType::SwapchainResized, std::bind(&RenderSystem::OnSwapChainResize, this));
@@ -34,8 +30,6 @@ RenderSystem::~RenderSystem()
 	VulkanContext::GetDevice()->waitIdle();
 
 	DestroyRenderResources();
-	del(myTexture);
-	del(myModel);
 }
 
 void RenderSystem::Tick()
@@ -61,6 +55,16 @@ VulkanImage* RenderSystem::GetRenderTexture()
 	return myRenderTexture->GetImage();
 }
 
+const IVulkanUniformBuffer& RenderSystem::GetFrameBuffer() const
+{
+	return myFrameData;
+}
+
+const IVulkanUniformBuffer& RenderSystem::GetObjectBuffer() const
+{
+	return myObjectData;
+}
+
 void RenderSystem::OnSwapChainResize()
 {
 	DestroyRenderResources();
@@ -81,9 +85,6 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
 		, vk::SubpassContents::eInline);
 
-	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline->GetPipeline());
-	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipeline->GetPipelineLayout(), 0, myPipeline->GetDescriptorSet(), {});
-
 	inCommandBuffer.setViewport(0, vk::Viewport()
 		.setX(0)
 		.setY(0)
@@ -94,7 +95,6 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 
 	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
 
-
 	for (const auto [entity, transform, mesh] : view.each())
 	{
 		if (!mesh.myModel)
@@ -103,6 +103,11 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 		UpdateObjectBuffer(transform);
 		for (const Mesh& mesh : mesh.myModel->GetMeshes())
 		{
+			if (!mesh.myMaterial)
+				continue;
+
+			mesh.myMaterial->Bind(inCommandBuffer);
+
 			mesh.Bind(inCommandBuffer);
 			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, 0, 0, 0);
 		}
@@ -116,7 +121,7 @@ void RenderSystem::AddEditorPass(vk::CommandBuffer inCommandBuffer)
 	// Temporary to change image format of swapchain textures.
 	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
 		.setRenderPass(myRenderPass)
-		.setFramebuffer(GetFrameBuffer())
+		.setFramebuffer(GetVkFrameBuffer())
 		.setPClearValues(myClearValues)
 		.setClearValueCount(2)
 		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
@@ -181,16 +186,6 @@ void RenderSystem::DestroyRenderResources()
 
 void RenderSystem::CreatePipelines()
 {
-	{
-		VulkanPipeline::CreateInfo createInfo;
-		createInfo.VertexShader = Engine::GetAssetRegistry().GetShader("VertexShader.vert");
-		createInfo.FragmentShader = Engine::GetAssetRegistry().GetShader("FragmentShader.frag");
-		createInfo.RenderPass = myRenderPass;
-		createInfo.UniformBuffers = { &myFrameData, &myObjectData };
-		createInfo.Textures = { myTexture };
-		myPipeline = new VulkanPipeline(createInfo);
-	}
-
 	{
 		VulkanPipeline::CreateInfo createInfo;
 		createInfo.VertexShader = Engine::GetAssetRegistry().GetShader("FullscreenVS.vert");
@@ -383,7 +378,7 @@ void RenderSystem::UpdateObjectBuffer(const Transform& inTransform)
 	buffer.myToWorld = inTransform.GetMatrix();
 }
 
-vk::Framebuffer RenderSystem::GetFrameBuffer() const
+vk::Framebuffer RenderSystem::GetVkFrameBuffer() const
 {
 	return myFrameBuffers[VulkanContext::GetSwapChain().GetSwapChainIndex()];
 }

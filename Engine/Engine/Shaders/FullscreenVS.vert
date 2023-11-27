@@ -21,4 +21,3 @@ void main()
 	outTexCoord = uv[gl_VertexIndex];
 	gl_Position = pos[gl_VertexIndex];
 }
-

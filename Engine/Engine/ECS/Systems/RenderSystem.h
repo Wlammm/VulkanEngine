@@ -18,6 +18,9 @@ public:
 	vk::RenderPass& GetRenderPass();
 	class VulkanImage* GetRenderTexture();
 
+	const IVulkanUniformBuffer& GetFrameBuffer() const;
+	const IVulkanUniformBuffer& GetObjectBuffer() const;
+
 	void OnSwapChainResize();
 
 private:
@@ -36,7 +39,7 @@ private:
 	void UpdateFrameBuffer();
 	void UpdateObjectBuffer(const Transform& inTransform);
 
-	vk::Framebuffer GetFrameBuffer() const;
+	vk::Framebuffer GetVkFrameBuffer() const;
 
 private:
 	class VulkanPipeline* myPipeline = nullptr;
@@ -56,8 +59,6 @@ private:
 		vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })),
 		vk::ClearDepthStencilValue(1.0f, 0u) };
 
-	class VulkanDepthBuffer* myDepthBuffer = nullptr;
-
 	struct FrameData
 	{
 		Mat4f myToView;
@@ -71,8 +72,7 @@ private:
 	};
 	VulkanUniformBuffer<ObjectData> myObjectData{ vk::ShaderStageFlagBits::eVertex, 1 };
 
-	class VulkanTexture* myRenderTexture = nullptr;
+	class VulkanDepthBuffer* myDepthBuffer = nullptr;
 
-	class Model* myModel = nullptr;
-	class VulkanTexture* myTexture = nullptr;
+	class VulkanTexture* myRenderTexture = nullptr;
 };

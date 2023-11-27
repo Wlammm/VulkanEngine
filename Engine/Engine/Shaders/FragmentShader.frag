@@ -16,5 +16,5 @@ void main()
     float diffuseFactor = max(dot(normal, -dirLightDirection), 0.2);
 	
 	outColor= texture(texSampler, inTexCoord) * diffuseFactor;
-    outColor = vec4(vec3(0.6, 0.6, 0.6) * diffuseFactor, 1.0);
+    outColor = vec4(vec3(1.6, 1.6, 0.6) * diffuseFactor, 1.0);
 }

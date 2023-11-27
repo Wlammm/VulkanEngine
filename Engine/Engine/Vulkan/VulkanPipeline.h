@@ -11,7 +11,7 @@ public:
 
 		vk::RenderPass RenderPass;
 
-		List<class IVulkanUniformBuffer*> UniformBuffers{};
+		List<const class IVulkanUniformBuffer*> UniformBuffers{};
 		List<class VulkanTexture*> Textures{};
 	};
 

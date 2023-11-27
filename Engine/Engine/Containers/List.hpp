@@ -138,6 +138,16 @@ public:
 		Grow(inSize);
 	}
 
+	SizeType FindIndex(const ElementType& inValue) requires ComparisonOperator<ElementType>
+	{
+		for(SizeType i = 0; i < mySize; ++i)
+		{
+			if (myPtr[i] == inValue)
+				return i;
+		}
+		return -1;
+	}
+
 	bool Contains(const ElementType& inValue) requires ComparisonOperator<ElementType>
 	{
 		for (const ElementType& value : *this)

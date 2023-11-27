@@ -17,6 +17,7 @@
 #include "Events/EventHandler.h"
 #include "Assets/AssetRegistry.h"
 #include "Core/ThreadPool.h"
+#include "Core/Filewatcher.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -26,13 +27,16 @@ Engine::Engine(const EngineProperties inEngineProperties)
 
 	myPostMaster = new EventHandler();
 	myConsole = new Console();
+	myThreadPool = new ThreadPool();
+	myFilewatcher = new Filewatcher();
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
-	myThreadPool = new ThreadPool();
 	mySystemDispatcher = new SystemDispatcher();
 	myAssetRegistry = new AssetRegistry();
 
+	// This might cause issues in the future.
 	CreateSystems();
+	myAssetRegistry->Init();
 
 	VulkanImGui::Start();
 
@@ -45,9 +49,10 @@ Engine::~Engine()
 	del(myWorld);
 	del(myAssetRegistry);
 	del(mySystemDispatcher);
-	del(myThreadPool);
 	del(myVulkanContext);
 	del(myWindowHandler);
+	del(myFilewatcher);
+	del(myThreadPool);
 	del(myConsole);
 	del(myPostMaster);
 
@@ -64,7 +69,7 @@ void Engine::Tick()
 		PostQuitMessage(0);
 
 	VulkanContext::BeginFrame();
-
+	myFilewatcher->FlushChanges();
 #if EDITOR
 	myEditorTick();
 #endif
@@ -116,6 +121,11 @@ AssetRegistry& Engine::GetAssetRegistry()
 ThreadPool& Engine::GetThreadPool()
 {
 	return *myInstance->myThreadPool;
+}
+
+Filewatcher& Engine::GetFilewatcher()
+{
+	return *myInstance->myFilewatcher;
 }
 
 World& Engine::GetWorld()

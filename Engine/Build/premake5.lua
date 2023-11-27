@@ -51,6 +51,8 @@ project "Launcher"
 		"Editor",
 		"%{VULKAN_SDK}/Lib/vulkan-1.lib",
 		"%{EXTERNAL}/assimp/lib/assimp-vc143-mt.lib",
+		"%{VULKAN_SDK}/Lib/shaderc_shared.lib",
+		"%{VULKAN_SDK}/Lib/shaderc_util.lib",
 		"ImGui",
 	}
 

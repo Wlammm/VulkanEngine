@@ -34,7 +34,7 @@ void World::Init()
 
 	Model::CreateInfo createInfo{};
 	createInfo.InvertY = true;
-	auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Sponza/BinaryFbx/SponzaMain.fbx", createInfo);
+	auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Sponza/NewSponza_Main_Yup_002.fbx", createInfo);
 }
 
 entt::registry& World::GetRegistry()

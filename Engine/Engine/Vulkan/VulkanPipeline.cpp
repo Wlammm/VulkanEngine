@@ -111,9 +111,6 @@ void VulkanPipeline::CreatePipeline(const CreateInfo& inCreateInfo)
 
 	THROW_IF(pipeline_return.result != vk::Result::eSuccess, "Failed to create pipeline");
 	myPipeline = pipeline_return.value;
-
-	VulkanContext::GetDevice()->destroyShaderModule(vertexShader);
-	VulkanContext::GetDevice()->destroyShaderModule(fragmentShader);
 }
 
 void VulkanPipeline::CreateDescriptorPool(const CreateInfo& inCreateInfo)

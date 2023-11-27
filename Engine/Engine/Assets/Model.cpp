@@ -8,6 +8,9 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include "Engine.h"
+#include "Assets/AssetRegistry.h"
+#include "Assets/Material.h"
 
 Model::Model()
 {
@@ -53,6 +56,7 @@ Model::Model(const std::filesystem::path& inPath, const CreateInfo& inCreateInfo
 	importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
 
 	const aiScene* scene = importer.ReadFile(inPath.string(), flags);
+
 	if(!scene)
 	{
 		LOG_ERROR("Failed to load model");
@@ -73,6 +77,11 @@ Model::Model(const std::filesystem::path& inPath, const CreateInfo& inCreateInfo
 
 		Mesh mesh{};
 		const aiMesh* aiMesh = scene->mMeshes[meshIndex];
+		
+		// This has not been fully implemented. Its just here to show how to get material textures for now :) 
+		aiMaterial* aiMat = scene->mMaterials[aiMesh->mMaterialIndex];
+		aiString string;
+		aiMat->GetTexture(aiTextureType_BASE_COLOR, 0, &string);
 
 		mesh.NumVertices = aiMesh->mNumVertices;
 		mesh.NumIndices = aiMesh->mNumFaces * 3;
@@ -117,8 +126,11 @@ Model::Model(const std::filesystem::path& inPath, const CreateInfo& inCreateInfo
 
 		mesh.VertexBuffer = new VulkanVertexBuffer(vertices);
 		mesh.IndexBuffer = new VulkanIndexBuffer(indices);
+		mesh.myMaterial = Engine::GetAssetRegistry().GetDefaultMaterial();
 		myMeshes.Add(mesh);
 	}
+
+	importer.FreeScene();
 	myIsValid = true;
 }
 

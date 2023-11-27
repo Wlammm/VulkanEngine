@@ -8,5 +8,7 @@ struct Mesh
 	class VulkanVertexBuffer* VertexBuffer = nullptr;
 	class VulkanIndexBuffer* IndexBuffer = nullptr;
 
+	class Material* myMaterial = nullptr;
+
 	void Bind(vk::CommandBuffer inCommandBuffer) const;
 };
