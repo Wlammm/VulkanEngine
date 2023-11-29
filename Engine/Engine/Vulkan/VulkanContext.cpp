@@ -41,7 +41,6 @@ VulkanContext::VulkanContext()
 	CheckExtensionSupport();
 	CreateInstance();
 	CreateDebugLayer();
-	CreateDescriptorPool();
 
 	myPhysicalDevice = new VulkanPhysicalDevice();
 	myDevice = new VulkanDevice(*myPhysicalDevice);
@@ -49,6 +48,7 @@ VulkanContext::VulkanContext()
 	mySwapChain = new VulkanSwapChain(*myDevice);
 
 	myPipelineCache = GetDevice()->createPipelineCache(vk::PipelineCacheCreateInfo(), nullptr);
+	CreateDescriptorPool();
 }
 
 VulkanContext::~VulkanContext()
@@ -218,7 +218,7 @@ void VulkanContext::CreateDescriptorPool()
 	List<vk::DescriptorPoolSize> poolSizes;
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eUniformBuffer);
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eCombinedImageSampler);
-	vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo().setPoolSizes(poolSizes);
+	vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo().setPoolSizes(poolSizes).setMaxSets(1000);
 
 	myDescriptorPool = GetDevice()->createDescriptorPool(createInfo);
 }

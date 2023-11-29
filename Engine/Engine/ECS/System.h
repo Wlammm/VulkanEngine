@@ -6,6 +6,7 @@ public:
 	virtual ~ISystem() {}
 
 	virtual void Tick() = 0;
+	virtual void Init() = 0;
 	virtual const std::unordered_set<std::string>& GetDependencies() = 0; 
 };
 
@@ -20,6 +21,8 @@ public:
 	}
 
 	virtual ~System() {}
+
+	virtual void Init() override {}
 
 	virtual const std::unordered_set<std::string>& GetDependencies() override final
 	{

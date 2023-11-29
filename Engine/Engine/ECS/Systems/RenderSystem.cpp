@@ -16,12 +16,14 @@
 #include "Assets/AssetRegistry.h"
 #include "Vulkan/VulkanShader.h"
 #include "Assets/Material.h"
+#include "Rendering/MeshPipeline.h"
 
 RenderSystem::RenderSystem()
 {
 	CreateRenderResources();
 
 	SubscribeToEvent(EventType::SwapchainResized, std::bind(&RenderSystem::OnSwapChainResize, this));
+
 }
 
 RenderSystem::~RenderSystem()
@@ -30,6 +32,11 @@ RenderSystem::~RenderSystem()
 	VulkanContext::GetDevice()->waitIdle();
 
 	DestroyRenderResources();
+}
+
+void RenderSystem::Init()
+{
+	myMeshPipeline = new MeshPipeline();
 }
 
 void RenderSystem::Tick()

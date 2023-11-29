@@ -31,13 +31,13 @@ MeshPipeline::~MeshPipeline()
 void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 {
 	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
-	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, );
+	//inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, );
 }
 
 void MeshPipeline::CreateDescriptorSetLayouts()
 {
 	{
-		// Frame UBO. (Holds view & projection matrix)
+		// Frame set. (Holds view & projection matrix)
 		List<vk::DescriptorSetLayoutBinding> layoutBindings;
 		layoutBindings.Emplace()
 			.setBinding(myFrameData.GetBindingIndex())
@@ -50,7 +50,7 @@ void MeshPipeline::CreateDescriptorSetLayouts()
 	}
 
 	{
-		// Object UBO.
+		// Object set.
 		List<vk::DescriptorSetLayoutBinding> layoutBindings;
 		layoutBindings.Emplace()
 			.setBinding(myObjectData.GetBindingIndex())
@@ -65,24 +65,32 @@ void MeshPipeline::CreateDescriptorSetLayouts()
 
 void MeshPipeline::CreateDescriptorSets()
 {
-	{
-		// Frame UBO.
-		List<vk::DescriptorSetLayoutBinding> layoutBindings;
-		layoutBindings.Emplace()
-			.setBinding(myFrameData.GetBindingIndex())
-			.setDescriptorCount(1)
-			.setDescriptorType(vk::DescriptorType::eUniformBuffer);
-	}
+	vk::DescriptorSetAllocateInfo allocInfo = vk::DescriptorSetAllocateInfo()
+		.setDescriptorPool(VulkanContext::GetDescriptorPool())
+		.setSetLayouts(myFrameDescriptorSetLayout);
 
-	{
-		// Object UBO.
-		List<vk::DescriptorSetLayoutBinding> layoutBindings;
-		layoutBindings.Emplace()
-			.setBinding(myObjectData.GetBindingIndex())
-			.setDescriptorCount(1)
-			.setDescriptorType(vk::DescriptorType::eUniformBuffer);
-	}
+	// Frame set
+	List<vk::WriteDescriptorSet> writes;
+	writes.Emplace()
+		.setDstSet(myFrameDescriptorSet)
+		.setDescriptorType(vk::DescriptorType::eUniformBuffer)
+		.setDstBinding(myFrameData.GetBindingIndex())
+		.setBufferInfo(vk::DescriptorBufferInfo()
+			.setOffset(0)
+			.setBuffer(myFrameData.GetBuffer(0))
+			.setRange(myFrameData.GetBufferSize()));
 
+	// Object set
+	writes.Emplace()
+		.setDstSet(myFrameDescriptorSet)
+		.setDescriptorType(vk::DescriptorType::eUniformBuffer)
+		.setDstBinding(myObjectData.GetBindingIndex())
+		.setBufferInfo(vk::DescriptorBufferInfo()
+			.setOffset(0)
+			.setBuffer(myObjectData.GetBuffer(0))
+			.setRange(myObjectData.GetBufferSize()));
+
+	VulkanContext::GetDevice()->updateDescriptorSets(writes, {});
 }
 
 void MeshPipeline::CreatePipeline()

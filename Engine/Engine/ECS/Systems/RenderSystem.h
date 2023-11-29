@@ -15,6 +15,8 @@ public:
 	RenderSystem();
 	~RenderSystem();
 
+	void Init();
+
 	virtual void Tick() override final;
 
 	vk::RenderPass& GetRenderPass();
@@ -48,6 +50,8 @@ private:
 private:
 	class VulkanPipeline* myPipeline = nullptr;
 	class VulkanPipeline* myFullscreenCopyPipeline = nullptr;
+
+	class MeshPipeline* myMeshPipeline = nullptr;
 
 	vk::RenderPass myRenderPass;
 	List<vk::Framebuffer> myFrameBuffers;

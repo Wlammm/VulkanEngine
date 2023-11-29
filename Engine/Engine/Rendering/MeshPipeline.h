@@ -1,4 +1,5 @@
 #pragma once
+#include "Vulkan/VulkanUniformBuffer.hpp"
 
 class VulkanShader;
 
@@ -18,7 +19,10 @@ private:
 
 private:
 	vk::DescriptorSetLayout myFrameDescriptorSetLayout;
+	vk::DescriptorSet myFrameDescriptorSet;
+
 	vk::DescriptorSetLayout myObjectDescriptorSetLayout;
+	vk::DescriptorSet myObjectDescriptorSet;
 
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;

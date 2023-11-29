@@ -1,5 +1,7 @@
 #pragma once
 #include "AssetObserver.h"
+#include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanDevice.h"
 
 class VulkanPipeline;
 class VulkanShader;

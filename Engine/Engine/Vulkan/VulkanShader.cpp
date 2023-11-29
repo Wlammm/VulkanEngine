@@ -34,7 +34,7 @@ VulkanShader::~VulkanShader()
 	Engine::GetFilewatcher().RemoveWatch(myPath, myFilewatcherHandle);
 
 	LOG_WARNING("VulkanShader waits for device idle. Fix");
-
+	
 	VulkanContext::GetDevice()->waitIdle();
 	VulkanContext::GetDevice()->destroyShaderModule(myShaderModule);
 }
