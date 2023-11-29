@@ -26,6 +26,8 @@ public:
 		return uint64_t(static_cast<T::CType>(inCppHandle));
 	}
 
+	static vk::DescriptorPool GetDescriptorPool();
+
 private:
 	void CheckValidationLayerSupport();
 	void CheckExtensionSupport();
@@ -33,6 +35,8 @@ private:
 	void CreateInstance();
 	void CreateDebugLayer();
 	void DestroyDebugLayer();
+
+	void CreateDescriptorPool();
 
 private:
 	inline static VulkanContext* myInstance = nullptr;
@@ -45,6 +49,8 @@ private:
 	class VulkanDevice* myDevice = nullptr;
 	class VulkanAllocator* myAllocator = nullptr;
 	class VulkanSwapChain* mySwapChain = nullptr;
+
+	vk::DescriptorPool myDescriptorPool;
 
 	const List<const char*> myExtensions
 	{

@@ -22,6 +22,7 @@ private:
 	void InitFromBinary(const std::vector<uint32_t>& inData);
 
 	void Compile();
+	void Reflect();
 
 private:
 	std::filesystem::path myPath;

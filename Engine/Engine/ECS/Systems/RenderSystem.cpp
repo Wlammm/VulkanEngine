@@ -95,6 +95,7 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 
 	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
 
+	BuildPointLightBuffer();
 	for (const auto [entity, transform, mesh] : view.each())
 	{
 		if (!mesh.myModel)
@@ -195,6 +196,25 @@ void RenderSystem::CreatePipelines()
 		createInfo.Textures = { myRenderTexture };
 		myFullscreenCopyPipeline = new VulkanPipeline(createInfo);
 	}
+}
+
+void RenderSystem::BuildPointLightBuffer()
+{
+	List<PointLightData> pointLightData;
+
+	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const PointLight>();
+	if (view.size_hint() == 0)
+		return;
+
+	for(const auto [entity, transform, light] : view.each())
+	{
+		PointLightData& data = pointLightData.Emplace();
+		data.myPosition = transform.GetPosition();
+		data.myRange = light.myRange;
+		data.myColor = light.myColor;
+	}
+
+	myPointLightData.SetData(pointLightData);
 }
 
 void RenderSystem::CreateRenderTextures()

@@ -4,6 +4,7 @@
 #include "VulkanDevice.h"
 #include "VulkanSwapChain.h"
 #include "VulkanUniformBuffer.hpp"
+#include "VulkanStorageBuffer.hpp"
 #include "VulkanTexture.h"
 #include "Rendering/Vertex.hpp"
 #include "Vulkan/VulkanShader.h"
@@ -141,6 +142,16 @@ void VulkanPipeline::CreateDescriptors(const CreateInfo& inCreateInfo)
 			.setPImmutableSamplers(nullptr));
 	};
 
+	for (const auto& buffer : inCreateInfo.StorageBuffers)
+	{
+		layoutBindings.Add(vk::DescriptorSetLayoutBinding()
+						   .setBinding(buffer->GetBindingIndex())
+						   .setDescriptorType(vk::DescriptorType::eStorageBufferDynamic)
+						   .setDescriptorCount(1)
+						   .setStageFlags(buffer->GetShaderStageFlags())
+						   .setPImmutableSamplers(nullptr));
+	};
+
 	for(const auto& texture : inCreateInfo.Textures)
 	{
 		// hard coded in binding for now. Need better solution.
@@ -166,7 +177,7 @@ void VulkanPipeline::CreateDescriptors(const CreateInfo& inCreateInfo)
 		List<vk::WriteDescriptorSet> writes;
 
 		List<vk::DescriptorBufferInfo, uint> bufferInfos;
-		if(!inCreateInfo.UniformBuffers.IsEmpty())
+		if (!inCreateInfo.UniformBuffers.IsEmpty())
 		{
 			writes.Emplace();
 			for (const auto& buffer : inCreateInfo.UniformBuffers)

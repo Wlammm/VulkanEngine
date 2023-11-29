@@ -5,9 +5,11 @@
 #include "Engine/ECS/Components/Transform.h"
 #include "Engine/ECS/Components/Camera.h"
 #include "Engine/ECS/Components/StaticMesh.h"
+#include "Engine/ECS/Components/PointLight.h"
 #include "Engine/Vulkan/VulkanUniformBuffer.hpp"
+#include "Engine/Vulkan/VulkanStorageBuffer.hpp"
 
-class RenderSystem : public System<const Transform, const Camera, const StaticMesh>, public EventObserver
+class RenderSystem : public System<const Transform, const Camera, const StaticMesh, const PointLight>, public EventObserver
 {
 public:
 	RenderSystem();
@@ -35,6 +37,8 @@ private:
 	void CreateRenderPass();
 	void CreateFrameBuffers();
 	void CreatePipelines();
+
+	void BuildPointLightBuffer();
 
 	void UpdateFrameBuffer();
 	void UpdateObjectBuffer(const Transform& inTransform);
@@ -71,6 +75,14 @@ private:
 		Mat4f myToWorld;
 	};
 	VulkanUniformBuffer<ObjectData> myObjectData{ vk::ShaderStageFlagBits::eVertex, 1 };
+
+	struct PointLightData
+	{
+		Color myColor;
+		Vec3f myPosition;
+		float myRange;
+	};
+	VulkanStorageBuffer<PointLightData> myPointLightData{ vk::ShaderStageFlagBits::eFragment, 3 };
 
 	class VulkanDepthBuffer* myDepthBuffer = nullptr;
 

@@ -7,6 +7,7 @@
 #include "Utils/String.hpp"
 #include "VulkanAllocator.h"
 #include "VulkanImGui.h"
+#include "Assets/Material.h"
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
@@ -40,6 +41,7 @@ VulkanContext::VulkanContext()
 	CheckExtensionSupport();
 	CreateInstance();
 	CreateDebugLayer();
+	CreateDescriptorPool();
 
 	myPhysicalDevice = new VulkanPhysicalDevice();
 	myDevice = new VulkanDevice(*myPhysicalDevice);
@@ -52,7 +54,9 @@ VulkanContext::VulkanContext()
 VulkanContext::~VulkanContext()
 {
 	VulkanImGui::Destroy();
+	GetDevice()->destroyDescriptorPool(myDescriptorPool);
 	GetDevice()->destroyPipelineCache(myPipelineCache);
+	GetDevice()->destroyDescriptorSetLayout(Material::GetMaterialDescriptorLayout());
 
 	del(mySwapChain);
 	del(myAllocator);
@@ -106,6 +110,11 @@ void VulkanContext::BeginFrame()
 void VulkanContext::EndFrame()
 {
 	myInstance->mySwapChain->EndFrame();
+}
+
+vk::DescriptorPool VulkanContext::GetDescriptorPool()
+{
+	return myInstance->myDescriptorPool;
 }
 
 void VulkanContext::CheckValidationLayerSupport()
@@ -202,6 +211,16 @@ void VulkanContext::DestroyDebugLayer()
 		return;
 #endif
 	myVulkanInstance.destroyDebugUtilsMessengerEXT(myDebugMessenger);
+}
+
+void VulkanContext::CreateDescriptorPool()
+{
+	List<vk::DescriptorPoolSize> poolSizes;
+	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eUniformBuffer);
+	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eCombinedImageSampler);
+	vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo().setPoolSizes(poolSizes);
+
+	myDescriptorPool = GetDevice()->createDescriptorPool(createInfo);
 }
 
 VkBool32 VulkanContext::DebugMessageCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)

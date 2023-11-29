@@ -137,3 +137,8 @@ void VulkanShader::Compile()
 		observer->OnAssetUpdated();
 	}
 }
+
+void VulkanShader::Reflect()
+{
+
+}
