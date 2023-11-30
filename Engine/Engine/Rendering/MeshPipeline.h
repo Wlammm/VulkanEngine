@@ -41,6 +41,6 @@ private:
 	{
 		Mat4f myToWorld;
 	};
-	VulkanUniformBuffer<ObjectData> myObjectData{ vk::ShaderStageFlagBits::eVertex, 1 };
+	VulkanUniformBuffer<ObjectData> myObjectData{ vk::ShaderStageFlagBits::eVertex, 0 };
 
 };

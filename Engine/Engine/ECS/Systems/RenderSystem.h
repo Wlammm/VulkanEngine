@@ -22,9 +22,6 @@ public:
 	vk::RenderPass& GetRenderPass();
 	class VulkanImage* GetRenderTexture();
 
-	const IVulkanUniformBuffer& GetFrameBuffer() const;
-	const IVulkanUniformBuffer& GetObjectBuffer() const;
-
 	void OnSwapChainResize();
 
 private:
@@ -42,13 +39,12 @@ private:
 
 	void BuildPointLightBuffer();
 
-	void UpdateFrameBuffer();
-	void UpdateObjectBuffer(const Transform& inTransform);
+	//void UpdateFrameBuffer();
+	//void UpdateObjectBuffer(const Transform& inTransform);
 
 	vk::Framebuffer GetVkFrameBuffer() const;
 
 private:
-	class VulkanPipeline* myPipeline = nullptr;
 	class VulkanPipeline* myFullscreenCopyPipeline = nullptr;
 
 	class MeshPipeline* myMeshPipeline = nullptr;
@@ -66,19 +62,6 @@ private:
 	vk::ClearValue myClearValues[2] = {
 		vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })),
 		vk::ClearDepthStencilValue(1.0f, 0u) };
-
-	struct FrameData
-	{
-		Mat4f myToView;
-		Mat4f myProjection;
-	};
-	VulkanUniformBuffer<FrameData> myFrameData{vk::ShaderStageFlagBits::eVertex, 0 };
-
-	struct ObjectData
-	{
-		Mat4f myToWorld;
-	};
-	VulkanUniformBuffer<ObjectData> myObjectData{ vk::ShaderStageFlagBits::eVertex, 1 };
 
 	struct PointLightData
 	{

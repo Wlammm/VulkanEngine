@@ -10,13 +10,13 @@ layout(location = 5) in vec2 inTexCoords[4];
 layout(location = 0) out vec3 outNormal;
 layout(location = 1) out vec2 outTexCoord;
 
-layout(binding = 0) uniform FrameBuffer 
+layout(set = 0, binding = 0) uniform FrameBuffer 
 {
 	mat4 myToView;
 	mat4 myProjection;
 };
 
-layout(binding = 1) uniform ObjectBuffer
+layout(set = 2, binding = 0) uniform ObjectBuffer
 {
 	mat4 myToWorld;
 };

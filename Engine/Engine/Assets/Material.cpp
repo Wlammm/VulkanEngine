@@ -33,14 +33,14 @@ void Material::Create()
 	if (!renderSystem)
 		check(false);
 
-	VulkanPipeline::CreateInfo createInfo;
-	createInfo.VertexShader = myVertexShader;
-	createInfo.FragmentShader = myPixelShader;
-	createInfo.RenderPass = renderSystem->GetRenderPass();
-	createInfo.UniformBuffers = { &renderSystem->GetFrameBuffer(), &renderSystem->GetObjectBuffer()};
-	createInfo.Textures = { myTexture };
+	//VulkanPipeline::CreateInfo createInfo;
+	//createInfo.VertexShader = myVertexShader;
+	//createInfo.FragmentShader = myPixelShader;
+	//createInfo.RenderPass = renderSystem->GetRenderPass();
+	//createInfo.UniformBuffers = { &renderSystem->GetFrameBuffer(), &renderSystem->GetObjectBuffer()};
+	//createInfo.Textures = { myTexture };
 
-	myPipeline = new VulkanPipeline(createInfo);
+	//myPipeline = new VulkanPipeline(createInfo);
 }
 
 void Material::Destroy()

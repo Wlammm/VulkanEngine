@@ -17,6 +17,7 @@
 #include "Vulkan/VulkanShader.h"
 #include "Assets/Material.h"
 #include "Rendering/MeshPipeline.h"
+#include "Vulkan/VulkanVertexBuffer.h"
 
 RenderSystem::RenderSystem()
 {
@@ -41,7 +42,7 @@ void RenderSystem::Init()
 
 void RenderSystem::Tick()
 {
-	UpdateFrameBuffer();
+	//UpdateFrameBuffer();
 
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
@@ -60,16 +61,6 @@ vk::RenderPass& RenderSystem::GetRenderPass()
 VulkanImage* RenderSystem::GetRenderTexture()
 {
 	return myRenderTexture->GetImage();
-}
-
-const IVulkanUniformBuffer& RenderSystem::GetFrameBuffer() const
-{
-	return myFrameData;
-}
-
-const IVulkanUniformBuffer& RenderSystem::GetObjectBuffer() const
-{
-	return myObjectData;
 }
 
 void RenderSystem::OnSwapChainResize()
@@ -92,6 +83,8 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
 		, vk::SubpassContents::eInline);
 
+	inCommandBuffer.endRenderPass();
+	return;
 	inCommandBuffer.setViewport(0, vk::Viewport()
 		.setX(0)
 		.setY(0)
@@ -108,7 +101,7 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 		if (!mesh.myModel)
 			continue;
 
-		UpdateObjectBuffer(transform);
+		//UpdateObjectBuffer(transform);
 		for (const Mesh& mesh : mesh.myModel->GetMeshes())
 		{
 			if (!mesh.myMaterial)
@@ -145,6 +138,22 @@ void RenderSystem::AddEditorPass(vk::CommandBuffer inCommandBuffer)
 		.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
 		.setMinDepth(0.0f)
 		.setMaxDepth(1.0f));
+
+	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const StaticMesh>();
+	for (const auto [entity, transform, mesh] : view.each())
+	{
+		if (!mesh.myModel)
+			continue;
+
+		//UpdateObjectBuffer(transform);
+		for (const Mesh& mesh : mesh.myModel->GetMeshes())
+		{
+			if (!mesh.myMaterial)
+				continue;
+
+			mesh.Bind(inCommandBuffer);
+		}
+	}
 
 	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
 	inCommandBuffer.drawIndexed(3, 1, 0, 0, 0);
@@ -185,7 +194,6 @@ void RenderSystem::DestroyRenderResources()
 
 	del(myRenderTexture);
 	del(myDepthBuffer);
-	del(myPipeline);
 	del(myFullscreenCopyPipeline);
 
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderPass);
@@ -384,26 +392,26 @@ void RenderSystem::CreateFrameBuffers()
 	}
 }
 
-void RenderSystem::UpdateFrameBuffer()
-{
-	FrameData& buffer = myFrameData.Get();
-	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const Camera>();
+//void RenderSystem::UpdateFrameBuffer()
+//{
+//	FrameData& buffer = myFrameData.Get();
+//	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const Camera>();
+//
+//	for (auto ent : view)
+//	{
+//		buffer.myProjection = view.get<const Camera>(ent).myProjection.Transposed();
+//		buffer.myToView = view.get<const Transform>(ent).GetMatrix().FastInverse().Transposed();
+//		return;
+//	}
+//
+//	LOG("No render camera found.");
+//}
 
-	for (auto ent : view)
-	{
-		buffer.myProjection = view.get<const Camera>(ent).myProjection.Transposed();
-		buffer.myToView = view.get<const Transform>(ent).GetMatrix().FastInverse().Transposed();
-		return;
-	}
-
-	LOG("No render camera found.");
-}
-
-void RenderSystem::UpdateObjectBuffer(const Transform& inTransform)
-{
-	ObjectData& buffer = myObjectData.Get();
-	buffer.myToWorld = inTransform.GetMatrix();
-}
+//void RenderSystem::UpdateObjectBuffer(const Transform& inTransform)
+//{
+//	ObjectData& buffer = myObjectData.Get();
+//	buffer.myToWorld = inTransform.GetMatrix();
+//}
 
 vk::Framebuffer RenderSystem::GetVkFrameBuffer() const
 {

@@ -65,11 +65,25 @@ void MeshPipeline::CreateDescriptorSetLayouts()
 
 void MeshPipeline::CreateDescriptorSets()
 {
-	vk::DescriptorSetAllocateInfo allocInfo = vk::DescriptorSetAllocateInfo()
-		.setDescriptorPool(VulkanContext::GetDescriptorPool())
-		.setSetLayouts(myFrameDescriptorSetLayout);
+	{
+		// Frame set allocate
+		vk::DescriptorSetAllocateInfo allocInfo = vk::DescriptorSetAllocateInfo()
+			.setDescriptorPool(VulkanContext::GetDescriptorPool())
+			.setSetLayouts(myFrameDescriptorSetLayout);
 
-	// Frame set
+		myFrameDescriptorSet = VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front();
+	}
+
+	{
+		// Object set allocate
+		vk::DescriptorSetAllocateInfo allocInfo = vk::DescriptorSetAllocateInfo()
+			.setDescriptorPool(VulkanContext::GetDescriptorPool())
+			.setSetLayouts(myObjectDescriptorSetLayout);
+
+		myObjectDescriptorSet = VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front();
+	}
+
+	// Frame set update
 	List<vk::WriteDescriptorSet> writes;
 	writes.Emplace()
 		.setDstSet(myFrameDescriptorSet)
@@ -80,9 +94,9 @@ void MeshPipeline::CreateDescriptorSets()
 			.setBuffer(myFrameData.GetBuffer(0))
 			.setRange(myFrameData.GetBufferSize()));
 
-	// Object set
+	// Object set update
 	writes.Emplace()
-		.setDstSet(myFrameDescriptorSet)
+		.setDstSet(myObjectDescriptorSet)
 		.setDescriptorType(vk::DescriptorType::eUniformBuffer)
 		.setDstBinding(myObjectData.GetBindingIndex())
 		.setBufferInfo(vk::DescriptorBufferInfo()
