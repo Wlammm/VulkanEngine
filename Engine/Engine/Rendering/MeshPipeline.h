@@ -17,9 +17,10 @@ private:
 	void CreateDescriptorSets();
 	void CreatePipeline();
 
+	void BuildFrameBuffer();
+
 private:
-	vk::DescriptorSetLayout myFrameDescriptorSetLayout;
-	vk::DescriptorSet myFrameDescriptorSet;
+	class VulkanDescriptorSet* myFrameDescriptorSet;
 
 	vk::DescriptorSetLayout myObjectDescriptorSetLayout;
 	vk::DescriptorSet myObjectDescriptorSet;

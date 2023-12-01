@@ -83,8 +83,6 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
 		, vk::SubpassContents::eInline);
 
-	inCommandBuffer.endRenderPass();
-	return;
 	inCommandBuffer.setViewport(0, vk::Viewport()
 		.setX(0)
 		.setY(0)
@@ -95,24 +93,7 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 
 	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
 
-	BuildPointLightBuffer();
-	for (const auto [entity, transform, mesh] : view.each())
-	{
-		if (!mesh.myModel)
-			continue;
-
-		//UpdateObjectBuffer(transform);
-		for (const Mesh& mesh : mesh.myModel->GetMeshes())
-		{
-			if (!mesh.myMaterial)
-				continue;
-
-			mesh.myMaterial->Bind(inCommandBuffer);
-
-			mesh.Bind(inCommandBuffer);
-			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, 0, 0, 0);
-		}
-	}
+	myMeshPipeline->AddDrawCommands(inCommandBuffer);
 
 	inCommandBuffer.endRenderPass();
 }

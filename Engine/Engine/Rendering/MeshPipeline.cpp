@@ -8,8 +8,10 @@
 #include "Vulkan/VulkanDevice.h"
 #include "Assets/Material.h"
 #include "Vulkan/VulkanShader.h"
+#include "Vulkan/VulkanDescriptorSet.h"
 #include "Vertex.hpp"
 #include "ECS/Systems/RenderSystem.h"
+#include "World/World.h"
 
 MeshPipeline::MeshPipeline()
 {
@@ -23,31 +25,43 @@ MeshPipeline::MeshPipeline()
 
 MeshPipeline::~MeshPipeline()
 {
-	VulkanContext::GetDevice()->destroyDescriptorSetLayout(myFrameDescriptorSetLayout);
+	del(myFrameDescriptorSet);
 	VulkanContext::GetDevice()->destroyDescriptorSetLayout(myObjectDescriptorSetLayout);
 
 }
 
 void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 {
+	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const StaticMesh>();
+	if (view.size_hint() == 0)
+		return;
+
 	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
-	//inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, );
+	BuildFrameBuffer();
+	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet->GetSet(), {});
+
+	for (const auto [entity, transform, mesh] : view.each())
+	{
+		if (!mesh.myModel)
+			continue;
+
+		//UpdateObjectBuffer(transform);
+		for (const Mesh& mesh : mesh.myModel->GetMeshes())
+		{
+			if (!mesh.myMaterial)
+				continue;
+
+			mesh.myMaterial->Bind(inCommandBuffer);
+
+			mesh.Bind(inCommandBuffer);
+			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, 0, 0, 0);
+		}
+	}
 }
 
 void MeshPipeline::CreateDescriptorSetLayouts()
 {
-	{
-		// Frame set. (Holds view & projection matrix)
-		List<vk::DescriptorSetLayoutBinding> layoutBindings;
-		layoutBindings.Emplace()
-			.setBinding(myFrameData.GetBindingIndex())
-			.setDescriptorType(vk::DescriptorType::eUniformBuffer)
-			.setDescriptorCount(1)
-			.setStageFlags(myFrameData.GetShaderStageFlags());
-
-		vk::DescriptorSetLayoutCreateInfo createInfo = vk::DescriptorSetLayoutCreateInfo().setBindings(layoutBindings);
-		myFrameDescriptorSetLayout = VulkanContext::GetDevice()->createDescriptorSetLayout(createInfo);
-	}
+	myFrameDescriptorSet->BindUniformBuffer(myFrameData);
 
 	{
 		// Object set.
@@ -168,4 +182,19 @@ void MeshPipeline::CreatePipeline()
 
 	check(returnValue.result == vk::Result::eSuccess);
 	myPipeline = returnValue.value;
+}
+
+void MeshPipeline::BuildFrameBuffer()
+{
+	FrameData& buffer = myFrameData.Get();
+	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const Camera>();
+
+	for (auto ent : view)
+	{
+		buffer.myProjection = view.get<const Camera>(ent).myProjection.Transposed();
+		buffer.myToView = view.get<const Transform>(ent).GetMatrix().FastInverse().Transposed();
+		return;
+	}
+
+	LOG("No render camera found.");
 }
