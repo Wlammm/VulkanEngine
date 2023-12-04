@@ -12,12 +12,14 @@ VulkanDescriptorSet::VulkanDescriptorSet()
 
 VulkanDescriptorSet::VulkanDescriptorSet(vk::DescriptorSetLayout inLayout)
 {
+	myUsesSharedLayout = true;
 	myLayout = inLayout;
 }
 
 VulkanDescriptorSet::~VulkanDescriptorSet()
 {
-	VulkanContext::GetDevice()->destroyDescriptorSetLayout(myLayout);
+	if(!myUsesSharedLayout)
+		VulkanContext::GetDevice()->destroyDescriptorSetLayout(myLayout);
 }
 
 vk::DescriptorSetLayout VulkanDescriptorSet::GetLayout() const

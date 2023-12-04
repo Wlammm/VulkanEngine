@@ -17,6 +17,8 @@ public:
 	void Build();
 
 private:
+	// If a layout is passed in as constructor we do not want to handle deletion of it.
+	bool myUsesSharedLayout = false;
 	vk::DescriptorSetLayout myLayout;
 	vk::DescriptorSet mySet;
 

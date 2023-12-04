@@ -31,8 +31,8 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	myFilewatcher = new Filewatcher();
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
-	mySystemDispatcher = new SystemDispatcher();
 	myAssetRegistry = new AssetRegistry();
+	mySystemDispatcher = new SystemDispatcher();
 
 	// This might cause issues in the future.
 	CreateSystems();
@@ -47,8 +47,8 @@ Engine::Engine(const EngineProperties inEngineProperties)
 Engine::~Engine()
 {
 	del(myWorld);
-	del(myAssetRegistry);
 	del(mySystemDispatcher);
+	del(myAssetRegistry);
 	del(myVulkanContext);
 	del(myWindowHandler);
 	del(myFilewatcher);

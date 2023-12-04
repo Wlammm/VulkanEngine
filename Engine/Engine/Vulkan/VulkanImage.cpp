@@ -59,6 +59,8 @@ vk::Image VulkanImage::operator->()
 
 VulkanImage* VulkanImage::LoadFromFile(const std::filesystem::path& inPath)
 {
+	check(std::filesystem::exists(inPath));
+
 	VulkanImage* image;
 	int width, height, channels;
 	stbi_uc* pixels = stbi_load(inPath.string().c_str(), &width, &height, &channels, STBI_rgb_alpha);

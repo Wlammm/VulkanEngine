@@ -28,6 +28,8 @@ MeshPipeline::MeshPipeline()
 
 MeshPipeline::~MeshPipeline()
 {
+	myVertexShader->RemoveObserver(this);
+	myFragmentShader->RemoveObserver(this);
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
 }

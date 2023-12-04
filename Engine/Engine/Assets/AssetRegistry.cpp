@@ -3,6 +3,8 @@
 #include "Model.h"
 #include "Vulkan/VulkanShader.h"
 #include "Material.h"
+#include "Vulkan/VulkanImage.h"
+#include "Factories/ModelFactory.h"
 
 AssetRegistry::AssetRegistry()
 {
@@ -27,6 +29,12 @@ AssetRegistry::~AssetRegistry()
 		del(shader);
 	}
 	myShaders.clear();
+
+	for (auto& [path, image] : myImages)
+	{
+		del(image);
+	}
+	myImages.clear();
 }
 
 void AssetRegistry::Init()
@@ -36,7 +44,7 @@ void AssetRegistry::Init()
 	myMaterials["default"] = new Material();
 }
 
-Model* AssetRegistry::GetModel(const std::filesystem::path& inPath, const Model::CreateInfo& inCreateInfo)
+Model* AssetRegistry::GetModel(const std::filesystem::path& inPath)
 {
 	if (!std::filesystem::exists(inPath))
 	{
@@ -47,7 +55,7 @@ Model* AssetRegistry::GetModel(const std::filesystem::path& inPath, const Model:
 	if(myModels.find(inPath) != myModels.end())
 		return myModels[inPath];
 
-	myModels[inPath] = new Model(inPath, inCreateInfo);
+	myModels[inPath] = ModelFactory::LoadModelFromFbx(inPath);
 	return myModels[inPath];
 }
 
@@ -69,6 +77,14 @@ Material* AssetRegistry::GetMaterial(const std::filesystem::path& inPath)
 Material* AssetRegistry::GetDefaultMaterial()
 {
 	return myMaterials["default"];
+}
+
+VulkanImage* AssetRegistry::GetImage(const std::filesystem::path& inPath)
+{
+	if (myImages.find(inPath) == myImages.end())
+		myImages[inPath] = VulkanImage::LoadFromFile(inPath);
+
+	return myImages[inPath];
 }
 
 const std::filesystem::path* AssetRegistry::TryGetPathFromFilename(const std::filesystem::path& inFilename) const

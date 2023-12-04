@@ -32,9 +32,7 @@ void World::Init()
 	transform.SetScale(1);
 	transform.SetRotationDeg(0, 0, 0);
 
-	Model::CreateInfo createInfo{};
-	createInfo.InvertY = true;
-	auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Sponza/NewSponza_Main_Yup_002.fbx", createInfo);
+	auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Sponza/NewSponza_Main_Yup_002.fbx");
 }
 
 entt::registry& World::GetRegistry()

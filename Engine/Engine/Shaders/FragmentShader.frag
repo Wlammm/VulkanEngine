@@ -23,19 +23,10 @@ layout(std140, binding = 3) readonly buffer inPointLightBuffer
 
 void main()
 {
-    vec3 dirLightDirection = {-1, -1, 0};
+    vec3 lightColor = vec3(1, 1, 1);
+    float ambientStrength = 1.2;
 
-    vec3 normal = normalize(inNormal);
-
-    float diffuseFactor = max(dot(normal, -dirLightDirection), 0.2);
+    vec3 ambient = ambientStrength * lightColor;
 	
-    //vec4 pointLightColor = vec4(0, 0, 0, 0);
-    //for(int i = 0; i < pointLights.length(); ++i)
-    //{
-    //    pointLightColor += pointLights[i].myColor;
-    //}
-
-	outColor = texture(albedo, inTexCoord) * diffuseFactor;
-    //outColor = vec4(vec3(1.6, 1.6, 0.6) * diffuseFactor, 1.0);
-    //outColor = pointLightColor;
+    outColor = texture(albedo, inTexCoord) * vec4(ambient, 1.0);
 }

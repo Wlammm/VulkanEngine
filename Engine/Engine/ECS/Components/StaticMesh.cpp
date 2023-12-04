@@ -4,7 +4,7 @@
 #include "World/World.h"
 #include "Assets/AssetRegistry.h"
 
-StaticMesh::StaticMesh(const std::filesystem::path& inPath, const Model::CreateInfo& inCreateInfo)
+StaticMesh::StaticMesh(const std::filesystem::path& inPath)
 {
-	myModel = Engine::GetWorld().GetAssetRegistry().GetModel(inPath, inCreateInfo);
+	myModel = Engine::GetWorld().GetAssetRegistry().GetModel(inPath);
 }

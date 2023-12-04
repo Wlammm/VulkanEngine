@@ -27,15 +27,15 @@ Material::Material()
 Material::Material(const std::filesystem::path& inAlbedo, const std::filesystem::path& inNormal, const std::filesystem::path& inMaterial)
 {
 	myAlbedoPath = inAlbedo;
-	myAlbedo = VulkanImage::LoadFromFile(inAlbedo);
+	myAlbedo = Engine::GetAssetRegistry().GetImage(inAlbedo);
 	myAlbedo->CreateSampler(SamplerMode::Wrap);
 
 	myNormalPath = inNormal;
-	myNormal = VulkanImage::LoadFromFile(inNormal);
+	myNormal = Engine::GetAssetRegistry().GetImage(inNormal);
 	myNormal->CreateSampler(SamplerMode::Wrap);
 
 	myMaterialPath = inMaterial;
-	myMaterial = VulkanImage::LoadFromFile(inMaterial);
+	myMaterial = Engine::GetAssetRegistry().GetImage(inMaterial);
 	myMaterial->CreateSampler(SamplerMode::Wrap);
 
 	BuildDescriptorSet();
@@ -43,9 +43,6 @@ Material::Material(const std::filesystem::path& inAlbedo, const std::filesystem:
 
 Material::~Material()
 {
-	VulkanContext::GetAllocator().DestroyImage(myAlbedo);
-	VulkanContext::GetAllocator().DestroyImage(myNormal);
-	VulkanContext::GetAllocator().DestroyImage(myMaterial);
 }
 
 vk::DescriptorSet Material::GetDescriptorSet()
