@@ -80,8 +80,8 @@ Model::Model(const std::filesystem::path& inPath, const CreateInfo& inCreateInfo
 		
 		// This has not been fully implemented. Its just here to show how to get material textures for now :) 
 		aiMaterial* aiMat = scene->mMaterials[aiMesh->mMaterialIndex];
-		aiString string;
-		aiMat->GetTexture(aiTextureType_BASE_COLOR, 0, &string);
+		aiString aiAlbedoPath;
+		aiMat->GetTexture(aiTextureType_BASE_COLOR, 0, &aiAlbedoPath);
 
 		mesh.NumVertices = aiMesh->mNumVertices;
 		mesh.NumIndices = aiMesh->mNumFaces * 3;
@@ -126,7 +126,13 @@ Model::Model(const std::filesystem::path& inPath, const CreateInfo& inCreateInfo
 
 		mesh.VertexBuffer = new VulkanVertexBuffer(vertices);
 		mesh.IndexBuffer = new VulkanIndexBuffer(indices);
-		mesh.myMaterial = Engine::GetAssetRegistry().GetDefaultMaterial();
+
+		const std::filesystem::path* albedoPath = Engine::GetAssetRegistry().TryGetPathFromFilename(aiAlbedoPath.C_Str());
+		if (albedoPath)
+			mesh.myMaterial = new Material(*albedoPath, *albedoPath, *albedoPath);
+		else
+			mesh.myMaterial = Engine::GetAssetRegistry().GetDefaultMaterial();
+
 		myMeshes.Add(mesh);
 	}
 

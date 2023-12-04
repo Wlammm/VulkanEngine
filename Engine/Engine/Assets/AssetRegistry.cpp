@@ -31,6 +31,8 @@ AssetRegistry::~AssetRegistry()
 
 void AssetRegistry::Init()
 {
+	ScanDirectories();
+
 	myMaterials["default"] = new Material();
 }
 
@@ -67,4 +69,40 @@ Material* AssetRegistry::GetMaterial(const std::filesystem::path& inPath)
 Material* AssetRegistry::GetDefaultMaterial()
 {
 	return myMaterials["default"];
+}
+
+const std::filesystem::path* AssetRegistry::TryGetPathFromFilename(const std::filesystem::path& inFilename) const
+{
+	std::filesystem::path filename = inFilename.filename();
+	if (myFilenameToPath.find(filename) != myFilenameToPath.end())
+		return &myFilenameToPath.at(filename);
+	return nullptr;
+}
+
+const std::filesystem::path& AssetRegistry::GetPathFromFilename(const std::filesystem::path& inFilename) const
+{
+	std::filesystem::path filename = inFilename.filename();
+	check(myFilenameToPath.find(filename) != myFilenameToPath.end());
+	return myFilenameToPath.at(filename);
+}
+
+void AssetRegistry::ScanDirectories()
+{
+	int count = 0;
+	for(const std::filesystem::path path : std::filesystem::recursive_directory_iterator("./"))
+	{
+		if (std::filesystem::is_directory(path))
+			continue;
+
+		count++;
+		const FileName filename = path.filename();
+		if(myFilenameToPath.find(path) != myFilenameToPath.end())
+		{
+			LOG_WARNING("[AssetRegistry]: Duplicate files with same name: %s", path.filename().string().c_str());
+			continue;
+		}
+		myFilenameToPath.insert({ filename, path });
+	}
+
+	LOG("[AssetRegistry]: Directory scan complete. Scanned %i files.", count);
 }

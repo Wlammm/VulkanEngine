@@ -2,6 +2,7 @@ Temp/
 Engine/.vs
 Engine/JSON
 Engine/packages
+Bin/Assets/Sponza
 
 *.sln
 *.vcxproj

@@ -6,28 +6,30 @@
 
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
-#include "Assets/Material.h"
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanDescriptorSet.h"
+
 #include "Vertex.hpp"
-#include "ECS/Systems/RenderSystem.h"
 #include "World/World.h"
+#include "ECS/Systems/RenderSystem.h"
+#include "Assets/Material.h"
 
 MeshPipeline::MeshPipeline()
 {
 	myVertexShader = Engine::GetAssetRegistry().GetShader("VertexShader.vert");
-	myFragmentShader = Engine::GetAssetRegistry().GetShader("FragmentShader.frag");
+	myVertexShader->AddObserver(this);
 
-	CreateDescriptorSetLayouts();
+	myFragmentShader = Engine::GetAssetRegistry().GetShader("FragmentShader.frag");
+	myFragmentShader->AddObserver(this);
+
+	CreateDescriptors();
 	CreatePipeline();
-	CreateDescriptorSets();
 }
 
 MeshPipeline::~MeshPipeline()
 {
-	del(myFrameDescriptorSet);
-	VulkanContext::GetDevice()->destroyDescriptorSetLayout(myObjectDescriptorSetLayout);
-
+	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
+	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
 }
 
 void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
@@ -37,21 +39,24 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 		return;
 
 	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
+
 	BuildFrameBuffer();
-	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet->GetSet(), {});
+	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
 
 	for (const auto [entity, transform, mesh] : view.each())
 	{
 		if (!mesh.myModel)
 			continue;
 
-		//UpdateObjectBuffer(transform);
+		BuildObjectBuffer(transform);
+		inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, myObjectDescriptorSet.GetSet(), {});
+
 		for (const Mesh& mesh : mesh.myModel->GetMeshes())
 		{
 			if (!mesh.myMaterial)
 				continue;
 
-			mesh.myMaterial->Bind(inCommandBuffer);
+			inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 2, mesh.myMaterial->GetDescriptorSet(), {});
 
 			mesh.Bind(inCommandBuffer);
 			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, 0, 0, 0);
@@ -59,71 +64,18 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 	}
 }
 
-void MeshPipeline::CreateDescriptorSetLayouts()
+void MeshPipeline::CreateDescriptors()
 {
-	myFrameDescriptorSet->BindUniformBuffer(myFrameData);
+	myFrameDescriptorSet.BindUniformBuffer(myFrameData);
+	myFrameDescriptorSet.Build();
 
-	{
-		// Object set.
-		List<vk::DescriptorSetLayoutBinding> layoutBindings;
-		layoutBindings.Emplace()
-			.setBinding(myObjectData.GetBindingIndex())
-			.setDescriptorType(vk::DescriptorType::eUniformBuffer)
-			.setDescriptorCount(1)
-			.setStageFlags(myObjectData.GetShaderStageFlags());
-
-		vk::DescriptorSetLayoutCreateInfo createInfo = vk::DescriptorSetLayoutCreateInfo().setBindings(layoutBindings);
-		myObjectDescriptorSetLayout = VulkanContext::GetDevice()->createDescriptorSetLayout(createInfo);
-	}
-}
-
-void MeshPipeline::CreateDescriptorSets()
-{
-	{
-		// Frame set allocate
-		vk::DescriptorSetAllocateInfo allocInfo = vk::DescriptorSetAllocateInfo()
-			.setDescriptorPool(VulkanContext::GetDescriptorPool())
-			.setSetLayouts(myFrameDescriptorSetLayout);
-
-		myFrameDescriptorSet = VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front();
-	}
-
-	{
-		// Object set allocate
-		vk::DescriptorSetAllocateInfo allocInfo = vk::DescriptorSetAllocateInfo()
-			.setDescriptorPool(VulkanContext::GetDescriptorPool())
-			.setSetLayouts(myObjectDescriptorSetLayout);
-
-		myObjectDescriptorSet = VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front();
-	}
-
-	// Frame set update
-	List<vk::WriteDescriptorSet> writes;
-	writes.Emplace()
-		.setDstSet(myFrameDescriptorSet)
-		.setDescriptorType(vk::DescriptorType::eUniformBuffer)
-		.setDstBinding(myFrameData.GetBindingIndex())
-		.setBufferInfo(vk::DescriptorBufferInfo()
-			.setOffset(0)
-			.setBuffer(myFrameData.GetBuffer(0))
-			.setRange(myFrameData.GetBufferSize()));
-
-	// Object set update
-	writes.Emplace()
-		.setDstSet(myObjectDescriptorSet)
-		.setDescriptorType(vk::DescriptorType::eUniformBuffer)
-		.setDstBinding(myObjectData.GetBindingIndex())
-		.setBufferInfo(vk::DescriptorBufferInfo()
-			.setOffset(0)
-			.setBuffer(myObjectData.GetBuffer(0))
-			.setRange(myObjectData.GetBufferSize()));
-
-	VulkanContext::GetDevice()->updateDescriptorSets(writes, {});
+	myObjectDescriptorSet.BindUniformBuffer(myObjectData);
+	myObjectDescriptorSet.Build();
 }
 
 void MeshPipeline::CreatePipeline()
 {
-	List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSetLayout, Material::GetMaterialDescriptorLayout(), myObjectDescriptorSetLayout };
+	List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout(), myObjectDescriptorSet.GetLayout(), Material::GetMaterialDescriptorLayout() };
 	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
 
 	const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
@@ -198,3 +150,18 @@ void MeshPipeline::BuildFrameBuffer()
 
 	LOG("No render camera found.");
 }
+
+void MeshPipeline::BuildObjectBuffer(const Transform& inTransform)
+{
+	ObjectData& buffer = myObjectData.Get();
+	buffer.myToWorld = inTransform.GetMatrix();
+}
+
+void MeshPipeline::OnAssetUpdated()
+{
+	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
+	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
+
+	CreatePipeline();
+}
+

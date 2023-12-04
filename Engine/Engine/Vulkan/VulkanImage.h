@@ -1,31 +1,36 @@
 #pragma once
+#include "VulkanUtils.hpp"
 
 class VulkanImage
 {
 public:
 	~VulkanImage();
 
-	void CreateView(vk::ImageViewType inViewType, vk::ImageSubresourceRange inSubResourceRange);
-
 	operator vk::Image();
-
 	vk::Image operator->();
 
+	static VulkanImage* LoadFromFile(const std::filesystem::path& inPath);
+
 	vk::ImageView GetImageView() const;
+	vk::Format GetFormat() const;
+	vk::Sampler GetSampler() const;
 
-	vk::Format GetFormat();
+	void CreateView(vk::ImageViewType inViewType);
+	void CreateView(vk::ImageViewType inViewType, vk::ImageSubresourceRange inRange);
+	void CreateSampler(SamplerMode inSamplerMode);
 
+private:
 	void* Map();
 	void Unmap();
 
 private:
 	friend class VulkanAllocator;
 	VmaAllocation myAllocation;
+
 	vk::Image myImage;
-
 	vk::ImageView myView;
-
 	vk::Format myFormat;
+	vk::Sampler mySampler;
 
 #ifdef DEBUG
 	std::string myName = "";

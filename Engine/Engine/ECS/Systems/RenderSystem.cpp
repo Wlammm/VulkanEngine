@@ -7,7 +7,6 @@
 #include "Vulkan/VulkanPipeline.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanSwapChain.h"
-#include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanImGui.h"
 #include "Vulkan/VulkanImage.h"
 #include "Vulkan/VulkanAllocator.h"
@@ -60,7 +59,7 @@ vk::RenderPass& RenderSystem::GetRenderPass()
 
 VulkanImage* RenderSystem::GetRenderTexture()
 {
-	return myRenderTexture->GetImage();
+	return myRenderTexture;
 }
 
 void RenderSystem::OnSwapChainResize()
@@ -173,9 +172,10 @@ void RenderSystem::DestroyRenderResources()
 	VulkanContext::GetDevice()->destroyFramebuffer(myRenderTextureFrameBuffer);
 	myFrameBuffers.Clear();
 
-	del(myRenderTexture);
+	VulkanContext::GetAllocator().DestroyImage(myRenderTexture);
 	del(myDepthBuffer);
 	del(myFullscreenCopyPipeline);
+	del(myMeshPipeline);
 
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderPass);
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderTextureRenderPass);
@@ -189,7 +189,7 @@ void RenderSystem::CreatePipelines()
 		createInfo.FragmentShader = Engine::GetAssetRegistry().GetShader("FullscreenCopy.frag");
 		createInfo.RenderPass = myRenderPass;
 		createInfo.UniformBuffers = { };
-		createInfo.Textures = { myRenderTexture };
+		createInfo.Images = { myRenderTexture };
 		myFullscreenCopyPipeline = new VulkanPipeline(createInfo);
 	}
 }
@@ -228,8 +228,9 @@ void RenderSystem::CreateRenderTextures()
 			.setSharingMode(vk::SharingMode::eExclusive)
 			.setInitialLayout(vk::ImageLayout::eUndefined);
 
-		VulkanImage* image = VulkanContext::GetAllocator().AllocateImage("Render texture", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
-		myRenderTexture = new VulkanTexture(image, SamplerMode::Wrap);
+		myRenderTexture = VulkanContext::GetAllocator().AllocateImage("Render texture", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+		myRenderTexture->CreateSampler(SamplerMode::Wrap);
+		myRenderTexture->CreateView(vk::ImageViewType::e2D);
 	}
 
 	myDepthBuffer = new VulkanDepthBuffer({ VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight() });

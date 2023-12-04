@@ -19,9 +19,4 @@ public:
 	
 private:
 	VmaAllocator myAllocator;
-
-#ifdef DEBUG
-	List<class VulkanBuffer*> myBuffers{};
-	List<class VulkanImage*> myImages{};
-#endif
 };

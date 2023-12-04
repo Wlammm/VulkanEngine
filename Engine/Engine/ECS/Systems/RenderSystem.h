@@ -73,5 +73,5 @@ private:
 
 	class VulkanDepthBuffer* myDepthBuffer = nullptr;
 
-	class VulkanTexture* myRenderTexture = nullptr;
+	class VulkanImage* myRenderTexture = nullptr;
 };

@@ -2,11 +2,12 @@
 #include "AssetObserver.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
+#include "Vulkan/VulkanDescriptorSet.h"
 
 class VulkanPipeline;
 class VulkanShader;
 
-class Material : public AssetObserver
+class Material
 {
 public:
 	static vk::DescriptorSetLayout GetMaterialDescriptorLayout()
@@ -18,19 +19,19 @@ public:
 
 			// Albedo binding.
 			layoutBindings.Emplace()
-				.setBinding(1)
+				.setBinding(0)
 				.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
 				.setDescriptorCount(1)
 				.setStageFlags(vk::ShaderStageFlagBits::eFragment);
 			// Normal binding.
 			layoutBindings.Emplace()
-				.setBinding(2)
+				.setBinding(1)
 				.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
 				.setDescriptorCount(1)
 				.setStageFlags(vk::ShaderStageFlagBits::eFragment);
 			// Material binding.
 			layoutBindings.Emplace()
-				.setBinding(3)
+				.setBinding(2)
 				.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
 				.setDescriptorCount(1)
 				.setStageFlags(vk::ShaderStageFlagBits::eFragment);
@@ -42,27 +43,22 @@ public:
 
 public:
 	Material();
+	Material(const std::filesystem::path& inAlbedo, const std::filesystem::path& inNormal, const std::filesystem::path& inMaterial);
 	~Material();
 
-	void Create();
-	void Destroy();
-
-	void Bind(vk::CommandBuffer inCommandBuffer) const;
+	vk::DescriptorSet GetDescriptorSet();
 
 private:
-	VulkanPipeline* myPipeline;
-	VulkanShader* myVertexShader;
-	VulkanShader* myPixelShader;
+	void BuildDescriptorSet();
 
-	class VulkanTexture* myTexture = nullptr;
+private:
+	class VulkanImage* myAlbedo = nullptr;
+	class VulkanImage* myNormal = nullptr;
+	class VulkanImage* myMaterial = nullptr;
 
+	std::filesystem::path myAlbedoPath;
+	std::filesystem::path myNormalPath;
+	std::filesystem::path myMaterialPath;
 
-	// Inherited via AssetObserver
-	virtual void OnAssetUpdated() override;
-
-	/*
-	* VertexShader
-	* FragmentShader
-	* Albedo
-	* */
+	VulkanDescriptorSet myDescriptorSet = VulkanDescriptorSet{ Material::GetMaterialDescriptorLayout() };
 };

@@ -5,7 +5,9 @@ layout(location = 0) out vec4 outColor;
 layout(location = 0) in vec3 inNormal;
 layout(location = 1) in vec2 inTexCoord;
 
-layout(binding = 2) uniform sampler2D texSampler;
+layout(set=2, binding = 0) uniform sampler2D albedo;
+layout(set=2, binding = 1) uniform sampler2D normal;
+layout(set=2, binding = 2) uniform sampler2D material;
 
 /*struct PointLightData
 {
@@ -33,7 +35,7 @@ void main()
     //    pointLightColor += pointLights[i].myColor;
     //}
 
-	//outColor = texture(texSampler, inTexCoord) * diffuseFactor;
-    outColor = vec4(vec3(1.6, 1.6, 0.6) * diffuseFactor, 1.0);
+	outColor = texture(albedo, inTexCoord) * diffuseFactor;
+    //outColor = vec4(vec3(1.6, 1.6, 0.6) * diffuseFactor, 1.0);
     //outColor = pointLightColor;
 }

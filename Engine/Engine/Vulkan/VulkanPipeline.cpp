@@ -5,9 +5,11 @@
 #include "VulkanSwapChain.h"
 #include "VulkanUniformBuffer.hpp"
 #include "VulkanStorageBuffer.hpp"
-#include "VulkanTexture.h"
+#include "VulkanShader.h"
+#include "VulkanImage.h"
+
 #include "Rendering/Vertex.hpp"
-#include "Vulkan/VulkanShader.h"
+#include "Containers/List.hpp"
 
 VulkanPipeline::VulkanPipeline(const CreateInfo& inCreateInfo)
 	: myCreateInfo{ inCreateInfo }
@@ -152,7 +154,7 @@ void VulkanPipeline::CreateDescriptors(const CreateInfo& inCreateInfo)
 						   .setPImmutableSamplers(nullptr));
 	};
 
-	for(const auto& texture : inCreateInfo.Textures)
+	for(const auto& texture : inCreateInfo.Images)
 	{
 		// hard coded in binding for now. Need better solution.
 		layoutBindings.Add(vk::DescriptorSetLayoutBinding()
@@ -192,14 +194,14 @@ void VulkanPipeline::CreateDescriptors(const CreateInfo& inCreateInfo)
 		}
 
 		List<vk::DescriptorImageInfo, uint> textureInfos;
-		if (!inCreateInfo.Textures.IsEmpty())
+		if (!inCreateInfo.Images.IsEmpty())
 		{
 			writes.Emplace();
-			for (const auto& texture : inCreateInfo.Textures)
+			for (const VulkanImage* image : inCreateInfo.Images)
 			{
 				textureInfos.Add(vk::DescriptorImageInfo()
-					.setSampler(texture->GetSampler())
-					.setImageView(texture->GetImageView())
+					.setSampler(image->GetSampler())
+					.setImageView(image->GetImageView())
 					.setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal));
 			}
 			writes.Last()

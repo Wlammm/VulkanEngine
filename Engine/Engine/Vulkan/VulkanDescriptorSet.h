@@ -4,6 +4,7 @@ class VulkanDescriptorSet
 {
 public:
 	VulkanDescriptorSet();
+	VulkanDescriptorSet(vk::DescriptorSetLayout inLayout);
 	~VulkanDescriptorSet();
 
 	vk::DescriptorSetLayout GetLayout() const;
@@ -11,6 +12,7 @@ public:
 
 	// Add all bindings first, then call Build().
 	void BindUniformBuffer(const class IVulkanUniformBuffer& inUniformBuffer);
+	void BindImage(const class VulkanImage* inImage, const uint inBinding, const vk::ShaderStageFlags inShaderFlags);
 
 	void Build();
 
@@ -19,4 +21,9 @@ private:
 	vk::DescriptorSet mySet;
 
 	List<vk::DescriptorSetLayoutBinding> myLayoutBindings;
+	List<vk::WriteDescriptorSet> mySetWrites;
+
+	// These are linked list so references arent broken one resize.
+	std::list<vk::DescriptorBufferInfo> myBufferInfos;
+	std::list<vk::DescriptorImageInfo> myImageInfos;
 };

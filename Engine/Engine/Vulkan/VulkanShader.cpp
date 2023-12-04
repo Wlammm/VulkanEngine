@@ -79,10 +79,12 @@ void VulkanShader::InitFromBinary(const std::vector<uint32_t>& inData)
 	myShaderModule = VulkanContext::GetDevice()->createShaderModule(vk::ShaderModuleCreateInfo()
 																	.setCodeSize(inData.size() * sizeof(uint32_t))
 																	.setPCode(inData.data()));
+#if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
 														   .setObjectHandle(VulkanContext::GetVulkanHandle(myShaderModule))
 														   .setPObjectName(myPath.string().c_str())
 														   .setObjectType(vk::ObjectType::eShaderModule));
+#endif
 }
 
 shaderc_shader_kind GetKindFromExtension(const std::string& inExtension)

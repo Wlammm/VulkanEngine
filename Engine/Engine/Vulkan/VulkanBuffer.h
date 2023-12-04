@@ -18,9 +18,9 @@ public:
 
 private:
 	friend class VulkanAllocator;
+	VmaAllocation myAllocation;
 
 	vk::Buffer myBuffer;
-	VmaAllocation myAllocation;
 
 #ifdef DEBUG
 	std::string myName = "";

@@ -1,10 +1,13 @@
 #pragma once
 #include "Vulkan/VulkanUniformBuffer.hpp"
+#include "Vulkan/VulkanDescriptorSet.h"
+#include "Assets/AssetObserver.h"
 
 class VulkanShader;
+class Transform;
 
 // This pipeline draws all meshes.
-class MeshPipeline
+class MeshPipeline : public AssetObserver
 {
 public:
 	MeshPipeline();
@@ -13,17 +16,17 @@ public:
 	void AddDrawCommands(const vk::CommandBuffer inCommandBuffer);
 
 private:
-	void CreateDescriptorSetLayouts();
-	void CreateDescriptorSets();
+	void CreateDescriptors();
 	void CreatePipeline();
 
 	void BuildFrameBuffer();
+	void BuildObjectBuffer(const Transform& inTransform);
+
+	virtual void OnAssetUpdated() override final;
 
 private:
-	class VulkanDescriptorSet* myFrameDescriptorSet;
-
-	vk::DescriptorSetLayout myObjectDescriptorSetLayout;
-	vk::DescriptorSet myObjectDescriptorSet;
+	VulkanDescriptorSet myFrameDescriptorSet;
+	VulkanDescriptorSet myObjectDescriptorSet;
 
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;

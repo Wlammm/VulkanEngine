@@ -7,6 +7,7 @@
 #include "VulkanDevice.h"
 #include "VulkanBuffer.h"
 #include "VulkanImage.h"
+#include "VulkanContext.h"
 
 VulkanAllocator::VulkanAllocator(vk::Instance inInstance, const VulkanPhysicalDevice& inPhysicalDevice, const VulkanDevice& inDevice)
 {
@@ -21,59 +22,38 @@ VulkanAllocator::VulkanAllocator(vk::Instance inInstance, const VulkanPhysicalDe
 
 VulkanAllocator::~VulkanAllocator()
 {
-#if DEBUG
-	for(const auto& buffer : myBuffers)
-	{
-		std::string s = "GPU buffer allocated but never freed: " + buffer->myName;
-		LOG_ERROR(s);
-	}
-
-	for (const auto& image : myImages)
-	{
-		std::string s = "GPU image allocated but never freed: " + image->myName;
-		LOG_ERROR(s);
-	}
-#endif
-
 	vmaDestroyAllocator(myAllocator);
 }
 
 VulkanBuffer* VulkanAllocator::AllocateBuffer(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
 {
 	VulkanBuffer* outBuffer = new VulkanBuffer();
-#ifdef DEBUG
-	outBuffer->myName = inName;
-	myBuffers.Add(outBuffer);
-#endif
-
 	VmaAllocationCreateInfo allocCreateInfo{};
 	allocCreateInfo.usage = inUsage;
-
 	VkBuffer buffer;
 	VkBufferCreateInfo info = inCreateInfo;
 	vmaCreateBuffer(myAllocator, &info, &allocCreateInfo, &buffer, &outBuffer->myAllocation, nullptr);
 	outBuffer->myBuffer = buffer;
+
+#if DEBUG
+	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
+		.setObjectHandle(VulkanContext::GetVulkanHandle(outBuffer->operator vk::Buffer()))
+		.setPObjectName(inName.c_str())
+		.setObjectType(vk::ObjectType::eBuffer));
+#endif
+
 	return outBuffer;
 }
 
 void VulkanAllocator::DestroyBuffer(VulkanBuffer* inBuffer)
 {
 	vmaDestroyBuffer(myAllocator, inBuffer->myBuffer, inBuffer->myAllocation);
-
-#ifdef DEBUG
-	myBuffers.Remove(inBuffer);
-#endif
 	del(inBuffer);
 }
 
 VulkanImage* VulkanAllocator::AllocateImage(const std::string& inName, const vk::ImageCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
 {
 	VulkanImage* outImage = new VulkanImage();
-#ifdef DEBUG
-	outImage->myName = inName;
-	myImages.Add(outImage);
-#endif
-
 	VmaAllocationCreateInfo allocCreateInfo{};
 	allocCreateInfo.usage = inUsage;
 
@@ -82,15 +62,19 @@ VulkanImage* VulkanAllocator::AllocateImage(const std::string& inName, const vk:
 	vmaCreateImage(myAllocator, &info, &allocCreateInfo, &image, &outImage->myAllocation, nullptr);
 	outImage->myImage = image;
 	outImage->myFormat = inCreateInfo.format;
+
+#if DEBUG
+	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
+		.setObjectHandle(VulkanContext::GetVulkanHandle(outImage->operator vk::Image()))
+		.setPObjectName(inName.c_str())
+		.setObjectType(vk::ObjectType::eImage));
+#endif
+
 	return outImage;
 }
 
 void VulkanAllocator::DestroyImage(VulkanImage* inImage)
 {
 	vmaDestroyImage(myAllocator, inImage->myImage, inImage->myAllocation);
-
-#ifdef DEBUG
-	myImages.Remove(inImage);
-#endif
 	del(inImage);
 }

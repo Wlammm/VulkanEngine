@@ -5,57 +5,58 @@
 #include "Engine/Assets/AssetRegistry.h"
 
 #include "Vulkan/VulkanPipeline.h"
-#include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanShader.h"
+#include "Vulkan/VulkanImage.h"
+#include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanAllocator.h"
 
 Material::Material()
 {
-	myTexture = new VulkanTexture("Assets/Leaves.tga", SamplerMode::Wrap);
-	myVertexShader = Engine::GetAssetRegistry().GetShader("VertexShader.vert");
-	myPixelShader = Engine::GetAssetRegistry().GetShader("FragmentShader.frag");
-	Create();
+	myAlbedo = VulkanImage::LoadFromFile("Assets/Leaves.tga");
+	myAlbedo->CreateSampler(SamplerMode::Wrap);
+	
+	myNormal = VulkanImage::LoadFromFile("Assets/Leaves.tga");
+	myNormal->CreateSampler(SamplerMode::Wrap);
 
-	myVertexShader->AddObserver(this);
-	myPixelShader->AddObserver(this);
+	myMaterial = VulkanImage::LoadFromFile("Assets/Leaves.tga");
+	myMaterial->CreateSampler(SamplerMode::Wrap);
+
+	BuildDescriptorSet();
+}
+
+Material::Material(const std::filesystem::path& inAlbedo, const std::filesystem::path& inNormal, const std::filesystem::path& inMaterial)
+{
+	myAlbedoPath = inAlbedo;
+	myAlbedo = VulkanImage::LoadFromFile(inAlbedo);
+	myAlbedo->CreateSampler(SamplerMode::Wrap);
+
+	myNormalPath = inNormal;
+	myNormal = VulkanImage::LoadFromFile(inNormal);
+	myNormal->CreateSampler(SamplerMode::Wrap);
+
+	myMaterialPath = inMaterial;
+	myMaterial = VulkanImage::LoadFromFile(inMaterial);
+	myMaterial->CreateSampler(SamplerMode::Wrap);
+
+	BuildDescriptorSet();
 }
 
 Material::~Material()
 {
-	myVertexShader->RemoveObserver(this);
-	myPixelShader->RemoveObserver(this);
-	Destroy();
-	del(myTexture);
+	VulkanContext::GetAllocator().DestroyImage(myAlbedo);
+	VulkanContext::GetAllocator().DestroyImage(myNormal);
+	VulkanContext::GetAllocator().DestroyImage(myMaterial);
 }
 
-void Material::Create()
+vk::DescriptorSet Material::GetDescriptorSet()
 {
-	RenderSystem* renderSystem = Engine::GetSystem<RenderSystem>();
-	if (!renderSystem)
-		check(false);
-
-	//VulkanPipeline::CreateInfo createInfo;
-	//createInfo.VertexShader = myVertexShader;
-	//createInfo.FragmentShader = myPixelShader;
-	//createInfo.RenderPass = renderSystem->GetRenderPass();
-	//createInfo.UniformBuffers = { &renderSystem->GetFrameBuffer(), &renderSystem->GetObjectBuffer()};
-	//createInfo.Textures = { myTexture };
-
-	//myPipeline = new VulkanPipeline(createInfo);
+	return myDescriptorSet.GetSet();
 }
 
-void Material::Destroy()
+void Material::BuildDescriptorSet()
 {
-	del(myPipeline);
-}
-
-void Material::Bind(vk::CommandBuffer inCommandBuffer) const
-{
-	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline->GetPipeline());
-	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipeline->GetPipelineLayout(), 0, myPipeline->GetDescriptorSet(), {});
-}
-
-void Material::OnAssetUpdated()
-{
-	Destroy();
-	Create();
+	myDescriptorSet.BindImage(myAlbedo, 0, vk::ShaderStageFlagBits::eFragment);
+	myDescriptorSet.BindImage(myNormal, 1, vk::ShaderStageFlagBits::eFragment);
+	myDescriptorSet.BindImage(myMaterial, 2, vk::ShaderStageFlagBits::eFragment);
+	myDescriptorSet.Build();
 }

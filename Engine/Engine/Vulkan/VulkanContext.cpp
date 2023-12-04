@@ -54,9 +54,10 @@ VulkanContext::VulkanContext()
 VulkanContext::~VulkanContext()
 {
 	VulkanImGui::Destroy();
+
+	// This will destroy all descriptor sets and layouts that are allocated from it.
 	GetDevice()->destroyDescriptorPool(myDescriptorPool);
 	GetDevice()->destroyPipelineCache(myPipelineCache);
-	GetDevice()->destroyDescriptorSetLayout(Material::GetMaterialDescriptorLayout());
 
 	del(mySwapChain);
 	del(myAllocator);

@@ -16,7 +16,7 @@ layout(set = 0, binding = 0) uniform FrameBuffer
 	mat4 myProjection;
 };
 
-layout(set = 2, binding = 0) uniform ObjectBuffer
+layout(set = 1, binding = 0) uniform ObjectBuffer
 {
 	mat4 myToWorld;
 };
