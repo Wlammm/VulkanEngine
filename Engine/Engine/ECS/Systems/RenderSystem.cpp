@@ -20,10 +20,7 @@
 
 RenderSystem::RenderSystem()
 {
-	CreateRenderResources();
-
 	SubscribeToEvent(EventType::SwapchainResized, std::bind(&RenderSystem::OnSwapChainResize, this));
-
 }
 
 RenderSystem::~RenderSystem()
@@ -36,7 +33,7 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::Init()
 {
-	myMeshPipeline = new MeshPipeline();
+	CreateRenderResources();
 }
 
 void RenderSystem::Tick()
@@ -183,6 +180,8 @@ void RenderSystem::DestroyRenderResources()
 
 void RenderSystem::CreatePipelines()
 {
+	myMeshPipeline = new MeshPipeline();
+
 	{
 		VulkanPipeline::CreateInfo createInfo;
 		createInfo.VertexShader = Engine::GetAssetRegistry().GetShader("FullscreenVS.vert");

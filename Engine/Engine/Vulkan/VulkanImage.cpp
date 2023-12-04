@@ -112,7 +112,6 @@ VulkanImage* VulkanImage::LoadFromFile(const std::filesystem::path& inPath)
 		.setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
 		.setOldLayout(vk::ImageLayout::eUndefined)
 		.setNewLayout(vk::ImageLayout::eTransferDstOptimal);
-	dsd
 	commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eHost, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlagBits(), {}, {}, { imageMemoryBarrier });
 
 	vk::BufferImageCopy bufferCopyRegion{};
