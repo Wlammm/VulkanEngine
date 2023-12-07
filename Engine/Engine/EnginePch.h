@@ -14,6 +14,7 @@
 #include <functional>
 #include <queue>
 #include <future>
+#include <processthreadsapi.h>
 
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>

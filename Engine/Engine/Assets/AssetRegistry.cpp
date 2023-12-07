@@ -48,7 +48,7 @@ Model* AssetRegistry::GetModel(const std::filesystem::path& inPath)
 {
 	if (!std::filesystem::exists(inPath))
 	{
-		LOG_WARNING("AssetRegistry::GetModel: Tried to load model with a filepath that doesnt exists.");
+		LOG_WARNING("AssetRegistry::GetModel: Tried to load model with a filepath that doesnt exists. %s", inPath.string().c_str());
 		return nullptr;
 	}
 

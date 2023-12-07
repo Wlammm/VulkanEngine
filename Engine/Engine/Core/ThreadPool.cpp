@@ -18,7 +18,7 @@ ThreadPool::ThreadPool(const int inThreadCount)
 	{
 		myThreads.Add(std::thread(&ThreadPool::LookingForTask, this));
 
-		std::string name = "Work thread #" + index;
+		std::wstring name = L"Work thread #" + std::to_wstring(index + 1);
 		ThreadUtils::NameThread(myThreads.Last(), name);
 	}
 }
