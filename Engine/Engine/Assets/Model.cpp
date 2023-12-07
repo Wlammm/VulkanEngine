@@ -22,7 +22,6 @@ Model::~Model()
 	{
 		del(mesh.IndexBuffer);
 		del(mesh.VertexBuffer);
-		del(mesh.myMaterial);
 	}
 }
 

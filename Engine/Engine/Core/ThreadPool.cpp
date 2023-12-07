@@ -1,5 +1,6 @@
 #include "EnginePch.h"
 #include "ThreadPool.h"
+#include "Utils/ThreadUtils.hpp"
 
 ThreadPool::ThreadPool(const int inThreadCount)
 {
@@ -16,6 +17,9 @@ ThreadPool::ThreadPool(const int inThreadCount)
 	for(uint index = 0; index < threadsToCreate; ++index)
 	{
 		myThreads.Add(std::thread(&ThreadPool::LookingForTask, this));
+
+		std::string name = "Work thread #" + index;
+		ThreadUtils::NameThread(myThreads.Last(), name);
 	}
 }
 
