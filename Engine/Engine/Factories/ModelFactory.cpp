@@ -61,7 +61,9 @@ Model* ModelFactory::LoadModelFromFbx(const std::filesystem::path& inPath)
 		for (uint vertexIndex = 0; vertexIndex < mesh.NumVertices; ++vertexIndex)
 		{
 			Vertex vertex{};
-			vertex.myPosition = { aiMesh->mVertices[vertexIndex].x, aiMesh->mVertices[vertexIndex].y, aiMesh->mVertices[vertexIndex].z, 1.0f };
+
+			// Import models with inverted y due to some error in the matrices that I cant be asked looking into right now ¯\_(ö)_/¯
+			vertex.myPosition = { aiMesh->mVertices[vertexIndex].x, -aiMesh->mVertices[vertexIndex].y, aiMesh->mVertices[vertexIndex].z, 1.0f };
 			vertex.myColor = { 1, 1, 1, 1 };
 
 			if (aiMesh->GetNumColorChannels() > 0)
