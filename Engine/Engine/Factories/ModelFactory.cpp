@@ -104,7 +104,13 @@ Model* ModelFactory::LoadModelFromFbx(const std::filesystem::path& inPath)
 
 		const std::filesystem::path* albedoPath = Engine::GetAssetRegistry().TryGetPathFromFilename(aiAlbedoPath.C_Str());
 		if (albedoPath)
-			mesh.myMaterial = new Material(*albedoPath, *albedoPath, *albedoPath);
+		{
+			MaterialCreateInfo createInfo;
+			createInfo.myAlbedoPath = *albedoPath;
+			createInfo.myNormalPath = *albedoPath;
+			createInfo.myMaterialPath = *albedoPath;
+			mesh.myMaterial = Engine::GetAssetRegistry().GetMaterial(createInfo);
+		}
 		else
 			mesh.myMaterial = Engine::GetAssetRegistry().GetDefaultMaterial();
 

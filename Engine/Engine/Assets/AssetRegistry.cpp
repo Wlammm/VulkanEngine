@@ -22,6 +22,7 @@ AssetRegistry::~AssetRegistry()
 	{
 		del(material);
 	}
+	del(myDefaultMaterial);
 	myMaterials.clear();
 
 	for (auto& [path, shader] : myShaders)
@@ -41,7 +42,7 @@ void AssetRegistry::Init()
 {
 	ScanDirectories();
 
-	myMaterials["default"] = new Material();
+	myDefaultMaterial = new Material();
 }
 
 Model* AssetRegistry::GetModel(const std::filesystem::path& inPath)
@@ -68,15 +69,16 @@ VulkanShader* AssetRegistry::GetShader(const std::filesystem::path& inPath)
 	return myShaders[inPath];
 }
 
-Material* AssetRegistry::GetMaterial(const std::filesystem::path& inPath)
+Material* AssetRegistry::GetMaterial(const MaterialCreateInfo& inCreateInfo)
 {
-	check(false);
-	return nullptr;
+	if (myMaterials.find(inCreateInfo) == myMaterials.end())
+		myMaterials[inCreateInfo] = new Material(inCreateInfo.myAlbedoPath, inCreateInfo.myNormalPath, inCreateInfo.myMaterialPath);
+	return myMaterials[inCreateInfo];
 }
 
 Material* AssetRegistry::GetDefaultMaterial()
 {
-	return myMaterials["default"];
+	return myDefaultMaterial;
 }
 
 VulkanImage* AssetRegistry::GetImage(const std::filesystem::path& inPath)

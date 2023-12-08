@@ -1,5 +1,6 @@
 #include "EnginePch.h"
 #define VMA_IMPLEMENTATION
+#define VMA_DEBUG_LOG
 #include <vma/vk_mem_alloc.h>
 
 #include "VulkanAllocator.h"
@@ -22,6 +23,11 @@ VulkanAllocator::VulkanAllocator(vk::Instance inInstance, const VulkanPhysicalDe
 
 VulkanAllocator::~VulkanAllocator()
 {
+	for(const std::string& allocationName : myAllocatedNames)
+	{
+		LOG_ERROR("Unallocated buffer: %s", allocationName.c_str());
+	}
+
 	vmaDestroyAllocator(myAllocator);
 }
 
@@ -40,6 +46,8 @@ VulkanBuffer* VulkanAllocator::AllocateBuffer(const std::string& inName, const v
 		.setObjectHandle(VulkanContext::GetVulkanHandle(outBuffer->operator vk::Buffer()))
 		.setPObjectName(inName.c_str())
 		.setObjectType(vk::ObjectType::eBuffer));
+	outBuffer->myName = inName;
+	myAllocatedNames.Add(inName);
 #endif
 
 	return outBuffer;
@@ -47,6 +55,9 @@ VulkanBuffer* VulkanAllocator::AllocateBuffer(const std::string& inName, const v
 
 void VulkanAllocator::DestroyBuffer(VulkanBuffer* inBuffer)
 {
+#if DEBUG
+	myAllocatedNames.Remove(inBuffer->myName);
+#endif
 	vmaDestroyBuffer(myAllocator, inBuffer->myBuffer, inBuffer->myAllocation);
 	del(inBuffer);
 }
@@ -68,6 +79,8 @@ VulkanImage* VulkanAllocator::AllocateImage(const std::string& inName, const vk:
 		.setObjectHandle(VulkanContext::GetVulkanHandle(outImage->operator vk::Image()))
 		.setPObjectName(inName.c_str())
 		.setObjectType(vk::ObjectType::eImage));
+	outImage->myName = inName;
+	myAllocatedNames.Add(inName);
 #endif
 
 	return outImage;
@@ -75,6 +88,9 @@ VulkanImage* VulkanAllocator::AllocateImage(const std::string& inName, const vk:
 
 void VulkanAllocator::DestroyImage(VulkanImage* inImage)
 {
+#if DEBUG
+	myAllocatedNames.Remove(inImage->myName);
+#endif
 	vmaDestroyImage(myAllocator, inImage->myImage, inImage->myAllocation);
 	del(inImage);
 }

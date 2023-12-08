@@ -19,4 +19,8 @@ public:
 	
 private:
 	VmaAllocator myAllocator;
+
+#if DEBUG
+	List<std::string> myAllocatedNames;
+#endif
 };

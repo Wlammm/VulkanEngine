@@ -28,8 +28,9 @@
 #include <imgui_impl_vulkan.h>
 
 #include "Engine/Core/EngineDefines.hpp"
-#include "Engine/Math/Defines.hpp"
+#include "Engine/Utils/HashUtils.hpp"
 
+#include "Engine/Math/Defines.hpp"
 #include "Engine/Math/Constants.hpp"
 #include "Engine/Math/Vector2.hpp"
 #include "Engine/Math/Vector3.hpp"

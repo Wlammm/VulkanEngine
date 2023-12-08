@@ -10,7 +10,7 @@ VulkanDepthBuffer::VulkanDepthBuffer(const Vec2ui& inResolution)
 {
 	const auto createInfo = vk::ImageCreateInfo()
 		.setImageType(vk::ImageType::e2D)
-		.setFormat(vk::Format::eD16Unorm)
+		.setFormat(vk::Format::eD32Sfloat)
 		.setExtent({ inResolution.x, inResolution.y, 1 })
 		.setMipLevels(1)
 		.setArrayLayers(1)

@@ -89,7 +89,8 @@ VulkanImage* VulkanImage::LoadFromFile(const std::filesystem::path& inPath)
 		.setSharingMode(vk::SharingMode::eExclusive)
 		.setInitialLayout(vk::ImageLayout::eUndefined);
 
-	image = VulkanContext::GetAllocator().AllocateImage("Vulkan texture", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+	std::string imageName = "VulkanImage - " + inPath.string();
+	image = VulkanContext::GetAllocator().AllocateImage(imageName, createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
 		.setObjectHandle(VulkanContext::GetVulkanHandle(image->operator vk::Image()))
