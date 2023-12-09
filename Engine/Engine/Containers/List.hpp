@@ -230,6 +230,15 @@ public:
 			}
 		}
 	}
+
+	void RemoveRange(const SizeType inNumElements, const SizeType inOffset = 0)
+	{
+		// TODO: Improve performance by bulk removing here.
+		for(SizeType i = 0; i  < inNumElements; ++i)
+		{
+			RemoveIndex(inOffset);
+		}
+	}
 #pragma endregion
 
 #pragma region Data Accessors

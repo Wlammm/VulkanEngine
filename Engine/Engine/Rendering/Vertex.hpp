@@ -1,7 +1,5 @@
 #pragma once
 
-#include "EnginePch.h"
-
 struct Vertex
 {
 	Vec4f myPosition;

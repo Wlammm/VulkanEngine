@@ -110,6 +110,15 @@ TEST(List, Remove)
 	EXPECT_EQ(list[2], 2);
 }
 
+TEST(List, RemoveRange)
+{
+	List<int> list{ 0, 1, 2, 3, 4, 5 };
+	list.RemoveRange(3, 2);
+	EXPECT_EQ(list[0], 0);
+	EXPECT_EQ(list[1], 1);
+	EXPECT_EQ(list[2], 5);
+}
+
 TEST(List, Reserve)
 {
 	List<int> list;
