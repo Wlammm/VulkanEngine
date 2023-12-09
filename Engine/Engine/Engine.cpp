@@ -18,10 +18,12 @@
 #include "Assets/AssetRegistry.h"
 #include "Core/ThreadPool.h"
 #include "Core/Filewatcher.h"
+#include "Utils/ThreadUtils.hpp"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
 {
+	ThreadUtils::NameThread(GetCurrentThread(), L"Main thread");
 	check(!myInstance && "Cant have multiple Engine instances.");
 	myInstance = this;
 

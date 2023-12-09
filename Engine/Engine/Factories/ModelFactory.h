@@ -5,27 +5,27 @@ class Model;
 
 constexpr int BinaryVersion = 1;
 
+// DONT USE THIS CLASS DIRECTLY. USE THE ASSET REGISTRIES INSTEAD.
 class ModelFactory
 {
 	struct MeshData
 	{
-		List<Vertex> myVertices;
-		List<uint> myIndices;
-		std::filesystem::path myAlbedoPath;
-		std::filesystem::path myNormalPath;
-		std::filesystem::path myMaterialPath;
+		List<Vertex> myVertices{};
+		List<uint> myIndices{};
+		std::filesystem::path myAlbedoPath = "";
+		std::filesystem::path myNormalPath = "";
+		std::filesystem::path myMaterialPath = "";
 	};
 
 	struct ModelData
 	{
 		// This is the path to the file which the data has been loaded from. Fbx or other supported format.
 		std::filesystem::path mySourceFile;
-		List<MeshData> myMeshes;
+		List<MeshData> myMeshes{};
 	};
 
 public:
-	static Model* LoadModelFromFbx(const std::filesystem::path& inPath);
-
+	static Model* GetModel(const std::filesystem::path& inPath);
 
 private:
 	static ModelData GetModelDataFromFbx(const std::filesystem::path& inPath);

@@ -7,7 +7,7 @@ struct Vertex
 	Vec4f myNormal;
 	Vec4f myTangents;
 	Vec4f myBinormals;
-	std::array<Vec2f, 4> myTexCoords;
+	Vec2f myTexCoords[4];
 
 	static List<vk::VertexInputBindingDescription>& GetBindingDescriptions()
 	{

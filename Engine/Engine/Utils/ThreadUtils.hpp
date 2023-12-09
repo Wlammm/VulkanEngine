@@ -5,7 +5,12 @@ class ThreadUtils
 public:
 	static void NameThread(std::thread& inThread, const std::wstring& inString)
 	{
-		SetThreadDescription(inThread.native_handle(), inString.c_str());
+		NameThread(inThread.native_handle(), inString);
+	}
+
+	static void NameThread(HANDLE inThreadHandle, const std::wstring& inString)
+	{
+		SetThreadDescription(inThreadHandle, inString.c_str());
 		HRESULT r;
 		r = SetThreadDescription(
 			GetCurrentThread(),

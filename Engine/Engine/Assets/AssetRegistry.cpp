@@ -56,7 +56,7 @@ Model* AssetRegistry::GetModel(const std::filesystem::path& inPath)
 	if(myModels.find(inPath) != myModels.end())
 		return myModels[inPath];
 
-	myModels[inPath] = ModelFactory::LoadModelFromFbx(inPath);
+	myModels[inPath] = ModelFactory::GetModel(inPath);
 	return myModels[inPath];
 }
 
