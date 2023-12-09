@@ -29,9 +29,9 @@ public:
 
 private:
 	static ModelData GetModelDataFromFbx(const std::filesystem::path& inPath);
-	static ModelData GetModelDataFromBinary(const std::filesystem::path& inPath);
 
 	static void SaveModelDataToBinary(const ModelData& inModelData, const std::filesystem::path& inSavePath);
+	static ModelData GetModelDataFromBinary(const std::filesystem::path& inPath);
 
 	static Model* CreateModelFromModelData(const ModelData& inModelData);
 

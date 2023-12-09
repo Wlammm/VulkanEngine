@@ -9,7 +9,9 @@ public:
 	{
 		size_t size;
 		Read(size);
-
+		wchar_t* chars = (wchar_t*)myBuffer.data();
+		out = std::wstring(chars, size);
+		myBuffer.RemoveRange(sizeof(wchar_t) * size);
 	}
 
 	template<typename T>

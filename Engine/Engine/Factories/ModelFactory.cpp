@@ -15,6 +15,7 @@
 
 #include "Utils/BinaryUtils.hpp"
 #include "Serialization/BinaryWriter.h"
+#include "Serialization/BinaryReader.h"
 
 Model* ModelFactory::LoadModelFromFbx(const std::filesystem::path& inPath)
 {
@@ -147,6 +148,54 @@ void ModelFactory::SaveModelDataToBinary(const ModelData& inData, const std::fil
 	}
 
 	writer.Save();
+}
+
+ModelFactory::ModelData ModelFactory::GetModelDataFromBinary(const std::filesystem::path& inPath)
+{
+	ModelData modelData;
+	BinaryReader reader(inPath);
+
+	int fileVersion;
+	reader.Read(fileVersion);
+
+	if(fileVersion != BinaryVersion)
+	{
+		LOG_WARNING("ModelFactory: Outdated binary for model: %s", inPath.string().c_str());
+		return modelData;
+	}
+
+	reader.Read(modelData.mySourceFile);
+	
+	std::filesystem::file_time_type lastWriteTimeSourceFile;
+	reader.Read(lastWriteTimeSourceFile);
+
+	const std::filesystem::file_time_type fbxLastWriteTime = std::filesystem::last_write_time(modelData.mySourceFile);
+	if(!std::filesystem::exists(modelData.mySourceFile))
+	{
+		LOG_WARNING("ModelFactory: Source file does not exists anymore.", inPath.string().c_str());
+		return modelData;
+	}
+
+	if(fbxLastWriteTime != lastWriteTimeSourceFile)
+	{
+		LOG_WARNING("ModelFactory: Source file has been updated: %s", inPath.string().c_str());
+		return modelData;
+	}
+
+	size_t numMeshes;
+	reader.Read(numMeshes);
+
+	for(size_t i = 0; i <numMeshes; ++i)
+	{
+		MeshData& mesh = modelData.myMeshes.Emplace();
+		reader.Read(mesh.myVertices);
+		reader.Read(mesh.myIndices);
+		reader.Read(mesh.myAlbedoPath);
+		reader.Read(mesh.myNormalPath);
+		reader.Read(mesh.myMaterialPath);
+	}
+
+	return modelData;
 }
 
 Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
@@ -282,12 +331,6 @@ ModelFactory::ModelData ModelFactory::GetModelDataFromFbx(const std::filesystem:
 	return modelData;
 }
 
-ModelFactory::ModelData ModelFactory::GetModelDataFromBinary(const std::filesystem::path& inPath)
-{
-	ModelData modelData;
-
-	return modelData;
-}
 
 std::filesystem::path ModelFactory::GetCachedFilePath(const std::filesystem::path& inPath)
 {
