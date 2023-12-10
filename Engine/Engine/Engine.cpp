@@ -20,6 +20,8 @@
 #include "Core/Filewatcher.h"
 #include "Utils/ThreadUtils.hpp"
 
+#include "Tracy/tracy/Tracy.hpp"
+
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
 {
@@ -63,6 +65,8 @@ Engine::~Engine()
 
 void Engine::Tick()
 {
+	FrameMark;
+	ZoneScoped;
 	Time::Tick();
 
 	myWindowHandler->Tick();

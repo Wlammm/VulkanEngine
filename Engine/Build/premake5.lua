@@ -2,7 +2,11 @@ VULKAN_SDK = os.getenv("VULKAN_SDK")
 EXTERNAL = "$(SolutionDir)External"
 
 workspace "Engine"
-    configurations { "Game Debug", "Game Release", "Editor Debug", "Editor Release" }
+    configurations 
+	{ 
+		"Game Debug", "Game Release", "Editor Debug", "Editor Release", 
+		"PROFILE Game Debug", "PROFILE Game Release", "PROFILE Editor Debug", "PROFILE Editor Release" 
+	}
 	platforms { "Win64" }
     location "../"
     startproject "Launcher"
@@ -20,6 +24,7 @@ workspace "Engine"
 		"../%{prj.name}/**.h",
 		"../%{prj.name}/**.natvis",
 	}
+	
 	filter "configurations:Game Debug"
 		defines { "DEBUG" }
 		symbols "On"
@@ -32,6 +37,23 @@ workspace "Engine"
 	filter "configurations:Editor Release"
 		defines { "EDITOR" }
 		optimize "On"
+		
+	filter "configurations:PROFILE Game Debug"
+		defines { "DEBUG", "TRACY_ENABLE" }
+		symbols "On"
+		editandcontinue "Off"
+	filter "configurations:PROFILE Game Release"
+		defines { "TRACY_ENABLE" }
+		optimize "On"
+		editandcontinue "Off"
+	filter "configurations:PROFILE Editor Debug"
+		defines { "DEBUG", "EDITOR", "TRACY_ENABLE" }
+		symbols "On"
+		editandcontinue "Off"
+	filter "configurations:PROFILE Editor Release"
+		defines { "EDITOR", "TRACY_ENABLE" }
+		optimize "On"
+		editandcontinue "Off"
 		
 project "Launcher"
     kind "ConsoleApp"
@@ -61,7 +83,6 @@ project "Engine"
 	location "../%{prj.name}"
 	pchheader "EnginePch.h"
 	pchsource "../Engine/EnginePch.cpp"
-	prebuildcommands { "cd Shaders", "CompileAllShaders.bat" }
 	includedirs
 	{
 		"$(SolutionDir)",
@@ -70,7 +91,10 @@ project "Engine"
 		"$(SolutionDir)External/",
 		"%{EXTERNAL}/assimp/include/",
 		"$(SolutionDir)ImGui/",
+		"%{EXTERNAL}/tracy/",
 	}
+	filter "files:../Engine/Tracy/TracyClient.cpp"
+		flags { "NoPCH" }
 
 project "Editor"
     kind "StaticLib"
@@ -85,6 +109,7 @@ project "Editor"
 		"$(SolutionDir)External/",
 		"%{EXTERNAL}/assimp/include/",
 		"$(SolutionDir)ImGui/",
+		"%{EXTERNAL}/tracy/",
 	}
 	
 project "ImGui"
@@ -115,3 +140,4 @@ project "Unit Test"
 	{
 		"Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn:1.8.1.7"
 	}
+	

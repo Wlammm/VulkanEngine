@@ -1,6 +1,7 @@
 #include "EnginePch.h"
 #include "ThreadPool.h"
 #include "Utils/ThreadUtils.hpp"
+#include "Tracy/tracy/Tracy.hpp"
 
 ThreadPool::ThreadPool(const int inThreadCount)
 {
@@ -35,10 +36,13 @@ void ThreadPool::LookingForTask()
 	while(true)
 	{
 		std::unique_lock<std::mutex> lock(myLookingForTaskMutex);
-		myWaitingForTaskCondition.wait(lock, [&]()
+		{
+			ZoneScopedN("ThreadPool::LookingForTask - Waiting for task");
+			myWaitingForTaskCondition.wait(lock, [&]()
 			{
 				return !myTasks.empty() || myShouldExit;
 			});
+		}
 
 		if (myShouldExit)
 			break;

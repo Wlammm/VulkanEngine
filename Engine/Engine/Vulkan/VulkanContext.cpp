@@ -8,6 +8,7 @@
 #include "VulkanAllocator.h"
 #include "VulkanImGui.h"
 #include "Assets/Material.h"
+#include "Tracy/tracy/Tracy.hpp"
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
@@ -104,6 +105,7 @@ Vec2f VulkanContext::GetRenderResolution()
 
 void VulkanContext::BeginFrame()
 {
+	ZoneScoped;
 	myInstance->mySwapChain->BeginFrame();
 	VulkanImGui::BeginFrame();
 }

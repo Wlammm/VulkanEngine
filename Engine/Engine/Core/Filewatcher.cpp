@@ -1,5 +1,6 @@
 #include "EnginePch.h"
 #include "Filewatcher.h"
+#include "Tracy/tracy/Tracy.hpp"
 
 Filewatcher::Filewatcher()
 {
@@ -55,6 +56,7 @@ void Filewatcher::RemoveWatch(const std::filesystem::path& inPath, const Callbac
 
 void Filewatcher::FlushChanges()
 {
+	ZoneScoped;
 	myLock.lock();
 
 	for(FileData* fileData : myModifiedPaths)
@@ -69,6 +71,7 @@ void Filewatcher::FlushChanges()
 
 void Filewatcher::WatchThread()
 {
+	ZoneScoped;
 	while(myShouldRun)
 	{
 		for(auto& [path, fileData] : myFilesToWatch)

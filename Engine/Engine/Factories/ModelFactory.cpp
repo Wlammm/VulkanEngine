@@ -17,8 +17,11 @@
 #include "Serialization/BinaryWriter.h"
 #include "Serialization/BinaryReader.h"
 
+#include "Tracy/tracy/Tracy.hpp"
+
 void ModelFactory::SaveModelDataToBinary(const ModelData& inData, const std::filesystem::path& inSavePath)
 {
+	ZoneScoped;
 	BinaryWriter writer(GetCachedFilePath(inData.mySourceFile));
 	writer.Write(BinaryVersion);
 
@@ -41,9 +44,9 @@ void ModelFactory::SaveModelDataToBinary(const ModelData& inData, const std::fil
 	writer.Save();
 }
 
-ModelFactory::ModelData ModelFactory::GetModelDataFromBinary(const std::filesystem::path& inPath)
+void ModelFactory::GetModelDataFromBinary(const std::filesystem::path& inPath, ModelData& outData)
 {
-	ModelData modelData;
+	ZoneScoped;
 	BinaryReader reader(inPath);
 
 	int fileVersion;
@@ -52,73 +55,77 @@ ModelFactory::ModelData ModelFactory::GetModelDataFromBinary(const std::filesyst
 	if(fileVersion != BinaryVersion)
 	{
 		LOG_WARNING("ModelFactory: Outdated binary for model: %s", inPath.string().c_str());
-		return modelData;
+		return;
 	}
 
-	reader.Read(modelData.mySourceFile);
+	reader.Read(outData.mySourceFile);
 	
 	std::filesystem::file_time_type lastWriteTimeSourceFile;
 	reader.Read(lastWriteTimeSourceFile);
 
-	const std::filesystem::file_time_type fbxLastWriteTime = std::filesystem::last_write_time(modelData.mySourceFile);
-	if(!std::filesystem::exists(modelData.mySourceFile))
+	const std::filesystem::file_time_type fbxLastWriteTime = std::filesystem::last_write_time(outData.mySourceFile);
+	if (!std::filesystem::exists(outData.mySourceFile))
 	{
 		LOG_WARNING("ModelFactory: Source file does not exists anymore.", inPath.string().c_str());
-		return modelData;
+		return;
 	}
 
-	if(fbxLastWriteTime != lastWriteTimeSourceFile)
+	if (fbxLastWriteTime != lastWriteTimeSourceFile)
 	{
 		LOG_WARNING("ModelFactory: Source file has been updated: %s", inPath.string().c_str());
-		return modelData;
+		return;
 	}
 
 	size_t numMeshes;
 	reader.Read(numMeshes);
 
-	for(size_t i = 0; i <numMeshes; ++i)
+	for (size_t i = 0; i < numMeshes; ++i)
 	{
-		MeshData& mesh = modelData.myMeshes.Emplace();
+		MeshData& mesh = outData.myMeshes.Emplace();
 		reader.Read(mesh.myVertices);
 		reader.Read(mesh.myIndices);
 		reader.Read(mesh.myAlbedoPath);
 		reader.Read(mesh.myNormalPath);
 		reader.Read(mesh.myMaterialPath);
 	}
-
-	return modelData;
 }
 
 Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
 {
+	ZoneScoped;
 	List<Mesh> meshes{};
 
-	for(const MeshData& meshData : inModelData.myMeshes)
 	{
-		Mesh& mesh = meshes.Emplace();
-
-		// Everything below needs to be handled in a thread safe way before we async load this.
-		mesh.VertexBuffer = new VulkanVertexBuffer(meshData.myVertices);
-		mesh.NumVertices = static_cast<uint>(meshData.myVertices.size());
-		mesh.IndexBuffer = new VulkanIndexBuffer(meshData.myIndices);
-		mesh.NumIndices = static_cast<uint>(meshData.myIndices.size());
-
-		if(std::filesystem::exists(meshData.myAlbedoPath))
+		ZoneScopedN("Mesh creation");
+		for (const MeshData& meshData : inModelData.myMeshes)
 		{
-			MaterialCreateInfo createInfo;
-			createInfo.myAlbedoPath = meshData.myAlbedoPath;
-			createInfo.myNormalPath = meshData.myAlbedoPath;
-			createInfo.myMaterialPath = meshData.myAlbedoPath;
-			mesh.myMaterial = Engine::GetAssetRegistry().GetMaterial(createInfo);
-		}
-		else
-		{
-			mesh.myMaterial = Engine::GetAssetRegistry().GetDefaultMaterial();
+			Mesh& mesh = meshes.Emplace();
+
+			// Everything below needs to be handled in a thread safe way before we async load this.
+			mesh.VertexBuffer = new VulkanVertexBuffer(meshData.myVertices);
+			mesh.NumVertices = static_cast<uint>(meshData.myVertices.size());
+			mesh.IndexBuffer = new VulkanIndexBuffer(meshData.myIndices);
+			mesh.NumIndices = static_cast<uint>(meshData.myIndices.size());
+
+			if (std::filesystem::exists(meshData.myAlbedoPath))
+			{
+				MaterialCreateInfo createInfo;
+				createInfo.myAlbedoPath = meshData.myAlbedoPath;
+				createInfo.myNormalPath = meshData.myAlbedoPath;
+				createInfo.myMaterialPath = meshData.myAlbedoPath;
+				mesh.myMaterial = Engine::GetAssetRegistry().GetMaterial(createInfo);
+			}
+			else
+			{
+				mesh.myMaterial = Engine::GetAssetRegistry().GetDefaultMaterial();
+			}
 		}
 	}
-
-	Model* model = new Model(meshes);
-	return model;
+	{
+		ZoneScopedN("Model construction");
+		Model* model = new Model(meshes);
+		return model;
+	}
 }
 
 Model* ModelFactory::GetModel(const std::filesystem::path& inPath)
@@ -131,19 +138,18 @@ Model* ModelFactory::GetModel(const std::filesystem::path& inPath)
 	if(!std::filesystem::exists(cachePath))
 	{
 		LOG("ModelFactory: Recached %s", inPath.string().c_str());
-		data = GetModelDataFromFbx(inPath);
+		GetModelDataFromFbx(inPath, data);
 		SaveModelDataToBinary(data, cachePath);
 		return CreateModelFromModelData(data);
 	}
 	
-	data = GetModelDataFromBinary(cachePath);
+	GetModelDataFromBinary(cachePath, data);
 	return CreateModelFromModelData(data);
 }
 
-ModelFactory::ModelData ModelFactory::GetModelDataFromFbx(const std::filesystem::path& inPath)
+void ModelFactory::GetModelDataFromFbx(const std::filesystem::path& inPath, ModelData& outModelData)
 {
-	ModelData modelData;
-	modelData.mySourceFile = inPath;
+	outModelData.mySourceFile = inPath;
 
 	static thread_local Assimp::Importer myImporter{};
 
@@ -161,14 +167,14 @@ ModelFactory::ModelData ModelFactory::GetModelDataFromFbx(const std::filesystem:
 	if (!scene)
 	{
 		LOG_ERROR("Failed to load model: %s", inPath.string().c_str());
-		return modelData;
+		return;
 	}
 
 	const uint numMeshes = scene->mNumMeshes;
 	if (numMeshes == 0)
 	{
 		LOG_ERROR("FBX does not contain any meshes: %s", inPath.string().c_str());
-		return modelData;
+		return;
 	}
 
 	List<Mesh> meshes{};
@@ -230,7 +236,7 @@ ModelFactory::ModelData ModelFactory::GetModelDataFromFbx(const std::filesystem:
 
 		const std::filesystem::path* albedoPath = Engine::GetAssetRegistry().TryGetPathFromFilename(aiAlbedoPath.C_Str());
 
-		MeshData& meshData = modelData.myMeshes.Emplace();
+		MeshData& meshData = outModelData.myMeshes.Emplace();
 		meshData.myVertices = vertices;
 		meshData.myIndices = indices;
 
@@ -243,8 +249,6 @@ ModelFactory::ModelData ModelFactory::GetModelDataFromFbx(const std::filesystem:
 	}
 
 	myImporter.FreeScene();
-
-	return modelData;
 }
 
 

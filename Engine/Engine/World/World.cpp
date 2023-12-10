@@ -5,6 +5,7 @@
 #include "ECS/Components/Camera.h"
 #include "ECS/Components/Transform.h"
 #include "ECS/Components/StaticMesh.h"
+#include "Tracy/tracy/Tracy.hpp"
 
 World::World()
 {
@@ -18,6 +19,7 @@ World::~World()
 
 void World::Init()
 {
+	ZoneScoped;
 	auto entity = myRegistry.create();
 
 	{

@@ -2,6 +2,7 @@
 #include "SystemDispatcher.h"
 #include "Engine.h"
 #include "Core/ThreadPool.h"
+#include "Tracy/tracy/Tracy.hpp"
 
 SystemDispatcher::~SystemDispatcher()
 {
@@ -15,6 +16,7 @@ SystemDispatcher::~SystemDispatcher()
 
 void SystemDispatcher::DispatchSystems()
 {
+	ZoneScoped;
 	ThreadPool& threadPool = Engine::GetThreadPool();
 	if (myRequireRebuild)
 	{
@@ -41,6 +43,7 @@ void SystemDispatcher::DispatchSystems()
 
 void SystemDispatcher::RebuildSystemsQueue()
 {
+	ZoneScoped;
 	myRequireRebuild = false;
 	myQueue.Clear();
 	for (ISystem* system : mySystems)

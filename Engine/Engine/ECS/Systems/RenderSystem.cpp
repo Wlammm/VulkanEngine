@@ -17,6 +17,7 @@
 #include "Assets/Material.h"
 #include "Rendering/MeshPipeline.h"
 #include "Vulkan/VulkanVertexBuffer.h"
+#include "Tracy/tracy/Tracy.hpp"
 
 RenderSystem::RenderSystem()
 {
@@ -38,6 +39,7 @@ void RenderSystem::Init()
 
 void RenderSystem::Tick()
 {
+	ZoneScoped;
 	//UpdateFrameBuffer();
 
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
@@ -67,6 +69,7 @@ void RenderSystem::OnSwapChainResize()
 
 void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 {
+	ZoneScoped;
 	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const StaticMesh>();
 	if (view.size_hint() == 0)
 		return;
@@ -96,6 +99,8 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 
 void RenderSystem::AddEditorPass(vk::CommandBuffer inCommandBuffer)
 {
+	ZoneScoped;
+
 	// Temporary to change image format of swapchain textures.
 	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
 		.setRenderPass(myRenderPass)
