@@ -9,9 +9,9 @@ public:
 	{
 		size_t size;
 		Read(size);
-		wchar_t* chars = (wchar_t*)myBuffer.data();
+		wchar_t* chars = (wchar_t*)(myBuffer.data() + myReadOffset);
 		out = std::wstring(chars, size);
-		myBuffer.RemoveRange(sizeof(wchar_t) * size);
+		myReadOffset += sizeof(wchar_t) * size;
 	}
 
 	template<typename T>
@@ -21,17 +21,19 @@ public:
 		Read(size);
 
 		out.Resize(size);
-		memcpy(out.data(), myBuffer.data(), sizeof(T) * size);
-		myBuffer.RemoveRange(sizeof(T) * size);
+		memcpy(out.data(), myBuffer.data() + myReadOffset, sizeof(T) * size);
+
+		myReadOffset += sizeof(T) * size;
 	}
 
 	template<typename T>
 	void Read(T& out)
 	{
-		memcpy(&out, myBuffer.data(), sizeof(T));
-		myBuffer.RemoveRange(sizeof(T));
+		memcpy(&out, myBuffer.data() + myReadOffset, sizeof(T));
+		myReadOffset += sizeof(T);
 	}
 
 private:
 	List<unsigned char> myBuffer;
+	size_t myReadOffset = 0;
 };

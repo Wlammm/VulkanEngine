@@ -10,12 +10,11 @@ public:
 	void Write(const std::filesystem::path& inPath)
 	{
 		std::wstring data = inPath.wstring();
-		size_t dataSize = data.size() * sizeof(wchar_t);
-
+		size_t dataSize = data.length();
 		Write(dataSize);
 
 		char* c = (char*)data.c_str();
-		myStream.write(c, dataSize);
+		myStream.write(c, dataSize * sizeof(wchar_t));
 	}
 
 	template<typename T>

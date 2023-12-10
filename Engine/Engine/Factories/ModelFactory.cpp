@@ -99,7 +99,9 @@ Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
 
 		// Everything below needs to be handled in a thread safe way before we async load this.
 		mesh.VertexBuffer = new VulkanVertexBuffer(meshData.myVertices);
+		mesh.NumVertices = static_cast<uint>(meshData.myVertices.size());
 		mesh.IndexBuffer = new VulkanIndexBuffer(meshData.myIndices);
+		mesh.NumIndices = static_cast<uint>(meshData.myIndices.size());
 
 		if(std::filesystem::exists(meshData.myAlbedoPath))
 		{

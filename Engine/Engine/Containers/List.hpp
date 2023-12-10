@@ -313,6 +313,9 @@ private:
 			return;
 
 		SizeType newSize = myCapacity;
+		if (newSize == 0)
+			newSize = 1;
+
 		while (newSize < requiredSize)
 			newSize *= 2;
 

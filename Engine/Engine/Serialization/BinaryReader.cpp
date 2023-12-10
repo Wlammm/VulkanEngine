@@ -5,9 +5,13 @@ BinaryReader::BinaryReader(const std::filesystem::path& inPath)
 {
 	check(std::filesystem::exists(inPath));
 
-	std::ifstream stream = std::ifstream(inPath, std::ios::binary);
+	const size_t fileSize = std::filesystem::file_size(inPath);
+	myBuffer.Resize(fileSize);
 
-	// temporary use of std::vector since List does not have istreambuf_iterator implemented as constructor yet. Should be fine since char is copyable.
-	myBuffer = std::vector<unsigned char>(std::istreambuf_iterator<char>(stream), {});
-	stream.close();
+	FILE* file;
+	errno_t error = fopen_s(&file, inPath.string().c_str(), "rb");
+	check(!error);
+
+	fread(myBuffer.data(), sizeof(char), fileSize, file);
+	fclose(file);
 }

@@ -3,7 +3,7 @@ Engine/.vs
 Engine/JSON
 Engine/packages
 Bin/Assets/Sponza
-
+Bin/Cache/
 *.sln
 *.vcxproj
 *.vcxproj.filters
