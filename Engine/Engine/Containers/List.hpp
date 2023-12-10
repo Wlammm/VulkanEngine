@@ -322,7 +322,7 @@ private:
 	void Grow(const SizeType inNewCapacity)
 	{
 		ElementType* oldPtr = myPtr;
-		myPtr = reinterpret_cast<ElementType*>(malloc(sizeof(ElementType) * inNewCapacity));
+		myPtr = reinterpret_cast<ElementType*>(calloc(inNewCapacity, sizeof(ElementType)));
 		myCapacity = inNewCapacity;
 
 		if (oldPtr)
