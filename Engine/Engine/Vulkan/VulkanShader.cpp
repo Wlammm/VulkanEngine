@@ -8,6 +8,8 @@
 #include "Engine/Core/Filewatcher.h"
 #include "Assets/AssetObserver.h"
 
+#include <tracy/Tracy.hpp>
+
 /*
 *
 * TODO:
@@ -16,6 +18,7 @@
 */
 VulkanShader::VulkanShader(const std::filesystem::path& inPath)
 {
+	ZoneScoped;
 	std::filesystem::path path = "../Engine/Engine/Shaders/";
 	path += inPath;
 	myPath = path;
@@ -56,6 +59,7 @@ void VulkanShader::RemoveObserver(AssetObserver* inObserver)
 
 void VulkanShader::InitFromFile()
 {
+	ZoneScoped;
 	const std::filesystem::path path = "CompiledShaders/" + myPath.string() + ".spv";
 	check(std::filesystem::exists(path) && "Invalid path");
 
@@ -69,6 +73,7 @@ void VulkanShader::InitFromFile()
 
 void VulkanShader::InitFromBinary(const std::vector<uint32_t>& inData)
 {
+	ZoneScoped;
 	if(myShaderModule)
 	{
 		LOG_WARNING("VulkanShader waits for device idle. Fix");
@@ -100,6 +105,7 @@ shaderc_shader_kind GetKindFromExtension(const std::string& inExtension)
 
 void VulkanShader::Compile()
 {
+	ZoneScoped;
 	if (!std::filesystem::exists(myPath))
 	{
 		LOG_ERROR("SHADER COMPILE ERROR [%s]: FILE DOES NOT EXISTS.", myPath.filename().string().c_str());

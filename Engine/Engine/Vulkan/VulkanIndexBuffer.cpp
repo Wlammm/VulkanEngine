@@ -4,9 +4,11 @@
 #include "VulkanAllocator.h"
 #include "VulkanBuffer.h"
 #include "VulkanDevice.h"
+#include "Tracy/tracy/Tracy.hpp"
 
 VulkanIndexBuffer::VulkanIndexBuffer(const List<uint>& inIndices)
 {
+	ZoneScoped;
 	vk::BufferCreateInfo stagingCreateInfo = vk::BufferCreateInfo()
 		.setSize(inIndices.size() * sizeof(uint))
 		.setUsage(vk::BufferUsageFlagBits::eTransferSrc)

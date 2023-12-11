@@ -5,6 +5,7 @@
 #include "Material.h"
 #include "Vulkan/VulkanImage.h"
 #include "Factories/ModelFactory.h"
+#include "tracy/Tracy.hpp"
 
 AssetRegistry::AssetRegistry()
 {
@@ -47,6 +48,7 @@ void AssetRegistry::Init()
 
 Model* AssetRegistry::GetModel(const std::filesystem::path& inPath)
 {
+	ZoneScoped;
 	if (!std::filesystem::exists(inPath))
 	{
 		LOG_WARNING("AssetRegistry::GetModel: Tried to load model with a filepath that doesnt exists. %s", inPath.string().c_str());
@@ -62,6 +64,7 @@ Model* AssetRegistry::GetModel(const std::filesystem::path& inPath)
 
 VulkanShader* AssetRegistry::GetShader(const std::filesystem::path& inPath)
 {
+	ZoneScoped;
 	if (myShaders.find(inPath) != myShaders.end())
 		return myShaders[inPath];
 
@@ -71,6 +74,7 @@ VulkanShader* AssetRegistry::GetShader(const std::filesystem::path& inPath)
 
 Material* AssetRegistry::GetMaterial(const MaterialCreateInfo& inCreateInfo)
 {
+	ZoneScoped;
 	if (myMaterials.find(inCreateInfo) == myMaterials.end())
 		myMaterials[inCreateInfo] = new Material(inCreateInfo.myAlbedoPath, inCreateInfo.myNormalPath, inCreateInfo.myMaterialPath);
 	return myMaterials[inCreateInfo];
@@ -83,6 +87,7 @@ Material* AssetRegistry::GetDefaultMaterial()
 
 VulkanImage* AssetRegistry::GetImage(const std::filesystem::path& inPath)
 {
+	ZoneScoped;
 	if (myImages.find(inPath) == myImages.end())
 		myImages[inPath] = VulkanImage::LoadFromFile(inPath);
 

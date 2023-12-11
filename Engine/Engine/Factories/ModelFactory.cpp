@@ -106,6 +106,7 @@ Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
 			mesh.NumVertices = static_cast<uint>(meshData.myVertices.size());
 			mesh.IndexBuffer = new VulkanIndexBuffer(meshData.myIndices);
 			mesh.NumIndices = static_cast<uint>(meshData.myIndices.size());
+			
 
 			if (std::filesystem::exists(meshData.myAlbedoPath))
 			{
