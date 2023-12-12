@@ -119,9 +119,12 @@ public:
 
 	void Clear()
 	{
-		for (const auto& value : *this)
+		if constexpr(!std::is_trivially_destructible<ElementType>::value)
 		{
-			value.~ElementType();
+			for (const auto& value : *this)
+			{
+				value.~ElementType();
+			}
 		}
 
 		mySize = 0;

@@ -4,9 +4,15 @@ Engine/JSON
 Engine/packages
 Bin/Assets/Sponza
 Bin/Cache/
+
 *.sln
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
 *.exe
 *.pdb
+
+# VTuner stuff
+Engine/Launcher/VTune Profiler Results/
+Engine/GPUCache/
+Engine/debug.log
