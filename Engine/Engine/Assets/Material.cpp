@@ -15,13 +15,13 @@
 Material::Material()
 {
 	ZoneScoped;
-	myAlbedo = VulkanImage::LoadFromFile("Assets/Leaves.tga");
+	myAlbedo = Engine::GetAssetRegistry().GetImage("Assets/Leaves.tga");
 	myAlbedo->CreateSampler(SamplerMode::Wrap);
 	
-	myNormal = VulkanImage::LoadFromFile("Assets/Leaves.tga");
+	myNormal = Engine::GetAssetRegistry().GetImage("Assets/Leaves.tga");
 	myNormal->CreateSampler(SamplerMode::Wrap);
 
-	myMaterial = VulkanImage::LoadFromFile("Assets/Leaves.tga");
+	myMaterial = Engine::GetAssetRegistry().GetImage("Assets/Leaves.tga");
 	myMaterial->CreateSampler(SamplerMode::Wrap);
 
 	BuildDescriptorSet();

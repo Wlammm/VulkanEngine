@@ -6,9 +6,6 @@
 #include "VulkanBuffer.h"
 #include <tracy/Tracy.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
-
 VulkanImage::~VulkanImage()
 {
 	if (myView)
@@ -57,12 +54,6 @@ VulkanImage::operator vk::Image()
 vk::Image VulkanImage::operator->()
 {
 	return myImage;
-}
-
-VulkanImage* VulkanImage::LoadFromFile(const std::filesystem::path& inPath)
-{
-	ZoneScoped;
-	
 }
 
 vk::ImageView VulkanImage::GetImageView() const

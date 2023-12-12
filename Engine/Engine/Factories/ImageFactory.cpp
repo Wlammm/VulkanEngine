@@ -15,10 +15,12 @@
 
 VulkanImage* ImageFactory::GetImage(const std::filesystem::path& inPath)
 {
+	ZoneScoped;
 	std::filesystem::path cachePath = GetCachePath(inPath);
 	ImageData imageData;
 	if(!std::filesystem::exists(cachePath))
 	{
+		LOG_WARNING("ImageFactory: Recaching %s", inPath.string().c_str());
 		GetImageDataFromImageFile(inPath, imageData);
 		SaveImageDataToBinary(imageData, cachePath);
 		return CreateImageFromImageData(imageData);
@@ -30,6 +32,7 @@ VulkanImage* ImageFactory::GetImage(const std::filesystem::path& inPath)
 
 VulkanImage* ImageFactory::CreateImageFromImageData(const ImageData& inImageData)
 {
+	ZoneScoped;
 	VulkanImage* image;
 	vk::BufferCreateInfo stagingCreateInfo = vk::BufferCreateInfo()
 		.setSize(sizeof(size_t) * inImageData.myWidth * inImageData.myHeight)
@@ -38,7 +41,7 @@ VulkanImage* ImageFactory::CreateImageFromImageData(const ImageData& inImageData
 	VulkanBuffer* stagingBuffer = VulkanContext::GetAllocator().AllocateBuffer("Texture staging buffer", stagingCreateInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	void* ptr = stagingBuffer->Map();
-	check(inImageData.myChannels == 4); // Make sure channels is 4. We dont support anything else atm.
+	//check(inImageData.myChannels == 4); // Make sure channels is 4. We dont support anything else atm.
 	memcpy(ptr, inImageData.myPixelData.data(), inImageData.myWidth * inImageData.myHeight * 4);
 	stagingBuffer->Unmap();
 
@@ -122,22 +125,35 @@ VulkanImage* ImageFactory::CreateImageFromImageData(const ImageData& inImageData
 
 void ImageFactory::GetImageDataFromImageFile(const std::filesystem::path& inPath, ImageData& out)
 {
+	ZoneScoped;
 	check(std::filesystem::exists(inPath));
 	out.mySourceFile = inPath;
 
 	stbi_uc* pixels = stbi_load(inPath.string().c_str(), &out.myWidth, &out.myHeight, &out.myChannels, STBI_rgb_alpha);
 	check(pixels);
-	out.myPixelData.Resize(out.myWidth * out.myHeight * out.myChannels);
+	out.myPixelData.Resize(out.myWidth * out.myHeight * 4);
 	memcpy(out.myPixelData.data(), pixels, out.myPixelData.size());
 	stbi_image_free(pixels);
 }
 
 void ImageFactory::GetImageDataFromBinary(const std::filesystem::path& inPath, ImageData& out)
 {
+	ZoneScoped;
 	BinaryReader reader(inPath);
 	int binaryFileVersion;
 	reader.Read(binaryFileVersion);
 	check(binaryFileVersion == FileVersion);
+
+	reader.Read(out.mySourceFile);
+
+	const std::filesystem::file_time_type sourceFileLastWriteTime = std::filesystem::last_write_time(out.mySourceFile);
+	std::filesystem::file_time_type cachedWriteTime;
+	reader.Read(cachedWriteTime);
+	if (cachedWriteTime != sourceFileLastWriteTime)
+	{
+		check(false);
+		return;
+	}
 
 	reader.Read(out.myWidth);
 	reader.Read(out.myHeight);
@@ -147,8 +163,14 @@ void ImageFactory::GetImageDataFromBinary(const std::filesystem::path& inPath, I
 
 void ImageFactory::SaveImageDataToBinary(const ImageData& inData, const std::filesystem::path& inSavePath)
 {
+	ZoneScoped;
 	BinaryWriter writer(inSavePath);
 	writer.Write(FileVersion);
+	writer.Write(inData.mySourceFile);
+
+	const std::filesystem::file_time_type lastWriteTime = std::filesystem::last_write_time(inData.mySourceFile);
+	writer.Write(lastWriteTime);
+
 	writer.Write(inData.myWidth);
 	writer.Write(inData.myHeight);
 	writer.Write(inData.myChannels);
@@ -158,6 +180,6 @@ void ImageFactory::SaveImageDataToBinary(const ImageData& inData, const std::fil
 
 std::filesystem::path ImageFactory::GetCachePath(const std::filesystem::path& inFilePath)
 {
-	std::filesystem::path cachePath = L"Cache/ImageCache/" + inFilePath.filename().wstring() + L".texture";
+	std::filesystem::path cachePath = L"Cache/ImageCache/" + inFilePath.filename().wstring() + L".image";
 	return cachePath;
 }

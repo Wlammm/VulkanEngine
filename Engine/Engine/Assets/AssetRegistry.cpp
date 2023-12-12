@@ -6,6 +6,7 @@
 #include "Vulkan/VulkanImage.h"
 #include "Factories/ModelFactory.h"
 #include "tracy/Tracy.hpp"
+#include "Factories/ImageFactory.h"
 
 AssetRegistry::AssetRegistry()
 {
@@ -89,7 +90,7 @@ VulkanImage* AssetRegistry::GetImage(const std::filesystem::path& inPath)
 {
 	ZoneScoped;
 	if (myImages.find(inPath) == myImages.end())
-		myImages[inPath] = VulkanImage::LoadFromFile(inPath);
+		myImages[inPath] = ImageFactory::GetImage(inPath);
 
 	return myImages[inPath];
 }

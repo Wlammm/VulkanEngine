@@ -9,8 +9,6 @@ public:
 	operator vk::Image();
 	vk::Image operator->();
 
-	static VulkanImage* LoadFromFile(const std::filesystem::path& inPath);
-
 	vk::ImageView GetImageView() const;
 	vk::Format GetFormat() const;
 	vk::Sampler GetSampler() const;
