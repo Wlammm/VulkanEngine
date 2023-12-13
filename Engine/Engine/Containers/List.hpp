@@ -206,7 +206,10 @@ public:
 	{
 		check(inIndex >= 0 && inIndex < mySize && "Index out of range.");
 
-		myPtr[inIndex].~ElementType();
+		if constexpr(!std::is_trivially_destructible<ElementType>::value)
+		{
+			myPtr[inIndex].~ElementType();
+		}
 
 		if constexpr (CanCopy)
 		{
