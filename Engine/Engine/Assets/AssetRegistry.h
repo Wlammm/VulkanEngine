@@ -53,7 +53,8 @@ private:
 	std::unordered_map<std::filesystem::path, class Model*> myModels{};
 	std::unordered_map<std::filesystem::path, class VulkanShader*> myShaders{};
 	std::unordered_map<MaterialCreateInfo, class Material*> myMaterials{};
-	class Material* myDefaultMaterial;
+	class Material* myDefaultMaterial = nullptr;
+
 	std::unordered_map<std::filesystem::path, class VulkanImage*> myImages{};
 
 	std::unordered_map<FileName, FullPath> myFilenameToPath{};

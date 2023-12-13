@@ -3,6 +3,8 @@
 #include "Model.h"
 #include "Vulkan/VulkanShader.h"
 #include "Material.h"
+#include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanImage.h"
 #include "Factories/ModelFactory.h"
 #include "tracy/Tracy.hpp"
@@ -35,7 +37,7 @@ AssetRegistry::~AssetRegistry()
 
 	for (auto& [path, image] : myImages)
 	{
-		del(image);
+		VulkanContext::GetAllocator().DestroyImage(image);
 	}
 	myImages.clear();
 }
