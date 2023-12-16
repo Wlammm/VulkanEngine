@@ -11,11 +11,9 @@ public:
 
 	vk::ImageView GetImageView() const;
 	vk::Format GetFormat() const;
-	vk::Sampler GetSampler() const;
 
 	void CreateView(vk::ImageViewType inViewType);
 	void CreateView(vk::ImageViewType inViewType, vk::ImageSubresourceRange inRange);
-	void CreateSampler(SamplerMode inSamplerMode);
 
 private:
 	void* Map();
@@ -28,7 +26,6 @@ private:
 	vk::Image myImage;
 	vk::ImageView myView;
 	vk::Format myFormat;
-	vk::Sampler mySampler;
 
 #ifdef DEBUG
 	std::string myName = "";

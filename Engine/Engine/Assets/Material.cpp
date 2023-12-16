@@ -16,13 +16,8 @@ Material::Material()
 {
 	ZoneScoped;
 	myAlbedo = Engine::GetAssetRegistry().GetImage("Assets/Leaves.tga");
-	myAlbedo->CreateSampler(SamplerMode::Wrap);
-	
 	myNormal = Engine::GetAssetRegistry().GetImage("Assets/Leaves.tga");
-	myNormal->CreateSampler(SamplerMode::Wrap);
-
 	myMaterial = Engine::GetAssetRegistry().GetImage("Assets/Leaves.tga");
-	myMaterial->CreateSampler(SamplerMode::Wrap);
 
 	BuildDescriptorSet();
 }
@@ -32,15 +27,12 @@ Material::Material(const std::filesystem::path& inAlbedo, const std::filesystem:
 	ZoneScoped;
 	myAlbedoPath = inAlbedo;
 	myAlbedo = Engine::GetAssetRegistry().GetImage(inAlbedo);
-	myAlbedo->CreateSampler(SamplerMode::Wrap);
 
 	myNormalPath = inNormal;
 	myNormal = Engine::GetAssetRegistry().GetImage(inNormal);
-	myNormal->CreateSampler(SamplerMode::Wrap);
 
 	myMaterialPath = inMaterial;
 	myMaterial = Engine::GetAssetRegistry().GetImage(inMaterial);
-	myMaterial->CreateSampler(SamplerMode::Wrap);
 
 	BuildDescriptorSet();
 }
@@ -57,8 +49,8 @@ vk::DescriptorSet Material::GetDescriptorSet()
 void Material::BuildDescriptorSet()
 {
 	ZoneScoped;
-	myDescriptorSet.BindImage(myAlbedo, 0, vk::ShaderStageFlagBits::eFragment);
-	myDescriptorSet.BindImage(myNormal, 1, vk::ShaderStageFlagBits::eFragment);
-	myDescriptorSet.BindImage(myMaterial, 2, vk::ShaderStageFlagBits::eFragment);
+	myDescriptorSet.BindImage(myAlbedo, VulkanUtils::GetSampler(SamplerMode::Wrap), 0, vk::ShaderStageFlagBits::eFragment);
+	myDescriptorSet.BindImage(myNormal, VulkanUtils::GetSampler(SamplerMode::Wrap), 1, vk::ShaderStageFlagBits::eFragment);
+	myDescriptorSet.BindImage(myMaterial, VulkanUtils::GetSampler(SamplerMode::Wrap), 2, vk::ShaderStageFlagBits::eFragment);
 	myDescriptorSet.Build();
 }

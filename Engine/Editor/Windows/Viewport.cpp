@@ -10,7 +10,7 @@
 Viewport::Viewport()
 	: EditorWindow("Viewport", false)
 {
-	mySampler = VulkanUtils::CreateSampler(SamplerMode::Clamp);
+	mySampler = VulkanUtils::GetSampler(SamplerMode::Clamp);
 
 	myDescriptorSets.Emplace();
 	myDescriptorSets.Emplace();

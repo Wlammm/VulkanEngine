@@ -51,7 +51,7 @@ void VulkanDescriptorSet::BindUniformBuffer(const IVulkanUniformBuffer& inUnifor
 		.setBufferInfo(myBufferInfos.back());
 }
 
-void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const uint inBinding, const vk::ShaderStageFlags inShaderFlags)
+void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags)
 {
 	myLayoutBindings.Add(vk::DescriptorSetLayoutBinding()
 		.setBinding(inBinding)
@@ -61,7 +61,7 @@ void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const uint inBin
 		.setPImmutableSamplers(nullptr));
 
 	myImageInfos.emplace_back()
-		.setSampler(inImage->GetSampler())
+		.setSampler(inSampler)
 		.setImageView(inImage->GetImageView())
 		.setImageLayout(vk::ImageLayout::eReadOnlyOptimal);
 

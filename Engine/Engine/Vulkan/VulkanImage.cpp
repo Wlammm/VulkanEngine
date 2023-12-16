@@ -13,12 +13,6 @@ VulkanImage::~VulkanImage()
 		VulkanContext::GetDevice()->destroyImageView(myView);
 		myView = nullptr;
 	}
-
-	if(mySampler)
-	{
-		VulkanContext::GetDevice()->destroySampler(mySampler);
-		mySampler = nullptr;
-	}
 }
 
 void VulkanImage::CreateView(vk::ImageViewType inViewType)
@@ -29,6 +23,13 @@ void VulkanImage::CreateView(vk::ImageViewType inViewType)
 		.setLevelCount(1)
 		.setLayerCount(1);
 	CreateView(inViewType, subresourceRange);
+
+#if DEBUG
+	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
+		.setObjectHandle(VulkanContext::GetVulkanHandle(myView))
+		.setPObjectName(myName.c_str())
+		.setObjectType(vk::ObjectType::eImageView));
+#endif
 }
 
 void VulkanImage::CreateView(vk::ImageViewType inViewType, vk::ImageSubresourceRange inRange)
@@ -67,12 +68,6 @@ vk::Format VulkanImage::GetFormat() const
 	return myFormat;
 }
 
-vk::Sampler VulkanImage::GetSampler() const
-{
-	check(mySampler);
-	return mySampler;
-}
-
 void* VulkanImage::Map()
 {
 	void* ptr;
@@ -83,10 +78,4 @@ void* VulkanImage::Map()
 void VulkanImage::Unmap()
 {
 	vmaUnmapMemory(VulkanContext::GetAllocator(), myAllocation);
-}
-
-void VulkanImage::CreateSampler(SamplerMode inSamplerMode)
-{
-	ZoneScoped;
-	mySampler = VulkanUtils::CreateSampler(inSamplerMode);
 }

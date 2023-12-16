@@ -9,6 +9,7 @@
 #include "VulkanImGui.h"
 #include "Assets/Material.h"
 #include "Tracy/tracy/Tracy.hpp"
+#include "VulkanUtils.hpp"
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 PFN_vkDestroyDebugUtilsMessengerEXT pfnVkDestroyDebugUtilsMessengerEXT;
@@ -48,6 +49,7 @@ VulkanContext::VulkanContext()
 	myAllocator = new VulkanAllocator(myVulkanInstance, *myPhysicalDevice, *myDevice);
 	mySwapChain = new VulkanSwapChain(*myDevice);
 
+	VulkanUtils::CreateSamplers();
 	myPipelineCache = GetDevice()->createPipelineCache(vk::PipelineCacheCreateInfo(), nullptr);
 	CreateDescriptorPool();
 }
@@ -60,6 +62,7 @@ VulkanContext::~VulkanContext()
 	GetDevice()->destroyDescriptorSetLayout(Material::GetMaterialDescriptorLayout());
 	GetDevice()->destroyDescriptorPool(myDescriptorPool);
 	GetDevice()->destroyPipelineCache(myPipelineCache);
+	VulkanUtils::DestroySamplers();
 
 	del(mySwapChain);
 	del(myAllocator);

@@ -233,7 +233,6 @@ void RenderSystem::CreateRenderTextures()
 			.setInitialLayout(vk::ImageLayout::eUndefined);
 
 		myRenderTexture = VulkanContext::GetAllocator().AllocateImage("Render texture", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
-		myRenderTexture->CreateSampler(SamplerMode::Wrap);
 		myRenderTexture->CreateView(vk::ImageViewType::e2D);
 	}
 

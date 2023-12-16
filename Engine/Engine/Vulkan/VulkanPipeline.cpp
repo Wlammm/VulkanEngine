@@ -200,7 +200,7 @@ void VulkanPipeline::CreateDescriptors(const CreateInfo& inCreateInfo)
 			for (const VulkanImage* image : inCreateInfo.Images)
 			{
 				textureInfos.Add(vk::DescriptorImageInfo()
-					.setSampler(image->GetSampler())
+					.setSampler(VulkanUtils::GetSampler(SamplerMode::Wrap))
 					.setImageView(image->GetImageView())
 					.setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal));
 			}
