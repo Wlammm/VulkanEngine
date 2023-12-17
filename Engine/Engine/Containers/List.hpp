@@ -96,12 +96,6 @@ public:
 	//	}
 	//}
 
-	void SetGrowthMultiplier(const SizeType inGrowthMultiplier)
-	{
-		check(inGrowthMultiplier > 0 && "Growth size must be more than 0.");
-		myGrowthMultiplier = inGrowthMultiplier;
-	}
-
 	SizeType size() const noexcept
 	{
 		return mySize;
@@ -304,12 +298,19 @@ public:
 #pragma endregion
 
 private:
+	SizeType UpperPowerOfTwo(SizeType inRequiredSize)
+	{
+		SizeType a = static_cast<SizeType>(log2(inRequiredSize));
 
+		if (pow(2, a) == inRequiredSize)
+			return inRequiredSize;
+
+		return static_cast<SizeType>(pow(2, a + 1));
+	}
 
 	void Construct()
 	{
-		Grow(myGrowthMultiplier);
-		myCapacity = myGrowthMultiplier;
+		Grow(2);
 	}
 
 	void CheckCapacityForAdd(const SizeType inNumNewElements)
@@ -318,13 +319,7 @@ private:
 		if (requiredSize <= myCapacity)
 			return;
 
-		SizeType newSize = myCapacity;
-		if (newSize == 0)
-			newSize = 1;
-
-		while (newSize < requiredSize)
-			newSize *= 2;
-
+		const SizeType newSize = UpperPowerOfTwo(requiredSize);
 		Grow(newSize);
 	}
 
@@ -357,6 +352,4 @@ private:
 	ElementType* myPtr = nullptr;
 	SizeType mySize = 0;
 	SizeType myCapacity = 0;
-
-	SizeType myGrowthMultiplier = 2;
 };

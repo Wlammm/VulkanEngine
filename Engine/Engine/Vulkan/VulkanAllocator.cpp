@@ -23,10 +23,12 @@ VulkanAllocator::VulkanAllocator(vk::Instance inInstance, const VulkanPhysicalDe
 
 VulkanAllocator::~VulkanAllocator()
 {
+#if DEBUG
 	for(const std::string& allocationName : myAllocatedNames)
 	{
 		LOG_ERROR("Unallocated buffer: %s", allocationName.c_str());
 	}
+#endif
 
 	vmaDestroyAllocator(myAllocator);
 }
