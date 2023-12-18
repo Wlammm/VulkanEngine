@@ -17,9 +17,9 @@
 #include "Assets/Material.h"
 #include "Rendering/MeshPipeline.h"
 #include "Vulkan/VulkanVertexBuffer.h"
-#include "Tracy/tracy/Tracy.hpp"
 #include "Rendering/FullscreenPipeline.h"
 
+#include "tracy/Tracy.hpp"
 RenderSystem::RenderSystem()
 {
 	SubscribeToEvent(EventType::SwapchainResized, std::bind(&RenderSystem::OnSwapChainResize, this));
@@ -44,7 +44,6 @@ void RenderSystem::Tick()
 
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
-
 	AddMeshPass(commandBuffer);
 	AddFullscreenCopyPass(commandBuffer);
 	
