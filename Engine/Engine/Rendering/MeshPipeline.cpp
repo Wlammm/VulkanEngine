@@ -24,6 +24,8 @@ MeshPipeline::MeshPipeline()
 
 	CreateDescriptors();
 	CreatePipeline();
+
+ 	LOG_WARNING("MeshPipeline uses entities without being a system. This will cause errors in the future");
 }
 
 MeshPipeline::~MeshPipeline()
@@ -45,7 +47,6 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 	BuildFrameBuffer();
 	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
 
-	check(false && "Youre not allowed to touch the entity system here.");
 	for (const auto [entity, transform, mesh] : view.each())
 	{
 		if (!mesh.myModel)

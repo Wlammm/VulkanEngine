@@ -14,8 +14,8 @@ workspace "Engine"
     cppdialect "C++20"
 	flags { "FatalWarnings" }
 	debugdir "$(SolutionDir)../Bin/"
-	targetdir  "../../Temp/"
-	objdir  "../../Temp/"
+	targetdir  "../../Temp/$(Configuration)/"
+	objdir  "../../Temp/$(Configuration)/"
 	files 
 	{ 
 		"../%{prj.name}/**.cpp", 

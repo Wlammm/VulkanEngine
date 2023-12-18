@@ -45,15 +45,15 @@ private:
 	vk::Framebuffer GetVkFrameBuffer() const;
 
 private:
-	class VulkanPipeline* myFullscreenCopyPipeline = nullptr;
-
 	class MeshPipeline* myMeshPipeline = nullptr;
+	class FullscreenPipeline* myCopyPipeline = nullptr;
+
 
 	vk::RenderPass myRenderPass;
-	List<vk::Framebuffer> myFrameBuffers;
+	vk::RenderPass myRenderTextureRenderPass;
 
 	vk::Framebuffer myRenderTextureFrameBuffer;
-	vk::RenderPass myRenderTextureRenderPass;
+	List<vk::Framebuffer> mySwapchainFrameBuffers;
 
 	/*
 	* Index 0 is for main texture.

@@ -18,6 +18,7 @@
 #include "Rendering/MeshPipeline.h"
 #include "Vulkan/VulkanVertexBuffer.h"
 #include "Tracy/tracy/Tracy.hpp"
+#include "Rendering/FullscreenPipeline.h"
 
 RenderSystem::RenderSystem()
 {
@@ -110,9 +111,6 @@ void RenderSystem::AddEditorPass(vk::CommandBuffer inCommandBuffer)
 		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
 		, vk::SubpassContents::eInline);
 
-	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myFullscreenCopyPipeline->GetPipeline());
-	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myFullscreenCopyPipeline->GetPipelineLayout(), 0, myFullscreenCopyPipeline->GetDescriptorSet(), {});
-
 	inCommandBuffer.setViewport(0, vk::Viewport()
 		.setX(0)
 		.setY(0)
@@ -120,25 +118,9 @@ void RenderSystem::AddEditorPass(vk::CommandBuffer inCommandBuffer)
 		.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
 		.setMinDepth(0.0f)
 		.setMaxDepth(1.0f));
-
-	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const StaticMesh>();
-	for (const auto [entity, transform, mesh] : view.each())
-	{
-		if (!mesh.myModel)
-			continue;
-
-		//UpdateObjectBuffer(transform);
-		for (const Mesh& mesh : mesh.myModel->GetMeshes())
-		{
-			if (!mesh.myMaterial)
-				continue;
-
-			mesh.Bind(inCommandBuffer);
-		}
-	}
-
 	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
-	inCommandBuffer.drawIndexed(3, 1, 0, 0, 0);
+
+	myCopyPipeline->AddFullscreenPass(inCommandBuffer);
 
 	VulkanImGui::Render(inCommandBuffer);
 	inCommandBuffer.endRenderPass();
@@ -154,7 +136,6 @@ void RenderSystem::AddEditorPass(vk::CommandBuffer inCommandBuffer)
 		.setDstQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetPresentQueueIndex())
 		.setImage(VulkanContext::GetSwapChain().GetImage())
 		.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));*/
-
 }
 
 void RenderSystem::CreateRenderResources()
@@ -169,14 +150,14 @@ void RenderSystem::DestroyRenderResources()
 {
 	for (uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
 	{
-		VulkanContext::GetDevice()->destroyFramebuffer(myFrameBuffers[i]);
+		VulkanContext::GetDevice()->destroyFramebuffer(mySwapchainFrameBuffers[i]);
 	}
 	VulkanContext::GetDevice()->destroyFramebuffer(myRenderTextureFrameBuffer);
-	myFrameBuffers.Clear();
+	mySwapchainFrameBuffers.Clear();
 
 	VulkanContext::GetAllocator().DestroyImage(myRenderTexture);
 	del(myDepthBuffer);
-	del(myFullscreenCopyPipeline);
+	del(myCopyPipeline);
 	del(myMeshPipeline);
 
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderPass);
@@ -186,16 +167,7 @@ void RenderSystem::DestroyRenderResources()
 void RenderSystem::CreatePipelines()
 {
 	myMeshPipeline = new MeshPipeline();
-
-	{
-		VulkanPipeline::CreateInfo createInfo;
-		createInfo.VertexShader = Engine::GetAssetRegistry().GetShader("FullscreenVS.vert");
-		createInfo.FragmentShader = Engine::GetAssetRegistry().GetShader("FullscreenCopy.frag");
-		createInfo.RenderPass = myRenderPass;
-		createInfo.UniformBuffers = { };
-		createInfo.Images = { myRenderTexture };
-		myFullscreenCopyPipeline = new VulkanPipeline(createInfo);
-	}
+	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetShader("FullscreenCopy.frag"), myRenderTexture);
 }
 
 void RenderSystem::BuildPointLightBuffer()
@@ -206,7 +178,7 @@ void RenderSystem::BuildPointLightBuffer()
 	if (view.size_hint() == 0)
 		return;
 
-	for(const auto [entity, transform, light] : view.each())
+	for (const auto [entity, transform, light] : view.each())
 	{
 		PointLightData& data = pointLightData.Emplace();
 		data.myPosition = transform.GetPosition();
@@ -357,7 +329,7 @@ void RenderSystem::CreateFrameBuffers()
 	for (uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
 	{
 		attachments[0] = VulkanContext::GetSwapChain().GetImageView(i);
-		myFrameBuffers.Add(VulkanContext::GetDevice()->createFramebuffer(vk::FramebufferCreateInfo()
+		mySwapchainFrameBuffers.Add(VulkanContext::GetDevice()->createFramebuffer(vk::FramebufferCreateInfo()
 			.setRenderPass(myRenderPass)
 			.setAttachments(attachments)
 			.setWidth(VulkanContext::GetSwapChain().GetWidth())
@@ -400,5 +372,5 @@ void RenderSystem::CreateFrameBuffers()
 
 vk::Framebuffer RenderSystem::GetVkFrameBuffer() const
 {
-	return myFrameBuffers[VulkanContext::GetSwapChain().GetSwapChainIndex()];
+	return mySwapchainFrameBuffers[VulkanContext::GetSwapChain().GetSwapChainIndex()];
 }
