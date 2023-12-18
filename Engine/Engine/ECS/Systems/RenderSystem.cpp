@@ -41,13 +41,12 @@ void RenderSystem::Init()
 void RenderSystem::Tick()
 {
 	ZoneScoped;
-	//UpdateFrameBuffer();
 
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
 
 	AddMeshPass(commandBuffer);
-	AddEditorPass(commandBuffer);
+	AddFullscreenCopyPass(commandBuffer);
 	
 	commandBuffer.end();
 }
@@ -98,7 +97,7 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 	inCommandBuffer.endRenderPass();
 }
 
-void RenderSystem::AddEditorPass(vk::CommandBuffer inCommandBuffer)
+void RenderSystem::AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
 
