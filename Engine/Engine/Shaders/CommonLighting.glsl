@@ -7,15 +7,16 @@ vec4 CalculatePointLightColor(vec3 inFragPos, vec3 inNormal, vec3 inCameraPos, v
     vec4 diffuse = diff * inLightColor;
     
     // Specular
-    float specularStrength = 0.5;
-    vec3 viewDir = normalize(inCameraPos - inFragPos);
-    vec3 reflectDir = reflect(-lightDir, inNormal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec4 specular = specularStrength * spec * inLightColor;  
+    float shininess = 16;
+    vec3 viewDir    = normalize(inCameraPos - inFragPos);
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(inNormal, halfwayDir), 0.0), shininess);
+    vec4 specular = inLightColor * spec;
 
     float distance = length(inLightPosition - inFragPos);
-    
     float linearAttenuation = saturate(1 - (distance / inLightRange));
+    float physicalAttenuation = saturate(1.0f / (distance * distance));
+    float attenuation = linearAttenuation * physicalAttenuation;
 
     return (diff * inLightColor + specular) * linearAttenuation;
 }
@@ -34,13 +35,13 @@ vec4 CalculateDirectionalLightColor(vec3 inFragPos, vec3 inNormal, vec3 inCamera
 
     float diff = max(dot(inNormal, lightDir), 0.0);
     vec4 diffuse = diff * inLightColor;
-    
+
     // Specular
-    float specularStrength = 0.5;
-    vec3 viewDir = normalize(inCameraPos - inFragPos);
-    vec3 reflectDir = reflect(-lightDir, inNormal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec4 specular = specularStrength * spec * inLightColor;  
+    float shininess = 16;
+    vec3 viewDir    = normalize(inCameraPos - inFragPos);
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(inNormal, halfwayDir), 0.0), shininess);
+    vec4 specular = inLightColor * spec;
     
     return diff * inLightColor + specular;
 }
