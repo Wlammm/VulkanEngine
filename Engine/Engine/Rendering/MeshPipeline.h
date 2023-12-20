@@ -38,8 +38,9 @@ private:
 	{
 		Mat4f myToView;
 		Mat4f myProjection;
+		Vec3f myCameraPosition;
 	};
-	VulkanUniformBuffer<FrameData> myFrameData{vk::ShaderStageFlagBits::eVertex, 0 };
+	VulkanUniformBuffer<FrameData> myFrameData{vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0 };
 
 	struct ObjectData
 	{

@@ -149,6 +149,7 @@ void MeshPipeline::BuildFrameBuffer()
 	{
 		buffer.myProjection = view.get<const Camera>(ent).myProjection.Transposed();
 		buffer.myToView = view.get<const Transform>(ent).GetMatrix().FastInverse().Transposed();
+		buffer.myCameraPosition = view.get<const Transform>(ent).GetPosition();
 		return;
 	}
 

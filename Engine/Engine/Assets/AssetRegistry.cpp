@@ -115,6 +115,7 @@ const std::filesystem::path& AssetRegistry::GetPathFromFilename(const std::files
 void AssetRegistry::ScanDirectories()
 {
 	int count = 0;
+
 	for(const std::filesystem::path path : std::filesystem::recursive_directory_iterator("./"))
 	{
 		if (std::filesystem::is_directory(path))
@@ -127,6 +128,23 @@ void AssetRegistry::ScanDirectories()
 			LOG_WARNING("[AssetRegistry]: Duplicate files with same name: %s", path.filename().string().c_str());
 			continue;
 		}
+		myFilenameToPath.insert({ filename, path });
+	}
+
+	// Also scan shader directory. This is used for shader includes.
+	for(const std::filesystem::path path : std::filesystem::recursive_directory_iterator("../Engine/Engine/Shaders/"))
+	{
+		if (std::filesystem::is_directory(path))
+			continue;
+
+		count++;
+		const FileName filename = path.filename();
+		if(myFilenameToPath.find(path) != myFilenameToPath.end())
+		{
+			LOG_WARNING("[AssetRegistry]: Duplicate files with same name: %s", path.filename().string().c_str());
+			continue;
+		}
+
 		myFilenameToPath.insert({ filename, path });
 	}
 

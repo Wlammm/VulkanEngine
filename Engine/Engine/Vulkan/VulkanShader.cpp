@@ -9,6 +9,7 @@
 #include "Assets/AssetObserver.h"
 
 #include <tracy/Tracy.hpp>
+#include "VulkanShaderIncluder.h"
 
 /*
 *
@@ -28,13 +29,12 @@ VulkanShader::VulkanShader(const std::filesystem::path& inPath)
 		return;
 	}
 
-	myFilewatcherHandle = Engine::GetFilewatcher().InsertWatch(myPath, std::bind(&VulkanShader::Compile, this));
 	Compile();
 }
 
 VulkanShader::~VulkanShader()
 {
-	Engine::GetFilewatcher().RemoveWatch(myPath, myFilewatcherHandle);
+	RemoveFilewatcherCallbacks();
 
 	LOG_WARNING("VulkanShader waits for device idle. Fix");
 	
@@ -74,6 +74,7 @@ void VulkanShader::InitFromFile()
 void VulkanShader::InitFromBinary(const std::vector<uint32_t>& inData)
 {
 	ZoneScoped;
+
 	if(myShaderModule)
 	{
 		LOG_WARNING("VulkanShader waits for device idle. Fix");
@@ -117,7 +118,6 @@ void VulkanShader::Compile()
 	ss << stream.rdbuf();
 	stream.close();
 	std::string shaderSource = ss.str();
-
 	shaderc::Compiler compiler;
 	shaderc::CompileOptions options;
 	options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
@@ -125,6 +125,11 @@ void VulkanShader::Compile()
 	options.SetGenerateDebugInfo();
 	options.SetOptimizationLevel(shaderc_optimization_level_performance);
 
+	// Create the unique ptr and grab a raw pointer from it before passing it to the compiler so we can grab include data afterwards.
+	std::unique_ptr<VulkanShaderIncluder> uniqueIncluder = std::make_unique<VulkanShaderIncluder>();
+	VulkanShaderIncluder* includer = uniqueIncluder.get();
+	options.SetIncluder(std::move(uniqueIncluder));
+	
 	shaderc::SpvCompilationResult result = compiler.CompileGlslToSpv(shaderSource, GetKindFromExtension(myPath.extension().string()), myPath.filename().string().c_str(), options);
 
 	if (result.GetCompilationStatus() != shaderc_compilation_status_success)
@@ -136,6 +141,10 @@ void VulkanShader::Compile()
 		check(myShaderModule);
 		return;
 	}
+
+	// Recreate filewatcher callbacks incase we have new includes.
+	RemoveFilewatcherCallbacks();
+	CreateFilewatcherCallbacks(includer->GetIncludedFiles());
 
 	std::vector<uint32_t> binary = { result.cbegin(), result.cend() };
 	InitFromBinary(binary);
@@ -149,4 +158,26 @@ void VulkanShader::Compile()
 void VulkanShader::Reflect()
 {
 
+}
+
+void VulkanShader::CreateFilewatcherCallbacks(const List<std::filesystem::path>& inIncludePaths)
+{
+	myCallbackHandle = Engine::GetFilewatcher().InsertWatch(myPath, std::bind(&VulkanShader::Compile, this));
+
+	for(const std::filesystem::path& path : inIncludePaths)
+	{
+		IncludeFileData& data = myIncludeFiles.Emplace();
+		data.myPath = path;
+		data.myCallbackHandle = Engine::GetFilewatcher().InsertWatch(path, std::bind(&VulkanShader::Compile, this));
+	}
+}
+
+void VulkanShader::RemoveFilewatcherCallbacks()
+{
+	Engine::GetFilewatcher().RemoveWatch(myPath, myCallbackHandle);
+	for(const IncludeFileData& data : myIncludeFiles)
+	{
+		Engine::GetFilewatcher().RemoveWatch(data.myPath, data.myCallbackHandle);
+	}
+	myIncludeFiles.Clear();
 }

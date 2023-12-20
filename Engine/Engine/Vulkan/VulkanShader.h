@@ -25,10 +25,21 @@ private:
 	void Reflect();
 
 private:
-	std::filesystem::path myPath;
-	vk::ShaderModule myShaderModule;
+	void CreateFilewatcherCallbacks(const List<std::filesystem::path>& inIncludePaths);
+	void RemoveFilewatcherCallbacks();
 
-	Filewatcher::CallbackHandle myFilewatcherHandle;
+private:
+	std::filesystem::path myPath;
+	Filewatcher::CallbackHandle myCallbackHandle;
+
+	struct IncludeFileData
+	{
+		std::filesystem::path myPath;
+		Filewatcher::CallbackHandle myCallbackHandle;
+	};
+	List<IncludeFileData> myIncludeFiles;
+
+	vk::ShaderModule myShaderModule;
 
 	// List of objects to call when this asset has been updated.
 	List<AssetObserver*> myObservers;
