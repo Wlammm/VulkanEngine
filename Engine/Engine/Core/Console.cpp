@@ -1,5 +1,6 @@
 #include "EnginePch.h"
 #include "Console.h"
+#include "Engine.h"
 
 Console::Console()
 {
@@ -7,10 +8,24 @@ Console::Console()
 	myInstance = this;
 
 	myConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	myLogToFileEnabled = Engine::GetEngineProperties().HasStartupArgument("-LogToFile");
+
+	if(myLogToFileEnabled)
+	{
+		myLogToFileStream = std::ofstream{ "Log.txt" };
+		myCoutBuffer = std::cout.rdbuf();
+		std::cout.rdbuf(myLogToFileStream.rdbuf());
+	}
 }
 
 Console::~Console()
 {
+	if(myLogToFileEnabled)
+	{
+		// This is required as cout has longer lifetime than ofstream to prevent crashes.
+		std::cout.rdbuf(myCoutBuffer);
+	}
+
 	myInstance = nullptr;
 }
 

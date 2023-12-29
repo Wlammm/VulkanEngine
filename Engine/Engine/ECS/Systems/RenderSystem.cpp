@@ -18,19 +18,30 @@
 #include "Rendering/MeshPipeline.h"
 #include "Vulkan/VulkanVertexBuffer.h"
 #include "Rendering/FullscreenPipeline.h"
-
 #include "tracy/Tracy.hpp"
+#include "ECS/Components/Camera.h"
+#include "ECS/Components/PointLight.h"
+#include "ECS/Components/Transform.h"
+
 RenderSystem::RenderSystem()
 {
+	SetDependencies<const Transform, const Camera, const StaticMesh, const PointLight>();
+	myInstance = this;
 	SubscribeToEvent(EventType::SwapchainResized, std::bind(&RenderSystem::OnSwapChainResize, this));
 }
 
 RenderSystem::~RenderSystem()
 {
+	// Flush out remaining upload commands as there might still be buffers waiting destruction in them.
+	vk::CommandBuffer buffer = VulkanContext::GetDevice().CreateCommandBuffer(true);
+	AddUploadPass(buffer);
+	VulkanContext::GetDevice().FlushCommandBuffer(buffer);
+
 	LOG_WARNING("RenderSystem::~RenderSystem waits for gpu idle.");
 	VulkanContext::GetDevice()->waitIdle();
 
 	DestroyRenderResources();
+	myInstance = nullptr;
 }
 
 void RenderSystem::Init()
@@ -44,6 +55,8 @@ void RenderSystem::Tick()
 
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
+
+	AddUploadPass(commandBuffer);
 	AddMeshPass(commandBuffer);
 	AddFullscreenCopyPass(commandBuffer);
 	
@@ -64,6 +77,26 @@ void RenderSystem::OnSwapChainResize()
 {
 	DestroyRenderResources();
 	CreateRenderResources();
+}
+
+void RenderSystem::AddUploadCommand_TS(std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction)
+{
+	myUploadCommandsMutex.lock();
+	myUploadCommands.Add(inFunction);
+	myUploadCommandsMutex.unlock();
+}
+
+void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
+{
+	myUploadCommandsMutex.lock();
+
+	for(auto& func : myUploadCommands)
+	{
+		func(inCommandBuffer);
+	}
+	myUploadCommands.Clear();
+
+	myUploadCommandsMutex.unlock();
 }
 
 void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
@@ -153,7 +186,7 @@ void RenderSystem::DestroyRenderResources()
 	VulkanContext::GetDevice()->destroyFramebuffer(myRenderTextureFrameBuffer);
 	mySwapchainFrameBuffers.Clear();
 
-	VulkanContext::GetAllocator().DestroyImage(myRenderTexture);
+	VulkanAllocator::DestroyImage_TS(myRenderTexture);
 	del(myDepthBuffer);
 	del(myCopyPipeline);
 	del(myMeshPipeline);
@@ -166,25 +199,6 @@ void RenderSystem::CreatePipelines()
 {
 	myMeshPipeline = new MeshPipeline();
 	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetShader("FullscreenCopy.frag"), myRenderTexture);
-}
-
-void RenderSystem::BuildPointLightBuffer()
-{
-	List<PointLightData> pointLightData;
-
-	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const PointLight>();
-	if (view.size_hint() == 0)
-		return;
-
-	for (const auto [entity, transform, light] : view.each())
-	{
-		PointLightData& data = pointLightData.Emplace();
-		data.myPosition = transform.GetPosition();
-		data.myRange = light.myRange;
-		data.myColor = light.myColor;
-	}
-
-	myPointLightData.SetData(pointLightData);
 }
 
 void RenderSystem::CreateRenderTextures()
@@ -202,7 +216,7 @@ void RenderSystem::CreateRenderTextures()
 			.setSharingMode(vk::SharingMode::eExclusive)
 			.setInitialLayout(vk::ImageLayout::eUndefined);
 
-		myRenderTexture = VulkanContext::GetAllocator().AllocateImage("Render texture", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+		myRenderTexture = VulkanAllocator::AllocateImage_TS("Render texture", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 		myRenderTexture->CreateView(vk::ImageViewType::e2D);
 	}
 

@@ -14,7 +14,7 @@ VulkanIndexBuffer::VulkanIndexBuffer(const List<uint>& inIndices)
 		.setUsage(vk::BufferUsageFlagBits::eTransferSrc)
 		.setSharingMode(vk::SharingMode::eExclusive);
 
-	VulkanBuffer* stagingBuffer = VulkanContext::GetAllocator().AllocateBuffer("Index staging buffer", stagingCreateInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("Index staging buffer", stagingCreateInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	void* stagingMemory = stagingBuffer->Map();
 	memcpy(stagingMemory, inIndices.data(), inIndices.size() * sizeof(uint));
 	stagingBuffer->Unmap();
@@ -22,7 +22,7 @@ VulkanIndexBuffer::VulkanIndexBuffer(const List<uint>& inIndices)
 	vk::BufferCreateInfo createInfo = vk::BufferCreateInfo()
 		.setSize(inIndices.size() * sizeof(uint))
 		.setUsage(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer);
-	myBuffer = VulkanContext::GetAllocator().AllocateBuffer("IndexBuffer", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+	myBuffer = VulkanAllocator::AllocateBuffer_TS("IndexBuffer", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 
 	vk::CommandBuffer copyCmd = VulkanContext::GetDevice().CreateCommandBuffer(true);
 
@@ -30,12 +30,12 @@ VulkanIndexBuffer::VulkanIndexBuffer(const List<uint>& inIndices)
 	copyCmd.copyBuffer(*stagingBuffer, *myBuffer, { copyRegion });
 
 	VulkanContext::GetDevice().FlushCommandBuffer(copyCmd);
-	VulkanContext::GetAllocator().DestroyBuffer(stagingBuffer);
+	VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 }
 
 VulkanIndexBuffer::~VulkanIndexBuffer()
 {
-	VulkanContext::GetAllocator().DestroyBuffer(myBuffer);
+	VulkanAllocator::DestroyBuffer_TS(myBuffer);
 	myBuffer = nullptr;
 }
 

@@ -7,7 +7,8 @@
 void* VulkanBuffer::Map()
 {
 	void* ptr;
-	vmaMapMemory(VulkanContext::GetAllocator(), myAllocation, &ptr);
+	VkResult result = vmaMapMemory(VulkanContext::GetAllocator(), myAllocation, &ptr);
+	check(result == VK_SUCCESS);
 	return ptr;
 }
 

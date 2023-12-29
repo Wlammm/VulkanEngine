@@ -1,7 +1,6 @@
 #pragma once
 
-struct PointLight
+struct DirectionalLight
 {
 	Color myColor;
-	float myRange;
 };

@@ -2,29 +2,27 @@
 
 #include "Engine/ECS/System.h"
 #include "Engine/Events/EventObserver.h"
-#include "Engine/ECS/Components/Transform.h"
-#include "Engine/ECS/Components/Camera.h"
-#include "Engine/ECS/Components/StaticMesh.h"
-#include "Engine/ECS/Components/PointLight.h"
 #include "Engine/Vulkan/VulkanUniformBuffer.hpp"
-#include "Engine/Vulkan/VulkanStorageBuffer.hpp"
+#include "Engine/Vulkan/VulkanStorageBufferFwd.hpp"
 
-class RenderSystem : public System<const Transform, const Camera, const StaticMesh, const PointLight>, public EventObserver
+class RenderSystem : public System, public EventObserver
 {
 public:
 	RenderSystem();
 	~RenderSystem();
 
-	void Init();
-
-	virtual void Tick() override final;
+	void Init() override final;
+	void Tick() override final;
 
 	vk::RenderPass& GetRenderPass();
 	class VulkanImage* GetRenderTexture();
 
 	void OnSwapChainResize();
 
+	static void AddUploadCommand_TS(std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction);
+
 private:
+	void AddUploadPass(vk::CommandBuffer inCommandBuffer);
 	void AddMeshPass(vk::CommandBuffer inCommandBuffer);
 	void AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer);
 
@@ -37,17 +35,19 @@ private:
 	void CreateFrameBuffers();
 	void CreatePipelines();
 
-	void BuildPointLightBuffer();
-
 	//void UpdateFrameBuffer();
 	//void UpdateObjectBuffer(const Transform& inTransform);
 
 	vk::Framebuffer GetVkFrameBuffer() const;
 
 private:
+	inline static RenderSystem* myInstance = nullptr;
+
+	inline static std::mutex myUploadCommandsMutex;
+	inline static List<std::function<void(vk::CommandBuffer inCommandBuffer)>> myUploadCommands{};
+
 	class MeshPipeline* myMeshPipeline = nullptr;
 	class FullscreenPipeline* myCopyPipeline = nullptr;
-
 
 	vk::RenderPass myRenderPass;
 	vk::RenderPass myRenderTextureRenderPass;
@@ -63,15 +63,6 @@ private:
 		vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })),
 		vk::ClearDepthStencilValue(1.0f, 0u) };
 
-	struct PointLightData
-	{
-		Color myColor;
-		Vec3f myPosition;
-		float myRange;
-	};
-	VulkanStorageBuffer<PointLightData> myPointLightData{ vk::ShaderStageFlagBits::eFragment, 3 };
-
 	class VulkanDepthBuffer* myDepthBuffer = nullptr;
-
 	class VulkanImage* myRenderTexture = nullptr;
 };

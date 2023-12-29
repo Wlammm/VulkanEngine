@@ -3,7 +3,6 @@
 #include "Mat4Fwd.hpp"
 #include "Matrix3x3.hpp"
 
-
 template <class T>
 Matrix4x4<T>::Matrix4x4() :
 	myData{

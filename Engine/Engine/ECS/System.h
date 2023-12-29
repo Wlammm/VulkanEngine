@@ -1,32 +1,27 @@
 #pragma once
 
-class ISystem
+// Anything deriving from this needs to call SetDependencies<const SomeClass, SomeOtherClass> before next tick. Preferably in constructor
+class System
 {
 public:
-	virtual ~ISystem() {}
-
-	virtual void Tick() = 0;
-	virtual void Init() = 0;
-	virtual const std::unordered_set<std::string>& GetDependencies() = 0; 
-};
-
-// Dependencies here means that nothing else are allowed to interact with any of these classes while this is running.
-template<typename... Dependencies>
-class System : public ISystem
-{
-public:
-	System()
-	{
-		myDependencies = { GetTypeName<Dependencies>()... };
-	}
-
 	virtual ~System() {}
 
-	virtual void Init() override {}
+	virtual void Init() {}
+	virtual void Tick() {};
 
-	virtual const std::unordered_set<std::string>& GetDependencies() override final
+	bool IsInitializedCorrectly() const { return myHasSetDependencies; }
+
+	const std::unordered_set<std::string>& GetDependencies()
 	{
 		return myDependencies;
+	}
+
+protected:
+	template<typename... Dependencies>
+	void SetDependencies()
+	{
+		myHasSetDependencies = true;
+		myDependencies = { GetTypeName<Dependencies>()... };
 	}
 
 private:
@@ -41,5 +36,6 @@ private:
 	}
 	
 private:
+	bool myHasSetDependencies = false;
 	std::unordered_set<std::string> myDependencies{};
 };

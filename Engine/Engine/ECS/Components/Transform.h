@@ -20,6 +20,10 @@ public:
 	void SetPosition(const Vec3f& inPosition);
 	void SetPosition(const float inX, const float inY, const float inZ);
 
+	void SetPositionX(const float inX);
+	void SetPositionY(const float inY);
+	void SetPositionZ(const float inZ);
+
 	void SetScale(const Vec3f& inScale);
 	void SetScale(const float inX, const float inY, const float inZ);
 	void SetScale(const float inScalar);

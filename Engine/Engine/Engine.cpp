@@ -21,6 +21,7 @@
 #include "Utils/ThreadUtils.hpp"
 
 #include "Tracy/tracy/Tracy.hpp"
+#include "ECS/Systems/PointLightSystem.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -69,8 +70,8 @@ void Engine::Tick()
 	ZoneScoped;
 	Time::Tick();
 
-	long long sleepTimeMicroseconds = static_cast<long long>((1.0f / 60.0f - Time::GetDeltaTime()) * 1000000);
-	std::this_thread::sleep_for(std::chrono::microseconds(sleepTimeMicroseconds));
+	//long long sleepTimeMicroseconds = static_cast<long long>((1.0f / 60.0f - Time::GetDeltaTime()) * 1000000);
+	//std::this_thread::sleep_for(std::chrono::microseconds(sleepTimeMicroseconds));
 
 	myWindowHandler->Tick();
 
@@ -163,4 +164,5 @@ void Engine::CreateSystems()
 {
 	mySystemDispatcher->AddSystem<RenderSystem>();
 	mySystemDispatcher->AddSystem<CameraSystem>();
+	mySystemDispatcher->AddSystem<PointLightSystem>();
 }

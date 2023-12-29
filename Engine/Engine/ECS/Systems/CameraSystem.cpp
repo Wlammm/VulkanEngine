@@ -5,14 +5,17 @@
 #include "Core/Input.h"
 #include "Math/Maths.hpp"
 #include "Vulkan/VulkanContext.h"
+#include "ECS/Components/Transform.h"
+#include "ECS/Components/Camera.h"
 
 CameraSystem::CameraSystem()
 {
+	SetDependencies<Transform, const Camera>();
 }
 
 void CameraSystem::Tick()
 {
-	auto view = Engine::GetWorld().GetRegistry().view<Camera, Transform>();
+	auto view = Engine::GetWorld().GetRegistry().view<const Camera, Transform>();
 
 	for(auto [ent, cam, transform] : view.each())
 	{

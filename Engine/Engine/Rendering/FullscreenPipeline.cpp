@@ -7,6 +7,7 @@
 #include "Vulkan/VulkanDevice.h"
 #include "ECS/Systems/RenderSystem.h"
 #include "Vulkan/VulkanUtils.hpp"
+#include "ECS/Components/Transform.h"
 
 FullscreenPipeline::FullscreenPipeline(VulkanShader* inFragmentShader, VulkanImage* inSource)
 {

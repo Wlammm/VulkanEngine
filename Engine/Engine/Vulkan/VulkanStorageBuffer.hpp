@@ -1,91 +1,93 @@
 #pragma once
-
+#include "VulkanStorageBufferFwd.hpp"
 #include "VulkanContext.h"
 #include "VulkanSwapChain.h"
 #include "VulkanDevice.h"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanBuffer.h"
-
-class IVulkanStorageBuffer
-{
-public:
-	virtual vk::ShaderStageFlags GetShaderStageFlags() const = 0;
-	virtual uint GetBindingIndex() const = 0;
-	virtual vk::Buffer GetBuffer() const = 0;
-};
+#include "VulkanAllocator.h"
+#include "ECS/Systems/RenderSystem.h"
 
 template<typename T>
-class VulkanStorageBuffer : public IVulkanStorageBuffer
+VulkanStorageBuffer<T>::VulkanStorageBuffer(const vk::ShaderStageFlags inShaderStageFlags, const uint inBindingIndex)
+	: myShaderStages{ inShaderStageFlags }
+	, myBindingIndex{ inBindingIndex }
 {
-public:
-	VulkanStorageBuffer(const vk::ShaderStageFlags inShaderStageFlags, const uint inBindingIndex)
-		: myShaderStages{ inShaderStageFlags }
-		, myBindingIndex{ inBindingIndex }
-	{	}
+	CreateBuffers(sizeof(T));
+}
 
-	~VulkanStorageBuffer()
-	{
-		InvalidateBuffer();
-	}
+template<typename T>
+VulkanStorageBuffer<T>::~VulkanStorageBuffer()
+{
+	InvalidateBuffer();
+}
 
-	vk::ShaderStageFlags GetShaderStageFlags() const override final
-	{
-		return myShaderStages;
-	}
+template<typename T>
+vk::ShaderStageFlags VulkanStorageBuffer<T>::GetShaderStageFlags() const
+{
+	return myShaderStages;
+}
 
-	vk::Buffer GetBuffer() const override final
-	{
-		return *myBuffer;
-	}
+template<typename T>
+vk::Buffer VulkanStorageBuffer<T>::GetBuffer() const
+{
+	return *myBuffer;
+}
 
-	uint GetBindingIndex() const override final
-	{
-		return myBindingIndex;
-	}
+template<typename T>
+size_t VulkanStorageBuffer<T>::GetBufferSize() const
+{
+	return mySize;
+}
 
-	void SetData(const T& inData)
-	{
-		SetData({ inData });
-	}
+template<typename T>
+uint VulkanStorageBuffer<T>::GetBindingIndex() const
+{
+	return myBindingIndex;
+}
 
-	void SetData(const List<T>& inData)
-	{
-		// TODO: this should probably not resize everytime it doesnt match. But instead send in a length to the shader.
-		if(sizeof(T) * inData.size() != mySize)
+template<typename T>
+void VulkanStorageBuffer<T>::SetData(const T& inData)
+{
+	vk::BufferCreateInfo createInfo = vk::BufferCreateInfo()
+		.setSize(sizeof(T))
+		.setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst)
+		.setSharingMode(VULKAN_HPP_NAMESPACE::SharingMode::eExclusive);
+	createInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
+	VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("Staging StorageBuffer", createInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
+
+	check(!std::is_pointer<T>::value);
+	check(sizeof(T) <= mySize);
+	void* data = stagingBuffer->Map();
+	memcpy(data, &inData, sizeof(T));
+	stagingBuffer->Unmap();
+
+	RenderSystem::AddUploadCommand_TS([this, stagingBuffer](vk::CommandBuffer inCommandBuffer)
 		{
-			InvalidateBuffer();
-			CreateBuffer(sizeof(T) * inData.size());
-		}
+			vk::BufferCopy copyRegion = vk::BufferCopy().setSize(sizeof(T));
+			inCommandBuffer.copyBuffer(*stagingBuffer, *myBuffer, { copyRegion });
+			VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
+		});
+}
 
-		void* data = myBuffer->Map();
-		memcpy(data, inData.data(), sizeof(T) * inData.size());
-		myBuffer->Unmap();
-	}
+template<typename T>
+void VulkanStorageBuffer<T>::CreateBuffers(const size_t inSize)
+{
+	mySize = inSize;
+	vk::BufferCreateInfo createInfo = vk::BufferCreateInfo()
+		.setSize(inSize)
+		.setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst)
+		.setSharingMode(VULKAN_HPP_NAMESPACE::SharingMode::eExclusive);
 
-private:
-	void CreateBuffer(const size_t inSize)
-	{
-		mySize = inSize;
-		vk::BufferCreateInfo createInfo = vk::BufferCreateInfo()
-			.setSize(inSize)
-			.setUsage(vk::BufferUsageFlagBits::eStorageBuffer)
-			.setSharingMode(VULKAN_HPP_NAMESPACE::SharingMode::eExclusive);
+	myBuffer = VulkanAllocator::AllocateBuffer_TS("StorageBuffer", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+}
 
-		myBuffer = VulkanContext::GetAllocator().AllocateBuffer("StorageBuffer", createInfo, VMA_MEMORY_USAGE_AUTO);
-	}
+template<typename T>
+void VulkanStorageBuffer<T>::InvalidateBuffer()
+{
+	if (!myBuffer)
+		return;
 
-	void InvalidateBuffer()
-	{
-		if (!myBuffer)
-			return;
-
-		VulkanContext::GetAllocator().DestroyBuffer(myBuffer);
-		myBuffer = nullptr;
-	}
-
-private:
-	vk::ShaderStageFlags myShaderStages;
-	uint myBindingIndex;
-	VulkanBuffer* myBuffer = nullptr;
-	size_t mySize;
-};
+	VulkanAllocator::DestroyBuffer_TS(myBuffer);
+	myBuffer = nullptr;
+}

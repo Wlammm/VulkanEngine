@@ -3,7 +3,6 @@
 #include "Vulkan/VulkanDescriptorSet.h"
 
 class VulkanShader;
-class Transform;
 
 class FullscreenPipeline : public AssetObserver
 {
@@ -26,8 +25,6 @@ private:
 
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;
-
-	vk::RenderPass myRenderPass;
 
 	VulkanDescriptorSet myDescriptorSet;
 };

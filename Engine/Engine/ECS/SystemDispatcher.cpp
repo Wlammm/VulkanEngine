@@ -26,11 +26,12 @@ void SystemDispatcher::DispatchSystems()
 	for (auto& entry : myQueue)
 	{
 		List<std::future<void>> futures;
-		for (const auto& tickable : entry.second)
+		for (const auto& system : entry.second)
 		{
-			futures.Add(threadPool.QueueTaskFuture([tickable]()
+			check(system->IsInitializedCorrectly());
+			futures.Add(threadPool.QueueTaskFuture([system]()
 			{
-				tickable->Tick();
+				system->Tick();
 			}));
 		}
 
@@ -46,7 +47,7 @@ void SystemDispatcher::RebuildSystemsQueue()
 	ZoneScoped;
 	myRequireRebuild = false;
 	myQueue.Clear();
-	for (ISystem* system : mySystems)
+	for (System* system : mySystems)
 	{
 		bool foundSuitableQueue = false;
 		for (auto& entry : myQueue)

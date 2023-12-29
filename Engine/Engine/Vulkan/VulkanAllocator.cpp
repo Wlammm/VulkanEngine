@@ -12,6 +12,8 @@
 
 VulkanAllocator::VulkanAllocator(vk::Instance inInstance, const VulkanPhysicalDevice& inPhysicalDevice, const VulkanDevice& inDevice)
 {
+	myInstance = this;
+
 	VmaAllocatorCreateInfo createInfo{};
 	createInfo.vulkanApiVersion = VK_API_VERSION_1_3;
 	createInfo.instance = inInstance;
@@ -24,23 +26,27 @@ VulkanAllocator::VulkanAllocator(vk::Instance inInstance, const VulkanPhysicalDe
 VulkanAllocator::~VulkanAllocator()
 {
 #if DEBUG
+
+	myInstance->myAllocatedNamesMutex.lock();
 	for(const std::string& allocationName : myAllocatedNames)
 	{
 		LOG_ERROR("Unallocated buffer: %s", allocationName.c_str());
 	}
+	myInstance->myAllocatedNamesMutex.unlock();
 #endif
 
 	vmaDestroyAllocator(myAllocator);
+	myInstance = nullptr;
 }
 
-VulkanBuffer* VulkanAllocator::AllocateBuffer(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
+VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
 {
 	VulkanBuffer* outBuffer = new VulkanBuffer();
 	VmaAllocationCreateInfo allocCreateInfo{};
 	allocCreateInfo.usage = inUsage;
 	VkBuffer buffer;
 	VkBufferCreateInfo info = inCreateInfo;
-	vmaCreateBuffer(myAllocator, &info, &allocCreateInfo, &buffer, &outBuffer->myAllocation, nullptr);
+	vmaCreateBuffer(myInstance->myAllocator, &info, &allocCreateInfo, &buffer, &outBuffer->myAllocation, nullptr);
 	outBuffer->myBuffer = buffer;
 
 #if DEBUG
@@ -49,22 +55,26 @@ VulkanBuffer* VulkanAllocator::AllocateBuffer(const std::string& inName, const v
 		.setPObjectName(inName.c_str())
 		.setObjectType(vk::ObjectType::eBuffer));
 	outBuffer->myName = inName;
-	myAllocatedNames.Add(inName);
+	myInstance->myAllocatedNamesMutex.lock();
+	myInstance->myAllocatedNames.Add(inName);
+	myInstance->myAllocatedNamesMutex.unlock();
 #endif
 
 	return outBuffer;
 }
 
-void VulkanAllocator::DestroyBuffer(VulkanBuffer* inBuffer)
+void VulkanAllocator::DestroyBuffer_TS(VulkanBuffer* inBuffer)
 {
 #if DEBUG
-	myAllocatedNames.Remove(inBuffer->myName);
+	myInstance->myAllocatedNamesMutex.lock();
+	myInstance->myAllocatedNames.Remove(inBuffer->myName);
+	myInstance->myAllocatedNamesMutex.unlock();
 #endif
-	vmaDestroyBuffer(myAllocator, inBuffer->myBuffer, inBuffer->myAllocation);
+	vmaDestroyBuffer(myInstance->myAllocator, inBuffer->myBuffer, inBuffer->myAllocation);
 	del(inBuffer);
 }
 
-VulkanImage* VulkanAllocator::AllocateImage(const std::string& inName, const vk::ImageCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
+VulkanImage* VulkanAllocator::AllocateImage_TS(const std::string& inName, const vk::ImageCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
 {
 	VulkanImage* outImage = new VulkanImage();
 	VmaAllocationCreateInfo allocCreateInfo{};
@@ -72,7 +82,7 @@ VulkanImage* VulkanAllocator::AllocateImage(const std::string& inName, const vk:
 
 	VkImage image;
 	const VkImageCreateInfo info = inCreateInfo;
-	vmaCreateImage(myAllocator, &info, &allocCreateInfo, &image, &outImage->myAllocation, nullptr);
+	vmaCreateImage(myInstance->myAllocator, &info, &allocCreateInfo, &image, &outImage->myAllocation, nullptr);
 	outImage->myImage = image;
 	outImage->myFormat = inCreateInfo.format;
 
@@ -82,17 +92,21 @@ VulkanImage* VulkanAllocator::AllocateImage(const std::string& inName, const vk:
 		.setPObjectName(inName.c_str())
 		.setObjectType(vk::ObjectType::eImage));
 	outImage->myName = inName;
-	myAllocatedNames.Add(inName);
+	myInstance->myAllocatedNamesMutex.lock();
+	myInstance->myAllocatedNames.Add(inName);
+	myInstance->myAllocatedNamesMutex.unlock();
 #endif
 
 	return outImage;
 }
 
-void VulkanAllocator::DestroyImage(VulkanImage* inImage)
+void VulkanAllocator::DestroyImage_TS(VulkanImage* inImage)
 {
 #if DEBUG
-	myAllocatedNames.Remove(inImage->myName);
+	myInstance->myAllocatedNamesMutex.lock();
+	myInstance->myAllocatedNames.Remove(inImage->myName);
+	myInstance->myAllocatedNamesMutex.unlock();
 #endif
-	vmaDestroyImage(myAllocator, inImage->myImage, inImage->myAllocation);
+	vmaDestroyImage(myInstance->myAllocator, inImage->myImage, inImage->myAllocation);
 	del(inImage);
 }

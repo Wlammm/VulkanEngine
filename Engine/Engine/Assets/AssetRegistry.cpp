@@ -37,7 +37,7 @@ AssetRegistry::~AssetRegistry()
 
 	for (auto& [path, image] : myImages)
 	{
-		VulkanContext::GetAllocator().DestroyImage(image);
+		VulkanAllocator::DestroyImage_TS(image);
 	}
 	myImages.clear();
 }

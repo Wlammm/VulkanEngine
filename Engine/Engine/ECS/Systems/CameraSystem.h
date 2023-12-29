@@ -1,9 +1,7 @@
 #pragma once
 #include "ECS/System.h"
-#include "ECS/Components/Transform.h"
-#include "ECS/Components/Camera.h"
 
-class CameraSystem : public System<Transform, const Camera>
+class CameraSystem : public System
 {
 public:
 	CameraSystem();

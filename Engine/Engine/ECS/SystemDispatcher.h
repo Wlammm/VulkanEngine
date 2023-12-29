@@ -4,8 +4,6 @@
 #include <future>
 #include "System.h"
 
-class ISystem;
-
 class SystemDispatcher
 {
 public:
@@ -24,7 +22,7 @@ public:
 	template<typename T>
 	T* GetSystem()
 	{
-		for(ISystem* system : mySystems)
+		for(System* system : mySystems)
 		{
 			if (T* castedSystem = dynamic_cast<T*>(system))
 				return castedSystem;
@@ -36,7 +34,7 @@ private:
 	void RebuildSystemsQueue();
 
 private:
-	List<ISystem*> mySystems{};
-	List<std::pair<std::unordered_set<std::string>, List<ISystem*>>> myQueue;
+	List<System*> mySystems{};
+	List<std::pair<std::unordered_set<std::string>, List<System*>>> myQueue;
 	bool myRequireRebuild = false;
 };

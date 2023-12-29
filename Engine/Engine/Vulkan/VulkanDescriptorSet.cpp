@@ -5,6 +5,7 @@
 #include "VulkanDevice.h"
 #include "VulkanUniformBuffer.hpp"
 #include "VulkanImage.h"
+#include "VulkanStorageBuffer.hpp"
 
 VulkanDescriptorSet::VulkanDescriptorSet()
 {
@@ -48,6 +49,25 @@ void VulkanDescriptorSet::BindUniformBuffer(const IVulkanUniformBuffer& inUnifor
 	mySetWrites.Emplace()
 		.setDescriptorType(vk::DescriptorType::eUniformBuffer)
 		.setDstBinding(inUniformBuffer.GetBindingIndex())
+		.setBufferInfo(myBufferInfos.back());
+}
+
+void VulkanDescriptorSet::BindStorageBuffer(const IVulkanStorageBuffer& inStorageBuffer)
+{
+	myLayoutBindings.Emplace()
+		.setDescriptorCount(1)
+		.setDescriptorType(vk::DescriptorType::eStorageBuffer)
+		.setStageFlags(inStorageBuffer.GetShaderStageFlags())
+		.setBinding(inStorageBuffer.GetBindingIndex());
+
+	myBufferInfos.emplace_back()
+		.setOffset(0)
+		.setBuffer(inStorageBuffer.GetBuffer())
+		.setRange(inStorageBuffer.GetBufferSize());
+
+	mySetWrites.Emplace()
+		.setDescriptorType(vk::DescriptorType::eStorageBuffer)
+		.setDstBinding(inStorageBuffer.GetBindingIndex())
 		.setBufferInfo(myBufferInfos.back());
 }
 

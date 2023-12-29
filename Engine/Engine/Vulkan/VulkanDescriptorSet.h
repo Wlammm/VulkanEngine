@@ -12,6 +12,7 @@ public:
 
 	// Add all bindings first, then call Build().
 	void BindUniformBuffer(const class IVulkanUniformBuffer& inUniformBuffer);
+	void BindStorageBuffer(const class IVulkanStorageBuffer& inStorageBuffer);
 	void BindImage(const class VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags);
 
 	void Build();

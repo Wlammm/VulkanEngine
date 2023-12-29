@@ -25,4 +25,8 @@ private:
 	inline static Console* myInstance = nullptr;
 
 	HANDLE myConsoleHandle;
+
+	bool myLogToFileEnabled = false;
+	std::ofstream myLogToFileStream;
+	std::streambuf* myCoutBuffer = nullptr;
 };

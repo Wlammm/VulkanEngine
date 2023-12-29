@@ -84,6 +84,21 @@ void Transform::SetPosition(const float inX, const float inY, const float inZ)
 	SetPosition({ inX, inY, inZ });
 }
 
+void Transform::SetPositionX(const float inX)
+{
+	SetPosition({ inX, myPosition.y, myPosition.z });
+}
+
+void Transform::SetPositionY(const float inY)
+{
+	SetPosition({ myPosition.x, inY, myPosition.z });
+}
+
+void Transform::SetPositionZ(const float inZ)
+{
+	SetPosition({ myPosition.x, myPosition.y, inZ });
+}
+
 void Transform::SetScale(const Vec3f& inScale)
 {
 	if (myParent)

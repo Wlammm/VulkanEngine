@@ -13,6 +13,11 @@
 #include "World/World.h"
 #include "ECS/Systems/RenderSystem.h"
 #include "Assets/Material.h"
+#include "ECS/Components/DirectionalLight.h"
+#include "ECS/Components/StaticMesh.h"
+#include "ECS/Components/Transform.h"
+#include "ECS/Components/Camera.h"
+#include "ECS/Components/PointLight.h"
 
 MeshPipeline::MeshPipeline()
 {
@@ -45,6 +50,8 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
 
 	BuildFrameBuffer();
+	BuildPointLightBuffer();
+	BuildDirectionalLightBuffer();
 	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
 
 	for (const auto [entity, transform, mesh] : view.each())
@@ -71,6 +78,8 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 void MeshPipeline::CreateDescriptors()
 {
 	myFrameDescriptorSet.BindUniformBuffer(myFrameData);
+	myFrameDescriptorSet.BindStorageBuffer(myPointLightDataBuffer);
+	myFrameDescriptorSet.BindUniformBuffer(myDirectionalLightDataBuffer);
 	myFrameDescriptorSet.Build();
 
 	myObjectDescriptorSet.BindUniformBuffer(myObjectData);
@@ -154,6 +163,41 @@ void MeshPipeline::BuildFrameBuffer()
 	}
 
 	LOG("No render camera found.");
+}
+
+void MeshPipeline::BuildPointLightBuffer()
+{
+	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const PointLight>();
+	if (view.size_hint() == 0)
+		return;
+
+	int lightIndex = 0;
+	for (const auto [entity, transform, light] : view.each())
+	{
+		check(lightIndex < 10 && "max pointlights atm.");
+
+		myPointLightData.myLights[lightIndex].myPosition = transform.GetPosition();
+		myPointLightData.myLights[lightIndex].myRange = light.myRange;
+		myPointLightData.myLights[lightIndex].myColor = light.myColor;
+		lightIndex++;
+	}
+	myPointLightData.myNumLights = lightIndex;
+	myPointLightDataBuffer.SetData(myPointLightData);
+}
+
+void MeshPipeline::BuildDirectionalLightBuffer()
+{
+	DirectionalLightBuffer& buffer = myDirectionalLightDataBuffer.Get();
+	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const DirectionalLight>();
+
+	for (auto [ent, transform, light] : view.each())
+	{
+		buffer.myColor = light.myColor;
+		buffer.myDirection = transform.GetForward();
+		return;
+	}
+	buffer.myColor = Color(0, 0, 0, 0);
+	LOG("No directional light found.");
 }
 
 void MeshPipeline::BuildObjectBuffer(const Transform& inTransform)
