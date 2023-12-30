@@ -6,6 +6,8 @@ public:
 	VulkanContext();
 	~VulkanContext();
 
+	inline static constexpr int FrameLag = 3;
+
 	static vk::Instance& GetInstance();
 	static class VulkanPhysicalDevice& GetPhysicalDevice();
 	static class VulkanDevice& GetDevice();

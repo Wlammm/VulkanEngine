@@ -24,7 +24,7 @@ public:
 	{
 		const auto createInfo = vk::BufferCreateInfo().setSize(sizeof(T)).setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
 
-		for(uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
+		for(uint i = 0; i < VulkanContext::FrameLag; ++i)
 		{
 			myBuffers.Add(VulkanContext::GetDevice()->createBuffer(createInfo));
 
@@ -42,7 +42,7 @@ public:
 
 	~VulkanUniformBuffer()
 	{
-		for(uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
+		for(uint i = 0; i < VulkanContext::FrameLag; ++i)
 		{
 			VulkanContext::GetDevice()->destroyBuffer(myBuffers[i]);
 			VulkanContext::GetDevice()->unmapMemory(myMemory[i]);
@@ -55,7 +55,7 @@ public:
 
 	T& Get()
 	{
-		return *(T*)myMemoryPtrs[VulkanContext::GetSwapChain().GetSwapChainIndex()];
+		return *(T*)myMemoryPtrs[VulkanContext::GetSwapChain().GetFrameIndex()];
 	}
 
 	vk::ShaderStageFlags GetShaderStageFlags() const override final

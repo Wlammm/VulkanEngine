@@ -55,7 +55,7 @@ void VulkanImGui::Start()
 	createInfo.QueueFamily = VulkanContext::GetPhysicalDevice().GetGraphicsQueueIndex();
 	createInfo.DescriptorPool = imguiPool;
 	createInfo.MinImageCount = VulkanContext::GetSwapChain().GetMinImageCount();
-	createInfo.ImageCount = VulkanContext::GetSwapChain().GetFrameLag();
+	createInfo.ImageCount = VulkanContext::FrameLag;
 	createInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 	createInfo.CheckVkResultFn = VulkanCheckResult;
 

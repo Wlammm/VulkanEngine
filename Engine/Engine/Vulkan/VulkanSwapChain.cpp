@@ -37,7 +37,7 @@ void VulkanSwapChain::BeginFrame()
 
 	do
 	{
-		result = myDevice->acquireNextImageKHR(mySwapChain, UINT64_MAX, myImageAcquiredSemaphores[myFrameIndex], vk::Fence(), &mySwapChainImageIndex);
+		result = myDevice->acquireNextImageKHR(mySwapChain, UINT64_MAX, myImageAcquiredSemaphores[myFrameIndex], vk::Fence(), &myFrameIndex);
 
 		if(result == vk::Result::eErrorOutOfDateKHR)
 		{
@@ -76,7 +76,7 @@ void VulkanSwapChain::EndFrame()
 	const vk::PresentInfoKHR presentInfo = vk::PresentInfoKHR()
 		.setWaitSemaphores(myDrawCompleteSemaphores[myFrameIndex])
 		.setSwapchains(mySwapChain)
-		.setImageIndices(mySwapChainImageIndex);
+		.setImageIndices(myFrameIndex);
 
 	vk::Result result = VulkanContext::GetDevice().GetPresentQueue().presentKHR(&presentInfo);
 
@@ -105,17 +105,17 @@ void VulkanSwapChain::EndFrame()
 		check(result == vk::Result::eSuccess);
 	}
 	myFrameIndex += 1;
-	myFrameIndex %= myFrameLag;
+	myFrameIndex %= VulkanContext::FrameLag;
 }
 
 const vk::CommandBuffer& VulkanSwapChain::GetCommandBuffer() const
 {
-	return myCommandBuffers[mySwapChainImageIndex];
+	return myCommandBuffers[myFrameIndex];
 }
 
 const vk::Image& VulkanSwapChain::GetImage() const
 {
-	return myImages[mySwapChainImageIndex];
+	return myImages[myFrameIndex];
 }
 
 const vk::SurfaceKHR& VulkanSwapChain::GetSurface() const
@@ -131,16 +131,6 @@ const vk::Format& VulkanSwapChain::GetFormat() const
 uint VulkanSwapChain::GetFrameIndex() const
 {
 	return myFrameIndex;
-}
-
-uint VulkanSwapChain::GetSwapChainIndex() const
-{
-	return mySwapChainImageIndex;
-}
-
-uint VulkanSwapChain::GetFrameLag() const
-{
-	return myFrameLag;
 }
 
 uint VulkanSwapChain::GetWidth() const
@@ -175,7 +165,7 @@ void VulkanSwapChain::CreateSyncObjects()
 	vk::FenceCreateInfo fenceCreateInfo = vk::FenceCreateInfo().setFlags(vk::FenceCreateFlagBits::eSignaled);
 	vk::SemaphoreCreateInfo semaCreateInfo = vk::SemaphoreCreateInfo();
 
-	for(int i = 0; i < myFrameLag; ++i)
+	for(int i = 0; i < VulkanContext::FrameLag; ++i)
 	{
 		myFences.Add(myDevice->createFence(fenceCreateInfo));
 		myImageAcquiredSemaphores.Add(myDevice->createSemaphore(semaCreateInfo));
@@ -285,7 +275,7 @@ void VulkanSwapChain::CreateCommandPoolAndBuffers()
 	myCommandBuffers = myDevice->allocateCommandBuffers(vk::CommandBufferAllocateInfo()
 		.setCommandPool(myCommandPool)
 		.setLevel(vk::CommandBufferLevel::ePrimary)
-		.setCommandBufferCount(myFrameLag));
+		.setCommandBufferCount(VulkanContext::FrameLag));
 }
 
 void VulkanSwapChain::Init()
@@ -294,13 +284,13 @@ void VulkanSwapChain::Init()
 	CreateSwapChain();
 	CreateCommandPoolAndBuffers();
 
-	mySwapChainImageIndex = 0;
+	myFrameIndex = 0;
 	myFrameIndex = 0;
 }
 
 void VulkanSwapChain::DestroySwapChainRelatedObjects()
 {
-	for (int i = 0; i < myFrameLag; ++i)
+	for (int i = 0; i < VulkanContext::FrameLag; ++i)
 	{
 		myDevice->destroyFence(myFences[i]);
 		myDevice->destroySemaphore(myImageAcquiredSemaphores[i]);
@@ -324,7 +314,7 @@ void VulkanSwapChain::DestroySwapChainRelatedObjects()
 	myImages.Clear();
 
 	myFrameIndex = 0;
-	mySwapChainImageIndex = 0;
+	myFrameIndex = 0;
 }
 
 void VulkanSwapChain::Resize()

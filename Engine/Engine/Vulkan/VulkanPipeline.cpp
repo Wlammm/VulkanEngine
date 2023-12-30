@@ -41,7 +41,7 @@ const vk::PipelineLayout& VulkanPipeline::GetPipelineLayout() const
 
 const vk::DescriptorSet& VulkanPipeline::GetDescriptorSet() const
 {
-	return myDescriptorSets[VulkanContext::GetSwapChain().GetSwapChainIndex()];
+	return myDescriptorSets[VulkanContext::GetSwapChain().GetFrameIndex()];
 }
 
 void VulkanPipeline::CreatePipeline(const CreateInfo& inCreateInfo)
@@ -123,11 +123,11 @@ void VulkanPipeline::CreateDescriptorPool(const CreateInfo& inCreateInfo)
 	{
 		poolSizes.Add(vk::DescriptorPoolSize()
 			.setType(vk::DescriptorType::eUniformBuffer)
-			.setDescriptorCount(static_cast<uint32_t>(VulkanContext::GetSwapChain().GetFrameLag()))
+			.setDescriptorCount(static_cast<uint32_t>(VulkanContext::FrameLag))
 		);
 	}
 
-	const auto createInfo = vk::DescriptorPoolCreateInfo().setMaxSets(VulkanContext::GetSwapChain().GetFrameLag()).setPoolSizes(poolSizes);
+	const auto createInfo = vk::DescriptorPoolCreateInfo().setMaxSets(VulkanContext::FrameLag).setPoolSizes(poolSizes);
 	myDescriptorPool = VulkanContext::GetDevice()->createDescriptorPool(createInfo);
 }
 
@@ -172,7 +172,7 @@ void VulkanPipeline::CreateDescriptors(const CreateInfo& inCreateInfo)
 
 	const auto allocInfo = vk::DescriptorSetAllocateInfo().setDescriptorPool(myDescriptorPool).setSetLayouts(myDescLayout);
 	
-	for (uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
+	for (uint i = 0; i < VulkanContext::FrameLag; ++i)
 	{
 		myDescriptorSets.Add(VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front());
 
@@ -218,7 +218,7 @@ void VulkanPipeline::CreateDescriptors(const CreateInfo& inCreateInfo)
 	/*for (const auto& buffer : inCreateInfo.UniformBuffers)
 	{
 		List< vk::DescriptorBufferInfo> bufferInfos;
-		for(int i = 0 ; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
+		for(int i = 0 ; i < VulkanContext::FrameLag; ++i)
 		{
 			auto bufferInfo = vk::DescriptorBufferInfo().setOffset(0).setRange(buffer->GetBufferSize());
 			bufferInfo.setBuffer(buffer->GetBuffer(i));

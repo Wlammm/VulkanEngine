@@ -203,7 +203,7 @@ void RenderSystem::CreateRenderResources()
 
 void RenderSystem::DestroyRenderResources()
 {
-	for (uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
+	for (uint i = 0; i < VulkanContext::FrameLag; ++i)
 	{
 		VulkanContext::GetDevice()->destroyFramebuffer(mySwapchainFrameBuffers[i]);
 	}
@@ -362,7 +362,7 @@ void RenderSystem::CreateFrameBuffers()
 	std::array<vk::ImageView, 2> attachments;
 	attachments[1] = myDepthBuffer->GetImageView();
 
-	for (uint i = 0; i < VulkanContext::GetSwapChain().GetFrameLag(); ++i)
+	for (uint i = 0; i < VulkanContext::FrameLag; ++i)
 	{
 		attachments[0] = VulkanContext::GetSwapChain().GetImageView(i);
 		mySwapchainFrameBuffers.Add(VulkanContext::GetDevice()->createFramebuffer(vk::FramebufferCreateInfo()
@@ -408,5 +408,5 @@ void RenderSystem::CreateFrameBuffers()
 
 vk::Framebuffer RenderSystem::GetVkFrameBuffer() const
 {
-	return mySwapchainFrameBuffers[VulkanContext::GetSwapChain().GetSwapChainIndex()];
+	return mySwapchainFrameBuffers[VulkanContext::GetSwapChain().GetFrameIndex()];
 }

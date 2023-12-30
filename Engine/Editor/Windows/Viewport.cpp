@@ -43,12 +43,12 @@ void Viewport::Tick()
 
 vk::DescriptorSet Viewport::GetCurrentDescriptorSet()
 {
-	return myDescriptorSets[VulkanContext::GetSwapChain().GetSwapChainIndex()];
+	return myDescriptorSets[VulkanContext::GetSwapChain().GetFrameIndex()];
 }
 
 void Viewport::UpdateCurrentTexture()
 {
-	const uint currentIndex = VulkanContext::GetSwapChain().GetSwapChainIndex();
+	const uint currentIndex = VulkanContext::GetSwapChain().GetFrameIndex();
 	RenderSystem* renderSystem = Engine::GetSystem<RenderSystem>();
 	check(renderSystem);
 

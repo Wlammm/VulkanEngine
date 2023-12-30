@@ -17,8 +17,6 @@ public:
 	const vk::Format& GetFormat() const;
 
 	uint GetFrameIndex() const;
-	uint GetSwapChainIndex() const;
-	uint GetFrameLag() const;
 
 	uint GetWidth() const;
 	uint GetHeight() const;
@@ -49,14 +47,11 @@ private:
 	vk::SurfaceKHR myWindowSurface;
 	vk::Format myFormat;
 
-	const int myFrameLag = 3;
 	List<vk::Fence> myFences;
 	List<vk::Semaphore> myImageAcquiredSemaphores;
 	List<vk::Semaphore> myDrawCompleteSemaphores;
 
-	// ============ Swapchain image index does not necessarily match frame index. ============ 
-	uint mySwapChainImageIndex = 0; // Use this only for images & image views
-	uint myFrameIndex = 0; // Use this for everything else.
+	uint myFrameIndex = 0; 
 
 	vk::SwapchainKHR mySwapChain;
 
