@@ -12,11 +12,8 @@ public:
 	static class VulkanImage* AllocateImage_TS(const std::string& inName, const vk::ImageCreateInfo& inCreateInfo, VmaMemoryUsage inUsage);
 	static void DestroyImage_TS(class VulkanImage* inImage);
 
-	operator VmaAllocator()
-	{
-		return myAllocator;
-	}
-	
+	static VmaAllocator GetVMAAllocator();
+
 private:
 	inline static VulkanAllocator* myInstance = nullptr;
 

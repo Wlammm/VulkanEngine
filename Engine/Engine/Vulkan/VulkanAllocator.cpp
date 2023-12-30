@@ -110,3 +110,8 @@ void VulkanAllocator::DestroyImage_TS(VulkanImage* inImage)
 	vmaDestroyImage(myInstance->myAllocator, inImage->myImage, inImage->myAllocation);
 	del(inImage);
 }
+
+VmaAllocator VulkanAllocator::GetVMAAllocator()
+{
+	return myInstance->myAllocator;
+}

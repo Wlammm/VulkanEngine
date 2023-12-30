@@ -70,11 +70,11 @@ vk::Format VulkanImage::GetFormat() const
 void* VulkanImage::Map()
 {
 	void* ptr;
-	vmaMapMemory(VulkanContext::GetAllocator(), myAllocation, &ptr);
+	vmaMapMemory(VulkanAllocator::GetVMAAllocator(), myAllocation, &ptr);
 	return ptr;
 }
 
 void VulkanImage::Unmap()
 {
-	vmaUnmapMemory(VulkanContext::GetAllocator(), myAllocation);
+	vmaUnmapMemory(VulkanAllocator::GetVMAAllocator(), myAllocation);
 }
