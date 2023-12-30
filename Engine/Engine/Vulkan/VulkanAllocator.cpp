@@ -88,7 +88,7 @@ VulkanImage* VulkanAllocator::AllocateImage_TS(const std::string& inName, const 
 
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
-		.setObjectHandle(VulkanContext::GetVulkanHandle(outImage->operator vk::Image()))
+		.setObjectHandle(VulkanContext::GetVulkanHandle(outImage->GetAPIResource()))
 		.setPObjectName(inName.c_str())
 		.setObjectType(vk::ObjectType::eImage));
 	outImage->myName = inName;

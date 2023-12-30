@@ -3,7 +3,7 @@
 #include "VulkanAllocator.h"
 #include <vma/vk_mem_alloc.h>
 
-vk::Buffer VulkanBuffer::GetAPIResource()
+vk::Buffer VulkanBuffer::GetAPIResource() const
 {
 	return myBuffer;
 }

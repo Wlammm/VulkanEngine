@@ -46,12 +46,7 @@ void VulkanImage::CreateView(vk::ImageViewType inViewType, vk::ImageSubresourceR
 	myView = VulkanContext::GetDevice()->createImageView(createInfo);
 }
 
-VulkanImage::operator vk::Image()
-{
-	return myImage;
-}
-
-vk::Image VulkanImage::operator->()
+vk::Image VulkanImage::GetAPIResource() const
 {
 	return myImage;
 }

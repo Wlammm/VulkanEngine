@@ -61,7 +61,7 @@ VulkanImage* ImageFactory::CreateImageFromImageData(const ImageData& inImageData
 	image = VulkanAllocator::AllocateImage_TS(imageName, createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
-														   .setObjectHandle(VulkanContext::GetVulkanHandle(image->operator vk::Image()))
+														   .setObjectHandle(VulkanContext::GetVulkanHandle(image->GetAPIResource()))
 														   .setPObjectName(inImageData.mySourceFile.string().c_str())
 														   .setObjectType(vk::ObjectType::eImage));
 #endif
@@ -77,7 +77,7 @@ VulkanImage* ImageFactory::CreateImageFromImageData(const ImageData& inImageData
 	vk::ImageMemoryBarrier imageMemoryBarrier = vk::ImageMemoryBarrier()
 		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setImage(*image)
+		.setImage(image->GetAPIResource())
 		.setSubresourceRange(subresourceRange)
 		.setSrcAccessMask(vk::AccessFlagBits::eNone)
 		.setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
@@ -97,7 +97,7 @@ VulkanImage* ImageFactory::CreateImageFromImageData(const ImageData& inImageData
 		.setDepth(1);
 	bufferCopyRegion.setBufferOffset(0);
 
-	commandBuffer.copyBufferToImage(stagingBuffer->GetAPIResource(), *image, vk::ImageLayout::eTransferDstOptimal, { bufferCopyRegion });
+	commandBuffer.copyBufferToImage(stagingBuffer->GetAPIResource(), image->GetAPIResource(), vk::ImageLayout::eTransferDstOptimal, { bufferCopyRegion });
 
 	commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader, vk::DependencyFlagBits(), {}, {},
 								  vk::ImageMemoryBarrier()
@@ -107,7 +107,7 @@ VulkanImage* ImageFactory::CreateImageFromImageData(const ImageData& inImageData
 								  .setNewLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
 								  .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 								  .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-								  .setImage(*image)
+								  .setImage(image->GetAPIResource())
 								  .setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));
 
 	VulkanContext::GetDevice().FlushCommandBuffer(commandBuffer);

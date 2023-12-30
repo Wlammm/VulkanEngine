@@ -4,9 +4,7 @@
 class VulkanImage
 {
 public:
-	operator vk::Image();
-	vk::Image operator->();
-
+	vk::Image GetAPIResource() const;
 	vk::ImageView GetImageView() const;
 	vk::Format GetFormat() const;
 
