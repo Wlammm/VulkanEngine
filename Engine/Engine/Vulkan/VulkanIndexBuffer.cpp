@@ -27,7 +27,7 @@ VulkanIndexBuffer::VulkanIndexBuffer(const List<uint>& inIndices)
 	vk::CommandBuffer copyCmd = VulkanContext::GetDevice().CreateCommandBuffer(true);
 
 	vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inIndices.size() * sizeof(uint));
-	copyCmd.copyBuffer(*stagingBuffer, *myBuffer, { copyRegion });
+	copyCmd.copyBuffer(stagingBuffer->GetAPIResource(), myBuffer->GetAPIResource(), { copyRegion });
 
 	VulkanContext::GetDevice().FlushCommandBuffer(copyCmd);
 	VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
@@ -41,5 +41,5 @@ VulkanIndexBuffer::~VulkanIndexBuffer()
 
 void VulkanIndexBuffer::Bind(vk::CommandBuffer inCommandBuffer)
 {
-	inCommandBuffer.bindIndexBuffer(*myBuffer, 0, vk::IndexType::eUint32);
+	inCommandBuffer.bindIndexBuffer(myBuffer->GetAPIResource(), 0, vk::IndexType::eUint32);
 }

@@ -62,7 +62,7 @@ void VulkanDescriptorSet::BindStorageBuffer(const IVulkanStorageBuffer& inStorag
 
 	myBufferInfos.emplace_back()
 		.setOffset(0)
-		.setBuffer(inStorageBuffer.GetBuffer())
+		.setBuffer(inStorageBuffer.GetBuffer()->GetAPIResource())
 		.setRange(inStorageBuffer.GetBufferSize());
 
 	mySetWrites.Emplace()

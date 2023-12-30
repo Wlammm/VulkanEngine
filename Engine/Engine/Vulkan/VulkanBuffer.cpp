@@ -3,6 +3,11 @@
 #include "VulkanAllocator.h"
 #include <vma/vk_mem_alloc.h>
 
+vk::Buffer VulkanBuffer::GetAPIResource()
+{
+	return myBuffer;
+}
+
 void* VulkanBuffer::Map()
 {
 	void* ptr;

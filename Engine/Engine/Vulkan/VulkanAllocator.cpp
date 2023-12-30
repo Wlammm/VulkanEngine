@@ -51,7 +51,7 @@ VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, cons
 
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
-		.setObjectHandle(VulkanContext::GetVulkanHandle(outBuffer->operator vk::Buffer()))
+		.setObjectHandle(VulkanContext::GetVulkanHandle(outBuffer->GetAPIResource()))
 		.setPObjectName(inName.c_str())
 		.setObjectType(vk::ObjectType::eBuffer));
 	outBuffer->myName = inName;

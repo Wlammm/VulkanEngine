@@ -3,15 +3,7 @@
 class VulkanBuffer
 {
 public:
-	operator vk::Buffer()
-	{
-		return myBuffer;
-	}
-
-	vk::Buffer operator->()
-	{
-		return myBuffer;
-	}
+	vk::Buffer GetAPIResource();
 
 	void* Map();
 	void Unmap();

@@ -29,9 +29,9 @@ vk::ShaderStageFlags VulkanStorageBuffer<T>::GetShaderStageFlags() const
 }
 
 template<typename T>
-vk::Buffer VulkanStorageBuffer<T>::GetBuffer() const
+VulkanBuffer* VulkanStorageBuffer<T>::GetBuffer() const
 {
-	return *myBuffer;
+	return myBuffer;
 }
 
 template<typename T>
@@ -65,7 +65,7 @@ void VulkanStorageBuffer<T>::SetData(const T& inData)
 	RenderSystem::AddUploadCommand_TS(this, [this, stagingBuffer](vk::CommandBuffer inCommandBuffer)
 	{
 		vk::BufferCopy copyRegion = vk::BufferCopy().setSize(sizeof(T));
-		inCommandBuffer.copyBuffer(*stagingBuffer, *myBuffer, { copyRegion });
+		inCommandBuffer.copyBuffer(stagingBuffer->GetAPIResource(), myBuffer->GetAPIResource(), { copyRegion });
 		VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 	});
 }

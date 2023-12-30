@@ -7,7 +7,7 @@ class IVulkanStorageBuffer
 public:
 	virtual vk::ShaderStageFlags GetShaderStageFlags() const = 0;
 	virtual uint GetBindingIndex() const = 0;
-	virtual vk::Buffer GetBuffer() const = 0;
+	virtual VulkanBuffer* GetBuffer() const = 0;
 	virtual size_t GetBufferSize() const = 0;
 };
 
@@ -19,7 +19,7 @@ public:
 	~VulkanStorageBuffer();
 
 	vk::ShaderStageFlags GetShaderStageFlags() const override final;
-	vk::Buffer GetBuffer() const override final;
+	VulkanBuffer* GetBuffer() const override final;
 	virtual size_t GetBufferSize() const override final;
 	uint GetBindingIndex() const override final;
 	void SetData(const T& inData);

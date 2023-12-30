@@ -28,7 +28,7 @@ VulkanVertexBuffer::VulkanVertexBuffer(const List<Vertex>& inVertices)
 	vk::CommandBuffer copyCmd = VulkanContext::GetDevice().CreateCommandBuffer(true);
 
 	vk::BufferCopy copyRegion = vk::BufferCopy().setSize(sizeof(Vertex) * inVertices.size());
-	copyCmd.copyBuffer(*stagingBuffer, *myBuffer, { copyRegion });
+	copyCmd.copyBuffer(stagingBuffer->GetAPIResource(), myBuffer->GetAPIResource(), { copyRegion });
 
 	VulkanContext::GetDevice().FlushCommandBuffer(copyCmd);
 	VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
@@ -42,5 +42,5 @@ VulkanVertexBuffer::~VulkanVertexBuffer()
 
 void VulkanVertexBuffer::Bind(vk::CommandBuffer inCommandBuffer) const
 {
-	inCommandBuffer.bindVertexBuffers(0, { *myBuffer }, { 0 });
+	inCommandBuffer.bindVertexBuffers(0, { myBuffer->GetAPIResource() }, { 0 });
 }

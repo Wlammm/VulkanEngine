@@ -97,7 +97,7 @@ VulkanImage* ImageFactory::CreateImageFromImageData(const ImageData& inImageData
 		.setDepth(1);
 	bufferCopyRegion.setBufferOffset(0);
 
-	commandBuffer.copyBufferToImage(*stagingBuffer, *image, vk::ImageLayout::eTransferDstOptimal, { bufferCopyRegion });
+	commandBuffer.copyBufferToImage(stagingBuffer->GetAPIResource(), *image, vk::ImageLayout::eTransferDstOptimal, { bufferCopyRegion });
 
 	commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader, vk::DependencyFlagBits(), {}, {},
 								  vk::ImageMemoryBarrier()
