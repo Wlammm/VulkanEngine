@@ -17,6 +17,12 @@ public:
 	void Unmap();
 
 private:
+	// Only create and destroy this resource via VulkanAllocator.
+	VulkanBuffer() = default;
+	~VulkanBuffer() = default;
+	VulkanBuffer(const VulkanBuffer& inOther) = delete;
+
+private:
 	friend class VulkanAllocator;
 	VmaAllocation myAllocation;
 

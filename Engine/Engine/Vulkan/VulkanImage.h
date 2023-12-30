@@ -4,8 +4,6 @@
 class VulkanImage
 {
 public:
-	~VulkanImage();
-
 	operator vk::Image();
 	vk::Image operator->();
 
@@ -16,6 +14,11 @@ public:
 	void CreateView(vk::ImageViewType inViewType, vk::ImageSubresourceRange inRange);
 
 private:
+	// Only create & destroy via allocator.
+	VulkanImage() = default;
+	~VulkanImage();
+	VulkanImage(const VulkanImage& inOther) = delete;
+
 	void* Map();
 	void Unmap();
 

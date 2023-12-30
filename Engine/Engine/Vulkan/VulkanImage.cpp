@@ -44,7 +44,6 @@ void VulkanImage::CreateView(vk::ImageViewType inViewType, vk::ImageSubresourceR
 		.setSubresourceRange(inRange);
 
 	myView = VulkanContext::GetDevice()->createImageView(createInfo);
-
 }
 
 VulkanImage::operator vk::Image()
