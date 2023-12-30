@@ -17,7 +17,7 @@ public:
 	template<typename T>
 	void Read(List<T>& out)
 	{
-		size_t size;
+		decltype(out.size()) size;
 		Read(size);
 
 		out.Resize(size);

@@ -9,7 +9,7 @@ concept ComparisonOperator = requires(ElementType a)
 	a == a;
 };
 
-template<typename ElementType, typename SizeType = size_t>
+template<typename ElementType, typename SizeType = int>
 class List
 {
 public:
@@ -33,7 +33,8 @@ public:
 	List(const std::vector<ElementType>& inCopy)
 	{
 		Construct();
-		Grow(inCopy.capacity());
+		check(inCopy.capacity() < std::numeric_limits<SizeType>::max());
+		Grow(static_cast<SizeType>(inCopy.capacity()));
 
 		if constexpr (CanCopy)
 		{
@@ -96,7 +97,7 @@ public:
 	//	}
 	//}
 
-	SizeType size() const noexcept
+	constexpr SizeType size() const noexcept
 	{
 		return mySize;
 	}

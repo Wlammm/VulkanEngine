@@ -62,12 +62,12 @@ void VulkanStorageBuffer<T>::SetData(const T& inData)
 	memcpy(data, &inData, sizeof(T));
 	stagingBuffer->Unmap();
 
-	RenderSystem::AddUploadCommand_TS([this, stagingBuffer](vk::CommandBuffer inCommandBuffer)
-		{
-			vk::BufferCopy copyRegion = vk::BufferCopy().setSize(sizeof(T));
-			inCommandBuffer.copyBuffer(*stagingBuffer, *myBuffer, { copyRegion });
-			VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
-		});
+	RenderSystem::AddUploadCommand_TS(this, [this, stagingBuffer](vk::CommandBuffer inCommandBuffer)
+	{
+		vk::BufferCopy copyRegion = vk::BufferCopy().setSize(sizeof(T));
+		inCommandBuffer.copyBuffer(*stagingBuffer, *myBuffer, { copyRegion });
+		VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
+	});
 }
 
 template<typename T>
@@ -85,6 +85,8 @@ void VulkanStorageBuffer<T>::CreateBuffers(const size_t inSize)
 template<typename T>
 void VulkanStorageBuffer<T>::InvalidateBuffer()
 {
+	RenderSystem::RemoveUploadCommandsForOwner_TS(this);
+
 	if (!myBuffer)
 		return;
 

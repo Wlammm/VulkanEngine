@@ -55,12 +55,15 @@ void RenderSystem::Tick()
 
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
+	commandBuffer.beginDebugUtilsLabelEXT("Frame");
 
 	AddUploadPass(commandBuffer);
 	AddMeshPass(commandBuffer);
 	AddFullscreenCopyPass(commandBuffer);
 	
+	commandBuffer.endDebugUtilsLabelEXT();
 	commandBuffer.end();
+
 }
 
 vk::RenderPass& RenderSystem::GetRenderPass()
@@ -79,29 +82,47 @@ void RenderSystem::OnSwapChainResize()
 	CreateRenderResources();
 }
 
-void RenderSystem::AddUploadCommand_TS(std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction)
+void RenderSystem::AddUploadCommand_TS(void* inOwner, std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction)
 {
 	myUploadCommandsMutex.lock();
-	myUploadCommands.Add(inFunction);
+	myUploadCommands.Add({ inOwner, inFunction });
+	myUploadCommandsMutex.unlock();
+}
+
+void RenderSystem::RemoveUploadCommandsForOwner_TS(void* inOwner)
+{
+	myUploadCommandsMutex.lock();
+	if(!myUploadCommands.IsEmpty())
+	{
+		for (int i = myUploadCommands.size() - 1; i >= 0; --i)
+		{
+			if (myUploadCommands[i].myOwner == inOwner)
+				myUploadCommands.RemoveIndex(i);
+		}
+	}
 	myUploadCommandsMutex.unlock();
 }
 
 void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 {
+	inCommandBuffer.beginDebugUtilsLabelEXT("Upload Pass");
 	myUploadCommandsMutex.lock();
 
-	for(auto& func : myUploadCommands)
+	for(auto& [owner, func] : myUploadCommands)
 	{
 		func(inCommandBuffer);
 	}
 	myUploadCommands.Clear();
 
 	myUploadCommandsMutex.unlock();
+	inCommandBuffer.endDebugUtilsLabelEXT();
 }
 
 void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
+
+	inCommandBuffer.beginDebugUtilsLabelEXT("Mesh Pass");
 	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const StaticMesh>();
 	if (view.size_hint() == 0)
 		return;
@@ -127,11 +148,13 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 	myMeshPipeline->AddDrawCommands(inCommandBuffer);
 
 	inCommandBuffer.endRenderPass();
+	inCommandBuffer.endDebugUtilsLabelEXT();
 }
 
 void RenderSystem::AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
+	inCommandBuffer.beginDebugUtilsLabelEXT("Fullscreen Copy Pass");
 
 	// Temporary to change image format of swapchain textures.
 	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
@@ -167,6 +190,7 @@ void RenderSystem::AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer)
 		.setDstQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetPresentQueueIndex())
 		.setImage(VulkanContext::GetSwapChain().GetImage())
 		.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));*/
+	inCommandBuffer.endDebugUtilsLabelEXT();
 }
 
 void RenderSystem::CreateRenderResources()

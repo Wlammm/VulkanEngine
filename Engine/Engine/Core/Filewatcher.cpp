@@ -45,7 +45,7 @@ void Filewatcher::RemoveWatch(const std::filesystem::path& inPath, const Callbac
 	if (!myFilesToWatch.contains(inPath))
 		return;
 
-	size_t index = myFilesToWatch[inPath].myCallbackIDIndexList.FindIndex(inHandle);
+	int index = myFilesToWatch[inPath].myCallbackIDIndexList.FindIndex(inHandle);
 
 	myFilesToWatch[inPath].myCallbacks.RemoveIndex(index);
 	myFilesToWatch[inPath].myCallbackIDIndexList.RemoveIndex(index);

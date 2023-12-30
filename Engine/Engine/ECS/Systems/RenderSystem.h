@@ -19,7 +19,8 @@ public:
 
 	void OnSwapChainResize();
 
-	static void AddUploadCommand_TS(std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction);
+	static void AddUploadCommand_TS(void* inOwner, std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction);
+	static void RemoveUploadCommandsForOwner_TS(void* inOwner);
 
 private:
 	void AddUploadPass(vk::CommandBuffer inCommandBuffer);
@@ -43,8 +44,13 @@ private:
 private:
 	inline static RenderSystem* myInstance = nullptr;
 
+	struct UploadCommandData
+	{
+		void* myOwner;
+		std::function<void(vk::CommandBuffer)> myFunction;
+	};
 	inline static std::mutex myUploadCommandsMutex;
-	inline static List<std::function<void(vk::CommandBuffer inCommandBuffer)>> myUploadCommands{};
+	inline static List<UploadCommandData> myUploadCommands{};
 
 	class MeshPipeline* myMeshPipeline = nullptr;
 	class FullscreenPipeline* myCopyPipeline = nullptr;
