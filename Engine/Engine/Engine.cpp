@@ -78,7 +78,7 @@ void Engine::Tick()
 	if (Input::IsKeyDown(KeyCode::Escape))
 		PostQuitMessage(0);
 
-	VulkanContext::BeginFrame();
+	myVulkanContext->BeginFrame();
 	myFilewatcher->FlushChanges();
 #if EDITOR
 	myEditorTick();
@@ -86,7 +86,7 @@ void Engine::Tick()
 
 	mySystemDispatcher->DispatchSystems();
 
-	VulkanContext::EndFrame();
+	myVulkanContext->EndFrame();
 	Input::EndFrame();
 
 	ImGui::UpdatePlatformWindows();

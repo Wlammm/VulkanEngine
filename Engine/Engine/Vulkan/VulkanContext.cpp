@@ -124,6 +124,7 @@ void VulkanContext::BeginFrame()
 	ZoneScoped;
 	myInstance->mySwapChain->BeginFrame();
 	VulkanImGui::BeginFrame();
+	myInstance->myAllocator->Tick();
 }
 
 void VulkanContext::EndFrame()

@@ -17,8 +17,8 @@ public:
 
 	static Vec2f GetRenderResolution();
 
-	static void BeginFrame();
-	static void EndFrame();
+	void BeginFrame();
+	void EndFrame();
 
 	template<typename T>
 	static uint64_t GetVulkanHandle(T const& inCppHandle)

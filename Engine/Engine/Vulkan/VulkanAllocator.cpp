@@ -25,18 +25,30 @@ VulkanAllocator::VulkanAllocator(vk::Instance inInstance, const VulkanPhysicalDe
 
 VulkanAllocator::~VulkanAllocator()
 {
-#if DEBUG
+	VulkanContext::GetDevice()->waitIdle();
+	for(int i = 0; i < VulkanContext::FrameLag; ++i)
+	{
+		TickBufferDeletes();
+		TickImageDeletes();
+	}
 
-	myInstance->myAllocatedNamesMutex.lock();
+#if DEBUG
+	myAllocatedNames.Lock();
 	for(const std::string& allocationName : myAllocatedNames)
 	{
 		LOG_ERROR("Unallocated buffer: %s", allocationName.c_str());
 	}
-	myInstance->myAllocatedNamesMutex.unlock();
+	myAllocatedNames.Unlock();
 #endif
 
 	vmaDestroyAllocator(myAllocator);
 	myInstance = nullptr;
+}
+
+void VulkanAllocator::Tick()
+{
+	TickBufferDeletes();
+	TickImageDeletes();
 }
 
 VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
@@ -55,9 +67,7 @@ VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, cons
 		.setPObjectName(inName.c_str())
 		.setObjectType(vk::ObjectType::eBuffer));
 	outBuffer->myName = inName;
-	myInstance->myAllocatedNamesMutex.lock();
 	myInstance->myAllocatedNames.Add(inName);
-	myInstance->myAllocatedNamesMutex.unlock();
 #endif
 
 	return outBuffer;
@@ -65,13 +75,7 @@ VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, cons
 
 void VulkanAllocator::DestroyBuffer_TS(VulkanBuffer* inBuffer)
 {
-#if DEBUG
-	myInstance->myAllocatedNamesMutex.lock();
-	myInstance->myAllocatedNames.Remove(inBuffer->myName);
-	myInstance->myAllocatedNamesMutex.unlock();
-#endif
-	vmaDestroyBuffer(myInstance->myAllocator, inBuffer->myBuffer, inBuffer->myAllocation);
-	del(inBuffer);
+	myInstance->myBufferDeleteData.Add({ VulkanContext::FrameLag, inBuffer });
 }
 
 VulkanImage* VulkanAllocator::AllocateImage_TS(const std::string& inName, const vk::ImageCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
@@ -92,9 +96,7 @@ VulkanImage* VulkanAllocator::AllocateImage_TS(const std::string& inName, const 
 		.setPObjectName(inName.c_str())
 		.setObjectType(vk::ObjectType::eImage));
 	outImage->myName = inName;
-	myInstance->myAllocatedNamesMutex.lock();
 	myInstance->myAllocatedNames.Add(inName);
-	myInstance->myAllocatedNamesMutex.unlock();
 #endif
 
 	return outImage;
@@ -102,16 +104,58 @@ VulkanImage* VulkanAllocator::AllocateImage_TS(const std::string& inName, const 
 
 void VulkanAllocator::DestroyImage_TS(VulkanImage* inImage)
 {
-#if DEBUG
-	myInstance->myAllocatedNamesMutex.lock();
-	myInstance->myAllocatedNames.Remove(inImage->myName);
-	myInstance->myAllocatedNamesMutex.unlock();
-#endif
-	vmaDestroyImage(myInstance->myAllocator, inImage->myImage, inImage->myAllocation);
-	del(inImage);
+	myInstance->myImageDeleteData.Add({ VulkanContext::FrameLag, inImage });
 }
 
 VmaAllocator VulkanAllocator::GetVMAAllocator()
 {
 	return myInstance->myAllocator;
+}
+
+void VulkanAllocator::DestroyBufferInternal(VulkanBuffer* inBuffer)
+{
+#if DEBUG
+	myInstance->myAllocatedNames.Remove(inBuffer->myName);
+#endif
+	vmaDestroyBuffer(myInstance->myAllocator, inBuffer->myBuffer, inBuffer->myAllocation);
+	del(inBuffer);
+}
+
+void VulkanAllocator::DestroyImageInternal(VulkanImage* inImage)
+{
+#if DEBUG
+	myInstance->myAllocatedNames.Remove(inImage->myName);
+#endif
+	vmaDestroyImage(myInstance->myAllocator, inImage->myImage, inImage->myAllocation);
+	del(inImage);
+}
+
+void VulkanAllocator::TickBufferDeletes()
+{
+	myBufferDeleteData.Lock();
+	for (int i = myBufferDeleteData.size() - 1; i >= 0; --i)
+	{
+		myBufferDeleteData[i].myFramesUntilDelete--;
+		if (myBufferDeleteData[i].myFramesUntilDelete <= 0)
+		{
+			DestroyBufferInternal(myBufferDeleteData[i].myData);
+			myBufferDeleteData.RemoveIndex(i);
+		}
+	}
+	myBufferDeleteData.Unlock();
+}
+
+void VulkanAllocator::TickImageDeletes()
+{
+	myImageDeleteData.Lock();
+	for (int i = myImageDeleteData.size() - 1; i >= 0; --i)
+	{
+		myImageDeleteData[i].myFramesUntilDelete--;
+		if (myImageDeleteData[i].myFramesUntilDelete <= 0)
+		{
+			DestroyImageInternal(myImageDeleteData[i].myData);
+			myImageDeleteData.RemoveIndex(i);
+		}
+	}
+	myImageDeleteData.Unlock();
 }

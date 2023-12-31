@@ -6,6 +6,8 @@ public:
 	VulkanAllocator(vk::Instance inInstance, const class VulkanPhysicalDevice& inPhysicalDevice, const class VulkanDevice& inDevice);
 	~VulkanAllocator();
 
+	void Tick();
+
 	static class VulkanBuffer* AllocateBuffer_TS(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage);
 	static void DestroyBuffer_TS(class VulkanBuffer* inBuffer);
 
@@ -15,12 +17,27 @@ public:
 	static VmaAllocator GetVMAAllocator();
 
 private:
+	void DestroyBufferInternal(VulkanBuffer* inBuffer);
+	void DestroyImageInternal(VulkanImage* inImage);
+
+	void TickBufferDeletes();
+	void TickImageDeletes();
+
+private:
 	inline static VulkanAllocator* myInstance = nullptr;
 
 	VmaAllocator myAllocator;
 
+	template<typename T>
+	struct DeleteData
+	{
+		int myFramesUntilDelete = 0;
+		T* myData;
+	};
+	MutexList<DeleteData<VulkanBuffer>> myBufferDeleteData;
+	MutexList<DeleteData<VulkanImage>> myImageDeleteData;
+
 #if DEBUG
-	std::mutex myAllocatedNamesMutex;
-	List<std::string> myAllocatedNames;
+	MutexList<std::string> myAllocatedNames;
 #endif
 };

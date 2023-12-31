@@ -60,7 +60,7 @@ public:
 		}
 	}
 
-	~List()
+	virtual ~List()
 	{
 		Clear();
 		if (myPtr)
