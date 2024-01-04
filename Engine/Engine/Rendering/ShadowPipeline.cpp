@@ -42,6 +42,14 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 	if (meshView.size_hint() == 0)
 		return;
 
+	//inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
+	//								.setRenderPass(myRenderPass)
+	//								.setFramebuffer(GetVkFrameBuffer())
+	//								.setPClearValues(myClearValues)
+	//								.setClearValueCount(2)
+	//								.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
+	//								, vk::SubpassContents::eInline);
+	//
 	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
 
 	for (const auto [entity, transform, light] : directionalLightView.each())

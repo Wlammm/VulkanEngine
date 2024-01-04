@@ -10,7 +10,6 @@
 #include "Vulkan/VulkanImGui.h"
 #include "Vulkan/VulkanImage.h"
 #include "Vulkan/VulkanAllocator.h"
-#include "Vulkan/VulkanDepthBuffer.h"
 #include "ECS/Components/StaticMesh.h"
 #include "Assets/AssetRegistry.h"
 #include "Vulkan/VulkanShader.h"
@@ -22,6 +21,7 @@
 #include "ECS/Components/Camera.h"
 #include "ECS/Components/PointLight.h"
 #include "ECS/Components/Transform.h"
+#include "Rendering/ShadowPipeline.h"
 
 RenderSystem::RenderSystem()
 {
@@ -58,6 +58,7 @@ void RenderSystem::Tick()
 	commandBuffer.beginDebugUtilsLabelEXT("Frame");
 
 	AddUploadPass(commandBuffer);
+	//AddShadowGenerationPass(commandBuffer);
 	AddMeshPass(commandBuffer);
 	AddFullscreenCopyPass(commandBuffer);
 	
@@ -151,6 +152,11 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 	inCommandBuffer.endDebugUtilsLabelEXT();
 }
 
+void RenderSystem::AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer)
+{
+	myShadowPipeline->AddCommands(inCommandBuffer);
+}
+
 void RenderSystem::AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
@@ -211,9 +217,10 @@ void RenderSystem::DestroyRenderResources()
 	mySwapchainFrameBuffers.Clear();
 
 	VulkanAllocator::DestroyImage_TS(myRenderTexture);
-	del(myDepthBuffer);
+	VulkanAllocator::DestroyImage_TS(myDepthBuffer);
 	del(myCopyPipeline);
 	del(myMeshPipeline);
+	del(myShadowPipeline);
 
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderPass);
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderTextureRenderPass);
@@ -223,28 +230,31 @@ void RenderSystem::CreatePipelines()
 {
 	myMeshPipeline = new MeshPipeline();
 	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetShader("FullscreenCopy.frag"), myRenderTexture);
+	myShadowPipeline = new ShadowPipeline();
 }
 
 void RenderSystem::CreateRenderTextures()
 {
-	{
-		vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
-			.setImageType(vk::ImageType::e2D)
-			.setFormat(VulkanContext::GetSwapChain().GetFormat() /*vk::Format::eR32G32B32A32Sfloat*/)
-			.setExtent({ Engine::GetRenderResolution().x, Engine::GetRenderResolution().y, 1 })
-			.setMipLevels(1)
-			.setArrayLayers(1)
-			.setSamples(vk::SampleCountFlagBits::e1)
-			.setTiling(vk::ImageTiling::eOptimal)
-			.setUsage(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled)
-			.setSharingMode(vk::SharingMode::eExclusive)
-			.setInitialLayout(vk::ImageLayout::eUndefined);
+	vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
+		.setImageType(vk::ImageType::e2D)
+		.setFormat(VulkanContext::GetSwapChain().GetFormat() /*vk::Format::eR32G32B32A32Sfloat*/)
+		.setExtent({ Engine::GetRenderResolution().x, Engine::GetRenderResolution().y, 1 })
+		.setMipLevels(1)
+		.setArrayLayers(1)
+		.setSamples(vk::SampleCountFlagBits::e1)
+		.setTiling(vk::ImageTiling::eOptimal)
+		.setUsage(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled)
+		.setSharingMode(vk::SharingMode::eExclusive)
+		.setInitialLayout(vk::ImageLayout::eUndefined);
 
-		myRenderTexture = VulkanAllocator::AllocateImage_TS("Render texture", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
-		myRenderTexture->CreateView(vk::ImageViewType::e2D);
-	}
-
-	myDepthBuffer = new VulkanDepthBuffer({ VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight() });
+	myRenderTexture = VulkanAllocator::AllocateImage_TS("Render texture", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+	myRenderTexture->CreateView(vk::ImageViewType::e2D);
+	
+	myDepthBuffer = VulkanAllocator::AllocateImage_TS(
+		"Depth texture",
+		VulkanImage::DepthCreateInfo({ VulkanContext::GetSwapChain().GetWidth(),VulkanContext::GetSwapChain().GetHeight() }),
+		VMA_MEMORY_USAGE_GPU_ONLY);
+	myDepthBuffer->CreateDepthView();
 }
 
 void RenderSystem::CreateRenderPass()

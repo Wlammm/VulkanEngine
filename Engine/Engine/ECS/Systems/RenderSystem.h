@@ -25,6 +25,7 @@ public:
 private:
 	void AddUploadPass(vk::CommandBuffer inCommandBuffer);
 	void AddMeshPass(vk::CommandBuffer inCommandBuffer);
+	void AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer);
 	void AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer);
 
 private:
@@ -54,6 +55,7 @@ private:
 
 	class MeshPipeline* myMeshPipeline = nullptr;
 	class FullscreenPipeline* myCopyPipeline = nullptr;
+	class ShadowPipeline* myShadowPipeline = nullptr;
 
 	vk::RenderPass myRenderPass;
 	vk::RenderPass myRenderTextureRenderPass;
@@ -69,6 +71,6 @@ private:
 		vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })),
 		vk::ClearDepthStencilValue(1.0f, 0u) };
 
-	class VulkanDepthBuffer* myDepthBuffer = nullptr;
+	class VulkanImage* myDepthBuffer = nullptr;
 	class VulkanImage* myRenderTexture = nullptr;
 };

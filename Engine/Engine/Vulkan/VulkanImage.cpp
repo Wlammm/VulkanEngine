@@ -46,6 +46,11 @@ void VulkanImage::CreateView(vk::ImageViewType inViewType, vk::ImageSubresourceR
 	myView = VulkanContext::GetDevice()->createImageView(createInfo);
 }
 
+void VulkanImage::CreateDepthView()
+{
+	CreateView(vk::ImageViewType::e2D, vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1));
+}
+
 vk::Image VulkanImage::GetAPIResource() const
 {
 	return myImage;
