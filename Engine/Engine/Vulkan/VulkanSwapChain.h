@@ -40,7 +40,6 @@ private:
 	int GetPresentQueueIndex() const;
 	vk::SurfaceFormatKHR PickSurfaceFormat() const;
 
-
 private:
 	const VulkanDevice& myDevice;
 
@@ -52,6 +51,8 @@ private:
 	List<vk::Semaphore> myDrawCompleteSemaphores;
 
 	uint myFrameIndex = 0; 
+	// We need a unique index for fences & semaphores that handles gpu waiting, since we need to wait for the correct fence before retreiving a new FrameIndex.
+	uint mySyncIndex = 0;
 
 	vk::SwapchainKHR mySwapChain;
 

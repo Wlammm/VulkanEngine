@@ -30,14 +30,13 @@ VulkanSwapChain::~VulkanSwapChain()
 void VulkanSwapChain::BeginFrame()
 {
 	// Wait for gpu to finish.
-	vk::Result result = myDevice->waitForFences(myFences[myFrameIndex], VK_TRUE, UINT64_MAX);
+	vk::Result result = myDevice->waitForFences(myFences[mySyncIndex], VK_TRUE, UINT64_MAX);
 	check(result == vk::Result::eSuccess);
-
-	myDevice->resetFences({ myFences[myFrameIndex] });
+	myDevice->resetFences({ myFences[mySyncIndex] });
 
 	do
 	{
-		result = myDevice->acquireNextImageKHR(mySwapChain, UINT64_MAX, myImageAcquiredSemaphores[myFrameIndex], vk::Fence(), &myFrameIndex);
+		result = myDevice->acquireNextImageKHR(mySwapChain, UINT64_MAX, myImageAcquiredSemaphores[mySyncIndex], vk::Fence(), &myFrameIndex);
 
 		if(result == vk::Result::eErrorOutOfDateKHR)
 		{
@@ -68,13 +67,13 @@ void VulkanSwapChain::EndFrame()
 
 	VulkanContext::GetDevice().GetGraphicsQueue().submit(vk::SubmitInfo()
 		.setWaitDstStageMask(pipelineStageFlags)
-		.setWaitSemaphores(myImageAcquiredSemaphores[myFrameIndex])
+		.setWaitSemaphores(myImageAcquiredSemaphores[mySyncIndex])
 		.setCommandBuffers(GetCommandBuffer())
-		.setSignalSemaphores(myDrawCompleteSemaphores[myFrameIndex]),
-		myFences[myFrameIndex]);
+		.setSignalSemaphores(myDrawCompleteSemaphores[mySyncIndex]),
+		myFences[mySyncIndex]);
 
 	const vk::PresentInfoKHR presentInfo = vk::PresentInfoKHR()
-		.setWaitSemaphores(myDrawCompleteSemaphores[myFrameIndex])
+		.setWaitSemaphores(myDrawCompleteSemaphores[mySyncIndex])
 		.setSwapchains(mySwapChain)
 		.setImageIndices(myFrameIndex);
 
@@ -104,8 +103,8 @@ void VulkanSwapChain::EndFrame()
 	{
 		check(result == vk::Result::eSuccess);
 	}
-	myFrameIndex += 1;
-	myFrameIndex %= VulkanContext::FrameLag;
+	mySyncIndex += 1;
+	mySyncIndex %= VulkanContext::FrameLag;
 }
 
 const vk::CommandBuffer& VulkanSwapChain::GetCommandBuffer() const
