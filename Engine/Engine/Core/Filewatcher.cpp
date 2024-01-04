@@ -74,6 +74,7 @@ void Filewatcher::WatchThread()
 	ZoneScoped;
 	while(myShouldRun)
 	{
+		myLock.lock();
 		for(auto& [path, fileData] : myFilesToWatch)
 		{
 			if(!std::filesystem::exists(path))
@@ -82,12 +83,11 @@ void Filewatcher::WatchThread()
 			const std::filesystem::file_time_type writeTime = std::filesystem::last_write_time(path);
 			if(writeTime != fileData.myLastModifiedTime)
 			{
-				myLock.lock();
 				myModifiedPaths.insert(&fileData);
 				fileData.myLastModifiedTime = writeTime;
-				myLock.unlock();
 			}
 		}
+		myLock.unlock();
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(30));
 	}

@@ -66,8 +66,9 @@ void VulkanStorageBuffer<T>::SetData(const T& inData)
 	{
 		vk::BufferCopy copyRegion = vk::BufferCopy().setSize(sizeof(T));
 		inCommandBuffer.copyBuffer(stagingBuffer->GetAPIResource(), myBuffer->GetAPIResource(), { copyRegion });
-		VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 	});
+
+	VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 }
 
 template<typename T>
