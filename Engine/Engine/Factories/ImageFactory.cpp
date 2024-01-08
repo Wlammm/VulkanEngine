@@ -38,7 +38,7 @@ VulkanImage* ImageFactory::CreateImageFromImageData(const ImageData& inImageData
 		.setSize(sizeof(size_t) * inImageData.myWidth * inImageData.myHeight)
 		.setUsage(vk::BufferUsageFlagBits::eTransferSrc)
 		.setSharingMode(vk::SharingMode::eExclusive);
-	VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("Texture staging buffer", stagingCreateInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("Texture staging buffer", stagingCreateInfo, VMA_MEMORY_USAGE_AUTO, true);
 
 	void* ptr = stagingBuffer->Map();
 	//check(inImageData.myChannels == 4); // Make sure channels is 4. We dont support anything else atm.
@@ -58,7 +58,7 @@ VulkanImage* ImageFactory::CreateImageFromImageData(const ImageData& inImageData
 		.setInitialLayout(vk::ImageLayout::eUndefined);
 
 	std::string imageName = "VulkanImage - " + inImageData.mySourceFile.string();
-	image = VulkanAllocator::AllocateImage_TS(imageName, createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+	image = VulkanAllocator::AllocateImage_TS(imageName, createInfo, VMA_MEMORY_USAGE_AUTO);
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
 														   .setObjectHandle(VulkanContext::GetVulkanHandle(image->GetAPIResource()))

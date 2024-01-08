@@ -51,15 +51,20 @@ void VulkanAllocator::Tick()
 	TickImageDeletes();
 }
 
-VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
+VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage, bool inMappable)
 {
 	VulkanBuffer* outBuffer = new VulkanBuffer();
 	VmaAllocationCreateInfo allocCreateInfo{};
 	allocCreateInfo.usage = inUsage;
+	if(inMappable)
+		allocCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
 	VkBuffer buffer;
 	VkBufferCreateInfo info = inCreateInfo;
-	vmaCreateBuffer(myInstance->myAllocator, &info, &allocCreateInfo, &buffer, &outBuffer->myAllocation, nullptr);
+	VkResult result = vmaCreateBuffer(myInstance->myAllocator, &info, &allocCreateInfo, &buffer, &outBuffer->myAllocation, nullptr);
+	check(result == VK_SUCCESS);
+
 	outBuffer->myBuffer = buffer;
+	outBuffer->myIsMappingAllowed = inMappable;
 
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
@@ -86,7 +91,8 @@ VulkanImage* VulkanAllocator::AllocateImage_TS(const std::string& inName, const 
 
 	VkImage image;
 	const VkImageCreateInfo info = inCreateInfo;
-	vmaCreateImage(myInstance->myAllocator, &info, &allocCreateInfo, &image, &outImage->myAllocation, nullptr);
+	VkResult result = vmaCreateImage(myInstance->myAllocator, &info, &allocCreateInfo, &image, &outImage->myAllocation, nullptr);
+	check(result == VK_SUCCESS);
 	outImage->myImage = image;
 	outImage->myFormat = inCreateInfo.format;
 

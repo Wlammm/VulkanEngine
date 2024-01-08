@@ -54,7 +54,7 @@ void VulkanStorageBuffer<T>::SetData(const T& inData)
 		.setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst)
 		.setSharingMode(VULKAN_HPP_NAMESPACE::SharingMode::eExclusive);
 	createInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
-	VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("Staging StorageBuffer", createInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("Staging StorageBuffer", createInfo, VMA_MEMORY_USAGE_AUTO, true);
 
 	check(!std::is_pointer<T>::value);
 	check(sizeof(T) <= mySize);

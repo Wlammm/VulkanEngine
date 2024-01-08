@@ -18,6 +18,9 @@
 #include "Serialization/BinaryReader.h"
 
 #include "Tracy/tracy/Tracy.hpp"
+#include "Vulkan/VulkanBuffer.h"
+#include "Vulkan/VulkanAllocator.h"
+#include "ECS/Systems/RenderSystem.h"
 
 void ModelFactory::SaveModelDataToBinary(const ModelData& inData, const std::filesystem::path& inSavePath)
 {
@@ -102,11 +105,13 @@ Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
 			Mesh& mesh = meshes.Emplace();
 
 			// Everything below needs to be handled in a thread safe way before we async load this.
-			mesh.VertexBuffer = new VulkanVertexBuffer(meshData.myVertices);
+			mesh.VertexBuffer = VulkanAllocator::AllocateBuffer_TS("VertexBuffer", VulkanBuffer::VertexBufferCreateInfo(meshData.myVertices), VMA_MEMORY_USAGE_AUTO);
+			mesh.VertexBuffer->SetData(meshData.myVertices.data(), sizeof(Vertex) * meshData.myVertices.size());
 			mesh.NumVertices = static_cast<uint>(meshData.myVertices.size());
+			RenderSystem::FlushUploadCommands();
+
 			mesh.IndexBuffer = new VulkanIndexBuffer(meshData.myIndices);
 			mesh.NumIndices = static_cast<uint>(meshData.myIndices.size());
-			
 
 			if (std::filesystem::exists(meshData.myAlbedoPath))
 			{

@@ -8,7 +8,7 @@ public:
 
 	void Tick();
 
-	static class VulkanBuffer* AllocateBuffer_TS(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage);
+	static class VulkanBuffer* AllocateBuffer_TS(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage, bool inMappable = false);
 	static void DestroyBuffer_TS(class VulkanBuffer* inBuffer);
 
 	static class VulkanImage* AllocateImage_TS(const std::string& inName, const vk::ImageCreateInfo& inCreateInfo, VmaMemoryUsage inUsage);

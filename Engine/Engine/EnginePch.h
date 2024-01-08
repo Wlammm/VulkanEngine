@@ -46,3 +46,6 @@
 
 #include "Engine/Containers/List.hpp"
 #include "Engine/Containers/MutexList.hpp"
+
+#include "Engine/Utils/OnScopeExit.h"
+#include "Engine/Utils/CommonMacros.h"

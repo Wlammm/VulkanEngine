@@ -5,6 +5,12 @@
 #include "Engine/Vulkan/VulkanUniformBuffer.hpp"
 #include "Engine/Vulkan/VulkanStorageBufferFwd.hpp"
 
+#if DEBUG
+#define GPUMARK_SCOPE(inCommandBuffer, inString) inCommandBuffer.beginDebugUtilsLabelEXT(inString); ON_SCOPE_EXIT([inCommandBuffer](){ inCommandBuffer.endDebugUtilsLabelEXT(); })
+#else
+#define GPUMARK_SCOPE(inCommandBuffer, inString)
+#endif
+
 class RenderSystem : public System, public EventObserver
 {
 public:
@@ -21,6 +27,7 @@ public:
 
 	static void AddUploadCommand_TS(void* inOwner, std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction);
 	static void RemoveUploadCommandsForOwner_TS(void* inOwner);
+	static void FlushUploadCommands();
 
 private:
 	void AddUploadPass(vk::CommandBuffer inCommandBuffer);

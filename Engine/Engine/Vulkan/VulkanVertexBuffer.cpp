@@ -14,7 +14,7 @@ VulkanVertexBuffer::VulkanVertexBuffer(const List<Vertex>& inVertices)
 		.setUsage(vk::BufferUsageFlagBits::eTransferSrc)
 		.setSharingMode(vk::SharingMode::eExclusive);
 
-	VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("Vertex staging buffer", stagingCreateInfo, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("Vertex staging buffer", stagingCreateInfo, VMA_MEMORY_USAGE_AUTO, true);
 	void* stagingMemory = stagingBuffer->Map();
 	memcpy(stagingMemory, inVertices.data(), inVertices.size() * sizeof(Vertex));
 	stagingBuffer->Unmap();
@@ -23,7 +23,7 @@ VulkanVertexBuffer::VulkanVertexBuffer(const List<Vertex>& inVertices)
 		.setSize(inVertices.size() * sizeof(Vertex))
 		.setUsage(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
 
-	myBuffer = VulkanAllocator::AllocateBuffer_TS("Vertex buffer", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+	myBuffer = VulkanAllocator::AllocateBuffer_TS("Vertex buffer", createInfo, VMA_MEMORY_USAGE_AUTO);
 
 	vk::CommandBuffer copyCmd = VulkanContext::GetDevice().CreateCommandBuffer(true);
 

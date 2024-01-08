@@ -15,7 +15,6 @@
 #include "Vulkan/VulkanShader.h"
 #include "Assets/Material.h"
 #include "Rendering/MeshPipeline.h"
-#include "Vulkan/VulkanVertexBuffer.h"
 #include "Rendering/FullscreenPipeline.h"
 #include "tracy/Tracy.hpp"
 #include "ECS/Components/Camera.h"
@@ -33,9 +32,7 @@ RenderSystem::RenderSystem()
 RenderSystem::~RenderSystem()
 {
 	// Flush out remaining upload commands as there might still be buffers waiting destruction in them.
-	vk::CommandBuffer buffer = VulkanContext::GetDevice().CreateCommandBuffer(true);
-	AddUploadPass(buffer);
-	VulkanContext::GetDevice().FlushCommandBuffer(buffer);
+	FlushUploadCommands();
 
 	LOG_WARNING("RenderSystem::~RenderSystem waits for gpu idle.");
 	VulkanContext::GetDevice()->waitIdle();
@@ -55,16 +52,17 @@ void RenderSystem::Tick()
 
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
-	commandBuffer.beginDebugUtilsLabelEXT("Frame");
 
-	AddUploadPass(commandBuffer);
-	//AddShadowGenerationPass(commandBuffer);
-	AddMeshPass(commandBuffer);
-	AddFullscreenCopyPass(commandBuffer);
-	
-	commandBuffer.endDebugUtilsLabelEXT();
+	{
+		GPUMARK_SCOPE(commandBuffer, "Frame");
+
+		AddUploadPass(commandBuffer);
+		//AddShadowGenerationPass(commandBuffer);
+		AddMeshPass(commandBuffer);
+		AddFullscreenCopyPass(commandBuffer);
+	}
+
 	commandBuffer.end();
-
 }
 
 vk::RenderPass& RenderSystem::GetRenderPass()
@@ -104,9 +102,16 @@ void RenderSystem::RemoveUploadCommandsForOwner_TS(void* inOwner)
 	myUploadCommandsMutex.unlock();
 }
 
+void RenderSystem::FlushUploadCommands()
+{
+	vk::CommandBuffer buffer = VulkanContext::GetDevice().CreateCommandBuffer(true);
+	myInstance->AddUploadPass(buffer);
+	VulkanContext::GetDevice().FlushCommandBuffer(buffer);
+}
+
 void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 {
-	inCommandBuffer.beginDebugUtilsLabelEXT("Upload Pass");
+	GPUMARK_SCOPE(inCommandBuffer, "UploadPass");
 	myUploadCommandsMutex.lock();
 
 	for(auto& [owner, func] : myUploadCommands)
@@ -116,14 +121,13 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 	myUploadCommands.Clear();
 
 	myUploadCommandsMutex.unlock();
-	inCommandBuffer.endDebugUtilsLabelEXT();
 }
 
 void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
 
-	inCommandBuffer.beginDebugUtilsLabelEXT("Mesh Pass");
+	GPUMARK_SCOPE(inCommandBuffer, "MeshPass");
 	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const StaticMesh>();
 	if (view.size_hint() == 0)
 		return;
@@ -149,7 +153,6 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 	myMeshPipeline->AddDrawCommands(inCommandBuffer);
 
 	inCommandBuffer.endRenderPass();
-	inCommandBuffer.endDebugUtilsLabelEXT();
 }
 
 void RenderSystem::AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer)
@@ -160,7 +163,7 @@ void RenderSystem::AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer)
 void RenderSystem::AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
-	inCommandBuffer.beginDebugUtilsLabelEXT("Fullscreen Copy Pass");
+	GPUMARK_SCOPE(inCommandBuffer, "FullscreenCopyPass");
 
 	// Temporary to change image format of swapchain textures.
 	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
@@ -196,7 +199,6 @@ void RenderSystem::AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer)
 		.setDstQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetPresentQueueIndex())
 		.setImage(VulkanContext::GetSwapChain().GetImage())
 		.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));*/
-	inCommandBuffer.endDebugUtilsLabelEXT();
 }
 
 void RenderSystem::CreateRenderResources()
@@ -247,13 +249,13 @@ void RenderSystem::CreateRenderTextures()
 		.setSharingMode(vk::SharingMode::eExclusive)
 		.setInitialLayout(vk::ImageLayout::eUndefined);
 
-	myRenderTexture = VulkanAllocator::AllocateImage_TS("Render texture", createInfo, VMA_MEMORY_USAGE_GPU_ONLY);
+	myRenderTexture = VulkanAllocator::AllocateImage_TS("Render texture", createInfo, VMA_MEMORY_USAGE_AUTO);
 	myRenderTexture->CreateView(vk::ImageViewType::e2D);
 	
 	myDepthBuffer = VulkanAllocator::AllocateImage_TS(
 		"Depth texture",
 		VulkanImage::DepthCreateInfo({ VulkanContext::GetSwapChain().GetWidth(),VulkanContext::GetSwapChain().GetHeight() }),
-		VMA_MEMORY_USAGE_GPU_ONLY);
+		VMA_MEMORY_USAGE_AUTO);
 	myDepthBuffer->CreateDepthView();
 }
 
