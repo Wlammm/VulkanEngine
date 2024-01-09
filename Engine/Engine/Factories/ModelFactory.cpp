@@ -2,12 +2,10 @@
 #include "ModelFactory.h"
 #include "Rendering/Vertex.hpp"
 
-
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include "Rendering/Mesh.h"
-#include "Vulkan/VulkanIndexBuffer.h"
 #include "Engine.h"
 #include "Assets/Material.h"
 #include "Assets/AssetRegistry.h"
@@ -107,10 +105,11 @@ Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
 			mesh.VertexBuffer = VulkanAllocator::AllocateBuffer_TS("VertexBuffer", VulkanBuffer::VertexBufferCreateInfo(meshData.myVertices), VMA_MEMORY_USAGE_AUTO);
 			mesh.VertexBuffer->SetData(meshData.myVertices.data(), sizeof(Vertex) * meshData.myVertices.size());
 			mesh.NumVertices = static_cast<uint>(meshData.myVertices.size());
-			RenderSystem::FlushUploadCommands();
 
-			mesh.IndexBuffer = new VulkanIndexBuffer(meshData.myIndices);
+			mesh.IndexBuffer = VulkanAllocator::AllocateBuffer_TS("IndexBuffer", VulkanBuffer::IndexBufferCreateInfo(meshData.myIndices), VMA_MEMORY_USAGE_AUTO);
+			mesh.IndexBuffer->SetData(meshData.myIndices.data(), sizeof(uint) * meshData.myIndices.size());
 			mesh.NumIndices = static_cast<uint>(meshData.myIndices.size());
+			RenderSystem::FlushUploadCommands();
 
 			if (std::filesystem::exists(meshData.myAlbedoPath))
 			{

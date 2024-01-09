@@ -2,7 +2,6 @@
 #include "Model.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
-#include "Vulkan/VulkanIndexBuffer.h"
 #include "Engine.h"
 #include "Assets/AssetRegistry.h"
 #include "Assets/Material.h"
@@ -21,7 +20,7 @@ Model::~Model()
 
 	for(Mesh& mesh : myMeshes)
 	{
-		del(mesh.IndexBuffer);
+		VulkanAllocator::DestroyBuffer_TS(mesh.IndexBuffer);
 		VulkanAllocator::DestroyBuffer_TS(mesh.VertexBuffer);
 	}
 }

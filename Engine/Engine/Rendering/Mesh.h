@@ -6,7 +6,7 @@ struct Mesh
 	uint NumIndices = 0;
 
 	class VulkanBuffer* VertexBuffer = nullptr;
-	class VulkanIndexBuffer* IndexBuffer = nullptr;
+	class VulkanBuffer* IndexBuffer = nullptr;
 
 	class Material* myMaterial = nullptr;
 

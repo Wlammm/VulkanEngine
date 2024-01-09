@@ -26,7 +26,7 @@ private:
 	List<vk::DescriptorSetLayoutBinding> myLayoutBindings;
 	List<vk::WriteDescriptorSet> mySetWrites;
 
-	// These are linked list so references arent broken one resize.
+	// These are linked list so references arent broken on resize.
 	std::list<vk::DescriptorBufferInfo> myBufferInfos;
 	std::list<vk::DescriptorImageInfo> myImageInfos;
 };

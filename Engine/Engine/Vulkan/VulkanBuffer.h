@@ -19,6 +19,14 @@ public:
 			.setUsage(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
 	}
 
+	static vk::BufferCreateInfo IndexBufferCreateInfo(const List<uint>& inIndices)
+	{
+		return vk::BufferCreateInfo()
+			.setSize(inIndices.size() * sizeof(uint))
+			.setUsage(vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer);
+
+	}
+
 public:
 	vk::Buffer GetAPIResource() const;
 
