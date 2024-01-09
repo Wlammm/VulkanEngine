@@ -7,7 +7,6 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include "Rendering/Mesh.h"
-#include "Vulkan/VulkanVertexBuffer.h"
 #include "Vulkan/VulkanIndexBuffer.h"
 #include "Engine.h"
 #include "Assets/Material.h"
