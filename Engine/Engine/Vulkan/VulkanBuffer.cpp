@@ -39,6 +39,13 @@ void VulkanBuffer::Unmap()
 	vmaUnmapMemory(VulkanAllocator::GetVMAAllocator(), myAllocation);
 }
 
+size_t VulkanBuffer::GetSize() const
+{
+	VmaAllocationInfo info;
+	vmaGetAllocationInfo(VulkanAllocator::GetVMAAllocator(), myAllocation, &info);
+	return info.size;
+}
+
 void VulkanBuffer::UploadMapped(void* inData, size_t inSize)
 {
 	void* ptr = Map();

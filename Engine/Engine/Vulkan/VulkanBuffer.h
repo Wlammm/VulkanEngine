@@ -27,13 +27,29 @@ public:
 
 	}
 
+	static vk::BufferCreateInfo UniformBufferCreateInfo(size_t inSize)
+	{
+		return vk::BufferCreateInfo()
+			.setSize(inSize)
+			.setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
+	}
+
 public:
 	vk::Buffer GetAPIResource() const;
 
 	void SetData(void* inData, const size_t inSize);
+	
+	template<typename T>
+	void SetData(T& inData)
+	{
+		static_assert(!std::is_pointer<T>::value && "Data type cannot be of pointer type");
+		SetData(&inData, sizeof(T));
+	}
 
 	void* Map();
 	void Unmap();
+
+	size_t GetSize() const;
 
 private:
 	// Only create and destroy this resource via VulkanAllocator.

@@ -27,6 +27,18 @@ MeshPipeline::MeshPipeline()
 	myFragmentShader = Engine::GetAssetRegistry().GetShader("FragmentShader.frag");
 	myFragmentShader->AddObserver(this);
 
+	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
+		"FrameDataBuffer",
+		VulkanBuffer::UniformBufferCreateInfo(sizeof(FrameData)),
+		VMA_MEMORY_USAGE_AUTO, 
+		true);
+
+	myObjectDataBuffer = VulkanAllocator::AllocateBuffer_TS(
+		"ObjectDataBuffer",
+		VulkanBuffer::UniformBufferCreateInfo(sizeof(ObjectData)),
+		VMA_MEMORY_USAGE_AUTO,
+		true);
+
 	CreateDescriptors();
 	CreatePipeline();
 
@@ -35,6 +47,9 @@ MeshPipeline::MeshPipeline()
 
 MeshPipeline::~MeshPipeline()
 {
+	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
+	VulkanAllocator::DestroyBuffer_TS(myObjectDataBuffer);
+
 	myVertexShader->RemoveObserver(this);
 	myFragmentShader->RemoveObserver(this);
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
@@ -77,12 +92,21 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 
 void MeshPipeline::CreateDescriptors()
 {
-	myFrameDescriptorSet.BindUniformBuffer(myFrameData);
+	myFrameDescriptorSet.BindBuffer(
+		myFrameDataBuffer, 
+		vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
+		0, 
+		vk::DescriptorType::eUniformBuffer);
+
 	myFrameDescriptorSet.BindStorageBuffer(myPointLightDataBuffer);
 	myFrameDescriptorSet.BindUniformBuffer(myDirectionalLightDataBuffer);
 	myFrameDescriptorSet.Build();
 
-	myObjectDescriptorSet.BindUniformBuffer(myObjectData);
+	myObjectDescriptorSet.BindBuffer(
+		myObjectDataBuffer,
+		vk::ShaderStageFlagBits::eVertex, 
+		0, 
+		vk::DescriptorType::eUniformBuffer);
 	myObjectDescriptorSet.Build();
 }
 
@@ -151,14 +175,15 @@ void MeshPipeline::CreatePipeline()
 
 void MeshPipeline::BuildFrameBuffer()
 {
-	FrameData& buffer = myFrameData.Get();
 	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const Camera>();
 
 	for (auto ent : view)
 	{
-		buffer.myProjection = view.get<const Camera>(ent).myProjection.Transposed();
-		buffer.myToView = view.get<const Transform>(ent).GetMatrix().FastInverse().Transposed();
-		buffer.myCameraPosition = view.get<const Transform>(ent).GetPosition();
+		FrameData data{};
+		data.myProjection = view.get<const Camera>(ent).myProjection.Transposed();
+		data.myToView = view.get<const Transform>(ent).GetMatrix().FastInverse().Transposed();
+		data.myCameraPosition = view.get<const Transform>(ent).GetPosition();
+		myFrameDataBuffer->SetData(data);
 		return;
 	}
 
@@ -202,8 +227,9 @@ void MeshPipeline::BuildDirectionalLightBuffer()
 
 void MeshPipeline::BuildObjectBuffer(const Transform& inTransform)
 {
-	ObjectData& buffer = myObjectData.Get();
-	buffer.myToWorld = inTransform.GetMatrix();
+	ObjectData data{};
+	data.myToWorld = inTransform.GetMatrix();
+	myObjectDataBuffer->SetData(data);
 }
 
 void MeshPipeline::OnAssetUpdated()

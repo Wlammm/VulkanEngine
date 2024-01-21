@@ -44,14 +44,15 @@ private:
 		Mat4f myProjection;
 		Vec3f myCameraPosition;
 	};
-	VulkanUniformBuffer<FrameData> myFrameData{vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0 };
+	VulkanBuffer* myFrameDataBuffer; /*{vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0 };*/
 
 	// ObjectDescriptorSet.
 	struct ObjectData
 	{
 		Mat4f myToWorld;
 	};
-	VulkanUniformBuffer<ObjectData> myObjectData{ vk::ShaderStageFlagBits::eVertex, 0 };
+	VulkanBuffer* myObjectDataBuffer;
+	//VulkanUniformBuffer<ObjectData> myObjectData{ vk::ShaderStageFlagBits::eVertex, 0 };
 
 	// FrameDescriptorSet.
 	struct alignas(16) PointLightData

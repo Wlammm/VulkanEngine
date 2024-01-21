@@ -7,6 +7,7 @@
 
 #include "Windows/WindowHandler.h"
 #include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanSwapChain.h"
 
 #include "ECS/SystemDispatcher.h"
 #include "ECS/Systems/RenderSystem.h"

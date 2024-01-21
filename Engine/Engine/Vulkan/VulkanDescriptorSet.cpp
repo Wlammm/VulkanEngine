@@ -71,6 +71,25 @@ void VulkanDescriptorSet::BindStorageBuffer(const IVulkanStorageBuffer& inStorag
 		.setBufferInfo(myBufferInfos.back());
 }
 
+void VulkanDescriptorSet::BindBuffer(const VulkanBuffer* inBuffer, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::DescriptorType inDescriptorType)
+{
+	myLayoutBindings.Emplace()
+		.setDescriptorCount(1)
+		.setDescriptorType(inDescriptorType)
+		.setStageFlags(inShaderStages)
+		.setBinding(inBindingIndex);
+
+	myBufferInfos.emplace_back()
+		.setOffset(0)
+		.setBuffer(inBuffer->GetAPIResource())
+		.setRange(inBuffer->GetSize());
+
+	mySetWrites.Emplace()
+		.setDescriptorType(inDescriptorType)
+		.setDstBinding(inBindingIndex)
+		.setBufferInfo(myBufferInfos.back());
+}
+
 void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags)
 {
 	myLayoutBindings.Add(vk::DescriptorSetLayoutBinding()
