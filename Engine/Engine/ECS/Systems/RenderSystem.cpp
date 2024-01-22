@@ -3,8 +3,6 @@
 #include "Engine.h"
 #include "World/World.h"
 #include "Assets/Model.h"
-#include "Rendering/Mesh.h"
-#include "Vulkan/VulkanPipeline.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanSwapChain.h"
 #include "Vulkan/VulkanImGui.h"

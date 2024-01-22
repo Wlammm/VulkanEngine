@@ -1,5 +1,4 @@
 #pragma once
-#include "Vulkan/VulkanUniformBuffer.hpp"
 #include "Vulkan/VulkanStorageBuffer.hpp"
 #include "Vulkan/VulkanDescriptorSet.h"
 #include "Assets/AssetObserver.h"
@@ -44,7 +43,7 @@ private:
 		Mat4f myProjection;
 		Vec3f myCameraPosition;
 	};
-	VulkanBuffer* myFrameDataBuffer; /*{vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0 };*/
+	VulkanBuffer* myFrameDataBuffer; 
 
 	// ObjectDescriptorSet.
 	struct ObjectData
@@ -52,7 +51,6 @@ private:
 		Mat4f myToWorld;
 	};
 	VulkanBuffer* myObjectDataBuffer;
-	//VulkanUniformBuffer<ObjectData> myObjectData{ vk::ShaderStageFlagBits::eVertex, 0 };
 
 	// FrameDescriptorSet.
 	struct alignas(16) PointLightData
@@ -73,5 +71,5 @@ private:
 		Color myColor;
 		Vec3f myDirection;
 	};
-	VulkanUniformBuffer<DirectionalLightBuffer> myDirectionalLightDataBuffer{ vk::ShaderStageFlagBits::eFragment, 2 };
+	VulkanBuffer* myDirectionalLightBuffer;
 };

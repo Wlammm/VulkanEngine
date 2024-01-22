@@ -4,7 +4,6 @@
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanDescriptorSet.h"
 
-class VulkanPipeline;
 class VulkanShader;
 
 class Material

@@ -39,6 +39,12 @@ MeshPipeline::MeshPipeline()
 		VMA_MEMORY_USAGE_AUTO,
 		true);
 
+	myDirectionalLightBuffer = VulkanAllocator::AllocateBuffer_TS(
+		"DirectionalLightBuffer", 
+		VulkanBuffer::UniformBufferCreateInfo(sizeof(DirectionalLightBuffer)), 
+		VMA_MEMORY_USAGE_AUTO, 
+		true);
+
 	CreateDescriptors();
 	CreatePipeline();
 
@@ -49,6 +55,7 @@ MeshPipeline::~MeshPipeline()
 {
 	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myObjectDataBuffer);
+	VulkanAllocator::DestroyBuffer_TS(myDirectionalLightBuffer);
 
 	myVertexShader->RemoveObserver(this);
 	myFragmentShader->RemoveObserver(this);
@@ -99,7 +106,12 @@ void MeshPipeline::CreateDescriptors()
 		vk::DescriptorType::eUniformBuffer);
 
 	myFrameDescriptorSet.BindStorageBuffer(myPointLightDataBuffer);
-	myFrameDescriptorSet.BindUniformBuffer(myDirectionalLightDataBuffer);
+	myFrameDescriptorSet.BindBuffer(
+		myDirectionalLightBuffer,
+		vk::ShaderStageFlagBits::eFragment, 
+		2, 
+		vk::DescriptorType::eUniformBuffer);
+
 	myFrameDescriptorSet.Build();
 
 	myObjectDescriptorSet.BindBuffer(
@@ -212,13 +224,14 @@ void MeshPipeline::BuildPointLightBuffer()
 
 void MeshPipeline::BuildDirectionalLightBuffer()
 {
-	DirectionalLightBuffer& buffer = myDirectionalLightDataBuffer.Get();
+	DirectionalLightBuffer buffer = {};
 	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const DirectionalLight>();
 
 	for (auto [ent, transform, light] : view.each())
 	{
 		buffer.myColor = light.myColor;
 		buffer.myDirection = transform.GetForward();
+		myDirectionalLightBuffer->SetData(buffer);
 		return;
 	}
 	buffer.myColor = Color(0, 0, 0, 0);

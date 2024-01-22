@@ -10,11 +10,25 @@
 #include "ECS/Components/Transform.h"
 #include "ECS/Components/StaticMesh.h"
 #include "ECS/Components/DirectionalLight.h"
+#include "Vulkan/VulkanBuffer.h"
+#include "Vulkan/VulkanAllocator.h"
 
 ShadowPipeline::ShadowPipeline()
 {
 	myVertexShader = Engine::GetAssetRegistry().GetShader("VertexShader.vert");
 	myVertexShader->AddObserver(this);
+
+	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
+		"FrameDataBuffer",
+		VulkanBuffer::UniformBufferCreateInfo(sizeof(FrameData)),
+		VMA_MEMORY_USAGE_AUTO,
+		true);
+
+	myObjectDataBuffer = VulkanAllocator::AllocateBuffer_TS(
+		"ObjectDataBuffer",
+		VulkanBuffer::UniformBufferCreateInfo(sizeof(ObjectData)),
+		VMA_MEMORY_USAGE_AUTO,
+		true);
 
 	CreateRenderPass();
 	CreateDescriptors();
@@ -25,6 +39,9 @@ ShadowPipeline::ShadowPipeline()
 
 ShadowPipeline::~ShadowPipeline()
 {
+	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
+	VulkanAllocator::DestroyBuffer_TS(myObjectDataBuffer);
+
 	myVertexShader->RemoveObserver(this);
 
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
@@ -87,10 +104,10 @@ void ShadowPipeline::OnAssetUpdated()
 
 void ShadowPipeline::CreateDescriptors()
 {
-	myFrameDescriptorSet.BindUniformBuffer(myFrameDataBuffer);
+	myFrameDescriptorSet.BindBuffer(myFrameDataBuffer, vk::ShaderStageFlagBits::eVertex, 0, vk::DescriptorType::eUniformBuffer);
 	myFrameDescriptorSet.Build();
 
-	myObjectDescriptorSet.BindUniformBuffer(myObjectDataBuffer);
+	myObjectDescriptorSet.BindBuffer(myObjectDataBuffer, vk::ShaderStageFlagBits::eVertex, 0, vk::DescriptorType::eUniformBuffer);
 	myObjectDescriptorSet.Build();
 }
 
@@ -193,9 +210,8 @@ void ShadowPipeline::CreatePipeline()
 
 void ShadowPipeline::BuildFrameBuffer(const DirectionalLight& inLight)
 {
-	FrameData& buffer = myFrameDataBuffer.Get();
-
-	
+	FrameData buffer = {};
+	myFrameDataBuffer->SetData(buffer);
 
 	//for (auto ent : view)
 	//{
@@ -211,7 +227,9 @@ void ShadowPipeline::BuildFrameBuffer(const DirectionalLight& inLight)
 
 void ShadowPipeline::BuildObjectBuffer(const Transform& inTransform)
 {
-	ObjectData& buffer = myObjectDataBuffer.Get();
+	ObjectData buffer = {};
 	buffer.myToWorld = inTransform.GetMatrix();
+
+	myObjectDataBuffer->SetData(buffer);
 }
 

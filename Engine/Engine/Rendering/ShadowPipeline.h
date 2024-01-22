@@ -1,7 +1,6 @@
 #pragma once
 #include "Assets/AssetObserver.h"
 #include "Vulkan/VulkanDescriptorSet.h"
-#include "Vulkan/VulkanUniformBuffer.hpp"
 
 class VulkanShader;
 class Transform;
@@ -44,11 +43,11 @@ private:
 		Mat4f myToView;
 		Mat4f myProjection;
 	};
-	VulkanUniformBuffer<FrameData> myFrameDataBuffer{ vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0 };
+	VulkanBuffer* myFrameDataBuffer;
 
 	struct ObjectData
 	{
 		Mat4f myToWorld;
 	};
-	VulkanUniformBuffer<ObjectData> myObjectDataBuffer{ vk::ShaderStageFlagBits::eVertex, 0 };
+	VulkanBuffer* myObjectDataBuffer;
 };

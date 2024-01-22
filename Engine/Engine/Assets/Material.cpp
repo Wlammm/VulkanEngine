@@ -4,7 +4,6 @@
 #include "ECS/Systems/RenderSystem.h"
 #include "Engine/Assets/AssetRegistry.h"
 
-#include "Vulkan/VulkanPipeline.h"
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanImage.h"
 #include "Vulkan/VulkanContext.h"
