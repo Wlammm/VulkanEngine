@@ -65,6 +65,7 @@ VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, cons
 
 	outBuffer->myBuffer = buffer;
 	outBuffer->myIsMappingAllowed = inMappable;
+	outBuffer->mySize = inCreateInfo.size;
 
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()

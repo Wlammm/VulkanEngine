@@ -65,6 +65,7 @@ private:
 	VmaAllocation myAllocation;
 	vk::Buffer myBuffer;
 
+	size_t mySize = 0;
 	bool myIsMappingAllowed = false;
 
 #ifdef DEBUG

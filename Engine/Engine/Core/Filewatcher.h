@@ -27,11 +27,6 @@ public:
 		List<CallbackHandle> myCallbackIDIndexList;
 		List<std::function<void()>> myCallbacks;
 		std::filesystem::file_time_type myLastModifiedTime;
-
-		//bool operator<(const FileData& inOther) const
-		//{
-		//	return myLastModifiedTime < inOther.myLastModifiedTime && myCallbacks.size() < inOther.myCallbacks.size();
-		//}
 	};
 
 public:

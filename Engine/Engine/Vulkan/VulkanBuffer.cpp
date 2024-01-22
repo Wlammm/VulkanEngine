@@ -11,10 +11,7 @@ vk::Buffer VulkanBuffer::GetAPIResource() const
 
 void VulkanBuffer::SetData(void* inData, const size_t inSize)
 {
-	VmaAllocationInfo allocInfo = {};
-	vmaGetAllocationInfo(VulkanAllocator::GetVMAAllocator(), myAllocation, &allocInfo);
-
-	check(inSize <= allocInfo.size);
+	check(inSize <= mySize);
 
 	if(myIsMappingAllowed)
 	{
@@ -41,9 +38,7 @@ void VulkanBuffer::Unmap()
 
 size_t VulkanBuffer::GetSize() const
 {
-	VmaAllocationInfo info;
-	vmaGetAllocationInfo(VulkanAllocator::GetVMAAllocator(), myAllocation, &info);
-	return info.size;
+	return mySize;
 }
 
 void VulkanBuffer::UploadMapped(void* inData, size_t inSize)
