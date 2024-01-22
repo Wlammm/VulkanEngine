@@ -8,6 +8,8 @@
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanDescriptorSet.h"
+#include "Vulkan/VulkanBuffer.h"
+#include "Vulkan/VulkanAllocator.h"
 
 #include "Vertex.hpp"
 #include "World/World.h"
@@ -45,6 +47,11 @@ MeshPipeline::MeshPipeline()
 		VMA_MEMORY_USAGE_AUTO, 
 		true);
 
+	myPointLightBuffer = VulkanAllocator::AllocateBuffer_TS(
+		"PointLightBuffer", 
+		VulkanBuffer::StorageBufferCreateInfo(sizeof(PointLightData)), 
+		VMA_MEMORY_USAGE_AUTO);
+
 	CreateDescriptors();
 	CreatePipeline();
 
@@ -56,6 +63,7 @@ MeshPipeline::~MeshPipeline()
 	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myObjectDataBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myDirectionalLightBuffer);
+	VulkanAllocator::DestroyBuffer_TS(myPointLightBuffer);
 
 	myVertexShader->RemoveObserver(this);
 	myFragmentShader->RemoveObserver(this);
@@ -105,7 +113,12 @@ void MeshPipeline::CreateDescriptors()
 		0, 
 		vk::DescriptorType::eUniformBuffer);
 
-	myFrameDescriptorSet.BindStorageBuffer(myPointLightDataBuffer);
+	myFrameDescriptorSet.BindBuffer(
+		myPointLightBuffer, 
+		vk::ShaderStageFlagBits::eFragment, 
+		1, 
+		vk::DescriptorType::eStorageBuffer);
+
 	myFrameDescriptorSet.BindBuffer(
 		myDirectionalLightBuffer,
 		vk::ShaderStageFlagBits::eFragment, 
@@ -219,7 +232,7 @@ void MeshPipeline::BuildPointLightBuffer()
 		lightIndex++;
 	}
 	myPointLightData.myNumLights = lightIndex;
-	myPointLightDataBuffer.SetData(myPointLightData);
+	myPointLightBuffer->SetData(myPointLightData);
 }
 
 void MeshPipeline::BuildDirectionalLightBuffer()

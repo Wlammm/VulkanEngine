@@ -1,5 +1,4 @@
 #pragma once
-#include "Vulkan/VulkanStorageBuffer.hpp"
 #include "Vulkan/VulkanDescriptorSet.h"
 #include "Assets/AssetObserver.h"
 
@@ -63,7 +62,7 @@ private:
 			float myRange = 0;
 		} myLights[10];
 	} myPointLightData;
-	VulkanStorageBuffer<PointLightData> myPointLightDataBuffer{ vk::ShaderStageFlagBits::eFragment, 1 };
+	VulkanBuffer* myPointLightBuffer;
 
 	// FrameDescriptorSet.
 	struct DirectionalLightBuffer

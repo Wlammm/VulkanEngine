@@ -34,6 +34,14 @@ public:
 			.setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
 	}
 
+	static vk::BufferCreateInfo StorageBufferCreateInfo(size_t inSize)
+	{
+		return vk::BufferCreateInfo()
+			.setSize(inSize)
+			.setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst)
+			.setSharingMode(vk::SharingMode::eExclusive);
+	}
+
 public:
 	vk::Buffer GetAPIResource() const;
 
