@@ -71,9 +71,11 @@ void Engine::Tick()
 	ZoneScoped;
 	Time::Tick();
 
+#if !TRACY_ENABLE // Disable fps limit when we're profiling.
 	constexpr float targetFPS = 144.f;
 	long long sleepTimeMicroseconds = static_cast<long long>((1.0f / targetFPS - Time::GetDeltaTime()) * 1000000);
 	std::this_thread::sleep_for(std::chrono::microseconds(sleepTimeMicroseconds));
+#endif
 
 	myWindowHandler->Tick();
 
