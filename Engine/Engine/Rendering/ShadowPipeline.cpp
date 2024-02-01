@@ -12,6 +12,7 @@
 #include "ECS/Components/DirectionalLight.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanAllocator.h"
+#include "ECS/Components/Camera.h"
 
 ShadowPipeline::ShadowPipeline()
 {
@@ -59,27 +60,41 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 	if (meshView.size_hint() == 0)
 		return;
 
-	//inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-	//								.setRenderPass(myRenderPass)
-	//								.setFramebuffer(GetVkFrameBuffer())
-	//								.setPClearValues(myClearValues)
-	//								.setClearValueCount(2)
-	//								.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
-	//								, vk::SubpassContents::eInline);
-	//
-	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
-
-	for (const auto [entity, transform, light] : directionalLightView.each())
+	const vk::ClearValue clearValue = vk::ClearDepthStencilValue(1.0f, 0u);
+	for (const auto [entity, lightTransform, light] : directionalLightView.each())
 	{
-		BuildFrameBuffer(light);
+		if (!light.myShadowMap)
+			continue;
+
+		inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
+										.setRenderPass(myRenderPass)
+										.setFramebuffer(light.myFrameBuffer)
+										.setPClearValues(&clearValue)
+										.setClearValueCount(1)
+										.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(light.myShadowMap->GetSize().x, light.myShadowMap->GetSize().y)))
+										, vk::SubpassContents::eInline);
+
+		inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
+
+		inCommandBuffer.setViewport(0, vk::Viewport()
+									.setX(0)
+									.setY(0)
+									.setWidth(static_cast<float>(light.myShadowMap->GetSize().x))
+									.setHeight(static_cast<float>(light.myShadowMap->GetSize().y))
+									.setMinDepth(0.0f)
+									.setMaxDepth(1.0f));
+
+		inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(light.myShadowMap->GetSize().x, light.myShadowMap->GetSize().y)));
+
+		BuildFrameBuffer(lightTransform, light);
 		inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
 
-		for (const auto [entity, transform, mesh] : meshView.each())
+		for (const auto [entity, meshTransform, mesh] : meshView.each())
 		{
 			if (!mesh.myModel)
 				continue;
 
-			BuildObjectBuffer(transform);
+			BuildObjectBuffer(meshTransform);
 			inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, myObjectDescriptorSet.GetSet(), {});
 
 			for (const Mesh& mesh : mesh.myModel->GetMeshes())
@@ -91,7 +106,31 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 				inCommandBuffer.drawIndexed(mesh.NumIndices, 1, 0, 0, 0);
 			}
 		}
+
+		//vk::ImageMemoryBarrier barrier = vk::ImageMemoryBarrier()
+		//	.setOldLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal)
+		//	.setNewLayout(vk::ImageLayout::eReadOnlyOptimal)
+		//	.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		//	.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		//	.setImage(light.myShadowMap->GetAPIResource())
+		//	.setSubresourceRange(vk::ImageSubresourceRange()
+		//						 .setAspectMask(vk::ImageAspectFlagBits::eDepth)
+		//						 .setBaseMipLevel(0)
+		//						 .setLevelCount(1)
+		//						 .setBaseArrayLayer(0)
+		//						 .setLayerCount(1))
+		//	.setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+		//	.setDstAccessMask(vk::AccessFlagBits::eShaderRead);
+		//
+		//inCommandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eLateFragmentTests, vk::PipelineStageFlagBits::eFragmentShader, {}, {}, {}, barrier);
+
+		inCommandBuffer.endRenderPass();
 	}
+}
+
+vk::RenderPass ShadowPipeline::GetRenderPass() const
+{
+	return myRenderPass;
 }
 
 void ShadowPipeline::OnAssetUpdated()
@@ -122,8 +161,8 @@ void ShadowPipeline::CreateRenderPass()
 			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
 			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
 			.setInitialLayout(vk::ImageLayout::eUndefined)
-			.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal),
-	};
+			.setFinalLayout(vk::ImageLayout::eReadOnlyOptimal),
+	};// VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL
 	const auto depthReference = vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
 	const auto subpass = vk::SubpassDescription()
@@ -208,21 +247,30 @@ void ShadowPipeline::CreatePipeline()
 
 }
 
-void ShadowPipeline::BuildFrameBuffer(const DirectionalLight& inLight)
+void ShadowPipeline::BuildFrameBuffer(const Transform& inLightTransform, const DirectionalLight& inLight)
 {
 	FrameData buffer = {};
-	myFrameDataBuffer->SetData(buffer);
 
-	//for (auto ent : view)
-	//{
-	//	buffer.myProjection = view.get<const Camera>(ent).myProjection.Transposed();
-	//	buffer.myToView = view.get<const Transform>(ent).GetMatrix().FastInverse().Transposed();
-	//	buffer.myCameraPosition = view.get<const Transform>(ent).GetPosition();
-	//	return;
-	//}
+	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const Camera>();
 
-	LOG("No render camera found.");
+	for(auto [ent, transform, cam] : view.each())
+	{
+		constexpr float distanceFromView = 10000.0f;
+		Vec3f shadowCamPos = transform.GetPosition() - (inLightTransform.GetForward() * -1.f * distanceFromView);
+		Mat4f toView = Mat4f::CreateTranslation(shadowCamPos);
+		toView.LookTowards(transform.GetPosition());
+		Camera shadowCam{};
+		constexpr float renderArea = 1000.0f;
+		shadowCam.CreateOrthographic({ renderArea, renderArea });
 
+		buffer.myProjection = shadowCam.myProjection.Transposed();
+		buffer.myToView = toView.FastInverse().Transposed();
+
+		// This shouldnt be needed for this pass. It should only be used in pixel shader for lighting. (I think)
+		buffer.myCameraPosition = Vec3f(0, 0, 0);
+		myFrameDataBuffer->SetData(buffer);
+		return;
+	}
 }
 
 void ShadowPipeline::BuildObjectBuffer(const Transform& inTransform)

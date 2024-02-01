@@ -12,6 +12,19 @@
 World::World()
 {
 	myAssetRegistry = new AssetRegistry();
+
+	{
+		// This is a temporary solution until we can work with bindless textures.
+		auto entity = myRegistry.create();
+		auto& transform = myRegistry.emplace<Transform>(entity);
+		transform.SetScale(1);
+		transform.SetRotationDeg(-90, 0, 0);
+
+		auto& light = myRegistry.emplace<DirectionalLight>(entity);
+		light.myColor = Color(1, 1, 1, 1);
+		//light.CreateShadowMap({ 1024, 1024 });
+		myDirectionalLight = &light;
+	}
 }
 
 World::~World()
@@ -63,16 +76,6 @@ void World::Init()
 		light.myColor = Color(0, 8, 0, 1);
 		light.myRange = 500 + PI;
 	}
-
-	{
-		entity = myRegistry.create();
-		auto& transform = myRegistry.emplace<Transform>(entity);
-		transform.SetScale(1);
-		transform.SetRotationDeg(-90, 0, 0);
-
-		auto& light = myRegistry.emplace<DirectionalLight>(entity);
-		light.myColor = Color(1, 1, 1, 1);
-	}
 }
 
 entt::registry& World::GetRegistry()
@@ -83,4 +86,9 @@ entt::registry& World::GetRegistry()
 AssetRegistry& World::GetAssetRegistry()
 {
 	return *myAssetRegistry;
+}
+
+const DirectionalLight& World::GetDirectionalLight() const
+{
+	return *myDirectionalLight;
 }

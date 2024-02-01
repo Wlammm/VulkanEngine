@@ -10,6 +10,7 @@ layout(location = 2) in vec3 inFragPos;
 layout(set=2, binding = 0) uniform sampler2D albedo;
 layout(set=2, binding = 1) uniform sampler2D normal;
 layout(set=2, binding = 2) uniform sampler2D material;
+layout(set=0, binding = 3) uniform sampler2D inDirectionalLightShadowMap;
 
 layout(set = 0, binding = 0) uniform FrameBuffer 
 {
@@ -24,7 +25,6 @@ struct PointLight
     vec3 myPosition;
     float myRange;
 };
-
 layout(std430, set = 0, binding = 1) readonly buffer PointLightBuffer
 {
     int myNumLights;
@@ -35,6 +35,10 @@ layout(set = 0, binding = 2) uniform DirectionalLightBuffer
 {
     vec4 myColor;
     vec3 myDirection;
+
+    mat4 myLightView;
+    mat4 myLightProjection;
+    
 } inDirectionalLightBuffer;
 
 void main()
@@ -50,7 +54,7 @@ void main()
         pointLightColors += CalculatePointLightColor(inFragPos, normal, myCameraPosition, inPointLightBuffer.myLights[i].myPosition, inPointLightBuffer.myLights[i].myColor, inPointLightBuffer.myLights[i].myRange);
     }
 
-    vec4 directionalLightColors = CalculateDirectionalLightColor(inFragPos, normal, myCameraPosition, inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor);
+    vec4 directionalLightColors = CalculateDirectionalLightColor(inFragPos, normal, myCameraPosition, inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor, inDirectionalLightBuffer.myLightView, inDirectionalLightBuffer.myLightProjection, inDirectionalLightShadowMap);
 
     outColor = LinearToGamma((CalculateAmbientLightColor() + directionalLightColors + pointLightColors) * albedoColor);
 }

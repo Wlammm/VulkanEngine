@@ -1,17 +1,24 @@
 #pragma once
+#include "Core/AutoInit.h"
 
-class World 
+struct DirectionalLight;
+
+class World : public AutoInit
 {
 public:
 	World();
 	~World();
 
-	void Init();
+	void Init() override final;
 
 	entt::registry& GetRegistry();
 	class AssetRegistry& GetAssetRegistry();
 
+	const DirectionalLight& GetDirectionalLight() const;
+
 private:
 	entt::registry myRegistry{};
 	class AssetRegistry* myAssetRegistry = nullptr;
+
+	const DirectionalLight* myDirectionalLight = nullptr;
 };

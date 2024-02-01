@@ -6,7 +6,6 @@ class System
 public:
 	virtual ~System() {}
 
-	virtual void Init() {}
 	virtual void Tick() {};
 
 	bool IsInitializedCorrectly() const { return myHasSetDependencies; }

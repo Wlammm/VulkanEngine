@@ -14,7 +14,6 @@
 
 #include "World/World.h"
 #include "ECS/Systems/CameraSystem.h"
-#include "Vulkan/VulkanImGui.h"
 #include "Events/EventHandler.h"
 #include "Assets/AssetRegistry.h"
 #include "Core/ThreadPool.h"
@@ -23,6 +22,7 @@
 
 #include "Tracy/tracy/Tracy.hpp"
 #include "ECS/Systems/PointLightSystem.h"
+#include "Core/AutoInitManager.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -42,12 +42,8 @@ Engine::Engine(const EngineProperties inEngineProperties)
 
 	// This might cause issues in the future.
 	CreateSystems();
-	myAssetRegistry->Init();
-
-	VulkanImGui::Start();
 
 	SetWorld(new World());
-	GetWorld().Init();
 }
 
 Engine::~Engine()
@@ -70,6 +66,7 @@ void Engine::Tick()
 	FrameMark;
 	ZoneScoped;
 	Time::Tick();
+	AutoInitManager::Tick();
 
 #if !TRACY_ENABLE // Disable fps limit when we're profiling.
 	constexpr float targetFPS = 144.f;

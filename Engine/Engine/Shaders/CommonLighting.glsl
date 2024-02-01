@@ -44,9 +44,32 @@ vec4 CalculateAmbientLightColor()
     return ambientColor;
 }
 
-vec4 CalculateDirectionalLightColor(vec3 inFragPos, vec3 inNormal, vec3 inCameraPos, vec3 inLightDirection, vec4 inLightColor)
+vec4 CalculateDirectionalLightColor(vec3 inFragPos, vec3 inNormal, vec3 inCameraPos, vec3 inLightDirection, vec4 inLightColor, mat4 inLightView, mat4 inLightProjection, sampler2D inDirectionalLightShadowMap)
 {
     vec3 lightDir = normalize(-inLightDirection);
     
-    return inLightColor * GetLightFactorFromLightDir(inFragPos, inNormal, inCameraPos, inLightColor, lightDir);
+    vec4 lightValue = inLightColor * GetLightFactorFromLightDir(inFragPos, inNormal, inCameraPos, inLightColor, lightDir);
+
+    vec4 worldToLightView = inLightView * vec4(inFragPos, 1.0);
+    vec4 lightViewToLightProjection = inLightProjection * worldToLightView;
+
+    vec2 projectedTexCoord;
+    projectedTexCoord.x = lightViewToLightProjection.x / lightViewToLightProjection.w / 2.0 + 0.5;
+    projectedTexCoord.y = -lightViewToLightProjection.y / lightViewToLightProjection.w / 2.0 + 0.5;
+
+    if(saturate(projectedTexCoord.x) == projectedTexCoord.x &&
+        saturate(projectedTexCoord.y) == projectedTexCoord.y)
+    {
+        const float shadowBias = 0.0005;
+        float shadow = 0.0;
+
+        float viewDepth = (lightViewToLightProjection.z / lightViewToLightProjection.w) - shadowBias;
+
+        float sampledDepth = texture(inDirectionalLightShadowMap, projectedTexCoord).r;
+
+        if(sampledDepth < viewDepth)
+            lightValue *= shadow;
+    }
+
+    return lightValue;
 }

@@ -2,6 +2,7 @@
 
 #include "Engine/ECS/System.h"
 #include "Engine/Events/EventObserver.h"
+#include "Engine/Core/AutoInit.h"
 
 #if DEBUG
 #define GPUMARK_SCOPE(inCommandBuffer, inString) inCommandBuffer.beginDebugUtilsLabelEXT(inString); ON_SCOPE_EXIT([inCommandBuffer](){ inCommandBuffer.endDebugUtilsLabelEXT(); })
@@ -9,7 +10,7 @@
 #define GPUMARK_SCOPE(inCommandBuffer, inString)
 #endif
 
-class RenderSystem : public System, public EventObserver
+class RenderSystem : public System, public EventObserver, public AutoInit
 {
 public:
 	RenderSystem();
@@ -26,6 +27,8 @@ public:
 	static void AddUploadCommand_TS(void* inOwner, std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction);
 	static void RemoveUploadCommandsForOwner_TS(void* inOwner);
 	static void FlushUploadCommands();
+
+	static const class ShadowPipeline& GetShadowPipeline();
 
 private:
 	void AddUploadPass(vk::CommandBuffer inCommandBuffer);

@@ -59,6 +59,7 @@ private:
 #endif
 		VK_KHR_SURFACE_EXTENSION_NAME,
 		VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+		VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
 	};
 
 	const List<const char*> myLayers

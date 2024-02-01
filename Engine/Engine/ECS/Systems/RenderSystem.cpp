@@ -42,6 +42,7 @@ RenderSystem::~RenderSystem()
 void RenderSystem::Init()
 {
 	CreateRenderResources();
+	VulkanImGui::Start();
 }
 
 void RenderSystem::Tick()
@@ -55,7 +56,7 @@ void RenderSystem::Tick()
 		GPUMARK_SCOPE(commandBuffer, "Frame");
 
 		AddUploadPass(commandBuffer);
-		//AddShadowGenerationPass(commandBuffer);
+		AddShadowGenerationPass(commandBuffer);
 		AddMeshPass(commandBuffer);
 		AddFullscreenCopyPass(commandBuffer);
 	}
@@ -105,6 +106,11 @@ void RenderSystem::FlushUploadCommands()
 	vk::CommandBuffer buffer = VulkanContext::GetDevice().CreateCommandBuffer(true);
 	myInstance->AddUploadPass(buffer);
 	VulkanContext::GetDevice().FlushCommandBuffer(buffer);
+}
+
+const ShadowPipeline& RenderSystem::GetShadowPipeline()
+{
+	return *myInstance->myShadowPipeline;
 }
 
 void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
@@ -228,9 +234,9 @@ void RenderSystem::DestroyRenderResources()
 
 void RenderSystem::CreatePipelines()
 {
+	myShadowPipeline = new ShadowPipeline();
 	myMeshPipeline = new MeshPipeline();
 	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetShader("FullscreenCopy.frag"), myRenderTexture);
-	myShadowPipeline = new ShadowPipeline();
 }
 
 void RenderSystem::CreateRenderTextures()

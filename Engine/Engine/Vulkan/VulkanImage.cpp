@@ -51,6 +51,11 @@ void VulkanImage::CreateDepthView()
 	CreateView(vk::ImageViewType::e2D, vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1));
 }
 
+const Vec2ui& VulkanImage::GetSize() const
+{
+	return mySize;
+}
+
 vk::Image VulkanImage::GetAPIResource() const
 {
 	return myImage;

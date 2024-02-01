@@ -14,6 +14,8 @@ public:
 
 	void AddCommands(const vk::CommandBuffer inCommandBuffer);
 
+	vk::RenderPass GetRenderPass() const;
+
 private:
 	// Inherited via AssetObserver
 	virtual void OnAssetUpdated() override;
@@ -22,7 +24,7 @@ private:
 	void CreateRenderPass();
 	void CreatePipeline();
 
-	void BuildFrameBuffer(const DirectionalLight& inLight);
+	void BuildFrameBuffer(const Transform& inLightTransform, const DirectionalLight& inLight);
 	void BuildObjectBuffer(const Transform& inTransform);
 
 private:
@@ -42,6 +44,7 @@ private:
 	{
 		Mat4f myToView;
 		Mat4f myProjection;
+		Vec3f myCameraPosition;
 	};
 	VulkanBuffer* myFrameDataBuffer;
 

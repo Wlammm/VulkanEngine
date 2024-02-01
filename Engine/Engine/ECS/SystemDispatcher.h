@@ -13,7 +13,6 @@ public:
 	void AddSystem()
 	{
 		mySystems.Add(new T());
-		mySystems.Last()->Init();
 		myRequireRebuild = true;
 	}
 

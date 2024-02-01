@@ -1,5 +1,6 @@
 #pragma once
 #include "Model.h"
+#include "Core/AutoInit.h"
 
 using FileName = std::filesystem::path;
 using FullPath = std::filesystem::path;
@@ -29,13 +30,13 @@ struct std::hash<MaterialCreateInfo>
 	}
 };
 
-class AssetRegistry
+class AssetRegistry : public AutoInit
 {
 public:
 	AssetRegistry();
 	~AssetRegistry();
 
-	void Init();
+	void Init() override final;
 
 	class Model* GetModel(const std::filesystem::path& inPath);
 	class VulkanShader* GetShader(const std::filesystem::path& inPath);

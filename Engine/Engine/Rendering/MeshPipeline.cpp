@@ -82,6 +82,7 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 	BuildFrameBuffer();
 	BuildPointLightBuffer();
 	BuildDirectionalLightBuffer();
+
 	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
 
 	for (const auto [entity, transform, mesh] : view.each())
@@ -124,6 +125,15 @@ void MeshPipeline::CreateDescriptors()
 		vk::ShaderStageFlagBits::eFragment, 
 		2, 
 		vk::DescriptorType::eUniformBuffer);
+
+	if (!Engine::GetWorld().GetDirectionalLight().myShadowMap)
+		Engine::GetWorld().GetDirectionalLight().CreateShadowMap({ 4096, 4096 });
+
+	myFrameDescriptorSet.BindImage(
+		Engine::GetWorld().GetDirectionalLight().myShadowMap, 
+		VulkanUtils::GetSampler(SamplerMode::Clamp), 
+		3, 
+		vk::ShaderStageFlagBits::eFragment);
 
 	myFrameDescriptorSet.Build();
 
