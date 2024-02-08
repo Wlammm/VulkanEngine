@@ -50,20 +50,20 @@ vec4 CalculateDirectionalLightColor(vec3 inFragPos, vec3 inNormal, vec3 inCamera
     
     vec4 lightValue = inLightColor * GetLightFactorFromLightDir(inFragPos, inNormal, inCameraPos, inLightColor, lightDir);
 
-    vec4 worldToLightView = inLightView * vec4(inFragPos, 1.0);
-    vec4 lightViewToLightProjection = inLightProjection * worldToLightView;
+    vec4 lightViewPos = vec4(inFragPos, 1.0) * inLightView;
+    vec4 lightProjPos = lightViewPos * inLightProjection;
 
     vec2 projectedTexCoord;
-    projectedTexCoord.x = lightViewToLightProjection.x / lightViewToLightProjection.w / 2.0 + 0.5;
-    projectedTexCoord.y = -lightViewToLightProjection.y / lightViewToLightProjection.w / 2.0 + 0.5;
+    projectedTexCoord.x = lightProjPos.x / lightProjPos.w / 2.0 + 0.5;
+    projectedTexCoord.y = lightProjPos.y / lightProjPos.w / 2.0 + 0.5;
 
     if(saturate(projectedTexCoord.x) == projectedTexCoord.x &&
         saturate(projectedTexCoord.y) == projectedTexCoord.y)
     {
-        const float shadowBias = 0.0005;
+        const float shadowBias = 0.00005;
         float shadow = 0.0;
 
-        float viewDepth = (lightViewToLightProjection.z / lightViewToLightProjection.w) - shadowBias;
+        float viewDepth = (lightProjPos.z / lightProjPos.w) - shadowBias;
 
         float sampledDepth = texture(inDirectionalLightShadowMap, projectedTexCoord).r;
 

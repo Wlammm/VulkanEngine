@@ -157,11 +157,11 @@ void ShadowPipeline::CreateRenderPass()
 			.setFormat(myShadowMapFormat)
 			.setSamples(vk::SampleCountFlagBits::e1)
 			.setLoadOp(vk::AttachmentLoadOp::eClear)
-			.setStoreOp(vk::AttachmentStoreOp::eDontCare)
+			.setStoreOp(vk::AttachmentStoreOp::eStore)
 			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
 			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
 			.setInitialLayout(vk::ImageLayout::eUndefined)
-			.setFinalLayout(vk::ImageLayout::eReadOnlyOptimal),
+			.setFinalLayout(vk::ImageLayout::eDepthStencilReadOnlyOptimal),
 	};// VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL
 	const auto depthReference = vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
@@ -174,10 +174,10 @@ void ShadowPipeline::CreateRenderPass()
 		vk::SubpassDependency() 
 			.setSrcSubpass(VK_SUBPASS_EXTERNAL)
 			.setDstSubpass(0)
-			.setSrcStageMask(stages)
-			.setDstStageMask(stages)
+			.setSrcStageMask(vk::PipelineStageFlagBits::eEarlyFragmentTests)
+			.setDstStageMask(vk::PipelineStageFlagBits::eLateFragmentTests)
 			.setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
-			.setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+			.setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead)
 			.setDependencyFlags(vk::DependencyFlags()),
 	};
 
@@ -251,26 +251,12 @@ void ShadowPipeline::BuildFrameBuffer(const Transform& inLightTransform, const D
 {
 	FrameData buffer = {};
 
-	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const Camera>();
+	buffer.myProjection = inLight.myLightProjection;
+	buffer.myToView = inLight.myLightView;
 
-	for(auto [ent, transform, cam] : view.each())
-	{
-		constexpr float distanceFromView = 10000.0f;
-		Vec3f shadowCamPos = transform.GetPosition() - (inLightTransform.GetForward() * -1.f * distanceFromView);
-		Mat4f toView = Mat4f::CreateTranslation(shadowCamPos);
-		toView.LookTowards(transform.GetPosition());
-		Camera shadowCam{};
-		constexpr float renderArea = 1000.0f;
-		shadowCam.CreateOrthographic({ renderArea, renderArea });
-
-		buffer.myProjection = shadowCam.myProjection.Transposed();
-		buffer.myToView = toView.FastInverse().Transposed();
-
-		// This shouldnt be needed for this pass. It should only be used in pixel shader for lighting. (I think)
-		buffer.myCameraPosition = Vec3f(0, 0, 0);
-		myFrameDataBuffer->SetData(buffer);
-		return;
-	}
+	// This shouldnt be needed for this pass. It should only be used in pixel shader for lighting. (I think)
+	buffer.myCameraPosition = Vec3f(0, 0, 0);
+	myFrameDataBuffer->SetData(buffer);
 }
 
 void ShadowPipeline::BuildObjectBuffer(const Transform& inTransform)

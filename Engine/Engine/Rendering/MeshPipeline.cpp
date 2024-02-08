@@ -133,8 +133,8 @@ void MeshPipeline::CreateDescriptors()
 		Engine::GetWorld().GetDirectionalLight().myShadowMap, 
 		VulkanUtils::GetSampler(SamplerMode::Clamp), 
 		3, 
-		vk::ShaderStageFlagBits::eFragment);
-
+		vk::ShaderStageFlagBits::eFragment,
+		vk::ImageLayout::eDepthStencilReadOnlyOptimal);
 	myFrameDescriptorSet.Build();
 
 	myObjectDescriptorSet.BindBuffer(
@@ -254,6 +254,8 @@ void MeshPipeline::BuildDirectionalLightBuffer()
 	{
 		buffer.myColor = light.myColor;
 		buffer.myDirection = transform.GetForward();
+		buffer.myLightView = light.myLightView;
+		buffer.myLightProjection = light.myLightProjection;
 		myDirectionalLightBuffer->SetData(buffer);
 		return;
 	}

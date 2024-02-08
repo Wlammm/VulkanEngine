@@ -7,6 +7,8 @@
 struct DirectionalLight
 {
 	Color myColor;
+	Mat4f myLightView;
+	Mat4f myLightProjection;
 
 	// These are temporarily mutable so we can have createshadowmap const until we work with bindless textures for shadow maps.
 	mutable VulkanImage* myShadowMap;

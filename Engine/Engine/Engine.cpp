@@ -23,6 +23,7 @@
 #include "Tracy/tracy/Tracy.hpp"
 #include "ECS/Systems/PointLightSystem.h"
 #include "Core/AutoInitManager.h"
+#include "ECS/Systems/DirectionalLightSystem.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -163,7 +164,8 @@ void Engine::SetEditorTickFunction(const std::function<void()> inEditorTickFunct
 
 void Engine::CreateSystems()
 {
-	mySystemDispatcher->AddSystem<RenderSystem>();
 	mySystemDispatcher->AddSystem<CameraSystem>();
 	mySystemDispatcher->AddSystem<PointLightSystem>();
+	mySystemDispatcher->AddSystem<DirectionalLightSystem>();
+	mySystemDispatcher->AddSystem<RenderSystem>();
 }

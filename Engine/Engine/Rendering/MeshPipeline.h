@@ -69,6 +69,9 @@ private:
 	{
 		Color myColor;
 		Vec3f myDirection;
+		float padding;
+		Mat4f myLightView;
+		Mat4f myLightProjection;
 	};
 	VulkanBuffer* myDirectionalLightBuffer;
 };

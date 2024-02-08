@@ -161,6 +161,8 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 
 void RenderSystem::AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer)
 {
+	ZoneScoped;
+	GPUMARK_SCOPE(inCommandBuffer, "ShadowMapGenerationPass");
 	myShadowPipeline->AddCommands(inCommandBuffer);
 }
 

@@ -35,6 +35,7 @@ layout(set = 0, binding = 2) uniform DirectionalLightBuffer
 {
     vec4 myColor;
     vec3 myDirection;
+    float padding;
 
     mat4 myLightView;
     mat4 myLightProjection;
@@ -49,10 +50,10 @@ void main()
 
     vec4 pointLightColors = vec4(0, 0, 0, 0);
 
-    for(int i = 0; i < inPointLightBuffer.myNumLights; ++i)
+    /*for(int i = 0; i < inPointLightBuffer.myNumLights; ++i)
     {
         pointLightColors += CalculatePointLightColor(inFragPos, normal, myCameraPosition, inPointLightBuffer.myLights[i].myPosition, inPointLightBuffer.myLights[i].myColor, inPointLightBuffer.myLights[i].myRange);
-    }
+    }*/
 
     vec4 directionalLightColors = CalculateDirectionalLightColor(inFragPos, normal, myCameraPosition, inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor, inDirectionalLightBuffer.myLightView, inDirectionalLightBuffer.myLightProjection, inDirectionalLightShadowMap);
 
