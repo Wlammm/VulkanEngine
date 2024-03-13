@@ -42,15 +42,15 @@ private:
 
 	struct FrameData
 	{
-		Mat4f myToView;
-		Mat4f myProjection;
-		Vec3f myCameraPosition;
+		glm::mat4 myToView;
+		glm::mat4 myProjection;
+		glm::vec3 myCameraPosition;
 	};
 	VulkanBuffer* myFrameDataBuffer;
 
 	struct ObjectData
 	{
-		Mat4f myToWorld;
+		glm::mat4 myToWorld;
 	};
 	VulkanBuffer* myObjectDataBuffer;
 };

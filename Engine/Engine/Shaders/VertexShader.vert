@@ -25,12 +25,8 @@ layout(set = 1, binding = 0) uniform ObjectBuffer
 
 void main()
 {
-	vec4 objectPos = inPosition;
-	vec4 worldPos = objectPos * myToWorld;
-	vec4 viewPos = worldPos * myToView;
-	vec4 projPos = viewPos * myProjection;
-	gl_Position = projPos;
-	outNormal = mat3(transpose(inverse(myToWorld))) * inNormal.xyz;
-	outFragPos = vec3(worldPos);
+	gl_Position = myProjection * myToView * myToWorld * inPosition;
+	outNormal = normalize(mat3(transpose(inverse(myToWorld))) * inNormal.xyz);
+	outFragPos = vec3(myToWorld * inPosition);
 	outTexCoord = inTexCoords[0];
 }

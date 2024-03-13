@@ -13,8 +13,9 @@ vec4 GammaToLinear(vec4 inGamma)
 float GetLightFactorFromLightDir(vec3 inFragPos, vec3 inNormal, vec3 inCameraPos, vec4 inLightColor, vec3 inLightDir)
 {
     vec3 normal = normalize(inNormal);
-    float diffuseFactor = max(dot(inNormal, inLightDir), 0.0);
-    
+    vec3 lightDir = normalize(inLightDir);
+    float diffuseFactor = max(dot(inNormal, lightDir), 0.0);
+    return diffuseFactor;
     // Specular
     float shininess = 32;
     vec3 viewDir    = normalize(inCameraPos - inFragPos);
@@ -39,37 +40,45 @@ vec4 CalculatePointLightColor(vec3 inFragPos, vec3 inNormal, vec3 inCameraPos, v
 vec4 CalculateAmbientLightColor()
 {
     vec4 ambientLightColor = vec4(1, 1, 1, 1);
-    float ambientStrength = 0.005;
+    float ambientStrength = 0.105;
     vec4 ambientColor = ambientStrength * ambientLightColor;
     return ambientColor;
 }
 
 vec4 CalculateDirectionalLightColor(vec3 inFragPos, vec3 inNormal, vec3 inCameraPos, vec3 inLightDirection, vec4 inLightColor, mat4 inLightView, mat4 inLightProjection, sampler2D inDirectionalLightShadowMap)
 {
-    vec3 lightDir = normalize(-inLightDirection);
+    vec3 lightDir = normalize(inLightDirection);
     
     vec4 lightValue = inLightColor * GetLightFactorFromLightDir(inFragPos, inNormal, inCameraPos, inLightColor, lightDir);
 
-    vec4 lightViewPos = vec4(inFragPos, 1.0) * inLightView;
-    vec4 lightProjPos = lightViewPos * inLightProjection;
+    vec4 fragPosInLightSpace = vec4(inFragPos, 1.0) * inLightView * inLightProjection;
+    float fragLightDistance = fragPosInLightSpace.z / fragPosInLightSpace.w;
 
-    vec2 projectedTexCoord;
-    projectedTexCoord.x = lightProjPos.x / lightProjPos.w / 2.0 + 0.5;
-    projectedTexCoord.y = lightProjPos.y / lightProjPos.w / 2.0 + 0.5;
+    vec2 fragPosShadowMapTexCoord = fragPosInLightSpace.xy / fragPosInLightSpace.w;
+    float sampledDepth = texture(inDirectionalLightShadowMap, fragPosShadowMapTexCoord).r;
 
-    if(saturate(projectedTexCoord.x) == projectedTexCoord.x &&
-        saturate(projectedTexCoord.y) == projectedTexCoord.y)
-    {
-        const float shadowBias = 0.00005;
-        float shadow = 0.0;
+    if(fragLightDistance - sampledDepth > epsilon)
+        lightValue *= 0;
 
-        float viewDepth = (lightProjPos.z / lightProjPos.w) - shadowBias;
-
-        float sampledDepth = texture(inDirectionalLightShadowMap, projectedTexCoord).r;
-
-        if(sampledDepth < viewDepth)
-            lightValue *= shadow;
-    }
+    //vec4 lightViewPos = vec4(inFragPos, 1.0) * inLightView;
+    //vec4 lightProjPos = lightViewPos * inLightProjection;
+    //vec2 projectedTexCoord;
+    //projectedTexCoord.x = lightProjPos.x / lightProjPos.w / 2.0 + 0.5;
+    //projectedTexCoord.y = lightProjPos.y / lightProjPos.w / 2.0 + 0.5;
+//
+    //if(saturate(projectedTexCoord.x) == projectedTexCoord.x &&
+    //    saturate(projectedTexCoord.y) == projectedTexCoord.y)
+    //{
+    //    const float shadowBias = 0.00005 ;
+    //    float shadow = 0.0;
+//
+    //    float viewDepth = (lightProjPos.z / lightProjPos.w) - shadowBias;
+//
+    //    float sampledDepth = texture(inDirectionalLightShadowMap, projectedTexCoord).r;
+//
+    //    if(sampledDepth < viewDepth)
+    //        lightValue *= shadow;
+    //}
 
     return lightValue;
 }

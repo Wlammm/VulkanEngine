@@ -114,9 +114,9 @@ VulkanAllocator& VulkanContext::GetAllocator()
 	return *myInstance->myAllocator;
 }
 
-Vec2f VulkanContext::GetRenderResolution()
+glm::vec2 VulkanContext::GetRenderResolution()
 {
-	return Vec2f{ static_cast<float>(GetSwapChain().GetWidth()), static_cast<float>(GetSwapChain().GetHeight()) };
+	return glm::vec2{ static_cast<float>(GetSwapChain().GetWidth()), static_cast<float>(GetSwapChain().GetHeight()) };
 }
 
 void VulkanContext::BeginFrame()

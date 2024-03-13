@@ -71,7 +71,7 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 										.setFramebuffer(light.myFrameBuffer)
 										.setPClearValues(&clearValue)
 										.setClearValueCount(1)
-										.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(light.myShadowMap->GetSize().x, light.myShadowMap->GetSize().y)))
+										.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(static_cast<uint>(light.myShadowMap->GetSize().x), static_cast<uint>(light.myShadowMap->GetSize().y))))
 										, vk::SubpassContents::eInline);
 
 		inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
@@ -84,7 +84,7 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 									.setMinDepth(0.0f)
 									.setMaxDepth(1.0f));
 
-		inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(light.myShadowMap->GetSize().x, light.myShadowMap->GetSize().y)));
+		inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(static_cast<uint>(light.myShadowMap->GetSize().x), static_cast<uint>(light.myShadowMap->GetSize().y))));
 
 		BuildFrameBuffer(lightTransform, light);
 		inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
@@ -255,7 +255,7 @@ void ShadowPipeline::BuildFrameBuffer(const Transform& inLightTransform, const D
 	buffer.myToView = inLight.myLightView;
 
 	// This shouldnt be needed for this pass. It should only be used in pixel shader for lighting. (I think)
-	buffer.myCameraPosition = Vec3f(0, 0, 0);
+	buffer.myCameraPosition = glm::vec3(0, 0, 0);
 	myFrameDataBuffer->SetData(buffer);
 }
 

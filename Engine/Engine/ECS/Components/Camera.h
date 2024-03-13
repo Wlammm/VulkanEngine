@@ -2,8 +2,8 @@
 
 struct Camera 
 {
-	Vec2f myResolution;
-	Mat4f myProjection;
+	glm::vec2 myResolution;
+	glm::mat4 myProjection;
 
 	float myFov = 90.0f;
 	float myNearPlane = 1.0f;
@@ -11,24 +11,26 @@ struct Camera
 
 	bool myIsOrthographic = false;
 
-	void CreateOrthographic(const Vec2f& inResolution, const float inNearPlane = 1.0f, const float inFarPlane = 100000.0f)
+	void CreateOrthographic(const glm::vec2& inResolution, const float inNearPlane = 1.0f, const float inFarPlane = 100000.0f)
 	{
 		myNearPlane = inNearPlane;
 		myFarPlane = inFarPlane;
 		myResolution = inResolution;
 
-		myProjection = Mat4f::CreateOrthographic(inResolution, inNearPlane, inFarPlane);
+		myProjection = glm::ortho(0.0f, inResolution.x, 0.0f, inResolution.y, inNearPlane, inFarPlane);
+		myProjection[1][1] *= -1;
 		myIsOrthographic = true;
 	}
 
-	void CreatePerspective(const Vec2f& inResolution, const float inFov = 90.0f, const float inNearPlane = 1.0f, const float inFarPlane = 100000.0f)
+	void CreatePerspective(const glm::vec2& inResolution, const float inFov = 90.0f, const float inNearPlane = 1.0f, const float inFarPlane = 100000.0f)
 	{
 		myFov = inFov;
 		myNearPlane = inNearPlane;
 		myFarPlane = inFarPlane;
 		myResolution = inResolution;
 
-		myProjection = Mat4f::CreatePerspective(inResolution, inFov, inNearPlane, inFarPlane);
+		const float aspectRatio = inResolution.x / inResolution.y;
+		myProjection = glm::perspective(glm::radians(inFov / aspectRatio), aspectRatio, inNearPlane, inFarPlane);
 		myIsOrthographic = false;
 	}
 };

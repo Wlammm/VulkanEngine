@@ -158,7 +158,7 @@ void ModelFactory::GetModelDataFromFbx(const std::filesystem::path& inPath, Mode
 	static thread_local Assimp::Importer myImporter{};
 
 	uint flags = aiProcessPreset_TargetRealtime_MaxQuality |
-		//aiProcess_ConvertToLeftHanded |
+		aiProcess_ConvertToLeftHanded |
 		aiProcess_Triangulate |
 		aiProcess_CalcTangentSpace |
 		aiProcess_SortByPType |

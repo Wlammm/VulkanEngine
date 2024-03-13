@@ -38,16 +38,16 @@ private:
 	// FrameDescriptorSet.
 	struct FrameData
 	{
-		Mat4f myToView;
-		Mat4f myProjection;
-		Vec3f myCameraPosition;
+		glm::mat4 myToView;
+		glm::mat4 myProjection;
+		glm::vec3 myCameraPosition;
 	};
 	VulkanBuffer* myFrameDataBuffer; 
 
 	// ObjectDescriptorSet.
 	struct ObjectData
 	{
-		Mat4f myToWorld;
+		glm::mat4 myToWorld;
 	};
 	VulkanBuffer* myObjectDataBuffer;
 
@@ -57,8 +57,8 @@ private:
 		int myNumLights;
 		struct alignas(16)
 		{
-			Color myColor = { 0, 0, 0, 0 };
-			Vec3f myPosition = { 0, 0, 0 };
+			glm::vec4 myColor = { 0, 0, 0, 0 };
+			glm::vec3 myPosition = { 0, 0, 0 };
 			float myRange = 0;
 		} myLights[10];
 	} myPointLightData;
@@ -67,11 +67,11 @@ private:
 	// FrameDescriptorSet.
 	struct DirectionalLightBuffer
 	{
-		Color myColor;
-		Vec3f myDirection;
+		glm::vec4 myColor;
+		glm::vec3 myDirection;
 		float padding;
-		Mat4f myLightView;
-		Mat4f myLightProjection;
+		glm::mat4 myLightView;
+		glm::mat4 myLightProjection;
 	};
 	VulkanBuffer* myDirectionalLightBuffer;
 };

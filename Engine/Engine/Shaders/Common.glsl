@@ -1,3 +1,5 @@
+#define epsilon 0.00001
+
 float saturate(float inValue)
 {
     return clamp(inValue, 0.0, 1.0);

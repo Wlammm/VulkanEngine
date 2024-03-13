@@ -47,22 +47,22 @@ bool Input::IsKeyPressed(const MouseButton aMouseButton)
 	return IsKeyPressed(static_cast<int>(aMouseButton));
 }
 
-const Vec2ui& Input::GetMousePosition()
+const glm::vec2& Input::GetMousePosition()
 {
 	return myMousePos;
 }
 
-const Vec2ui& Input::GetMousePositionClientRelative()
+const glm::vec2& Input::GetMousePositionClientRelative()
 {
 	return myMousePosClientRelative;
 }
 
-const Vec2i Input::GetMouseDelta()
+const glm::vec2 Input::GetMouseDelta()
 {
 	return { static_cast<int>(myMousePos.x) - static_cast<int>(myMousePosLastFrame.x), static_cast<int>(myMousePos.y) - static_cast<int>(myMousePosLastFrame.y) };
 }
 
-const Vec2i Input::GetMouseDeltaClientRelative()
+const glm::vec2 Input::GetMouseDeltaClientRelative()
 {
 	return { static_cast<int>(myMousePosClientRelative.x) - static_cast<int>(myMousePosClientRelativeLastFrame.x), static_cast<int>(myMousePosClientRelative.y) - static_cast<int>(myMousePosClientRelativeLastFrame.y) };
 }
@@ -130,11 +130,11 @@ bool Input::UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam)
 		POINT p;
 		if (GetCursorPos(&p))
 		{
-			myMousePos.x = p.x;
-			myMousePos.y = p.y;
+			myMousePos.x = static_cast<float>(p.x);
+			myMousePos.y = static_cast<float>(p.y);
 		}
-		myMousePosClientRelative.x = GET_X_LPARAM(lParam);
-		myMousePosClientRelative.y = GET_Y_LPARAM(lParam);
+		myMousePosClientRelative.x = static_cast<float>(GET_X_LPARAM(lParam));
+		myMousePosClientRelative.y = static_cast<float>(GET_Y_LPARAM(lParam));
 		detectMessage = true;
 		break;
 

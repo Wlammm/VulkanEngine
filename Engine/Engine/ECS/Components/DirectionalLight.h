@@ -6,9 +6,9 @@
 
 struct DirectionalLight
 {
-	Color myColor;
-	Mat4f myLightView;
-	Mat4f myLightProjection;
+	glm::vec4 myColor;
+	glm::mat4 myLightView;
+	glm::mat4 myLightProjection;
 
 	// These are temporarily mutable so we can have createshadowmap const until we work with bindless textures for shadow maps.
 	mutable VulkanImage* myShadowMap;
@@ -23,7 +23,7 @@ struct DirectionalLight
 			VulkanContext::GetDevice()->destroyFramebuffer(myFrameBuffer);
 	}
 
-	void CreateShadowMap(const Vec2ui& inSize) const 
+	void CreateShadowMap(const glm::vec2& inSize) const 
 	{
 		myShadowMap = VulkanAllocator::AllocateImage_TS("DirectionalLight ShadowMap", VulkanImage::ShadowMapCreateInfo(inSize), VMA_MEMORY_USAGE_AUTO);
 		myShadowMap->CreateDepthView();
@@ -32,8 +32,8 @@ struct DirectionalLight
 		myFrameBuffer = VulkanContext::GetDevice()->createFramebuffer(vk::FramebufferCreateInfo()
 									.setRenderPass(RenderSystem::GetShadowPipeline().GetRenderPass())
 									.setAttachments(attachments)
-									.setWidth(myShadowMap->GetSize().x)
-									.setHeight(myShadowMap->GetSize().y)
+									.setWidth(static_cast<uint>(myShadowMap->GetSize().x))
+									.setHeight(static_cast<uint>(myShadowMap->GetSize().y))
 									.setLayers(1));
 	}
 };

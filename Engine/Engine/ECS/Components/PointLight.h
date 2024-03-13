@@ -2,6 +2,6 @@
 
 struct PointLight
 {
-	Color myColor;
+	glm::vec4 myColor;
 	float myRange;
 };

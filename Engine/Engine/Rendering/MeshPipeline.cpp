@@ -164,7 +164,7 @@ void MeshPipeline::CreatePipeline()
 		.setRasterizerDiscardEnable(VK_FALSE)
 		.setPolygonMode(vk::PolygonMode::eFill)
 		.setCullMode(vk::CullModeFlagBits::eBack)
-		.setFrontFace(vk::FrontFace::eClockwise)
+		.setFrontFace(vk::FrontFace::eCounterClockwise)
 		.setDepthBiasEnable(VK_FALSE)
 		.setLineWidth(1.0f);
 
@@ -215,8 +215,8 @@ void MeshPipeline::BuildFrameBuffer()
 	for (auto ent : view)
 	{
 		FrameData data{};
-		data.myProjection = view.get<const Camera>(ent).myProjection.Transposed();
-		data.myToView = view.get<const Transform>(ent).GetMatrix().FastInverse().Transposed();
+		data.myProjection = view.get<const Camera>(ent).myProjection;
+		data.myToView = glm::affineInverse(view.get<const Transform>(ent).GetMatrix());
 		data.myCameraPosition = view.get<const Transform>(ent).GetPosition();
 		myFrameDataBuffer->SetData(data);
 		return;
@@ -259,7 +259,7 @@ void MeshPipeline::BuildDirectionalLightBuffer()
 		myDirectionalLightBuffer->SetData(buffer);
 		return;
 	}
-	buffer.myColor = Color(0, 0, 0, 0);
+	buffer.myColor = glm::vec4(0, 0, 0, 0);
 	LOG("No directional light found.");
 }
 

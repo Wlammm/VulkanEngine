@@ -4,12 +4,12 @@
 class VulkanImage
 {
 public:
-	static vk::ImageCreateInfo DepthCreateInfo(const Vec2ui& inResolution)
+	static vk::ImageCreateInfo DepthCreateInfo(const glm::vec2& inResolution)
 	{
 		const vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
 			.setImageType(vk::ImageType::e2D)
 			.setFormat(vk::Format::eD32Sfloat)
-			.setExtent({ inResolution.x, inResolution.y, 1 })
+			.setExtent({ static_cast<uint>(inResolution.x), static_cast<uint>(inResolution.y), 1 })
 			.setMipLevels(1)
 			.setArrayLayers(1)
 			.setSamples(vk::SampleCountFlagBits::e1)
@@ -21,12 +21,12 @@ public:
 		return createInfo;
 	}
 
-	static vk::ImageCreateInfo ShadowMapCreateInfo(const Vec2ui& inResolution)
+	static vk::ImageCreateInfo ShadowMapCreateInfo(const glm::vec2& inResolution)
 	{
 		const vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
 			.setImageType(vk::ImageType::e2D)
 			.setFormat(vk::Format::eD32Sfloat)
-			.setExtent({ inResolution.x, inResolution.y, 1 })
+			.setExtent({ static_cast<uint>(inResolution.x), static_cast<uint>(inResolution.y), 1 })
 			.setMipLevels(1)
 			.setArrayLayers(1)
 			.setSamples(vk::SampleCountFlagBits::e1)
@@ -48,7 +48,7 @@ public:
 
 	void CreateDepthView();
 
-	const Vec2ui& GetSize() const;
+	const glm::vec2& GetSize() const;
 
 private:
 	// Only create & destroy via allocator.
@@ -66,7 +66,7 @@ private:
 	vk::Image myImage;
 	vk::ImageView myView;
 	vk::Format myFormat;
-	Vec2ui mySize;
+	glm::vec2 mySize;
 
 #ifdef DEBUG
 	std::string myName = "";

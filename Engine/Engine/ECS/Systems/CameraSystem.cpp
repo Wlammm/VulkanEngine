@@ -3,7 +3,6 @@
 #include "Engine.h"
 #include "World/World.h"
 #include "Core/Input.h"
-#include "Math/Maths.hpp"
 #include "Vulkan/VulkanContext.h"
 #include "ECS/Components/Transform.h"
 #include "ECS/Components/Camera.h"
@@ -19,7 +18,7 @@ void CameraSystem::Tick()
 
 	for(auto [ent, cam, transform] : view.each())
 	{
-		Vec3f movement{};
+		glm::vec3 movement{};
 
 		if(Input::IsKeyPressed(KeyCode::W))
 		{
@@ -64,16 +63,16 @@ void CameraSystem::Tick()
 
 		if (Input::IsKeyPressed(MouseButton::Right))
 		{
-			Vec2f mouseDelta = Input::GetMouseDelta().Cast<float>() / Engine::GetRenderResolution().Cast<float>();
+			glm::vec2 mouseDelta = Input::GetMouseDelta() / Engine::GetRenderResolution();
 
-			static float yaw = -transform.GetRotationRad().y;
-			static float pitch = -transform.GetRotationRad().x;
+			static float yaw = transform.GetRotationRad().y;
+			static float pitch = transform.GetRotationRad().x;
 
-			yaw += mouseDelta.x * myMouseSensitivity;
+			yaw += -mouseDelta.x * myMouseSensitivity;
 			pitch += mouseDelta.y * myMouseSensitivity;
-			pitch = Clamp(-PI*0.5f + 0.001f, PI * 0.5f - 0.001f, pitch);
+			pitch = glm::clamp(-glm::pi<float>()*0.5f + 0.001f, glm::pi<float>() * 0.5f - 0.001f, pitch);
 
-			transform.SetRotationRad({ pitch, -yaw, 0.0f });
+			transform.SetRotationRad({ pitch, yaw, 0.0f });
 		}
 	}
 }

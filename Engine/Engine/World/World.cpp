@@ -21,7 +21,7 @@ World::World()
 		transform.SetRotationDeg(-90, 0, 0);
 
 		auto& light = myRegistry.emplace<DirectionalLight>(entity);
-		light.myColor = Color(1, 1, 1, 1);
+		light.myColor = glm::vec4(1, 1, 1, 1);
 		//light.CreateShadowMap({ 1024, 1024 });
 		myDirectionalLight = &light;
 	}
@@ -61,7 +61,7 @@ void World::Init()
 		transform.SetPosition(0, 150, 0);
 
 		auto& light = myRegistry.emplace<PointLight>(entity);
-		light.myColor = Color(0, 8, 10, 1);
+		light.myColor = glm::vec4(0, 8, 10, 1);
 		light.myRange = 500.0f;
 	}
 
@@ -73,8 +73,8 @@ void World::Init()
 		transform.SetPosition(0, 150, 0);
 
 		auto& light = myRegistry.emplace<PointLight>(entity);
-		light.myColor = Color(0, 8, 0, 1);
-		light.myRange = 500 + PI;
+		light.myColor = glm::vec4(0, 8, 0, 1);
+		light.myRange = 500.0f + glm::pi<float>();
 	}
 }
 

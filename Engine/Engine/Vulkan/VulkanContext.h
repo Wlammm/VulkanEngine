@@ -15,7 +15,7 @@ public:
 	static vk::PipelineCache& GetPipelineCache();
 	static class VulkanAllocator& GetAllocator();
 
-	static Vec2f GetRenderResolution();
+	static glm::vec2 GetRenderResolution();
 
 	void BeginFrame();
 	void EndFrame();

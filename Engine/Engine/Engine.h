@@ -26,7 +26,7 @@ public:
 	static class World& GetWorld();
 	static void SetWorld(World* inWorld);
 
-	static Vec2ui GetRenderResolution();
+	static glm::vec2 GetRenderResolution();
 
 	template<typename T>
 	static T* GetSystem()

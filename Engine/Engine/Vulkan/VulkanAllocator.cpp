@@ -96,7 +96,7 @@ VulkanImage* VulkanAllocator::AllocateImage_TS(const std::string& inName, const 
 	check(result == VK_SUCCESS);
 	outImage->myImage = image;
 	outImage->myFormat = inCreateInfo.format;
-	outImage->mySize = Vec2ui(inCreateInfo.extent.width, inCreateInfo.extent.height);
+	outImage->mySize = glm::vec2(inCreateInfo.extent.width, inCreateInfo.extent.height);
 
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()

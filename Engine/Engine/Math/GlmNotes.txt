@@ -1,0 +1,14 @@
+GLM Matrix multiplication is inversed. 
+
+If you want to get a MVP (Model view projection matrix you multiply it backwards) 
+Examples:
+glm::mat4 mvpMatrix = projection * view * model; (model -> view -> projection)
+glm::mat4 modelMatrix = translation * rotation * scale (scale -> rotation -> translation)
+
+
+Glm matrices are indexed from 0-3 instead of 1-4 which the old matrix format was in. 
+The first row is right vector.
+Second row is up vector.
+Third row is forward vector.
+
+glm::affineInverse is what we call FastInverse

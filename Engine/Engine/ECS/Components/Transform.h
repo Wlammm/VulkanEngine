@@ -12,59 +12,59 @@ public:
 	void AddChild(Transform* inChild);
 	void RemoveChild(Transform* inChild);
 
-	void SetPositionLocal(const Vec3f& inPosition);
-	void SetRotationLocal(const Quatf& inQuaternion);
-	void SetScaleLocal(const Vec3f& inScale);
+	void SetPositionLocal(const glm::vec3& inPosition);
+	void SetRotationLocal(const glm::quat& inQuaternion);
+	void SetScaleLocal(const glm::vec3& inScale);
 	void SetScaleLocal(const float inScale);
 
-	void SetPosition(const Vec3f& inPosition);
+	void SetPosition(const glm::vec3& inPosition);
 	void SetPosition(const float inX, const float inY, const float inZ);
 
 	void SetPositionX(const float inX);
 	void SetPositionY(const float inY);
 	void SetPositionZ(const float inZ);
 
-	void SetScale(const Vec3f& inScale);
+	void SetScale(const glm::vec3& inScale);
 	void SetScale(const float inX, const float inY, const float inZ);
 	void SetScale(const float inScalar);
 
-	void SetRotation(const Quatf& inQuat);
-	void SetRotationRad(const Vec3f& inRotation);
-	void SetRotationDeg(const Vec3f& inRotation);
+	void SetRotation(const glm::quat& inQuat);
+	void SetRotationRad(const glm::vec3& inRotation);
+	void SetRotationDeg(const glm::vec3& inRotation);
 	void SetRotationDeg(const float inX, const float inY, const float inZ);
 
-	const Vec3f& GetPositionLocal() const;
-	const Quatf& GetRotationLocal() const;
-	const Vec3f& GetScaleLocal() const;
+	const glm::vec3& GetPositionLocal() const;
+	const glm::quat& GetRotationLocal() const;
+	const glm::vec3& GetScaleLocal() const;
 
-	const Vec3f	LocalForward() const;
-	const Vec3f	LocalRight() const;
-	const Vec3f	LocalUp() const;
+	const glm::vec3	LocalForward() const;
+	const glm::vec3	LocalRight() const;
+	const glm::vec3	LocalUp() const;
 
-	Mat4f GetMatrix() const;
-	Mat4f GetMatrixLocal() const;
+	glm::mat4 GetMatrix() const;
+	glm::mat4 GetMatrixLocal() const;
 
-	Vec3f GetPosition() const;
+	glm::vec3 GetPosition() const;
 
-	Quatf GetRotation() const;
-	Vec3f GetRotationRad() const;
-	Vec3f GetRotationDeg() const;
+	glm::quat GetRotation() const;
+	glm::vec3 GetRotationRad() const;
+	glm::vec3 GetRotationDeg() const;
 
-	Vec3f GetScale() const;
+	glm::vec3 GetScale() const;
 
 	Transform* GetParent() const;
 	bool HasParent() const;
 
-	Vec3f GetForward() const;
-	Vec3f GetUp() const;
-	Vec3f GetRight() const;
+	glm::vec3 GetForward() const;
+	glm::vec3 GetUp() const;
+	glm::vec3 GetRight() const;
 
-	void Move(const Vec3f& inDisplacement);
+	void Move(const glm::vec3& inDisplacement);
 
 private:
-	Vec3f myPosition { 0, 0, 0 };
-	Quatf myRotation {};
-	Vec3f myScale { 1, 1, 1 };
+	glm::vec3 myPosition { 0, 0, 0 };
+	glm::quat myRotation {};
+	glm::vec3 myScale { 1, 1, 1 };
 
 	Transform* myParent = nullptr;
 	List<Transform*> myChildren;

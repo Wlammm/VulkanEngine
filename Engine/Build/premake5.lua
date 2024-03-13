@@ -92,6 +92,7 @@ project "Engine"
 		"%{EXTERNAL}/assimp/include/",
 		"$(SolutionDir)ImGui/",
 		"%{EXTERNAL}/tracy/",
+		"%{EXTERNAL}/glm/",
 	}
 	filter "files:../Engine/Tracy/TracyClient.cpp"
 		flags { "NoPCH" }
@@ -110,6 +111,7 @@ project "Editor"
 		"%{EXTERNAL}/assimp/include/",
 		"$(SolutionDir)ImGui/",
 		"%{EXTERNAL}/tracy/",
+		"%{EXTERNAL}/glm/",
 	}
 	
 project "ImGui"
