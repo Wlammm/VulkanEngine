@@ -40,12 +40,12 @@ void CameraSystem::Tick()
 			movement -= transform.GetRight();
 		}
 
-		if (Input::IsKeyPressed(KeyCode::Q))
+		if (Input::IsKeyPressed(KeyCode::E))
 		{
 			movement += transform.GetUp();
 		}
 
-		if (Input::IsKeyPressed(KeyCode::E))
+		if (Input::IsKeyPressed(KeyCode::Q))
 		{
 			movement -= transform.GetUp();
 		}
@@ -68,7 +68,7 @@ void CameraSystem::Tick()
 			static float yaw = transform.GetRotationRad().y;
 			static float pitch = transform.GetRotationRad().x;
 
-			yaw += -mouseDelta.x * myMouseSensitivity;
+			yaw += mouseDelta.x * myMouseSensitivity;
 			pitch += mouseDelta.y * myMouseSensitivity;
 			pitch = glm::clamp(-glm::pi<float>()*0.5f + 0.001f, glm::pi<float>() * 0.5f - 0.001f, pitch);
 

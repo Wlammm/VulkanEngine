@@ -17,7 +17,7 @@ struct Camera
 		myFarPlane = inFarPlane;
 		myResolution = inResolution;
 
-		myProjection = glm::ortho(0.0f, inResolution.x, 0.0f, inResolution.y, inNearPlane, inFarPlane);
+		myProjection = glm::ortho(inResolution.x * -0.5f, inResolution.x * 0.5f, inResolution.y * -0.5f, inResolution.y * 0.5f, inNearPlane, inFarPlane);
 		myProjection[1][1] *= -1;
 		myIsOrthographic = true;
 	}
@@ -31,6 +31,7 @@ struct Camera
 
 		const float aspectRatio = inResolution.x / inResolution.y;
 		myProjection = glm::perspective(glm::radians(inFov / aspectRatio), aspectRatio, inNearPlane, inFarPlane);
+		myProjection[1][1] *= -1;
 		myIsOrthographic = false;
 	}
 };

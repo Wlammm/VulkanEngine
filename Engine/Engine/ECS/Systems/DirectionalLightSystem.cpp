@@ -27,15 +27,22 @@ void DirectionalLightSystem::Tick()
 			//}
 			//ImGui::End();
 			//
-			//constexpr float distanceFromView = 100000.0f;
-			//glm::vec3 shadowCamPos = camTransform.GetPosition() - (transform.GetForward() * -1.f * distanceFromView);
-			//glm::mat4 toView = glm::lookAt(shadowCamPos, transform.GetPosition(), glm::vec3(0, 1, 0));
-			//Camera shadowCam{};
-			//constexpr float renderArea = 5000.0f;
-			//shadowCam.CreateOrthographic({ renderArea, renderArea });
 
-			//light.myLightView = glm::inverse(toView);
-			//light.myLightProjection = shadowCam.myProjection;
+			constexpr float distanceFromView = 100000.0f;
+			//glm::vec3 shadowCamPos = camTransform.GetPosition() - (transform.GetForward() * -1.f * distanceFromView);
+			glm::vec3 camPos = camTransform.GetPosition();
+			glm::vec3 shadowCamPos = camTransform.GetPosition() - (transform.GetForward() * distanceFromView);
+			glm::mat4 toView = glm::lookAt(shadowCamPos, camTransform.GetPosition(), glm::vec3(0, 1, 0));
+			Camera shadowCam{};
+			constexpr float renderArea = 5000.0f;
+			shadowCam.CreateOrthographic({ renderArea, renderArea }, 1.0f, 200000.0f);
+
+			light.myLightView = toView;
+			light.myLightProjection = shadowCam.myProjection;
+
+			LOG("Camera Position: %s", glm::to_string(camPos).c_str());
+			LOG("Camera Position: %s", glm::to_string(shadowCamPos).c_str());
+			LOG("Light view position: %s", glm::to_string(glm::vec3(toView[3])).c_str());
 		}
 		return;
 	}

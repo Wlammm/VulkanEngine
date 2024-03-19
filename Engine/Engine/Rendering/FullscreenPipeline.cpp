@@ -67,7 +67,7 @@ void FullscreenPipeline::CreatePipeline()
 		.setRasterizerDiscardEnable(VK_FALSE)
 		.setPolygonMode(vk::PolygonMode::eFill)
 		.setCullMode(vk::CullModeFlagBits::eBack)
-		.setFrontFace(vk::FrontFace::eClockwise)
+		.setFrontFace(vk::FrontFace::eCounterClockwise)	
 		.setDepthBiasEnable(VK_FALSE)
 		.setLineWidth(1.0f);
 

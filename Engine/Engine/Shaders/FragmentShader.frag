@@ -57,5 +57,5 @@ void main()
 
     vec4 directionalLightColors = CalculateDirectionalLightColor(inFragPos, normal, myCameraPosition, inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor, inDirectionalLightBuffer.myLightView, inDirectionalLightBuffer.myLightProjection, inDirectionalLightShadowMap);
 
-    outColor = LinearToGamma((CalculateAmbientLightColor() + directionalLightColors + pointLightColors) * albedoColor);
+    outColor = LinearToGamma((/*CalculateAmbientLightColor() + */directionalLightColors + pointLightColors) * albedoColor);
 }

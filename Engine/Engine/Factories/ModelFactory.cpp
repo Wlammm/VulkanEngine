@@ -156,13 +156,14 @@ void ModelFactory::GetModelDataFromFbx(const std::filesystem::path& inPath, Mode
 	outModelData.mySourceFile = inPath;
 
 	static thread_local Assimp::Importer myImporter{};
-
+	
 	uint flags = aiProcessPreset_TargetRealtime_MaxQuality |
-		aiProcess_ConvertToLeftHanded |
+		//aiProcess_ConvertToLeftHanded |
 		aiProcess_Triangulate |
 		aiProcess_CalcTangentSpace |
 		aiProcess_SortByPType |
-		aiProcess_PreTransformVertices;
+		aiProcess_PreTransformVertices |
+		aiProcess_FlipWindingOrder;
 	flags &= ~aiProcess_JoinIdenticalVertices;
 
 	myImporter.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
@@ -203,7 +204,7 @@ void ModelFactory::GetModelDataFromFbx(const std::filesystem::path& inPath, Mode
 			Vertex vertex{};
 
 			// Import models with inverted y due to some error in the matrices that I cant be asked looking into right now ¯\_(ö)_/¯
-			vertex.myPosition = { aiMesh->mVertices[vertexIndex].x, -aiMesh->mVertices[vertexIndex].y, aiMesh->mVertices[vertexIndex].z, 1.0f };
+			vertex.myPosition = { aiMesh->mVertices[vertexIndex].x, aiMesh->mVertices[vertexIndex].y, aiMesh->mVertices[vertexIndex].z, 1.0f };
 			vertex.myColor = { 1, 1, 1, 1 };
 
 			if (aiMesh->GetNumColorChannels() > 0)

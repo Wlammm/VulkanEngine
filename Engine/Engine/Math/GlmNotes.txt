@@ -12,3 +12,8 @@ Second row is up vector.
 Third row is forward vector.
 
 glm::affineInverse is what we call FastInverse
+
+Vulkan and OpenGL uses a right-handed coordinate system which means that the z axis points towards the screen. (Further away is lower number)
+Comparing this to DirectX which uses a left-handed coordinate system which means the z axis points away from the screen. (Further away is higher number)
+
+Vulkan clip space is [0-1] where 0, 0 is the top left corner and 1, 1 is the bottom right corner.
