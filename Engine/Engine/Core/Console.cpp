@@ -44,14 +44,13 @@ void Console::Log(const char* inString, ...)
 	vfprintf(stderr, inString, argptr);
 	va_end(argptr);
 	OutputDebugStringA(msg.c_str());
-	std::cout << std::endl;
 }
 
 void Console::Log(const std::string& inString)
 {
 	const std::string msg = "[LOG]: " + std::string(inString) + "\n";
 	SetConsoleTextAttribute(myConsoleHandle, 15);
-	std::cout << msg << std::endl;
+	std::cout << msg;
 	OutputDebugStringA(msg.c_str());
 }
 
@@ -67,7 +66,6 @@ void Console::LogWarning(const char* inString, ...)
 	SetConsoleTextAttribute(myConsoleHandle, 15);
 
 	OutputDebugStringA(msg.c_str());
-	std::cout << std::endl;
 }
 
 void Console::LogWarning(const std::string& inString, ...)
@@ -77,7 +75,6 @@ void Console::LogWarning(const std::string& inString, ...)
 	std::cout << msg;
 	SetConsoleTextAttribute(myConsoleHandle, 15);
 	OutputDebugStringA(msg.c_str());
-	std::cout << std::endl;
 }
 
 void Console::LogError(const char* inString, ...)
@@ -90,15 +87,13 @@ void Console::LogError(const char* inString, ...)
 	va_end(argptr);
 	SetConsoleTextAttribute(myConsoleHandle, 15);
 	OutputDebugStringA(msg.c_str());
-	std::cout << std::endl;
 }
 
 void Console::LogError(const std::string& inString, ...)
 {
 	const std::string msg = "[ERROR]: " + std::string(inString) + "\n";
 	SetConsoleTextAttribute(myConsoleHandle, 12);
-	std::cout << msg;
+	std::cerr << msg;
 	SetConsoleTextAttribute(myConsoleHandle, 15);
 	OutputDebugStringA(msg.c_str());
-	std::cout << std::endl;
 }

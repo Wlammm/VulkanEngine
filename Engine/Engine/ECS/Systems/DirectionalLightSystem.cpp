@@ -40,9 +40,9 @@ void DirectionalLightSystem::Tick()
 			light.myLightView = toView;
 			light.myLightProjection = shadowCam.myProjection;
 
-			LOG("Camera Position: %s", glm::to_string(camPos).c_str());
-			LOG("Camera Position: %s", glm::to_string(shadowCamPos).c_str());
-			LOG("Light view position: %s", glm::to_string(glm::vec3(toView[3])).c_str());
+			//LOG("Camera Position: %s", glm::to_string(camPos).c_str());
+			//LOG("Camera Position: %s", glm::to_string(shadowCamPos).c_str());
+			//LOG("Light view position: %s", glm::to_string(glm::vec3(toView[3])).c_str());
 		}
 		return;
 	}

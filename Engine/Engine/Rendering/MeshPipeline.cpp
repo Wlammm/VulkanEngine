@@ -254,7 +254,7 @@ void MeshPipeline::BuildDirectionalLightBuffer()
 	{
 		buffer.myColor = light.myColor;
 		buffer.myDirection = transform.GetForward();
-		buffer.myLightView = light.myLightView;
+		buffer.myLightView = glm::affineInverse(light.myLightView);
 		buffer.myLightProjection = light.myLightProjection;
 		myDirectionalLightBuffer->SetData(buffer);
 		return;

@@ -21,8 +21,10 @@ public:
 
 	vk::RenderPass& GetRenderPass();
 	class VulkanImage* GetRenderTexture();
+	class VulkanImage* GetDepthTexture();
 
 	void OnSwapChainResize();
+
 
 	static void AddUploadCommand_TS(void* inOwner, std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction);
 	static void RemoveUploadCommandsForOwner_TS(void* inOwner);
@@ -34,6 +36,7 @@ private:
 	void AddUploadPass(vk::CommandBuffer inCommandBuffer);
 	void AddMeshPass(vk::CommandBuffer inCommandBuffer);
 	void AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer);
+	void AddDebugPass(vk::CommandBuffer inCommandBuffer);
 	void AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer);
 
 private:
@@ -64,6 +67,7 @@ private:
 	class MeshPipeline* myMeshPipeline = nullptr;
 	class FullscreenPipeline* myCopyPipeline = nullptr;
 	class ShadowPipeline* myShadowPipeline = nullptr;
+	class DebugPipeline* myDebugPipeline = nullptr;
 
 	vk::RenderPass myRenderPass;
 	vk::RenderPass myRenderTextureRenderPass;

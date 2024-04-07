@@ -58,7 +58,7 @@ vec4 CalculateDirectionalLightColor(vec3 inFragPos, vec3 inNormal, vec3 inCamera
     //vec2 fragPosOnShadowMap = fragPosInLightSpace.xy / fragPosInLightSpace.w;
     float sampledDepth = texture(inDirectionalLightShadowMap, fragPosOnShadowMap).r;
 
-    float shadowBias = 0.0001;
+    float shadowBias = 0.001;
 
     if(fragPosOnShadowMap.x > 0.0 && fragPosOnShadowMap.x < 1.0
      && fragPosOnShadowMap.y > 0.0 && fragPosOnShadowMap.y < 1.0)
@@ -66,13 +66,13 @@ vec4 CalculateDirectionalLightColor(vec3 inFragPos, vec3 inNormal, vec3 inCamera
         return vec4(1, 0, 0, 1);
      }
 
-    // 0 is near, 1 is far
-    if(sampledDepth < viewDepth - shadowBias)
+    // 1 is near, 0 is far
+    if(sampledDepth > viewDepth - shadowBias)
     {
         lightValue *= 0;
         //return vec4(0, 0, 0, 0);
     }
-    return vec4(1, 1, 1, 1);
+    //return vec4(1, 1, 1, 1);
 
     return lightValue;
 }

@@ -24,6 +24,7 @@
 #include "ECS/Systems/PointLightSystem.h"
 #include "Core/AutoInitManager.h"
 #include "ECS/Systems/DirectionalLightSystem.h"
+#include "Utils/Debug.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -70,8 +71,8 @@ void Engine::Tick()
 	AutoInitManager::Tick();
 
 #if !TRACY_ENABLE // Disable fps limit when we're profiling.
-	constexpr float targetFPS = 75.f;
-	long long sleepTimeMicroseconds = static_cast<long long>((1.0f / targetFPS - Time::GetDeltaTime()) * 1000000);
+	constexpr double targetFPS = 144.f;
+	long long sleepTimeMicroseconds = static_cast<long long>((1.0 / targetFPS - Time::GetDeltaTime()) * 1000000);
 	std::this_thread::sleep_for(std::chrono::microseconds(sleepTimeMicroseconds));
 #endif
 
@@ -87,6 +88,7 @@ void Engine::Tick()
 #endif
 
 	mySystemDispatcher->DispatchSystems();
+	Debug::DrawLine(glm::vec3(0, 0, 0), glm::vec3(0, 100, 0));
 
 	myVulkanContext->EndFrame();
 	Input::EndFrame();

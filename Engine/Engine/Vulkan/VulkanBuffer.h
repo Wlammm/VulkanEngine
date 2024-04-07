@@ -46,7 +46,7 @@ public:
 	vk::Buffer GetAPIResource() const;
 
 	void SetData(void* inData, const size_t inSize);
-	
+
 	template<typename T>
 	void SetData(T& inData)
 	{

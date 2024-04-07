@@ -244,19 +244,18 @@ void ShadowPipeline::CreatePipeline()
 
 	check(returnValue.result == vk::Result::eSuccess);
 	myPipeline = returnValue.value;
-
 }
 
 void ShadowPipeline::BuildFrameBuffer(const Transform& inLightTransform, const DirectionalLight& inLight)
 {
-	FrameData buffer = {};
+	FrameData data = {};
 
-	buffer.myProjection = inLight.myLightProjection;
-	buffer.myToView = inLight.myLightView;
+	data.myProjection = inLight.myLightProjection;
+	data.myToView = glm::affineInverse(inLight.myLightView);
 
 	// This shouldnt be needed for this pass. It should only be used in pixel shader for lighting. (I think)
-	buffer.myCameraPosition = glm::vec3(0, 0, 0);
-	myFrameDataBuffer->SetData(buffer);
+	data.myCameraPosition = glm::vec3(0, 0, 0);
+	myFrameDataBuffer->SetData(data);
 }
 
 void ShadowPipeline::BuildObjectBuffer(const Transform& inTransform)

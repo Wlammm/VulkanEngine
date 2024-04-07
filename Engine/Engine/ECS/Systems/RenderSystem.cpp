@@ -19,6 +19,7 @@
 #include "ECS/Components/PointLight.h"
 #include "ECS/Components/Transform.h"
 #include "Rendering/ShadowPipeline.h"
+#include "Rendering/DebugPipeline.h"
 
 RenderSystem::RenderSystem()
 {
@@ -58,6 +59,7 @@ void RenderSystem::Tick()
 		AddUploadPass(commandBuffer);
 		AddShadowGenerationPass(commandBuffer);
 		AddMeshPass(commandBuffer);
+		AddDebugPass(commandBuffer);
 		AddFullscreenCopyPass(commandBuffer);
 	}
 
@@ -72,6 +74,11 @@ vk::RenderPass& RenderSystem::GetRenderPass()
 VulkanImage* RenderSystem::GetRenderTexture()
 {
 	return myRenderTexture;
+}
+
+VulkanImage* RenderSystem::GetDepthTexture()
+{
+	return myDepthBuffer;
 }
 
 void RenderSystem::OnSwapChainResize()
@@ -166,6 +173,34 @@ void RenderSystem::AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer)
 	myShadowPipeline->AddCommands(inCommandBuffer);
 }
 
+void RenderSystem::AddDebugPass(vk::CommandBuffer inCommandBuffer)
+{
+	ZoneScoped;
+	GPUMARK_SCOPE(inCommandBuffer, "DebugPass");
+
+	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
+									.setRenderPass(myRenderTextureRenderPass)
+									.setFramebuffer(myRenderTextureFrameBuffer)
+									.setPClearValues(myClearValues)
+									.setClearValueCount(2)
+									.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
+									, vk::SubpassContents::eInline);
+
+	inCommandBuffer.setViewport(0, vk::Viewport()
+								.setX(0)
+								.setY(0)
+								.setWidth(static_cast<float>(Engine::GetRenderResolution().x))
+								.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
+								.setMinDepth(0.0f)
+								.setMaxDepth(1.0f));
+
+	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
+
+	myDebugPipeline->AddDrawCommands(inCommandBuffer);
+
+	inCommandBuffer.endRenderPass();
+}
+
 void RenderSystem::AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
@@ -229,6 +264,7 @@ void RenderSystem::DestroyRenderResources()
 	del(myCopyPipeline);
 	del(myMeshPipeline);
 	del(myShadowPipeline);
+	del(myDebugPipeline);
 
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderPass);
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderTextureRenderPass);
@@ -238,6 +274,7 @@ void RenderSystem::CreatePipelines()
 {
 	myShadowPipeline = new ShadowPipeline();
 	myMeshPipeline = new MeshPipeline();
+	myDebugPipeline = new DebugPipeline();
 	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetShader("FullscreenCopy.frag"), myRenderTexture);
 }
 
