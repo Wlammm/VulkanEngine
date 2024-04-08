@@ -56,7 +56,6 @@ void DebugPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 		return;
 
 	UpdateFrameBuffer();
-	
 	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
 	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
 
@@ -139,12 +138,13 @@ void DebugPipeline::CreatePipeline()
 	};
 	
 	List<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions{};
-	vertexInputAttributeDescriptions.Add({ 0, 0, vk::Format::eR32G32B32Sfloat, 0 });
+	vertexInputAttributeDescriptions.Add({ 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(DebugVertex, myPosition) });
+	vertexInputAttributeDescriptions.Add({ 1, 0, vk::Format::eR32Sint, offsetof(DebugVertex, myColor) });
 
 	List<vk::VertexInputBindingDescription> bindingDescriptions;
 	bindingDescriptions.Add(vk::VertexInputBindingDescription()
 				.setBinding(0)
-				.setStride(sizeof(glm::vec3))
+				.setStride(sizeof(DebugVertex))
 				.setInputRate(vk::VertexInputRate::eVertex)
 			);
 	
@@ -209,23 +209,23 @@ void DebugPipeline::CreateDescriptorSets()
 
 VulkanBuffer* DebugPipeline::BuildVertexBuffer()
 {
-	List<glm::vec3> vertices{};
+	List<DebugVertex> vertices{};
 
 	if (Debug::GetDrawInfos().IsEmpty())
 		return nullptr;
 
 	for(const Debug::DrawLineInfos& lineInfos : Debug::GetDrawInfos())
 	{
-		vertices.Add(lineInfos.myStart);
-		vertices.Add(lineInfos.myEnd);
+		vertices.Add({lineInfos.myStart, lineInfos.myColor });
+		vertices.Add({lineInfos.myEnd, lineInfos.myColor });
 	}
 
 	vk::BufferCreateInfo createInfo = vk::BufferCreateInfo()
-		.setSize(vertices.size() * sizeof(glm::vec3))
+		.setSize(vertices.size() * sizeof(DebugVertex))
 		.setUsage(vk::BufferUsageFlagBits::eVertexBuffer);
 
 	VulkanBuffer* buffer = VulkanAllocator::AllocateBuffer_TS("DebugLines VertexBuffer", createInfo, VMA_MEMORY_USAGE_AUTO, true);
-	buffer->SetData(vertices.data(), vertices.size() * sizeof(glm::vec3));
+	buffer->SetData(vertices.data(), vertices.size() * sizeof(DebugVertex));
 	
 	VulkanAllocator::DestroyBuffer_TS(buffer);
 	return buffer;

@@ -41,4 +41,10 @@ private:
 		glm::vec3 myCameraPosition;
 	};
 	VulkanBuffer* myFrameDataBuffer;
+
+	struct DebugVertex
+	{
+		glm::vec3 myPosition;
+		Color myColor;
+	};
 };

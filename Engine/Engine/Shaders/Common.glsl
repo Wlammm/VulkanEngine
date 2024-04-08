@@ -20,6 +20,16 @@ vec4 saturate(vec4 inValue)
     return clamp(inValue, vec4(0.0, 0.0, 0.0, 0.0), vec4(1.0, 1.0, 1.0, 1.0));
 }
 
+vec4 LinearColorFromColor(int inColor)
+{
+    float r = float(inColor & 0xFF) / 255.0;
+    float g = float((inColor >> 8) & 0xFF) / 255.0;
+    float b = float((inColor >> 16) & 0xFF) / 255.0;
+    float a = float((inColor >> 24) & 0xFF) / 255.0;
+
+    return vec4(r, g, b, a);
+}
+
 // Shader avoid branching article: https://theorangeduck.com/page/avoiding-shader-conditionals
 // USAGE: output of these will either be 1 or 0 depending on the condition is true or not. Simply multiply the output with a number to add it conditionally.
 

@@ -88,7 +88,7 @@ void Engine::Tick()
 #endif
 
 	mySystemDispatcher->DispatchSystems();
-	Debug::DrawLine(glm::vec3(0, 0, 0), glm::vec3(0, 100, 0));
+	Debug::DrawSphere(glm::vec3(), 20.0f);
 
 	myVulkanContext->EndFrame();
 	Input::EndFrame();
