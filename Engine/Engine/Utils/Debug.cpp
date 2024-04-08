@@ -13,45 +13,30 @@ void Debug::DrawLine(const glm::vec3& inStart, const glm::vec3& inEnd, const Col
 
 void Debug::DrawArrow(const glm::vec3& inStart, const glm::vec3& inEnd, const Color& inColor)
 {
-	check(false && "Arrow implementation not complete");
+	const float length = glm::distance(inStart, inEnd);
+	const glm::vec3 direction = glm::normalize(inEnd - inStart);
+	
+	const float arrowLength = 0.1f * length;
+	const float arrowWidth = 0.01f * length;
+
+	// Main line
 	DrawLine(inStart, inEnd, inColor);
-	
-	const glm::vec3 arrowDirection = glm::normalize(inEnd - inStart);
-	const float distance = glm::distance(inStart, inEnd);
 
-	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const Camera>();
-
-	glm::vec3 cameraUpVector;
-	for (auto [ent, transform, camera] : view.each())
+	// I know this won't be right if the direction sent in is straight up but its still a good name to use for thinking.
+	glm::vec3 right;
+	if(direction != glm::vec3(0, 1, 0))
 	{
-		cameraUpVector = transform.GetUp();
-		break;
+		right = glm::normalize(glm::cross(glm::vec3(0, 1, 0), direction)) * arrowWidth;
 	}
-	
-	DrawLine(inStart, inStart * arrowDirection * (distance * 0.8f) + cameraUpVector * (distance * 0.8f));
-	DrawLine(inStart, inStart * arrowDirection * (distance * 0.8f) - cameraUpVector * (distance * 0.8f));
-	
-	/*
-	*FVector Dir = (LineEnd-LineStart);
-	Dir.Normalize();
-	FVector Up(0, 0, 1);
-	FVector Right = Dir ^ Up;
-	if (!Right.IsNormalized())
+	else
 	{
-		Dir.FindBestAxisVectors(Up, Right);
+		right = glm::normalize(glm::cross(glm::vec3(1, 0, 0), direction)) * arrowWidth;
 	}
-	const FVector Origin = FVector::ZeroVector;
-	FMatrix TM;
-	// get matrix with dir/right/up
-	TM.SetAxes(&Dir, &Right, &Up, &Origin);
+	glm::vec3 left = -right;
 
-	// since dir is x direction, my arrow will be pointing +y, -x and -y, -x
-	const float ArrowSqrt = FMath::Sqrt(ArrowSize);
-
-	BatchedLines.Emplace(LineStart,LineEnd, Color, LifeTime, Thickness, DepthPriority, BatchID);
-	BatchedLines.Emplace(LineEnd,LineEnd + TM.TransformPosition(FVector(-ArrowSqrt, ArrowSqrt, 0)), Color, LifeTime, Thickness, DepthPriority, BatchID);
-	BatchedLines.Emplace(LineEnd,LineEnd + TM.TransformPosition(FVector(-ArrowSqrt, -ArrowSqrt, 0)), Color, LifeTime, Thickness, DepthPriority, BatchID);
-	 **/
+	// Arrow head
+	DrawLine(inEnd - direction * arrowLength + right * arrowLength, inEnd, inColor);
+	DrawLine(inEnd - direction * arrowLength + left * arrowLength, inEnd, inColor);
 }
 
 void Debug::DrawSphere(const glm::vec3& inPosition, const float inRadius, const Color& inColor, const int inSphereSubdivisions)

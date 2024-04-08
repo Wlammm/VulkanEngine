@@ -15,6 +15,9 @@ public:
 
     static Color White();
     static Color Black();
+    static Color Red();
+    static Color Green();
+    static Color Blue();
     
 private:
     uint8_t myR;
