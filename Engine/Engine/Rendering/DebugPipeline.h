@@ -17,7 +17,6 @@ public:
 private:
 	void OnAssetUpdated() override final;
 	
-	void CreateRenderPass();
 	void CreatePipeline();
 	void CreateDescriptorSets();
 
@@ -28,7 +27,6 @@ private:
 	VulkanShader* myVertexShader;
 	VulkanShader* myFragmentShader;
 
-	vk::RenderPass myRenderPass;
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;
 

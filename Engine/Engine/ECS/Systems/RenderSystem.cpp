@@ -58,8 +58,20 @@ void RenderSystem::Tick()
 
 		AddUploadPass(commandBuffer);
 		AddShadowGenerationPass(commandBuffer);
+
+		commandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
+			.setRenderPass(myRenderTextureRenderPass)
+			.setFramebuffer(myRenderTextureFrameBuffer)
+			.setPClearValues(myClearValues)
+			.setClearValueCount(2)
+			.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
+			, vk::SubpassContents::eInline);
+		
 		AddMeshPass(commandBuffer);
 		AddDebugPass(commandBuffer);
+		
+		commandBuffer.endRenderPass();
+
 		AddFullscreenCopyPass(commandBuffer);
 	}
 
@@ -143,14 +155,6 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 	if (view.size_hint() == 0)
 		return;
 
-	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-		.setRenderPass(myRenderTextureRenderPass)
-		.setFramebuffer(myRenderTextureFrameBuffer)
-		.setPClearValues(myClearValues)
-		.setClearValueCount(2)
-		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
-		, vk::SubpassContents::eInline);
-
 	inCommandBuffer.setViewport(0, vk::Viewport()
 		.setX(0)
 		.setY(0)
@@ -162,8 +166,6 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
 
 	myMeshPipeline->AddDrawCommands(inCommandBuffer);
-
-	inCommandBuffer.endRenderPass();
 }
 
 void RenderSystem::AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer)
@@ -178,14 +180,6 @@ void RenderSystem::AddDebugPass(vk::CommandBuffer inCommandBuffer)
 	ZoneScoped;
 	GPUMARK_SCOPE(inCommandBuffer, "DebugPass");
 
-	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-									.setRenderPass(myRenderTextureRenderPass)
-									.setFramebuffer(myRenderTextureFrameBuffer)
-									.setPClearValues(myClearValues)
-									.setClearValueCount(2)
-									.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
-									, vk::SubpassContents::eInline);
-
 	inCommandBuffer.setViewport(0, vk::Viewport()
 								.setX(0)
 								.setY(0)
@@ -197,8 +191,6 @@ void RenderSystem::AddDebugPass(vk::CommandBuffer inCommandBuffer)
 	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
 
 	myDebugPipeline->AddDrawCommands(inCommandBuffer);
-
-	inCommandBuffer.endRenderPass();
 }
 
 void RenderSystem::AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer)

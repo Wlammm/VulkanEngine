@@ -33,7 +33,6 @@ DebugPipeline::DebugPipeline()
 
 	CreateDescriptorSets();
 	CreatePipeline();
-	CreateRenderPass();
 }
 
 DebugPipeline::~DebugPipeline()
@@ -41,7 +40,6 @@ DebugPipeline::~DebugPipeline()
 	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
-	VulkanContext::GetDevice()->destroyRenderPass(myRenderPass);
 }
 
 void DebugPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
@@ -67,64 +65,10 @@ void DebugPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 
 void DebugPipeline::OnAssetUpdated()
 {
+	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
+	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
 
-}
-
-void DebugPipeline::CreateRenderPass()
-{
-	RenderSystem* renderSystem = Engine::GetSystem<RenderSystem>();
-
-	check(renderSystem);
-	const std::array<vk::AttachmentDescription, 2> attachments = {
-		vk::AttachmentDescription()
-			.setFormat(VulkanContext::GetSwapChain().GetFormat())
-			.setSamples(vk::SampleCountFlagBits::e1)
-			.setLoadOp(vk::AttachmentLoadOp::eClear)
-			.setStoreOp(vk::AttachmentStoreOp::eStore)
-			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-			.setInitialLayout(vk::ImageLayout::eUndefined)
-			.setFinalLayout(vk::ImageLayout::ePresentSrcKHR),
-		vk::AttachmentDescription()
-			.setFormat(renderSystem->GetDepthTexture()->GetFormat())
-			.setSamples(vk::SampleCountFlagBits::e1)
-			.setLoadOp(vk::AttachmentLoadOp::eClear)
-			.setStoreOp(vk::AttachmentStoreOp::eDontCare)
-			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-			.setInitialLayout(vk::ImageLayout::eUndefined)
-			.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal),
-	};
-
-	const auto colorReference = vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eColorAttachmentOptimal);
-	const auto depthReference = vk::AttachmentReference().setAttachment(1).setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
-
-	const auto subpass = vk::SubpassDescription()
-		.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
-		.setColorAttachments(colorReference)
-		.setPDepthStencilAttachment(&depthReference);
-
-	vk::PipelineStageFlags stages = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
-	const std::array<vk::SubpassDependency, 2> dependencies = {
-		vk::SubpassDependency()  // Depth buffer is shared between swapchain images
-			.setSrcSubpass(VK_SUBPASS_EXTERNAL)
-			.setDstSubpass(0)
-			.setSrcStageMask(stages)
-			.setDstStageMask(stages)
-			.setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
-			.setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
-			.setDependencyFlags(vk::DependencyFlags()),
-		vk::SubpassDependency()
-			.setSrcSubpass(VK_SUBPASS_EXTERNAL)
-			.setDstSubpass(0)
-			.setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
-			.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
-			.setSrcAccessMask(vk::AccessFlagBits())
-			.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead)
-			.setDependencyFlags(vk::DependencyFlags())
-	};
-
-	myRenderPass = VulkanContext::GetDevice()->createRenderPass(vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass).setDependencies(dependencies));
+	CreatePipeline();
 }
 
 void DebugPipeline::CreatePipeline()
