@@ -44,6 +44,9 @@ layout(set = 0, binding = 2) uniform DirectionalLightBuffer
 
 void main()
 {
+    outColor = vec4(inNormal, 1.0f);
+    return;
+    
     outColor = vec4(inPointLightBuffer.myLights[0].myPosition, 1.0);
     vec4 albedoColor = texture(albedo, inTexCoord);
     vec3 normal = normalize(inNormal);

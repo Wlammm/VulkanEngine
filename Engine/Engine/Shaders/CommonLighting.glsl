@@ -14,8 +14,8 @@ float GetLightFactorFromLightDir(vec3 inFragPos, vec3 inNormal, vec3 inCameraPos
 {
     vec3 normal = normalize(inNormal);
     vec3 lightDir = normalize(inLightDir);
-    float diffuseFactor = max(dot(inNormal, lightDir), 0.0);
-    //return diffuseFactor;
+    float diffuseFactor = max(dot(inNormal, lightDir) * -1.0, 0.0);
+    return diffuseFactor;
     // Specular
     float shininess = 32;
     vec3 viewDir    = normalize(inCameraPos - inFragPos);
@@ -48,7 +48,6 @@ vec4 CalculateAmbientLightColor()
 vec4 CalculateDirectionalLightColor(vec3 inFragPos, vec3 inNormal, vec3 inCameraPos, vec3 inLightDirection, vec4 inLightColor, mat4 inLightView, mat4 inLightProjection, sampler2D inDirectionalLightShadowMap)
 {
     vec3 lightDir = normalize(inLightDirection);
-    
     vec4 lightValue = inLightColor * GetLightFactorFromLightDir(inFragPos, inNormal, inCameraPos, inLightColor, lightDir);
 
     vec4 fragPosInLightSpace = inLightProjection * inLightView * vec4(inFragPos, 1.0);
@@ -63,7 +62,7 @@ vec4 CalculateDirectionalLightColor(vec3 inFragPos, vec3 inNormal, vec3 inCamera
     if(fragPosOnShadowMap.x > 0.0 && fragPosOnShadowMap.x < 1.0
      && fragPosOnShadowMap.y > 0.0 && fragPosOnShadowMap.y < 1.0)
      {
-        return vec4(1, 0, 0, 1);
+        //return vec4(1, 0, 0, 1);
      }
 
     // 1 is near, 0 is far

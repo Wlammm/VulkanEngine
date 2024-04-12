@@ -5,6 +5,7 @@
 #include "Engine.h"
 #include "World/World.h"
 #include "ECS/Components/Camera.h"
+#include "Utils/Debug.h"
 
 DirectionalLightSystem::DirectionalLightSystem()
 {
@@ -28,9 +29,10 @@ void DirectionalLightSystem::Tick()
 			//ImGui::End();
 			//
 
+			
 			constexpr float distanceFromView = 100000.0f;
-			//glm::vec3 shadowCamPos = camTransform.GetPosition() - (transform.GetForward() * -1.f * distanceFromView);
 			glm::vec3 camPos = camTransform.GetPosition();
+			Debug::DrawArrow(glm::vec3(0, 0, 0), transform.GetForward() * 100.0f);
 			glm::vec3 shadowCamPos = camTransform.GetPosition() - (transform.GetForward() * distanceFromView);
 			glm::mat4 toView = glm::lookAt(shadowCamPos, camTransform.GetPosition(), glm::vec3(0, 1, 0));
 			Camera shadowCam{};

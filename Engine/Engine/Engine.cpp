@@ -24,6 +24,7 @@
 #include "ECS/Systems/PointLightSystem.h"
 #include "Core/AutoInitManager.h"
 #include "ECS/Systems/DirectionalLightSystem.h"
+#include "ECS/Systems/StaticMeshSystem.h"
 #include "Utils/Debug.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
@@ -88,10 +89,6 @@ void Engine::Tick()
 #endif
 
 	mySystemDispatcher->DispatchSystems();
-	Debug::DrawArrow({0, 0, 0}, {0, 100, 0}, Color::Green());
-	Debug::DrawArrow({0, 0, 0}, {0, 100, 100}, Color::Blue());
-	Debug::DrawArrow({0, 0, 0}, {100, 0, 0}, Color::Red());
-	//Debug::DrawSphere(glm::vec3(), 20.0f);
 
 	myVulkanContext->EndFrame();
 	Input::EndFrame();
@@ -173,4 +170,5 @@ void Engine::CreateSystems()
 	mySystemDispatcher->AddSystem<PointLightSystem>();
 	mySystemDispatcher->AddSystem<DirectionalLightSystem>();
 	mySystemDispatcher->AddSystem<RenderSystem>();
+	mySystemDispatcher->AddSystem<StaticMeshSystem>();
 }

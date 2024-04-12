@@ -140,7 +140,7 @@ void DebugPipeline::CreatePipeline()
 																										 .setPDynamicState(&dynamicStateInfo)
 																										 .setLayout(myPipelineLayout)
 																										 .setRenderPass(Engine::GetSystem<RenderSystem>()->GetRenderPass()));
-
+ 
 	check(returnValue.result == vk::Result::eSuccess);
 	myPipeline = returnValue.value;
 }
