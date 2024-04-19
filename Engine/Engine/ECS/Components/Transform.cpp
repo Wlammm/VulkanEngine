@@ -127,18 +127,12 @@ void Transform::SetRotation(const glm::quat& inQuat)
 
 void Transform::SetRotationRad(const glm::vec3& inRotation)
 {
-	glm::mat4 rotMatrix = glm::mat4(1.0f);
-
-	rotMatrix = glm::rotate(rotMatrix, inRotation.z, { 0, 0, 1 });
-	rotMatrix = glm::rotate(rotMatrix, inRotation.x, { 1, 0, 0 });
-	rotMatrix = glm::rotate(rotMatrix, inRotation.y, { 0, 1, 0 });
-
 	myRotation = glm::quat(inRotation);
 }
 
 void Transform::SetRotationDeg(const glm::vec3& inRotation)
 {
-	SetRotationRad(inRotation * glm::radians(inRotation));
+	SetRotationRad(glm::radians(inRotation));
 }
 
 void Transform::SetRotationDeg(const float inX, const float inY, const float inZ)

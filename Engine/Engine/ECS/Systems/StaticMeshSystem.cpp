@@ -40,13 +40,13 @@ void StaticMeshSystem::Tick()
 
         if(Input::IsKeyPressed(KeyCode::O))
         {
-            transform.SetRotationDeg(transform.GetRotationDeg() + glm::vec3(0.05f, 0, 0));
+            transform.SetRotationDeg(transform.GetRotationDeg() + glm::vec3(0.1f, 0, 0));
         }
         
         if(Input::IsKeyPressed(KeyCode::L))
         {
-            transform.SetRotationDeg(transform.GetRotationDeg() + glm::vec3(-0.05f, 0, 0));
-        }
+            transform.SetRotationDeg(transform.GetRotationDeg() + glm::vec3(-0.1f, 0, 0));
+        }//pedro
     }
 }
 
