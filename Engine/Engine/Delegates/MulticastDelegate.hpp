@@ -5,6 +5,8 @@
  * A multicast delegate functions like a normal delegate except it can store multiple, which will be invoked when fired.
  * Due to this the delegates can only have void as their return type.
  *
+ * KEEP IN MIND THAT THIS CLASS IS NOT THREAD SAFE!!!
+ *
  * Usage examples:
  * someMulticastDelegate += someOtherDelegate;
  * someMulticastDelegate += SomeFreeOrStaticFunction;
