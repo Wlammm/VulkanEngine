@@ -45,7 +45,7 @@ public:
 public:
 	vk::Buffer GetAPIResource() const;
 
-	void SetData(void* inData, const size_t inSize);
+	void SetData(void* inData, const size_t inSize, uint inOffset = 0);
 
 	template<typename T>
 	void SetData(T& inData)
@@ -65,8 +65,8 @@ private:
 	~VulkanBuffer() = default;
 	VulkanBuffer(const VulkanBuffer& inOther) = delete;
 
-	void UploadMapped(void* inData, size_t inSize);
-	void UploadStaged(void* inData, size_t inSize);
+	void UploadMapped(void* inData, size_t inSize, uint inOffset);
+	void UploadStaged(void* inData, size_t inSize, uint inOffset);
 
 private:
 	friend class VulkanAllocator;

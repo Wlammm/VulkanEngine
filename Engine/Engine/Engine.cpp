@@ -27,7 +27,7 @@
 #include "Delegates/MulticastDelegate.hpp"
 #include "ECS/Systems/DirectionalLightSystem.h"
 #include "ECS/Systems/StaticMeshSystem.h"
-#include "Rendering/BindlessResourceSystem.h"
+#include "Rendering/VertexBufferSystem.h"
 #include "Utils/Debug.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
@@ -201,5 +201,5 @@ void Engine::CreateSystems()
 	mySystemDispatcher->AddSystem<DirectionalLightSystem>();
 	mySystemDispatcher->AddSystem<RenderSystem>();
 	mySystemDispatcher->AddSystem<StaticMeshSystem>();
-	mySystemDispatcher->AddSystem<BindlessResourceSystem>();
+	mySystemDispatcher->AddSystem<VertexBufferSystem>();
 }
