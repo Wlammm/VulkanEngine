@@ -189,7 +189,6 @@ void RenderSystem::AddDebugPass(vk::CommandBuffer inCommandBuffer)
 								.setMaxDepth(1.0f));
 
 	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
-
 	myDebugPipeline->AddDrawCommands(inCommandBuffer);
 }
 

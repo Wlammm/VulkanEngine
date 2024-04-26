@@ -18,7 +18,7 @@ World::World()
 		auto entity = myRegistry.create();
 		auto& transform = myRegistry.emplace<Transform>(entity);
 		transform.SetScale(1);
-		transform.SetRotationDeg(-90, 0, 0);
+		transform.SetRotationDeg(0, 0, 0);
 
 		auto& light = myRegistry.emplace<DirectionalLight>(entity);
 		light.myColor = glm::vec4(1, 1, 1, 1);
@@ -44,19 +44,38 @@ void World::Init()
 		transform.SetPosition(0, 0, -10);
 	}
 
+	//{
+	//	entity = myRegistry.create();
+	//	auto& transform = myRegistry.emplace<Transform>(entity);
+	//	transform.SetScale(1);
+	//	transform.SetRotationDeg(0, 0, 0);
+	//
+	//	auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Sponza/NewSponza_Main_Yup_002.fbx");
+	//}
+
 	{
 		entity = myRegistry.create();
 		auto& transform = myRegistry.emplace<Transform>(entity);
-		transform.SetScale(1);
+		transform.SetScale(1, 5, 1);
 		transform.SetRotationDeg(0, 0, 0);
 	
-		auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Sponza/NewSponza_Main_Yup_002.fbx");
+		auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Primitives/Cube.fbx");
+	}
+
+	{
+		entity = myRegistry.create();
+		Transform& transform = myRegistry.emplace<Transform>(entity);
+		transform.SetScale(2, 1, 1);
+		transform.SetRotationDeg(0, 0, 0);
+		transform.SetPosition(1000, 0, 0);
+	
+		auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Primitives/Sphere.fbx");
 	}
 
 	{
 		entity = myRegistry.create();
 		auto& transform = myRegistry.emplace<Transform>(entity);
-		transform.SetScale(1);
+		transform.SetScale(1, 1, 1);
 		transform.SetRotationDeg(0, 0, 0);
 		transform.SetPosition(0, 150, 0);
 

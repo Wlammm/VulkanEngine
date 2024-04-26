@@ -78,7 +78,6 @@ void VulkanDevice::FlushCommandBuffer(vk::CommandBuffer inCommandBuffer)
 	inCommandBuffer.end();
 
 	vk::SubmitInfo submitInfo = vk::SubmitInfo().setCommandBufferCount(1).setCommandBuffers(inCommandBuffer);
-
 	vk::FenceCreateInfo fenceInfo{};
 	vk::Fence fence = myDevice.createFence(fenceInfo);
 

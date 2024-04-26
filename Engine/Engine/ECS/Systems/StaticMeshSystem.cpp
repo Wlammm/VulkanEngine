@@ -3,6 +3,7 @@
 
 #include "Engine.h"
 #include "Core/Input.h"
+#include "Core/Time.h"
 #include "ECS/Components/StaticMesh.h"
 #include "ECS/Components/Transform.h"
 #include "World/World.h"
@@ -22,6 +23,7 @@ void StaticMeshSystem::Tick()
         {
             transform.Move(glm::right() * -1.0f);
         }
+        //transform.Move(glm::right() * Time::GetDeltaTime());
         
         if(Input::IsKeyPressed(KeyCode::Right))
         {

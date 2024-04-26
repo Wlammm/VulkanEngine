@@ -199,8 +199,10 @@ void VulkanSwapChain::CreateSwapChain()
 	List<vk::PresentModeKHR> availablePresentModes = VulkanContext::GetPhysicalDevice()->getSurfacePresentModesKHR(myWindowSurface);
 	for(const auto& mode : availablePresentModes)
 	{
+#if TRACY_ENABLE
 		if (mode == vk::PresentModeKHR::eImmediate)
 			swapChainPresentMode = vk::PresentModeKHR::eImmediate;
+#endif
 	}
 
 	uint32_t numSwapchainImages = 3;

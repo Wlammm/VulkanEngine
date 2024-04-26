@@ -23,9 +23,12 @@
 #include "Tracy/tracy/Tracy.hpp"
 #include "ECS/Systems/PointLightSystem.h"
 #include "Core/AutoInitManager.h"
+#include "Delegates/Delegate.hpp"
 #include "ECS/Systems/DirectionalLightSystem.h"
 #include "ECS/Systems/StaticMeshSystem.h"
+#include "Rendering/BindlessResourceSystem.h"
 #include "Utils/Debug.h"
+//#include "Delegates/MulticastDelegate.hpp"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -70,7 +73,7 @@ void Engine::Tick()
 	ZoneScoped;
 	Time::Tick();
 	AutoInitManager::Tick();
-
+	
 #if !TRACY_ENABLE // Disable fps limit when we're profiling.
 	constexpr double targetFPS = 144.f;
 	long long sleepTimeMicroseconds = static_cast<long long>((1.0 / targetFPS - Time::GetDeltaTime()) * 1000000);
@@ -171,4 +174,5 @@ void Engine::CreateSystems()
 	mySystemDispatcher->AddSystem<DirectionalLightSystem>();
 	mySystemDispatcher->AddSystem<RenderSystem>();
 	mySystemDispatcher->AddSystem<StaticMeshSystem>();
+	mySystemDispatcher->AddSystem<BindlessResourceSystem>();
 }
