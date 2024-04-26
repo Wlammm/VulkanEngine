@@ -24,11 +24,11 @@
 #include "ECS/Systems/PointLightSystem.h"
 #include "Core/AutoInitManager.h"
 #include "Delegates/Delegate.hpp"
+#include "Delegates/MulticastDelegate.hpp"
 #include "ECS/Systems/DirectionalLightSystem.h"
 #include "ECS/Systems/StaticMeshSystem.h"
 #include "Rendering/BindlessResourceSystem.h"
 #include "Utils/Debug.h"
-//#include "Delegates/MulticastDelegate.hpp"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -67,12 +67,39 @@ Engine::~Engine()
 	myInstance = nullptr;
 }
 
+void Log(int num)
+{
+	std::cout << num << std::endl;
+}
+
+void Log2(int num)
+{
+	std::cout << -num << std::endl;
+}
+
+class TestClass
+{
+public:
+	void DoSomething(int innum)
+	{
+		std::cout << 4 - innum << "\n";
+	}
+};
+
 void Engine::Tick()
 {
 	FrameMark;
 	ZoneScoped;
 	Time::Tick();
 	AutoInitManager::Tick();
+
+	TestClass someClass;
+	MulticastDelegate<int> delegate;
+	delegate += Log;
+	delegate += Log2;
+	delegate.Bind(&TestClass::DoSomething, someClass);
+	
+	delegate(3);
 	
 #if !TRACY_ENABLE // Disable fps limit when we're profiling.
 	constexpr double targetFPS = 144.f;

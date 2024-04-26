@@ -1,32 +1,121 @@
 ﻿#pragma once
+#include "Delegate.hpp"
 
 /*
- * A multicast delegate functions like a normal delegate except it can store multiple functions which will be executed when fired.
- * Due to this the functions in this delegate can only have void as a return type.
+ * A multicast delegate functions like a normal delegate except it can store multiple, which will be invoked when fired.
+ * Due to this the delegates can only have void as their return type.
+ *
+ * Usage examples:
+ * someMulticastDelegate += someOtherDelegate;
+ * someMulticastDelegate += SomeFreeOrStaticFunction;
+ * someMulticastDelegate.Bind(&SomeClass::SomeMemberFunctionThatCanBeConst, someInstanceReferenceOrPointer);
+ *
+ * Unbinding can be done using -= operator or UnBind with the same syntax as above.
 */
-template<typename Function>
+template<typename... Args>
 class MulticastDelegate
 {
 public:
-    MulticastDelegate()
+    MulticastDelegate() = default;
+
+    void Bind(const Delegate<void(Args...)> inDelegate)
     {
-        std::function<void()> func;
+        check(!myBoundDelegates.Contains(inDelegate) && "Delegate is already bound.");
+        myBoundDelegates.Add(inDelegate);
     }
 
-    void operator+=(const Function& inFunction)
+    void operator+=(const Delegate<void(Args...)> inDelegate)
     {
-        myBoundFunctions.Add(inFunction);
+        Bind(inDelegate);
     }
 
-    // _STD forward<_Types>(_Args)...
-    void operator(Function&& inArgs...)
+    void UnBind(const Delegate<void(Args...)> inDelegate)
     {
-        for(const auto& function : myBoundFunctions)
-        {
-            function(std::forward<Function>(inArgs)...);
-        }
+        check(myBoundDelegates.Contains(inDelegate) && "Delegate is not bound.");
+        myBoundDelegates.Remove(inDelegate);
+    }
+
+    void operator-=(const Delegate<void(Args...)> inDelegate)
+    {
+        UnBind(inDelegate);
+    }
+
+
+    /*
+     * Ugly looking syntax but these support binding & unbinding as such:
+     * someMulticastDelegate.Bind(&SomeClass::someMemberFunctionThatCanBeConst, someClassReferenceOrPointer);
+     */
+    void Bind(void(*freeFunction)(Args...))
+    {
+        Bind(Delegate<void(Args...)>(freeFunction));
     }
     
+    template<typename Class>
+    void Bind(void(Class::*memberFunction)(Args...), Class* inClass)
+    {
+        Bind(Delegate<void(Args...)>(memberFunction, inClass));
+    }
+
+    template<typename Class>
+    void Bind(void(Class::*memberFunction)(Args...) const, Class* inClass)
+    {
+        Bind(Delegate<void(Args...)>(memberFunction, inClass));
+    }
+
+    template<typename Class>
+    void Bind(void(Class::*memberFunction)(Args...), Class& inClass)
+    {
+        Bind(Delegate<void(Args...)>(memberFunction, inClass));
+    }
+
+    template<typename Class>
+    void Bind(void(Class::*memberFunction)(Args...) const, Class& inClass)
+    {
+        Bind(Delegate<void(Args...)>(memberFunction, inClass));
+    }
+
+    void UnBind(void(*freeFunction)(Args...))
+    {
+        UnBind(Delegate<void(Args...)>(freeFunction));
+    }
+    
+    template<typename Class>
+    void UnBind(void(Class::*memberFunction)(Args...), Class* inClass)
+    {
+        UnBind(Delegate<void(Args...)>(memberFunction, inClass));
+    }
+
+    template<typename Class>
+    void UnBind(void(Class::*memberFunction)(Args...) const, Class* inClass)
+    {
+        UnBind(Delegate<void(Args...)>(memberFunction, inClass));
+    }
+
+    template<typename Class>
+    void UnBind(void(Class::*memberFunction)(Args...), Class& inClass)
+    {
+        UnBind(Delegate<void(Args...)>(memberFunction, inClass));
+    }
+
+    template<typename Class>
+    void UnBind(void(Class::*memberFunction)(Args...) const, Class& inClass)
+    {
+        UnBind(Delegate<void(Args...)>(memberFunction, inClass));
+    }
+
+    void Invoke(Args... inArgs)
+    {
+        for(Delegate<void(Args...)>& delegate : myBoundDelegates)
+        {
+            delegate.Invoke(std::forward<Args>(inArgs)...);
+        }
+    }
+
+    void operator()(Args... inArgs)
+    {
+        Invoke(std::forward<Args>(inArgs)...);
+    }
+   
 private:
-    MutexList<std::function<Function>> myBoundFunctions;
+    List<Delegate<void(Args...)>> myBoundDelegates{};
 };

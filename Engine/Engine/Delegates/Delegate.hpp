@@ -54,6 +54,11 @@ public:
         myFuncCtor.reset(new ConstMemberFuncCtor<ReturnType(Class::*)(ArgTypes...) const>(memberFunction, &inInstance));
     }
 
+    bool operator==(const Delegate& inOther) const
+    {
+        return myFuncCtor == inOther.myFuncCtor;
+    }
+
     ~Delegate() = default;
 
     ReturnType Invoke(ArgTypes... inArgs)
