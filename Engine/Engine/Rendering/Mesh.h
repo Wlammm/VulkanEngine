@@ -1,11 +1,12 @@
 #pragma once
+#include "VertexBufferSystem.h"
 
 struct Mesh
 {
 	uint NumVertices = 0;
 	uint NumIndices = 0;
 
-	class VulkanBuffer* VertexBuffer = nullptr;
+	VertexBufferHandle VertexBuffer;
 	class VulkanBuffer* IndexBuffer = nullptr;
 
 	class Material* myMaterial = nullptr;

@@ -102,8 +102,9 @@ Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
 			Mesh& mesh = meshes.Emplace();
 
 			// Everything below needs to be handled in a thread safe way before we async load this.
-			mesh.VertexBuffer = VulkanAllocator::AllocateBuffer_TS("VertexBuffer", VulkanBuffer::VertexBufferCreateInfo(meshData.myVertices), VMA_MEMORY_USAGE_AUTO);
-			mesh.VertexBuffer->SetData(meshData.myVertices.data(), sizeof(Vertex) * meshData.myVertices.size());
+			//mesh.VertexBuffer = VulkanAllocator::AllocateBuffer_TS("VertexBuffer", VulkanBuffer::VertexBufferCreateInfo(meshData.myVertices), VMA_MEMORY_USAGE_AUTO);
+			//mesh.VertexBuffer->SetData(meshData.myVertices.data(), sizeof(Vertex) * meshData.myVertices.size());
+			mesh.VertexBuffer = Engine::GetSystem<VertexBufferSystem>()->UploadVertexData(meshData.myVertices);
 			mesh.NumVertices = static_cast<uint>(meshData.myVertices.size());
 
 			mesh.IndexBuffer = VulkanAllocator::AllocateBuffer_TS("IndexBuffer", VulkanBuffer::IndexBufferCreateInfo(meshData.myIndices), VMA_MEMORY_USAGE_AUTO);
@@ -203,7 +204,7 @@ void ModelFactory::GetModelDataFromFbx(const std::filesystem::path& inPath, Mode
 		{
 			Vertex vertex{};
 
-			// Import models with inverted y due to some error in the matrices that I cant be asked looking into right now ¯\_(ö)_/¯
+			// Import models with inverted y due to some error in the matrices that I cant be asked looking into right now ï¿½\_(ï¿½)_/ï¿½
 			vertex.myPosition = { aiMesh->mVertices[vertexIndex].x, aiMesh->mVertices[vertexIndex].y, aiMesh->mVertices[vertexIndex].z, 1.0f };
 			vertex.myColor = { 1, 1, 1, 1 };
 

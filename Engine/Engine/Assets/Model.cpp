@@ -21,7 +21,8 @@ Model::~Model()
 	for(Mesh& mesh : myMeshes)
 	{
 		VulkanAllocator::DestroyBuffer_TS(mesh.IndexBuffer);
-		VulkanAllocator::DestroyBuffer_TS(mesh.VertexBuffer);
+		//VulkanAllocator::DestroyBuffer_TS(mesh.VertexBuffer);
+		Engine::GetSystem<VertexBufferSystem>()->RemoveVertexBuffer(mesh.VertexBuffer);
 	}
 }
 

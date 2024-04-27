@@ -44,14 +44,14 @@ void World::Init()
 		transform.SetPosition(0, 0, -10);
 	}
 
-	//{
-	//	entity = myRegistry.create();
-	//	auto& transform = myRegistry.emplace<Transform>(entity);
-	//	transform.SetScale(1);
-	//	transform.SetRotationDeg(0, 0, 0);
-	//
-	//	auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Sponza/NewSponza_Main_Yup_002.fbx");
-	//}
+	{
+		entity = myRegistry.create();
+		auto& transform = myRegistry.emplace<Transform>(entity);
+		transform.SetScale(1);
+		transform.SetRotationDeg(0, 0, 0);
+	
+		auto& staticMesh = myRegistry.emplace<StaticMesh>(entity, "Assets/Sponza/NewSponza_Main_Yup_002.fbx");
+	}
 
 	{
 		entity = myRegistry.create();

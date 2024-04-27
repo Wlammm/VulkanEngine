@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-#include "FuncCtor.hpp"
-#include "FreeFuncCtor.hpp"
-#include "MemberFuncCtor.hpp"
-#include "ConstMemberFuncCtor.hpp"
+#include "Internal/FuncCtor.hpp"
+#include "Internal/FreeFuncCtor.hpp"
+#include "Internal/MemberFuncCtor.hpp"
+#include "Internal/ConstMemberFuncCtor.hpp"
 
 template <typename>
 class Delegate;

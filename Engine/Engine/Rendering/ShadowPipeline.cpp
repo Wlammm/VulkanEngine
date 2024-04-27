@@ -60,6 +60,10 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 	if (meshView.size_hint() == 0)
 		return;
 
+	VertexBufferSystem* vertexBufferSystem = Engine::GetSystem<VertexBufferSystem>();
+	check(vertexBufferSystem);
+	inCommandBuffer.bindVertexBuffers(0, vertexBufferSystem->GetGlobalVertexBuffer()->GetAPIResource(), {0});
+	
 	const vk::ClearValue clearValue = vk::ClearDepthStencilValue(1.0f, 0u);
 	for (const auto [entity, lightTransform, light] : directionalLightView.each())
 	{
@@ -103,7 +107,8 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 					continue;
 
 				mesh.Bind(inCommandBuffer);
-				inCommandBuffer.drawIndexed(mesh.NumIndices, 1, 0, 0, 0);
+				const VertexBufferData& vertexBufferData = vertexBufferSystem->GetVertexBufferData(mesh.VertexBuffer);
+				inCommandBuffer.drawIndexed(mesh.NumIndices, 1, 0, vertexBufferData.myOffset, 0);
 			}
 		}
 

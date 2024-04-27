@@ -21,18 +21,26 @@ class VertexBufferSystem : public System
 {
 public:
     VertexBufferSystem();
+    ~VertexBufferSystem();
 
     void Tick() override final;
 
     VertexBufferHandle UploadVertexData(const List<Vertex>& myVertices);
+    void RemoveVertexBuffer(const VertexBufferHandle inHandle);
+    
+    const VertexBufferData& GetVertexBufferData(const VertexBufferHandle inHandle) const;
+    const VulkanBuffer* GetGlobalVertexBuffer() const;
 
 private:
     void GrowBuffer(const uint inRequiredSize);
     
 private:
     uint myUsedBufferSize = 0;
+    uint myCurrentVertexOffset = 0;
     VertexBufferHandle myNextHandleID = 0;
-    List<VertexBufferData> myVertexBuffers;
+    
+    std::unordered_map<VertexBufferHandle, VertexBufferData> myVertexBuffers;
+    //List<VertexBufferData> myVertexBuffers;
 
     VulkanBuffer* myBuffer = nullptr;
 };
