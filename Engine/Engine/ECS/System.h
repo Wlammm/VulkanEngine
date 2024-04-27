@@ -7,7 +7,7 @@ public:
 	virtual ~System() {}
 
 	virtual void Tick() {};
-
+	
 	bool IsInitializedCorrectly() const { return myHasSetDependencies; }
 
 	const std::unordered_set<std::string>& GetDependencies()

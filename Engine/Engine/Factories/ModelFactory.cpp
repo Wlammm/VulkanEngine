@@ -5,7 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include "Rendering/Mesh.h"
+#include "Rendering/Mesh.hpp"
 #include "Engine.h"
 #include "Assets/Material.h"
 #include "Assets/AssetRegistry.h"
@@ -107,9 +107,10 @@ Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
 			mesh.VertexBuffer = Engine::GetSystem<VertexBufferSystem>()->UploadVertexData(meshData.myVertices);
 			mesh.NumVertices = static_cast<uint>(meshData.myVertices.size());
 
-			mesh.IndexBuffer = VulkanAllocator::AllocateBuffer_TS("IndexBuffer", VulkanBuffer::IndexBufferCreateInfo(meshData.myIndices), VMA_MEMORY_USAGE_AUTO);
-			mesh.IndexBuffer->SetData(meshData.myIndices.data(), sizeof(uint) * meshData.myIndices.size());
+			mesh.IndexBuffer = Engine::GetSystem<IndexBufferSystem>()->UploadIndexData(meshData.myIndices);
 			mesh.NumIndices = static_cast<uint>(meshData.myIndices.size());
+
+			// Should we really have this here?
 			RenderSystem::FlushUploadCommands();
 
 			if (std::filesystem::exists(meshData.myAlbedoPath))

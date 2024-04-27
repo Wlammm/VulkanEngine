@@ -1,4 +1,5 @@
 #pragma once
+#include "IndexBufferSystem.h"
 #include "VertexBufferSystem.h"
 
 struct Mesh
@@ -7,9 +8,7 @@ struct Mesh
 	uint NumIndices = 0;
 
 	VertexBufferHandle VertexBuffer;
-	class VulkanBuffer* IndexBuffer = nullptr;
+	IndexBufferHandle IndexBuffer;
 
 	class Material* myMaterial = nullptr;
-
-	void Bind(vk::CommandBuffer inCommandBuffer) const;
 };

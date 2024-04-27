@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Rendering/Mesh.h"
+#include "Engine/Rendering/Mesh.hpp"
 
 class Model
 {

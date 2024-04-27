@@ -88,6 +88,10 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 	VertexBufferSystem* vertexBufferSystem = Engine::GetSystem<VertexBufferSystem>();
 	check(vertexBufferSystem);
 	inCommandBuffer.bindVertexBuffers(0, {vertexBufferSystem->GetGlobalVertexBuffer()->GetAPIResource()}, {0});
+
+	IndexBufferSystem* indexBufferSystem = Engine::GetSystem<IndexBufferSystem>();
+	check(indexBufferSystem);
+	inCommandBuffer.bindIndexBuffer(indexBufferSystem->GetGlobalIndexBuffer()->GetAPIResource(),0, vk::IndexType::eUint32);
 	
 	for (const auto [entity, transform, mesh] : view.each())
 	{
@@ -104,10 +108,9 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 
 			inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 2, mesh.myMaterial->GetDescriptorSet(), {});
 
-			mesh.Bind(inCommandBuffer);
-			
-			const VertexBufferData& data = vertexBufferSystem->GetVertexBufferData(mesh.VertexBuffer);
-			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, 0, data.myOffset, 0);
+			const VertexBufferData& vertexData = vertexBufferSystem->GetVertexBufferData(mesh.VertexBuffer);
+			const IndexBufferData& indexData = indexBufferSystem->GetIndexBufferData(mesh.IndexBuffer);
+			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexData.myOffset, vertexData.myOffset, 0);
 		}
 	}
 }

@@ -63,6 +63,10 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 	VertexBufferSystem* vertexBufferSystem = Engine::GetSystem<VertexBufferSystem>();
 	check(vertexBufferSystem);
 	inCommandBuffer.bindVertexBuffers(0, vertexBufferSystem->GetGlobalVertexBuffer()->GetAPIResource(), {0});
+
+	IndexBufferSystem* indexBufferSystem = Engine::GetSystem<IndexBufferSystem>();
+	check(indexBufferSystem);
+	inCommandBuffer.bindIndexBuffer(indexBufferSystem->GetGlobalIndexBuffer()->GetAPIResource(), 0, vk::IndexType::eUint32);
 	
 	const vk::ClearValue clearValue = vk::ClearDepthStencilValue(1.0f, 0u);
 	for (const auto [entity, lightTransform, light] : directionalLightView.each())
@@ -106,9 +110,9 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 				if (!mesh.myMaterial)
 					continue;
 
-				mesh.Bind(inCommandBuffer);
 				const VertexBufferData& vertexBufferData = vertexBufferSystem->GetVertexBufferData(mesh.VertexBuffer);
-				inCommandBuffer.drawIndexed(mesh.NumIndices, 1, 0, vertexBufferData.myOffset, 0);
+				const IndexBufferData& indexBufferData = indexBufferSystem->GetIndexBufferData(mesh.IndexBuffer);
+				inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexBufferData.myOffset, vertexBufferData.myOffset, 0);
 			}
 		}
 

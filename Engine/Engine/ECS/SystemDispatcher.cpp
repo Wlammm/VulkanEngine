@@ -17,6 +17,11 @@ SystemDispatcher::~SystemDispatcher()
 void SystemDispatcher::DispatchSystems()
 {
 	ZoneScoped;
+	for(System* system : mySystems)
+	{
+		system->Tick();
+	}
+	return;
 	ThreadPool& threadPool = Engine::GetThreadPool();
 	if (myRequireRebuild)
 	{
