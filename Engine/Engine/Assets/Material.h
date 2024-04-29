@@ -1,5 +1,6 @@
 #pragma once
 #include "AssetObserver.h"
+#include "Rendering/TextureSystem.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanDescriptorSet.h"
@@ -47,6 +48,10 @@ public:
 
 	vk::DescriptorSet GetDescriptorSet();
 
+	TextureHandle GetAlbedo() const;
+	TextureHandle GetNormal() const;
+	TextureHandle GetMaterial() const;
+
 private:
 	void BuildDescriptorSet();
 
@@ -58,6 +63,10 @@ private:
 	std::filesystem::path myAlbedoPath;
 	std::filesystem::path myNormalPath;
 	std::filesystem::path myMaterialPath;
+
+	TextureHandle myAlbedoHandle;
+	TextureHandle myNormalHandle;
+	TextureHandle myMaterialHandle;
 
 	VulkanDescriptorSet myDescriptorSet = VulkanDescriptorSet{ Material::GetMaterialDescriptorLayout() };
 };

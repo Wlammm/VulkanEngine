@@ -28,6 +28,7 @@
 #include "ECS/Systems/DirectionalLightSystem.h"
 #include "ECS/Systems/StaticMeshSystem.h"
 #include "Rendering/IndexBufferSystem.h"
+#include "Rendering/TextureSystem.h"
 #include "Rendering/VertexBufferSystem.h"
 #include "Utils/Debug.h"
 
@@ -68,39 +69,12 @@ Engine::~Engine()
 	myInstance = nullptr;
 }
 
-void Log(int num)
-{
-	std::cout << num << std::endl;
-}
-
-void Log2(int num)
-{
-	std::cout << -num << std::endl;
-}
-
-class TestClass
-{
-public:
-	void DoSomething(int innum)
-	{
-		std::cout << 4 - innum << "\n";
-	}
-};
-
 void Engine::Tick()
 {
 	FrameMark;
 	ZoneScoped;
 	Time::Tick();
 	AutoInitManager::Tick();
-
-	TestClass someClass;
-	MulticastDelegate<int> delegate;
-	delegate += Log;
-	delegate += Log2;
-	delegate.Bind(&TestClass::DoSomething, someClass);
-	
-	delegate(3);
 	
 #if !TRACY_ENABLE // Disable fps limit when we're profiling.
 	constexpr double targetFPS = 144.f;
@@ -204,4 +178,5 @@ void Engine::CreateSystems()
 	mySystemDispatcher->AddSystem<StaticMeshSystem>();
 	mySystemDispatcher->AddSystem<VertexBufferSystem>();
 	mySystemDispatcher->AddSystem<IndexBufferSystem>();
+	mySystemDispatcher->AddSystem<TextureSystem>();
 }

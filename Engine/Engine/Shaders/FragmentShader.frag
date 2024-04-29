@@ -7,9 +7,11 @@ layout(location = 0) in vec3 inNormal;
 layout(location = 1) in vec2 inTexCoord;
 layout(location = 2) in vec3 inFragPos;
 
-layout(set=2, binding = 0) uniform sampler2D albedo;
-layout(set=2, binding = 1) uniform sampler2D normal;
-layout(set=2, binding = 2) uniform sampler2D material;
+layout(set = 2, binding = 0) uniform sampler2D textures[];
+
+//layout(set=2, binding = 0) uniform sampler2D albedo;
+//layout(set=2, binding = 1) uniform sampler2D normal;
+//layout(set=2, binding = 2) uniform sampler2D material;
 layout(set=0, binding = 3) uniform sampler2D inDirectionalLightShadowMap;
 
 layout(set = 0, binding = 0) uniform FrameBuffer 
@@ -42,10 +44,18 @@ layout(set = 0, binding = 2) uniform DirectionalLightBuffer
     
 } inDirectionalLightBuffer;
 
+layout( push_constant ) uniform constants
+{
+    int myAlbedoIndex;
+    int myNoramlIndex;
+    int myMaterialIndex;
+} inPushConstants;
+
 void main()
 {
     outColor = vec4(inPointLightBuffer.myLights[0].myPosition, 1.0);
-    vec4 albedoColor = texture(albedo, inTexCoord);
+
+    vec4 albedoColor = texture(textures[inPushConstants.myAlbedoIndex], inTexCoord);
     vec3 normal = normalize(inNormal);
 
     vec4 pointLightColors = vec4(0, 0, 0, 0);

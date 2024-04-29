@@ -45,9 +45,31 @@ vk::DescriptorSet Material::GetDescriptorSet()
 	return myDescriptorSet.GetSet();
 }
 
+TextureHandle Material::GetAlbedo() const
+{
+	return myAlbedoHandle;
+}
+
+TextureHandle Material::GetNormal() const
+{
+	return myNormalHandle;
+}
+
+TextureHandle Material::GetMaterial() const
+{
+	return myMaterialHandle;
+}
+
 void Material::BuildDescriptorSet()
 {
 	ZoneScoped;
+	TextureSystem* textureSystem = Engine::GetSystem<TextureSystem>();
+	check(textureSystem);
+
+	myAlbedoHandle = textureSystem->AddTexture(myAlbedo, VulkanUtils::GetSampler(SamplerMode::Wrap));
+	myNormalHandle = textureSystem->AddTexture(myNormal, VulkanUtils::GetSampler(SamplerMode::Wrap));
+	myMaterialHandle = textureSystem->AddTexture(myMaterial, VulkanUtils::GetSampler(SamplerMode::Wrap));
+	
 	myDescriptorSet.BindImage(myAlbedo, VulkanUtils::GetSampler(SamplerMode::Wrap), 0, vk::ShaderStageFlagBits::eFragment);
 	myDescriptorSet.BindImage(myNormal, VulkanUtils::GetSampler(SamplerMode::Wrap), 1, vk::ShaderStageFlagBits::eFragment);
 	myDescriptorSet.BindImage(myMaterial, VulkanUtils::GetSampler(SamplerMode::Wrap), 2, vk::ShaderStageFlagBits::eFragment);

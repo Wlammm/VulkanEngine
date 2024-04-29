@@ -74,4 +74,11 @@ private:
 		glm::mat4 myLightProjection;
 	};
 	VulkanBuffer* myDirectionalLightBuffer;
+
+	struct MaterialIndicesPushConstant
+	{
+		int myAlbedoIndex;
+		int myNormalIndex;
+		int myMaterialIndex;
+	};
 };

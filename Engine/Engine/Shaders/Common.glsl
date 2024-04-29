@@ -1,3 +1,5 @@
+#extension GL_EXT_nonuniform_qualifier : enable
+
 #define epsilon 0.00001
 
 float saturate(float inValue)

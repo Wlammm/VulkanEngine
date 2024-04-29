@@ -2,6 +2,7 @@
 #include "MeshPipeline.h"
 
 #include "Engine.h"
+#include "TextureSystem.h"
 #include "Engine/Assets/AssetRegistry.h"
 
 #include "Vulkan/VulkanContext.h"
@@ -92,22 +93,31 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 	IndexBufferSystem* indexBufferSystem = Engine::GetSystem<IndexBufferSystem>();
 	check(indexBufferSystem);
 	inCommandBuffer.bindIndexBuffer(indexBufferSystem->GetGlobalIndexBuffer()->GetAPIResource(),0, vk::IndexType::eUint32);
+
+	TextureSystem* textureSystem = Engine::GetSystem<TextureSystem>();
+	check(textureSystem);
+	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 2, textureSystem->GetDescriptorSet(), {});
 	
-	for (const auto [entity, transform, mesh] : view.each())
+	for (const auto [entity, transform, staticMesh] : view.each())
 	{
-		if (!mesh.myModel)
+		if (!staticMesh.myModel)
 			continue;
 
 		BuildObjectBuffer(transform);
 		inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, myObjectDescriptorSet.GetSet(), {});
 
-		for (const Mesh& mesh : mesh.myModel->GetMeshes())
+		for (const Mesh& mesh : staticMesh.myModel->GetMeshes())
 		{
 			if (!mesh.myMaterial)
 				continue;
 
-			inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 2, mesh.myMaterial->GetDescriptorSet(), {});
-
+			// Insert push constant with material indices here.
+			MaterialIndicesPushConstant materialData;
+			materialData.myAlbedoIndex = mesh.myMaterial->GetAlbedo();
+			materialData.myNormalIndex = mesh.myMaterial->GetNormal();
+			materialData.myMaterialIndex = mesh.myMaterial->GetMaterial();
+			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, sizeof(MaterialIndicesPushConstant), &materialData);
+			
 			const VertexBufferData& vertexData = vertexBufferSystem->GetVertexBufferData(mesh.VertexBuffer);
 			const IndexBufferData& indexData = indexBufferSystem->GetIndexBufferData(mesh.IndexBuffer);
 			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexData.myOffset, vertexData.myOffset, 0);
@@ -156,8 +166,12 @@ void MeshPipeline::CreateDescriptors()
 
 void MeshPipeline::CreatePipeline()
 {
-	List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout(), myObjectDescriptorSet.GetLayout(), Material::GetMaterialDescriptorLayout() };
-	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
+	TextureSystem* textureSystem = Engine::GetSystem<TextureSystem>();
+	check(textureSystem);
+	
+	const List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout(), myObjectDescriptorSet.GetLayout(), textureSystem->GetDescriptorLayout() };
+	const List<vk::PushConstantRange> pushConstants { vk::PushConstantRange().setSize(sizeof(MaterialIndicesPushConstant)).setStageFlags(vk::ShaderStageFlagBits::eFragment) };
+	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts).setPushConstantRanges(pushConstants));
 
 	const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
 		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(*myVertexShader).setPName("main"),
