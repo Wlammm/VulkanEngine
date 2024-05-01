@@ -34,6 +34,7 @@ public:
 
 private:
 	void AddUploadPass(vk::CommandBuffer inCommandBuffer);
+	void AddComputePass(vk::CommandBuffer inCommandBuffer);
 	void AddMeshPass(vk::CommandBuffer inCommandBuffer);
 	void AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer);
 	void AddDebugPass(vk::CommandBuffer inCommandBuffer);
@@ -68,6 +69,7 @@ private:
 	class FullscreenPipeline* myCopyPipeline = nullptr;
 	class ShadowPipeline* myShadowPipeline = nullptr;
 	class DebugPipeline* myDebugPipeline = nullptr;
+	class GDRPipeline* myGDRPipeline = nullptr;
 
 	vk::RenderPass myRenderPass;
 	vk::RenderPass myRenderTextureRenderPass;

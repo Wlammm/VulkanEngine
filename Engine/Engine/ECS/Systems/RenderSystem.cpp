@@ -20,6 +20,7 @@
 #include "ECS/Components/Transform.h"
 #include "Rendering/ShadowPipeline.h"
 #include "Rendering/DebugPipeline.h"
+#include "Rendering/GDRPipeline.h"
 
 RenderSystem::RenderSystem()
 {
@@ -57,6 +58,7 @@ void RenderSystem::Tick()
 		GPUMARK_SCOPE(commandBuffer, "Frame");
 
 		AddUploadPass(commandBuffer);
+		AddComputePass(commandBuffer);
 		AddShadowGenerationPass(commandBuffer);
 
 		commandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
@@ -144,6 +146,12 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 	myUploadCommands.Clear();
 
 	myUploadCommandsMutex.unlock();
+}
+
+void RenderSystem::AddComputePass(vk::CommandBuffer inCommandBuffer)
+{
+	GPUMARK_SCOPE(inCommandBuffer, "ComputePass");
+	myGDRPipeline->AddCommands(inCommandBuffer);
 }
 
 void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
@@ -267,6 +275,7 @@ void RenderSystem::CreatePipelines()
 	myMeshPipeline = new MeshPipeline();
 	myDebugPipeline = new DebugPipeline();
 	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetShader("FullscreenCopy.frag"), myRenderTexture);
+	myGDRPipeline = new GDRPipeline();
 }
 
 void RenderSystem::CreateRenderTextures()

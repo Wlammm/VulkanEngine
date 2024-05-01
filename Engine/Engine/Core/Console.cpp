@@ -40,21 +40,21 @@ Console& Console::Get()
 
 void Console::Log(const char* inString, ...)
 {
-	const std::string msg = "[LOG]: " + std::string(inString) + "\n";
+	const std::string msg = "[LOG]: " + std::string(inString);
 	SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
 
 	va_list argptr;
 	va_start(argptr, inString);
-	vfprintf(stderr, msg.c_str(), argptr);
+	vfprintf(stdout, msg.c_str(), argptr);
 	va_end(argptr);
 
-	std::cout << msg;
+	std::cout << std::endl;
 	OutputDebugStringA(msg.c_str());
 }
 
 void Console::Log(const std::string& inString)
 {
-	const std::string msg = "[LOG]: " + std::string(inString) + "\n";
+	const std::string msg = "[LOG]: " + std::string(inString);
 	SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
 	OutputDebugStringA(msg.c_str());
 	std::cout << msg;
@@ -63,21 +63,22 @@ void Console::Log(const std::string& inString)
 
 void Console::LogWarning(const char* inString, ...)
 {
-	const std::string msg = "[WARNING]: " + std::string(inString) + "\n";
+	const std::string msg = "[WARNING]: " + std::string(inString);
 	std::cout << "[WARNING]: ";
 	SetConsoleTextAttribute(myConsoleHandle, COLOR_YELLOW);
 	va_list argptr;
 	va_start(argptr, inString);
-	vfprintf(stderr, msg.c_str(), argptr);
+	vfprintf(stdout, msg.c_str(), argptr);
 	va_end(argptr);
 	SetConsoleTextAttribute(myConsoleHandle, 15);
 
+	std::cout << std::endl;
 	OutputDebugStringA(msg.c_str());
 }
 
 void Console::LogWarning(const std::string& inString, ...)
 {
-	const std::string msg = "[WARNING]: " + std::string(inString) + "\n";
+	const std::string msg = "[WARNING]: " + std::string(inString);
 	SetConsoleTextAttribute(myConsoleHandle, COLOR_YELLOW);
 	std::cout << msg;
 	SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
@@ -86,7 +87,7 @@ void Console::LogWarning(const std::string& inString, ...)
 
 void Console::LogError(const char* inString, ...)
 {
-	const std::string msg = "[ERROR]: " + std::string(inString) + "\n";
+	const std::string msg = "[ERROR]: " + std::string(inString);
 	SetConsoleTextAttribute(myConsoleHandle, COLOR_RED);
 	va_list argptr;
 	va_start(argptr, inString);
@@ -95,13 +96,15 @@ void Console::LogError(const char* inString, ...)
 	SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
 	OutputDebugStringA(msg.c_str());
 	OutputDebugStringA("\n");
+	std::cerr << std::endl;
 }
 
 void Console::LogError(const std::string& inString, ...)
 {
-	const std::string msg = "[ERROR]: " + std::string(inString) + "\n";
+	const std::string msg = "[ERROR]: " + std::string(inString);
 	SetConsoleTextAttribute(myConsoleHandle, COLOR_RED);
 	std::cerr << msg;
 	SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
 	OutputDebugStringA(msg.c_str());
+	std::cerr << std::endl;
 }

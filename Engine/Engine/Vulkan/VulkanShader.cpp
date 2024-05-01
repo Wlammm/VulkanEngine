@@ -99,6 +99,8 @@ shaderc_shader_kind GetKindFromExtension(const std::string& inExtension)
 		return shaderc_vertex_shader;
 	if (String::EqualsIgnoreCase(inExtension, ".frag"))
 		return shaderc_fragment_shader;
+	if(String::EqualsIgnoreCase(inExtension, ".comp"))
+		return shaderc_compute_shader;
 
 	check(false);
 	return shaderc_vertex_shader;
@@ -123,6 +125,7 @@ void VulkanShader::Compile()
 	options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
 	options.SetWarningsAsErrors();
 	options.SetGenerateDebugInfo();
+	options.SetTargetSpirv(shaderc_spirv_version_1_5);
 	options.SetOptimizationLevel(shaderc_optimization_level_performance);
 
 	// Create the unique ptr and grab a raw pointer from it before passing it to the compiler so we can grab include data afterwards.
