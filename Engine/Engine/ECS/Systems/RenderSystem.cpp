@@ -264,6 +264,7 @@ void RenderSystem::DestroyRenderResources()
 	del(myMeshPipeline);
 	del(myShadowPipeline);
 	del(myDebugPipeline);
+	del(myGDRPipeline);
 
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderPass);
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderTextureRenderPass);

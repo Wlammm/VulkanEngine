@@ -64,15 +64,14 @@ void Console::Log(const std::string& inString)
 void Console::LogWarning(const char* inString, ...)
 {
 	const std::string msg = "[WARNING]: " + std::string(inString);
-	std::cout << "[WARNING]: ";
 	SetConsoleTextAttribute(myConsoleHandle, COLOR_YELLOW);
+
 	va_list argptr;
 	va_start(argptr, inString);
 	vfprintf(stdout, msg.c_str(), argptr);
 	va_end(argptr);
-	SetConsoleTextAttribute(myConsoleHandle, 15);
-
 	std::cout << std::endl;
+
 	OutputDebugStringA(msg.c_str());
 }
 
