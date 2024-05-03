@@ -56,7 +56,7 @@ public:
 
     bool operator==(const Delegate& inOther) const
     {
-        return myFuncCtor == inOther.myFuncCtor;
+        return *myFuncCtor == *inOther.myFuncCtor;
     }
 
     ~Delegate() = default;

@@ -24,8 +24,7 @@ public:
 	class VulkanImage* GetDepthTexture();
 
 	void OnSwapChainResize();
-
-
+	
 	static void AddUploadCommand_TS(void* inOwner, std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction);
 	static void RemoveUploadCommandsForOwner_TS(void* inOwner);
 	static void FlushUploadCommands();

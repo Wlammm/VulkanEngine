@@ -20,7 +20,7 @@ public:
 
     ~ConstMemberFuncCtor() = default;
 
-    bool operator==(const FuncCtor<ReturnType(ArgTypes...)>& inOther) override
+    bool operator==(const FuncCtor<ReturnType(ArgTypes...)>& inOther) const override
     {
         // Cant dynamic cast to pointer here so need to do this for const type :/
         try

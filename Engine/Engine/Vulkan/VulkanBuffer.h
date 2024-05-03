@@ -45,10 +45,10 @@ public:
 public:
 	vk::Buffer GetAPIResource() const;
 
-	void SetData(void* inData, const size_t inSize, uint inOffset = 0);
+	void SetData(const void* inData, const size_t inSize, uint inOffset = 0);
 
 	template<typename T>
-	void SetData(T& inData)
+	void SetData(const T& inData)
 	{
 		static_assert(!std::is_pointer<T>::value && "Data type cannot be of pointer type");
 		SetData(&inData, sizeof(T));
@@ -65,8 +65,8 @@ private:
 	~VulkanBuffer() = default;
 	VulkanBuffer(const VulkanBuffer& inOther) = delete;
 
-	void UploadMapped(void* inData, size_t inSize, uint inOffset);
-	void UploadStaged(void* inData, size_t inSize, uint inOffset);
+	void UploadMapped(const void* inData, size_t inSize, uint inOffset);
+	void UploadStaged(const void* inData, size_t inSize, uint inOffset);
 
 private:
 	friend class VulkanAllocator;

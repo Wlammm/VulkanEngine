@@ -9,7 +9,7 @@ vk::Buffer VulkanBuffer::GetAPIResource() const
 	return myBuffer;
 }
 
-void VulkanBuffer::SetData(void* inData, const size_t inSize, uint inOffset)
+void VulkanBuffer::SetData(const void* inData, const size_t inSize, uint inOffset)
 {
 	check(mySize >= inSize + inOffset);
 
@@ -41,14 +41,14 @@ size_t VulkanBuffer::GetSize() const
 	return mySize;
 }
 
-void VulkanBuffer::UploadMapped(void* inData, size_t inSize, uint inOffset)
+void VulkanBuffer::UploadMapped(const void* inData, size_t inSize, uint inOffset)
 {
 	char* ptr = static_cast<char*>(Map());
 	memcpy(ptr + inOffset, inData, inSize);
 	Unmap();
 }
 
-void VulkanBuffer::UploadStaged(void* inData, size_t inSize, uint inOffset)
+void VulkanBuffer::UploadStaged(const void* inData, size_t inSize, uint inOffset)
 {
 	VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer-Staging", VulkanBuffer::StagingCreateInfo(inSize), VMA_MEMORY_USAGE_AUTO, true);
 	stagingBuffer->SetData(inData, inSize);

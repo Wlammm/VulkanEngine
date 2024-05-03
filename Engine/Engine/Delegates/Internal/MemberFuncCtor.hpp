@@ -19,7 +19,7 @@ public:
 
     ~MemberFuncCtor() = default;
 
-    bool operator==(const FuncCtor<ReturnType(ArgTypes...)>& inOther) override
+    bool operator==(const FuncCtor<ReturnType(ArgTypes...)>& inOther) const override
     {
         const MemberFuncCtor* member = dynamic_cast<const MemberFuncCtor*>(&inOther);
 

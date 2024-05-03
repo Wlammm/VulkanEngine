@@ -18,7 +18,7 @@ public:
 
     ~FreeFuncCtor() = default;
 
-    bool operator==(const FuncCtor<ReturnType(ArgTypes...)>& inOther) override
+    bool operator==(const FuncCtor<ReturnType(ArgTypes...)>& inOther) const override
     {
         const FreeFuncCtor* free = dynamic_cast<const FreeFuncCtor*>(&inOther);
 

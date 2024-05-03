@@ -28,9 +28,11 @@
 #include "ECS/Systems/DirectionalLightSystem.h"
 #include "ECS/Systems/StaticMeshSystem.h"
 #include "Rendering/IndexBufferSystem.h"
+#include "Rendering/MeshSystem.h"
 #include "Rendering/TextureSystem.h"
 #include "Rendering/VertexBufferSystem.h"
 #include "Utils/Debug.h"
+#include "Vulkan/ObjectSystem.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -179,4 +181,6 @@ void Engine::CreateSystems()
 	mySystemDispatcher->AddSystem<VertexBufferSystem>();
 	mySystemDispatcher->AddSystem<IndexBufferSystem>();
 	mySystemDispatcher->AddSystem<TextureSystem>();
+	mySystemDispatcher->AddSystem<MeshSystem>();
+	mySystemDispatcher->AddSystem<ObjectSystem>();
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include "VulkanDynamicBuffer.hpp"
 
 class VulkanDescriptorSet
 {
@@ -13,19 +14,32 @@ public:
 	// Add all bindings first, then call Build().
 	void BindBuffer(const class VulkanBuffer* inBuffer, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::DescriptorType inDescriptorType);
 	void BindImage(const class VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags, const vk::ImageLayout inImageLayout = vk::ImageLayout::eReadOnlyOptimal);
-
+	void BindDynamicBuffer(const class IVulkanDynamicBuffer* inBuffer, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::DescriptorType inDescriptorType);
+	
 	void Build();
 
+	void Rebuild();
+	
 private:
+	template<typename Type>
+	struct BindingData
+	{
+		vk::ShaderStageFlags myShaderStages;
+		uint myBindingIndex;
+		vk::DescriptorType myDescriptorType;
+		
+		vk::ImageLayout myImageLayout; // Only required for images.
+		vk::Sampler mySampler; // Only required for images.
+		
+		Type myData;
+	};
+	
+	List<BindingData<const VulkanBuffer*>> myBuffers{};
+	List<BindingData<const IVulkanDynamicBuffer*>> myDynamicBuffers{};
+	List<BindingData<const VulkanImage*>> myImages{};
+	
 	// If a layout is passed in as constructor we do not want to handle deletion of it.
 	bool myUsesSharedLayout = false;
 	vk::DescriptorSetLayout myLayout;
 	vk::DescriptorSet mySet;
-
-	List<vk::DescriptorSetLayoutBinding> myLayoutBindings;
-	List<vk::WriteDescriptorSet> mySetWrites;
-
-	// These are linked list so references arent broken on resize.
-	std::list<vk::DescriptorBufferInfo> myBufferInfos;
-	std::list<vk::DescriptorImageInfo> myImageInfos;
 };

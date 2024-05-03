@@ -12,7 +12,7 @@ struct IndexBufferData
     // The offset into the global vertex buffer. This may change during defragmentation so do not store this anywhere else.
     uint myOffset;
 
-    uint myVertexCount;
+    uint myIndexCount;
 };
 
 class IndexBufferSystem : public System

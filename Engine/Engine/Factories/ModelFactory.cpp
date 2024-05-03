@@ -36,6 +36,7 @@ void ModelFactory::SaveModelDataToBinary(const ModelData& inData, const std::fil
 	{
 		writer.Write(mesh.myVertices);
 		writer.Write(mesh.myIndices);
+		writer.Write(mesh.mySphereCenterBounds);
 		writer.Write(mesh.myAlbedoPath);
 		writer.Write(mesh.myNormalPath);
 		writer.Write(mesh.myMaterialPath);
@@ -84,6 +85,7 @@ void ModelFactory::GetModelDataFromBinary(const std::filesystem::path& inPath, M
 		MeshData& mesh = outData.myMeshes.Emplace();
 		reader.Read(mesh.myVertices);
 		reader.Read(mesh.myIndices);
+		reader.Read(mesh.mySphereCenterBounds);
 		reader.Read(mesh.myAlbedoPath);
 		reader.Read(mesh.myNormalPath);
 		reader.Read(mesh.myMaterialPath);
@@ -110,6 +112,8 @@ Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
 			mesh.IndexBuffer = Engine::GetSystem<IndexBufferSystem>()->UploadIndexData(meshData.myIndices);
 			mesh.NumIndices = static_cast<uint>(meshData.myIndices.size());
 
+			mesh.mySphereCenterBounds = meshData.mySphereCenterBounds;
+
 			// Should we really have this here?
 			RenderSystem::FlushUploadCommands();
 
@@ -127,9 +131,26 @@ Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
 			}
 		}
 	}
+
+	MeshSystem* meshSystem = Engine::GetSystem<MeshSystem>();
+	check(meshSystem);
+	List<MeshHandle> handles{};
+
+	for(const Mesh& mesh : meshes)
+	{
+		const VertexBufferData& vertexData = Engine::GetSystem<VertexBufferSystem>()->GetVertexBufferData(mesh.VertexBuffer);
+		const IndexBufferData& indexData = Engine::GetSystem<IndexBufferSystem>()->GetIndexBufferData(mesh.IndexBuffer);
+		handles.Add(meshSystem->UploadRenderItem(RenderItem(
+			mesh.mySphereCenterBounds,
+			vertexData.myOffset,
+			indexData.myOffset,
+			indexData.myIndexCount,
+			0)));
+	}
+	
 	{
 		ZoneScopedN("Model construction");
-		Model* model = new Model(meshes);
+		Model* model = new Model(meshes, handles);
 		return model;
 	}
 }
@@ -246,6 +267,7 @@ void ModelFactory::GetModelDataFromFbx(const std::filesystem::path& inPath, Mode
 		MeshData& meshData = outModelData.myMeshes.Emplace();
 		meshData.myVertices = vertices;
 		meshData.myIndices = indices;
+		meshData.mySphereCenterBounds = CalculateSphereBounds(vertices);
 
 		if (albedoPath)
 		{
@@ -263,4 +285,23 @@ std::filesystem::path ModelFactory::GetCachedFilePath(const std::filesystem::pat
 {
 	std::filesystem::path cachePath = L"Cache/ModelCache/" + inPath.filename().wstring() + L".model";
 	return cachePath;
+}
+
+glm::vec4 ModelFactory::CalculateSphereBounds(const List<Vertex>& inVertices)
+{
+	glm::vec3 centerPos = glm::vec3();
+
+	for(const Vertex& vertex : inVertices)
+	{
+		centerPos += glm::vec3(vertex.myPosition);
+	}
+	
+	centerPos /= inVertices.size();
+
+	float maxDistanceFromCenter = 0;
+	for(const Vertex& vertex : inVertices)
+	{
+		maxDistanceFromCenter = std::max(maxDistanceFromCenter, glm::distance(centerPos, glm::vec3(vertex.myPosition)));
+	}
+	return glm::vec4(centerPos, maxDistanceFromCenter);
 }

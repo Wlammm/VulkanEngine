@@ -22,14 +22,5 @@ private:
     vk::Pipeline myPipeline;
     vk::PipelineLayout myPipelineLayout;
 
-    VulkanDescriptorSet myCullDescriptorSet;
-
-    struct alignas(16) TestBuffer
-    {
-        int someData;
-        int someData1;
-        int someData2;
-        int someData3;
-    };
-    VulkanBuffer* myTestDataBuffer = nullptr;;
+    VulkanDescriptorSet myDescriptorSet;
 };

@@ -32,7 +32,7 @@ IndexBufferHandle IndexBufferSystem::UploadIndexData(const List<uint>& inIndices
     
     IndexBufferData data{};
     data.myOffset = myCurrentIndexOffset;
-    data.myVertexCount = inIndices.size();
+    data.myIndexCount = inIndices.size();
     data.myID = ++myNextHandleID;
     myIndexBuffers.insert({data.myID, data});
     

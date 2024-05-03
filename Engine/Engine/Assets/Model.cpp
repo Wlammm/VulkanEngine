@@ -5,12 +5,15 @@
 #include "Engine.h"
 #include "Assets/AssetRegistry.h"
 #include "Assets/Material.h"
+#include "Rendering/IndexBufferSystem.h"
+#include "Rendering/VertexBufferSystem.h"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
 
-Model::Model(const List<Mesh>& inMeshes)
+Model::Model(const List<Mesh>& inMeshes, const List<MeshHandle>& inHandles)
 {
 	myMeshes = inMeshes;
+	myMeshHandles = inHandles;
 }
 
 Model::~Model()
@@ -28,6 +31,10 @@ Model::~Model()
 const List<Mesh>& Model::GetMeshes() const
 {
 	return myMeshes;
+}
+const List<MeshHandle>& Model::GetMeshHandles() const
+{
+	return myMeshHandles;
 }
 
 bool Model::IsValid() const

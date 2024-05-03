@@ -3,6 +3,7 @@
 
 #include "Engine.h"
 #include "Assets/AssetRegistry.h"
+#include "Vulkan/ObjectSystem.h"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanContext.h"
@@ -21,27 +22,31 @@ GDRPipeline::~GDRPipeline()
 {
     VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
     VulkanContext::GetDevice()->destroyPipeline(myPipeline);
-    VulkanAllocator::DestroyBuffer_TS(myTestDataBuffer);
 }
 
 void GDRPipeline::AddCommands(vk::CommandBuffer inCommandBuffer)
 {
     inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, myPipeline);
-    //inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, myPipelineLayout, 0, myCullDescriptorSet.GetSet(), {});
+    inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, myPipelineLayout, 0, myDescriptorSet.GetSet(), {});
     inCommandBuffer.dispatch(1, 1, 1);
 }
 
 void GDRPipeline::CreateDescriptorSets()
 {
-    myTestDataBuffer = VulkanAllocator::AllocateBuffer_TS("TestBuffer", VulkanBuffer::StorageBufferCreateInfo(sizeof(TestBuffer)),VMA_MEMORY_USAGE_AUTO);
+    MeshSystem* meshSystem = Engine::GetSystem<MeshSystem>();
+    check(meshSystem);
+
+    ObjectSystem* objectSystem = Engine::GetSystem<ObjectSystem>();
+    check(objectSystem);
     
-    myCullDescriptorSet.BindBuffer(myTestDataBuffer, vk::ShaderStageFlagBits::eCompute, 0, vk::DescriptorType::eStorageBuffer);
-    myCullDescriptorSet.Build();
+    myDescriptorSet.BindDynamicBuffer(&meshSystem->GetBuffer(), vk::ShaderStageFlagBits::eCompute, 0, vk::DescriptorType::eStorageBuffer);
+    myDescriptorSet.BindDynamicBuffer(&objectSystem->GetBuffer(), vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
+    myDescriptorSet.Build();
 }
 
 void GDRPipeline::CreatePipeline()
 {
-    const List<vk::DescriptorSetLayout> layouts{ /*myCullDescriptorSet.GetLayout()*/ };
+    const List<vk::DescriptorSetLayout> layouts{ myDescriptorSet.GetLayout() };
     myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
     
     vk::ComputePipelineCreateInfo createInfo = vk::ComputePipelineCreateInfo();

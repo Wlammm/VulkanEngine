@@ -10,5 +10,7 @@ struct Mesh
 	VertexBufferHandle VertexBuffer;
 	IndexBufferHandle IndexBuffer;
 
+	glm::vec4 mySphereCenterBounds;
+	
 	class Material* myMaterial = nullptr;
 };

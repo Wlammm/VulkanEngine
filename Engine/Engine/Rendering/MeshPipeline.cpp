@@ -21,6 +21,7 @@
 #include "ECS/Components/Transform.h"
 #include "ECS/Components/Camera.h"
 #include "ECS/Components/PointLight.h"
+#include "Utils/Debug.h"
 
 MeshPipeline::MeshPipeline()
 {
