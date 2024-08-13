@@ -1,15 +1,11 @@
 ﻿#include "EnginePch.h"
 #include "IndexBufferSystem.h"
 
-#include "ECS/Systems/RenderSystem.h"
+#include "Engine.h"
+#include "RenderSystem.h"
 #include "Utils/MathUtils.hpp"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
-
-IndexBufferSystem::IndexBufferSystem()
-{
-    
-}
 
 IndexBufferSystem::~IndexBufferSystem()
 {
@@ -44,7 +40,7 @@ IndexBufferHandle IndexBufferSystem::UploadIndexData(const List<uint>& inIndices
 
 void IndexBufferSystem::RemoveIndexBuffer(const IndexBufferHandle inHandle)
 {
-    LOG_WARNING("IndexBufferSystem::RemoveIndexBuffer not implemented.");
+    LOG_WARNING("IndexBufferSubsystem::RemoveIndexBuffer not implemented.");
 }
 
 const IndexBufferData& IndexBufferSystem::GetIndexBufferData(const IndexBufferHandle inHandle) const
@@ -79,7 +75,7 @@ void IndexBufferSystem::GrowBuffer(const uint inRequiredSize)
     VulkanBuffer* newBuffer = VulkanAllocator::AllocateBuffer_TS("GlobalIndexBuffer", createInfo, VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE);
 
     VulkanBuffer* oldBuffer = myBuffer;
-    RenderSystem::AddUploadCommand_TS(this, [oldBuffer, newBuffer](vk::CommandBuffer inCommandBuffer)
+    Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [oldBuffer, newBuffer](vk::CommandBuffer inCommandBuffer)
     {
         const vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize()).setSrcOffset(0).setDstOffset(0);
         inCommandBuffer.copyBuffer(oldBuffer->GetAPIResource(), newBuffer->GetAPIResource(), {copy});

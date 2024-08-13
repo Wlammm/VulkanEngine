@@ -13,15 +13,15 @@
 #include "Vulkan/VulkanAllocator.h"
 
 #include "Vertex.hpp"
-#include "World/World.h"
-#include "ECS/Systems/RenderSystem.h"
 #include "Assets/Material.h"
-#include "ECS/Components/DirectionalLight.h"
-#include "ECS/Components/StaticMesh.h"
-#include "ECS/Components/Transform.h"
-#include "ECS/Components/Camera.h"
-#include "ECS/Components/PointLight.h"
-#include "Utils/Debug.h"
+#include "Components/CameraComponent.h"
+#include "Components/DirectionalLightComponent.h"
+#include "Components/PointLightComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/TransformComponent.h"
+#include "ComponentSystem/ComponentSystem.h"
+#include "Vulkan/VulkanUtils.hpp"
+#include "World/World.h"
 
 MeshPipeline::MeshPipeline()
 {
@@ -75,43 +75,42 @@ MeshPipeline::~MeshPipeline()
 
 void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 {
-	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const StaticMesh>();
-	if (view.size_hint() == 0)
+	const List<GameObject*> objectsToRender = Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<StaticMeshComponent>();
+	if (objectsToRender.IsEmpty())
 		return;
-
+	
 	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
-
+	
 	BuildFrameBuffer();
 	BuildPointLightBuffer();
 	BuildDirectionalLightBuffer();
-
-	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
-
-	VertexBufferSystem* vertexBufferSystem = Engine::GetSystem<VertexBufferSystem>();
-	check(vertexBufferSystem);
-	inCommandBuffer.bindVertexBuffers(0, {vertexBufferSystem->GetGlobalVertexBuffer()->GetAPIResource()}, {0});
-
-	IndexBufferSystem* indexBufferSystem = Engine::GetSystem<IndexBufferSystem>();
-	check(indexBufferSystem);
-	inCommandBuffer.bindIndexBuffer(indexBufferSystem->GetGlobalIndexBuffer()->GetAPIResource(),0, vk::IndexType::eUint32);
-
-	TextureSystem* textureSystem = Engine::GetSystem<TextureSystem>();
-	check(textureSystem);
-	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 2, textureSystem->GetDescriptorSet(), {});
 	
-	for (const auto [entity, transform, staticMesh] : view.each())
+	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
+	
+	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
+	inCommandBuffer.bindVertexBuffers(0, {vertexBufferSystem.GetGlobalVertexBuffer()->GetAPIResource()}, {0});
+	
+	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
+	inCommandBuffer.bindIndexBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetAPIResource(),0, vk::IndexType::eUint32);
+	
+	TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
+	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 2, textureSystem.GetDescriptorSet(), {});
+	
+	for (GameObject* object : objectsToRender)
 	{
-		if (!staticMesh.myModel)
+		StaticMeshComponent* staticMesh = object->GetComponent<StaticMeshComponent>();
+		TransformComponent* transform = object->GetTransform();
+		if (!staticMesh->GetModel())
 			continue;
-
+	
 		BuildObjectBuffer(transform);
 		inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, myObjectDescriptorSet.GetSet(), {});
-
-		for (const Mesh& mesh : staticMesh.myModel->GetMeshes())
+	
+		for (const Mesh& mesh : staticMesh->GetModel()->GetMeshes())
 		{
 			if (!mesh.myMaterial)
 				continue;
-
+	
 			// Insert push constant with material indices here.
 			MaterialIndicesPushConstant materialData;
 			materialData.myAlbedoIndex = mesh.myMaterial->GetAlbedo();
@@ -119,8 +118,9 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 			materialData.myMaterialIndex = mesh.myMaterial->GetMaterial();
 			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, sizeof(MaterialIndicesPushConstant), &materialData);
 			
-			const VertexBufferData& vertexData = vertexBufferSystem->GetVertexBufferData(mesh.VertexBuffer);
-			const IndexBufferData& indexData = indexBufferSystem->GetIndexBufferData(mesh.IndexBuffer);
+			const VertexBufferData& vertexData = vertexBufferSystem.GetVertexBufferData(mesh.VertexBuffer);
+			const IndexBufferData& indexData = indexBufferSystem.GetIndexBufferData(mesh.IndexBuffer);
+			check(vertexBufferSystem.GetMaxVertexCount() > vertexData.myOffset);
 			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexData.myOffset, vertexData.myOffset, 0);
 		}
 	}
@@ -133,30 +133,28 @@ void MeshPipeline::CreateDescriptors()
 		vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
 		0, 
 		vk::DescriptorType::eUniformBuffer);
-
+	
 	myFrameDescriptorSet.BindBuffer(
 		myPointLightBuffer, 
 		vk::ShaderStageFlagBits::eFragment, 
 		1, 
 		vk::DescriptorType::eStorageBuffer);
-
+	
 	myFrameDescriptorSet.BindBuffer(
 		myDirectionalLightBuffer,
 		vk::ShaderStageFlagBits::eFragment, 
 		2, 
 		vk::DescriptorType::eUniformBuffer);
 
-	if (!Engine::GetWorld().GetDirectionalLight().myShadowMap)
-		Engine::GetWorld().GetDirectionalLight().CreateShadowMap({ 4096, 4096 });
-
 	myFrameDescriptorSet.BindImage(
-		Engine::GetWorld().GetDirectionalLight().myShadowMap, 
+		Engine::GetEngineSystem<RenderSystem>().GetDirectionalLightShadowMap(), 
 		VulkanUtils::GetSampler(SamplerMode::Clamp), 
 		3, 
 		vk::ShaderStageFlagBits::eFragment,
 		vk::ImageLayout::eDepthStencilReadOnlyOptimal);
+	
 	myFrameDescriptorSet.Build();
-
+	
 	myObjectDescriptorSet.BindBuffer(
 		myObjectDataBuffer,
 		vk::ShaderStageFlagBits::eVertex, 
@@ -167,10 +165,9 @@ void MeshPipeline::CreateDescriptors()
 
 void MeshPipeline::CreatePipeline()
 {
-	TextureSystem* textureSystem = Engine::GetSystem<TextureSystem>();
-	check(textureSystem);
+	TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
 	
-	const List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout(), myObjectDescriptorSet.GetLayout(), textureSystem->GetDescriptorLayout() };
+	const List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout(), myObjectDescriptorSet.GetLayout(), textureSystem.GetDescriptorLayout() };
 	const List<vk::PushConstantRange> pushConstants { vk::PushConstantRange().setSize(sizeof(MaterialIndicesPushConstant)).setStageFlags(vk::ShaderStageFlagBits::eFragment) };
 	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts).setPushConstantRanges(pushConstants));
 
@@ -226,7 +223,7 @@ void MeshPipeline::CreatePipeline()
 													   .setPColorBlendState(&colorBlendInfo)
 													   .setPDynamicState(&dynamicStateInfo)
 													   .setLayout(myPipelineLayout)
-													   .setRenderPass(Engine::GetSystem<RenderSystem>()->GetRenderPass()));
+													   .setRenderPass(Engine::GetEngineSystem<RenderSystem>().GetRenderPass()));
 
 	check(returnValue.result == vk::Result::eSuccess);
 	myPipeline = returnValue.value;
@@ -234,14 +231,15 @@ void MeshPipeline::CreatePipeline()
 
 void MeshPipeline::BuildFrameBuffer()
 {
-	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const Camera>();
-
-	for (auto ent : view)
+	for (GameObject* object : Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<CameraComponent>())
 	{
+		CameraComponent* camera = object->GetComponent<CameraComponent>();
+		TransformComponent* transform = object->GetTransform();
+		
 		FrameData data{};
-		data.myProjection = view.get<const Camera>(ent).myProjection;
-		data.myToView = glm::affineInverse(view.get<const Transform>(ent).GetMatrix());
-		data.myCameraPosition = view.get<const Transform>(ent).GetPosition();
+		data.myProjection = camera->GetProjection();
+		data.myToView = glm::affineInverse(transform->GetMatrix());
+		data.myCameraPosition = transform->GetPosition();
 		myFrameDataBuffer->SetData(data);
 		return;
 	}
@@ -251,18 +249,22 @@ void MeshPipeline::BuildFrameBuffer()
 
 void MeshPipeline::BuildPointLightBuffer()
 {
-	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const PointLight>();
-	if (view.size_hint() == 0)
+	List<GameObject*> pointLights = Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<PointLightComponent>();
+
+	if(pointLights.IsEmpty())
 		return;
-
+	
 	int lightIndex = 0;
-	for (const auto [entity, transform, light] : view.each())
+	for (GameObject* object : pointLights)
 	{
+		PointLightComponent* light = object->GetComponent<PointLightComponent>();
+		TransformComponent* transform = object->GetTransform();
+		
 		check(lightIndex < 10 && "max pointlights atm.");
-
-		myPointLightData.myLights[lightIndex].myPosition = transform.GetPosition();
-		myPointLightData.myLights[lightIndex].myRange = light.myRange;
-		myPointLightData.myLights[lightIndex].myColor = light.myColor;
+	
+		myPointLightData.myLights[lightIndex].myPosition = transform->GetPosition();
+		myPointLightData.myLights[lightIndex].myRange = light->GetRange();;
+		myPointLightData.myLights[lightIndex].myColor = glm::vec4(light->GetColor(), light->GetIntensity());
 		lightIndex++;
 	}
 	myPointLightData.myNumLights = lightIndex;
@@ -272,14 +274,15 @@ void MeshPipeline::BuildPointLightBuffer()
 void MeshPipeline::BuildDirectionalLightBuffer()
 {
 	DirectionalLightBuffer buffer = {};
-	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const DirectionalLight>();
 
-	for (auto [ent, transform, light] : view.each())
+	for (GameObject* object : Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<DirectionalLightComponent>())
 	{
-		buffer.myColor = light.myColor;
-		buffer.myDirection = transform.GetForward();
-		buffer.myLightView = glm::affineInverse(light.myLightView);
-		buffer.myLightProjection = light.myLightProjection;
+		DirectionalLightComponent* light = object->GetComponent<DirectionalLightComponent>();
+		TransformComponent* transform = object->GetTransform();
+		buffer.myColor = light->GetColor();
+		buffer.myDirection = transform->GetForward();
+		buffer.myLightView = glm::affineInverse(light->GetLightView());
+		buffer.myLightProjection = light->GetLightProjection();
 		myDirectionalLightBuffer->SetData(buffer);
 		return;
 	}
@@ -287,10 +290,10 @@ void MeshPipeline::BuildDirectionalLightBuffer()
 	LOG("No directional light found.");
 }
 
-void MeshPipeline::BuildObjectBuffer(const Transform& inTransform)
+void MeshPipeline::BuildObjectBuffer(const TransformComponent* inTransform)
 {
 	ObjectData data{};
-	data.myToWorld = inTransform.GetMatrix();
+	data.myToWorld = inTransform->GetMatrix();
 	myObjectDataBuffer->SetData(data);
 }
 

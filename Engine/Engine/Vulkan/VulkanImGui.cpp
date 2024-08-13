@@ -6,7 +6,7 @@
 #include "VulkanDevice.h"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanSwapChain.h"
-#include "ECS/Systems/RenderSystem.h"
+#include "Rendering/RenderSystem.h"
 
 void VulkanImGui::Start()
 {
@@ -59,9 +59,7 @@ void VulkanImGui::Start()
 	createInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 	createInfo.CheckVkResultFn = VulkanCheckResult;
 
-	RenderSystem* renderSystem = Engine::GetSystem<RenderSystem>();
-	check(renderSystem);
-	ImGui_ImplVulkan_Init(&createInfo, renderSystem->GetRenderPass());
+	ImGui_ImplVulkan_Init(&createInfo, Engine::GetEngineSystem<RenderSystem>().GetRenderPass());
 
 	vk::CommandBuffer cmd = VulkanContext::GetDevice().CreateCommandBuffer(true);
 	ImGui_ImplVulkan_CreateFontsTexture(cmd);

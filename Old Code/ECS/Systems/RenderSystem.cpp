@@ -12,6 +12,7 @@
 #include "Assets/AssetRegistry.h"
 #include "Vulkan/VulkanShader.h"
 #include "Assets/Material.h"
+#include "ECS/ECSRegistry.h"
 #include "Rendering/MeshPipeline.h"
 #include "Rendering/FullscreenPipeline.h"
 #include "tracy/Tracy.hpp"
@@ -159,8 +160,8 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 	ZoneScoped;
 
 	GPUMARK_SCOPE(inCommandBuffer, "MeshPass");
-	const auto view = Engine::GetWorld().GetRegistry().view<const Transform, const StaticMesh>();
-	if (view.size_hint() == 0)
+	
+	if (Engine::GetWorld().GetRegistry().NumComponents<const Transform, const StaticMesh>() == 0)
 		return;
 
 	inCommandBuffer.setViewport(0, vk::Viewport()

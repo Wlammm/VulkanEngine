@@ -10,11 +10,6 @@
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Assets/Material.h"
-#include "ECS/Components/Camera.h"
-#include "ECS/Components/Transform.h"
-#include "Vulkan/VulkanSwapChain.h"
-#include "ECS/Systems/RenderSystem.h"
-#include "Vulkan/VulkanImage.h"
 #include "World/World.h"
 
 DebugPipeline::DebugPipeline()
@@ -47,10 +42,6 @@ void DebugPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 	VulkanBuffer* vertexBuffer = BuildVertexBuffer();
 
 	if (!vertexBuffer)
-		return;
-
-	RenderSystem* renderSystem = Engine::GetSystem<RenderSystem>();
-	if (!renderSystem)
 		return;
 
 	UpdateFrameBuffer();
@@ -139,7 +130,7 @@ void DebugPipeline::CreatePipeline()
 																										 .setPColorBlendState(&colorBlendInfo)
 																										 .setPDynamicState(&dynamicStateInfo)
 																										 .setLayout(myPipelineLayout)
-																										 .setRenderPass(Engine::GetSystem<RenderSystem>()->GetRenderPass()));
+																										 .setRenderPass(Engine::GetEngineSystem<RenderSystem>().GetRenderPass()));
  
 	check(returnValue.result == vk::Result::eSuccess);
 	myPipeline = returnValue.value;
@@ -177,17 +168,16 @@ VulkanBuffer* DebugPipeline::BuildVertexBuffer()
 
 void DebugPipeline::UpdateFrameBuffer()
 {
-	auto view = Engine::GetWorld().GetRegistry().view<const Transform, const Camera>();
-
-	for (auto ent : view)
-	{
-		FrameData data{};
-		data.myProjection = view.get<const Camera>(ent).myProjection;
-		data.myToView = glm::affineInverse(view.get<const Transform>(ent).GetMatrix());
-		data.myCameraPosition = view.get<const Transform>(ent).GetPosition();
-		myFrameDataBuffer->SetData(data);
-		return;
-	}
+	LOG("DebugPipeline::UpdateFrameBuffer commented out.");
+	//for (auto [ent, transform, camera] : Engine::GetWorld().GetRegistry().IterateComponents<const Transform, const Camera>())
+	//{
+	//	FrameData data{};
+	//	data.myProjection = camera.myProjection;
+	//	data.myToView = glm::affineInverse(transform.GetMatrix());
+	//	data.myCameraPosition = transform.GetPosition();
+	//	myFrameDataBuffer->SetData(data);
+	//	return;
+	//}
 
 	LOG("No render camera found.");
 }

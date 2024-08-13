@@ -3,6 +3,7 @@
 #include "Engine.h"
 #include "World/World.h"
 #include "Core/Input.h"
+#include "ECS/ECSRegistry.h"
 #include "Vulkan/VulkanContext.h"
 #include "ECS/Components/Transform.h"
 #include "ECS/Components/Camera.h"
@@ -14,12 +15,18 @@ CameraSystem::CameraSystem()
 
 void CameraSystem::Tick()
 {
-	auto view = Engine::GetWorld().GetRegistry().view<const Camera, Transform>();
-
-	for(auto [ent, cam, transform] : view.each())
+	entt::registry reg;
+	auto view = reg.view<const Camera, Transform>();
+	auto val = view.each();
+	//for(auto [ent, cam, transform] : )
+	//{
+	//	
+	//}
+	
+	for(auto [ent, cam, transform] : Engine::GetWorld().GetRegistry().IterateComponents<const Camera, Transform>())
 	{
 		glm::vec3 movement{};
-
+		
 		if(Input::IsKeyPressed(KeyCode::W))
 		{
 			movement += transform.GetForward();

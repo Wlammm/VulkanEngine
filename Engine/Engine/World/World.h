@@ -1,6 +1,9 @@
 #pragma once
 #include "Core/AutoInit.h"
 
+class DirectionalLightComponent;
+class ComponentSystem;
+class ECSRegistry;
 struct DirectionalLight;
 
 class World : public AutoInit
@@ -11,14 +14,17 @@ public:
 
 	void Init() override final;
 
-	entt::registry& GetRegistry();
-	class AssetRegistry& GetAssetRegistry();
+	void Update();
 
-	const DirectionalLight& GetDirectionalLight() const;
+	class AssetRegistry& GetAssetRegistry() const;
 
+	DirectionalLightComponent* GetDirectionalLight() const;
+
+	ComponentSystem& GetComponentSystem() const;
+	
+	
 private:
-	entt::registry myRegistry{};
 	class AssetRegistry* myAssetRegistry = nullptr;
 
-	const DirectionalLight* myDirectionalLight = nullptr;
+	ComponentSystem* myComponentSystem = nullptr;
 };

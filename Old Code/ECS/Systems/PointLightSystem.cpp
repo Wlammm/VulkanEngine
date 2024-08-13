@@ -3,6 +3,7 @@
 #include "Engine.h"
 #include "World/World.h"
 #include "Core/Time.h"
+#include "ECS/ECSRegistry.h"
 #include "ECS/Components/Transform.h"
 #include "ECS/Components/PointLight.h"
 
@@ -13,9 +14,7 @@ PointLightSystem::PointLightSystem()
 
 void PointLightSystem::Tick()
 {
-	auto view = Engine::GetWorld().GetRegistry().view<Transform, const PointLight>();
-
-	for (auto [ent, transform, light] : view.each())
+	for (auto [ent, transform, light] : Engine::GetWorld().GetRegistry().IterateComponents<Transform, const PointLight>())
 	{
 		constexpr float radius = 300;
 		transform.SetPositionX(cos(Time::GetTimeSinceStart() + light.myRange) * radius);

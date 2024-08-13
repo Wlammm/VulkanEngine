@@ -1,6 +1,7 @@
 #include "EnginePch.h"
 #include "VulkanDescriptorSet.h"
 
+#include "ResizableBuffer.h"
 #include "VulkanContext.h"
 #include "VulkanDevice.h"
 #include "VulkanImage.h"
@@ -21,9 +22,9 @@ VulkanDescriptorSet::~VulkanDescriptorSet()
 	if(!myUsesSharedLayout)
 		VulkanContext::GetDevice()->destroyDescriptorSetLayout(myLayout);
 
-	for(const BindingData<const IVulkanDynamicBuffer*>& binding : myDynamicBuffers)
+	for(const BindingData<const ResizableBuffer*>& binding : myResizableBuffer)
 	{
-		binding.myData->OnBufferRecreated.UnBind(&VulkanDescriptorSet::Rebuild, this);
+		binding.myData->OnBufferResized.UnBind(&VulkanDescriptorSet::Rebuild, this);
 	}
 }
 
@@ -47,6 +48,18 @@ void VulkanDescriptorSet::BindBuffer(const VulkanBuffer* inBuffer, vk::ShaderSta
 	myBuffers.Add(data);
 }
 
+void VulkanDescriptorSet::BindBuffer(const ResizableBuffer* inBuffer, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::DescriptorType inDescriptorType)
+{
+	BindingData<const ResizableBuffer*> data{};
+	data.myData = inBuffer;
+	data.myShaderStages = inShaderStages;
+	data.myBindingIndex = inBindingIndex;
+	data.myDescriptorType = inDescriptorType;
+	myResizableBuffer.Add(data);
+
+	inBuffer->OnBufferResized.Bind(&VulkanDescriptorSet::Rebuild, this);
+}
+
 void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags, const vk::ImageLayout inImageLayout)
 {
 	BindingData<const VulkanImage*> data;
@@ -59,26 +72,13 @@ void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sample
 	myImages.Add(data);
 }
 
-void VulkanDescriptorSet::BindDynamicBuffer(const IVulkanDynamicBuffer* inBuffer, vk::ShaderStageFlags inShaderStages,
-	uint inBindingIndex, vk::DescriptorType inDescriptorType)
-{
-	BindingData<const IVulkanDynamicBuffer*> data{};
-	data.myData = inBuffer;
-	data.myShaderStages = inShaderStages;
-	data.myBindingIndex = inBindingIndex;
-	data.myDescriptorType = inDescriptorType;
-	myDynamicBuffers.Add(data);
-
-	inBuffer->OnBufferRecreated.Bind(&VulkanDescriptorSet::Rebuild, this);
-}
-
 void VulkanDescriptorSet::Build()
 {
 	List<vk::DescriptorSetLayoutBinding> layoutBindings{};
 	List<vk::WriteDescriptorSet> setWrites{};
 	
 	List<vk::DescriptorBufferInfo> bufferInfos{};
-	bufferInfos.Reserve(myBuffers.size() + myDynamicBuffers.size());
+	bufferInfos.Reserve(myBuffers.size() + myResizableBuffer.size());
 	
 	List<vk::DescriptorImageInfo> imageInfos{};
 	imageInfos.Reserve(myImages.size());
@@ -102,7 +102,7 @@ void VulkanDescriptorSet::Build()
 			.setBufferInfo(bufferInfos.Last());
 	}
 	
-	for(const BindingData<const IVulkanDynamicBuffer*>& binding : myDynamicBuffers)
+	for(const BindingData<const ResizableBuffer*>& binding : myResizableBuffer)
 	{
 		layoutBindings.Emplace()
 		.setDescriptorCount(1)

@@ -3,6 +3,7 @@
 // GPU Driven Rendering Pipeline.
 
 class VulkanShader;
+class VulkanBuffer;
 
 class GDRPipeline
 {
@@ -15,6 +16,8 @@ public:
 private:
     void CreateDescriptorSets();
     void CreatePipeline();
+
+    void CreateBuffers();
     
 private:
     VulkanShader* myCullShader = nullptr;
@@ -23,4 +26,7 @@ private:
     vk::PipelineLayout myPipelineLayout;
 
     VulkanDescriptorSet myDescriptorSet;
+
+    ResizableBuffer* myIndirectCommandsBuffer = nullptr;
+    VulkanBuffer* myCountBuffer = nullptr;
 };

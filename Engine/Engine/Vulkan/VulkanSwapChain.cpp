@@ -5,8 +5,8 @@
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "Engine.h"
-#include "ECS/Systems/RenderSystem.h"
 #include "Events/EventHandler.h"
+#include "Events/EventTypes.hpp"
 
 VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
 	: myDevice{ inDevice }
@@ -64,12 +64,21 @@ void VulkanSwapChain::EndFrame()
 {
 	vk::PipelineStageFlags pipelineStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
 
-	VulkanContext::GetDevice().GetGraphicsQueue().submit(vk::SubmitInfo()
+	vk::Result submitResult = VulkanContext::GetDevice().GetGraphicsQueue().submit(1, &vk::SubmitInfo()
 		.setWaitDstStageMask(pipelineStageFlags)
 		.setWaitSemaphores(myImageAcquiredSemaphores[mySyncIndex])
 		.setCommandBuffers(GetCommandBuffer())
 		.setSignalSemaphores(myDrawCompleteSemaphores[mySyncIndex]),
 		myFences[mySyncIndex]);
+
+	check(submitResult == vk::Result::eSuccess);
+	
+	//VulkanContext::GetDevice().GetGraphicsQueue().submit(vk::SubmitInfo()
+	//	.setWaitDstStageMask(pipelineStageFlags)
+	//	.setWaitSemaphores(myImageAcquiredSemaphores[mySyncIndex])
+	//	.setCommandBuffers(GetCommandBuffer())
+	//	.setSignalSemaphores(myDrawCompleteSemaphores[mySyncIndex]),
+	//	myFences[mySyncIndex]);
 
 	const vk::PresentInfoKHR presentInfo = vk::PresentInfoKHR()
 		.setWaitSemaphores(myDrawCompleteSemaphores[mySyncIndex])
@@ -325,7 +334,7 @@ void VulkanSwapChain::Resize()
 
 	Engine::GetEventHandler().FireEvent(EventType::SwapchainResized);
 
-	LOG("Resize")
+	LOG("Resize");
 }
 
 int VulkanSwapChain::GetPresentQueueIndex() const

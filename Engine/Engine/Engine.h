@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/EngineProperties.hpp"
-#include "ECS/SystemDispatcher.h"
+#include "Subsystem/SystemManager.h"
 
 class Engine
 {
@@ -16,7 +16,6 @@ public:
 	static void SetIsRunning(const bool inIsRunning);
 
 	static const EngineProperties& GetEngineProperties();
-	static const class SystemDispatcher& GetSystemDispatcher();
 	static const class WindowHandler& GetWindowHandler();
 	static class EventHandler& GetEventHandler();
 	static class AssetRegistry& GetAssetRegistry();
@@ -26,13 +25,13 @@ public:
 	static class World& GetWorld();
 	static void SetWorld(World* inWorld);
 
-	static glm::vec2 GetRenderResolution();
-
-	template<typename T>
-	static T* GetSystem()
+	template<typename SystemType>
+	static SystemType& GetEngineSystem()
 	{
-		return myInstance->mySystemDispatcher->GetSystem<T>();
+		return myInstance->mySystemManager->GetSystem<SystemType>();
 	}
+
+	static glm::vec2 GetRenderResolution();
 
 #if EDITOR
 	static void SetEditorTickFunction(const std::function<void()> inEditorTickFunction);
@@ -46,13 +45,13 @@ private:
 
 	EngineProperties myEngineProperties;
 
+	class SystemManager* mySystemManager = nullptr;
 	class EventHandler* myPostMaster = nullptr;
 	class Console* myConsole = nullptr;
 	class ThreadPool* myThreadPool = nullptr;
 	class Filewatcher* myFilewatcher = nullptr;
 	class WindowHandler* myWindowHandler = nullptr;
 	class VulkanContext* myVulkanContext = nullptr;
-	class SystemDispatcher* mySystemDispatcher = nullptr;
 
 	// This asset registry holds engine related data. If you need a game resource, use the worlds asset registry instead.
 	class AssetRegistry* myAssetRegistry = nullptr;

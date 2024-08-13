@@ -1,4 +1,5 @@
 #pragma once
+#include "Delegates/MulticastDelegate.hpp"
 #include "Rendering/Vertex.hpp"
 
 class VulkanBuffer
@@ -58,7 +59,12 @@ public:
 	void Unmap();
 
 	size_t GetSize() const;
+	const vk::BufferCreateInfo& GetCreateInfo() const;
+	VmaMemoryUsage GetVmaMemoryUsage() const;
+	bool IsMappable() const;
 
+	const std::string& GetName() const;
+	
 private:
 	// Only create and destroy this resource via VulkanAllocator.
 	VulkanBuffer() = default;
@@ -72,8 +78,9 @@ private:
 	friend class VulkanAllocator;
 	VmaAllocation myAllocation;
 	vk::Buffer myBuffer;
+	vk::BufferCreateInfo myCreateInfo;
+	VmaMemoryUsage myMemoryUsage;
 
-	size_t mySize = 0;
 	bool myIsMappingAllowed = false;
 
 #ifdef DEBUG

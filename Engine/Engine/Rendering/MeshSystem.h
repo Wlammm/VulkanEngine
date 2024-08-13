@@ -1,22 +1,30 @@
 ﻿#pragma once
-#include "ECS/System.h"
 #include "Shaders/MeshStructs.hpp"
-#include "Vulkan/VulkanDynamicBuffer.hpp"
+#include "Subsystem/System.h"
 
+class ResizableBuffer;
 using MeshHandle = uint;
 
-class MeshSystem final : public System
+class MeshSystem : public System
 {
 public:
     MeshSystem();
+    ~MeshSystem();
 
-    void Tick() override final;
+    void Tick();
 
-    MeshHandle UploadRenderItem(const RenderItem& inRenderItem);
-    void RemoveRenderItem(const MeshHandle inHandle);
+    MeshHandle UploadMesh(const MeshData& inMesh);
 
-    const VulkanDynamicBuffer<RenderItem>& GetBuffer() const;
+    ResizableBuffer* GetBuffer() const;
+
+private:
+    void UploadQueuedMeshes();
     
 private:
-    VulkanDynamicBuffer<RenderItem> myRenderItems;
+    List<MeshData> myQueuedMeshes{};
+    ResizableBuffer* myBuffer;
+    uint myNumObjects = 0;
+    uint myNumUploadedObjects = 0;
+
+    
 };

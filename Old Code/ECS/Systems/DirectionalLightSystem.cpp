@@ -3,6 +3,7 @@
 #include "ECS/Components/DirectionalLight.h"
 #include "ECS/Components/Transform.h"
 #include "Engine.h"
+#include "ECS/ECSRegistry.h"
 #include "World/World.h"
 #include "ECS/Components/Camera.h"
 #include "Utils/Debug.h"
@@ -14,11 +15,9 @@ DirectionalLightSystem::DirectionalLightSystem()
 
 void DirectionalLightSystem::Tick()
 {
-	auto view = Engine::GetWorld().GetRegistry().view<Transform, DirectionalLight>();
-	auto cameraView = Engine::GetWorld().GetRegistry().view<const Transform, const Camera>();
-	for (auto [camEnt, camTransform, cam] : cameraView.each())
+	for (auto [camEnt, camTransform, cam] : Engine::GetWorld().GetRegistry().IterateComponents<const Transform,const Camera>())
 	{
-		for (auto [ent, transform, light] : view.each())
+		for (auto [ent, transform, light] : Engine::GetWorld().GetRegistry().IterateComponents<Transform, DirectionalLight>())
 		{
 			//static glm::vec3 rotation = transform.GetRotationDeg();
 			//ImGui::Begin("Directional light control");

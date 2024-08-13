@@ -9,7 +9,7 @@ constexpr int BinaryVersion = 1;
 // DONT USE THIS CLASS DIRECTLY. USE THE ASSET REGISTRIES INSTEAD.
 class ModelFactory
 {
-	struct MeshData
+	struct MeshSerializationData
 	{
 		List<Vertex> myVertices{};
 		List<uint> myIndices{};
@@ -23,7 +23,7 @@ class ModelFactory
 	{
 		// This is the path to the file which the data has been loaded from. Fbx or other supported format.
 		std::filesystem::path mySourceFile;
-		List<MeshData> myMeshes{};
+		List<MeshSerializationData> myMeshes{};
 	};
 
 public:

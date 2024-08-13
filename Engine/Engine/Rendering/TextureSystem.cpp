@@ -2,7 +2,6 @@
 #include "TextureSystem.h"
 
 #include "Vulkan/VulkanContext.h"
-#include "Vulkan/VulkanDescriptorSet.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanImage.h"
 

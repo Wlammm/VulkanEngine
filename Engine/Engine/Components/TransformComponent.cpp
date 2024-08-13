@@ -1,24 +1,24 @@
-#include "EnginePch.h"
-#include "Transform.h"
+﻿#include "EnginePch.h"
+#include "TransformComponent.h"
 
-Transform::Transform()
+TransformComponent::TransformComponent()
 {
 
 }
 
-Transform::~Transform()
+TransformComponent::~TransformComponent()
 {
 	if (myParent)
 		RemoveParent();
 
 	// Remove all childrens parent without making it call back to us.
-	for(Transform*& child : myChildren)
+	for(TransformComponent*& child : myChildren)
 	{
 		child->myParent = nullptr;
 	}
 }
 
-void Transform::SetParent(Transform* inParent)
+void TransformComponent::SetParent(TransformComponent* inParent)
 {
 	if (myParent)
 		RemoveParent();
@@ -27,7 +27,7 @@ void Transform::SetParent(Transform* inParent)
 	myParent->AddChild(this);
 }
 
-void Transform::RemoveParent()
+void TransformComponent::RemoveParent()
 {
 	if (!myParent)
 		return;
@@ -44,34 +44,34 @@ void Transform::RemoveParent()
 	myParent = nullptr;
 }
 
-void Transform::AddChild(Transform* inChild)
+void TransformComponent::AddChild(TransformComponent* inChild)
 {
 	check(!myChildren.Contains(inChild));
 	myChildren.Add(inChild);
 }
 
-void Transform::RemoveChild(Transform* inChild)
+void TransformComponent::RemoveChild(TransformComponent* inChild)
 {
 	check(myChildren.Contains(inChild));
 	myChildren.Remove(inChild);
 }
 
-void Transform::SetRotationLocal(const glm::quat& inQuaternion)
+void TransformComponent::SetRotationLocal(const glm::quat& inQuaternion)
 {
 	myRotation = inQuaternion;
 }
 
-void Transform::SetScaleLocal(const glm::vec3& inScale)
+void TransformComponent::SetScaleLocal(const glm::vec3& inScale)
 {
 	myScale = inScale;
 }
 
-void Transform::SetScaleLocal(const float inScale)
+void TransformComponent::SetScaleLocal(const float inScale)
 {
 	myScale = glm::vec3(inScale);
 }
 
-void Transform::SetPosition(const glm::vec3& inPosition)
+void TransformComponent::SetPosition(const glm::vec3& inPosition)
 {
 	if (myParent)
 		myPosition = glm::vec3((glm::vec4(inPosition, 1.0f) * glm::inverse(myParent->GetMatrix())));
@@ -79,27 +79,27 @@ void Transform::SetPosition(const glm::vec3& inPosition)
 		myPosition = inPosition;
 }
 
-void Transform::SetPosition(const float inX, const float inY, const float inZ)
+void TransformComponent::SetPosition(const float inX, const float inY, const float inZ)
 {
 	SetPosition({ inX, inY, inZ });
 }
 
-void Transform::SetPositionX(const float inX)
+void TransformComponent::SetPositionX(const float inX)
 {
 	SetPosition({ inX, myPosition.y, myPosition.z });
 }
 
-void Transform::SetPositionY(const float inY)
+void TransformComponent::SetPositionY(const float inY)
 {
 	SetPosition({ myPosition.x, inY, myPosition.z });
 }
 
-void Transform::SetPositionZ(const float inZ)
+void TransformComponent::SetPositionZ(const float inZ)
 {
 	SetPosition({ myPosition.x, myPosition.y, inZ });
 }
 
-void Transform::SetScale(const glm::vec3& inScale)
+void TransformComponent::SetScale(const glm::vec3& inScale)
 {
 	if (myParent)
 		myScale = inScale * (1.f / myParent->GetScale());
@@ -107,17 +107,17 @@ void Transform::SetScale(const glm::vec3& inScale)
 		myScale = inScale;
 }
 
-void Transform::SetScale(const float inX, const float inY, const float inZ)
+void TransformComponent::SetScale(const float inX, const float inY, const float inZ)
 {
 	SetScale({ inX, inY, inZ });
 }
 
-void Transform::SetScale(const float inScalar)
+void TransformComponent::SetScale(const float inScalar)
 {
 	SetScale({ inScalar, inScalar, inScalar });
 }
 
-void Transform::SetRotation(const glm::quat& inQuat)
+void TransformComponent::SetRotation(const glm::quat& inQuat)
 {
 	if (myParent)
 		myRotation = inQuat * glm::inverse(myParent->GetRotation());
@@ -125,27 +125,27 @@ void Transform::SetRotation(const glm::quat& inQuat)
 		myRotation = inQuat;
 }
 
-void Transform::SetRotationRad(const glm::vec3& inRotation)
+void TransformComponent::SetRotationRad(const glm::vec3& inRotation)
 {
 	myRotation = glm::quat(inRotation);
 }
 
-void Transform::SetRotationDeg(const glm::vec3& inRotation)
+void TransformComponent::SetRotationDeg(const glm::vec3& inRotation)
 {
 	SetRotationRad(glm::radians(inRotation));
 }
 
-void Transform::SetRotationDeg(const float inX, const float inY, const float inZ)
+void TransformComponent::SetRotationDeg(const float inX, const float inY, const float inZ)
 {
 	SetRotationDeg({ inX, inY, inZ });
 }
 
-const glm::vec3& Transform::GetScaleLocal() const
+const glm::vec3& TransformComponent::GetScaleLocal() const
 {
 	return myScale;
 }
 
-glm::mat4 Transform::GetMatrix() const
+glm::mat4 TransformComponent::GetMatrix() const
 {
 	//glm::mat4 m = glm::identity<glm::mat4>();
 	//
@@ -157,7 +157,7 @@ glm::mat4 Transform::GetMatrix() const
 	return glm::translate(glm::mat4(1.0f), GetPosition()) * glm::mat4_cast(GetRotation()) * glm::scale(glm::mat4(1.0f), GetScale());
 }
 
-glm::mat4 Transform::GetMatrixLocal() const
+glm::mat4 TransformComponent::GetMatrixLocal() const
 {
 	glm::mat4 m = glm::identity<glm::mat4>();
 
@@ -167,7 +167,7 @@ glm::mat4 Transform::GetMatrixLocal() const
 	return m;
 }
 
-glm::vec3 Transform::GetPosition() const
+glm::vec3 TransformComponent::GetPosition() const
 {
 	if (myParent)
 	{
@@ -181,7 +181,7 @@ glm::vec3 Transform::GetPosition() const
 	}
 }
 
-glm::quat Transform::GetRotation() const
+glm::quat TransformComponent::GetRotation() const
 {
 	if (myParent)
 		return myRotation * myParent->GetRotation();
@@ -189,17 +189,17 @@ glm::quat Transform::GetRotation() const
 		return myRotation;
 }
 
-glm::vec3 Transform::GetRotationRad() const
+glm::vec3 TransformComponent::GetRotationRad() const
 {
 	return glm::eulerAngles(myRotation);
 }
 
-glm::vec3 Transform::GetRotationDeg() const
+glm::vec3 TransformComponent::GetRotationDeg() const
 {
 	return glm::degrees(GetRotationRad());
 }
 
-glm::vec3 Transform::GetScale() const
+glm::vec3 TransformComponent::GetScale() const
 {
 	if (myParent)
 		return myScale * myParent->GetScale();
@@ -207,65 +207,65 @@ glm::vec3 Transform::GetScale() const
 		return myScale;
 }
 
-Transform* Transform::GetParent() const
+TransformComponent* TransformComponent::GetParent() const
 {
 	return myParent;
 }
 
-bool Transform::HasParent() const
+bool TransformComponent::HasParent() const
 {
 	return myParent;
 }
 
-glm::vec3 Transform::GetForward() const
+glm::vec3 TransformComponent::GetForward() const
 {
 	return glm::forward(GetMatrix());
 }
 
-glm::vec3 Transform::GetUp() const
+glm::vec3 TransformComponent::GetUp() const
 {
 	return glm::up(GetMatrix());
 }
 
-glm::vec3 Transform::GetRight() const
+glm::vec3 TransformComponent::GetRight() const
 {
 	return glm::right(GetMatrix());
 }
 
-void Transform::Move(const glm::vec3& inDisplacement)
+void TransformComponent::Move(const glm::vec3& inDisplacement)
 {
 	myPosition += inDisplacement;
 }
 
-const glm::vec3& Transform::GetPositionLocal() const
+const glm::vec3& TransformComponent::GetPositionLocal() const
 {
 	return myPosition;
 }
 
-const glm::quat& Transform::GetRotationLocal() const
+const glm::quat& TransformComponent::GetRotationLocal() const
 {
 	return myRotation;
 }
 
-const glm::vec3 Transform::LocalForward() const
+const glm::vec3 TransformComponent::LocalForward() const
 {
 	auto m = GetMatrixLocal();
 	return glm::forward(m);
 }
 
-const glm::vec3 Transform::LocalRight() const
+const glm::vec3 TransformComponent::LocalRight() const
 {
 	auto m = GetMatrixLocal();
 	return glm::right(m);
 }
 
-const glm::vec3 Transform::LocalUp() const
+const glm::vec3 TransformComponent::LocalUp() const
 {
 	auto m = GetMatrixLocal();
 	return glm::up(m);
 }
 
-void Transform::SetPositionLocal(const glm::vec3& inPosition)
+void TransformComponent::SetPositionLocal(const glm::vec3& inPosition)
 {
 	myPosition = inPosition;
 }

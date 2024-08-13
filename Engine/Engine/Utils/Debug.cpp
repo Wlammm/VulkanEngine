@@ -1,11 +1,6 @@
 #include "EnginePch.h"
 #include "Debug.h"
 
-#include "Engine.h"
-#include "ECS/Components/Camera.h"
-#include "ECS/Components/Transform.h"
-#include "World/World.h"
-
 void Debug::DrawLine(const glm::vec3& inStart, const glm::vec3& inEnd, const Color& inColor)
 {
 	myLineInfos.Add({ inStart, inEnd, inColor });

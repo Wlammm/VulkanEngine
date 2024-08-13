@@ -1,15 +1,10 @@
 #include "EnginePch.h"
 #include "Material.h"
 #include "Engine.h"
-#include "ECS/Systems/RenderSystem.h"
 #include "Engine/Assets/AssetRegistry.h"
-
-#include "Vulkan/VulkanShader.h"
-#include "Vulkan/VulkanImage.h"
-#include "Vulkan/VulkanContext.h"
-#include "Vulkan/VulkanAllocator.h"
-
 #include <tracy/Tracy.hpp>
+
+#include "Vulkan/VulkanUtils.hpp"
 
 Material::Material()
 {
@@ -63,12 +58,11 @@ TextureHandle Material::GetMaterial() const
 void Material::BuildDescriptorSet()
 {
 	ZoneScoped;
-	TextureSystem* textureSystem = Engine::GetSystem<TextureSystem>();
-	check(textureSystem);
+	TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
 
-	myAlbedoHandle = textureSystem->AddTexture(myAlbedo, VulkanUtils::GetSampler(SamplerMode::Wrap));
-	myNormalHandle = textureSystem->AddTexture(myNormal, VulkanUtils::GetSampler(SamplerMode::Wrap));
-	myMaterialHandle = textureSystem->AddTexture(myMaterial, VulkanUtils::GetSampler(SamplerMode::Wrap));
+	myAlbedoHandle = textureSystem.AddTexture(myAlbedo, VulkanUtils::GetSampler(SamplerMode::Wrap));
+	myNormalHandle = textureSystem.AddTexture(myNormal, VulkanUtils::GetSampler(SamplerMode::Wrap));
+	myMaterialHandle = textureSystem.AddTexture(myMaterial, VulkanUtils::GetSampler(SamplerMode::Wrap));
 	
 	myDescriptorSet.BindImage(myAlbedo, VulkanUtils::GetSampler(SamplerMode::Wrap), 0, vk::ShaderStageFlagBits::eFragment);
 	myDescriptorSet.BindImage(myNormal, VulkanUtils::GetSampler(SamplerMode::Wrap), 1, vk::ShaderStageFlagBits::eFragment);

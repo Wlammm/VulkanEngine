@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "ECS/System.h"
+#include "Subsystem/System.h"
 
 class VulkanImage;
 class VulkanDescriptorSet;
@@ -12,6 +12,7 @@ struct TextureData
     TextureHandle myHandle;
 };
 
+// https://jorenjoestar.github.io/post/vulkan_bindless_texture/
 class TextureSystem : public System
 {
 public:
@@ -22,7 +23,6 @@ public:
 
     vk::DescriptorSet GetDescriptorSet() const;
     vk::DescriptorSetLayout GetDescriptorLayout() const;
-    // https://jorenjoestar.github.io/post/vulkan_bindless_texture/ continue on step 5 next time.
     
 private:
     void CreateDescritorPool();

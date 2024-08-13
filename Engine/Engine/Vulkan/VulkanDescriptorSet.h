@@ -1,6 +1,7 @@
 #pragma once
 #include "VulkanDynamicBuffer.hpp"
 
+class ResizableBuffer;
 class VulkanDescriptorSet
 {
 public:
@@ -13,8 +14,9 @@ public:
 
 	// Add all bindings first, then call Build().
 	void BindBuffer(const class VulkanBuffer* inBuffer, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::DescriptorType inDescriptorType);
+	void BindBuffer(const class ResizableBuffer* inBuffer, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::DescriptorType inDescriptorType);
+	
 	void BindImage(const class VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags, const vk::ImageLayout inImageLayout = vk::ImageLayout::eReadOnlyOptimal);
-	void BindDynamicBuffer(const class IVulkanDynamicBuffer* inBuffer, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::DescriptorType inDescriptorType);
 	
 	void Build();
 
@@ -35,7 +37,7 @@ private:
 	};
 	
 	List<BindingData<const VulkanBuffer*>> myBuffers{};
-	List<BindingData<const IVulkanDynamicBuffer*>> myDynamicBuffers{};
+	List<BindingData<const ResizableBuffer*>> myResizableBuffer{};
 	List<BindingData<const VulkanImage*>> myImages{};
 	
 	// If a layout is passed in as constructor we do not want to handle deletion of it.

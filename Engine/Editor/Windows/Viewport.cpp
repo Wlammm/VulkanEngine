@@ -5,7 +5,6 @@
 #include "Engine/Vulkan/VulkanUtils.hpp"
 #include "Engine/Vulkan/VulkanImage.h"
 #include "Engine/Engine.h"
-#include "Engine/ECS/Systems/RenderSystem.h"
 
 Viewport::Viewport()
 	: EditorWindow("Viewport", false)
@@ -49,9 +48,9 @@ vk::DescriptorSet Viewport::GetCurrentDescriptorSet()
 void Viewport::UpdateCurrentTexture()
 {
 	const uint currentIndex = VulkanContext::GetSwapChain().GetFrameIndex();
-	RenderSystem* renderSystem = Engine::GetSystem<RenderSystem>();
-	check(renderSystem);
-
-	ImGui_ImplVulkan_RemoveTexture(myDescriptorSets[currentIndex]);
-	myDescriptorSets[currentIndex] = ImGui_ImplVulkan_AddTexture(mySampler, renderSystem->GetRenderTexture()->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	//RenderSystem* renderSystem = Engine::GetSystem<RenderSystem>();
+	//check(renderSystem);
+	//
+	//ImGui_ImplVulkan_RemoveTexture(myDescriptorSets[currentIndex]);
+	//myDescriptorSets[currentIndex] = ImGui_ImplVulkan_AddTexture(mySampler, renderSystem->GetRenderTexture()->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }

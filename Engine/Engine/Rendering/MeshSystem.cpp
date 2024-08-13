@@ -1,30 +1,54 @@
 ﻿#include "EnginePch.h"
 #include "MeshSystem.h"
 
+#include "Utils/MathUtils.hpp"
+#include "Vulkan/ResizableBuffer.h"
 #include "Vulkan/VulkanAllocator.h"
+#include "Vulkan/VulkanBuffer.h"
 
 MeshSystem::MeshSystem()
-    : myRenderItems{"RenderItems Buffer", vk::BufferCreateInfo().setUsage(vk::BufferUsageFlagBits::eStorageBuffer)}
 {
-    SetDependencies<>();
+    myBuffer = new ResizableBuffer(
+        VulkanAllocator::AllocateBuffer_TS(
+            "MeshBuffer",
+            vk::BufferCreateInfo()
+            .setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc)
+            .setSize(sizeof(MeshData) * 4),
+            VMA_MEMORY_USAGE_AUTO));
+}
+MeshSystem::~MeshSystem()
+{
+    del(myBuffer);
 }
 
 void MeshSystem::Tick()
 {
-    System::Tick();
+    UploadQueuedMeshes();
 }
 
-MeshHandle MeshSystem::UploadRenderItem(const RenderItem& inRenderItem)
+MeshHandle MeshSystem::UploadMesh(const MeshData& inMesh)
 {
-    return myRenderItems.Add(inRenderItem);
+    myQueuedMeshes.Add(inMesh);
+    myNumObjects++;
+    return myNumObjects - 1;
 }
 
-void MeshSystem::RemoveRenderItem(const MeshHandle inHandle)
+ResizableBuffer* MeshSystem::GetBuffer() const
 {
-    myRenderItems.RemoveIndex(inHandle);
+    return myBuffer;
 }
 
-const VulkanDynamicBuffer<RenderItem>& MeshSystem::GetBuffer() const
+void MeshSystem::UploadQueuedMeshes()
 {
-    return myRenderItems;
+    if(myQueuedMeshes.IsEmpty())
+        return;
+    
+    if(myBuffer->GetBuffer()->GetSize() < sizeof(MeshData) * myNumObjects)
+    {
+        myBuffer->Resize(MathUtils::UpperPowerOfTwo(sizeof(MeshData) * myNumObjects));
+    }
+    
+    myBuffer->GetBuffer()->SetData(myQueuedMeshes.data(), sizeof(MeshData) * myQueuedMeshes.size(), sizeof(MeshData) * myNumUploadedObjects);
+    myNumUploadedObjects += myQueuedMeshes.size();
+    myQueuedMeshes.Clear();
 }

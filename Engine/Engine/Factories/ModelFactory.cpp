@@ -7,17 +7,11 @@
 #include <assimp/scene.h>
 #include "Rendering/Mesh.hpp"
 #include "Engine.h"
-#include "Assets/Material.h"
 #include "Assets/AssetRegistry.h"
-
-#include "Utils/BinaryUtils.hpp"
+#include "Rendering/RenderSystem.h"
 #include "Serialization/BinaryWriter.h"
 #include "Serialization/BinaryReader.h"
-
 #include "Tracy/tracy/Tracy.hpp"
-#include "Vulkan/VulkanBuffer.h"
-#include "Vulkan/VulkanAllocator.h"
-#include "ECS/Systems/RenderSystem.h"
 
 void ModelFactory::SaveModelDataToBinary(const ModelData& inData, const std::filesystem::path& inSavePath)
 {
@@ -32,7 +26,7 @@ void ModelFactory::SaveModelDataToBinary(const ModelData& inData, const std::fil
 	const size_t numMeshes = inData.myMeshes.size();
 	writer.Write(numMeshes);
 
-	for(const MeshData& mesh : inData.myMeshes)
+	for(const MeshSerializationData& mesh : inData.myMeshes)
 	{
 		writer.Write(mesh.myVertices);
 		writer.Write(mesh.myIndices);
@@ -82,7 +76,7 @@ void ModelFactory::GetModelDataFromBinary(const std::filesystem::path& inPath, M
 
 	for (size_t i = 0; i < numMeshes; ++i)
 	{
-		MeshData& mesh = outData.myMeshes.Emplace();
+		MeshSerializationData& mesh = outData.myMeshes.Emplace();
 		reader.Read(mesh.myVertices);
 		reader.Read(mesh.myIndices);
 		reader.Read(mesh.mySphereCenterBounds);
@@ -99,23 +93,23 @@ Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
 
 	{
 		ZoneScopedN("Mesh creation");
-		for (const MeshData& meshData : inModelData.myMeshes)
+		for (const MeshSerializationData& meshData : inModelData.myMeshes)
 		{
 			Mesh& mesh = meshes.Emplace();
 
 			// Everything below needs to be handled in a thread safe way before we async load this.
 			//mesh.VertexBuffer = VulkanAllocator::AllocateBuffer_TS("VertexBuffer", VulkanBuffer::VertexBufferCreateInfo(meshData.myVertices), VMA_MEMORY_USAGE_AUTO);
 			//mesh.VertexBuffer->SetData(meshData.myVertices.data(), sizeof(Vertex) * meshData.myVertices.size());
-			mesh.VertexBuffer = Engine::GetSystem<VertexBufferSystem>()->UploadVertexData(meshData.myVertices);
+			mesh.VertexBuffer = Engine::GetEngineSystem<VertexBufferSystem>().UploadVertexData(meshData.myVertices);
 			mesh.NumVertices = static_cast<uint>(meshData.myVertices.size());
 
-			mesh.IndexBuffer = Engine::GetSystem<IndexBufferSystem>()->UploadIndexData(meshData.myIndices);
+			mesh.IndexBuffer = Engine::GetEngineSystem<IndexBufferSystem>().UploadIndexData(meshData.myIndices);
 			mesh.NumIndices = static_cast<uint>(meshData.myIndices.size());
 
 			mesh.mySphereCenterBounds = meshData.mySphereCenterBounds;
 
 			// Should we really have this here?
-			RenderSystem::FlushUploadCommands();
+			Engine::GetEngineSystem<RenderSystem>().FlushUploadCommands();
 
 			if (std::filesystem::exists(meshData.myAlbedoPath))
 			{
@@ -132,15 +126,14 @@ Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
 		}
 	}
 
-	MeshSystem* meshSystem = Engine::GetSystem<MeshSystem>();
-	check(meshSystem);
+	MeshSystem& meshSystem = Engine::GetEngineSystem<MeshSystem>();
 	List<MeshHandle> handles{};
 
 	for(const Mesh& mesh : meshes)
 	{
-		const VertexBufferData& vertexData = Engine::GetSystem<VertexBufferSystem>()->GetVertexBufferData(mesh.VertexBuffer);
-		const IndexBufferData& indexData = Engine::GetSystem<IndexBufferSystem>()->GetIndexBufferData(mesh.IndexBuffer);
-		handles.Add(meshSystem->UploadRenderItem(RenderItem(
+		const VertexBufferData& vertexData = Engine::GetEngineSystem<VertexBufferSystem>().GetVertexBufferData(mesh.VertexBuffer);
+                                                		const IndexBufferData& indexData = Engine::GetEngineSystem<IndexBufferSystem>().GetIndexBufferData(mesh.IndexBuffer);
+		handles.Add(meshSystem.UploadMesh(MeshData(
 			mesh.mySphereCenterBounds,
 			vertexData.myOffset,
 			indexData.myOffset,
@@ -264,7 +257,7 @@ void ModelFactory::GetModelDataFromFbx(const std::filesystem::path& inPath, Mode
 
 		const std::filesystem::path* albedoPath = Engine::GetAssetRegistry().TryGetPathFromFilename(aiAlbedoPath.C_Str());
 
-		MeshData& meshData = outModelData.myMeshes.Emplace();
+		MeshSerializationData& meshData = outModelData.myMeshes.Emplace();
 		meshData.myVertices = vertices;
 		meshData.myIndices = indices;
 		meshData.mySphereCenterBounds = CalculateSphereBounds(vertices);

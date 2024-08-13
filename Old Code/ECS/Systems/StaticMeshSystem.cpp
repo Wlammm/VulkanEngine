@@ -4,6 +4,7 @@
 #include "Engine.h"
 #include "Core/Input.h"
 #include "Core/Time.h"
+#include "ECS/ECSRegistry.h"
 #include "ECS/Components/StaticMesh.h"
 #include "ECS/Components/Transform.h"
 #include "World/World.h"
@@ -15,9 +16,7 @@ StaticMeshSystem::StaticMeshSystem()
 
 void StaticMeshSystem::Tick()
 {
-    auto view = Engine::GetWorld().GetRegistry().view<const StaticMesh, Transform>();
-
-    for(auto [ent, mesh, transform]: view.each())
+    for(auto [ent, mesh, transform]: Engine::GetWorld().GetRegistry().IterateComponents<const StaticMesh, Transform>())
     {
         if(Input::IsKeyPressed(KeyCode::Left))
         {

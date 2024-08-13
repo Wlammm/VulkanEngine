@@ -1,8 +1,9 @@
 ﻿#pragma once
+#include "Engine.h"
 #include "VulkanAllocator.h"
 #include "VulkanBuffer.h"
 #include "Delegates/MulticastDelegate.hpp"
-#include "ECS/Systems/RenderSystem.h"
+#include "Rendering/RenderSystem.h"
 #include "Utils/MathUtils.hpp"
 
 /*
@@ -13,6 +14,7 @@ class IVulkanDynamicBuffer
 {
 public:
     virtual VulkanBuffer* GetBuffer() const = 0;
+    virtual uint GetNum() const = 0;
 
     mutable MulticastDelegate<void()> OnBufferRecreated;
 };
@@ -65,14 +67,20 @@ public:
         return index;
     }
 
-    void RemoveIndex(const uint inIndex)
-    {
-        myFreeIndices.push(inIndex);
-    }
+    // We dont remove. ty
+    //void RemoveIndex(const uint inIndex)
+    //{
+    //    myFreeIndices.push(inIndex);
+    //}
 
     virtual VulkanBuffer* GetBuffer() const override final
     {
         return myBuffer;
+    }
+
+    uint GetNum() const override final
+    {
+        return myLastIndex;
     }
 
 private:
@@ -97,7 +105,7 @@ private:
         VulkanBuffer* newBuffer = VulkanAllocator::AllocateBuffer_TS(myName, createInfo, VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE);
 
         VulkanBuffer* oldBuffer = myBuffer;
-        RenderSystem::AddUploadCommand_TS(this, [oldBuffer, newBuffer](vk::CommandBuffer inCommandBuffer)
+        Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [oldBuffer, newBuffer](vk::CommandBuffer inCommandBuffer)
         {
             const vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize()).setSrcOffset(0).setDstOffset(0);
             inCommandBuffer.copyBuffer(oldBuffer->GetAPIResource(), newBuffer->GetAPIResource(), {copy});

@@ -3,17 +3,12 @@
 
 #include "Core/Time.h"
 #include "Core/Input.h"
-#include "Containers/List.hpp"
 
 #include "Windows/WindowHandler.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanSwapChain.h"
 
-#include "ECS/SystemDispatcher.h"
-#include "ECS/Systems/RenderSystem.h"
-
 #include "World/World.h"
-#include "ECS/Systems/CameraSystem.h"
 #include "Events/EventHandler.h"
 #include "Assets/AssetRegistry.h"
 #include "Core/ThreadPool.h"
@@ -21,17 +16,11 @@
 #include "Utils/ThreadUtils.hpp"
 
 #include "Tracy/tracy/Tracy.hpp"
-#include "ECS/Systems/PointLightSystem.h"
 #include "Core/AutoInitManager.h"
-#include "Delegates/Delegate.hpp"
-#include "Delegates/MulticastDelegate.hpp"
-#include "ECS/Systems/DirectionalLightSystem.h"
-#include "ECS/Systems/StaticMeshSystem.h"
 #include "Rendering/IndexBufferSystem.h"
-#include "Rendering/MeshSystem.h"
+#include "Rendering/RenderSystem.h"
 #include "Rendering/TextureSystem.h"
-#include "Rendering/VertexBufferSystem.h"
-#include "Utils/Debug.h"
+#include "Subsystem/SystemManager.h"
 #include "Vulkan/ObjectSystem.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
@@ -48,9 +37,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
 	myAssetRegistry = new AssetRegistry();
-	mySystemDispatcher = new SystemDispatcher();
-
-	// This might cause issues in the future.
+	mySystemManager = new SystemManager();
 	CreateSystems();
 
 	SetWorld(new World());
@@ -59,7 +46,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 Engine::~Engine()
 {
 	del(myWorld);
-	del(mySystemDispatcher);
+	del(mySystemManager);
 	del(myAssetRegistry);
 	del(myVulkanContext);
 	del(myWindowHandler);
@@ -95,8 +82,12 @@ void Engine::Tick()
 	myEditorTick();
 #endif
 
-	mySystemDispatcher->DispatchSystems();
+	myWorld->Update();
 
+	GetEngineSystem<MeshSystem>().Tick();
+	GetEngineSystem<ObjectSystem>().Tick();
+	GetEngineSystem<RenderSystem>().Tick();
+	
 	myVulkanContext->EndFrame();
 	Input::EndFrame();
 
@@ -117,11 +108,6 @@ void Engine::SetIsRunning(const bool inIsRunning)
 const EngineProperties& Engine::GetEngineProperties()
 {
 	return myInstance->myEngineProperties;
-}
-
-const SystemDispatcher& Engine::GetSystemDispatcher()
-{
-	return *myInstance->mySystemDispatcher;
 }
 
 const WindowHandler& Engine::GetWindowHandler()
@@ -173,14 +159,10 @@ void Engine::SetEditorTickFunction(const std::function<void()> inEditorTickFunct
 
 void Engine::CreateSystems()
 {
-	mySystemDispatcher->AddSystem<CameraSystem>();
-	mySystemDispatcher->AddSystem<PointLightSystem>();
-	mySystemDispatcher->AddSystem<DirectionalLightSystem>();
-	mySystemDispatcher->AddSystem<RenderSystem>();
-	mySystemDispatcher->AddSystem<StaticMeshSystem>();
-	mySystemDispatcher->AddSystem<VertexBufferSystem>();
-	mySystemDispatcher->AddSystem<IndexBufferSystem>();
-	mySystemDispatcher->AddSystem<TextureSystem>();
-	mySystemDispatcher->AddSystem<MeshSystem>();
-	mySystemDispatcher->AddSystem<ObjectSystem>();
+	mySystemManager->AddSystem<TextureSystem>();
+	mySystemManager->AddSystem<ObjectSystem>();
+	mySystemManager->AddSystem<MeshSystem>();
+	mySystemManager->AddSystem<RenderSystem>();
+	mySystemManager->AddSystem<IndexBufferSystem>();
+	mySystemManager->AddSystem<VertexBufferSystem>();
 }

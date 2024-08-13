@@ -2,16 +2,13 @@
 #include "VertexBufferSystem.h"
 
 #include "Engine.h"
-#include "ECS/Systems/RenderSystem.h"
+#include "RenderSystem.h"
 #include "Utils/MathUtils.hpp"
-
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
-#include "Vulkan/VulkanContext.h"
 
 VertexBufferSystem::VertexBufferSystem()
 {
-    SetDependencies<>();
 }
 
 VertexBufferSystem::~VertexBufferSystem()
@@ -20,11 +17,6 @@ VertexBufferSystem::~VertexBufferSystem()
     myUsedBufferSize = 0;
     myNextHandleID = 0;
     myVertexBuffers.clear();
-}
-
-void VertexBufferSystem::Tick()
-{
-    System::Tick();
 }
 
 VertexBufferHandle VertexBufferSystem::UploadVertexData(const List<Vertex>& myVertices)
@@ -45,13 +37,15 @@ VertexBufferHandle VertexBufferSystem::UploadVertexData(const List<Vertex>& myVe
     
     myUsedBufferSize += sizeIncrease;
     myCurrentVertexOffset += static_cast<uint>(myVertices.size());
+
+    myMaxVertexCount += myVertices.size();
     
     return data.myID;
 }
 
 void VertexBufferSystem::RemoveVertexBuffer(const VertexBufferHandle inHandle)
 {
-    LOG_WARNING("VertexBufferSystem::RemoveVertexBuffer not implemented.");
+    LOG_WARNING("VertexBufferSubsystem::RemoveVertexBuffer not implemented.");
 }
 
 const VertexBufferData& VertexBufferSystem::GetVertexBufferData(const VertexBufferHandle inHandle) const
@@ -63,6 +57,11 @@ const VertexBufferData& VertexBufferSystem::GetVertexBufferData(const VertexBuff
 const VulkanBuffer* VertexBufferSystem::GetGlobalVertexBuffer() const
 {
     return myBuffer;
+}
+
+uint VertexBufferSystem::GetMaxVertexCount() const
+{
+    return myMaxVertexCount;
 }
 
 void VertexBufferSystem::GrowBuffer(const uint inRequiredSize)
@@ -86,7 +85,7 @@ void VertexBufferSystem::GrowBuffer(const uint inRequiredSize)
     VulkanBuffer* newBuffer = VulkanAllocator::AllocateBuffer_TS("GlobalVertexBuffer", createInfo, VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE);
 
     VulkanBuffer* oldBuffer = myBuffer;
-    RenderSystem::AddUploadCommand_TS(this, [oldBuffer, newBuffer](vk::CommandBuffer inCommandBuffer)
+    Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [oldBuffer, newBuffer](vk::CommandBuffer inCommandBuffer)
     {
         const vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize()).setSrcOffset(0).setDstOffset(0);
         inCommandBuffer.copyBuffer(oldBuffer->GetAPIResource(), newBuffer->GetAPIResource(), {copy});

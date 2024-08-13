@@ -19,6 +19,8 @@ struct DirectionalLight
 		if(myShadowMap)
 			VulkanAllocator::DestroyImage_TS(myShadowMap);
 
+		LOG_WARNING("~DirectionalLight waiting for device idle.");
+		VulkanContext::GetDevice()->waitIdle();
 		if (myFrameBuffer)
 			VulkanContext::GetDevice()->destroyFramebuffer(myFrameBuffer);
 	}

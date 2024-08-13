@@ -1,8 +1,8 @@
 #pragma once
 
-#define LOG(x, ...) Console::Get().Log(x, ##__VA_ARGS__);
-#define LOG_WARNING(x, ...) Console::Get().LogWarning(x, ##__VA_ARGS__);
-#define LOG_ERROR(x, ...) Console::Get().LogError(x, ##__VA_ARGS__);
+#define LOG(x, ...) Console::Get().Log(x, ##__VA_ARGS__)
+#define LOG_WARNING(x, ...) Console::Get().LogWarning(x, ##__VA_ARGS__)
+#define LOG_ERROR(x, ...) Console::Get().LogError(x, ##__VA_ARGS__)
 
 class Console 
 {

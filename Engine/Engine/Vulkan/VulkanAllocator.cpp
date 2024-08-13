@@ -53,6 +53,7 @@ void VulkanAllocator::Tick()
 
 VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage, bool inMappable)
 {
+	check(inCreateInfo.size != 0 && "Cannot allocate buffer with 0 size.");
 	VulkanBuffer* outBuffer = new VulkanBuffer();
 	VmaAllocationCreateInfo allocCreateInfo{};
 	allocCreateInfo.usage = inUsage;
@@ -65,7 +66,8 @@ VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, cons
 
 	outBuffer->myBuffer = buffer;
 	outBuffer->myIsMappingAllowed = inMappable;
-	outBuffer->mySize = inCreateInfo.size;
+	outBuffer->myCreateInfo = inCreateInfo;
+	outBuffer->myMemoryUsage = inUsage;
 
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()

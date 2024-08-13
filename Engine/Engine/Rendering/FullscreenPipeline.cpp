@@ -5,9 +5,7 @@
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
-#include "ECS/Systems/RenderSystem.h"
 #include "Vulkan/VulkanUtils.hpp"
-#include "ECS/Components/Transform.h"
 
 FullscreenPipeline::FullscreenPipeline(VulkanShader* inFragmentShader, VulkanImage* inSource)
 {
@@ -105,7 +103,7 @@ void FullscreenPipeline::CreatePipeline()
 		.setPColorBlendState(&colorBlendInfo)
 		.setPDynamicState(&dynamicStateInfo)
 		.setLayout(myPipelineLayout)
-		.setRenderPass(Engine::GetSystem<RenderSystem>()->GetRenderPass()));
+		.setRenderPass(Engine::GetEngineSystem<RenderSystem>().GetRenderPass()));
 
 	check(returnValue.result == vk::Result::eSuccess);
 	myPipeline = returnValue.value;

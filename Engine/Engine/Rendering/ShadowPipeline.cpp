@@ -6,13 +6,14 @@
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vertex.hpp"
+#include "Components/DirectionalLightComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/TransformComponent.h"
+#include "ComponentSystem/ComponentSystem.h"
 #include "World/World.h"
-#include "ECS/Components/Transform.h"
-#include "ECS/Components/StaticMesh.h"
-#include "ECS/Components/DirectionalLight.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanAllocator.h"
-#include "ECS/Components/Camera.h"
+#include "Vulkan/VulkanImage.h"
 
 ShadowPipeline::ShadowPipeline()
 {
@@ -35,11 +36,23 @@ ShadowPipeline::ShadowPipeline()
 	CreateDescriptors();
 	CreatePipeline();
 
+	VulkanImage* directionalLightShadowMap = Engine::GetEngineSystem<RenderSystem>().GetDirectionalLightShadowMap();
+	std::array<vk::ImageView, 1> attachments = { directionalLightShadowMap->GetImageView() };
+	myDirectionalLightFrameBuffer = VulkanContext::GetDevice()->createFramebuffer(vk::FramebufferCreateInfo()
+								.setRenderPass(myRenderPass)
+								.setAttachments(attachments)
+								.setWidth(static_cast<uint>(directionalLightShadowMap->GetSize().x))
+								.setHeight(static_cast<uint>(directionalLightShadowMap->GetSize().y))
+								.setLayers(1));
+
 	LOG_WARNING("ShadowPipeline uses entities without being a system. This will cause errors in the future");
 }
 
 ShadowPipeline::~ShadowPipeline()
 {
+	if (myDirectionalLightFrameBuffer)
+		VulkanContext::GetDevice()->destroyFramebuffer(myDirectionalLightFrameBuffer);
+	
 	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myObjectDataBuffer);
 
@@ -52,89 +65,90 @@ ShadowPipeline::~ShadowPipeline()
 
 void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 {
-	const auto directionalLightView = Engine::GetWorld().GetRegistry().view<const Transform, const DirectionalLight>();
-	if (directionalLightView.size_hint() == 0)
+	DirectionalLightComponent* directionalLight = Engine::GetWorld().GetDirectionalLight();
+	if(!directionalLight)
 		return;
-
-	const auto meshView = Engine::GetWorld().GetRegistry().view<const Transform, const StaticMesh>();
-	if (meshView.size_hint() == 0)
+	
+	if (Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<StaticMeshComponent>().IsEmpty())
 		return;
-
-	VertexBufferSystem* vertexBufferSystem = Engine::GetSystem<VertexBufferSystem>();
-	check(vertexBufferSystem);
-	inCommandBuffer.bindVertexBuffers(0, vertexBufferSystem->GetGlobalVertexBuffer()->GetAPIResource(), {0});
-
-	IndexBufferSystem* indexBufferSystem = Engine::GetSystem<IndexBufferSystem>();
-	check(indexBufferSystem);
-	inCommandBuffer.bindIndexBuffer(indexBufferSystem->GetGlobalIndexBuffer()->GetAPIResource(), 0, vk::IndexType::eUint32);
+	
+	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
+	inCommandBuffer.bindVertexBuffers(0, vertexBufferSystem.GetGlobalVertexBuffer()->GetAPIResource(), {0});
+	
+	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
+	inCommandBuffer.bindIndexBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetAPIResource(), 0, vk::IndexType::eUint32);
 	
 	const vk::ClearValue clearValue = vk::ClearDepthStencilValue(1.0f, 0u);
-	for (const auto [entity, lightTransform, light] : directionalLightView.each())
+
+	if (!directionalLight->IsShadowsEnabled())
+		return;
+
+	VulkanImage* directionalLightShadowMap = Engine::GetEngineSystem<RenderSystem>().GetDirectionalLightShadowMap();
+	check(directionalLightShadowMap);
+	
+	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
+									.setRenderPass(myRenderPass)
+									.setFramebuffer(myDirectionalLightFrameBuffer)
+									.setPClearValues(&clearValue)
+									.setClearValueCount(1)
+									.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(static_cast<uint>(directionalLightShadowMap->GetSize().x), static_cast<uint>(directionalLightShadowMap->GetSize().y))))
+									, vk::SubpassContents::eInline);
+	
+	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
+	
+	inCommandBuffer.setViewport(0, vk::Viewport()
+								.setX(0)
+								.setY(0)
+								.setWidth(static_cast<float>(directionalLightShadowMap->GetSize().x))
+								.setHeight(static_cast<float>(directionalLightShadowMap->GetSize().y))
+								.setMinDepth(0.0f)
+								.setMaxDepth(1.0f));
+	
+	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(static_cast<uint>(directionalLightShadowMap->GetSize().x), static_cast<uint>(directionalLightShadowMap->GetSize().y))));
+
+	TransformComponent* lightTransform = directionalLight->GetGameObject()->GetTransform();
+	
+	BuildFrameBuffer(lightTransform, directionalLight);
+	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
+
+	for(GameObject* object : Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<StaticMeshComponent>())
 	{
-		if (!light.myShadowMap)
+		StaticMeshComponent* staticMesh = object->GetComponent<StaticMeshComponent>();
+		if (!staticMesh->GetModel())
 			continue;
-
-		inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-										.setRenderPass(myRenderPass)
-										.setFramebuffer(light.myFrameBuffer)
-										.setPClearValues(&clearValue)
-										.setClearValueCount(1)
-										.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(static_cast<uint>(light.myShadowMap->GetSize().x), static_cast<uint>(light.myShadowMap->GetSize().y))))
-										, vk::SubpassContents::eInline);
-
-		inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
-
-		inCommandBuffer.setViewport(0, vk::Viewport()
-									.setX(0)
-									.setY(0)
-									.setWidth(static_cast<float>(light.myShadowMap->GetSize().x))
-									.setHeight(static_cast<float>(light.myShadowMap->GetSize().y))
-									.setMinDepth(0.0f)
-									.setMaxDepth(1.0f));
-
-		inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(static_cast<uint>(light.myShadowMap->GetSize().x), static_cast<uint>(light.myShadowMap->GetSize().y))));
-
-		BuildFrameBuffer(lightTransform, light);
-		inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
-
-		for (const auto [entity, meshTransform, mesh] : meshView.each())
+	
+		BuildObjectBuffer(object->GetTransform());
+		inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, myObjectDescriptorSet.GetSet(), {});
+	
+		for (const Mesh& mesh : staticMesh->GetModel()->GetMeshes())
 		{
-			if (!mesh.myModel)
+			if (!mesh.myMaterial)
 				continue;
-
-			BuildObjectBuffer(meshTransform);
-			inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, myObjectDescriptorSet.GetSet(), {});
-
-			for (const Mesh& mesh : mesh.myModel->GetMeshes())
-			{
-				if (!mesh.myMaterial)
-					continue;
-
-				const VertexBufferData& vertexBufferData = vertexBufferSystem->GetVertexBufferData(mesh.VertexBuffer);
-				const IndexBufferData& indexBufferData = indexBufferSystem->GetIndexBufferData(mesh.IndexBuffer);
-				inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexBufferData.myOffset, vertexBufferData.myOffset, 0);
-			}
+	
+			const VertexBufferData& vertexBufferData = vertexBufferSystem.GetVertexBufferData(mesh.VertexBuffer);
+			const IndexBufferData& indexBufferData = indexBufferSystem.GetIndexBufferData(mesh.IndexBuffer);
+			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexBufferData.myOffset, vertexBufferData.myOffset, 0);
 		}
-
-		//vk::ImageMemoryBarrier barrier = vk::ImageMemoryBarrier()
-		//	.setOldLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal)
-		//	.setNewLayout(vk::ImageLayout::eReadOnlyOptimal)
-		//	.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		//	.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		//	.setImage(light.myShadowMap->GetAPIResource())
-		//	.setSubresourceRange(vk::ImageSubresourceRange()
-		//						 .setAspectMask(vk::ImageAspectFlagBits::eDepth)
-		//						 .setBaseMipLevel(0)
-		//						 .setLevelCount(1)
-		//						 .setBaseArrayLayer(0)
-		//						 .setLayerCount(1))
-		//	.setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
-		//	.setDstAccessMask(vk::AccessFlagBits::eShaderRead);
-		//
-		//inCommandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eLateFragmentTests, vk::PipelineStageFlagBits::eFragmentShader, {}, {}, {}, barrier);
-
-		inCommandBuffer.endRenderPass();
 	}
+	
+	//vk::ImageMemoryBarrier barrier = vk::ImageMemoryBarrier()
+	//	.setOldLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal)
+	//	.setNewLayout(vk::ImageLayout::eReadOnlyOptimal)
+	//	.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+	//	.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+	//	.setImage(light.myShadowMap->GetAPIResource())
+	//	.setSubresourceRange(vk::ImageSubresourceRange()
+	//						 .setAspectMask(vk::ImageAspectFlagBits::eDepth)
+	//						 .setBaseMipLevel(0)
+	//						 .setLevelCount(1)
+	//						 .setBaseArrayLayer(0)
+	//						 .setLayerCount(1))
+	//	.setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+	//	.setDstAccessMask(vk::AccessFlagBits::eShaderRead);
+	//
+	//inCommandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eLateFragmentTests, vk::PipelineStageFlagBits::eFragmentShader, {}, {}, {}, barrier);
+	
+	inCommandBuffer.endRenderPass();
 }
 
 vk::RenderPass ShadowPipeline::GetRenderPass() const
@@ -255,22 +269,22 @@ void ShadowPipeline::CreatePipeline()
 	myPipeline = returnValue.value;
 }
 
-void ShadowPipeline::BuildFrameBuffer(const Transform& inLightTransform, const DirectionalLight& inLight)
+void ShadowPipeline::BuildFrameBuffer(const TransformComponent* inLightTransform, const DirectionalLightComponent* inLight)
 {
 	FrameData data = {};
 
-	data.myProjection = inLight.myLightProjection;
-	data.myToView = glm::affineInverse(inLight.myLightView);
+	data.myProjection = inLight->GetLightProjection();
+	data.myToView = glm::affineInverse(inLight->GetLightView());
 
 	// This shouldnt be needed for this pass. It should only be used in pixel shader for lighting. (I think)
 	data.myCameraPosition = glm::vec3(0, 0, 0);
 	myFrameDataBuffer->SetData(data);
 }
 
-void ShadowPipeline::BuildObjectBuffer(const Transform& inTransform)
+void ShadowPipeline::BuildObjectBuffer(const TransformComponent* inTransform)
 {
 	ObjectData buffer = {};
-	buffer.myToWorld = inTransform.GetMatrix();
+	buffer.myToWorld = inTransform->GetMatrix();
 
 	myObjectDataBuffer->SetData(buffer);
 }

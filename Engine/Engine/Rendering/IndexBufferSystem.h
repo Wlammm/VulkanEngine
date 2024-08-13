@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "ECS/System.h"
+#include "Subsystem/System.h"
 
 class VulkanBuffer;
 using IndexBufferHandle = uint;
@@ -18,9 +18,8 @@ struct IndexBufferData
 class IndexBufferSystem : public System
 {
 public:
-    IndexBufferSystem();
     ~IndexBufferSystem();
-
+    
     IndexBufferHandle UploadIndexData(const List<uint>& inIndices);
     void RemoveIndexBuffer(const IndexBufferHandle inHandle);
     

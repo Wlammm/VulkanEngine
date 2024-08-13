@@ -2,6 +2,7 @@
 #include "Assets/AssetObserver.h"
 #include "Vulkan/VulkanDescriptorSet.h"
 
+class TransformComponent;
 class VulkanShader;
 class Transform;
 
@@ -21,7 +22,7 @@ private:
 	void BuildFrameBuffer();
 	void BuildPointLightBuffer();
 	void BuildDirectionalLightBuffer();
-	void BuildObjectBuffer(const Transform& inTransform);
+	void BuildObjectBuffer(const TransformComponent* inTransform);
 
 	virtual void OnAssetUpdated() override final;
 

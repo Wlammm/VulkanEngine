@@ -3,8 +3,8 @@
 #include "Vulkan/VulkanDescriptorSet.h"
 
 class VulkanShader;
-class Transform;
-struct DirectionalLight;
+class TransformComponent;
+class DirectionalLightComponent;
 
 class ShadowPipeline : public AssetObserver
 {
@@ -24,8 +24,8 @@ private:
 	void CreateRenderPass();
 	void CreatePipeline();
 
-	void BuildFrameBuffer(const Transform& inLightTransform, const DirectionalLight& inLight);
-	void BuildObjectBuffer(const Transform& inTransform);
+	void BuildFrameBuffer(const TransformComponent* inLightTransform, const DirectionalLightComponent* inLight);
+	void BuildObjectBuffer(const TransformComponent* inTransform);
 
 private:
 	inline static constexpr vk::Format myShadowMapFormat = vk::Format::eD32Sfloat;
@@ -53,4 +53,6 @@ private:
 		glm::mat4 myToWorld;
 	};
 	VulkanBuffer* myObjectDataBuffer;
+
+	vk::Framebuffer myDirectionalLightFrameBuffer = nullptr;
 };
