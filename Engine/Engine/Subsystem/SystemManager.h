@@ -6,19 +6,20 @@ class SystemManager
 {
 public:
     ~SystemManager();
+
+    void InitAllSystems();
     
     template<typename SystemType, typename... Args>
     void AddSystem(Args&&... inArgs)
     {
         SystemType* system = new SystemType(std::forward<Args>(inArgs)...);
-        mySubsystems.Add(system);
-        system->Init();
+        mySystems.Add(system);
     }
     
     template<typename SystemType>
     SystemType& GetSystem()
     {
-        for(System* system : mySubsystems)
+        for(System* system : mySystems)
         {
             if(SystemType* castedSystem = dynamic_cast<SystemType*>(system))
             {
@@ -30,5 +31,5 @@ public:
     }
 
 private:
-    List<System*> mySubsystems{};
+    List<System*> mySystems{};
 };

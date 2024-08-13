@@ -159,10 +159,12 @@ void Engine::SetEditorTickFunction(const std::function<void()> inEditorTickFunct
 
 void Engine::CreateSystems()
 {
-	mySystemManager->AddSystem<TextureSystem>();
-	mySystemManager->AddSystem<ObjectSystem>();
-	mySystemManager->AddSystem<MeshSystem>();
 	mySystemManager->AddSystem<RenderSystem>();
+	mySystemManager->AddSystem<TextureSystem>();
+	mySystemManager->AddSystem<MeshSystem>();
+	mySystemManager->AddSystem<ObjectSystem>();
 	mySystemManager->AddSystem<IndexBufferSystem>();
 	mySystemManager->AddSystem<VertexBufferSystem>();
+
+	mySystemManager->InitAllSystems();
 }

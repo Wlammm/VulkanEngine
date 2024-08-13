@@ -5,9 +5,17 @@
 
 SystemManager::~SystemManager()
 {
-    for(System* subsystem : mySubsystems)
+    for(System* system : mySystems)
     {
-        del(subsystem);
+        del(system);
     }
-    mySubsystems.Clear();
+    mySystems.Clear();
+}
+
+void SystemManager::InitAllSystems()
+{
+    for(System* system : mySystems)
+    {
+        system->Init();
+    }
 }
