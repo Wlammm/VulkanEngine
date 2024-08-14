@@ -21,14 +21,9 @@ MeshSystem::~MeshSystem()
     del(myBuffer);
 }
 
-void MeshSystem::Tick()
-{
-    UploadQueuedMeshes();
-}
-
 MeshHandle MeshSystem::UploadMesh(const MeshData& inMesh)
 {
-    myQueuedMeshes.Add(inMesh);
+    myBuffer->SetData(&inMesh, sizeof(MeshData), sizeof(MeshData) * myNumObjects);
     myNumObjects++;
     return myNumObjects - 1;
 }
@@ -36,19 +31,4 @@ MeshHandle MeshSystem::UploadMesh(const MeshData& inMesh)
 ResizableBuffer* MeshSystem::GetBuffer() const
 {
     return myBuffer;
-}
-
-void MeshSystem::UploadQueuedMeshes()
-{
-    if(myQueuedMeshes.IsEmpty())
-        return;
-    
-    if(myBuffer->GetBuffer()->GetSize() < sizeof(MeshData) * myNumObjects)
-    {
-        myBuffer->Resize(MathUtils::UpperPowerOfTwo(sizeof(MeshData) * myNumObjects));
-    }
-    
-    myBuffer->GetBuffer()->SetData(myQueuedMeshes.data(), sizeof(MeshData) * myQueuedMeshes.size(), sizeof(MeshData) * myNumUploadedObjects);
-    myNumUploadedObjects += myQueuedMeshes.size();
-    myQueuedMeshes.Clear();
 }

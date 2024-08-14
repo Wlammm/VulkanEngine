@@ -12,14 +12,33 @@ public:
     ResizableBuffer() = delete;
     ResizableBuffer(const ResizableBuffer&) = delete;
     void operator=(const ResizableBuffer&) = delete;
-    
-    void Resize(const size_t inNewSize);
 
     mutable MulticastDelegate<void()> OnBufferResized;
 
     VulkanBuffer* GetBuffer() const;
+
+    void SetData(const void* inData, const size_t inSize, uint inOffset = 0);
+
+    template<typename T>
+    void SetData(const T& inData)
+    {
+        static_assert(!std::is_pointer<T>::value && "Data type cannot be of pointer type");
+        SetData(&inData, sizeof(T));
+    }
+
+    void DequeueUploads();
     
 private:
-    bool myHasActiveCopy = false;
+    bool myHasRegisteredForTick = false;
     VulkanBuffer* myBuffer = nullptr;
+    size_t myCurrentSize = 0;
+
+    struct UploadData
+    {
+        void* myCopiedData = nullptr;
+        size_t mySize = 0;
+        uint myOffset = 0;
+    };
+
+    List<UploadData> myDataToUpload{};
 };

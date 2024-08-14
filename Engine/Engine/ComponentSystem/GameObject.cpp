@@ -13,11 +13,11 @@ GameObject::~GameObject()
     myComponents.Clear();
 }
 
-void GameObject::Update()
+void GameObject::Tick()
 {
     for(Component* comp : myComponents)
     {
-        comp->Update();
+        comp->Tick();
     }
 }
 

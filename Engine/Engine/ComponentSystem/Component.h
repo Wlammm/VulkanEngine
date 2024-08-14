@@ -10,7 +10,7 @@ public:
     virtual ~Component() = default;
 
     virtual void Start() {}
-    virtual void Update() {}
+    virtual void Tick() {}
 
     GameObject* GetGameObject() const;
 

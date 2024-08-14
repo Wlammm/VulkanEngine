@@ -8,11 +8,11 @@ ComponentSystem::ComponentSystem()
     
 }
 
-void ComponentSystem::Update()
+void ComponentSystem::Tick()
 {
     for(GameObject* gameObject : myObjects)
     {
-        gameObject->Update();
+        gameObject->Tick();
     }
 
     for(GameObject* gameObject : myObjectsToDestory)

@@ -33,7 +33,6 @@ GDRPipeline::~GDRPipeline()
 
 void GDRPipeline::AddCommands(vk::CommandBuffer inCommandBuffer)
 {
-    return;
     inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, myPipeline);
     inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, myPipelineLayout, 0, myDescriptorSet.GetSet(), {});
     inCommandBuffer.dispatch(1, 1, 1);

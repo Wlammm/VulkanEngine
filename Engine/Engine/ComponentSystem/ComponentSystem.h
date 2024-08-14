@@ -8,7 +8,7 @@ class ComponentSystem
 public:
     ComponentSystem();
 
-    void Update();
+    void Tick();
 
     GameObject* CreateGameObject();
     void DestroyGameObject(GameObject* inGameObject);

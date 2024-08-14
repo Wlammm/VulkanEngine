@@ -4,7 +4,7 @@
 class EditorCameraMovementComponent : public Component
 {
 public:
-    void Update() override final;
+    void Tick() override final;
 
 private:
     static constexpr float myMouseSensitivity = 5.f;

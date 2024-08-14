@@ -13,5 +13,8 @@ public:
     Model* GetModel() const;
 
 private:
+    void RegisterMeshesToObjectSystem() const;
+    
+private:
     Model* myModel = nullptr;
 };

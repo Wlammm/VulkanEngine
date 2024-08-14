@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Delegate.hpp"
+#include "Containers/List.hpp"
 
 template<typename>
 class MulticastDelegate;
@@ -37,6 +38,11 @@ public:
         Bind(inDelegate);
     }
 
+    void Clear()
+    {
+        myBoundDelegates.Clear();
+    }
+    
     void UnBind(const Delegate<void(ArgTypes...)> inDelegate)
     {
         check(myBoundDelegates.Contains(inDelegate) && "Delegate is not bound.");

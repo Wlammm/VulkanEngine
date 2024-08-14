@@ -120,7 +120,6 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 			
 			const VertexBufferData& vertexData = vertexBufferSystem.GetVertexBufferData(mesh.VertexBuffer);
 			const IndexBufferData& indexData = indexBufferSystem.GetIndexBufferData(mesh.IndexBuffer);
-			check(vertexBufferSystem.GetMaxVertexCount() > vertexData.myOffset);
 			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexData.myOffset, vertexData.myOffset, 0);
 		}
 	}

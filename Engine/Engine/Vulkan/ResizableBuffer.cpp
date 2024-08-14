@@ -5,6 +5,7 @@
 #include "VulkanAllocator.h"
 #include "VulkanBuffer.h"
 #include "Rendering/RenderSystem.h"
+#include "Utils/MathUtils.hpp"
 
 ResizableBuffer::ResizableBuffer(VulkanBuffer* inBuffer)
 {
@@ -17,35 +18,65 @@ ResizableBuffer::~ResizableBuffer()
     myBuffer = nullptr;
 }
 
-void ResizableBuffer::Resize(const size_t inNewSize)
-{
-    check(myBuffer->GetCreateInfo().usage & vk::BufferUsageFlagBits::eTransferSrc &&
-          myBuffer->GetCreateInfo().usage & vk::BufferUsageFlagBits::eTransferDst && "Buffers wasnt created with transfer src & dest usage flags.");
-
-    check(!myHasActiveCopy && "ResizableBuffer cannot be resized multiple times during the same frame.");
-    
-    if(inNewSize < myBuffer->GetSize())
-        return;
-
-    VulkanBuffer* oldBuffer = myBuffer;
-    
-    vk::BufferCreateInfo createInfo = myBuffer->GetCreateInfo();
-    createInfo.setSize(inNewSize);
-    myBuffer = VulkanAllocator::AllocateBuffer_TS(myBuffer->GetName(), createInfo, myBuffer->GetVmaMemoryUsage(), myBuffer->IsMappable());
-    myHasActiveCopy = true;
-
-    Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [this, oldBuffer](vk::CommandBuffer inCommandBuffer)
-    {
-        vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize());
-        inCommandBuffer.copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
-        myHasActiveCopy = false;
-    });
-    
-    VulkanAllocator::DestroyBuffer_TS(oldBuffer);
-    OnBufferResized();
-}
-
 VulkanBuffer* ResizableBuffer::GetBuffer() const
 {
     return myBuffer;
 }
+
+void ResizableBuffer::SetData(const void* inData, const size_t inSize, uint inOffset)
+{
+    UploadData& data = myDataToUpload.Emplace();
+    data.myCopiedData = new char[inSize];
+    memcpy(data.myCopiedData, inData, inSize);
+    data.mySize = inSize;
+    data.myOffset = inOffset;
+    if(!myHasRegisteredForTick)
+    {
+        Engine::TickNextFrame.Bind(&ResizableBuffer::DequeueUploads, this);
+        myHasRegisteredForTick = true;
+    }
+}
+
+void ResizableBuffer::DequeueUploads()
+{
+    check(myBuffer->GetCreateInfo().usage & vk::BufferUsageFlagBits::eTransferSrc &&
+          myBuffer->GetCreateInfo().usage & vk::BufferUsageFlagBits::eTransferDst && "Buffers wasnt created with transfer src & dest usage flags.");
+
+    size_t requiredSize = myCurrentSize;
+    for(const UploadData& uploadData : myDataToUpload)
+    {
+        requiredSize = std::max(requiredSize, uploadData.mySize + uploadData.myOffset);
+    }
+
+    if(myBuffer->GetSize() < requiredSize)
+    {
+        // Resize buffer.
+        size_t newSize = MathUtils::UpperPowerOfTwo(requiredSize);
+        VulkanBuffer* oldBuffer = myBuffer;
+        vk::BufferCreateInfo createInfo = myBuffer->GetCreateInfo();
+        createInfo.setSize(newSize);
+        myBuffer = VulkanAllocator::AllocateBuffer_TS(myBuffer->GetName(), createInfo, myBuffer->GetVmaMemoryUsage(), myBuffer->IsMappable());
+
+        Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [this, oldBuffer](vk::CommandBuffer inCommandBuffer)
+        {
+            vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize());
+            inCommandBuffer.copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
+        });
+        VulkanAllocator::DestroyBuffer_TS(oldBuffer);
+        OnBufferResized();
+    }
+    
+    for(UploadData& uploadData : myDataToUpload)
+    {
+        myBuffer->SetData(uploadData.myCopiedData, uploadData.mySize, uploadData.myOffset);
+        del(uploadData.myCopiedData);
+    }
+    myDataToUpload.Clear();
+    myHasRegisteredForTick = false;
+}
+
+/*
+ *  ResizableBuffer->SetData(somePtr, 4, 4)
+ *
+ *
+ */

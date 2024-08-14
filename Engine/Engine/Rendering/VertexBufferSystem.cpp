@@ -37,8 +37,6 @@ VertexBufferHandle VertexBufferSystem::UploadVertexData(const List<Vertex>& myVe
     
     myUsedBufferSize += sizeIncrease;
     myCurrentVertexOffset += static_cast<uint>(myVertices.size());
-
-    myMaxVertexCount += myVertices.size();
     
     return data.myID;
 }
@@ -57,11 +55,6 @@ const VertexBufferData& VertexBufferSystem::GetVertexBufferData(const VertexBuff
 const VulkanBuffer* VertexBufferSystem::GetGlobalVertexBuffer() const
 {
     return myBuffer;
-}
-
-uint VertexBufferSystem::GetMaxVertexCount() const
-{
-    return myMaxVertexCount;
 }
 
 void VertexBufferSystem::GrowBuffer(const uint inRequiredSize)

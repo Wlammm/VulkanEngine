@@ -83,9 +83,9 @@ void Engine::Tick()
 #endif
 
 	myWorld->Update();
-
-	GetEngineSystem<MeshSystem>().Tick();
-	GetEngineSystem<ObjectSystem>().Tick();
+	
+	TickNextFrame.Invoke();
+	TickNextFrame.Clear();
 	GetEngineSystem<RenderSystem>().Tick();
 	
 	myVulkanContext->EndFrame();

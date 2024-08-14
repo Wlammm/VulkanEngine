@@ -45,7 +45,7 @@ void World::Init()
 
 void World::Update()
 {
-	myComponentSystem->Update();	
+	myComponentSystem->Tick();	
 }
 
 AssetRegistry& World::GetAssetRegistry() const

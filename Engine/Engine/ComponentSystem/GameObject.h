@@ -10,7 +10,7 @@ public:
     GameObject() = default;
     ~GameObject();
     
-    void Update();
+    void Tick();
 
     template<typename ComponentType, typename... Args>
     ComponentType* AddComponent(Args&&... inArgs)

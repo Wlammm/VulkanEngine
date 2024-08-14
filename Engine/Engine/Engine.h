@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Delegates/MulticastDelegate.hpp"
 #include "Engine/EngineProperties.hpp"
 #include "Subsystem/SystemManager.h"
 
@@ -32,6 +33,9 @@ public:
 	}
 
 	static glm::vec2 GetRenderResolution();
+
+	// Ticks right before rendering.
+	inline static MulticastDelegate<void()> TickNextFrame;
 
 #if EDITOR
 	static void SetEditorTickFunction(const std::function<void()> inEditorTickFunction);

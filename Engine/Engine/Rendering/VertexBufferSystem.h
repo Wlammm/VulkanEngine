@@ -29,13 +29,10 @@ public:
     const VertexBufferData& GetVertexBufferData(const VertexBufferHandle inHandle) const;
     const VulkanBuffer* GetGlobalVertexBuffer() const;
 
-    uint GetMaxVertexCount() const;
-
 private:
     void GrowBuffer(const uint inRequiredSize);
     
 private:
-    uint myMaxVertexCount = 0;
     uint myUsedBufferSize = 0;
     uint myCurrentVertexOffset = 0;
     VertexBufferHandle myNextHandleID = 0;

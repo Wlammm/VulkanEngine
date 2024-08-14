@@ -5,7 +5,7 @@
 #include "TransformComponent.h"
 #include "Core/Input.h"
 
-void EditorCameraMovementComponent::Update()
+void EditorCameraMovementComponent::Tick()
 {
     glm::vec3 movement{};
 

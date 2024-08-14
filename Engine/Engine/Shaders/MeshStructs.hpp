@@ -2,25 +2,35 @@
 #pragma once
 using vec4 = glm::vec4;
 using mat4 = glm::mat4;
+using vec3 = glm::vec3;
 
 #define ALIGNAS(x) alignas(x)
 #else
 #define ALIGNAS(x) 
 #endif
 
-struct ALIGNAS(16) MeshData
+/*
+ * Alignment rules in glsl:
+ * - scalar             = 4
+ * - vec2               = 8
+ * - vec3 & vec4 & mat4 = 16
+ * A nested structure must be aligned by the base alignment of its members rounded up to a multiple of 16
+ */
+
+struct MeshData
 {
-    vec4 myBoundingSphereModelSpace; // X, Y, Z are center position in model space. W is radius
-    uint myVertexOffset;
-    uint myIndexOffset;
-    uint myIndexCount;
-    uint padding;
+    ALIGNAS(16) vec4 myBoundingSphereModelSpace; // X, Y, Z are center position in model space. W is radius
+    ALIGNAS(4) uint myVertexOffset;
+    ALIGNAS(4) uint myIndexOffset;
+    ALIGNAS(4) uint myIndexCount;
+    ALIGNAS(4) uint padding;
 };
 
 struct ALIGNAS(16) ObjectData
 {
-    mat4 myToWorld;
-    uint myMeshIndex;
+    ALIGNAS(16) mat4 myToWorld;
+    ALIGNAS(4) uint myMeshIndex;
+    ALIGNAS(16) vec3 padding;
 };
 
 //struct MeshInstanceData

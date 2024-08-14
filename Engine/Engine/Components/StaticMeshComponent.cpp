@@ -8,14 +8,6 @@
 void StaticMeshComponent::Start()
 {
     Component::Start();
-
-    if(!myModel)
-        return;
-    
-    for(const MeshHandle meshHandle : myModel->GetMeshHandles())
-    {
-        Engine::GetEngineSystem<ObjectSystem>().AddObject(glm::mat4(), meshHandle);
-    }
 }
 
 StaticMeshComponent::~StaticMeshComponent()
@@ -28,10 +20,22 @@ StaticMeshComponent::~StaticMeshComponent()
 
 void StaticMeshComponent::SetModel(Model* inModel)
 {
-    myModel = inModel;    
+    myModel = inModel;
+    RegisterMeshesToObjectSystem();
 }
 
 Model* StaticMeshComponent::GetModel() const
 {
     return myModel;
+}
+
+void StaticMeshComponent::RegisterMeshesToObjectSystem() const
+{
+    if(!myModel)
+        return;
+    
+    for(const MeshHandle meshHandle : myModel->GetMeshHandles())
+    {
+        Engine::GetEngineSystem<ObjectSystem>().AddObject(glm::mat4(), meshHandle);
+    }
 }
