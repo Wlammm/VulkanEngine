@@ -1,12 +1,26 @@
-[LOG]: 
-[LOG]: 
-[LOG]: 
-[LOG]: 
-[WARNING]: 
-[LOG]: 
-[WARNING]: 
-[WARNING]: 
-[WARNING]: 
-[WARNING]: 
-[WARNING]: 
-[WARNING]: 
+
+
+
+
+
+[LOG]: { Performance } Validation Performance Warning: [ WARNING-Shader-OutputNotConsumed ] Object 0: handle = 0x1ea707f6a50, name = ../Engine/Engine/Shaders/VertexShader.vert, type = VK_OBJECT_TYPE_SHADER_MODULE; | MessageID = 0xc81ad50e | vkCreateGraphicsPipelines(): pCreateInfos[0].pVertexInputState Vertex attribute at location 1 not consumed by vertex shader.
+Object Names: 
+ - ../Engine/Engine/Shaders/VertexShader.vert
+[LOG]: { Performance } Validation Performance Warning: [ WARNING-Shader-OutputNotConsumed ] Object 0: handle = 0x1ea707f6a50, name = ../Engine/Engine/Shaders/VertexShader.vert, type = VK_OBJECT_TYPE_SHADER_MODULE; | MessageID = 0xc81ad50e | vkCreateGraphicsPipelines(): pCreateInfos[0].pVertexInputState Vertex attribute at location 3 not consumed by vertex shader.
+Object Names: 
+ - ../Engine/Engine/Shaders/VertexShader.vert
+[LOG]: { Performance } Validation Performance Warning: [ WARNING-Shader-OutputNotConsumed ] Object 0: handle = 0x1ea707f6a50, name = ../Engine/Engine/Shaders/VertexShader.vert, type = VK_OBJECT_TYPE_SHADER_MODULE; | MessageID = 0xc81ad50e | vkCreateGraphicsPipelines(): pCreateInfos[0].pVertexInputState Vertex attribute at location 4 not consumed by vertex shader.
+Object Names: 
+ - ../Engine/Engine/Shaders/VertexShader.vert
+
+[LOG]: { Performance } Validation Performance Warning: [ WARNING-Shader-OutputNotConsumed ] Object 0: handle = 0x1ea707f6a50, name = ../Engine/Engine/Shaders/VertexShader.vert, type = VK_OBJECT_TYPE_SHADER_MODULE; | MessageID = 0xc81ad50e | vkCreateGraphicsPipelines(): pCreateInfos[0].pVertexInputState Vertex attribute at location 1 not consumed by vertex shader.
+Object Names: 
+ - ../Engine/Engine/Shaders/VertexShader.vert
+[LOG]: { Performance } Validation Performance Warning: [ WARNING-Shader-OutputNotConsumed ] Object 0: handle = 0x1ea707f6a50, name = ../Engine/Engine/Shaders/VertexShader.vert, type = VK_OBJECT_TYPE_SHADER_MODULE; | MessageID = 0xc81ad50e | vkCreateGraphicsPipelines(): pCreateInfos[0].pVertexInputState Vertex attribute at location 3 not consumed by vertex shader.
+Object Names: 
+ - ../Engine/Engine/Shaders/VertexShader.vert
+[LOG]: { Performance } Validation Performance Warning: [ WARNING-Shader-OutputNotConsumed ] Object 0: handle = 0x1ea707f6a50, name = ../Engine/Engine/Shaders/VertexShader.vert, type = VK_OBJECT_TYPE_SHADER_MODULE; | MessageID = 0xc81ad50e | vkCreateGraphicsPipelines(): pCreateInfos[0].pVertexInputState Vertex attribute at location 4 not consumed by vertex shader.
+Object Names: 
+ - ../Engine/Engine/Shaders/VertexShader.vert
+
+

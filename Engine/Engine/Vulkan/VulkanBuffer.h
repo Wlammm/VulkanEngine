@@ -63,8 +63,13 @@ public:
 	VmaMemoryUsage GetVmaMemoryUsage() const;
 	bool IsMappable() const;
 
+#if DEBUG
 	const std::string& GetName() const;
+#else
+	std::string GetName() const;
+#endif
 	
+
 private:
 	// Only create and destroy this resource via VulkanAllocator.
 	VulkanBuffer() = default;

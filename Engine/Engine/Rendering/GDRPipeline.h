@@ -13,19 +13,33 @@ public:
 
     void AddCommands(vk::CommandBuffer inCommandBuffer);
 
+    VulkanBuffer* GetCountBuffer() const;
+    VulkanBuffer* GetIndirectBuffer() const;
+
 private:
-    void CreateDescriptorSets();
-    void CreatePipeline();
+    struct ComputePassResources
+    {
+        VulkanShader* myShader = nullptr;
+        vk::Pipeline myPipeline;
+        vk::PipelineLayout myPipelineLayout;
+        VulkanDescriptorSet* myDescriptorSet = nullptr;
+
+        void Destroy();
+    };
+    
+    void ExecuteComputePass(vk::CommandBuffer inCommandBuffer, const ComputePassResources& inComputePassResources);
 
     void CreateBuffers();
+
+    void CreatePrePassResources();
+    void CreateCullPassResources();
     
 private:
+    VulkanShader* myPrePassShader = nullptr;
     VulkanShader* myCullShader = nullptr;
 
-    vk::Pipeline myPipeline;
-    vk::PipelineLayout myPipelineLayout;
-
-    VulkanDescriptorSet myDescriptorSet;
+    ComputePassResources myPrePass;
+    ComputePassResources myCullPass;
 
     ResizableBuffer* myIndirectCommandsBuffer = nullptr;
     VulkanBuffer* myCountBuffer = nullptr;

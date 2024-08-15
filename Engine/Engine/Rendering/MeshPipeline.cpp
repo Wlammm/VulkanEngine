@@ -2,6 +2,7 @@
 #include "MeshPipeline.h"
 
 #include "Engine.h"
+#include "GDRPipeline.h"
 #include "TextureSystem.h"
 #include "Engine/Assets/AssetRegistry.h"
 
@@ -95,34 +96,44 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 	
 	TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
 	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 2, textureSystem.GetDescriptorSet(), {});
+
+	TransformComponent comp{};
+	BuildObjectBuffer(&comp);
+	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, myObjectDescriptorSet.GetSet(), {});
 	
-	for (GameObject* object : objectsToRender)
-	{
-		StaticMeshComponent* staticMesh = object->GetComponent<StaticMeshComponent>();
-		TransformComponent* transform = object->GetTransform();
-		if (!staticMesh->GetModel())
-			continue;
+	const GDRPipeline& gdrPipeline = Engine::GetEngineSystem<RenderSystem>().GetGDRPipeline();
+	inCommandBuffer.drawIndexedIndirectCount(gdrPipeline.GetIndirectBuffer()->GetAPIResource(), 0,
+		gdrPipeline.GetCountBuffer()->GetAPIResource(), 0,
+		static_cast<uint>(gdrPipeline.GetIndirectBuffer()->GetSize() / sizeof(vk::DrawIndexedIndirectCommand)),
+		sizeof(vk::DrawIndexedIndirectCommand));
 	
-		BuildObjectBuffer(transform);
-		inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, myObjectDescriptorSet.GetSet(), {});
-	
-		for (const Mesh& mesh : staticMesh->GetModel()->GetMeshes())
-		{
-			if (!mesh.myMaterial)
-				continue;
-	
-			// Insert push constant with material indices here.
-			MaterialIndicesPushConstant materialData;
-			materialData.myAlbedoIndex = mesh.myMaterial->GetAlbedo();
-			materialData.myNormalIndex = mesh.myMaterial->GetNormal();
-			materialData.myMaterialIndex = mesh.myMaterial->GetMaterial();
-			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, sizeof(MaterialIndicesPushConstant), &materialData);
-			
-			const VertexBufferData& vertexData = vertexBufferSystem.GetVertexBufferData(mesh.VertexBuffer);
-			const IndexBufferData& indexData = indexBufferSystem.GetIndexBufferData(mesh.IndexBuffer);
-			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexData.myOffset, vertexData.myOffset, 0);
-		}
-	}
+	//for (GameObject* object : objectsToRender)
+	//{
+	//	StaticMeshComponent* staticMesh = object->GetComponent<StaticMeshComponent>();
+	//	TransformComponent* transform = object->GetTransform();
+	//	if (!staticMesh->GetModel())
+	//		continue;
+	//
+	//	BuildObjectBuffer(transform);
+	//	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, myObjectDescriptorSet.GetSet(), {});
+	//
+	//	for (const Mesh& mesh : staticMesh->GetModel()->GetMeshes())
+	//	{
+	//		if (!mesh.myMaterial)
+	//			continue;
+	//
+	//		// Insert push constant with material indices here.
+	//		MaterialIndicesPushConstant materialData;
+	//		materialData.myAlbedoIndex = mesh.myMaterial->GetAlbedo();
+	//		materialData.myNormalIndex = mesh.myMaterial->GetNormal();
+	//		materialData.myMaterialIndex = mesh.myMaterial->GetMaterial();
+	//		inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, sizeof(MaterialIndicesPushConstant), &materialData);
+	//		
+	//		const VertexBufferData& vertexData = vertexBufferSystem.GetVertexBufferData(mesh.VertexBuffer);
+	//		const IndexBufferData& indexData = indexBufferSystem.GetIndexBufferData(mesh.IndexBuffer);
+	//		inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexData.myOffset, vertexData.myOffset, 0);
+	//	}
+	//}
 }
 
 void MeshPipeline::CreateDescriptors()

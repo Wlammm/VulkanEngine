@@ -47,7 +47,7 @@ layout(set = 0, binding = 2) uniform DirectionalLightBuffer
 layout( push_constant ) uniform constants
 {
     int myAlbedoIndex;
-    int myNoramlIndex;
+    int myNormalIndex;
     int myMaterialIndex;
 } inPushConstants;
 
@@ -55,7 +55,7 @@ void main()
 {
     outColor = vec4(inPointLightBuffer.myLights[0].myPosition, 1.0);
 
-    vec4 albedoColor = texture(textures[inPushConstants.myAlbedoIndex], inTexCoord);
+    vec4 albedoColor = texture(textures[/*inPushConstants.myAlbedoIndex*/0], inTexCoord);
     vec3 normal = normalize(inNormal);
 
     vec4 pointLightColors = vec4(0, 0, 0, 0);

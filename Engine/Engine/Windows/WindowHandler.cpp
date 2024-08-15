@@ -15,9 +15,11 @@ WindowHandler::WindowHandler()
 	wndClass.lpfnWndProc = WindowHandler::WndProc;
 	wndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wndClass.lpszClassName = Engine::GetEngineProperties().Title.c_str();
+	wndClass.hbrBackground = (HBRUSH) CreateSolidBrush(RGB(10, 10, 10));
 	RegisterClass(&wndClass);
 
 	myHWND = CreateWindow(Engine::GetEngineProperties().Title.c_str(), Engine::GetEngineProperties().Title.c_str(), WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE, 100, 100, 1600, 900, nullptr, nullptr, nullptr, nullptr);
+
 	myHInstance = GetModuleHandle(NULL);
 }
 

@@ -29,7 +29,7 @@ private:
 
 private:
 	vk::PhysicalDevice myDevice;
-	vk::PhysicalDeviceFeatures myFeatures;
+	vk::PhysicalDeviceFeatures2 myFeatures;
 	vk::PhysicalDeviceMemoryProperties myMemoryProperties;
 	List<vk::QueueFamilyProperties> myQueueFamilyProperties;
 

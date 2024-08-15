@@ -58,14 +58,17 @@ bool VulkanBuffer::IsMappable() const
 	return myIsMappingAllowed;
 }
 
+#if DEBUG
 const std::string& VulkanBuffer::GetName() const
 {
-#if DEBUG
 	return myName;	
-#else
-	return "";
-#endif
 }
+#else
+std::string VulkanBuffer::GetName() const
+{
+	return "";
+}
+#endif
 
 void VulkanBuffer::UploadMapped(const void* inData, size_t inSize, uint inOffset)
 {

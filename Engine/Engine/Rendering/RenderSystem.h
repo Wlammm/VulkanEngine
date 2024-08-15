@@ -30,6 +30,7 @@ public:
     void FlushUploadCommands();
 
     const class ShadowPipeline& GetShadowPipeline();
+    const class GDRPipeline& GetGDRPipeline() const;
 
 private:
     void AddUploadPass(vk::CommandBuffer inCommandBuffer);

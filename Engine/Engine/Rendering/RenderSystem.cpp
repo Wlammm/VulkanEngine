@@ -57,7 +57,9 @@ void RenderSystem::Tick()
 
 		AddUploadPass(commandBuffer);
 		AddComputePass(commandBuffer);
-		AddShadowGenerationPass(commandBuffer);
+		
+
+		//AddShadowGenerationPass(commandBuffer);
 
 		commandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
 			.setRenderPass(myRenderTextureRenderPass)
@@ -135,6 +137,10 @@ void RenderSystem::FlushUploadCommands()
 const ShadowPipeline& RenderSystem::GetShadowPipeline()
 {
 	return *myShadowPipeline;
+}
+const GDRPipeline& RenderSystem::GetGDRPipeline() const
+{
+	return *myGDRPipeline;
 }
 
 void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)

@@ -50,20 +50,7 @@ void ResizableBuffer::DequeueUploads()
 
     if(myBuffer->GetSize() < requiredSize)
     {
-        // Resize buffer.
-        size_t newSize = MathUtils::UpperPowerOfTwo(requiredSize);
-        VulkanBuffer* oldBuffer = myBuffer;
-        vk::BufferCreateInfo createInfo = myBuffer->GetCreateInfo();
-        createInfo.setSize(newSize);
-        myBuffer = VulkanAllocator::AllocateBuffer_TS(myBuffer->GetName(), createInfo, myBuffer->GetVmaMemoryUsage(), myBuffer->IsMappable());
-
-        Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [this, oldBuffer](vk::CommandBuffer inCommandBuffer)
-        {
-            vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize());
-            inCommandBuffer.copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
-        });
-        VulkanAllocator::DestroyBuffer_TS(oldBuffer);
-        OnBufferResized();
+        Resize(requiredSize);
     }
     
     for(UploadData& uploadData : myDataToUpload)
@@ -73,6 +60,27 @@ void ResizableBuffer::DequeueUploads()
     }
     myDataToUpload.Clear();
     myHasRegisteredForTick = false;
+}
+
+void ResizableBuffer::Resize(const size_t inRequiredSize)
+{
+    check(!myHasActiveUpload && "You can only resize this buffer once per frame. This can happen if you call this method directly or via SetData. SetData can be called multiple times but you cant call SetData and Resize during the same frame.");
+    
+    // Resize buffer.
+    size_t newSize = MathUtils::UpperPowerOfTwo(inRequiredSize);
+    VulkanBuffer* oldBuffer = myBuffer;
+    vk::BufferCreateInfo createInfo = myBuffer->GetCreateInfo();
+    createInfo.setSize(newSize);
+    myBuffer = VulkanAllocator::AllocateBuffer_TS(myBuffer->GetName(), createInfo, myBuffer->GetVmaMemoryUsage(), myBuffer->IsMappable());
+    myHasActiveUpload = true;
+    Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [this, oldBuffer](vk::CommandBuffer inCommandBuffer)
+    {
+        myHasActiveUpload = false;
+        vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize());
+        inCommandBuffer.copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
+    });
+    VulkanAllocator::DestroyBuffer_TS(oldBuffer);
+    OnBufferResized();
 }
 
 /*

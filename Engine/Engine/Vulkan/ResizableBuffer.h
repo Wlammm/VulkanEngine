@@ -27,8 +27,11 @@ public:
     }
 
     void DequeueUploads();
+
+    void Resize(const size_t inRequiredSize);
     
 private:
+    bool myHasActiveUpload = false;
     bool myHasRegisteredForTick = false;
     VulkanBuffer* myBuffer = nullptr;
     size_t myCurrentSize = 0;
