@@ -8,6 +8,7 @@
 #include "Components/DirectionalLightComponent.h"
 #include "Components/EditorCameraMovementComponent.h"
 #include "Components/PointLightComponent.h"
+#include "Components/SinWaveMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 
 World::World()
@@ -40,7 +41,11 @@ void World::Init()
 
 	GameObject* pointLightObject = myComponentSystem->CreateGameObject();
 	PointLightComponent* pointLight = pointLightObject->AddComponent<PointLightComponent>();
-	
+
+
+	GameObject* cubeObject = myComponentSystem->CreateGameObject();
+	cubeObject->AddComponent<StaticMeshComponent>()->SetModel(myAssetRegistry->GetModel("Assets/Primitives/Cube.fbx"));
+	cubeObject->AddComponent<SinWaveMovementComponent>();
 }
 
 void World::Update()

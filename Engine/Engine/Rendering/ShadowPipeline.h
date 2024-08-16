@@ -25,14 +25,12 @@ private:
 	void CreatePipeline();
 
 	void BuildFrameBuffer(const TransformComponent* inLightTransform, const DirectionalLightComponent* inLight);
-	void BuildObjectBuffer(const TransformComponent* inTransform);
 
 private:
 	inline static constexpr vk::Format myShadowMapFormat = vk::Format::eD32Sfloat;
 
 	VulkanDescriptorSet myFrameDescriptorSet;
-	VulkanDescriptorSet myObjectDescriptorSet;
-
+	
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;
 
@@ -48,11 +46,13 @@ private:
 	};
 	VulkanBuffer* myFrameDataBuffer;
 
-	struct ObjectData
+	vk::Framebuffer myDirectionalLightFrameBuffer = nullptr;
+
+	struct PushConstantData
 	{
 		glm::mat4 myToWorld;
+		int myAlbedoIndex;
+		int myNormalIndex;
+		int myMaterialIndex;
 	};
-	VulkanBuffer* myObjectDataBuffer;
-
-	vk::Framebuffer myDirectionalLightFrameBuffer = nullptr;
 };

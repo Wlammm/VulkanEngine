@@ -22,13 +22,11 @@ private:
 	void BuildFrameBuffer();
 	void BuildPointLightBuffer();
 	void BuildDirectionalLightBuffer();
-	void BuildObjectBuffer(const TransformComponent* inTransform);
 
 	virtual void OnAssetUpdated() override final;
 
 private:
 	VulkanDescriptorSet myFrameDescriptorSet;
-	VulkanDescriptorSet myObjectDescriptorSet;
 
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;
@@ -44,13 +42,6 @@ private:
 		glm::vec3 myCameraPosition;
 	};
 	VulkanBuffer* myFrameDataBuffer; 
-
-	// ObjectDescriptorSet.
-	struct ObjectData
-	{
-		glm::mat4 myToWorld;
-	};
-	VulkanBuffer* myObjectDataBuffer;
 
 	// FrameDescriptorSet.
 	struct alignas(16) PointLightData
@@ -76,8 +67,9 @@ private:
 	};
 	VulkanBuffer* myDirectionalLightBuffer;
 
-	struct MaterialIndicesPushConstant
+	struct PushConstantData
 	{
+		glm::mat4 myToWorld;
 		int myAlbedoIndex;
 		int myNormalIndex;
 		int myMaterialIndex;

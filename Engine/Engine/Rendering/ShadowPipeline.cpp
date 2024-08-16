@@ -26,12 +26,6 @@ ShadowPipeline::ShadowPipeline()
 		VMA_MEMORY_USAGE_AUTO,
 		true);
 
-	myObjectDataBuffer = VulkanAllocator::AllocateBuffer_TS(
-		"ObjectDataBuffer",
-		VulkanBuffer::UniformBufferCreateInfo(sizeof(ObjectData)),
-		VMA_MEMORY_USAGE_AUTO,
-		true);
-
 	CreateRenderPass();
 	CreateDescriptors();
 	CreatePipeline();
@@ -54,7 +48,6 @@ ShadowPipeline::~ShadowPipeline()
 		VulkanContext::GetDevice()->destroyFramebuffer(myDirectionalLightFrameBuffer);
 	
 	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
-	VulkanAllocator::DestroyBuffer_TS(myObjectDataBuffer);
 
 	myVertexShader->RemoveObserver(this);
 
@@ -117,14 +110,16 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 		if (!staticMesh->GetModel())
 			continue;
 	
-		BuildObjectBuffer(object->GetTransform());
-		inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, myObjectDescriptorSet.GetSet(), {});
-	
 		for (const Mesh& mesh : staticMesh->GetModel()->GetMeshes())
 		{
 			if (!mesh.myMaterial)
 				continue;
-	
+
+			// Insert push constant with material indices here.
+			PushConstantData constantData;
+			constantData.myToWorld = staticMesh->GetTransform().GetMatrix();
+			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &constantData);
+			
 			const VertexBufferData& vertexBufferData = vertexBufferSystem.GetVertexBufferData(mesh.VertexBuffer);
 			const IndexBufferData& indexBufferData = indexBufferSystem.GetIndexBufferData(mesh.IndexBuffer);
 			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexBufferData.myOffset, vertexBufferData.myOffset, 0);
@@ -168,9 +163,6 @@ void ShadowPipeline::CreateDescriptors()
 {
 	myFrameDescriptorSet.BindBuffer(myFrameDataBuffer, vk::ShaderStageFlagBits::eVertex, 0, vk::DescriptorType::eUniformBuffer);
 	myFrameDescriptorSet.Build();
-
-	myObjectDescriptorSet.BindBuffer(myObjectDataBuffer, vk::ShaderStageFlagBits::eVertex, 0, vk::DescriptorType::eUniformBuffer);
-	myObjectDescriptorSet.Build();
 }
 
 void ShadowPipeline::CreateRenderPass()
@@ -209,8 +201,9 @@ void ShadowPipeline::CreateRenderPass()
 
 void ShadowPipeline::CreatePipeline()
 {
-	List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout(), myObjectDescriptorSet.GetLayout() };
-	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
+	List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout() };
+	const List<vk::PushConstantRange> pushConstants { vk::PushConstantRange().setSize(sizeof(PushConstantData)).setStageFlags(vk::ShaderStageFlagBits::eVertex) };
+	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts).setPushConstantRanges(pushConstants));
 
 	const std::array<vk::PipelineShaderStageCreateInfo, 1> shaderStageInfo = {
 		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(*myVertexShader).setPName("main"),
@@ -279,13 +272,5 @@ void ShadowPipeline::BuildFrameBuffer(const TransformComponent* inLightTransform
 	// This shouldnt be needed for this pass. It should only be used in pixel shader for lighting. (I think)
 	data.myCameraPosition = glm::vec3(0, 0, 0);
 	myFrameDataBuffer->SetData(data);
-}
-
-void ShadowPipeline::BuildObjectBuffer(const TransformComponent* inTransform)
-{
-	ObjectData buffer = {};
-	buffer.myToWorld = inTransform->GetMatrix();
-
-	myObjectDataBuffer->SetData(buffer);
 }
 

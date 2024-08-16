@@ -9,7 +9,7 @@ layout(location = 1) in vec2 inTexCoord;
 layout(location = 2) in vec3 inFragPos;
 layout(location = 3) in flat int inDrawID;
 
-layout(set = 2, binding = 0) uniform sampler2D textures[];
+layout(set = 1, binding = 0) uniform sampler2D textures[];
 
 layout(set=0, binding = 3) uniform sampler2D inDirectionalLightShadowMap;
 
@@ -46,6 +46,7 @@ layout(set = 0, binding = 2) uniform DirectionalLightBuffer
 
 layout( push_constant ) uniform constants
 {
+    mat4 myToWorld;
     int myAlbedoIndex;
     int myNormalIndex;
     int myMaterialIndex;

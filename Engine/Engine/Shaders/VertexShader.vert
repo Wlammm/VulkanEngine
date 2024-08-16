@@ -19,17 +19,20 @@ layout(set = 0, binding = 0) uniform FrameBuffer
 	vec3 myCameraPosition;
 };
 
-layout(set = 1, binding = 0) uniform ObjectBuffer
+layout( push_constant ) uniform constants
 {
 	mat4 myToWorld;
-};
+	int myAlbedoIndex;
+	int myNormalIndex;
+	int myMaterialIndex;
+} inPushConstants;
 
 void main()
 {
-	gl_Position = myProjection * myToView * myToWorld * inPosition;
+	gl_Position = myProjection * myToView * inPushConstants.myToWorld * inPosition;
 	//outNormal = mat3(myToWorld) * inNormal.xyz;
-	outNormal = normalize(mat3(transpose(inverse(myToWorld))) * inNormal.xyz);
-	outFragPos = vec3(myToWorld * inPosition);
+	outNormal = normalize(mat3(transpose(inverse(inPushConstants.myToWorld))) * inNormal.xyz);
+	outFragPos = vec3(inPushConstants.myToWorld * inPosition);
 	outTexCoord = inTexCoords[0];
 	outDrawID = gl_DrawID;
 }

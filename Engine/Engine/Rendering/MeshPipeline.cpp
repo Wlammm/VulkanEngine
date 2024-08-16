@@ -38,12 +38,6 @@ MeshPipeline::MeshPipeline()
 		VMA_MEMORY_USAGE_AUTO, 
 		true);
 
-	myObjectDataBuffer = VulkanAllocator::AllocateBuffer_TS(
-		"ObjectDataBuffer",
-		VulkanBuffer::UniformBufferCreateInfo(sizeof(ObjectData)),
-		VMA_MEMORY_USAGE_AUTO,
-		true);
-
 	myDirectionalLightBuffer = VulkanAllocator::AllocateBuffer_TS(
 		"DirectionalLightBuffer", 
 		VulkanBuffer::UniformBufferCreateInfo(sizeof(DirectionalLightBuffer)), 
@@ -64,7 +58,6 @@ MeshPipeline::MeshPipeline()
 MeshPipeline::~MeshPipeline()
 {
 	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
-	VulkanAllocator::DestroyBuffer_TS(myObjectDataBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myDirectionalLightBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myPointLightBuffer);
 
@@ -95,7 +88,7 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 	inCommandBuffer.bindIndexBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetAPIResource(),0, vk::IndexType::eUint32);
 	
 	TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
-	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 2, textureSystem.GetDescriptorSet(), {});
+	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, textureSystem.GetDescriptorSet(), {});
 
 	for (GameObject* object : objectsToRender)
 	{
@@ -104,21 +97,19 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 		if (!staticMesh->GetModel())
 			continue;
 	
-		BuildObjectBuffer(transform);
-		inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, myObjectDescriptorSet.GetSet(), {});
-	
 		for (const Mesh& mesh : staticMesh->GetModel()->GetMeshes())
 		{
 			if (!mesh.myMaterial)
 				continue;
 	
 			// Insert push constant with material indices here.
-			MaterialIndicesPushConstant materialData;
-			materialData.myAlbedoIndex = mesh.myMaterial->GetAlbedo();
-			materialData.myNormalIndex = mesh.myMaterial->GetNormal();
-			materialData.myMaterialIndex = mesh.myMaterial->GetMaterial();
-			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, sizeof(MaterialIndicesPushConstant), &materialData);
-			
+			PushConstantData constantData;
+			constantData.myAlbedoIndex = mesh.myMaterial->GetAlbedo();
+			constantData.myNormalIndex = mesh.myMaterial->GetNormal();
+			constantData.myMaterialIndex = mesh.myMaterial->GetMaterial();
+			constantData.myToWorld = staticMesh->GetTransform().GetMatrix();
+			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &constantData);
+
 			const VertexBufferData& vertexData = vertexBufferSystem.GetVertexBufferData(mesh.VertexBuffer);
 			const IndexBufferData& indexData = indexBufferSystem.GetIndexBufferData(mesh.IndexBuffer);
 			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexData.myOffset, vertexData.myOffset, 0);
@@ -154,21 +145,14 @@ void MeshPipeline::CreateDescriptors()
 		vk::ImageLayout::eDepthStencilReadOnlyOptimal);
 	
 	myFrameDescriptorSet.Build();
-	
-	myObjectDescriptorSet.BindBuffer(
-		myObjectDataBuffer,
-		vk::ShaderStageFlagBits::eVertex, 
-		0, 
-		vk::DescriptorType::eUniformBuffer);
-	myObjectDescriptorSet.Build();
 }
 
 void MeshPipeline::CreatePipeline()
 {
 	TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
 	
-	const List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout(), myObjectDescriptorSet.GetLayout(), textureSystem.GetDescriptorLayout() };
-	const List<vk::PushConstantRange> pushConstants { vk::PushConstantRange().setSize(sizeof(MaterialIndicesPushConstant)).setStageFlags(vk::ShaderStageFlagBits::eFragment) };
+	const List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout(), textureSystem.GetDescriptorLayout() };
+	const List<vk::PushConstantRange> pushConstants { vk::PushConstantRange().setSize(sizeof(PushConstantData)).setStageFlags(vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex) };
 	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts).setPushConstantRanges(pushConstants));
 
 	const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
@@ -288,13 +272,6 @@ void MeshPipeline::BuildDirectionalLightBuffer()
 	}
 	buffer.myColor = glm::vec4(0, 0, 0, 0);
 	LOG("No directional light found.");
-}
-
-void MeshPipeline::BuildObjectBuffer(const TransformComponent* inTransform)
-{
-	ObjectData data{};
-	data.myToWorld = inTransform->GetMatrix();
-	myObjectDataBuffer->SetData(data);
 }
 
 void MeshPipeline::OnAssetUpdated()
