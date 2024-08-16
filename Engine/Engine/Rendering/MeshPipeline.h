@@ -82,19 +82,4 @@ private:
 		int myNormalIndex;
 		int myMaterialIndex;
 	};
-
-	// GPU DRIVEN RENDERING SETUP
-	
-	// This is like a mesh.
-	//struct RenderItem
-	//{
-	//	float myBoundingSphereRadius;
-	//	uint myVertexOffset;
-	//	
-	//	uint myIndexOffset;
-	//	uint myIndexCount;
-	//	
-	//	uint myAlbedoIndex;
-	//	uint myNormalIndex;
-	//};
 };

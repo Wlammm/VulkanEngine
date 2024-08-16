@@ -39,6 +39,7 @@ struct ALIGNAS(16) ObjectData
 
 struct PerDrawData
 {
+    ALIGNAS(16) mat4 myToWorld;
     ALIGNAS(4) uint myAlbedoIndex;
     ALIGNAS(4) uint myNormalIndex;
     ALIGNAS(4) uint myMaterialIndex;

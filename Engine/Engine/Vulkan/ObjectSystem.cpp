@@ -21,7 +21,7 @@ ObjectSystem::ObjectSystem()
 
 ObjectSystem::~ObjectSystem()
 {
-    del(myBuffer);
+    VulkanAllocator::DestroyBuffer_TS(myBuffer);
 }
 
 const ResizableBuffer* ObjectSystem::GetBuffer() const

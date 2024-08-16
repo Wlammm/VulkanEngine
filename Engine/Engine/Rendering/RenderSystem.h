@@ -19,6 +19,7 @@ public:
     void Tick();
 
     vk::RenderPass& GetRenderPass();
+    
     class VulkanImage* GetRenderTexture();
     class VulkanImage* GetDepthTexture();
     class VulkanImage* GetDirectionalLightShadowMap() const;
@@ -33,8 +34,10 @@ public:
     const class GDRPipeline& GetGDRPipeline() const;
 
 private:
+    void AddGDRPass(vk::CommandBuffer inCommandBuffer);
+    void AddCPUPass(vk::CommandBuffer inCommandBuffer);
+    
     void AddUploadPass(vk::CommandBuffer inCommandBuffer);
-    void AddComputePass(vk::CommandBuffer inCommandBuffer);
     void AddMeshPass(vk::CommandBuffer inCommandBuffer);
     void AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer);
     void AddDebugPass(vk::CommandBuffer inCommandBuffer);
@@ -63,6 +66,8 @@ private:
     inline static std::mutex myUploadCommandsMutex;
     inline static List<UploadCommandData> myUploadCommands{};
 
+    bool myIsUsingGPUDrivenRendering = true;
+    
     class MeshPipeline* myMeshPipeline = nullptr;
     class FullscreenPipeline* myCopyPipeline = nullptr;
     class ShadowPipeline* myShadowPipeline = nullptr;

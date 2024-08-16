@@ -9,7 +9,7 @@ layout(location = 1) in vec2 inTexCoord;
 layout(location = 2) in vec3 inFragPos;
 layout(location = 3) in flat int inDrawID;
 
-layout(set = 2, binding = 0) uniform sampler2D textures[];
+layout(set = 1, binding = 0) uniform sampler2D textures[];
 
 layout(set=0, binding = 3) uniform sampler2D inDirectionalLightShadowMap;
 
@@ -44,20 +44,19 @@ layout(set = 0, binding = 2) uniform DirectionalLightBuffer
     
 } inDirectionalLightBuffer;
 
-layout( push_constant ) uniform constants
+layout(std430, set = 0, binding = 4) readonly buffer PerDrawDataBuffer
 {
-    int myAlbedoIndex;
-    int myNormalIndex;
-    int myMaterialIndex;
-} inPushConstants;
+    PerDrawData perDrawData[];
+} inPerDrawData;
 
 void main()
 {
-    vec4 albedoColor = texture(textures[inPushConstants.myAlbedoIndex], inTexCoord);
+    PerDrawData drawData = inPerDrawData.perDrawData[inDrawID];
+    
+    vec4 albedoColor = texture(textures[drawData.myAlbedoIndex], inTexCoord);
     vec3 normal = normalize(inNormal);
 
     vec4 pointLightColors = vec4(0, 0, 0, 0);
-
     for(int i = 0; i < inPointLightBuffer.myNumLights; ++i)
     {
         pointLightColors += CalculatePointLightColor(inFragPos, normal, myCameraPosition, inPointLightBuffer.myLights[i].myPosition, inPointLightBuffer.myLights[i].myColor, inPointLightBuffer.myLights[i].myRange);

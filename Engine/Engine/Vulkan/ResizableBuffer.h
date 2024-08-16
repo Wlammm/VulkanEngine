@@ -7,8 +7,6 @@ class ResizableBuffer
 {
 public:
     ResizableBuffer(VulkanBuffer* inBuffer);
-    ~ResizableBuffer();
-
     ResizableBuffer() = delete;
     ResizableBuffer(const ResizableBuffer&) = delete;
     void operator=(const ResizableBuffer&) = delete;
@@ -31,6 +29,9 @@ public:
     void Resize(const size_t inRequiredSize);
     
 private:
+    friend class VulkanAllocator;
+    ~ResizableBuffer() = default;
+    
     bool myHasActiveUpload = false;
     bool myHasRegisteredForTick = false;
     VulkanBuffer* myBuffer = nullptr;

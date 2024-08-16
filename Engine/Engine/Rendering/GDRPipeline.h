@@ -11,7 +11,8 @@ public:
     GDRPipeline();
     ~GDRPipeline();
 
-    void AddCommands(vk::CommandBuffer inCommandBuffer);
+    void AddComputeCommands(vk::CommandBuffer inCommandBuffer);
+    void AddGraphicsCommands(vk::CommandBuffer inCommandBuffer);
 
     VulkanBuffer* GetCountBuffer() const;
     VulkanBuffer* GetIndirectBuffer() const;
@@ -27,13 +28,20 @@ private:
 
         void Destroy();
     };
-    
+
     void ExecuteComputePass(vk::CommandBuffer inCommandBuffer, const ComputePassResources& inComputePassResources);
 
+    void EnsureCorrectBufferSizes();
+    
     void CreateBuffers();
 
     void CreatePrePassResources();
     void CreateCullPassResources();
+    void CreateDrawPassResources();
+
+    void BuildFrameBuffer() const;
+    void BuildPointLightBuffer();
+    void BuildDirectionalLightBuffer() const;
     
 private:
     VulkanShader* myPrePassShader = nullptr;
@@ -41,8 +49,49 @@ private:
 
     ComputePassResources myPrePass;
     ComputePassResources myCullPass;
-
+    
     ResizableBuffer* myIndirectCommandsBuffer = nullptr;
     VulkanBuffer* myCountBuffer = nullptr;
     ResizableBuffer* myPerDrawDataBuffer = nullptr;
+    
+    // ==== Draw resources ====
+    VulkanDescriptorSet myFrameDescriptorSet{};
+    vk::PipelineLayout myPipelineLayout;
+    vk::Pipeline myPipeline;
+    
+    VulkanShader* myVertexShader;
+    VulkanShader* myFragmentShader;
+
+    // FrameDescriptorSet.
+    struct FrameData
+    {
+        glm::mat4 myToView;
+        glm::mat4 myProjection;
+        glm::vec3 myCameraPosition;
+    };
+    VulkanBuffer* myFrameDataBuffer; 
+
+    // FrameDescriptorSet.
+    struct DirectionalLightBuffer
+    {
+        glm::vec4 myColor;
+        glm::vec3 myDirection;
+        float padding;
+        glm::mat4 myLightView;
+        glm::mat4 myLightProjection;
+    };
+    VulkanBuffer* myDirectionalLightBuffer;
+
+    // FrameDescriptorSet.
+    struct alignas(16) PointLightData
+    {
+        int myNumLights;
+        struct alignas(16)
+        {
+            glm::vec4 myColor = { 0, 0, 0, 0 };
+            glm::vec3 myPosition = { 0, 0, 0 };
+            float myRange = 0;
+        } myLights[10];
+    } myPointLightData;
+    VulkanBuffer* myPointLightBuffer;
 };

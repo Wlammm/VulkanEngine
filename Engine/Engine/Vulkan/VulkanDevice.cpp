@@ -10,14 +10,17 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	vk::DeviceCreateInfo createInfo = vk::DeviceCreateInfo().setQueueCreateInfos(queueCreateInfos).setPEnabledExtensionNames(myPhysicalDevice.GetExtensions());
 
 	vk::PhysicalDeviceVulkan12Features vulkan12Features{};
+	createInfo.pNext = &vulkan12Features;
 	vulkan12Features.drawIndirectCount = VK_TRUE;
 	vulkan12Features.descriptorBindingPartiallyBound = VK_TRUE;
 	vulkan12Features.runtimeDescriptorArray = VK_TRUE;
 	vulkan12Features.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
 	vulkan12Features.descriptorBindingVariableDescriptorCount = VK_TRUE;
 
+	vk::PhysicalDeviceVulkan11Features vulkan11Features{};
+	vulkan12Features.pNext = &vulkan11Features;
+	vulkan11Features.shaderDrawParameters = VK_TRUE;
 	
-	createInfo.pNext = &vulkan12Features;
 	myDevice = myPhysicalDevice->createDevice(createInfo);
 
 	myGraphicsQueue = myDevice.getQueue(myPhysicalDevice.GetGraphicsQueueIndex(), 0);

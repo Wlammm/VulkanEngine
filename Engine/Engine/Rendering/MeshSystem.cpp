@@ -18,7 +18,7 @@ MeshSystem::MeshSystem()
 }
 MeshSystem::~MeshSystem()
 {
-    del(myBuffer);
+    VulkanAllocator::DestroyBuffer_TS(myBuffer);
 }
 
 MeshHandle MeshSystem::UploadMesh(const MeshData& inMesh)

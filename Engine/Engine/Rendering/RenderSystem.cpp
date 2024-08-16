@@ -10,6 +10,7 @@
 #include "Assets/AssetRegistry.h"
 #include "Components/StaticMeshComponent.h"
 #include "ComponentSystem/ComponentSystem.h"
+#include "Core/Input.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanImage.h"
@@ -49,6 +50,12 @@ void RenderSystem::Tick()
 {
 	ZoneScoped;
 
+	if(Input::IsKeyDown(KeyCode::F7))
+	{
+		myIsUsingGPUDrivenRendering = !myIsUsingGPUDrivenRendering;
+		LOG("GDR enabled: %d", myIsUsingGPUDrivenRendering);
+	}
+	
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
 
@@ -56,24 +63,16 @@ void RenderSystem::Tick()
 		GPUMARK_SCOPE(commandBuffer, "Frame");
 
 		AddUploadPass(commandBuffer);
-		AddComputePass(commandBuffer);
-		
 
-		//AddShadowGenerationPass(commandBuffer);
-
-		commandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-			.setRenderPass(myRenderTextureRenderPass)
-			.setFramebuffer(myRenderTextureFrameBuffer)
-			.setPClearValues(myClearValues)
-			.setClearValueCount(2)
-			.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
-			, vk::SubpassContents::eInline);
+		if(myIsUsingGPUDrivenRendering)
+		{
+			AddGDRPass(commandBuffer);
+		}
+		else
+		{
+			AddCPUPass(commandBuffer);
+		}
 		
-		AddMeshPass(commandBuffer);
-		AddDebugPass(commandBuffer);
-		
-		commandBuffer.endRenderPass();
-
 		AddFullscreenCopyPass(commandBuffer);
 	}
 
@@ -143,6 +142,58 @@ const GDRPipeline& RenderSystem::GetGDRPipeline() const
 	return *myGDRPipeline;
 }
 
+void RenderSystem::AddGDRPass(vk::CommandBuffer inCommandBuffer)
+{
+	{
+		GPUMARK_SCOPE(inCommandBuffer, "Indirect Culling");
+		myGDRPipeline->AddComputeCommands(inCommandBuffer);
+	}
+
+	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
+			.setRenderPass(myRenderTextureRenderPass)
+			.setFramebuffer(myRenderTextureFrameBuffer)
+			.setPClearValues(myClearValues)
+			.setClearValueCount(2)
+			.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
+			, vk::SubpassContents::eInline);
+
+	{
+		GPUMARK_SCOPE(inCommandBuffer, "Indirect Graphics");
+
+		inCommandBuffer.setViewport(0, vk::Viewport()
+			.setX(0)
+			.setY(0)
+			.setWidth(static_cast<float>(Engine::GetRenderResolution().x))
+			.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
+			.setMinDepth(0.0f)
+			.setMaxDepth(1.0f));
+	
+		inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
+		
+		myGDRPipeline->AddGraphicsCommands(inCommandBuffer);
+	}
+
+	inCommandBuffer.endRenderPass();
+}
+
+void RenderSystem::AddCPUPass(vk::CommandBuffer inCommandBuffer)
+{
+	AddShadowGenerationPass(inCommandBuffer);
+
+	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
+			.setRenderPass(myRenderTextureRenderPass)
+			.setFramebuffer(myRenderTextureFrameBuffer)
+			.setPClearValues(myClearValues)
+			.setClearValueCount(2)
+			.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
+			, vk::SubpassContents::eInline);
+
+	
+	AddMeshPass(inCommandBuffer);
+	AddDebugPass(inCommandBuffer);
+	inCommandBuffer.endRenderPass();
+}
+
 void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 {
 	GPUMARK_SCOPE(inCommandBuffer, "UploadPass");
@@ -155,12 +206,6 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 	myUploadCommands.Clear();
 
 	myUploadCommandsMutex.unlock();
-}
-
-void RenderSystem::AddComputePass(vk::CommandBuffer inCommandBuffer)
-{
-	GPUMARK_SCOPE(inCommandBuffer, "ComputePass");
-	myGDRPipeline->AddCommands(inCommandBuffer);
 }
 
 void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)

@@ -4,6 +4,8 @@
 #include <vma/vk_mem_alloc.h>
 
 #include "VulkanAllocator.h"
+
+#include "ResizableBuffer.h"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "VulkanBuffer.h"
@@ -86,6 +88,11 @@ void VulkanAllocator::DestroyBuffer_TS(VulkanBuffer* inBuffer)
 	myInstance->myBufferDeleteData.Add({ VulkanContext::FrameLag, inBuffer });
 }
 
+void VulkanAllocator::DestroyBuffer_TS(ResizableBuffer* inBuffer)
+{
+	myInstance->myResizableBufferDeleteData.Add({VulkanContext::FrameLag, inBuffer });
+}
+
 VulkanImage* VulkanAllocator::AllocateImage_TS(const std::string& inName, const vk::ImageCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
 {
 	VulkanImage* outImage = new VulkanImage();
@@ -153,6 +160,19 @@ void VulkanAllocator::TickBufferDeletes()
 		}
 	}
 	myBufferDeleteData.Unlock();
+
+	myResizableBufferDeleteData.Lock();
+	for (int i = myResizableBufferDeleteData.size() - 1; i >= 0; --i)
+	{
+		myResizableBufferDeleteData[i].myFramesUntilDelete--;
+		if (myResizableBufferDeleteData[i].myFramesUntilDelete <= 0)
+		{
+			DestroyBufferInternal(myResizableBufferDeleteData[i].myData->GetBuffer());
+			del(myResizableBufferDeleteData[i].myData);
+			myResizableBufferDeleteData.RemoveIndex(i);
+		}
+	}
+	myResizableBufferDeleteData.Unlock();
 }
 
 void VulkanAllocator::TickImageDeletes()

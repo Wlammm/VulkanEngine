@@ -2,6 +2,7 @@
 #include "StaticMeshComponent.h"
 
 #include "Engine.h"
+#include "TransformComponent.h"
 #include "Assets/Model.h"
 #include "Vulkan/ObjectSystem.h"
 
@@ -36,6 +37,6 @@ void StaticMeshComponent::RegisterMeshesToObjectSystem() const
     
     for(const MeshHandle meshHandle : myModel->GetMeshHandles())
     {
-        Engine::GetEngineSystem<ObjectSystem>().AddObject(glm::mat4(), meshHandle);
+        Engine::GetEngineSystem<ObjectSystem>().AddObject(GetTransform().GetMatrix(), meshHandle);
     }
 }
