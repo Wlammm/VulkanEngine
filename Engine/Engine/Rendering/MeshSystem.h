@@ -11,7 +11,6 @@ public:
     MeshSystem();
     ~MeshSystem();
 
-
     MeshHandle UploadMesh(const MeshData& inMesh);
 
     ResizableBuffer* GetBuffer() const;

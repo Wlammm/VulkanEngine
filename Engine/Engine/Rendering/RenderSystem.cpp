@@ -281,10 +281,10 @@ void RenderSystem::DestroyRenderResources()
 void RenderSystem::CreatePipelines()
 {
 	myShadowPipeline = new ShadowPipeline();
+	myGDRPipeline = new GDRPipeline();
 	myMeshPipeline = new MeshPipeline();
 	myDebugPipeline = new DebugPipeline();
 	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetShader("FullscreenCopy.frag"), myRenderTexture);
-	myGDRPipeline = new GDRPipeline();
 }
 
 void RenderSystem::CreateRenderTextures()

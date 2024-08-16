@@ -8,6 +8,7 @@
 #include "Rendering/Mesh.hpp"
 #include "Engine.h"
 #include "Assets/AssetRegistry.h"
+#include "Assets/Material.h"
 #include "Rendering/RenderSystem.h"
 #include "Serialization/BinaryWriter.h"
 #include "Serialization/BinaryReader.h"
@@ -138,7 +139,10 @@ Model* ModelFactory::CreateModelFromModelData(const ModelData& inModelData)
 			vertexData.myOffset,
 			indexData.myOffset,
 			indexData.myIndexCount,
-			0)));
+			mesh.myMaterial->GetAlbedo(),
+			mesh.myMaterial->GetNormal(),
+			mesh.myMaterial->GetMaterial(),
+			0, 0)));
 	}
 	
 	{

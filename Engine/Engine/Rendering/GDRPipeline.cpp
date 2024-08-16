@@ -34,17 +34,23 @@ GDRPipeline::~GDRPipeline()
 void GDRPipeline::AddCommands(vk::CommandBuffer inCommandBuffer)
 {
     ObjectSystem& objectSystem = Engine::GetEngineSystem<ObjectSystem>();
+
     size_t requiredSize = objectSystem.GetNumObjects() * sizeof(vk::DrawIndexedIndirectCommand);
     if(requiredSize > myIndirectCommandsBuffer->GetBuffer()->GetSize())
     {
         myIndirectCommandsBuffer->Resize(requiredSize);
     }
+
+    size_t drawCallRequiredSize = objectSystem.GetNumObjects() * sizeof(PerDrawData);
+    if(drawCallRequiredSize > myPerDrawDataBuffer->GetBuffer()->GetSize())
+    {
+        myPerDrawDataBuffer->Resize(drawCallRequiredSize);
+    }
     
     ExecuteComputePass(inCommandBuffer, myPrePass);
     ExecuteComputePass(inCommandBuffer, myCullPass);
-
-    
 }
+
 VulkanBuffer* GDRPipeline::GetCountBuffer() const
 {
     return myCountBuffer;
@@ -53,6 +59,11 @@ VulkanBuffer* GDRPipeline::GetCountBuffer() const
 VulkanBuffer* GDRPipeline::GetIndirectBuffer() const
 {
     return myIndirectCommandsBuffer->GetBuffer();    
+}
+
+ResizableBuffer* GDRPipeline::GetPerDrawDataBuffer() const
+{
+    return myPerDrawDataBuffer;
 }
 
 void GDRPipeline::CreateBuffers()
@@ -71,6 +82,12 @@ void GDRPipeline::CreateBuffers()
         vk::BufferCreateInfo()
         .setSize(sizeof(vk::DrawIndexedIndirectCommand) * numObjects)
         .setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
+        VMA_MEMORY_USAGE_AUTO));
+
+    myPerDrawDataBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("PerDrawCallData Buffer",
+        vk::BufferCreateInfo()
+        .setSize(sizeof(vk::DrawIndexedIndirectCommand) * numObjects)
+        .setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
         VMA_MEMORY_USAGE_AUTO));
 }
 
@@ -123,6 +140,7 @@ void GDRPipeline::CreateCullPassResources()
     myCullPass.myDescriptorSet->BindBuffer(objectSystem.GetBuffer(), vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
     myCullPass.myDescriptorSet->BindBuffer(myIndirectCommandsBuffer, vk::ShaderStageFlagBits::eCompute, 2, vk::DescriptorType::eStorageBuffer);
     myCullPass.myDescriptorSet->BindBuffer(myCountBuffer, vk::ShaderStageFlagBits::eCompute, 3, vk::DescriptorType::eStorageBuffer);
+    myCullPass.myDescriptorSet->BindBuffer(myPerDrawDataBuffer, vk::ShaderStageFlagBits::eCompute, 4, vk::DescriptorType::eStorageBuffer);
     myCullPass.myDescriptorSet->Build();
 
     // Create pipeline

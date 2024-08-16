@@ -162,6 +162,12 @@ void MeshPipeline::CreateDescriptors()
 		3, 
 		vk::ShaderStageFlagBits::eFragment,
 		vk::ImageLayout::eDepthStencilReadOnlyOptimal);
+
+	myFrameDescriptorSet.BindBuffer(
+			Engine::GetEngineSystem<RenderSystem>().GetGDRPipeline().GetPerDrawDataBuffer(), 
+			vk::ShaderStageFlagBits::eFragment, 
+			4, 
+			vk::DescriptorType::eStorageBuffer);
 	
 	myFrameDescriptorSet.Build();
 	

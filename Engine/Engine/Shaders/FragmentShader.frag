@@ -1,4 +1,5 @@
-#version 450
+#version 460
+#include "MeshStructs.hpp"
 #include "CommonLighting.glsl"
 
 layout(location = 0) out vec4 outColor;
@@ -6,12 +7,10 @@ layout(location = 0) out vec4 outColor;
 layout(location = 0) in vec3 inNormal;
 layout(location = 1) in vec2 inTexCoord;
 layout(location = 2) in vec3 inFragPos;
+layout(location = 3) in flat int inDrawID;
 
 layout(set = 2, binding = 0) uniform sampler2D textures[];
 
-//layout(set=2, binding = 0) uniform sampler2D albedo;
-//layout(set=2, binding = 1) uniform sampler2D normal;
-//layout(set=2, binding = 2) uniform sampler2D material;
 layout(set=0, binding = 3) uniform sampler2D inDirectionalLightShadowMap;
 
 layout(set = 0, binding = 0) uniform FrameBuffer 
@@ -44,6 +43,11 @@ layout(set = 0, binding = 2) uniform DirectionalLightBuffer
     
 } inDirectionalLightBuffer;
 
+layout(std430, set = 0, binding = 4) readonly buffer PerDrawDataBuffer
+{
+    PerDrawData perDrawData[];
+} inPerDrawData;
+
 layout( push_constant ) uniform constants
 {
     int myAlbedoIndex;
@@ -55,7 +59,9 @@ void main()
 {
     outColor = vec4(inPointLightBuffer.myLights[0].myPosition, 1.0);
 
-    vec4 albedoColor = texture(textures[/*inPushConstants.myAlbedoIndex*/0], inTexCoord);
+    PerDrawData drawData = inPerDrawData.perDrawData[inDrawID];
+    
+    vec4 albedoColor = texture(textures[drawData.myAlbedoIndex], inTexCoord);
     vec3 normal = normalize(inNormal);
 
     vec4 pointLightColors = vec4(0, 0, 0, 0);

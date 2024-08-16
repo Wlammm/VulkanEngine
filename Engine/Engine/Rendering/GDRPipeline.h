@@ -15,6 +15,7 @@ public:
 
     VulkanBuffer* GetCountBuffer() const;
     VulkanBuffer* GetIndirectBuffer() const;
+    ResizableBuffer* GetPerDrawDataBuffer() const;
 
 private:
     struct ComputePassResources
@@ -43,4 +44,5 @@ private:
 
     ResizableBuffer* myIndirectCommandsBuffer = nullptr;
     VulkanBuffer* myCountBuffer = nullptr;
+    ResizableBuffer* myPerDrawDataBuffer = nullptr;
 };

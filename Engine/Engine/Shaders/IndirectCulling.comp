@@ -24,6 +24,11 @@ layout(std430, set = 0, binding = 3) buffer OutCountBuffer
     uint myDrawCount;
 } outCountBuffer;
 
+layout(std430, set = 0, binding = 4) buffer OutPerDrawDataBuffer
+{
+    PerDrawData perDrawData[];
+} outPerDrawData;
+
 layout (local_size_x = 256) in;
 
 void main() {
@@ -44,5 +49,9 @@ void main() {
     outIndirectBuffer.drawCommands[renderIndex].vertexOffset = int(meshData.myVertexOffset);
     outIndirectBuffer.drawCommands[renderIndex].firstIndex = meshData.myIndexOffset;
     
-    // Compute shader code
+    outPerDrawData.perDrawData[renderIndex].myAlbedoIndex = meshData.myAlbedoIndex;
+    outPerDrawData.perDrawData[renderIndex].myNormalIndex = meshData.myNormalIndex;
+    outPerDrawData.perDrawData[renderIndex].myMaterialIndex = meshData.myMaterialIndex;
+    
+    // We need to have a per instance buffer that is bound to the vertex shaders 
 }
