@@ -2,7 +2,8 @@
 #include "World.h"
 
 #include "Engine.h"
-#include "Assets/AssetRegistry.h"
+#include "AssetRegistry/AssetRegistry.h"
+#include "Assets/Model.h"
 #include "Components/CameraComponent.h"
 #include "ComponentSystem/ComponentSystem.h"
 #include "Components/DirectionalLightComponent.h"
@@ -29,11 +30,13 @@ void World::Init()
 	CameraComponent* camera = camObject->AddComponent<CameraComponent>();
 	camera->CreatePerspective(Engine::GetRenderResolution());
 	camObject->AddComponent<EditorCameraMovementComponent>();
-	
+
 	GameObject* sponza = myComponentSystem->CreateGameObject();
 	StaticMeshComponent* staticMesh = sponza->AddComponent<StaticMeshComponent>();
-	staticMesh->SetModel(myAssetRegistry->GetModel("Assets/Sponza/NewSponza_Main_Yup_002.fbx"));
-	//staticMesh->SetModel(myAssetRegistry->GetModel("Assets/Primitives/Cube.fbx"));
+	myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/NewSponza_Main_Yup_002.fbx", [staticMesh](Model* inModel)
+	{
+		staticMesh->SetModel(inModel);
+	});
 	
 	GameObject* dirLightObject = myComponentSystem->CreateGameObject();
 	DirectionalLightComponent* light = dirLightObject->AddComponent<DirectionalLightComponent>();
@@ -42,9 +45,11 @@ void World::Init()
 	GameObject* pointLightObject = myComponentSystem->CreateGameObject();
 	PointLightComponent* pointLight = pointLightObject->AddComponent<PointLightComponent>();
 
-
 	GameObject* cubeObject = myComponentSystem->CreateGameObject();
-	cubeObject->AddComponent<StaticMeshComponent>()->SetModel(myAssetRegistry->GetModel("Assets/Primitives/Cube.fbx"));
+	myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [cubeObject](Model* inModel)
+	{
+		cubeObject->AddComponent<StaticMeshComponent>()->SetModel(inModel);
+	});
 	cubeObject->AddComponent<SinWaveMovementComponent>();
 }
 

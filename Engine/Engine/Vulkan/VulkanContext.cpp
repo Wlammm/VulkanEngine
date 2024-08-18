@@ -7,7 +7,6 @@
 #include "Utils/String.hpp"
 #include "VulkanAllocator.h"
 #include "VulkanImGui.h"
-#include "Assets/Material.h"
 #include "Tracy/tracy/Tracy.hpp"
 #include "VulkanUtils.hpp"
 
@@ -71,7 +70,6 @@ VulkanContext::~VulkanContext()
 	VulkanImGui::Destroy();
 
 	// This will destroy all descriptor sets and layouts that are allocated from it.
-	GetDevice()->destroyDescriptorSetLayout(Material::GetMaterialDescriptorLayout());
 	GetDevice()->destroyDescriptorPool(myDescriptorPool);
 	GetDevice()->destroyPipelineCache(myPipelineCache);
 	VulkanUtils::DestroySamplers();

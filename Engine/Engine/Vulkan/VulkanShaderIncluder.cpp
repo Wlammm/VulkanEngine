@@ -1,7 +1,7 @@
 #include "EnginePch.h"
 #include "VulkanShaderIncluder.h"
 #include "Engine.h"
-#include "Assets/AssetRegistry.h"
+#include "AssetRegistry/AssetRegistry.h"
 
 VulkanShaderIncluder::VulkanShaderIncluder()
 {

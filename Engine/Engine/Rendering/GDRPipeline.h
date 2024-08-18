@@ -2,7 +2,7 @@
 #include "Vulkan/VulkanDescriptorSet.h"
 // GPU Driven Rendering Pipeline.
 
-class VulkanShader;
+class Shader;
 class VulkanBuffer;
 
 class GDRPipeline
@@ -21,7 +21,7 @@ public:
 private:
     struct ComputePassResources
     {
-        VulkanShader* myShader = nullptr;
+        Shader* myShader = nullptr;
         vk::Pipeline myPipeline;
         vk::PipelineLayout myPipelineLayout;
         VulkanDescriptorSet* myDescriptorSet = nullptr;
@@ -44,8 +44,8 @@ private:
     void BuildDirectionalLightBuffer() const;
     
 private:
-    VulkanShader* myPrePassShader = nullptr;
-    VulkanShader* myCullShader = nullptr;
+    Shader* myPrePassShader = nullptr;
+    Shader* myCullShader = nullptr;
 
     ComputePassResources myPrePass;
     ComputePassResources myCullPass;
@@ -59,8 +59,8 @@ private:
     vk::PipelineLayout myPipelineLayout;
     vk::Pipeline myPipeline;
     
-    VulkanShader* myVertexShader;
-    VulkanShader* myFragmentShader;
+    Shader* myVertexShader;
+    Shader* myFragmentShader;
 
     // FrameDescriptorSet.
     struct FrameData

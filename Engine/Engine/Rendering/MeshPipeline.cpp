@@ -3,18 +3,25 @@
 
 #include "Engine.h"
 #include "GDRPipeline.h"
+#include "IndexBuffer.h"
+#include "IndexBufferSystem.h"
+#include "Mesh.h"
 #include "TextureSystem.h"
-#include "Engine/Assets/AssetRegistry.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
-#include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanDescriptorSet.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanAllocator.h"
 
 #include "Vertex.hpp"
+#include "VertexBuffer.h"
+#include "VertexBufferSystem.h"
 #include "Assets/Material.h"
+#include "Assets/Model.h"
+#include "Assets/Shader.h"
+#include "Assets/Texture.h"
 #include "Components/CameraComponent.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/PointLightComponent.h"
@@ -26,11 +33,11 @@
 
 MeshPipeline::MeshPipeline()
 {
-	myVertexShader = Engine::GetAssetRegistry().GetShader("VertexShader.vert");
-	myVertexShader->AddObserver(this);
+	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("VertexShader.vert");
+	myVertexShader->OnAssetUpdated.Bind(&MeshPipeline::OnShaderRecompiled, this);
 
-	myFragmentShader = Engine::GetAssetRegistry().GetShader("FragmentShader.frag");
-	myFragmentShader->AddObserver(this);
+	myFragmentShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FragmentShader.frag");
+	myFragmentShader->OnAssetUpdated.Bind(&MeshPipeline::OnShaderRecompiled, this);
 
 	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
 		"FrameDataBuffer",
@@ -61,8 +68,8 @@ MeshPipeline::~MeshPipeline()
 	VulkanAllocator::DestroyBuffer_TS(myDirectionalLightBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myPointLightBuffer);
 
-	myVertexShader->RemoveObserver(this);
-	myFragmentShader->RemoveObserver(this);
+	myVertexShader->OnAssetUpdated.UnBind(&MeshPipeline::OnShaderRecompiled, this);
+	myFragmentShader->OnAssetUpdated.UnBind(&MeshPipeline::OnShaderRecompiled, this);
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
 }
@@ -97,22 +104,21 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 		if (!staticMesh->GetModel())
 			continue;
 	
-		for (const Mesh& mesh : staticMesh->GetModel()->GetMeshes())
+		for (Mesh* mesh : staticMesh->GetModel()->GetMeshes())
 		{
-			if (!mesh.myMaterial)
+			Material* material = staticMesh->GetMaterialForMesh(mesh);
+			if (!material)
 				continue;
 	
 			// Insert push constant with material indices here.
 			PushConstantData constantData;
-			constantData.myAlbedoIndex = mesh.myMaterial->GetAlbedo();
-			constantData.myNormalIndex = mesh.myMaterial->GetNormal();
-			constantData.myMaterialIndex = mesh.myMaterial->GetMaterial();
+			constantData.myAlbedoIndex = material->GetAlbedo()->GetBindlessIndex();
+			constantData.myNormalIndex = material->GetNormal()->GetBindlessIndex();
+			constantData.myMaterialIndex = material->GetMaterial()->GetBindlessIndex();
 			constantData.myToWorld = staticMesh->GetTransform().GetMatrix();
 			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &constantData);
 
-			const VertexBufferData& vertexData = vertexBufferSystem.GetVertexBufferData(mesh.VertexBuffer);
-			const IndexBufferData& indexData = indexBufferSystem.GetIndexBufferData(mesh.IndexBuffer);
-			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexData.myOffset, vertexData.myOffset, 0);
+			inCommandBuffer.drawIndexed(mesh->GetIndexBuffer()->GetIndexCount(), 1, mesh->GetIndexBuffer()->GetOffset(), mesh->GetVertexBuffer()->GetOffset(), 0);
 		}
 	}
 }
@@ -156,8 +162,8 @@ void MeshPipeline::CreatePipeline()
 	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts).setPushConstantRanges(pushConstants));
 
 	const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(*myVertexShader).setPName("main"),
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(*myFragmentShader).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(myVertexShader->GetAPIResource()).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(myFragmentShader->GetAPIResource()).setPName("main"),
 	};
 
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo().setVertexAttributeDescriptions(Vertex::GetAttributeDescriptions()).setVertexBindingDescriptions(Vertex::GetBindingDescriptions());
@@ -274,7 +280,7 @@ void MeshPipeline::BuildDirectionalLightBuffer()
 	LOG("No directional light found.");
 }
 
-void MeshPipeline::OnAssetUpdated()
+void MeshPipeline::OnShaderRecompiled()
 {
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);

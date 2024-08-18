@@ -3,8 +3,10 @@
 
 #include "Engine.h"
 #include "ResizableBuffer.h"
+#include "VulkanAllocator.h"
 #include "Components/StaticMeshComponent.h"
 #include "ComponentSystem/ComponentSystem.h"
+#include "Rendering/Mesh.h"
 #include "World/World.h"
 
 #include "Shaders/MeshStructs.hpp"
@@ -34,9 +36,9 @@ uint ObjectSystem::GetNumObjects() const
     return myNumObjects;
 }
 
-void ObjectSystem::AddObject(const glm::mat4& inTransform, const MeshHandle inMesh)
+void ObjectSystem::AddObject(const glm::mat4& inTransform, const Mesh* inMesh)
 {
-    ObjectData data{inTransform, inMesh};
+    ObjectData data{inTransform, inMesh->GetHandle()};
     // Offset by the first num objects.
     
     myBuffer->SetData(&data, sizeof(ObjectData), 32 + sizeof(ObjectData) * myNumObjects);

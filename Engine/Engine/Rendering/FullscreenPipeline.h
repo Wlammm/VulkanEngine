@@ -1,13 +1,12 @@
 #pragma once
-#include "Assets/AssetObserver.h"
 #include "Vulkan/VulkanDescriptorSet.h"
 
-class VulkanShader;
+class Shader;
 
-class FullscreenPipeline : public AssetObserver
+class FullscreenPipeline
 {
 public:
-	FullscreenPipeline(VulkanShader* inFragmentShader, class VulkanImage* inSource);
+	FullscreenPipeline(Shader* inFragmentShader, class VulkanImage* inSource);
 	~FullscreenPipeline();
 
 	void AddFullscreenPass(const vk::CommandBuffer inCommandBuffer);
@@ -16,12 +15,11 @@ private:
 	void CreatePipeline();
 	void CreateDescriptors(class VulkanImage* inSource);
 	
-	// Inherited via AssetObserver
-	virtual void OnAssetUpdated() override final;
+	void OnShaderRecompiled();
 
 private:
-	VulkanShader* myVertexShader = nullptr;
-	VulkanShader* myFragmentShader = nullptr;
+	Shader* myVertexShader = nullptr;
+	Shader* myFragmentShader = nullptr;
 
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;

@@ -30,13 +30,40 @@ Model* StaticMeshComponent::GetModel() const
     return myModel;
 }
 
+void StaticMeshComponent::SetMaterial(Material* inMaterial, const uint inIndex)
+{
+    myMaterials[inIndex] = inMaterial;    
+}
+
+Material* StaticMeshComponent::GetMaterial(const uint inIndex) const
+{
+    if(!myMaterials.IsValidIndex(inIndex))
+        return nullptr;
+    
+    return myMaterials[inIndex];    
+}
+
+void StaticMeshComponent::SetMaterialForMesh(Material* inMaterial, Mesh* inMesh)
+{
+    uint index = myModel->GetMeshes().FindIndex(inMesh);
+    check(index != -1 && "Mesh is not part of the model.");
+    SetMaterial(inMaterial, index);
+}
+
+Material* StaticMeshComponent::GetMaterialForMesh(Mesh* inMesh) const
+{
+    uint index = myModel->GetMeshes().FindIndex(inMesh);
+    check(index != -1 && "Mesh is not part of the model.");
+    return GetMaterial(index);
+}
+
 void StaticMeshComponent::RegisterMeshesToObjectSystem() const
 {
     if(!myModel)
         return;
     
-    for(const MeshHandle meshHandle : myModel->GetMeshHandles())
+    for(const Mesh* mesh : myModel->GetMeshes())
     {
-        Engine::GetEngineSystem<ObjectSystem>().AddObject(GetTransform().GetMatrix(), meshHandle);
+        Engine::GetEngineSystem<ObjectSystem>().AddObject(GetTransform().GetMatrix(), mesh);
     }
 }

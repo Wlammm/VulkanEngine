@@ -7,7 +7,8 @@
 #include "GDRPipeline.h"
 #include "MeshPipeline.h"
 #include "ShadowPipeline.h"
-#include "Assets/AssetRegistry.h"
+#include "AssetRegistry/AssetRegistry.h"
+#include "Assets/Shader.h"
 #include "Components/StaticMeshComponent.h"
 #include "ComponentSystem/ComponentSystem.h"
 #include "Core/Input.h"
@@ -329,7 +330,7 @@ void RenderSystem::CreatePipelines()
 	myGDRPipeline = new GDRPipeline();
 	myMeshPipeline = new MeshPipeline();
 	myDebugPipeline = new DebugPipeline();
-	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetShader("FullscreenCopy.frag"), myRenderTexture);
+	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FullscreenCopy.frag"), myRenderTexture);
 }
 
 void RenderSystem::CreateRenderTextures()

@@ -2,29 +2,33 @@
 #include "GDRPipeline.h"
 
 #include "Engine.h"
+#include "IndexBufferSystem.h"
+#include "MeshSystem.h"
 #include "TextureSystem.h"
-#include "Assets/AssetRegistry.h"
+#include "VertexBufferSystem.h"
+#include "AssetRegistry/AssetRegistry.h"
+#include "Assets/Shader.h"
 #include "Components/CameraComponent.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/PointLightComponent.h"
 #include "Components/TransformComponent.h"
 #include "ComponentSystem/ComponentSystem.h"
 #include "ComponentSystem/GameObject.h"
+#include "Shaders/MeshStructs.hpp"
 #include "Vulkan/ObjectSystem.h"
 #include "Vulkan/ResizableBuffer.h"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
-#include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanSwapchain.h"
 #include "Vulkan/VulkanUtils.hpp"
 #include "World/World.h"
 
 GDRPipeline::GDRPipeline()
 {
-    myCullShader = Engine::GetAssetRegistry().GetShader("IndirectCulling.comp");
-    myPrePassShader = Engine::GetAssetRegistry().GetShader("PrePass.comp");
+    myCullShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("IndirectCulling.comp");
+    myPrePassShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("PrePass.comp");
 
     CreateBuffers();
     CreatePrePassResources();
@@ -184,7 +188,7 @@ void GDRPipeline::CreatePrePassResources()
     myPrePass.myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
     
     vk::ComputePipelineCreateInfo createInfo = vk::ComputePipelineCreateInfo();
-    createInfo.setStage(vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eCompute).setModule(*myPrePassShader).setPName("main"));
+    createInfo.setStage(vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eCompute).setModule(myPrePassShader->GetAPIResource()).setPName("main"));
     createInfo.setLayout(myPrePass.myPipelineLayout);
 
     const vk::ResultValue<vk::Pipeline> result = VulkanContext::GetDevice()->createComputePipeline(VulkanContext::GetPipelineCache(), createInfo);
@@ -212,7 +216,7 @@ void GDRPipeline::CreateCullPassResources()
     myCullPass.myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
     
     vk::ComputePipelineCreateInfo createInfo = vk::ComputePipelineCreateInfo();
-    createInfo.setStage(vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eCompute).setModule(*myCullShader).setPName("main"));
+    createInfo.setStage(vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eCompute).setModule(myCullShader->GetAPIResource()).setPName("main"));
     createInfo.setLayout(myCullPass.myPipelineLayout);
 
     const vk::ResultValue<vk::Pipeline> result = VulkanContext::GetDevice()->createComputePipeline(VulkanContext::GetPipelineCache(), createInfo);
@@ -224,8 +228,8 @@ void GDRPipeline::CreateCullPassResources()
 void GDRPipeline::CreateDrawPassResources()
 {
 	// Shaders
-	myVertexShader = Engine::GetAssetRegistry().GetShader("IndirectVertexShader.vert");
-	myFragmentShader = Engine::GetAssetRegistry().GetShader("IndirectFragmentShader.frag");
+	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("IndirectVertexShader.vert");
+	myFragmentShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("IndirectFragmentShader.frag");
 	
     // Descriptor sets
     myFrameDescriptorSet.BindBuffer(
@@ -268,8 +272,8 @@ void GDRPipeline::CreateDrawPassResources()
 	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
 
 	const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(*myVertexShader).setPName("main"),
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(*myFragmentShader).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(myVertexShader->GetAPIResource()).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(myFragmentShader->GetAPIResource()).setPName("main"),
 	};
 
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo().setVertexAttributeDescriptions(Vertex::GetAttributeDescriptions()).setVertexBindingDescriptions(Vertex::GetBindingDescriptions());

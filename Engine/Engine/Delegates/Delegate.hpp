@@ -4,6 +4,7 @@
 #include "Internal/FreeFuncCtor.hpp"
 #include "Internal/MemberFuncCtor.hpp"
 #include "Internal/ConstMemberFuncCtor.hpp"
+#include "Internal/LambdaFuncCtor.hpp"
 
 template <typename>
 class Delegate;
@@ -20,9 +21,32 @@ public:
         myFuncCtor.reset();
     }
 
+    // Move constructor
+    Delegate(Delegate&& other) noexcept : myFuncCtor(std::move(other.myFuncCtor)) {}
+
+    template<typename Callable>
+    Delegate(Callable&& func)
+    {
+        // Create a LambdaFuncCtor and store it
+        myFuncCtor = std::make_unique<LambdaFuncCtor<ReturnType(ArgTypes...)>>(std::forward<Callable>(func));
+    }
+    
     Delegate(const Delegate& inOther)
     {
-        myFuncCtor = inOther.myFuncCtor;
+        if(inOther.myFuncCtor)
+        {
+            myFuncCtor = inOther.myFuncCtor->Clone();
+        }
+    }
+
+    // Move assignment operator
+    Delegate& operator=(Delegate&& inOther) noexcept
+    {
+        if (this != &inOther)
+        {
+            myFuncCtor = std::move(inOther.myFuncCtor);
+        }
+        return *this;
     }
 
     Delegate(ReturnType(*freeFunction)(ArgTypes...))
@@ -61,14 +85,14 @@ public:
 
     ~Delegate() = default;
 
-    ReturnType Invoke(ArgTypes... inArgs)
+    ReturnType Invoke(ArgTypes... inArgs) const
     {
         check(myFuncCtor && "Cannot invoke unbound delegate.");
 
         return myFuncCtor->operator()(std::forward<ArgTypes>(inArgs)...);
     }
 
-    ReturnType operator()(ArgTypes... inArgs)
+    ReturnType operator()(ArgTypes... inArgs) const
     {
         check(myFuncCtor && "Cannot invoke unbound delegate.");
 
@@ -76,5 +100,5 @@ public:
     }
 
 private:
-    std::shared_ptr<FuncCtor> myFuncCtor;
+    std::unique_ptr<FuncCtor> myFuncCtor;
 };

@@ -2,23 +2,21 @@
 #include "DebugPipeline.h"
 
 #include "Engine.h"
-#include "Assets/AssetRegistry.h"
-#include "Vulkan/VulkanShader.h"
+#include "AssetRegistry/AssetRegistry.h"
+#include "Assets/Shader.h"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Utils/Debug.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
-#include "Assets/Material.h"
-#include "World/World.h"
 
 DebugPipeline::DebugPipeline()
 {
-	myVertexShader = Engine::GetAssetRegistry().GetShader("Debug.vert");
-	myVertexShader->AddObserver(this);
+	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("Debug.vert");
+	myVertexShader->OnAssetUpdated.Bind(&DebugPipeline::OnShaderRecompiled, this);
 
-	myFragmentShader = Engine::GetAssetRegistry().GetShader("Debug.frag");
-	myFragmentShader->AddObserver(this);
+	myFragmentShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("Debug.frag");
+	myFragmentShader->OnAssetUpdated.Bind(&DebugPipeline::OnShaderRecompiled, this);
 
 	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
 		"FrameDataBuffer",
@@ -35,6 +33,9 @@ DebugPipeline::~DebugPipeline()
 	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
+
+	myVertexShader->OnAssetUpdated.UnBind(&DebugPipeline::OnShaderRecompiled, this);
+	myFragmentShader->OnAssetUpdated.UnBind(&DebugPipeline::OnShaderRecompiled, this);
 }
 
 void DebugPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
@@ -54,7 +55,7 @@ void DebugPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 	Debug::ClearDrawInfos();
 }
 
-void DebugPipeline::OnAssetUpdated()
+void DebugPipeline::OnShaderRecompiled()
 {
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
@@ -68,8 +69,8 @@ void DebugPipeline::CreatePipeline()
 	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
 
 	const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(*myVertexShader).setPName("main"),
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(*myFragmentShader).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(myVertexShader->GetAPIResource()).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(myFragmentShader->GetAPIResource()).setPName("main"),
 	};
 	
 	List<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions{};

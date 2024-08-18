@@ -26,7 +26,7 @@ public:
     
     void OnSwapChainResize();
 	
-    void AddUploadCommand_TS(void* inOwner, std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction);
+    static void AddUploadCommand_TS(void* inOwner, std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction);
     void RemoveUploadCommandsForOwner_TS(void* inOwner);
     void FlushUploadCommands();
 

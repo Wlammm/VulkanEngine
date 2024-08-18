@@ -35,9 +35,9 @@ public:
 
 	void SetShouldRun(const bool inState);
 
-	CallbackHandle InsertWatch(const std::filesystem::path& inPath, const std::function<void()> inCallback);
+	CallbackHandle InsertWatch_TS(const std::filesystem::path& inPath, const std::function<void()> inCallback);
 
-	void RemoveWatch(const std::filesystem::path& inPath, const CallbackHandle& inHandle);
+	void RemoveWatch_TS(const std::filesystem::path& inPath, const CallbackHandle& inHandle);
 
 	void FlushChanges();
 

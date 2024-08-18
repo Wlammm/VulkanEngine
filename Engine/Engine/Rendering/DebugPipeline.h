@@ -1,12 +1,11 @@
 #pragma once
 
-#include "Assets/AssetObserver.h"
 #include "Vulkan/VulkanDescriptorSet.h"
 
-class VulkanShader;
+class Shader;
 class VulkanBuffer;
 
-class DebugPipeline : public AssetObserver
+class DebugPipeline
 {
 public:
 	DebugPipeline();
@@ -15,7 +14,7 @@ public:
 	void AddDrawCommands(const vk::CommandBuffer inCommandBuffer);
 
 private:
-	void OnAssetUpdated() override final;
+	void OnShaderRecompiled();
 	
 	void CreatePipeline();
 	void CreateDescriptorSets();
@@ -24,8 +23,8 @@ private:
 	void UpdateFrameBuffer();
 
 private:
-	VulkanShader* myVertexShader;
-	VulkanShader* myFragmentShader;
+	Shader* myVertexShader;
+	Shader* myFragmentShader;
 
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;

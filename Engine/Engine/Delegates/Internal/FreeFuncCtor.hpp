@@ -34,6 +34,11 @@ public:
 
         return myFunction(std::forward<ArgTypes>(inArgs)...);
     }
+
+    std::unique_ptr<FreeFuncCtor<ReturnType(ArgTypes...)>> Clone() const override
+    {
+        return std::make_unique<FreeFuncCtor>(*this);
+    }
     
 private:
     const FreeFunction myFunction;

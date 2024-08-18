@@ -1,12 +1,11 @@
 #pragma once
-#include "Assets/AssetObserver.h"
 #include "Vulkan/VulkanDescriptorSet.h"
 
-class VulkanShader;
+class Shader;
 class TransformComponent;
 class DirectionalLightComponent;
 
-class ShadowPipeline : public AssetObserver
+class ShadowPipeline
 {
 public:
 	ShadowPipeline();
@@ -18,7 +17,7 @@ public:
 
 private:
 	// Inherited via AssetObserver
-	virtual void OnAssetUpdated() override;
+	void OnShaderRecompiled();
 
 	void CreateDescriptors();
 	void CreateRenderPass();
@@ -36,7 +35,7 @@ private:
 
 	vk::RenderPass myRenderPass;
 
-	VulkanShader* myVertexShader;
+	Shader* myVertexShader;
 
 	struct FrameData
 	{

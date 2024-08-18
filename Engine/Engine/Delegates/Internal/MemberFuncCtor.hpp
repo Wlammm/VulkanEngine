@@ -37,6 +37,11 @@ public:
         return (myInstance->*myFunction)(std::forward<ArgTypes>(inArgs)...);
     }
 
+    std::unique_ptr<FuncCtor<ReturnType(ArgTypes...)>> Clone() const override
+    {
+        return std::make_unique<MemberFuncCtor>(*this);
+    }
+
 private:
     const MemberInstance myInstance;
     const MemberFunction myFunction;

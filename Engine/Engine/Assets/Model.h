@@ -1,26 +1,40 @@
 #pragma once
 
-#include "Rendering/Mesh.hpp"
-#include "Rendering/MeshSystem.h"
+#include "AssetRegistry/Asset.h"
+#include "Rendering/Vertex.hpp"
 
-class Model
+class Mesh;
+using CachePath = std::filesystem::path;
+
+struct SerializationMeshData
 {
+	List<Vertex> myVertices{};
+	List<uint> myIndices{};
+	glm::vec4 mySphereCenterBounds{};
+};
+
+class Model : public Asset
+{
+	static constexpr uint BinaryVersion = 1;
+	
 public:
-	bool IsValid() const;
-	const List<Mesh>& GetMeshes() const;
-	const List<MeshHandle>& GetMeshHandles() const;
+	void Load(const std::filesystem::path& inPath) override;
+	void Unload() override;
+
+	const List<Mesh*>& GetMeshes() const;
+	
+private:
+	static CachePath GetCachedFilePath(const std::filesystem::path& inPath);
+	static bool IsCached(const std::filesystem::path& inPath);
+	
+	bool TryLoadMeshDatasFromCache(const CachePath& inPath, List<SerializationMeshData>& outMeshDatas);
+	List<SerializationMeshData> LoadMeshDatasFromFbx(const std::filesystem::path& inPath);
+	void SaveToCache(const List<SerializationMeshData>& inMeshDatas, const std::filesystem::path& inSourcePath);
+
+	void InitializeFromMeshData(const List<SerializationMeshData>& inMeshDatas);
+	
+	static glm::vec4 CalculateSphereBounds(const List<Vertex>& inVertices);
 
 private:
-	// Only get models via an asset registry.
-	friend class ModelFactory;
-	Model(const List<Mesh>& inMeshes, const List<MeshHandle>& inHandles);
-
-	friend class AssetRegistry;
-	~Model();
-
-private:
-	bool myIsValid = false;
-	std::filesystem::path myPath = "";
-	List<Mesh> myMeshes{};
-	List<MeshHandle> myMeshHandles{};
+	List<Mesh*> myMeshes{};
 };

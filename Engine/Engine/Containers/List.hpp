@@ -114,6 +114,11 @@ public:
 		return mySize == 0;
 	}
 
+	bool IsValidIndex(const SizeType inIndex) const
+	{
+		return inIndex > 0 && inIndex < mySize;
+	}
+
 	void Clear()
 	{
 		if constexpr(!std::is_trivially_destructible<ElementType>::value)
@@ -138,7 +143,7 @@ public:
 		Grow(inSize);
 	}
 
-	SizeType FindIndex(const ElementType& inValue) requires ComparisonOperator<ElementType>
+	SizeType FindIndex(const ElementType& inValue) const requires ComparisonOperator<ElementType>
 	{
 		for(SizeType i = 0; i < mySize; ++i)
 		{

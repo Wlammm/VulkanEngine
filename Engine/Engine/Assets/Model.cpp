@@ -1,39 +1,243 @@
 #include "EnginePch.h"
 #include "Model.h"
 
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
 #include "Engine.h"
-#include "Vulkan/VulkanContext.h"
-#include "Vulkan/VulkanDevice.h"
+#include "Rendering/IndexBufferSystem.h"
+#include "Rendering/MeshSystem.h"
+#include "Rendering/VertexBufferSystem.h"
+#include "Serialization/BinaryReader.h"
+#include "Serialization/BinaryWriter.h"
 
-Model::Model(const List<Mesh>& inMeshes, const List<MeshHandle>& inHandles)
+void Model::Load(const std::filesystem::path& inPath)
 {
-	myMeshes = inMeshes;
-	myMeshHandles = inHandles;
-}
+	List<SerializationMeshData> meshDatas;
 
-Model::~Model()
-{
-	LOG_WARNING("Model waits for device idle. Fix");
-	VulkanContext::GetDevice()->waitIdle();
-
-	for(Mesh& mesh : myMeshes)
+	bool shouldRecache = true;
+	if(IsCached(inPath))
 	{
-		Engine::GetEngineSystem<VertexBufferSystem>().RemoveVertexBuffer(mesh.VertexBuffer);
-		Engine::GetEngineSystem<IndexBufferSystem>().RemoveIndexBuffer(mesh.IndexBuffer);
+		shouldRecache = !TryLoadMeshDatasFromCache(inPath, meshDatas);
 	}
+
+	if(shouldRecache)
+	{
+		meshDatas = LoadMeshDatasFromFbx(inPath);
+		SaveToCache(meshDatas, inPath);
+	}
+
+	InitializeFromMeshData(meshDatas);
 }
 
-const List<Mesh>& Model::GetMeshes() const
+void Model::Unload()
+{
+	
+}
+
+const List<Mesh*>& Model::GetMeshes() const
 {
 	return myMeshes;
 }
 
-const List<MeshHandle>& Model::GetMeshHandles() const
+std::filesystem::path Model::GetCachedFilePath(const std::filesystem::path& inPath)
 {
-	return myMeshHandles;
+	return L"Cache/ModelCache/" + inPath.filename().wstring() + L".model";
 }
 
-bool Model::IsValid() const
+bool Model::IsCached(const std::filesystem::path& inPath)
 {
-	return myIsValid;
+	return std::filesystem::exists(GetCachedFilePath(inPath));
+}
+
+bool Model::TryLoadMeshDatasFromCache(const CachePath& inPath, List<SerializationMeshData>& outMeshDatas)
+{
+	ZoneScoped;
+	BinaryReader reader(inPath);
+
+	int fileVersion;
+	reader.Read(fileVersion);
+
+	if(fileVersion != BinaryVersion)
+	{
+		LOG_WARNING("ModelFactory: Outdated binary for model: %s", inPath.string().c_str());
+		return false;
+	}
+
+	std::filesystem::path sourceFilePath;
+	reader.Read(sourceFilePath);
+	
+	std::filesystem::file_time_type lastWriteTimeSourceFile;
+	reader.Read(lastWriteTimeSourceFile);
+
+	const std::filesystem::file_time_type fbxLastWriteTime = std::filesystem::last_write_time(sourceFilePath);
+	if (!std::filesystem::exists(sourceFilePath))
+	{
+		LOG_WARNING("Model: Source file does not exists anymore.", inPath.string().c_str());
+		return false;
+	}
+
+	if (fbxLastWriteTime != lastWriteTimeSourceFile)
+	{
+		LOG_WARNING("Model: Cache is out of date. Model not loaded: %s", inPath.string().c_str());
+		return false;
+	}
+
+	size_t numMeshes;
+	reader.Read(numMeshes);
+
+	for (size_t i = 0; i < numMeshes; ++i)
+	{
+		SerializationMeshData& mesh = outMeshDatas.Emplace();
+		reader.Read(mesh.myVertices);
+		reader.Read(mesh.myIndices);
+		reader.Read(mesh.mySphereCenterBounds);
+	}
+	return true;
+}
+
+List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::path& inPath)
+{
+	List<SerializationMeshData> meshDatas{};
+	
+	static thread_local Assimp::Importer myImporter{};
+	
+	uint flags = aiProcessPreset_TargetRealtime_MaxQuality |
+		//aiProcess_ConvertToLeftHanded |
+		aiProcess_Triangulate |
+		aiProcess_CalcTangentSpace |
+		aiProcess_SortByPType |
+		aiProcess_PreTransformVertices |
+		aiProcess_FlipWindingOrder;
+	flags &= ~aiProcess_JoinIdenticalVertices;
+
+	myImporter.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
+	const aiScene* scene = myImporter.ReadFile(inPath.string(), flags);
+
+	if (!scene)
+	{
+		LOG_ERROR("Failed to load model: %s", inPath.string().c_str());
+		return meshDatas;
+	}
+
+	const uint numMeshes = scene->mNumMeshes;
+	if (numMeshes == 0)
+	{
+		LOG_ERROR("FBX does not contain any meshes: %s", inPath.string().c_str());
+		return meshDatas;
+	}
+	
+	for (uint meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
+	{
+		SerializationMeshData& meshData = meshDatas.Emplace();
+
+		const aiMesh* aiMesh = scene->mMeshes[meshIndex];
+
+		// This has not been fully implemented. Its just here to show how to get material textures for now :) 
+		aiMaterial* aiMat = scene->mMaterials[aiMesh->mMaterialIndex];
+		aiString aiAlbedoPath;
+		aiMat->GetTexture(aiTextureType_BASE_COLOR, 0, &aiAlbedoPath);
+
+		uint numVertices = aiMesh->mNumVertices;
+		uint numIndices = aiMesh->mNumFaces * 3;
+
+		for (uint vertexIndex = 0; vertexIndex < numVertices; ++vertexIndex)
+		{
+			Vertex vertex{};
+
+			vertex.myPosition = { aiMesh->mVertices[vertexIndex].x, aiMesh->mVertices[vertexIndex].y, aiMesh->mVertices[vertexIndex].z, 1.0f };
+			vertex.myColor = { 1, 1, 1, 1 };
+
+			if (aiMesh->GetNumColorChannels() > 0)
+				vertex.myColor = { aiMesh->mColors[0][vertexIndex].r, aiMesh->mColors[0][vertexIndex].g, aiMesh->mColors[0][vertexIndex].b, aiMesh->mColors[0][vertexIndex].a };
+			aiMesh->mNumBones;
+			if (aiMesh->mNormals)
+				vertex.myNormal = { aiMesh->mNormals[vertexIndex].x, aiMesh->mNormals[vertexIndex].y, aiMesh->mNormals[vertexIndex].z, 0.0f };
+
+			if (aiMesh->mTangents)
+				vertex.myTangents = { aiMesh->mTangents[vertexIndex].x,aiMesh->mTangents[vertexIndex].y, aiMesh->mTangents[vertexIndex].z, 0.0f };
+
+			if (aiMesh->mBitangents)
+				vertex.myBinormals = { aiMesh->mBitangents[vertexIndex].x, aiMesh->mBitangents[vertexIndex].y, aiMesh->mBitangents[vertexIndex].z, 0.0f };
+
+			for (uint texCoordIndex = 0; texCoordIndex < 4; ++texCoordIndex)
+			{
+				if (aiMesh->mTextureCoords[texCoordIndex])
+					vertex.myTexCoords[texCoordIndex] = { aiMesh->mTextureCoords[texCoordIndex][vertexIndex].x, aiMesh->mTextureCoords[texCoordIndex][vertexIndex].y };
+			}
+
+			meshData.myVertices.Add(vertex);
+		}
+
+		uint faceIndex = 0;
+		for (uint indicesIndex = 0; indicesIndex < numIndices;)
+		{
+			for (uint index = 0; index < 3; ++index)
+			{
+				meshData.myIndices.Add(aiMesh->mFaces[faceIndex].mIndices[index]);
+				indicesIndex++;
+			}
+			faceIndex++;
+		}
+		
+		meshData.mySphereCenterBounds = CalculateSphereBounds(meshData.myVertices);
+	}
+
+	myImporter.FreeScene();
+	return meshDatas;
+}
+
+void Model::SaveToCache(const List<SerializationMeshData>& inMeshDatas, const std::filesystem::path& inSourcePath)
+{
+	ZoneScoped;
+	BinaryWriter writer(GetCachedFilePath(inSourcePath));
+	writer.Write(BinaryVersion);
+
+	writer.Write(inSourcePath);
+	const std::filesystem::file_time_type fbxLastWriteTime = std::filesystem::last_write_time(inSourcePath);
+	writer.Write(fbxLastWriteTime);
+
+	const size_t numMeshes = inMeshDatas.size();
+	writer.Write(numMeshes);
+
+	for(const SerializationMeshData& mesh : inMeshDatas)
+	{
+		writer.Write(mesh.myVertices);
+		writer.Write(mesh.myIndices);
+		writer.Write(mesh.mySphereCenterBounds);
+	}
+
+	writer.Save();
+}
+
+void Model::InitializeFromMeshData(const List<SerializationMeshData>& inMeshDatas)
+{
+	for(const SerializationMeshData& meshData : inMeshDatas)
+	{
+		VertexBuffer* vertexBuffer = VertexBufferSystem::UploadVertexBuffer_TS(meshData.myVertices);
+		IndexBuffer* indexBuffer = IndexBufferSystem::UploadIndexBuffer_TS(meshData.myIndices);
+		glm::vec4 boudingSphere = meshData.mySphereCenterBounds;
+
+		myMeshes.Add(MeshSystem::UploadMesh_TS(vertexBuffer, indexBuffer, boudingSphere));
+	}
+}
+
+glm::vec4 Model::CalculateSphereBounds(const List<Vertex>& inVertices)
+{
+	glm::vec3 centerPos = glm::vec3();
+
+	for(const Vertex& vertex : inVertices)
+	{
+		centerPos += glm::vec3(vertex.myPosition);
+	}
+	
+	centerPos /= inVertices.size();
+
+	float maxDistanceFromCenter = 0;
+	for(const Vertex& vertex : inVertices)
+	{
+		maxDistanceFromCenter = std::max(maxDistanceFromCenter, glm::distance(centerPos, glm::vec3(vertex.myPosition)));
+	}
+	return glm::vec4(centerPos, maxDistanceFromCenter);
 }

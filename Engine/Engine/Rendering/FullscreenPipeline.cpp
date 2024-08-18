@@ -1,28 +1,28 @@
 #include "EnginePch.h"
 #include "FullscreenPipeline.h"
 #include "Engine.h"
-#include "Assets/AssetRegistry.h"
-#include "Vulkan/VulkanShader.h"
+#include "AssetRegistry/AssetRegistry.h"
+#include "Assets/Shader.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanUtils.hpp"
 
-FullscreenPipeline::FullscreenPipeline(VulkanShader* inFragmentShader, VulkanImage* inSource)
+FullscreenPipeline::FullscreenPipeline(Shader* inFragmentShader, VulkanImage* inSource)
 {
-	myVertexShader = Engine::GetAssetRegistry().GetShader("FullscreenVS.vert");
-	myVertexShader->AddObserver(this);
+	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FullscreenVS.vert");
+	myVertexShader->OnAssetUpdated.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
 
 	myFragmentShader = inFragmentShader;
-	myFragmentShader->AddObserver(this);
-
+	myFragmentShader->OnAssetUpdated.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
+	
 	CreateDescriptors(inSource);
 	CreatePipeline();
 }
 
 FullscreenPipeline::~FullscreenPipeline()
 {
-	myVertexShader->RemoveObserver(this);
-	myFragmentShader->RemoveObserver(this);
+	myVertexShader->OnAssetUpdated.UnBind(&FullscreenPipeline::OnShaderRecompiled, this);
+	myFragmentShader->OnAssetUpdated.UnBind(&FullscreenPipeline::OnShaderRecompiled, this);
 
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
@@ -35,7 +35,7 @@ void FullscreenPipeline::AddFullscreenPass(const vk::CommandBuffer inCommandBuff
 	inCommandBuffer.draw(3, 1, 0, 0);
 }
 
-void FullscreenPipeline::OnAssetUpdated()
+void FullscreenPipeline::OnShaderRecompiled()
 {
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
@@ -50,8 +50,8 @@ void FullscreenPipeline::CreatePipeline()
 	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
 
 	const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(*myVertexShader).setPName("main"),
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(*myFragmentShader).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(myVertexShader->GetAPIResource()).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(myFragmentShader->GetAPIResource()).setPName("main"),
 	};
 
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo()

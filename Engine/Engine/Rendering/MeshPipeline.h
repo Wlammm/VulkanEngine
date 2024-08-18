@@ -1,13 +1,12 @@
 #pragma once
-#include "Assets/AssetObserver.h"
 #include "Vulkan/VulkanDescriptorSet.h"
 
 class TransformComponent;
-class VulkanShader;
+class Shader;
 class Transform;
 
 // This pipeline draws all meshes.
-class MeshPipeline : public AssetObserver
+class MeshPipeline
 {
 public:
 	MeshPipeline();
@@ -23,7 +22,7 @@ private:
 	void BuildPointLightBuffer();
 	void BuildDirectionalLightBuffer();
 
-	virtual void OnAssetUpdated() override final;
+	void OnShaderRecompiled();
 
 private:
 	VulkanDescriptorSet myFrameDescriptorSet;
@@ -31,8 +30,8 @@ private:
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;
 
-	VulkanShader* myVertexShader;
-	VulkanShader* myFragmentShader;
+	Shader* myVertexShader;
+	Shader* myFragmentShader;
 
 	// FrameDescriptorSet.
 	struct FrameData

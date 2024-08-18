@@ -3,58 +3,79 @@
 
 #include "Engine.h"
 #include "RenderSystem.h"
+#include "VertexBuffer.h"
 #include "Utils/MathUtils.hpp"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
 
 VertexBufferSystem::VertexBufferSystem()
 {
+    GrowBuffer(sizeof(Vertex) * 4);
 }
 
 VertexBufferSystem::~VertexBufferSystem()
 {
     VulkanAllocator::DestroyBuffer_TS(myBuffer);
     myUsedBufferSize = 0;
-    myNextHandleID = 0;
-    myVertexBuffers.clear();
+
+    for(VertexBuffer* vertexBuffer : myVertexBuffers)
+    {
+        del(vertexBuffer);
+    }
+    myVertexBuffers.Clear();
 }
 
-VertexBufferHandle VertexBufferSystem::UploadVertexData(const List<Vertex>& myVertices)
+void VertexBufferSystem::Tick()
 {
-    check(!myVertices.IsEmpty() && "Vertices should not be empty.");
+    UploadAllQueuedVertexBuffers();    
+}
 
-    const uint sizeIncrease = myVertices.size() * sizeof(Vertex);
+VertexBuffer* VertexBufferSystem::UploadVertexBuffer_TS(const List<Vertex>& inVertices)
+{
+    check(!inVertices.IsEmpty() && "Vertices should not be empty.");
+    VertexBuffer* buffer = new VertexBuffer();
+    VertexBufferUploadData uploadData{};
+    uploadData.myVertices = inVertices;
+    uploadData.myBuffer = buffer;
+    myQueuedVertexBufferUploads.Add(uploadData);
+    return buffer;
+}
+
+void VertexBufferSystem::UploadVertexData(const List<Vertex>& inVertices, VertexBuffer* inVertexBuffer)
+{
+    const uint sizeIncrease = inVertices.size() * sizeof(Vertex);
     const uint requiredSize = myUsedBufferSize + sizeIncrease;
     GrowBuffer(requiredSize);
 
-    myBuffer->SetData(myVertices.data(), sizeIncrease, myUsedBufferSize);
-    
-    VertexBufferData data{};
-    data.myOffset = myCurrentVertexOffset;
-    data.myVertexCount = myVertices.size();
-    data.myID = ++myNextHandleID;
-    myVertexBuffers.insert({data.myID, data});
+    myBuffer->SetData(inVertices.data(), sizeIncrease, myUsedBufferSize);
+
+    inVertexBuffer->myOffset = myCurrentVertexOffset;
+    inVertexBuffer->myVertexCount = inVertices.size();
+    myVertexBuffers.Add(inVertexBuffer);
     
     myUsedBufferSize += sizeIncrease;
-    myCurrentVertexOffset += static_cast<uint>(myVertices.size());
-    
-    return data.myID;
+    myCurrentVertexOffset += static_cast<uint>(inVertices.size());
 }
 
-void VertexBufferSystem::RemoveVertexBuffer(const VertexBufferHandle inHandle)
+void VertexBufferSystem::RemoveVertexBuffer(const VertexBuffer* inBuffer)
 {
     LOG_WARNING("VertexBufferSubsystem::RemoveVertexBuffer not implemented.");
-}
-
-const VertexBufferData& VertexBufferSystem::GetVertexBufferData(const VertexBufferHandle inHandle) const
-{
-    check(myVertexBuffers.contains(inHandle) && "VertexBuffer handle is invalid.");
-    return myVertexBuffers.at(inHandle);
 }
 
 const VulkanBuffer* VertexBufferSystem::GetGlobalVertexBuffer() const
 {
     return myBuffer;
+}
+
+void VertexBufferSystem::UploadAllQueuedVertexBuffers()
+{
+    myQueuedVertexBufferUploads.Lock();
+    for(const VertexBufferUploadData& uploadData : myQueuedVertexBufferUploads)
+    {
+        UploadVertexData(uploadData.myVertices, uploadData.myBuffer);
+    }
+    myQueuedVertexBufferUploads.Clear();
+    myQueuedVertexBufferUploads.Unlock();
 }
 
 void VertexBufferSystem::GrowBuffer(const uint inRequiredSize)

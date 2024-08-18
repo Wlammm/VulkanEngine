@@ -1,11 +1,17 @@
 #include "EnginePch.h"
 #include "ShadowPipeline.h"
 #include "Engine.h"
-#include "Assets/AssetRegistry.h"
-#include "Vulkan/VulkanShader.h"
+#include "IndexBuffer.h"
+#include "IndexBufferSystem.h"
+#include "Mesh.h"
+#include "AssetRegistry/AssetRegistry.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vertex.hpp"
+#include "VertexBuffer.h"
+#include "VertexBufferSystem.h"
+#include "Assets/Model.h"
+#include "Assets/Shader.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TransformComponent.h"
@@ -17,8 +23,8 @@
 
 ShadowPipeline::ShadowPipeline()
 {
-	myVertexShader = Engine::GetAssetRegistry().GetShader("VertexShader.vert");
-	myVertexShader->AddObserver(this);
+	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("VertexShader.vert");
+	myVertexShader->OnAssetUpdated.Bind(&ShadowPipeline::OnShaderRecompiled, this);
 
 	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
 		"FrameDataBuffer",
@@ -49,7 +55,7 @@ ShadowPipeline::~ShadowPipeline()
 	
 	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
 
-	myVertexShader->RemoveObserver(this);
+	myVertexShader->OnAssetUpdated.UnBind(&ShadowPipeline::OnShaderRecompiled, this);
 
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
@@ -110,9 +116,10 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 		if (!staticMesh->GetModel())
 			continue;
 	
-		for (const Mesh& mesh : staticMesh->GetModel()->GetMeshes())
+		for (Mesh* mesh : staticMesh->GetModel()->GetMeshes())
 		{
-			if (!mesh.myMaterial)
+			Material* material = staticMesh->GetMaterialForMesh(mesh);
+			if (!material)
 				continue;
 
 			// Insert push constant with material indices here.
@@ -120,9 +127,7 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 			constantData.myToWorld = staticMesh->GetTransform().GetMatrix();
 			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &constantData);
 			
-			const VertexBufferData& vertexBufferData = vertexBufferSystem.GetVertexBufferData(mesh.VertexBuffer);
-			const IndexBufferData& indexBufferData = indexBufferSystem.GetIndexBufferData(mesh.IndexBuffer);
-			inCommandBuffer.drawIndexed(mesh.NumIndices, 1, indexBufferData.myOffset, vertexBufferData.myOffset, 0);
+			inCommandBuffer.drawIndexed(mesh->GetIndexBuffer()->GetIndexCount(), 1, mesh->GetIndexBuffer()->GetOffset(), mesh->GetVertexBuffer()->GetOffset(), 0);
 		}
 	}
 	
@@ -151,7 +156,7 @@ vk::RenderPass ShadowPipeline::GetRenderPass() const
 	return myRenderPass;
 }
 
-void ShadowPipeline::OnAssetUpdated()
+void ShadowPipeline::OnShaderRecompiled()
 {
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
@@ -206,7 +211,7 @@ void ShadowPipeline::CreatePipeline()
 	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts).setPushConstantRanges(pushConstants));
 
 	const std::array<vk::PipelineShaderStageCreateInfo, 1> shaderStageInfo = {
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(*myVertexShader).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(myVertexShader->GetAPIResource()).setPName("main"),
 	};
 
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo().setVertexAttributeDescriptions(Vertex::GetAttributeDescriptions()).setVertexBindingDescriptions(Vertex::GetBindingDescriptions());

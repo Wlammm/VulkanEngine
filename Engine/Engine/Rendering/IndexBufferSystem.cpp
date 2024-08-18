@@ -2,56 +2,85 @@
 #include "IndexBufferSystem.h"
 
 #include "Engine.h"
+#include "IndexBuffer.h"
 #include "RenderSystem.h"
 #include "Utils/MathUtils.hpp"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
 
+IndexBufferSystem::IndexBufferSystem()
+{
+    GrowBuffer(sizeof(uint) * 4);    
+}
+
 IndexBufferSystem::~IndexBufferSystem()
 {
     myUsedBufferSize = 0;
     myCurrentIndexOffset = 0;
-    myNextHandleID = 0;
-    myIndexBuffers.clear();
+
+    for(IndexBuffer* indexBuffer : myIndexBuffers)
+    {
+        del(indexBuffer);
+    }
+    myIndexBuffers.Clear();
+    
     VulkanAllocator::DestroyBuffer_TS(myBuffer);
 }
 
-IndexBufferHandle IndexBufferSystem::UploadIndexData(const List<uint>& inIndices)
+void IndexBufferSystem::Tick()
 {
-    check(!inIndices.IsEmpty() && "Vertices should not be empty.");
+    UploadAllQueuedIndexBuffers();    
+}
 
+void IndexBufferSystem::UploadIndexData(const List<uint>& inIndices, IndexBuffer* inBuffer)
+{
     const uint sizeIncrease = inIndices.size() * sizeof(uint);
     const uint requiredSize = myUsedBufferSize + sizeIncrease;
     GrowBuffer(requiredSize);
 
     myBuffer->SetData(inIndices.data(), sizeIncrease, myUsedBufferSize);
     
-    IndexBufferData data{};
-    data.myOffset = myCurrentIndexOffset;
-    data.myIndexCount = inIndices.size();
-    data.myID = ++myNextHandleID;
-    myIndexBuffers.insert({data.myID, data});
+    inBuffer->myOffset = myCurrentIndexOffset;
+    inBuffer->myIndexCount = inIndices.size();
+    myIndexBuffers.Add(inBuffer);
     
     myUsedBufferSize += sizeIncrease;
     myCurrentIndexOffset += static_cast<uint>(inIndices.size());
-    
-    return data.myID;
 }
 
-void IndexBufferSystem::RemoveIndexBuffer(const IndexBufferHandle inHandle)
+void IndexBufferSystem::RemoveIndexBuffer(const IndexBuffer* inBuffer)
 {
     LOG_WARNING("IndexBufferSubsystem::RemoveIndexBuffer not implemented.");
 }
 
-const IndexBufferData& IndexBufferSystem::GetIndexBufferData(const IndexBufferHandle inHandle) const
+IndexBuffer* IndexBufferSystem::UploadIndexBuffer_TS(const List<uint>& inIndices)
 {
-    check(myIndexBuffers.contains(inHandle) && "Invalid handle.");
-    return myIndexBuffers.at(inHandle);
+    check(!inIndices.IsEmpty() && "Indices should not be empty.");
+    IndexBuffer* buffer = new IndexBuffer();
+    
+    IndexUploadData uploadData{};
+    uploadData.myIndices = inIndices;
+    uploadData.myBuffer = buffer;
+    myQueuedUploadData.Add(uploadData);
+    return buffer;
 }
 
 const VulkanBuffer* IndexBufferSystem::GetGlobalIndexBuffer() const
 {
     return myBuffer;
+}
+
+void IndexBufferSystem::UploadAllQueuedIndexBuffers()
+{
+    myQueuedUploadData.Lock();
+
+    for(const IndexUploadData& uploadData : myQueuedUploadData)
+    {
+        UploadIndexData(uploadData.myIndices, uploadData.myBuffer);
+    }
+    myQueuedUploadData.Clear();
+    
+    myQueuedUploadData.Unlock();
 }
 
 void IndexBufferSystem::GrowBuffer(const uint inRequiredSize)

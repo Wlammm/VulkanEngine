@@ -1,6 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "TextureSystem.h"
 
+#include "Assets/Texture.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanImage.h"
@@ -22,30 +23,14 @@ TextureSystem::~TextureSystem()
     myDescriptorSet = nullptr;
 }
 
-TextureHandle TextureSystem::AddTexture(VulkanImage* inImage, const vk::Sampler inSampler)
+void TextureSystem::Tick()
 {
-    TextureHandle handle = ++myNextHandle;
+    RegisterAllQueuedTextures();
+}
 
-    TextureData data{};
-    data.myHandle = handle;
-    data.myIndex = ++myNextArrayIndex;
-    myTextures.insert({handle, data});
-
-    const vk::DescriptorImageInfo imageInfo = vk::DescriptorImageInfo()
-        .setSampler(inSampler)
-        .setImageView(inImage->GetImageView())
-        .setImageLayout(vk::ImageLayout::eReadOnlyOptimal);
-
-    const vk::WriteDescriptorSet write = vk::WriteDescriptorSet()
-        .setDescriptorCount(1)
-        .setDstArrayElement(data.myIndex)
-        .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-        .setDstSet(myDescriptorSet)
-        .setDstBinding(BINDLESS_BINDING)
-        .setImageInfo(imageInfo);
-
-    VulkanContext::GetDevice()->updateDescriptorSets({write}, {});
-    return handle;
+void TextureSystem::RegisterTexture_TS(Texture* inTexture)
+{
+    myTexturesToRegister.Add(inTexture);
 }
 
 vk::DescriptorSet TextureSystem::GetDescriptorSet() const
@@ -56,6 +41,41 @@ vk::DescriptorSet TextureSystem::GetDescriptorSet() const
 vk::DescriptorSetLayout TextureSystem::GetDescriptorLayout() const
 {
     return myDescriptorLayout;
+}
+
+void TextureSystem::RegisterAllQueuedTextures()
+{
+    myTexturesToRegister.Lock();
+
+    for(Texture* texture : myTexturesToRegister)
+    {
+        RegisterTexture(texture);
+    }
+    myTexturesToRegister.Clear();
+    
+    myTexturesToRegister.Unlock();
+}
+
+void TextureSystem::RegisterTexture(Texture* inTexture)
+{
+    vk::Sampler sampler = VulkanUtils::GetSampler(SamplerMode::Clamp);
+    uint handle = ++myNextArrayIndex;
+    const vk::DescriptorImageInfo imageInfo = vk::DescriptorImageInfo()
+        .setSampler(sampler)
+        .setImageView(inTexture->GetImageView())
+        .setImageLayout(vk::ImageLayout::eReadOnlyOptimal);
+
+    const vk::WriteDescriptorSet write = vk::WriteDescriptorSet()
+        .setDescriptorCount(1)
+        .setDstArrayElement(handle)
+        .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+        .setDstSet(myDescriptorSet)
+        .setDstBinding(BINDLESS_BINDING)
+        .setImageInfo(imageInfo);
+
+    VulkanContext::GetDevice()->updateDescriptorSets({write}, {});
+    inTexture->myBindlessIndex = handle;
+    myTextures.Add(inTexture);
 }
 
 void TextureSystem::CreateDescritorPool()

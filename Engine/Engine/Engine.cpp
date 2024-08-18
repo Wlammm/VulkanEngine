@@ -10,7 +10,7 @@
 
 #include "World/World.h"
 #include "Events/EventHandler.h"
-#include "Assets/AssetRegistry.h"
+#include "AssetRegistry/AssetRegistry.h"
 #include "Core/ThreadPool.h"
 #include "Core/Filewatcher.h"
 #include "Utils/ThreadUtils.hpp"
@@ -18,8 +18,10 @@
 #include "Tracy/tracy/Tracy.hpp"
 #include "Core/AutoInitManager.h"
 #include "Rendering/IndexBufferSystem.h"
+#include "Rendering/MeshSystem.h"
 #include "Rendering/RenderSystem.h"
 #include "Rendering/TextureSystem.h"
+#include "Rendering/VertexBufferSystem.h"
 #include "Subsystem/SystemManager.h"
 #include "Vulkan/ObjectSystem.h"
 
@@ -86,6 +88,11 @@ void Engine::Tick()
 	
 	TickNextFrame.Invoke();
 	TickNextFrame.Clear();
+	
+	GetEngineSystem<VertexBufferSystem>().Tick();
+	GetEngineSystem<IndexBufferSystem>().Tick();
+	GetEngineSystem<TextureSystem>().Tick();
+	GetEngineSystem<MeshSystem>().Tick();
 	GetEngineSystem<RenderSystem>().Tick();
 	
 	myVulkanContext->EndFrame();
