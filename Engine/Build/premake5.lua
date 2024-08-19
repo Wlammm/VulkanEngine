@@ -28,31 +28,43 @@ workspace "Engine"
 	filter "configurations:Game Debug"
 		defines { "DEBUG" }
 		symbols "On"
+		runtime "Debug"
 	filter "configurations:Game Release"
 		defines { "" }
 		optimize "On"
+		symbols "On"
+		runtime "Release"
 	filter "configurations:Editor Debug"
 		defines { "DEBUG", "EDITOR" }
 		symbols "On"
+		runtime "Debug"
 	filter "configurations:Editor Release"
 		defines { "EDITOR" }
 		optimize "On"
+		symbols "On"
+		runtime "Release"
 		
 	filter "configurations:PROFILE Game Debug"
 		defines { "DEBUG", "TRACY_ENABLE" }
 		symbols "On"
+		runtime "Debug"
 		editandcontinue "Off"
 	filter "configurations:PROFILE Game Release"
 		defines { "TRACY_ENABLE" }
 		optimize "On"
+		symbols "On"
+		runtime "Release"
 		editandcontinue "Off"
 	filter "configurations:PROFILE Editor Debug"
 		defines { "DEBUG", "EDITOR", "TRACY_ENABLE" }
 		symbols "On"
+		runtime "Debug"
 		editandcontinue "Off"
 	filter "configurations:PROFILE Editor Release"
 		defines { "EDITOR", "TRACY_ENABLE" }
 		optimize "On"
+		symbols "On"
+		runtime "Release"
 		editandcontinue "Off"
 		
 project "Launcher"

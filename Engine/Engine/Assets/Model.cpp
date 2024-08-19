@@ -14,6 +14,7 @@
 
 void Model::Load(const std::filesystem::path& inPath)
 {
+	ZoneScoped;
 	List<SerializationMeshData> meshDatas;
 
 	bool shouldRecache = true;
@@ -33,7 +34,7 @@ void Model::Load(const std::filesystem::path& inPath)
 
 void Model::Unload()
 {
-	
+	ZoneScoped;
 }
 
 const List<Mesh*>& Model::GetMeshes() const
@@ -99,6 +100,7 @@ bool Model::TryLoadMeshDatasFromCache(const CachePath& inPath, List<Serializatio
 
 List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::path& inPath)
 {
+	ZoneScoped;
 	List<SerializationMeshData> meshDatas{};
 	
 	static thread_local Assimp::Importer myImporter{};
@@ -213,6 +215,7 @@ void Model::SaveToCache(const List<SerializationMeshData>& inMeshDatas, const st
 
 void Model::InitializeFromMeshData(const List<SerializationMeshData>& inMeshDatas)
 {
+	ZoneScoped;
 	for(const SerializationMeshData& meshData : inMeshDatas)
 	{
 		VertexBuffer* vertexBuffer = VertexBufferSystem::UploadVertexBuffer_TS(meshData.myVertices);
@@ -225,6 +228,7 @@ void Model::InitializeFromMeshData(const List<SerializationMeshData>& inMeshData
 
 glm::vec4 Model::CalculateSphereBounds(const List<Vertex>& inVertices)
 {
+	ZoneScoped;
 	glm::vec3 centerPos = glm::vec3();
 
 	for(const Vertex& vertex : inVertices)

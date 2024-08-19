@@ -108,6 +108,7 @@ void RenderSystem::OnSwapChainResize()
 
 void RenderSystem::AddUploadCommand_TS(void* inOwner, std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction)
 {
+	ZoneScoped;
 	myUploadCommandsMutex.lock();
 	myUploadCommands.Add({ inOwner, inFunction });
 	myUploadCommandsMutex.unlock();

@@ -58,9 +58,9 @@ IndexBuffer* IndexBufferSystem::UploadIndexBuffer_TS(const List<uint>& inIndices
     check(!inIndices.IsEmpty() && "Indices should not be empty.");
     IndexBuffer* buffer = new IndexBuffer();
     
-    IndexUploadData uploadData{};
-    uploadData.myIndices = inIndices;
-    uploadData.myBuffer = buffer;
+    std::shared_ptr<IndexUploadData> uploadData = std::make_shared<IndexUploadData>();
+    uploadData->myIndices = inIndices;
+    uploadData->myBuffer = buffer;
     myQueuedUploadData.Add(uploadData);
     return buffer;
 }
@@ -72,19 +72,19 @@ const VulkanBuffer* IndexBufferSystem::GetGlobalIndexBuffer() const
 
 void IndexBufferSystem::UploadAllQueuedIndexBuffers()
 {
+    ZoneScoped;
     myQueuedUploadData.Lock();
-
-    for(const IndexUploadData& uploadData : myQueuedUploadData)
+    for(std::shared_ptr<IndexUploadData> uploadData : myQueuedUploadData)
     {
-        UploadIndexData(uploadData.myIndices, uploadData.myBuffer);
+        UploadIndexData(uploadData->myIndices, uploadData->myBuffer);
     }
     myQueuedUploadData.Clear();
-    
     myQueuedUploadData.Unlock();
 }
 
 void IndexBufferSystem::GrowBuffer(const uint inRequiredSize)
 {
+    ZoneScoped;
     if(!myBuffer)
     {
         vk::BufferCreateInfo createInfo = vk::BufferCreateInfo()

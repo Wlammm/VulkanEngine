@@ -13,6 +13,7 @@ public:
     template<typename AssetType>
     void GetAssetAsync(const std::filesystem::path& inPath, const Delegate<void(AssetType* inAsset)> inOnAssetLoaded)
     {
+        ZoneScoped;
         myMutex.lock();
         if(myLoadedAssets.contains(inPath))
         {
@@ -23,6 +24,7 @@ public:
 
         Engine::GetThreadPool().QueueTask([inPath, inOnAssetLoaded, this]()
         {
+            ZoneScoped;
             AssetType* asset = new AssetType();
             asset->myPath = inPath;
             asset->Load(inPath);

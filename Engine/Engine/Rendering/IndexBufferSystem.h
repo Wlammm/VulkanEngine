@@ -33,7 +33,9 @@ private:
         IndexBuffer* myBuffer;
         List<uint> myIndices;
     };
-    inline static MutexList<IndexUploadData> myQueuedUploadData{};
+    
+    // SharedPtr is used here to not have to copy the vertex data while the mutexlist's lock is acquired. This should lower the lock wait for all threads.
+    inline static MutexList<std::shared_ptr<IndexUploadData>> myQueuedUploadData{};
     
     VulkanBuffer* myBuffer = nullptr;
 };

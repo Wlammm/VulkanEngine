@@ -149,6 +149,7 @@ void VulkanAllocator::DestroyImageInternal(VulkanImage* inImage)
 
 void VulkanAllocator::TickBufferDeletes()
 {
+	ZoneScoped;
 	myBufferDeleteData.Lock();
 	for (int i = myBufferDeleteData.size() - 1; i >= 0; --i)
 	{
@@ -177,6 +178,7 @@ void VulkanAllocator::TickBufferDeletes()
 
 void VulkanAllocator::TickImageDeletes()
 {
+	ZoneScoped;
 	myImageDeleteData.Lock();
 	for (int i = myImageDeleteData.size() - 1; i >= 0; --i)
 	{

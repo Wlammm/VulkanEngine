@@ -23,9 +23,7 @@ public:
 	MutexList(const List<ElementType>& inCopy)
 	{
 		LockMutex;
-		myMutex.lock();
-
-		myMutex.unlock();
+		List<ElementType, SizeType>::List(inCopy);
 	}
 
 	MutexList(const std::vector<ElementType>& inCopy)
@@ -39,8 +37,7 @@ public:
 		LockMutex;
 		List<ElementType, SizeType>::List(inInitList);
 	}
-
-
+	
 	void operator=(const List<ElementType>& inCopy)
 	{
 		LockMutex;
@@ -93,7 +90,7 @@ public:
 	ElementType& Emplace(ArgsType&&... InArgs)
 	{
 		LockMutex;
-		return List<ElementType, SizeType>::Emplace(InArgs);
+		return List<ElementType, SizeType>::Emplace(std::forward<ArgsType>(InArgs)...);
 	}
 
 	void AddRange(const List<ElementType>& inList)

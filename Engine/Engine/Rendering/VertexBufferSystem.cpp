@@ -34,9 +34,9 @@ VertexBuffer* VertexBufferSystem::UploadVertexBuffer_TS(const List<Vertex>& inVe
 {
     check(!inVertices.IsEmpty() && "Vertices should not be empty.");
     VertexBuffer* buffer = new VertexBuffer();
-    VertexBufferUploadData uploadData{};
-    uploadData.myVertices = inVertices;
-    uploadData.myBuffer = buffer;
+    std::shared_ptr<VertexBufferUploadData> uploadData = std::make_shared<VertexBufferUploadData>();
+    uploadData->myVertices = inVertices;
+    uploadData->myBuffer = buffer;
     myQueuedVertexBufferUploads.Add(uploadData);
     return buffer;
 }
@@ -69,10 +69,11 @@ const VulkanBuffer* VertexBufferSystem::GetGlobalVertexBuffer() const
 
 void VertexBufferSystem::UploadAllQueuedVertexBuffers()
 {
+    ZoneScoped;
     myQueuedVertexBufferUploads.Lock();
-    for(const VertexBufferUploadData& uploadData : myQueuedVertexBufferUploads)
+    for(std::shared_ptr<VertexBufferUploadData> uploadData : myQueuedVertexBufferUploads)
     {
-        UploadVertexData(uploadData.myVertices, uploadData.myBuffer);
+        UploadVertexData(uploadData->myVertices, uploadData->myBuffer);
     }
     myQueuedVertexBufferUploads.Clear();
     myQueuedVertexBufferUploads.Unlock();
@@ -80,6 +81,7 @@ void VertexBufferSystem::UploadAllQueuedVertexBuffers()
 
 void VertexBufferSystem::GrowBuffer(const uint inRequiredSize)
 {
+    ZoneScoped;
     if(!myBuffer)
     {
         vk::BufferCreateInfo createInfo = vk::BufferCreateInfo()

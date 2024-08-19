@@ -33,7 +33,9 @@ private:
         List<Vertex> myVertices;
         VertexBuffer* myBuffer;
     };
-    inline static MutexList<VertexBufferUploadData> myQueuedVertexBufferUploads{};
+
+    // SharedPtr is used here to not have to copy the vertex data while the mutexlist's lock is acquired. This should lower the lock wait for all threads.
+    inline static MutexList<std::shared_ptr<VertexBufferUploadData>> myQueuedVertexBufferUploads{};
     
     List<VertexBuffer*> myVertexBuffers;
 
