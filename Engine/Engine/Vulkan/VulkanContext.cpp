@@ -9,6 +9,7 @@
 #include "VulkanImGui.h"
 #include "Tracy/tracy/Tracy.hpp"
 #include "VulkanUtils.hpp"
+#include "Aftermath/NvidiaAftermathTracker.h"
 
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
@@ -56,6 +57,13 @@ VulkanContext::VulkanContext()
 	CreateDebugLayer();
 
 	myPhysicalDevice = new VulkanPhysicalDevice();
+	
+	if(Engine::GetEngineProperties().HasStartupArgument("-aftermath"))
+	{
+		myNvidiaAftermathDebugger = new NvidiaAftermathTracker(markerMap);
+		myNvidiaAftermathDebugger->Initialize();
+	}
+	
 	myDevice = new VulkanDevice(*myPhysicalDevice);
 	myAllocator = new VulkanAllocator(myVulkanInstance, *myPhysicalDevice, *myDevice);
 	mySwapChain = new VulkanSwapChain(*myDevice);
@@ -77,6 +85,10 @@ VulkanContext::~VulkanContext()
 	del(mySwapChain);
 	del(myAllocator);
 	del(myDevice);
+
+	if(myNvidiaAftermathDebugger)
+		del(myNvidiaAftermathDebugger);
+	
 	del(myPhysicalDevice);
 	DestroyDebugLayer();
 	myVulkanInstance.destroy();
@@ -110,6 +122,11 @@ vk::PipelineCache& VulkanContext::GetPipelineCache()
 VulkanAllocator& VulkanContext::GetAllocator()
 {
 	return *myInstance->myAllocator;
+}
+
+NvidiaAftermathTracker* VulkanContext::GetAftermathTracker()
+{
+	return myInstance->myNvidiaAftermathDebugger;
 }
 
 glm::vec2 VulkanContext::GetRenderResolution()

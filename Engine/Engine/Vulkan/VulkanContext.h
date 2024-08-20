@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Aftermath/NvidiaAftermathTracker.h"
+
 class VulkanContext
 {
 public:
@@ -14,6 +16,7 @@ public:
 	static class VulkanSwapChain& GetSwapChain();
 	static vk::PipelineCache& GetPipelineCache();
 	static class VulkanAllocator& GetAllocator();
+	static class NvidiaAftermathTracker* GetAftermathTracker();
 
 	static glm::vec2 GetRenderResolution();
 
@@ -49,6 +52,9 @@ private:
 	class VulkanDevice* myDevice = nullptr;
 	class VulkanAllocator* myAllocator = nullptr;
 	class VulkanSwapChain* mySwapChain = nullptr;
+	
+	NvidiaAftermathTracker::MarkerMap markerMap;
+	class NvidiaAftermathTracker* myNvidiaAftermathDebugger = nullptr;
 
 	vk::DescriptorPool myDescriptorPool;
 

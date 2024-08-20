@@ -55,6 +55,7 @@ void main()
     
     vec4 albedoColor = texture(textures[drawData.myAlbedoIndex], inTexCoord);
     vec3 normal = normalize(inNormal);
+    albedoColor = vec4(1, 1, 1, 1);
 
     vec4 pointLightColors = vec4(0, 0, 0, 0);
     for(int i = 0; i < inPointLightBuffer.myNumLights; ++i)

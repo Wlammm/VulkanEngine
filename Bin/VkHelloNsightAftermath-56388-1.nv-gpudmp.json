@@ -1,0 +1,743 @@
+[
+  {
+    "Base info": {
+      "Application name": "launcher.exe",
+      "Dump date": "Tue Aug 20 23:45:13 2024",
+      "Graphics API": "Vulkan",
+      "PID": 56388
+    }
+  },
+  {
+    "Display driver info": {
+      "Version": "536.40"
+    }
+  },
+  {
+    "OS info": {
+      "Build number": 22631,
+      "Service pack major version": 0,
+      "Service pack minor version": 0,
+      "Windows major version": 10,
+      "Windows minor version": 0,
+      "Windows product type": 1
+    }
+  },
+  {
+    "GPU info": {
+      "Adapter LUID": 59992,
+      "Adapter name": "TU104-A"
+    }
+  },
+  {
+    "Device info": {
+      "Adapter reset occurred": false,
+      "Device state": "Hung",
+      "Engine reset occurred": true
+    }
+  },
+  {
+    "Aftermath markers": {
+      "Context": {
+        "Events": [
+          {
+            "Event": {
+              "Callstack": {
+                "Stack": [
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140704608012519
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140704608840743
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "VkLayer_khronos_validation.dll",
+                      "Pointer": 140735517142902
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "vulkan-1.dll",
+                      "Pointer": 140705433063339
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108739845
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108719582
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108741493
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108201478
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108193058
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699107400823
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699107338959
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699110549497
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699110549218
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699110548894
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699110549646
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "KERNEL32.DLL",
+                      "Pointer": 140706553865597
+                    }
+                  }
+                ]
+              },
+              "Pipe": "Unknown",
+              "Status": "NotStarted",
+              "Type": "Automatic"
+            }
+          },
+          {
+            "Event": {
+              "Callstack": {
+                "Stack": [
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140704608012519
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140704608840306
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "VkLayer_khronos_validation.dll",
+                      "Pointer": 140735517146365
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "vulkan-1.dll",
+                      "Pointer": 140705433062957
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108788685
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108779638
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108754363
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108752331
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108194377
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108193012
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699107400823
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699107338959
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699110549497
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699110549218
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699110548894
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699110549646
+                    }
+                  }
+                ]
+              },
+              "Pipe": "Bottom",
+              "Status": "Finished",
+              "Type": "Automatic"
+            }
+          },
+          {
+            "Event": {
+              "Callstack": {
+                "Stack": [
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140704608012519
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140704608841458
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "VkLayer_khronos_validation.dll",
+                      "Pointer": 140735517192428
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "vulkan-1.dll",
+                      "Pointer": 140705433063744
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108788814
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108779888
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108753444
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108195945
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699108193012
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699107400823
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699107338959
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699110549497
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699110549218
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699110548894
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140699110549646
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "KERNEL32.DLL",
+                      "Pointer": 140706553865597
+                    }
+                  }
+                ]
+              },
+              "Pipe": "Top",
+              "Status": "Executing",
+              "Type": "Automatic"
+            }
+          }
+        ],
+        "Type": "CommandQueue"
+      }
+    }
+  },
+  {
+    "Shader infos": {
+      "Info": {
+        "Shader hash": 8420111409838876344,
+        "Shader name": "vertex_02",
+        "Shader size": 3072,
+        "Shader type": "Vertex"
+      }
+    }
+  },
+  {
+    "ApplicationName": "VkHelloNsightAftermath"
+  },
+  {
+    "ApplicationVersion": "v1.0"
+  },
+  {
+    "UserDefined+0": "This is a GPU crash dump example."
+  },
+  {
+    "UserDefined+1": "Engine State: Rendering."
+  },
+  {
+    "UserDefined+2": "More user-defined information..."
+  },
+  {
+    "Active Warps": [
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000000",
+        "Shader mapping": "IndirectVertexShader.vert:29",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000030",
+        "Shader mapping": "IndirectVertexShader.vert:31",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000040",
+        "Shader mapping": "IndirectVertexShader.vert:31",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000000a0",
+        "Shader mapping": "IndirectVertexShader.vert:31",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000000d0",
+        "Shader mapping": "IndirectVertexShader.vert:31",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000110",
+        "Shader mapping": "IndirectVertexShader.vert:31",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000150",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 3
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000160",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000170",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 3
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000180",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000190",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 3
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000001a0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000001b0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000220",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000280",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000290",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000002a0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000002c0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000002d0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000330",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000350",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000390",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000003a0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000003c0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000003d0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000003f0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000410",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000480",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000004a0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000004b0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000004c0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000004f0",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 3
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000500",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000510",
+        "Shader mapping": "IndirectVertexShader.vert:32",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000520",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000530",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000540",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000590",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000005a0",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000005d0",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000610",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000640",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000650",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000006a0",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000006c0",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000006d0",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000730",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000740",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000760",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000770",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000780",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000007c0",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000007d0",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000007e0",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000820",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000840",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000870",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000008c0",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000008e0",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000900",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000920",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000940",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000980",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000009a0",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x000009e0",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 1
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000a60",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 2
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000a90",
+        "Shader mapping": "IndirectVertexShader.vert:34",
+        "Warp count": 3
+      },
+      {
+        "GPU PC Address": "vertex_02 @ 0x00000ab0",
+        "Shader mapping": "IndirectVertexShader.vert:37",
+        "Warp count": 10
+      }
+    ]
+  },
+  {
+    "Fingerprint": {
+      "Hash": 16639881643507696422,
+      "Quality": 0
+    }
+  }
+]

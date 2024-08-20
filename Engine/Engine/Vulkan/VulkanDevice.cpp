@@ -1,5 +1,7 @@
 #include "EnginePch.h"
 #include "VulkanDevice.h"
+
+#include "VulkanContext.h"
 #include "VulkanPhysicalDevice.h"
 
 VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
@@ -20,6 +22,17 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	vk::PhysicalDeviceVulkan11Features vulkan11Features{};
 	vulkan12Features.pNext = &vulkan11Features;
 	vulkan11Features.shaderDrawParameters = VK_TRUE;
+
+	vk::DeviceDiagnosticsConfigCreateInfoNV aftermathInfo = {};
+	vulkan11Features.pNext = &aftermathInfo;
+	if(VulkanContext::GetAftermathTracker())
+	{
+		vk::DeviceDiagnosticsConfigFlagsNV aftermathFlags =
+			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableResourceTracking |
+			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableAutomaticCheckpoints |
+			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableShaderDebugInfo;
+		aftermathInfo.setFlags(aftermathFlags);
+	}
 	
 	myDevice = myPhysicalDevice->createDevice(createInfo);
 
