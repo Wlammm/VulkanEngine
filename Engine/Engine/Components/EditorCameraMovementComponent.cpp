@@ -59,7 +59,7 @@ void EditorCameraMovementComponent::Tick()
 
         yaw += mouseDelta.x * myMouseSensitivity;
         pitch += mouseDelta.y * myMouseSensitivity;
-        pitch = glm::clamp(-glm::pi<float>()*0.5f + 0.001f, glm::pi<float>() * 0.5f - 0.001f, pitch);
+        pitch = glm::clamp(-glm::pi<float>() * 0.5f + 0.001f, glm::pi<float>() * 0.5f - 0.001f, pitch);
 
         GetTransform().SetRotationRad({ pitch, yaw, 0.0f });
     }

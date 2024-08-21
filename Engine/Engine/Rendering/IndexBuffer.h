@@ -10,6 +10,6 @@ public:
 private:
     friend class IndexBufferSystem;
     
-    uint myOffset;
+    uint myOffset = (uint)-1;
     uint myIndexCount;
 };

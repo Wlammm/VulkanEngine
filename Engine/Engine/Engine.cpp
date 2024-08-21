@@ -17,6 +17,7 @@
 
 #include "Tracy/tracy/Tracy.hpp"
 #include "Core/AutoInitManager.h"
+#include "Coroutines/CoroutineManager.h"
 #include "Rendering/IndexBufferSystem.h"
 #include "Rendering/MeshSystem.h"
 #include "Rendering/RenderSystem.h"
@@ -28,6 +29,8 @@
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
 {
+	CoroutineManager coroutine{};
+	
 	ThreadUtils::NameThread(GetCurrentThread(), L"Main thread");
 	check(!myInstance && "Cant have multiple Engine instances.");
 	myInstance = this;

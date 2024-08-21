@@ -67,6 +67,7 @@ void MeshSystem::UploadMesh(const MeshUploadData& inUploadData)
     meshData.myBoundingSphereModelSpace = inUploadData.myBoundingSphere;
     meshData.myIndexCount = inUploadData.myIndexBuffer->GetIndexCount();
     meshData.myIndexOffset = inUploadData.myIndexBuffer->GetOffset();
+    check(meshData.myIndexOffset != (uint)-1);
     meshData.myVertexOffset = inUploadData.myVertexBuffer->GetOffset();
     meshData.myAlbedoIndex = 0;
     meshData.myNormalIndex = 0;

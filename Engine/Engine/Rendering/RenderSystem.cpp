@@ -139,6 +139,7 @@ const ShadowPipeline& RenderSystem::GetShadowPipeline()
 {
 	return *myShadowPipeline;
 }
+
 const GDRPipeline& RenderSystem::GetGDRPipeline() const
 {
 	return *myGDRPipeline;
@@ -158,7 +159,6 @@ void RenderSystem::AddGDRPass(vk::CommandBuffer inCommandBuffer)
 			.setClearValueCount(2)
 			.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
 			, vk::SubpassContents::eInline);
-
 	{
 		GPUMARK_SCOPE(inCommandBuffer, "Indirect Graphics");
 

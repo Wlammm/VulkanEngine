@@ -2,7 +2,7 @@
 #include "List.hpp"
 #include "tracy/tracy/Tracy.hpp"
 
-#define LockMutex std::unique_lock<std::mutex> lock = (myManualLockID == std::thread::id() || myManualLockID != std::this_thread::get_id()) ? std::unique_lock<std::mutex>(myMutex) : std::unique_lock<std::mutex>(); ZoneScopedN("MutexList::Wait")
+#define LockMutex std::unique_lock<std::mutex> lock; { lock = (myManualLockID == std::thread::id() || myManualLockID != std::this_thread::get_id()) ? std::unique_lock<std::mutex>(myMutex) : std::unique_lock<std::mutex>(); ZoneScopedN("MutexList::Wait"); }
 
 template<typename ElementType, typename SizeType = int>
 class MutexList : public List<ElementType, SizeType>
