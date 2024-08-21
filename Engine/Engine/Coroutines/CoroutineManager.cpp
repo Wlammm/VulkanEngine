@@ -21,7 +21,8 @@ CoroutineManager::CoroutineManager()
 
 Coroutine<void, void> CoroutineManager::Load()
 {
-    std::cout << "Currently on thread: " << std::this_thread::get_id() << "\n";
-    std::cout << "Resumed on thread: " << std::this_thread::get_id() << "\n";
+    std::cout << "Hello" << "\n";
+    co_await WaitForSeconds(10);
+    std::cout << "Hiii" << "\n";
     co_return;
 }
