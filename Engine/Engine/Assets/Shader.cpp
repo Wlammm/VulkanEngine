@@ -38,6 +38,7 @@ Coroutine<void, void, false> Shader::Load(const std::filesystem::path& inPath)
 
 void Shader::Unload()
 {
+    VulkanContext::GetDevice()->destroyShaderModule(myShaderModule);
 }
 
 void Shader::Compile()
