@@ -18,7 +18,7 @@ class Model : public Asset
 	static constexpr uint BinaryVersion = 1;
 	
 public:
-	void Load(const std::filesystem::path& inPath) override;
+	Coroutine<void, void, false> Load(const std::filesystem::path& inPath) override;
 	void Unload() override;
 
 	const List<Mesh*>& GetMeshes() const;
@@ -31,7 +31,7 @@ private:
 	List<SerializationMeshData> LoadMeshDatasFromFbx(const std::filesystem::path& inPath);
 	void SaveToCache(const List<SerializationMeshData>& inMeshDatas, const std::filesystem::path& inSourcePath);
 
-	void InitializeFromMeshData(const List<SerializationMeshData>& inMeshDatas);
+	void InitializeFromMeshData(List<SerializationMeshData> inMeshDatas);
 	
 	static glm::vec4 CalculateSphereBounds(const List<Vertex>& inVertices);
 

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Engine.h"
 #include "Core/ThreadPool.h"
+#include "Coroutines/Coroutine.h"
 #include "Delegates/Delegate.hpp"
 
 class Asset;
@@ -27,12 +28,16 @@ public:
             ZoneScoped;
             AssetType* asset = new AssetType();
             asset->myPath = inPath;
-            asset->Load(inPath);
-            asset->myIsValid = true;
+            Coroutine<void, void, false> loadCoroutine = asset->Load(inPath);
+            loadCoroutine.GetOnCoroutineComplete().Bind([asset, inOnAssetLoaded]()
+            {
+                asset->myIsValid = true;
+                inOnAssetLoaded(asset);
+            });
+            loadCoroutine.Resume();
             myMutex.lock();
             myLoadedAssets.insert({inPath, asset});
             myMutex.unlock();
-            inOnAssetLoaded(asset);
         });
         myMutex.unlock();
     }
@@ -50,7 +55,8 @@ public:
         
         AssetType* asset = new AssetType();
         asset->myPath = inPath;
-        asset->Load(inPath);
+        Coroutine<void, void, false> loadCoroutine = asset->Load(inPath);
+        loadCoroutine.Resume();
         asset->myIsValid = true;
         myLoadedAssets.insert({inPath, asset});
         myMutex.unlock();

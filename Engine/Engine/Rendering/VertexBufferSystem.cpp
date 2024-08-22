@@ -25,36 +25,22 @@ VertexBufferSystem::~VertexBufferSystem()
     myVertexBuffers.Clear();
 }
 
-void VertexBufferSystem::Tick()
+VertexBuffer* VertexBufferSystem::UploadVertexBuffer(const List<Vertex>& inVertices)
 {
-    UploadAllQueuedVertexBuffers();    
-}
-
-VertexBuffer* VertexBufferSystem::UploadVertexBuffer_TS(const List<Vertex>& inVertices)
-{
-    check(!inVertices.IsEmpty() && "Vertices should not be empty.");
     VertexBuffer* buffer = new VertexBuffer();
-    std::shared_ptr<VertexBufferUploadData> uploadData = std::make_shared<VertexBufferUploadData>();
-    uploadData->myVertices = inVertices;
-    uploadData->myBuffer = buffer;
-    myQueuedVertexBufferUploads.Add(uploadData);
-    return buffer;
-}
-
-void VertexBufferSystem::UploadVertexData(const List<Vertex>& inVertices, VertexBuffer* inVertexBuffer)
-{
     const uint sizeIncrease = inVertices.size() * sizeof(Vertex);
     const uint requiredSize = myUsedBufferSize + sizeIncrease;
     GrowBuffer(requiredSize);
 
     myBuffer->SetData(inVertices.data(), sizeIncrease, myUsedBufferSize);
 
-    inVertexBuffer->myOffset = myCurrentVertexOffset;
-    inVertexBuffer->myVertexCount = inVertices.size();
-    myVertexBuffers.Add(inVertexBuffer);
+    buffer->myOffset = myCurrentVertexOffset;
+    buffer->myVertexCount = inVertices.size();
+    myVertexBuffers.Add(buffer);
     
     myUsedBufferSize += sizeIncrease;
     myCurrentVertexOffset += static_cast<uint>(inVertices.size());
+    return buffer;
 }
 
 void VertexBufferSystem::RemoveVertexBuffer(const VertexBuffer* inBuffer)
@@ -65,18 +51,6 @@ void VertexBufferSystem::RemoveVertexBuffer(const VertexBuffer* inBuffer)
 const VulkanBuffer* VertexBufferSystem::GetGlobalVertexBuffer() const
 {
     return myBuffer;
-}
-
-void VertexBufferSystem::UploadAllQueuedVertexBuffers()
-{
-    ZoneScoped;
-    myQueuedVertexBufferUploads.Lock();
-    for(std::shared_ptr<VertexBufferUploadData> uploadData : myQueuedVertexBufferUploads)
-    {
-        UploadVertexData(uploadData->myVertices, uploadData->myBuffer);
-    }
-    myQueuedVertexBufferUploads.Clear();
-    myQueuedVertexBufferUploads.Unlock();
 }
 
 void VertexBufferSystem::GrowBuffer(const uint inRequiredSize)

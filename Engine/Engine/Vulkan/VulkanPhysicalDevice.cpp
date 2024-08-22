@@ -1,11 +1,19 @@
 #include "EnginePch.h"
 #include "VulkanPhysicalDevice.h"
+
+#include "Engine.h"
 #include "VulkanContext.h"
 
 VulkanPhysicalDevice::VulkanPhysicalDevice()
 {
 	vk::Instance& instance = VulkanContext::GetInstance();
 
+	if(Engine::GetEngineProperties().HasStartupArgument("-aftermath"))
+	{
+		myDeviceExtensions.Add(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME);
+		myDeviceExtensions.Add(VK_NV_DEVICE_DIAGNOSTICS_CONFIG_EXTENSION_NAME);
+	}
+	
 	List<vk::PhysicalDevice> physicalDevices = instance.enumeratePhysicalDevices();
 	THROW_IF(physicalDevices.IsEmpty(), "No physical devices available.");
 

@@ -38,9 +38,9 @@ uint ObjectSystem::GetNumObjects() const
 
 void ObjectSystem::AddObject(const glm::mat4& inTransform, const Mesh* inMesh)
 {
-    ObjectData data{inTransform, inMesh->GetHandle()};
-    // Offset by the first num objects.
+    ObjectData data{inTransform, inMesh->GetHandle() };
     
+    // Offset by the first num objects.
     myBuffer->SetData(&data, sizeof(ObjectData), 32 + sizeof(ObjectData) * myNumObjects);
     myNumObjects++;
 

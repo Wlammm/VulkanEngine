@@ -24,9 +24,9 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	vulkan11Features.shaderDrawParameters = VK_TRUE;
 
 	vk::DeviceDiagnosticsConfigCreateInfoNV aftermathInfo = {};
-	vulkan11Features.pNext = &aftermathInfo;
 	if(VulkanContext::GetAftermathTracker())
 	{
+		vulkan11Features.pNext = &aftermathInfo;
 		vk::DeviceDiagnosticsConfigFlagsNV aftermathFlags =
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableResourceTracking |
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableAutomaticCheckpoints |

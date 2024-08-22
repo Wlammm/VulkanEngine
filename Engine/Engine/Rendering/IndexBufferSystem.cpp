@@ -27,25 +27,22 @@ IndexBufferSystem::~IndexBufferSystem()
     VulkanAllocator::DestroyBuffer_TS(myBuffer);
 }
 
-void IndexBufferSystem::Tick()
+IndexBuffer* IndexBufferSystem::UploadIndexBuffer(const List<uint>& inIndices)
 {
-    UploadAllQueuedIndexBuffers();    
-}
-
-void IndexBufferSystem::UploadIndexData(const List<uint>& inIndices, IndexBuffer* inBuffer)
-{
+    IndexBuffer* buffer = new IndexBuffer();
     const uint sizeIncrease = inIndices.size() * sizeof(uint);
     const uint requiredSize = myUsedBufferSize + sizeIncrease;
     GrowBuffer(requiredSize);
 
     myBuffer->SetData(inIndices.data(), sizeIncrease, myUsedBufferSize);
     
-    inBuffer->myOffset = myCurrentIndexOffset;
-    inBuffer->myIndexCount = inIndices.size();
-    myIndexBuffers.Add(inBuffer);
+    buffer->myOffset = myCurrentIndexOffset;
+    buffer->myIndexCount = inIndices.size();
+    myIndexBuffers.Add(buffer);
     
     myUsedBufferSize += sizeIncrease;
     myCurrentIndexOffset += static_cast<uint>(inIndices.size());
+    return buffer;
 }
 
 void IndexBufferSystem::RemoveIndexBuffer(const IndexBuffer* inBuffer)
@@ -53,33 +50,9 @@ void IndexBufferSystem::RemoveIndexBuffer(const IndexBuffer* inBuffer)
     LOG_WARNING("IndexBufferSubsystem::RemoveIndexBuffer not implemented.");
 }
 
-IndexBuffer* IndexBufferSystem::UploadIndexBuffer_TS(const List<uint>& inIndices)
-{
-    check(!inIndices.IsEmpty() && "Indices should not be empty.");
-    IndexBuffer* buffer = new IndexBuffer();
-    
-    std::shared_ptr<IndexUploadData> uploadData = std::make_shared<IndexUploadData>();
-    uploadData->myIndices = inIndices;
-    uploadData->myBuffer = buffer;
-    myQueuedUploadData.Add(uploadData);
-    return buffer;
-}
-
 const VulkanBuffer* IndexBufferSystem::GetGlobalIndexBuffer() const
 {
     return myBuffer;
-}
-
-void IndexBufferSystem::UploadAllQueuedIndexBuffers()
-{
-    ZoneScoped;
-    myQueuedUploadData.Lock();
-    for(std::shared_ptr<IndexUploadData> uploadData : myQueuedUploadData)
-    {
-        UploadIndexData(uploadData->myIndices, uploadData->myBuffer);
-    }
-    myQueuedUploadData.Clear();
-    myQueuedUploadData.Unlock();
 }
 
 void IndexBufferSystem::GrowBuffer(const uint inRequiredSize)

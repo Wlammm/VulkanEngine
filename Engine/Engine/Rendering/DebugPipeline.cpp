@@ -13,10 +13,10 @@
 DebugPipeline::DebugPipeline()
 {
 	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("Debug.vert");
-	myVertexShader->OnAssetUpdated.Bind(&DebugPipeline::OnShaderRecompiled, this);
+	myVertexShader->OnShaderRecompiled.Bind(&DebugPipeline::OnShaderRecompiled, this);
 
 	myFragmentShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("Debug.frag");
-	myFragmentShader->OnAssetUpdated.Bind(&DebugPipeline::OnShaderRecompiled, this);
+	myFragmentShader->OnShaderRecompiled.Bind(&DebugPipeline::OnShaderRecompiled, this);
 
 	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
 		"FrameDataBuffer",
@@ -34,8 +34,8 @@ DebugPipeline::~DebugPipeline()
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
 
-	myVertexShader->OnAssetUpdated.UnBind(&DebugPipeline::OnShaderRecompiled, this);
-	myFragmentShader->OnAssetUpdated.UnBind(&DebugPipeline::OnShaderRecompiled, this);
+	myVertexShader->OnShaderRecompiled.UnBind(&DebugPipeline::OnShaderRecompiled, this);
+	myFragmentShader->OnShaderRecompiled.UnBind(&DebugPipeline::OnShaderRecompiled, this);
 }
 
 void DebugPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)

@@ -12,7 +12,7 @@
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanImage.h"
 
-void Texture::Load(const std::filesystem::path& inPath)
+Coroutine<void, void, false> Texture::Load(const std::filesystem::path& inPath)
 {
     ImageData imageData{};
 
@@ -29,6 +29,7 @@ void Texture::Load(const std::filesystem::path& inPath)
     }
 
     InitializeFromImageData(imageData);
+	co_return;
 }
 
 void Texture::Unload()

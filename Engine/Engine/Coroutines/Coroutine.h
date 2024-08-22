@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <coroutine>
 
+#include "Delegates/MulticastDelegate.hpp"
+
 /*
  *  initial_suspend return type declares if the coroutine should be entered when it is constructed. std::suspend_never will run it immediately while std::suspend_always will yield it immediately.
  *  return_void is called if the return type is void. If there is a value return_value will be called. 
@@ -31,7 +33,7 @@ public:
     bool myHasReturnValue = false;
 };
 
-template<typename ReturnType, typename YieldType>
+template<typename ReturnType, typename YieldType, bool ShouldStartImmediately = true>
 class Coroutine 
 {
     // We use this type to make sure we aren't creating member variables of type void. A char will be used instead.
@@ -44,8 +46,12 @@ public:
         using CoroutineHandle = std::coroutine_handle<promise_type>;
         
         Coroutine get_return_object() { return Coroutine{CoroutineHandle::from_promise(*this)}; }
-        std::suspend_never initial_suspend() { return {}; }
-        std::suspend_always final_suspend() noexcept { return {}; }
+        std::conditional_t<ShouldStartImmediately, std::suspend_never, std::suspend_always> initial_suspend() { return {}; }
+        std::suspend_always final_suspend() noexcept
+        {
+            OnComplete();
+            return {};
+        }
         void unhandled_exception() {}
 
         std::suspend_always yield_value(InternalYieldType inSomeValue)
@@ -55,9 +61,9 @@ public:
             return {};
         }
 
-
         InternalYieldType myYieldValue;
         bool myHasYieldValue = false;
+        MulticastDelegate<void()> OnComplete;
     };
 
     explicit Coroutine(promise_type::CoroutineHandle inCoroutine) : myCoroutineHandle(inCoroutine) { }
@@ -129,6 +135,11 @@ public:
     bool IsVoidReturnType() const
     {
         return std::is_void<ReturnType>();
+    }
+
+    MulticastDelegate<void()>& GetOnCoroutineComplete()
+    {
+        return myCoroutineHandle.promise().OnComplete;
     }
     
 private:

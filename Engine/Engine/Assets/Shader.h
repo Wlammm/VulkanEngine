@@ -7,14 +7,14 @@ class VulkanShader;
 class Shader : public Asset
 {
 public:
-    void Load(const std::filesystem::path& inPath) override;
+    Coroutine<void, void, false> Load(const std::filesystem::path& inPath) override;
     void Unload() override;
 
     void Compile();
 
     vk::ShaderModule GetAPIResource() const;
 
-    MulticastDelegate<void()> OnAssetUpdated;
+    MulticastDelegate<void()> OnShaderRecompiled;
     
 private:
     void CreateFilewatcherCallbacks(const List<std::filesystem::path>& inIncludePaths);

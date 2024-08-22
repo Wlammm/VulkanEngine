@@ -51,7 +51,6 @@ private:
 
 	class SystemManager* mySystemManager = nullptr;
 	class EventHandler* myPostMaster = nullptr;
-	class Console* myConsole = nullptr;
 	class ThreadPool* myThreadPool = nullptr;
 	class Filewatcher* myFilewatcher = nullptr;
 	class WindowHandler* myWindowHandler = nullptr;

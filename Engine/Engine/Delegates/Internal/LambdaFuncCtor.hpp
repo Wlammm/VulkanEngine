@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "FuncCtor.hpp"
-#include "Core/CheckDefine.hpp"
+#include "Engine/Core/CheckDefine.hpp"
 #include <functional>
 #include <utility>
 
@@ -16,9 +16,33 @@ private:
 
 public:
     explicit LambdaFuncCtor(LambdaType inLambda)
-        : myLambda(std::move(inLambda))
+        : myLambda(std::move(inLambda)) { }
+
+    LambdaFuncCtor(const LambdaFuncCtor& other)
+        : myLambda(other.myLambda) { }
+
+    LambdaFuncCtor(LambdaFuncCtor&& other) noexcept
+        : myLambda(std::move(other.myLambda))
     { }
 
+    LambdaFuncCtor& operator=(const LambdaFuncCtor& other)
+    {
+        if (this != &other)
+        {
+            myLambda = other.myLambda;
+        }
+        return *this;
+    }
+
+    LambdaFuncCtor& operator=(LambdaFuncCtor&& other) noexcept
+    {
+        if (this != &other)
+        {
+            myLambda = std::move(other.myLambda);
+        }
+        return *this;
+    }
+    
     ~LambdaFuncCtor() = default;
 
     bool operator==(const FuncCtor<ReturnType(ArgTypes...)>& inOther) const override
@@ -35,7 +59,8 @@ public:
 
     std::unique_ptr<FuncCtor<ReturnType(ArgTypes...)>> Clone() const override
     {
-        return std::make_unique<LambdaFuncCtor>(*this);
+        auto result = std::make_unique<LambdaFuncCtor>(*this);
+        return result;
     }
 
 private:

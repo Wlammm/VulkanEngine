@@ -21,7 +21,7 @@ shaderc_shader_kind GetKindFromExtension(const std::string& inExtension)
     return shaderc_vertex_shader;
 }
 
-void Shader::Load(const std::filesystem::path& inPath)
+Coroutine<void, void, false> Shader::Load(const std::filesystem::path& inPath)
 {
     ZoneScoped;
     std::filesystem::path path = "../Engine/Engine/Shaders/";
@@ -30,7 +30,7 @@ void Shader::Load(const std::filesystem::path& inPath)
     if (!std::filesystem::exists(myPath))
     {
         LOG_ERROR("SHADER COMPILE ERROR [%s]: FILE DOES NOT EXISTS.", myPath.filename().string().c_str());
-        return;
+        co_return;
     }
 
     Compile();
@@ -86,7 +86,7 @@ void Shader::Compile()
     std::vector<uint32_t> binary = { result.cbegin(), result.cend() };
     InitFromBinary(binary);
 
-    OnAssetUpdated();
+    OnShaderRecompiled();
 }
 
 vk::ShaderModule Shader::GetAPIResource() const

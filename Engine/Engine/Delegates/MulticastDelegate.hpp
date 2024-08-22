@@ -25,6 +25,26 @@ class MulticastDelegate<ReturnType(ArgTypes...)>
 public:
     MulticastDelegate() = default;
 
+    // Move constructor
+    MulticastDelegate(MulticastDelegate&& other) noexcept
+        : myBoundDelegates(std::move(other.myBoundDelegates)) // Move the list
+    {
+    }
+
+    // Move assignment operator
+    MulticastDelegate& operator=(MulticastDelegate&& other) noexcept
+    {
+        if (this != &other) // Check for self-assignment
+        {
+            myBoundDelegates = std::move(other.myBoundDelegates); // Move the list
+        }
+        return *this;
+    }
+
+    // Delete copy constructor and copy assignment operator
+    MulticastDelegate(const MulticastDelegate&) = delete;
+    MulticastDelegate& operator=(const MulticastDelegate&) = delete;
+    
     void Bind(const Delegate<void(ArgTypes...)> inDelegate)
     {
         check(!myBoundDelegates.Contains(inDelegate) && "Delegate is already bound.");
@@ -116,12 +136,13 @@ public:
 
     void Invoke(ArgTypes... inArgs)
     {
-        //myBoundDelegates.Lock();
-        for(Delegate<ReturnType(ArgTypes...)>& delegate : myBoundDelegates)
+        myBoundDelegates.Lock();
+        for(int i = 0; i < myBoundDelegates.size(); ++i)
         {
+            const Delegate<ReturnType(ArgTypes...)>& delegate = myBoundDelegates[i];
             delegate.Invoke(std::forward<ArgTypes>(inArgs)...);
         }
-        //myBoundDelegates.Unlock();
+        myBoundDelegates.Unlock();
     }
 
     void operator()(ArgTypes... inArgs)
@@ -130,5 +151,5 @@ public:
     }
    
 private:
-    List<Delegate<void(ArgTypes...)>> myBoundDelegates{};
+    MutexList<Delegate<void(ArgTypes...)>> myBoundDelegates{};
 };

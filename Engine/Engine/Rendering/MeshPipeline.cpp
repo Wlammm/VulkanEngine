@@ -34,10 +34,10 @@
 MeshPipeline::MeshPipeline()
 {
 	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("VertexShader.vert");
-	myVertexShader->OnAssetUpdated.Bind(&MeshPipeline::OnShaderRecompiled, this);
+	myVertexShader->OnShaderRecompiled.Bind(&MeshPipeline::OnShaderRecompiled, this);
 
 	myFragmentShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FragmentShader.frag");
-	myFragmentShader->OnAssetUpdated.Bind(&MeshPipeline::OnShaderRecompiled, this);
+	myFragmentShader->OnShaderRecompiled.Bind(&MeshPipeline::OnShaderRecompiled, this);
 
 	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
 		"FrameDataBuffer",
@@ -68,8 +68,8 @@ MeshPipeline::~MeshPipeline()
 	VulkanAllocator::DestroyBuffer_TS(myDirectionalLightBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myPointLightBuffer);
 
-	myVertexShader->OnAssetUpdated.UnBind(&MeshPipeline::OnShaderRecompiled, this);
-	myFragmentShader->OnAssetUpdated.UnBind(&MeshPipeline::OnShaderRecompiled, this);
+	myVertexShader->OnShaderRecompiled.UnBind(&MeshPipeline::OnShaderRecompiled, this);
+	myFragmentShader->OnShaderRecompiled.UnBind(&MeshPipeline::OnShaderRecompiled, this);
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
 }

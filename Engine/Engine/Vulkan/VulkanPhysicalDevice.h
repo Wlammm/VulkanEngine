@@ -38,10 +38,8 @@ private:
 	int myTransferQueueIndex = -1;
 	int myPresentQueueIndex = -1;
 
-	const List<const char*> myDeviceExtensions
+	List<const char*> myDeviceExtensions
 	{
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-		VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME,
-		VK_NV_DEVICE_DIAGNOSTICS_CONFIG_EXTENSION_NAME,
 	};
 };

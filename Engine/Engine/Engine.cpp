@@ -17,7 +17,6 @@
 
 #include "Tracy/tracy/Tracy.hpp"
 #include "Core/AutoInitManager.h"
-#include "Coroutines/CoroutineManager.h"
 #include "Rendering/IndexBufferSystem.h"
 #include "Rendering/MeshSystem.h"
 #include "Rendering/RenderSystem.h"
@@ -29,16 +28,21 @@
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
 {
-	
-	
 	ThreadUtils::NameThread(GetCurrentThread(), L"Main thread");
 	check(!myInstance && "Cant have multiple Engine instances.");
 	myInstance = this;
 
+	if(GetEngineProperties().HasStartupArgument("-waitfordebugger"))
+	{
+		while(!IsDebuggerPresent())
+		{
+			Sleep(10);		
+		}
+		__debugbreak();
+	}
+	
 	myPostMaster = new EventHandler();
-	myConsole = new Console();
 	myThreadPool = new ThreadPool();
-	CoroutineManager coroutine{};
 	myFilewatcher = new Filewatcher();
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
@@ -58,7 +62,6 @@ Engine::~Engine()
 	del(myWindowHandler);
 	del(myFilewatcher);
 	del(myThreadPool);
-	del(myConsole);
 	del(myPostMaster);
 
 	myInstance = nullptr;
@@ -93,10 +96,7 @@ void Engine::Tick()
 	TickNextFrame.Invoke();
 	TickNextFrame.Clear();
 	
-	GetEngineSystem<VertexBufferSystem>().Tick();
-	GetEngineSystem<IndexBufferSystem>().Tick();
 	GetEngineSystem<TextureSystem>().Tick();
-	GetEngineSystem<MeshSystem>().Tick();
 	GetEngineSystem<RenderSystem>().Tick();
 	
 	myVulkanContext->EndFrame();

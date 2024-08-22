@@ -24,7 +24,7 @@
 ShadowPipeline::ShadowPipeline()
 {
 	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("VertexShader.vert");
-	myVertexShader->OnAssetUpdated.Bind(&ShadowPipeline::OnShaderRecompiled, this);
+	myVertexShader->OnShaderRecompiled.Bind(&ShadowPipeline::OnShaderRecompiled, this);
 
 	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
 		"FrameDataBuffer",
@@ -55,7 +55,7 @@ ShadowPipeline::~ShadowPipeline()
 	
 	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
 
-	myVertexShader->OnAssetUpdated.UnBind(&ShadowPipeline::OnShaderRecompiled, this);
+	myVertexShader->OnShaderRecompiled.UnBind(&ShadowPipeline::OnShaderRecompiled, this);
 
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);

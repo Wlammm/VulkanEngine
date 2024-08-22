@@ -6,13 +6,14 @@
 #include <assimp/scene.h>
 
 #include "Engine.h"
+#include "Coroutines/Awaitable.h"
 #include "Rendering/IndexBufferSystem.h"
 #include "Rendering/MeshSystem.h"
 #include "Rendering/VertexBufferSystem.h"
 #include "Serialization/BinaryReader.h"
 #include "Serialization/BinaryWriter.h"
 
-void Model::Load(const std::filesystem::path& inPath)
+Coroutine<void, void, false> Model::Load(const std::filesystem::path& inPath)
 {
 	ZoneScoped;
 	List<SerializationMeshData> meshDatas;
@@ -29,6 +30,7 @@ void Model::Load(const std::filesystem::path& inPath)
 		SaveToCache(meshDatas, inPath);
 	}
 
+	co_await Awaitables::SwitchToThread(ThreadType::Main);
 	InitializeFromMeshData(meshDatas);
 }
 
@@ -213,16 +215,16 @@ void Model::SaveToCache(const List<SerializationMeshData>& inMeshDatas, const st
 	writer.Save();
 }
 
-void Model::InitializeFromMeshData(const List<SerializationMeshData>& inMeshDatas)
+void Model::InitializeFromMeshData(List<SerializationMeshData> inMeshDatas)
 {
 	ZoneScoped;
 	for(const SerializationMeshData& meshData : inMeshDatas)
 	{
-		VertexBuffer* vertexBuffer = VertexBufferSystem::UploadVertexBuffer_TS(meshData.myVertices);
-		IndexBuffer* indexBuffer = IndexBufferSystem::UploadIndexBuffer_TS(meshData.myIndices);
+		VertexBuffer* vertexBuffer = Engine::GetEngineSystem<VertexBufferSystem>().UploadVertexBuffer(meshData.myVertices);
+		IndexBuffer* indexBuffer = Engine::GetEngineSystem<IndexBufferSystem>().UploadIndexBuffer(meshData.myIndices);
 		glm::vec4 boudingSphere = meshData.mySphereCenterBounds;
 
-		myMeshes.Add(MeshSystem::UploadMesh_TS(vertexBuffer, indexBuffer, boudingSphere));
+		myMeshes.Add(Engine::GetEngineSystem<MeshSystem>().UploadMesh(vertexBuffer, indexBuffer, boudingSphere));
 	}
 }
 

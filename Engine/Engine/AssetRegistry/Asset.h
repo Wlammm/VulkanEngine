@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Coroutines/Coroutine.h"
 
 class AssetRegistry;
 
@@ -9,13 +10,13 @@ public:
 
     bool IsValid() const;
 
-    virtual void Load(const std::filesystem::path& inPath) = 0;
+    virtual Coroutine<void, void, false> Load(const std::filesystem::path& inPath) = 0;
     virtual void Unload() = 0;
-    
+
 protected:
     friend class AssetRegistry;
     AssetRegistry* GetAssetRegistry() const;
-
+    
     std::filesystem::path myPath;
     bool myIsValid = false;
 

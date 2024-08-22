@@ -10,10 +10,10 @@
 FullscreenPipeline::FullscreenPipeline(Shader* inFragmentShader, VulkanImage* inSource)
 {
 	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FullscreenVS.vert");
-	myVertexShader->OnAssetUpdated.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
+	myVertexShader->OnShaderRecompiled.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
 
 	myFragmentShader = inFragmentShader;
-	myFragmentShader->OnAssetUpdated.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
+	myFragmentShader->OnShaderRecompiled.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
 	
 	CreateDescriptors(inSource);
 	CreatePipeline();
@@ -21,8 +21,8 @@ FullscreenPipeline::FullscreenPipeline(Shader* inFragmentShader, VulkanImage* in
 
 FullscreenPipeline::~FullscreenPipeline()
 {
-	myVertexShader->OnAssetUpdated.UnBind(&FullscreenPipeline::OnShaderRecompiled, this);
-	myFragmentShader->OnAssetUpdated.UnBind(&FullscreenPipeline::OnShaderRecompiled, this);
+	myVertexShader->OnShaderRecompiled.UnBind(&FullscreenPipeline::OnShaderRecompiled, this);
+	myFragmentShader->OnShaderRecompiled.UnBind(&FullscreenPipeline::OnShaderRecompiled, this);
 
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);

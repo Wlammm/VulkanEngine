@@ -4,106 +4,122 @@
 
 constexpr int COLOR_WHITE = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN;
 constexpr int COLOR_RED = FOREGROUND_RED;
-constexpr int COLOR_YELLOW = FOREGROUND_RED | FOREGROUND_BLUE;
+constexpr int COLOR_YELLOW = FOREGROUND_RED | FOREGROUND_GREEN;
 
-Console::Console()
+Console::Console(int argc, char** argv)
 {
-	check(!myInstance && "There can only be one instance of this class active at once.");
-	myInstance = this;
+    check(!myInstance && "There can only be one instance of this class active at once.");
+    myInstance = this;
 
-	myConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-	myLogToFileEnabled = Engine::GetEngineProperties().HasStartupArgument("-LogToFile");
-
-	if(myLogToFileEnabled)
-	{
-		myLogToFileStream = std::ofstream{ "Log.txt" };
-		myCoutBuffer = std::cout.rdbuf();
-		std::cout.rdbuf(myLogToFileStream.rdbuf());
-	}
+    for(int i = 0; i < argc; ++i)
+    {
+        // Can use Engine::GetEngineProperties().HasStartupArgument("-LogToFile"); but this is constructed too early for that.
+        if(String::ToLowerCopy(argv[i]) == "-logtofile")
+        {
+            myLogToFileEnabled = true;
+            break;
+        }
+    }
+    
+    myConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    if(myLogToFileEnabled)
+    {
+        myLogToFileStream.open("Log.txt");
+        myCoutBuffer = std::cout.rdbuf();
+        std::cout.rdbuf(myLogToFileStream.rdbuf());
+    }
 }
 
 Console::~Console()
 {
-	if(myLogToFileEnabled)
-	{
-		// This is required as cout has longer lifetime than ofstream to prevent crashes.
-		std::cout.rdbuf(myCoutBuffer);
-	}
+    if(myLogToFileEnabled)
+    {
+        std::cout.rdbuf(myCoutBuffer);  // Restore original buffer
+        myLogToFileStream.close();  // Close the file stream
+    }
 
-	myInstance = nullptr;
+    myInstance = nullptr;
 }
 
 Console& Console::Get()
 {
-	return *myInstance;
+    return *myInstance;
 }
 
 void Console::Log(const char* inString, ...)
 {
-	const std::string msg = "[LOG]: " + std::string(inString);
-	SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
+    va_list argptr;
+    va_start(argptr, inString);
 
-	va_list argptr;
-	va_start(argptr, inString);
-	vfprintf(stdout, msg.c_str(), argptr);
-	va_end(argptr);
+    // Format the message
+    char buffer[1024];
+    vsnprintf(buffer, sizeof(buffer), inString, argptr);
+    va_end(argptr);
 
-	std::cout << std::endl;
-	OutputDebugStringA(msg.c_str());
+    const std::string msg = std::string("[LOG]: ") + buffer;
+    SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
+
+    std::cout << msg << std::endl;
+    OutputDebugStringA(msg.c_str());
 }
 
 void Console::Log(const std::string& inString)
 {
-	const std::string msg = "[LOG]: " + std::string(inString);
-	SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
-	OutputDebugStringA(msg.c_str());
-	std::cout << msg;
-	OutputDebugStringA("\n");
+    const std::string msg = "[LOG]: " + inString;
+    SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
+    std::cout << msg << std::endl;
+    OutputDebugStringA(msg.c_str());
 }
 
 void Console::LogWarning(const char* inString, ...)
 {
-	const std::string msg = "[WARNING]: " + std::string(inString);
-	SetConsoleTextAttribute(myConsoleHandle, COLOR_YELLOW);
+    va_list argptr;
+    va_start(argptr, inString);
 
-	va_list argptr;
-	va_start(argptr, inString);
-	vfprintf(stdout, msg.c_str(), argptr);
-	va_end(argptr);
-	std::cout << std::endl;
+    // Format the message
+    char buffer[1024];
+    vsnprintf(buffer, sizeof(buffer), inString, argptr);
+    va_end(argptr);
 
-	OutputDebugStringA(msg.c_str());
+    const std::string msg = std::string("[WARNING]: ") + buffer;
+    SetConsoleTextAttribute(myConsoleHandle, COLOR_YELLOW);
+
+    std::cout << msg << std::endl;
+    OutputDebugStringA(msg.c_str());
 }
 
-void Console::LogWarning(const std::string& inString, ...)
+void Console::LogWarning(const std::string& inString)
 {
-	const std::string msg = "[WARNING]: " + std::string(inString);
-	SetConsoleTextAttribute(myConsoleHandle, COLOR_YELLOW);
-	std::cout << msg;
-	SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
-	OutputDebugStringA(msg.c_str());
+    const std::string msg = "[WARNING]: " + inString;
+    SetConsoleTextAttribute(myConsoleHandle, COLOR_YELLOW);
+    std::cout << msg << std::endl;
+    OutputDebugStringA(msg.c_str());
+    SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
 }
 
 void Console::LogError(const char* inString, ...)
 {
-	const std::string msg = "[ERROR]: " + std::string(inString);
-	SetConsoleTextAttribute(myConsoleHandle, COLOR_RED);
-	va_list argptr;
-	va_start(argptr, inString);
-	vfprintf(stderr, msg.c_str(), argptr);
-	va_end(argptr);
-	SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
-	OutputDebugStringA(msg.c_str());
-	OutputDebugStringA("\n");
-	std::cerr << std::endl;
+    va_list argptr;
+    va_start(argptr, inString);
+
+    // Format the message
+    char buffer[1024];
+    vsnprintf(buffer, sizeof(buffer), inString, argptr);
+    va_end(argptr);
+
+    const std::string msg = std::string("[ERROR]: ") + buffer;
+    SetConsoleTextAttribute(myConsoleHandle, COLOR_RED);
+
+    std::cerr << msg << std::endl;
+    OutputDebugStringA(msg.c_str());
+    SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
 }
 
-void Console::LogError(const std::string& inString, ...)
+void Console::LogError(const std::string& inString)
 {
-	const std::string msg = "[ERROR]: " + std::string(inString);
-	SetConsoleTextAttribute(myConsoleHandle, COLOR_RED);
-	std::cerr << msg;
-	SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
-	OutputDebugStringA(msg.c_str());
-	std::cerr << std::endl;
+    const std::string msg = "[ERROR]: " + inString;
+    SetConsoleTextAttribute(myConsoleHandle, COLOR_RED);
+    std::cerr << msg << std::endl;
+    OutputDebugStringA(msg.c_str());
+    SetConsoleTextAttribute(myConsoleHandle, COLOR_WHITE);
 }
