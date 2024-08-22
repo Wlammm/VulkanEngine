@@ -29,7 +29,7 @@
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
 {
-	CoroutineManager coroutine{};
+	
 	
 	ThreadUtils::NameThread(GetCurrentThread(), L"Main thread");
 	check(!myInstance && "Cant have multiple Engine instances.");
@@ -38,6 +38,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	myPostMaster = new EventHandler();
 	myConsole = new Console();
 	myThreadPool = new ThreadPool();
+	CoroutineManager coroutine{};
 	myFilewatcher = new Filewatcher();
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
