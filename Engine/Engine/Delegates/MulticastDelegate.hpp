@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Delegate.hpp"
-#include "Containers/List.hpp"
+#include "Containers/MutexList.hpp"
 
 template<typename>
 class MulticastDelegate;
@@ -11,8 +11,6 @@ concept IsVoid = std::same_as<Type, void>;
 /*
  * A multicast delegate functions like a normal delegate except it can store multiple, which will be invoked when fired.
  * Due to this the delegates can only have void as their return type.
- *
- * KEEP IN MIND THAT THIS CLASS IS NOT THREAD SAFE!!!
  *
  * Usage examples:
  * someMulticastDelegate += someOtherDelegate;
@@ -118,10 +116,12 @@ public:
 
     void Invoke(ArgTypes... inArgs)
     {
+        //myBoundDelegates.Lock();
         for(Delegate<ReturnType(ArgTypes...)>& delegate : myBoundDelegates)
         {
             delegate.Invoke(std::forward<ArgTypes>(inArgs)...);
         }
+        //myBoundDelegates.Unlock();
     }
 
     void operator()(ArgTypes... inArgs)
