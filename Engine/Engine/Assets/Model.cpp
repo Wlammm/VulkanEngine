@@ -12,31 +12,47 @@
 #include "Rendering/VertexBufferSystem.h"
 #include "Serialization/BinaryReader.h"
 #include "Serialization/BinaryWriter.h"
+#include "Vulkan/VulkanAllocator.h"
+#include "Vulkan/VulkanBuffer.h"
+#include "Vulkan/VulkanContext.h"
 
 Coroutine<void, void, false> Model::Load(const std::filesystem::path& inPath)
 {
-	ZoneScoped;
 	List<SerializationMeshData> meshDatas;
-
-	bool shouldRecache = true;
-	if(IsCached(inPath))
 	{
-		shouldRecache = !TryLoadMeshDatasFromCache(inPath, meshDatas);
+		ZoneScoped;
+	
+		bool shouldRecache = true;
+		if(IsCached(inPath))
+		{
+			shouldRecache = !TryLoadMeshDatasFromCache(inPath, meshDatas);
+		}
+	
+		if(shouldRecache)
+		{
+			meshDatas = LoadMeshDatasFromFbx(inPath);
+			SaveToCache(meshDatas, inPath);
+		}
 	}
-
-	if(shouldRecache)
-	{
-		meshDatas = LoadMeshDatasFromFbx(inPath);
-		SaveToCache(meshDatas, inPath);
-	}
-
+	InitializeStagingBuffers(meshDatas);
+	uint requiredSizeIncrease = GetRequiredVertexBufferSize(meshDatas);
 	co_await Awaitables::SwitchToThread(ThreadType::Main);
-	InitializeFromMeshData(meshDatas);
+	{
+		ZoneScoped;
+		VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
+		vertexBufferSystem.GrowBuffer(vertexBufferSystem.GetUsedBufferSize() + requiredSizeIncrease);
+		InitializeFromMeshData(meshDatas);
+	}
+
+	co_await Awaitables::SwitchToThread(ThreadType::Worker);
+	{
+		meshDatas.Reset();
+	}
 }
 
 void Model::Unload()
 {
-	ZoneScoped;
+	//ZoneScoped;
 }
 
 const List<Mesh*>& Model::GetMeshes() const
@@ -56,7 +72,7 @@ bool Model::IsCached(const std::filesystem::path& inPath)
 
 bool Model::TryLoadMeshDatasFromCache(const CachePath& inPath, List<SerializationMeshData>& outMeshDatas)
 {
-	ZoneScoped;
+	//ZoneScoped;
 	BinaryReader reader(inPath);
 
 	int fileVersion;
@@ -102,7 +118,7 @@ bool Model::TryLoadMeshDatasFromCache(const CachePath& inPath, List<Serializatio
 
 List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::path& inPath)
 {
-	ZoneScoped;
+	//ZoneScoped;
 	List<SerializationMeshData> meshDatas{};
 	
 	static thread_local Assimp::Importer myImporter{};
@@ -194,7 +210,7 @@ List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::p
 
 void Model::SaveToCache(const List<SerializationMeshData>& inMeshDatas, const std::filesystem::path& inSourcePath)
 {
-	ZoneScoped;
+	//ZoneScoped;
 	BinaryWriter writer(GetCachedFilePath(inSourcePath));
 	writer.Write(BinaryVersion);
 
@@ -215,22 +231,43 @@ void Model::SaveToCache(const List<SerializationMeshData>& inMeshDatas, const st
 	writer.Save();
 }
 
-void Model::InitializeFromMeshData(List<SerializationMeshData> inMeshDatas)
+void Model::InitializeFromMeshData(const List<SerializationMeshData>& inMeshDatas)
 {
-	ZoneScoped;
+	//ZoneScoped;
 	for(const SerializationMeshData& meshData : inMeshDatas)
 	{
-		VertexBuffer* vertexBuffer = Engine::GetEngineSystem<VertexBufferSystem>().UploadVertexBuffer(meshData.myVertices);
+		VertexBuffer* vertexBuffer = Engine::GetEngineSystem<VertexBufferSystem>().UploadVertexBuffer(meshData.myStagingBuffer, meshData.myVertices.size());
+		VulkanAllocator::DestroyBuffer_TS(meshData.myStagingBuffer);
 		IndexBuffer* indexBuffer = Engine::GetEngineSystem<IndexBufferSystem>().UploadIndexBuffer(meshData.myIndices);
 		glm::vec4 boudingSphere = meshData.mySphereCenterBounds;
 
 		myMeshes.Add(Engine::GetEngineSystem<MeshSystem>().UploadMesh(vertexBuffer, indexBuffer, boudingSphere));
 	}
 }
+void Model::InitializeStagingBuffers(List<SerializationMeshData>& inMeshDatas)
+{
+	for(SerializationMeshData& meshData : inMeshDatas)
+	{
+		const uint size = meshData.myVertices.size() * sizeof(Vertex);
+		VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer-Staging", VulkanBuffer::StagingCreateInfo(size), VMA_MEMORY_USAGE_AUTO, true);
+		stagingBuffer->SetData(meshData.myVertices.data(), size);
+		meshData.myStagingBuffer = stagingBuffer;
+	}
+}
+
+uint Model::GetRequiredVertexBufferSize(const List<SerializationMeshData>& inMeshDatas)
+{
+	uint requiredSize = 0;
+	for(const SerializationMeshData& meshData : inMeshDatas)
+	{
+		requiredSize += sizeof(Vertex) * meshData.myVertices.size();
+	}
+	return requiredSize;
+}
 
 glm::vec4 Model::CalculateSphereBounds(const List<Vertex>& inVertices)
 {
-	ZoneScoped;
+	//ZoneScoped;
 	glm::vec3 centerPos = glm::vec3();
 
 	for(const Vertex& vertex : inVertices)

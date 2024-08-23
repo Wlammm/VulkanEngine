@@ -3,6 +3,7 @@
 #include "AssetRegistry/Asset.h"
 #include "Rendering/Vertex.hpp"
 
+class VulkanBuffer;
 class Mesh;
 using CachePath = std::filesystem::path;
 
@@ -11,6 +12,7 @@ struct SerializationMeshData
 	List<Vertex> myVertices{};
 	List<uint> myIndices{};
 	glm::vec4 mySphereCenterBounds{};
+	VulkanBuffer* myStagingBuffer = nullptr;
 };
 
 class Model : public Asset
@@ -31,7 +33,9 @@ private:
 	List<SerializationMeshData> LoadMeshDatasFromFbx(const std::filesystem::path& inPath);
 	void SaveToCache(const List<SerializationMeshData>& inMeshDatas, const std::filesystem::path& inSourcePath);
 
-	void InitializeFromMeshData(List<SerializationMeshData> inMeshDatas);
+	void InitializeFromMeshData(const List<SerializationMeshData>& inMeshDatas);
+	void InitializeStagingBuffers(List<SerializationMeshData>& inMeshDatas);
+	uint GetRequiredVertexBufferSize(const List<SerializationMeshData>& inMeshDatas);
 	
 	static glm::vec4 CalculateSphereBounds(const List<Vertex>& inVertices);
 

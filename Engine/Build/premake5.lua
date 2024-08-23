@@ -81,6 +81,7 @@ project "Launcher"
 	
 	links
 	{
+		"%{EXTERNAL}/mimalloc/Lib/mimalloc-static.lib",
 		"Engine",
 		"Editor",
 		"%{VULKAN_SDK}/Lib/vulkan-1.lib",
@@ -107,6 +108,7 @@ project "Engine"
 		"$(SolutionDir)ImGui/",
 		"%{EXTERNAL}/tracy/",
 		"%{EXTERNAL}/glm/",
+		"%{EXTERNAL}/mimalloc/include/",
 	}
 	filter "files:../Engine/Tracy/TracyClient.cpp"
 		flags { "NoPCH" }

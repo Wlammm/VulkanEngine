@@ -1,8 +1,11 @@
 #pragma once
 
+
 #include <Windows.h>
 #undef max
 #undef min
+
+#define TRACY_FIBERS
 
 #include <iostream>
 #include <string>

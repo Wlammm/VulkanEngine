@@ -46,6 +46,7 @@ public:
 public:
 	vk::Buffer GetAPIResource() const;
 
+	void CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const size_t inSize, uint inOffset);
 	void SetData(const void* inData, const size_t inSize, uint inOffset = 0);
 
 	template<typename T>

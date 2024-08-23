@@ -76,6 +76,15 @@ public:
      * Ugly looking syntax but these support binding & unbinding as such:
      * someMulticastDelegate.Bind(&SomeClass::someMemberFunctionThatCanBeConst, someClassReferenceOrPointer);
      */
+    void Bind(const MulticastDelegate<ReturnType(ArgTypes...)>& inMulticastDelegate)
+    {
+        std::scoped_lock lock {myBoundDelegates.GetMutex(), inMulticastDelegate.myBoundDelegates.GetMutex() };
+        for(int i = 0; i < inMulticastDelegate.myBoundDelegates.size(); ++i)
+        {
+            Bind(inMulticastDelegate.myBoundDelegates[i]);
+        }
+    }
+    
     void Bind(ReturnType(*freeFunction)(ArgTypes...))
     {
         Bind(Delegate<ReturnType(ArgTypes...)>(freeFunction));

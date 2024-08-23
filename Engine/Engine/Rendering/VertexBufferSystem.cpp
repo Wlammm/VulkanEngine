@@ -25,8 +25,27 @@ VertexBufferSystem::~VertexBufferSystem()
     myVertexBuffers.Clear();
 }
 
+VertexBuffer* VertexBufferSystem::UploadVertexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount)
+{
+    check(inVertexCount > 0);
+    VertexBuffer* buffer = new VertexBuffer();
+    const uint sizeIncrease = inVertexCount * sizeof(Vertex);
+    const uint requiredSize = myUsedBufferSize + sizeIncrease;
+    GrowBuffer(requiredSize);
+    
+    myBuffer->CopyDataFromBuffer(inStagingBuffer, sizeIncrease, myUsedBufferSize);
+    buffer->myOffset = myCurrentVertexOffset;
+    buffer->myVertexCount = inVertexCount;
+    myVertexBuffers.Add(buffer);
+
+    myUsedBufferSize += sizeIncrease;
+    myCurrentVertexOffset += inVertexCount;
+    return buffer;
+}
+
 VertexBuffer* VertexBufferSystem::UploadVertexBuffer(const List<Vertex>& inVertices)
 {
+    ZoneScoped;
     VertexBuffer* buffer = new VertexBuffer();
     const uint sizeIncrease = inVertices.size() * sizeof(Vertex);
     const uint requiredSize = myUsedBufferSize + sizeIncrease;
@@ -82,4 +101,9 @@ void VertexBufferSystem::GrowBuffer(const uint inRequiredSize)
     });
     VulkanAllocator::DestroyBuffer_TS(oldBuffer);
     myBuffer = newBuffer;
+}
+
+uint VertexBufferSystem::GetUsedBufferSize() const
+{
+    return myUsedBufferSize;    
 }

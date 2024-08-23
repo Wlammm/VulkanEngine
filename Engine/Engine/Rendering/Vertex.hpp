@@ -2,11 +2,11 @@
 
 struct Vertex
 {
-	glm::vec4 myPosition;
-	glm::vec4 myColor;
-	glm::vec4 myNormal;
-	glm::vec4 myTangents;
-	glm::vec4 myBinormals;
+	glm::vec4 myPosition; // x, y, z
+	glm::vec4 myColor; // x, y, z, w
+	glm::vec4 myNormal; // x, y, z 
+	glm::vec4 myTangents; // x, y, z
+	glm::vec4 myBinormals; // x, y, z
 	glm::vec2 myTexCoords[4];
 
 	static List<vk::VertexInputBindingDescription>& GetBindingDescriptions()

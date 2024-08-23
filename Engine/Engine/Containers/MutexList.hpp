@@ -2,7 +2,7 @@
 #include "List.hpp"
 #include "tracy/tracy/Tracy.hpp"
 
-#define LockMutex std::unique_lock<std::mutex> lock; { ZoneScopedN("MutexList::Wait"); lock = (myManualLockID == std::thread::id() || myManualLockID != std::this_thread::get_id()) ? std::unique_lock<std::mutex>(myMutex) : std::unique_lock<std::mutex>(); }
+#define LockMutex std::unique_lock<std::recursive_mutex> lock; { ZoneScopedN("MutexList::Wait"); lock = std::unique_lock<std::recursive_mutex>(myMutex); }
 
 template<typename ElementType, typename SizeType = int>
 class MutexList
@@ -182,17 +182,19 @@ public:
 	void Lock()
 	{
 		myMutex.lock();
-		myManualLockID.store(std::this_thread::get_id(), std::memory_order_relaxed);
 	}
 
 	void Unlock()
 	{
-		myManualLockID.store(std::thread::id(), std::memory_order_relaxed);
 		myMutex.unlock();
 	}
 
+	std::recursive_mutex& GetMutex() const
+	{
+		return myMutex;
+	}
+
 private:
-	mutable std::mutex myMutex;
-	std::atomic<std::thread::id> myManualLockID;
+	mutable std::recursive_mutex myMutex;
 	List<ElementType, SizeType> myList{};
 };

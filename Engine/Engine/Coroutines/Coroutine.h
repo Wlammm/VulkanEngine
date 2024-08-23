@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <coroutine>
 
+#include "Engine.h"
 #include "Delegates/MulticastDelegate.hpp"
 
 /*
@@ -49,7 +50,7 @@ public:
         std::conditional_t<ShouldStartImmediately, std::suspend_never, std::suspend_always> initial_suspend() { return {}; }
         std::suspend_always final_suspend() noexcept
         {
-            OnComplete();
+            Engine::TickNextFrame.Bind(OnComplete);
             return {};
         }
         void unhandled_exception() {}

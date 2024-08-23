@@ -26,6 +26,7 @@ MeshSystem::~MeshSystem()
 
 Mesh* MeshSystem::UploadMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer, const glm::vec4& inBoundingSphere)
 {
+    ZoneScoped;
     Mesh* mesh = new Mesh();
     MeshData meshData{};
     meshData.myBoundingSphereModelSpace = inBoundingSphere;

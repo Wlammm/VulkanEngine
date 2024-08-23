@@ -11,14 +11,16 @@ public:
     VertexBufferSystem();
     ~VertexBufferSystem();
 
+    VertexBuffer* UploadVertexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount);
     VertexBuffer* UploadVertexBuffer(const List<Vertex>& inVertices);
     void RemoveVertexBuffer(const VertexBuffer* inBuffer);
 
     const VulkanBuffer* GetGlobalVertexBuffer() const;
 
-private:
     void GrowBuffer(const uint inRequiredSize);
 
+    uint GetUsedBufferSize() const;
+    
 private:
     uint myUsedBufferSize = 0;
     uint myCurrentVertexOffset = 0;

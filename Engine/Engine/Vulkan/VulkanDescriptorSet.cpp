@@ -74,6 +74,7 @@ void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sample
 
 void VulkanDescriptorSet::Build()
 {
+	ZoneScoped;
 	List<vk::DescriptorSetLayoutBinding> layoutBindings{};
 	List<vk::WriteDescriptorSet> setWrites{};
 	

@@ -29,6 +29,7 @@ IndexBufferSystem::~IndexBufferSystem()
 
 IndexBuffer* IndexBufferSystem::UploadIndexBuffer(const List<uint>& inIndices)
 {
+    ZoneScoped;
     IndexBuffer* buffer = new IndexBuffer();
     const uint sizeIncrease = inIndices.size() * sizeof(uint);
     const uint requiredSize = myUsedBufferSize + sizeIncrease;
