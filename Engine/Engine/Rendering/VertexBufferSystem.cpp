@@ -10,7 +10,12 @@
 
 VertexBufferSystem::VertexBufferSystem()
 {
-    GrowBuffer(sizeof(Vertex) * 4);
+    myBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("Global Vertex Buffer",
+        vk::BufferCreateInfo()
+        .setSize(sizeof(Vertex) * 16)
+        .setUsage(vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst| vk::BufferUsageFlagBits::eTransferSrc)
+        , VMA_MEMORY_USAGE_AUTO,
+        false));
 }
 
 VertexBufferSystem::~VertexBufferSystem()
@@ -31,7 +36,6 @@ VertexBuffer* VertexBufferSystem::UploadVertexBuffer(VulkanBuffer* inStagingBuff
     VertexBuffer* buffer = new VertexBuffer();
     const uint sizeIncrease = inVertexCount * sizeof(Vertex);
     const uint requiredSize = myUsedBufferSize + sizeIncrease;
-    GrowBuffer(requiredSize);
     
     myBuffer->CopyDataFromBuffer(inStagingBuffer, sizeIncrease, myUsedBufferSize);
     buffer->myOffset = myCurrentVertexOffset;
@@ -49,8 +53,6 @@ VertexBuffer* VertexBufferSystem::UploadVertexBuffer(const List<Vertex>& inVerti
     VertexBuffer* buffer = new VertexBuffer();
     const uint sizeIncrease = inVertices.size() * sizeof(Vertex);
     const uint requiredSize = myUsedBufferSize + sizeIncrease;
-    GrowBuffer(requiredSize);
-
     myBuffer->SetData(inVertices.data(), sizeIncrease, myUsedBufferSize);
 
     buffer->myOffset = myCurrentVertexOffset;
@@ -67,40 +69,9 @@ void VertexBufferSystem::RemoveVertexBuffer(const VertexBuffer* inBuffer)
     LOG_WARNING("VertexBufferSubsystem::RemoveVertexBuffer not implemented.");
 }
 
-const VulkanBuffer* VertexBufferSystem::GetGlobalVertexBuffer() const
+const ResizableBuffer* VertexBufferSystem::GetGlobalVertexBuffer() const
 {
     return myBuffer;
-}
-
-void VertexBufferSystem::GrowBuffer(const uint inRequiredSize)
-{
-    ZoneScoped;
-    if(!myBuffer)
-    {
-        vk::BufferCreateInfo createInfo = vk::BufferCreateInfo()
-            .setSize(MathUtils::UpperPowerOfTwo(inRequiredSize))
-            .setUsage(vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc);
-        
-        myBuffer = VulkanAllocator::AllocateBuffer_TS("GlobalVertexBuffer", createInfo, VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE);
-        return;
-    }
-    
-    if(inRequiredSize <= myBuffer->GetSize())
-        return;
-
-    const vk::BufferCreateInfo createInfo = vk::BufferCreateInfo()
-            .setSize(MathUtils::UpperPowerOfTwo(inRequiredSize))
-            .setUsage(vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc);
-    VulkanBuffer* newBuffer = VulkanAllocator::AllocateBuffer_TS("GlobalVertexBuffer", createInfo, VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE);
-
-    VulkanBuffer* oldBuffer = myBuffer;
-    Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [oldBuffer, newBuffer](vk::CommandBuffer inCommandBuffer)
-    {
-        const vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize()).setSrcOffset(0).setDstOffset(0);
-        inCommandBuffer.copyBuffer(oldBuffer->GetAPIResource(), newBuffer->GetAPIResource(), {copy});
-    });
-    VulkanAllocator::DestroyBuffer_TS(oldBuffer);
-    myBuffer = newBuffer;
 }
 
 uint VertexBufferSystem::GetUsedBufferSize() const

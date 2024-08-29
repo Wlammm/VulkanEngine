@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include "Subsystem/System.h"
+#include "System/System.h"
 
+class ResizableBuffer;
 class IndexBuffer;
 class VulkanBuffer;
 
@@ -11,12 +12,10 @@ public:
     ~IndexBufferSystem();
 
     IndexBuffer* UploadIndexBuffer(const List<uint>& inIndices);
+    IndexBuffer* UploadIndexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount);
     
     void RemoveIndexBuffer(const IndexBuffer* inBuffer);
-    const VulkanBuffer* GetGlobalIndexBuffer() const;
-
-private:
-    void GrowBuffer(const uint inRequiredSize);
+    const ResizableBuffer* GetGlobalIndexBuffer() const;
 
 private:
     uint myUsedBufferSize = 0;
@@ -24,5 +23,5 @@ private:
 
     List<IndexBuffer*> myIndexBuffers;
 
-    VulkanBuffer* myBuffer = nullptr;
+    ResizableBuffer* myBuffer = nullptr;
 };

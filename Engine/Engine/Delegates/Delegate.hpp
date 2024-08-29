@@ -11,7 +11,7 @@
 #define SOURCE_LOCATION_INPUT_ARG const std::source_location inSourceLocation = std::source_location::current()
 #define SOURCE_LOCATION_ASSIGNMENT mySourceLocation = inSourceLocation
 #else
-#define SOURCE_LOCATION_INPUT_ARG
+#define SOURCE_LOCATION_INPUT_ARG char c = 'c'
 #define SOURCE_LOCATION_ASSIGNMENT
 #endif
 
@@ -36,12 +36,16 @@ public:
         if (inOther.myFuncCtor)
         {
             myFuncCtor = inOther.myFuncCtor->Clone();
+#if DEBUG
             mySourceLocation = inOther.mySourceLocation;
+#endif
         }
         else
         {
             myFuncCtor.reset();
+#if DEBUG
             mySourceLocation = {};
+#endif
         }
     }
 
@@ -64,12 +68,16 @@ public:
             if (inOther.myFuncCtor)
             {
                 myFuncCtor = inOther.myFuncCtor->Clone();
+#if DEBUG
                 mySourceLocation = inOther.mySourceLocation;
+#endif
             }
             else
             {
                 myFuncCtor.reset();
+#if DEBUG
                 mySourceLocation = {};
+#endif
             }
         }
         return *this;
@@ -81,7 +89,9 @@ public:
         if (this != &inOther)
         {
             myFuncCtor = std::move(inOther.myFuncCtor);
+#if DEBUG
             mySourceLocation = inOther.mySourceLocation;
+#endif
         }
         return *this;
     }

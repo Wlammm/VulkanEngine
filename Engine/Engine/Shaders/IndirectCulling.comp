@@ -49,9 +49,9 @@ void main() {
     outIndirectBuffer.drawCommands[renderIndex].vertexOffset = int(meshData.myVertexOffset);
     outIndirectBuffer.drawCommands[renderIndex].firstIndex = meshData.myIndexOffset;
     
-    outPerDrawData.perDrawData[renderIndex].myAlbedoIndex = meshData.myAlbedoIndex;
-    outPerDrawData.perDrawData[renderIndex].myNormalIndex = meshData.myNormalIndex;
-    outPerDrawData.perDrawData[renderIndex].myMaterialIndex = meshData.myMaterialIndex;
+    outPerDrawData.perDrawData[renderIndex].myAlbedoIndex = objectData.myAlbedoIndex;
+    outPerDrawData.perDrawData[renderIndex].myNormalIndex = objectData.myNormalIndex;
+    outPerDrawData.perDrawData[renderIndex].myMaterialIndex = objectData.myMaterialIndex;
     outPerDrawData.perDrawData[renderIndex].myToWorld = objectData.myToWorld;
     
     // We need to have a per instance buffer that is bound to the vertex shaders 

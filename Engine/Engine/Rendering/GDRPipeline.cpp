@@ -15,6 +15,7 @@
 #include "ComponentSystem/ComponentSystem.h"
 #include "ComponentSystem/GameObject.h"
 #include "Shaders/MeshStructs.hpp"
+#include "Systems/PointLightSystem.h"
 #include "Vulkan/ObjectSystem.h"
 #include "Vulkan/ResizableBuffer.h"
 #include "Vulkan/VulkanAllocator.h"
@@ -48,33 +49,81 @@ GDRPipeline::~GDRPipeline()
     VulkanAllocator::DestroyBuffer_TS(myPerDrawDataBuffer);
     VulkanAllocator::DestroyBuffer_TS(myCountBuffer);
     VulkanAllocator::DestroyBuffer_TS(myDirectionalLightBuffer);
-    VulkanAllocator::DestroyBuffer_TS(myPointLightBuffer);
     VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
     myCountBuffer = nullptr;
 }
 
 void GDRPipeline::AddComputeCommands(vk::CommandBuffer inCommandBuffer)
 {
-	EnsureCorrectBufferSizes();
+	EnsureCorrectBufferSizes(inCommandBuffer);
     
-    ExecuteComputePass(inCommandBuffer, myPrePass);
-    ExecuteComputePass(inCommandBuffer, myCullPass);
+	ExecuteComputePass(inCommandBuffer, myPrePass);
+	
+	// Insert memory barrier to ensure that the count buffer is synchronized before cull pass
+	vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
+		.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)  // Pre-pass writes
+		.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)   // Cull pass reads & writes
+		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		.setBuffer(myCountBuffer->GetAPIResource())
+		.setOffset(0)
+		.setSize(VK_WHOLE_SIZE);
+
+	inCommandBuffer.pipelineBarrier(
+			vk::PipelineStageFlagBits::eComputeShader,
+			vk::PipelineStageFlagBits::eComputeShader,
+			vk::DependencyFlags{},
+			nullptr,
+			barrier,
+			nullptr);
+	
+	ExecuteComputePass(inCommandBuffer, myCullPass);
+
+	// Memory barrier to ensure the compute shader writes are visible to subsequent draw calls
+	vk::BufferMemoryBarrier bufferMemoryBarriers[] = {
+		vk::BufferMemoryBarrier()
+			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
+			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eVertexAttributeRead)
+			.setBuffer(myIndirectCommandsBuffer->GetBuffer()->GetAPIResource())
+			.setOffset(0)
+			.setSize(VK_WHOLE_SIZE),
+		vk::BufferMemoryBarrier()
+			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
+			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eIndexRead)
+			.setBuffer(myPerDrawDataBuffer->GetBuffer()->GetAPIResource())
+			.setOffset(0)
+			.setSize(VK_WHOLE_SIZE),
+		vk::BufferMemoryBarrier()
+			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
+			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead)
+			.setBuffer(myCountBuffer->GetAPIResource())
+			.setOffset(0)
+			.setSize(VK_WHOLE_SIZE),
+	};
+
+	inCommandBuffer.pipelineBarrier(
+		vk::PipelineStageFlagBits::eComputeShader,
+		vk::PipelineStageFlagBits::eDrawIndirect | vk::PipelineStageFlagBits::eVertexInput,
+		vk::DependencyFlags{},
+		nullptr,
+		bufferMemoryBarriers,
+		nullptr);
 }
 
 void GDRPipeline::AddGraphicsCommands(vk::CommandBuffer inCommandBuffer)
 {	
+	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
+	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
+	
 	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
 	BuildFrameBuffer();
-	BuildPointLightBuffer();
 	BuildDirectionalLightBuffer();
 	
 	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
 	
-	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
-	inCommandBuffer.bindVertexBuffers(0, {vertexBufferSystem.GetGlobalVertexBuffer()->GetAPIResource()}, {0});
+	inCommandBuffer.bindVertexBuffers(0, {vertexBufferSystem.GetGlobalVertexBuffer()->GetBuffer()->GetAPIResource()}, {0});
 	
-	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
-	inCommandBuffer.bindIndexBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetAPIResource(),0, vk::IndexType::eUint32);
+	inCommandBuffer.bindIndexBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetBuffer()->GetAPIResource(),0, vk::IndexType::eUint32);
 	
 	TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
 	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, textureSystem.GetDescriptorSet(), {});
@@ -135,11 +184,6 @@ void GDRPipeline::CreateBuffers()
         VulkanBuffer::UniformBufferCreateInfo(sizeof(DirectionalLightBuffer)), 
         VMA_MEMORY_USAGE_AUTO, 
         true);
-
-    myPointLightBuffer = VulkanAllocator::AllocateBuffer_TS(
-        "PointLightBuffer", 
-        VulkanBuffer::StorageBufferCreateInfo(sizeof(PointLightData)), 
-        VMA_MEMORY_USAGE_AUTO);
 }
 
 void GDRPipeline::ComputePassResources::Destroy()
@@ -156,7 +200,7 @@ void GDRPipeline::ExecuteComputePass(vk::CommandBuffer inCommandBuffer, const Co
     inCommandBuffer.dispatch(1, 1, 1);
 }
 
-void GDRPipeline::EnsureCorrectBufferSizes()
+void GDRPipeline::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
 {
     ObjectSystem& objectSystem = Engine::GetEngineSystem<ObjectSystem>();
 
@@ -164,12 +208,50 @@ void GDRPipeline::EnsureCorrectBufferSizes()
     if(requiredSize > myIndirectCommandsBuffer->GetBuffer()->GetSize())
     {
         myIndirectCommandsBuffer->Resize(requiredSize);
+
+    	vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
+			.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+			.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
+			.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+			.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+			.setBuffer(myIndirectCommandsBuffer->GetBuffer()->GetAPIResource())
+			.setOffset(0)
+			.setSize(VK_WHOLE_SIZE);
+
+    	// Insert the pipeline barrier
+    	inCommandBuffer.pipelineBarrier(
+			vk::PipelineStageFlagBits::eTransfer,
+			vk::PipelineStageFlagBits::eComputeShader,
+			vk::DependencyFlags(),
+			nullptr,
+			bufferMemoryBarrier,
+			nullptr
+		);
     }
 
     size_t drawCallRequiredSize = objectSystem.GetNumObjects() * sizeof(PerDrawData);
     if(drawCallRequiredSize > myPerDrawDataBuffer->GetBuffer()->GetSize())
     {
         myPerDrawDataBuffer->Resize(drawCallRequiredSize);
+
+    	vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
+			.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+			.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
+			.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+			.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+			.setBuffer(myPerDrawDataBuffer->GetBuffer()->GetAPIResource())
+			.setOffset(0)
+			.setSize(VK_WHOLE_SIZE);
+
+    	// Insert the pipeline barrier
+    	inCommandBuffer.pipelineBarrier(
+			vk::PipelineStageFlagBits::eTransfer,
+			vk::PipelineStageFlagBits::eComputeShader,
+			vk::DependencyFlags(),
+			nullptr,
+			bufferMemoryBarrier,
+			nullptr
+		);
     }
 }
 
@@ -229,7 +311,9 @@ void GDRPipeline::CreateDrawPassResources()
 {
 	// Shaders
 	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("IndirectVertexShader.vert");
+	myVertexShader->OnShaderRecompiled.Bind(&GDRPipeline::OnShaderRecompiled, this);
 	myFragmentShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("IndirectFragmentShader.frag");
+	myFragmentShader->OnShaderRecompiled.Bind(&GDRPipeline::OnShaderRecompiled, this);
 	
     // Descriptor sets
     myFrameDescriptorSet.BindBuffer(
@@ -239,7 +323,7 @@ void GDRPipeline::CreateDrawPassResources()
         vk::DescriptorType::eUniformBuffer);
 	
     myFrameDescriptorSet.BindBuffer(
-        myPointLightBuffer, 
+        Engine::GetEngineSystem<PointLightSystem>().GetBuffer(), 
         vk::ShaderStageFlagBits::eFragment, 
         1, 
         vk::DescriptorType::eStorageBuffer);
@@ -266,7 +350,20 @@ void GDRPipeline::CreateDrawPassResources()
     myFrameDescriptorSet.Build();
 
     // Pipeline creation
-    TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
+	CreateGraphicsPipeline();
+}
+
+void GDRPipeline::OnShaderRecompiled()
+{
+	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
+	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
+
+	CreateGraphicsPipeline();
+}
+
+void GDRPipeline::CreateGraphicsPipeline()
+{
+	 TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
 	
 	const List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout(), textureSystem.GetDescriptorLayout() };
 	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
@@ -345,30 +442,6 @@ void GDRPipeline::BuildFrameBuffer() const
 	}
 
 	LOG("No render camera found.");	
-}
-
-void GDRPipeline::BuildPointLightBuffer()
-{
-	List<GameObject*> pointLights = Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<PointLightComponent>();
-
-	if(pointLights.IsEmpty())
-		return;
-	
-	int lightIndex = 0;
-	for (GameObject* object : pointLights)
-	{
-		PointLightComponent* light = object->GetComponent<PointLightComponent>();
-		TransformComponent* transform = object->GetTransform();
-		
-		check(lightIndex < 10 && "max pointlights atm.");
-	
-		myPointLightData.myLights[lightIndex].myPosition = transform->GetPosition();
-		myPointLightData.myLights[lightIndex].myRange = light->GetRange();
-		myPointLightData.myLights[lightIndex].myColor = glm::vec4(light->GetColor(), light->GetIntensity());
-		lightIndex++;
-	}
-	myPointLightData.myNumLights = lightIndex;
-	myPointLightBuffer->SetData(myPointLightData);
 }
 
 void GDRPipeline::BuildDirectionalLightBuffer() const

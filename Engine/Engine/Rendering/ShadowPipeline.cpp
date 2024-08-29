@@ -72,10 +72,10 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 		return;
 	
 	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
-	inCommandBuffer.bindVertexBuffers(0, vertexBufferSystem.GetGlobalVertexBuffer()->GetAPIResource(), {0});
+	inCommandBuffer.bindVertexBuffers(0, vertexBufferSystem.GetGlobalVertexBuffer()->GetBuffer()->GetAPIResource(), {0});
 	
 	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
-	inCommandBuffer.bindIndexBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetAPIResource(), 0, vk::IndexType::eUint32);
+	inCommandBuffer.bindIndexBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetBuffer()->GetAPIResource(), 0, vk::IndexType::eUint32);
 	
 	const vk::ClearValue clearValue = vk::ClearDepthStencilValue(1.0f, 0u);
 

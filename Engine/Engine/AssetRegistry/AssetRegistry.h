@@ -10,6 +10,9 @@ class AssetRegistry
 public:
     AssetRegistry();
     ~AssetRegistry();
+
+    static void ScanAssetsFolder();
+    static std::filesystem::path GetPathFromAssetName(const std::string& inAssetName);
     
     template<typename AssetType>
     void GetAssetAsync(const std::filesystem::path& inPath, const Delegate<void(AssetType* inAsset)> inOnAssetLoaded)
@@ -64,6 +67,8 @@ public:
     }
 
 private:
+    inline static std::unordered_map<std::string, std::filesystem::path> myFilenameToPathLUT{};
+    
     std::mutex myMutex{};
     std::unordered_map<std::filesystem::path, Asset*> myLoadedAssets{};
 };

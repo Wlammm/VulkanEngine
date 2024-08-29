@@ -12,7 +12,11 @@ struct SerializationMeshData
 	List<Vertex> myVertices{};
 	List<uint> myIndices{};
 	glm::vec4 mySphereCenterBounds{};
-	VulkanBuffer* myStagingBuffer = nullptr;
+	VulkanBuffer* myStagingVertexBuffer = nullptr;
+	VulkanBuffer* myStagingIndexBuffer = nullptr;
+	std::string myAlbedoPath;
+	std::string myNormalPath;
+	std::string myMaterialPath;
 };
 
 class Model : public Asset
@@ -20,10 +24,11 @@ class Model : public Asset
 	static constexpr uint BinaryVersion = 1;
 	
 public:
-	Coroutine<void, void, false> Load(const std::filesystem::path& inPath) override;
+	Coroutine<void, void, false> Load(const std::filesystem::path inPath) override;
 	void Unload() override;
 
 	const List<Mesh*>& GetMeshes() const;
+
 	
 private:
 	static CachePath GetCachedFilePath(const std::filesystem::path& inPath);
@@ -41,4 +46,5 @@ private:
 
 private:
 	List<Mesh*> myMeshes{};
+
 };

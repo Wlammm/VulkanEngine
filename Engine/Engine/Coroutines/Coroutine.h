@@ -53,7 +53,10 @@ public:
             Engine::TickNextFrame.Bind(OnComplete);
             return {};
         }
-        void unhandled_exception() {}
+        void unhandled_exception()
+        {
+            check(false);
+        }
 
         std::suspend_always yield_value(InternalYieldType inSomeValue)
         {

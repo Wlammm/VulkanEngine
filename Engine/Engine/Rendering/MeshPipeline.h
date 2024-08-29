@@ -19,7 +19,6 @@ private:
 	void CreatePipeline();
 
 	void BuildFrameBuffer();
-	void BuildPointLightBuffer();
 	void BuildDirectionalLightBuffer();
 
 	void OnShaderRecompiled();
@@ -41,19 +40,6 @@ private:
 		glm::vec3 myCameraPosition;
 	};
 	VulkanBuffer* myFrameDataBuffer; 
-
-	// FrameDescriptorSet.
-	struct alignas(16) PointLightData
-	{
-		int myNumLights;
-		struct alignas(16)
-		{
-			glm::vec4 myColor = { 0, 0, 0, 0 };
-			glm::vec3 myPosition = { 0, 0, 0 };
-			float myRange = 0;
-		} myLights[10];
-	} myPointLightData;
-	VulkanBuffer* myPointLightBuffer;
 
 	// FrameDescriptorSet.
 	struct DirectionalLightBuffer

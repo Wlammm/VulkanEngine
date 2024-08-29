@@ -8,6 +8,7 @@
 #include "Engine.h"
 #include "Coroutines/Awaitable.h"
 #include "Rendering/IndexBufferSystem.h"
+#include "Rendering/Mesh.h"
 #include "Rendering/MeshSystem.h"
 #include "Rendering/VertexBufferSystem.h"
 #include "Serialization/BinaryReader.h"
@@ -16,7 +17,7 @@
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanContext.h"
 
-Coroutine<void, void, false> Model::Load(const std::filesystem::path& inPath)
+Coroutine<void, void, false> Model::Load(const std::filesystem::path inPath)
 {
 	List<SerializationMeshData> meshDatas;
 	{
@@ -35,12 +36,10 @@ Coroutine<void, void, false> Model::Load(const std::filesystem::path& inPath)
 		}
 	}
 	InitializeStagingBuffers(meshDatas);
-	uint requiredSizeIncrease = GetRequiredVertexBufferSize(meshDatas);
+	
 	co_await Awaitables::SwitchToThread(ThreadType::Main);
 	{
 		ZoneScoped;
-		VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
-		vertexBufferSystem.GrowBuffer(vertexBufferSystem.GetUsedBufferSize() + requiredSizeIncrease);
 		InitializeFromMeshData(meshDatas);
 	}
 
@@ -153,12 +152,7 @@ List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::p
 		SerializationMeshData& meshData = meshDatas.Emplace();
 
 		const aiMesh* aiMesh = scene->mMeshes[meshIndex];
-
-		// This has not been fully implemented. Its just here to show how to get material textures for now :) 
-		aiMaterial* aiMat = scene->mMaterials[aiMesh->mMaterialIndex];
-		aiString aiAlbedoPath;
-		aiMat->GetTexture(aiTextureType_BASE_COLOR, 0, &aiAlbedoPath);
-
+		
 		uint numVertices = aiMesh->mNumVertices;
 		uint numIndices = aiMesh->mNumFaces * 3;
 
@@ -166,22 +160,23 @@ List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::p
 		{
 			Vertex vertex{};
 
-			vertex.myPosition = { aiMesh->mVertices[vertexIndex].x, aiMesh->mVertices[vertexIndex].y, aiMesh->mVertices[vertexIndex].z, 1.0f };
-			vertex.myColor = { 1, 1, 1, 1 };
+			vertex.myPosition = { aiMesh->mVertices[vertexIndex].x, aiMesh->mVertices[vertexIndex].y, aiMesh->mVertices[vertexIndex].z };
 
 			if (aiMesh->GetNumColorChannels() > 0)
-				vertex.myColor = { aiMesh->mColors[0][vertexIndex].r, aiMesh->mColors[0][vertexIndex].g, aiMesh->mColors[0][vertexIndex].b, aiMesh->mColors[0][vertexIndex].a };
-			aiMesh->mNumBones;
+			{
+				vertex.PackColor({aiMesh->mColors[0][vertexIndex].r, aiMesh->mColors[0][vertexIndex].g, aiMesh->mColors[0][vertexIndex].b, aiMesh->mColors[0][vertexIndex].a});
+			}
+			
 			if (aiMesh->mNormals)
-				vertex.myNormal = { aiMesh->mNormals[vertexIndex].x, aiMesh->mNormals[vertexIndex].y, aiMesh->mNormals[vertexIndex].z, 0.0f };
+				vertex.myNormal = { aiMesh->mNormals[vertexIndex].x, aiMesh->mNormals[vertexIndex].y, aiMesh->mNormals[vertexIndex].z };
 
 			if (aiMesh->mTangents)
-				vertex.myTangents = { aiMesh->mTangents[vertexIndex].x,aiMesh->mTangents[vertexIndex].y, aiMesh->mTangents[vertexIndex].z, 0.0f };
+				vertex.myTangents = { aiMesh->mTangents[vertexIndex].x,aiMesh->mTangents[vertexIndex].y, aiMesh->mTangents[vertexIndex].z };
 
 			if (aiMesh->mBitangents)
-				vertex.myBinormals = { aiMesh->mBitangents[vertexIndex].x, aiMesh->mBitangents[vertexIndex].y, aiMesh->mBitangents[vertexIndex].z, 0.0f };
+				vertex.myBinormals = { aiMesh->mBitangents[vertexIndex].x, aiMesh->mBitangents[vertexIndex].y, aiMesh->mBitangents[vertexIndex].z };
 
-			for (uint texCoordIndex = 0; texCoordIndex < 4; ++texCoordIndex)
+			for (uint texCoordIndex = 0; texCoordIndex < 2; ++texCoordIndex)
 			{
 				if (aiMesh->mTextureCoords[texCoordIndex])
 					vertex.myTexCoords[texCoordIndex] = { aiMesh->mTextureCoords[texCoordIndex][vertexIndex].x, aiMesh->mTextureCoords[texCoordIndex][vertexIndex].y };
@@ -199,6 +194,23 @@ List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::p
 				indicesIndex++;
 			}
 			faceIndex++;
+		}
+
+		// Get the material for the mesh
+		if (aiMesh->mMaterialIndex >= 0)
+		{
+			aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
+
+			aiString albedoPath;
+			material->GetTexture(aiTextureType_BASE_COLOR, 0, &albedoPath);
+			aiString normalPath;
+			material->GetTexture(aiTextureType_NORMALS, 0, &normalPath);
+			aiString materialPath;
+			material->GetTexture(aiTextureType_METALNESS, 0, &materialPath);
+
+			meshData.myAlbedoPath = albedoPath.C_Str();
+			meshData.myNormalPath = normalPath.C_Str();
+			meshData.myMaterialPath = materialPath.C_Str();
 		}
 		
 		meshData.mySphereCenterBounds = CalculateSphereBounds(meshData.myVertices);
@@ -236,22 +248,31 @@ void Model::InitializeFromMeshData(const List<SerializationMeshData>& inMeshData
 	//ZoneScoped;
 	for(const SerializationMeshData& meshData : inMeshDatas)
 	{
-		VertexBuffer* vertexBuffer = Engine::GetEngineSystem<VertexBufferSystem>().UploadVertexBuffer(meshData.myStagingBuffer, meshData.myVertices.size());
-		VulkanAllocator::DestroyBuffer_TS(meshData.myStagingBuffer);
-		IndexBuffer* indexBuffer = Engine::GetEngineSystem<IndexBufferSystem>().UploadIndexBuffer(meshData.myIndices);
-		glm::vec4 boudingSphere = meshData.mySphereCenterBounds;
+		VertexBuffer* vertexBuffer = Engine::GetEngineSystem<VertexBufferSystem>().UploadVertexBuffer(meshData.myStagingVertexBuffer, meshData.myVertices.size());
+		VulkanAllocator::DestroyBuffer_TS(meshData.myStagingVertexBuffer);
+		
+		IndexBuffer* indexBuffer = Engine::GetEngineSystem<IndexBufferSystem>().UploadIndexBuffer(meshData.myStagingIndexBuffer, meshData.myIndices.size());
+		VulkanAllocator::DestroyBuffer_TS(meshData.myStagingIndexBuffer);
+
+		const glm::vec4 boudingSphere = meshData.mySphereCenterBounds;
 
 		myMeshes.Add(Engine::GetEngineSystem<MeshSystem>().UploadMesh(vertexBuffer, indexBuffer, boudingSphere));
+		myMeshes.Last()->myAlbedoPath = meshData.myAlbedoPath;
+		myMeshes.Last()->myNormalPath = meshData.myNormalPath;
+		myMeshes.Last()->myMaterialPath = meshData.myMaterialPath;
 	}
 }
 void Model::InitializeStagingBuffers(List<SerializationMeshData>& inMeshDatas)
 {
 	for(SerializationMeshData& meshData : inMeshDatas)
 	{
-		const uint size = meshData.myVertices.size() * sizeof(Vertex);
-		VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer-Staging", VulkanBuffer::StagingCreateInfo(size), VMA_MEMORY_USAGE_AUTO, true);
-		stagingBuffer->SetData(meshData.myVertices.data(), size);
-		meshData.myStagingBuffer = stagingBuffer;
+		const uint vertexSize = meshData.myVertices.size() * sizeof(Vertex);
+		meshData.myStagingVertexBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer-Staging", VulkanBuffer::StagingCreateInfo(vertexSize), VMA_MEMORY_USAGE_AUTO, true);
+		meshData.myStagingVertexBuffer->SetData(meshData.myVertices.data(), vertexSize);
+
+		const uint indexSize = meshData.myIndices.size() * sizeof(uint);
+		meshData.myStagingIndexBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer-Staging", VulkanBuffer::StagingCreateInfo(indexSize), VMA_MEMORY_USAGE_AUTO, true);
+		meshData.myStagingIndexBuffer->SetData(meshData.myIndices.data(), indexSize);
 	}
 }
 

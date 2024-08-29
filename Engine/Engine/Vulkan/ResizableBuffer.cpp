@@ -17,6 +17,20 @@ VulkanBuffer* ResizableBuffer::GetBuffer() const
     return myBuffer;
 }
 
+void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const size_t inSize, uint inOffset)
+{
+    StagedUploadData& data = myStagedDataToUpload.Emplace();
+    data.myBuffer = inStagingBuffer;
+    data.mySize = inSize;
+    data.myOffset = inOffset;
+
+    if(!myHasRegisteredForTick)
+    {
+        Engine::TickNextFrame.Bind(&ResizableBuffer::DequeueUploads, this);
+        myHasRegisteredForTick = true;
+    }
+}
+
 void ResizableBuffer::SetData(const void* inData, const size_t inSize, uint inOffset)
 {
     UploadData& data = myDataToUpload.Emplace();
@@ -24,6 +38,7 @@ void ResizableBuffer::SetData(const void* inData, const size_t inSize, uint inOf
     memcpy(data.myCopiedData, inData, inSize);
     data.mySize = inSize;
     data.myOffset = inOffset;
+
     if(!myHasRegisteredForTick)
     {
         Engine::TickNextFrame.Bind(&ResizableBuffer::DequeueUploads, this);
@@ -42,6 +57,11 @@ void ResizableBuffer::DequeueUploads()
         requiredSize = std::max(requiredSize, uploadData.mySize + uploadData.myOffset);
     }
 
+    for(const StagedUploadData& uploadData : myStagedDataToUpload)
+    {
+        requiredSize = std::max(requiredSize, uploadData.mySize + uploadData.myOffset);
+    }
+
     if(myBuffer->GetSize() < requiredSize)
     {
         Resize(requiredSize);
@@ -52,7 +72,14 @@ void ResizableBuffer::DequeueUploads()
         myBuffer->SetData(uploadData.myCopiedData, uploadData.mySize, uploadData.myOffset);
         del(uploadData.myCopiedData);
     }
+
+    for(const StagedUploadData& uploadData : myStagedDataToUpload)
+    {
+        myBuffer->CopyDataFromBuffer(uploadData.myBuffer, uploadData.mySize, uploadData.myOffset);
+    }
+    
     myDataToUpload.Clear();
+    myStagedDataToUpload.Clear();
     myHasRegisteredForTick = false;
 }
 

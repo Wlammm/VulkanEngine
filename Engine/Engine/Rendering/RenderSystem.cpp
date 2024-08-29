@@ -5,13 +5,16 @@
 #include "Engine.h"
 #include "FullscreenPipeline.h"
 #include "GDRPipeline.h"
+#include "IndexBufferSystem.h"
 #include "MeshPipeline.h"
 #include "ShadowPipeline.h"
+#include "VertexBufferSystem.h"
 #include "AssetRegistry/AssetRegistry.h"
 #include "Assets/Shader.h"
 #include "Components/StaticMeshComponent.h"
 #include "ComponentSystem/ComponentSystem.h"
 #include "Core/Input.h"
+#include "Systems/PointLightSystem.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanImage.h"
@@ -151,6 +154,57 @@ void RenderSystem::AddGDRPass(vk::CommandBuffer inCommandBuffer)
 		GPUMARK_SCOPE(inCommandBuffer, "Indirect Culling");
 		myGDRPipeline->AddComputeCommands(inCommandBuffer);
 	}
+
+	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
+	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
+	PointLightSystem& pointLightSystem = Engine::GetEngineSystem<PointLightSystem>();
+	
+	// If you've done buffer copies for vertex/index buffers before this:
+	vk::BufferMemoryBarrier vertexBufferBarrier{};
+	vertexBufferBarrier
+		.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite) // Buffer copy writes
+		.setDstAccessMask(vk::AccessFlagBits::eVertexAttributeRead) // Vertex shader reads
+		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		.setBuffer(vertexBufferSystem.GetGlobalVertexBuffer()->GetBuffer()->GetAPIResource())
+		.setOffset(0)
+		.setSize(VK_WHOLE_SIZE);
+
+	vk::BufferMemoryBarrier indexBufferBarrier{};
+	indexBufferBarrier
+		.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite) // Buffer copy writes
+		.setDstAccessMask(vk::AccessFlagBits::eIndexRead) // Vertex shader reads index buffer
+		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		.setBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetBuffer()->GetAPIResource())
+		.setOffset(0)
+		.setSize(VK_WHOLE_SIZE);
+	
+	inCommandBuffer.pipelineBarrier(
+		vk::PipelineStageFlagBits::eTransfer, // Buffer copies stage
+		vk::PipelineStageFlagBits::eVertexInput, // Vertex input stage
+		{},                                      // Dependency flags
+		nullptr,                                 // Memory barriers
+		{ vertexBufferBarrier, indexBufferBarrier }, // Buffer barriers
+		nullptr                                  // Image barriers
+	);
+
+	vk::BufferMemoryBarrier pointLightBarrier{};
+	pointLightBarrier
+		.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite) // Buffer copy writes
+		.setDstAccessMask(vk::AccessFlagBits::eShaderRead) // Vertex shader reads index buffer
+		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		.setBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetBuffer()->GetAPIResource())
+		.setOffset(0)
+		.setSize(VK_WHOLE_SIZE);
+
+	inCommandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
+		vk::PipelineStageFlagBits::eFragmentShader,
+		{},
+		nullptr,
+		pointLightBarrier,
+		nullptr);
 
 	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
 			.setRenderPass(myRenderTextureRenderPass)
@@ -407,7 +461,7 @@ void RenderSystem::CreateRenderPass()
 				.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
 				.setSrcAccessMask(vk::AccessFlagBits())
 				.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead)
-				.setDependencyFlags(vk::DependencyFlags())
+				.setDependencyFlags(vk::DependencyFlags()),
 		};
 
 		myRenderPass = VulkanContext::GetDevice()->createRenderPass(vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass).setDependencies(dependencies));
@@ -461,7 +515,7 @@ void RenderSystem::CreateRenderPass()
 				.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
 				.setSrcAccessMask(vk::AccessFlagBits())
 				.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead)
-				.setDependencyFlags(vk::DependencyFlags())
+				.setDependencyFlags(vk::DependencyFlags()),
 		};
 
 		myRenderTextureRenderPass = VulkanContext::GetDevice()->createRenderPass(vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass).setDependencies(dependencies));

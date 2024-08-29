@@ -34,12 +34,12 @@ Mesh* MeshSystem::UploadMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexB
     meshData.myIndexOffset = inIndexBuffer->GetOffset();
     check(meshData.myIndexOffset != (uint)-1);
     meshData.myVertexOffset = inVertexBuffer->GetOffset();
-    meshData.myAlbedoIndex = 0;
-    meshData.myNormalIndex = 0;
-    meshData.myMaterialIndex = 0;
+    check(meshData.myVertexOffset != (uint)-1);
     
     myBuffer->SetData(&meshData, sizeof(MeshData), sizeof(MeshData) * myNumObjects);
     mesh->myHandle = myNumObjects;
+    mesh->myIndexBuffer = inIndexBuffer;
+    mesh->myVertexBuffer = inVertexBuffer;
     myNumObjects++;
     myMeshes.Add(mesh);
     return mesh;

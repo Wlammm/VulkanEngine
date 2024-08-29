@@ -144,6 +144,7 @@ void VulkanContext::BeginFrame()
 
 void VulkanContext::EndFrame()
 {
+	ZoneScoped;
 	myInstance->mySwapChain->EndFrame();
 }
 

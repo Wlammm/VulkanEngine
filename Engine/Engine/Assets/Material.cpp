@@ -29,7 +29,7 @@ Material::Material()
 Material::Material(const std::filesystem::path& inAlbedo, const std::filesystem::path& inNormal, const std::filesystem::path& inMaterial)
 {
 	ZoneScoped;
-
+/*
 	Engine::GetAssetRegistry().GetAssetAsync<Texture>(inAlbedo, [&](Texture* inTexture)
 	{
 		myAlbedoTexture = inTexture;
@@ -43,7 +43,11 @@ Material::Material(const std::filesystem::path& inAlbedo, const std::filesystem:
 	Engine::GetAssetRegistry().GetAssetAsync<Texture>(inMaterial, [&](Texture* inTexture)
 	{
 		myMaterialTexture = inTexture;
-	});
+	});*/
+
+	myAlbedoTexture = Engine::GetAssetRegistry().GetAssetSynchronous<Texture>(inAlbedo);
+	myNormalTexture = Engine::GetAssetRegistry().GetAssetSynchronous<Texture>(inNormal);
+	myMaterialTexture = Engine::GetAssetRegistry().GetAssetSynchronous<Texture>(inMaterial);
 }
 
 Material::~Material()

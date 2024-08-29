@@ -1,6 +1,7 @@
 ﻿#pragma once
-#include "Subsystem/System.h"
+#include "System/System.h"
 
+class Material;
 class Mesh;
 class ResizableBuffer;
 
@@ -10,7 +11,7 @@ public:
     ObjectSystem();
     ~ObjectSystem();
 
-    void AddObject(const glm::mat4& inTransform, const Mesh* inMesh);
+    void AddObject(const glm::mat4& inTransform, const Mesh* inMesh, Material* inMaterial);
 
     const ResizableBuffer* GetBuffer() const;
     uint GetNumObjects() const;

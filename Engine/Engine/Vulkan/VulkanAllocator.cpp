@@ -131,6 +131,8 @@ VmaAllocator VulkanAllocator::GetVMAAllocator()
 
 void VulkanAllocator::DestroyBufferInternal(VulkanBuffer* inBuffer)
 {
+	ZoneScoped;
+	ZoneText(std::to_string(inBuffer->GetSize()).c_str(), 14);
 #if DEBUG
 	myInstance->myAllocatedNames.Remove(inBuffer->myName);
 #endif
@@ -140,6 +142,7 @@ void VulkanAllocator::DestroyBufferInternal(VulkanBuffer* inBuffer)
 
 void VulkanAllocator::DestroyImageInternal(VulkanImage* inImage)
 {
+	ZoneScoped;
 #if DEBUG
 	myInstance->myAllocatedNames.Remove(inImage->myName);
 #endif

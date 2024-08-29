@@ -1,9 +1,16 @@
 ﻿#include "EnginePch.h"
 #include "PointLightComponent.h"
 
+#include "Engine.h"
+#include "Systems/PointLightSystem.h"
+
 PointLightComponent::PointLightComponent()
 {
     
+}
+void PointLightComponent::Start()
+{
+    Engine::GetEngineSystem<PointLightSystem>().AddLight(&GetTransform(), this);
 }
 
 const glm::vec3& PointLightComponent::GetColor() const

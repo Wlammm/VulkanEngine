@@ -21,7 +21,7 @@ shaderc_shader_kind GetKindFromExtension(const std::string& inExtension)
     return shaderc_vertex_shader;
 }
 
-Coroutine<void, void, false> Shader::Load(const std::filesystem::path& inPath)
+Coroutine<void, void, false> Shader::Load(const std::filesystem::path inPath)
 {
     ZoneScoped;
     std::filesystem::path path = "../Engine/Engine/Shaders/";

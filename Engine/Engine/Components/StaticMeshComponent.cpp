@@ -3,7 +3,10 @@
 
 #include "Engine.h"
 #include "TransformComponent.h"
+#include "AssetRegistry/AssetRegistry.h"
+#include "Assets/Material.h"
 #include "Assets/Model.h"
+#include "Rendering/Mesh.h"
 #include "Vulkan/ObjectSystem.h"
 
 void StaticMeshComponent::Start()
@@ -57,13 +60,25 @@ Material* StaticMeshComponent::GetMaterialForMesh(Mesh* inMesh) const
     return GetMaterial(index);
 }
 
-void StaticMeshComponent::RegisterMeshesToObjectSystem() const
+void StaticMeshComponent::RegisterMeshesToObjectSystem()
 {
     if(!myModel)
         return;
-    
-    for(const Mesh* mesh : myModel->GetMeshes())
+
+    myMaterials.Resize(myModel->GetMeshes().size());
+    for(int i = 0; i < myModel->GetMeshes().size(); ++i)
     {
-        Engine::GetEngineSystem<ObjectSystem>().AddObject(GetTransform().GetMatrix(), mesh);
+        const Mesh* mesh = myModel->GetMeshes()[i];
+
+        std::filesystem::path albedoPath = AssetRegistry::GetPathFromAssetName(mesh->GetAlbedoPath());
+        std::filesystem::path normalPath = AssetRegistry::GetPathFromAssetName(mesh->GetNormalPath());
+        std::filesystem::path materialPath = AssetRegistry::GetPathFromAssetName(mesh->GetMaterialPath());
+        
+        if(std::filesystem::exists(albedoPath) && std::filesystem::exists(normalPath) && std::filesystem::exists(materialPath))
+        {
+            myMaterials[i] = new Material(albedoPath, normalPath, materialPath);
+        }
+        
+        Engine::GetEngineSystem<ObjectSystem>().AddObject(GetTransform().GetMatrix(), mesh, myMaterials[i]);
     }
 }

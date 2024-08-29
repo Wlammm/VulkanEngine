@@ -5,6 +5,7 @@
 #include <stb/stb_image.h>
 
 #include "Rendering/RenderSystem.h"
+#include "Rendering/TextureSystem.h"
 #include "Serialization/BinaryReader.h"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
@@ -12,7 +13,7 @@
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanImage.h"
 
-Coroutine<void, void, false> Texture::Load(const std::filesystem::path& inPath)
+Coroutine<void, void, false> Texture::Load(const std::filesystem::path inPath)
 {
     ImageData imageData{};
 
@@ -25,7 +26,7 @@ Coroutine<void, void, false> Texture::Load(const std::filesystem::path& inPath)
 
     if(loadFromSourceFile)
     {
-        LoadImageDataFromImageFile(inPath);
+        imageData = LoadImageDataFromImageFile(inPath);
     }
 
     InitializeFromImageData(imageData);
@@ -72,6 +73,7 @@ ImageData Texture::LoadImageDataFromImageFile(const std::filesystem::path& inPat
 
     stbi_uc* pixels = stbi_load(inPath.string().c_str(), &imageData.myWidth, &imageData.myHeight, &imageData.myChannels, STBI_rgb_alpha);
     check(pixels);
+	check(imageData.myWidth != 0 && imageData.myHeight != 0);
     imageData.myPixelData.Resize(imageData.myWidth * imageData.myHeight * 4);
     memcpy(imageData.myPixelData.data(), pixels, imageData.myPixelData.size());
     stbi_image_free(pixels);
@@ -146,7 +148,8 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
 														   .setPObjectName(inImageData.mySourceFile.string().c_str())
 														   .setObjectType(vk::ObjectType::eImage));
 #endif
-
+	myImage->CreateView(vk::ImageViewType::e2D);
+	
 	RenderSystem::AddUploadCommand_TS(this, [this, inImageData, stagingBuffer](vk::CommandBuffer inCommandBuffer)
 	{
 		vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
@@ -191,10 +194,9 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
 									  .setImage(myImage->GetAPIResource())
 									  .setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));
 		
-		VulkanContext::GetDevice().FlushCommandBuffer(inCommandBuffer);
 		VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 		
-		myImage->CreateView(vk::ImageViewType::e2D);
+		
 #if DEBUG
 		VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
 															   .setObjectHandle(VulkanContext::GetVulkanHandle(myImage->GetImageView()))
@@ -202,6 +204,5 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
 															   .setObjectType(vk::ObjectType::eImageView));
 #endif
 	});
-
-	
+	TextureSystem::RegisterTexture_TS(this);
 }

@@ -27,10 +27,11 @@ struct PointLight
     float myRange;
 };
 
-layout(std430, set = 0, binding = 1) readonly buffer PointLightBuffer
+layout(set = 0, binding = 1) readonly buffer PointLightBuffer
 {
-    int myNumLights;
-    PointLight myLights[10];
+    uint myNumLights;
+    vec3 padding;
+    PointLightData myLights[];
 } inPointLightBuffer;
 
 layout(set = 0, binding = 2) uniform DirectionalLightBuffer 
@@ -54,7 +55,12 @@ layout( push_constant ) uniform constants
 
 void main()
 {
-    vec4 albedoColor = texture(textures[inPushConstants.myAlbedoIndex], inTexCoord);
+    vec4 albedoColor = vec4(1, 1, 1, 1);
+    if(inPushConstants.myAlbedoIndex != -1)
+    {
+        albedoColor = texture(textures[inPushConstants.myAlbedoIndex], inTexCoord);
+    }
+    
     vec3 normal = normalize(inNormal);
 
     vec4 pointLightColors = vec4(0, 0, 0, 0);

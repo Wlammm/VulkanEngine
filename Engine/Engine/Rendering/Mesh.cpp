@@ -20,3 +20,18 @@ uint Mesh::GetHandle() const
 {
     return myHandle;
 }
+
+const std::string& Mesh::GetAlbedoPath() const
+{
+    return myAlbedoPath;
+}
+
+const std::string& Mesh::GetNormalPath() const
+{
+    return myNormalPath;
+}
+
+const std::string& Mesh::GetMaterialPath() const
+{
+    return myMaterialPath;
+}

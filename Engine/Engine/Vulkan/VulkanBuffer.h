@@ -43,6 +43,14 @@ public:
 			.setSharingMode(vk::SharingMode::eExclusive);
 	}
 
+	static vk::BufferCreateInfo ResizableStorageBufferCreateInfo(size_t inSize)
+	{
+		return vk::BufferCreateInfo()
+			.setSize(inSize)
+			.setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc)
+			.setSharingMode(vk::SharingMode::eExclusive);
+	}
+	
 public:
 	vk::Buffer GetAPIResource() const;
 

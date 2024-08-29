@@ -5,12 +5,15 @@
 #include "IndexBuffer.h"
 #include "RenderSystem.h"
 #include "Utils/MathUtils.hpp"
+#include "Vulkan/ResizableBuffer.h"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
 
 IndexBufferSystem::IndexBufferSystem()
 {
-    GrowBuffer(sizeof(uint) * 4);    
+    myBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("Global IndexBuffer", vk::BufferCreateInfo()
+        .setSize(MathUtils::UpperPowerOfTwo(sizeof(uint) * 4))
+        .setUsage(vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc), VMA_MEMORY_USAGE_AUTO, false));
 }
 
 IndexBufferSystem::~IndexBufferSystem()
@@ -32,8 +35,6 @@ IndexBuffer* IndexBufferSystem::UploadIndexBuffer(const List<uint>& inIndices)
     ZoneScoped;
     IndexBuffer* buffer = new IndexBuffer();
     const uint sizeIncrease = inIndices.size() * sizeof(uint);
-    const uint requiredSize = myUsedBufferSize + sizeIncrease;
-    GrowBuffer(requiredSize);
 
     myBuffer->SetData(inIndices.data(), sizeIncrease, myUsedBufferSize);
     
@@ -46,43 +47,29 @@ IndexBuffer* IndexBufferSystem::UploadIndexBuffer(const List<uint>& inIndices)
     return buffer;
 }
 
+IndexBuffer* IndexBufferSystem::UploadIndexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount)
+{
+    ZoneScoped;
+    IndexBuffer* buffer = new IndexBuffer();
+    const uint sizeIncrease = inVertexCount * sizeof(uint);
+
+    myBuffer->CopyDataFromBuffer(inStagingBuffer, sizeIncrease, myUsedBufferSize);
+    
+    buffer->myOffset = myCurrentIndexOffset;
+    buffer->myIndexCount = inVertexCount;
+    myIndexBuffers.Add(buffer);
+    
+    myUsedBufferSize += sizeIncrease;
+    myCurrentIndexOffset += static_cast<uint>(inVertexCount);
+    return buffer;
+}
+
 void IndexBufferSystem::RemoveIndexBuffer(const IndexBuffer* inBuffer)
 {
     LOG_WARNING("IndexBufferSubsystem::RemoveIndexBuffer not implemented.");
 }
 
-const VulkanBuffer* IndexBufferSystem::GetGlobalIndexBuffer() const
+const ResizableBuffer* IndexBufferSystem::GetGlobalIndexBuffer() const
 {
     return myBuffer;
-}
-
-void IndexBufferSystem::GrowBuffer(const uint inRequiredSize)
-{
-    ZoneScoped;
-    if(!myBuffer)
-    {
-        vk::BufferCreateInfo createInfo = vk::BufferCreateInfo()
-            .setSize(MathUtils::UpperPowerOfTwo(inRequiredSize))
-            .setUsage(vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc);
-        
-        myBuffer = VulkanAllocator::AllocateBuffer_TS("GlobalIndexBuffer", createInfo, VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE);
-        return;
-    }
-    
-    if(inRequiredSize <= myBuffer->GetSize())
-        return;
-
-    const vk::BufferCreateInfo createInfo = vk::BufferCreateInfo()
-            .setSize(MathUtils::UpperPowerOfTwo(inRequiredSize))
-            .setUsage(vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc);
-    VulkanBuffer* newBuffer = VulkanAllocator::AllocateBuffer_TS("GlobalIndexBuffer", createInfo, VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE);
-
-    VulkanBuffer* oldBuffer = myBuffer;
-    Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [oldBuffer, newBuffer](vk::CommandBuffer inCommandBuffer)
-    {
-        const vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize()).setSrcOffset(0).setDstOffset(0);
-        inCommandBuffer.copyBuffer(oldBuffer->GetAPIResource(), newBuffer->GetAPIResource(), {copy});
-    });
-    VulkanAllocator::DestroyBuffer_TS(oldBuffer);
-    myBuffer = newBuffer;
 }

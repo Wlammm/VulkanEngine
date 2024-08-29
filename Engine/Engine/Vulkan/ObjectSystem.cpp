@@ -4,6 +4,8 @@
 #include "Engine.h"
 #include "ResizableBuffer.h"
 #include "VulkanAllocator.h"
+#include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "Components/StaticMeshComponent.h"
 #include "ComponentSystem/ComponentSystem.h"
 #include "Rendering/Mesh.h"
@@ -36,9 +38,22 @@ uint ObjectSystem::GetNumObjects() const
     return myNumObjects;
 }
 
-void ObjectSystem::AddObject(const glm::mat4& inTransform, const Mesh* inMesh)
+void ObjectSystem::AddObject(const glm::mat4& inTransform, const Mesh* inMesh, Material* inMaterial)
 {
     ObjectData data{inTransform, inMesh->GetHandle() };
+
+    if(inMaterial)
+    {
+        data.myAlbedoIndex = inMaterial->GetAlbedo()->GetBindlessIndex();
+        data.myNormalIndex = inMaterial->GetNormal()->GetBindlessIndex();
+        data.myMaterialIndex = inMaterial->GetMaterial()->GetBindlessIndex();
+    }
+    else
+    {
+        data.myAlbedoIndex = -1;
+        data.myNormalIndex = -1;
+        data.myMaterialIndex = -1;
+    }
     
     // Offset by the first num objects.
     myBuffer->SetData(&data, sizeof(ObjectData), 32 + sizeof(ObjectData) * myNumObjects);

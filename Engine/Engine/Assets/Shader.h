@@ -7,7 +7,7 @@ class VulkanShader;
 class Shader : public Asset
 {
 public:
-    Coroutine<void, void, false> Load(const std::filesystem::path& inPath) override;
+    Coroutine<void, void, false> Load(const std::filesystem::path inPath) override;
     void Unload() override;
 
     void Compile();

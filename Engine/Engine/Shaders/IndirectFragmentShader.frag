@@ -20,17 +20,11 @@ layout(set = 0, binding = 0) uniform FrameBuffer
 	vec3 myCameraPosition;
 };
 
-struct PointLight
+layout(set = 0, binding = 1) readonly buffer PointLightBuffer
 {
-    vec4 myColor;
-    vec3 myPosition;
-    float myRange;
-};
-
-layout(std430, set = 0, binding = 1) readonly buffer PointLightBuffer
-{
-    int myNumLights;
-    PointLight myLights[10];
+    uint myNumLights;
+    vec3 padding;
+    PointLightData myLights[];
 } inPointLightBuffer;
 
 layout(set = 0, binding = 2) uniform DirectionalLightBuffer 
@@ -52,11 +46,15 @@ layout(std430, set = 0, binding = 4) readonly buffer PerDrawDataBuffer
 void main()
 {
     PerDrawData drawData = inPerDrawData.perDrawData[inDrawID];
-    
-    vec4 albedoColor = texture(textures[drawData.myAlbedoIndex], inTexCoord);
-    vec3 normal = normalize(inNormal);
-    albedoColor = vec4(1, 1, 1, 1);
 
+    vec4 albedoColor = vec4(0.8, 0.2, 1, 1);
+    if(drawData.myAlbedoIndex != -1)
+    {
+        albedoColor = texture(textures[drawData.myAlbedoIndex], inTexCoord);
+    }
+    
+    vec3 normal = normalize(inNormal);
+    
     vec4 pointLightColors = vec4(0, 0, 0, 0);
     for(int i = 0; i < inPointLightBuffer.myNumLights; ++i)
     {

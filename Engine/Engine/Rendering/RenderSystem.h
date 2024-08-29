@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Events/EventObserver.h"
-#include "Subsystem/System.h"
+#include "System/System.h"
 
 #if DEBUG
 #define GPUMARK_SCOPE(inCommandBuffer, inString) inCommandBuffer.beginDebugUtilsLabelEXT(inString); ON_SCOPE_EXIT([inCommandBuffer](){ inCommandBuffer.endDebugUtilsLabelEXT(); })

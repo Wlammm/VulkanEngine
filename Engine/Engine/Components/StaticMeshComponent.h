@@ -21,7 +21,7 @@ public:
     Material* GetMaterialForMesh(Mesh* inMesh) const;
     
 private:
-    void RegisterMeshesToObjectSystem() const;
+    void RegisterMeshesToObjectSystem();
     
 private:
     List<Material*> myMaterials{};

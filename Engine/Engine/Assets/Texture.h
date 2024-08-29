@@ -18,7 +18,7 @@ constexpr int FileVersion = 1;
 class Texture : public Asset
 {
 public:
-    Coroutine<void, void, false> Load(const std::filesystem::path& inPath) override;
+    Coroutine<void, void, false> Load(const std::filesystem::path inPath) override;
     void Unload() override;
 
     VulkanImage* GetImage() const;

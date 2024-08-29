@@ -11,6 +11,7 @@
 #include "Components/PointLightComponent.h"
 #include "Components/SinWaveMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/TransformComponent.h"
 
 World::World()
 {
@@ -33,10 +34,11 @@ void World::Init()
 
 	GameObject* sponza = myComponentSystem->CreateGameObject();
 	StaticMeshComponent* staticMesh = sponza->AddComponent<StaticMeshComponent>();
-	myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/NewSponza_Main_Yup_002.fbx", [staticMesh](Model* inModel)
+	myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/Sponza.gltf", [staticMesh](Model* inModel)
 	{
 		staticMesh->SetModel(inModel);
 	});
+	sponza->GetTransform()->SetScale(100.0f);
 	
 	GameObject* dirLightObject = myComponentSystem->CreateGameObject();
 	DirectionalLightComponent* light = dirLightObject->AddComponent<DirectionalLightComponent>();
@@ -45,13 +47,14 @@ void World::Init()
 	GameObject* pointLightObject = myComponentSystem->CreateGameObject();
 	PointLightComponent* pointLight = pointLightObject->AddComponent<PointLightComponent>();
 
-	GameObject* cubeObject = myComponentSystem->CreateGameObject();
-	myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [cubeObject](Model* inModel)
-	{
-		cubeObject->AddComponent<StaticMeshComponent>()->SetModel(inModel);
-	});
+	//GameObject* cubeObject = myComponentSystem->CreateGameObject();
+	//myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [cubeObject](Model* inModel)
+	//{
+	//	cubeObject->AddComponent<StaticMeshComponent>()->SetModel(inModel);
+	//});
 
 	GameObject* cactus = myComponentSystem->CreateGameObject();
+	cactus->GetTransform()->SetPosition(500, 0, 0);
 	myAssetRegistry->GetAssetAsync<Model>("Assets/Cactus.fbx", [cactus](Model* inModel)
 	{
 		cactus->AddComponent<StaticMeshComponent>()->SetModel(inModel);

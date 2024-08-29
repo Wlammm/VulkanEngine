@@ -22,7 +22,8 @@
 #include "Rendering/RenderSystem.h"
 #include "Rendering/TextureSystem.h"
 #include "Rendering/VertexBufferSystem.h"
-#include "Subsystem/SystemManager.h"
+#include "System/SystemManager.h"
+#include "Systems/PointLightSystem.h"
 #include "Vulkan/ObjectSystem.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
@@ -40,6 +41,8 @@ Engine::Engine(const EngineProperties inEngineProperties)
 		}
 		__debugbreak();
 	}
+
+	AssetRegistry::ScanAssetsFolder();
 	
 	myPostMaster = new EventHandler();
 	myThreadPool = new ThreadPool();
@@ -176,6 +179,7 @@ void Engine::CreateSystems()
 	mySystemManager->AddSystem<ObjectSystem>();
 	mySystemManager->AddSystem<IndexBufferSystem>();
 	mySystemManager->AddSystem<VertexBufferSystem>();
+	mySystemManager->AddSystem<PointLightSystem>();
 
 	mySystemManager->InitAllSystems();
 }

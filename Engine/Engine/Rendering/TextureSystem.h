@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Subsystem/System.h"
+#include "System/System.h"
 
 class Texture;
 class VulkanImage;
@@ -28,14 +28,12 @@ private:
     void CreateDescriptorSet();
     
 private:
-    inline static MutexList<Texture*> myTexturesToRegister{};
-
-    List<Texture*> myTextures;
+    inline static MutexList<Texture*> myTextures;
     
     vk::DescriptorPool myDescriptorPool;
     
-    vk::DescriptorSetLayout myDescriptorLayout;
-    vk::DescriptorSet myDescriptorSet;
+    inline static vk::DescriptorSetLayout myDescriptorLayout;
+    inline static vk::DescriptorSet myDescriptorSet;
 
-    uint myNextArrayIndex = 0;
+    inline static std::atomic_uint myNextArrayIndex = 0;
 };

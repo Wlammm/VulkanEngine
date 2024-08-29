@@ -31,7 +31,7 @@ private:
 
     void ExecuteComputePass(vk::CommandBuffer inCommandBuffer, const ComputePassResources& inComputePassResources);
 
-    void EnsureCorrectBufferSizes();
+    void EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer);
     
     void CreateBuffers();
 
@@ -39,8 +39,10 @@ private:
     void CreateCullPassResources();
     void CreateDrawPassResources();
 
+    void OnShaderRecompiled();
+    void CreateGraphicsPipeline();
+
     void BuildFrameBuffer() const;
-    void BuildPointLightBuffer();
     void BuildDirectionalLightBuffer() const;
     
 private:
@@ -81,17 +83,4 @@ private:
         glm::mat4 myLightProjection;
     };
     VulkanBuffer* myDirectionalLightBuffer;
-
-    // FrameDescriptorSet.
-    struct alignas(16) PointLightData
-    {
-        int myNumLights;
-        struct alignas(16)
-        {
-            glm::vec4 myColor = { 0, 0, 0, 0 };
-            glm::vec3 myPosition = { 0, 0, 0 };
-            float myRange = 0;
-        } myLights[10];
-    } myPointLightData;
-    VulkanBuffer* myPointLightBuffer;
 };
