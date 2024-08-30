@@ -1,6 +1,27 @@
 #extension GL_EXT_nonuniform_qualifier : enable
 
-#define epsilon 0.00001
+const float Epsilon = 0.00001;
+const float PI = 3.14159265359;
+
+vec4 LinearToGamma(vec4 inLinear)
+{
+    return pow(inLinear, vec4(1.0/2.2));
+}
+
+vec4 GammaToLinear(vec4 inGamma)
+{
+    return pow(inGamma, vec4(2.2));
+}
+
+vec3 LinearToGamma(vec3 inLinear)
+{
+    return pow(inLinear, vec3(1.0/2.2));
+}
+
+vec3 GammaToLinear(vec3 inGamma)
+{
+    return pow(inGamma, vec3(2.2));
+}
 
 float saturate(float inValue)
 {

@@ -39,6 +39,9 @@ GDRPipeline::GDRPipeline()
 
 GDRPipeline::~GDRPipeline()
 {
+	myVertexShader->OnShaderRecompiled.UnBind(&GDRPipeline::OnShaderRecompiled, this);
+	myFragmentShader->OnShaderRecompiled.UnBind(&GDRPipeline::OnShaderRecompiled, this);
+	
     myPrePass.Destroy();
     myCullPass.Destroy();
 

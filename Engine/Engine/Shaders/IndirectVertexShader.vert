@@ -12,6 +12,8 @@ layout(location = 0) out vec3 outNormal;
 layout(location = 1) out vec2 outTexCoord;
 layout(location = 2) out vec3 outFragPos;
 layout(location = 3) out int outDrawID;
+layout(location = 4) out vec3 outTangent;
+layout(location = 5) out vec3 outBinormals;
 
 layout(set = 0, binding = 0) uniform FrameBuffer 
 {
@@ -29,7 +31,13 @@ void main()
 {
 	PerDrawData drawData = inPerDrawData.perDrawData[gl_DrawID];
 	gl_Position = myProjection * myToView * drawData.myToWorld * vec4(inPosition, 1.0);
-	outNormal = normalize(mat3(transpose(inverse(drawData.myToWorld))) * inNormal.xyz);
+	
+	//outNormal = normalize(mat3(transpose(inverse(drawData.myToWorld))) * inNormal.xyz);
+	
+	mat3 toWorldRotation = transpose(inverse(mat3(drawData.myToWorld)));
+	outNormal = toWorldRotation * inNormal;
+	outTangent = toWorldRotation * inTangent;
+	outBinormals = toWorldRotation * inBinormals;
 	outFragPos = vec3(drawData.myToWorld * vec4(inPosition, 1.0));
 	outTexCoord = inTexCoords[0];
 	outDrawID = gl_DrawID;

@@ -1,15 +1,5 @@
 #include "Common.glsl"
 
-vec4 LinearToGamma(vec4 inLinear)
-{
-    return pow(inLinear, vec4(1.0/2.2));
-}
-
-vec4 GammaToLinear(vec4 inGamma)
-{
-    return pow(inGamma, vec4(2.2));
-}
-
 float GetLightFactorFromLightDir(vec3 inFragPos, vec3 inNormal, vec3 inCameraPos, vec4 inLightColor, vec3 inLightDir)
 {
     vec3 normal = normalize(inNormal);
