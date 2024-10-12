@@ -66,34 +66,28 @@ vec3 CalculateDirectionalLight(vec3 inLightDirection, vec3 inLightColor, vec3 in
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, inAlbedo, inMetallic);
 
-    // reflectance equation
-    vec3 Lo = vec3(0.0);
-    for(int i = 0; i < 4; ++i)
-    {
-        // calculate per-light radiance
-        vec3 L = normalize(inLightDirection);
-        vec3 H = normalize(V + L);
-        float distance    = length(inLightDirection);
-        float attenuation = 1.0 / (distance * distance);
-        vec3 radiance     = inLightColor * attenuation;
+    // calculate per-light radiance
+    vec3 L = normalize(inLightDirection);
+    vec3 H = normalize(V + L);
+    float distance    = length(inLightDirection);
+    float attenuation = 1.0 / (distance * distance);
+    vec3 radiance     = inLightColor * attenuation;
 
-        // cook-torrance brdf
-        float NDF = DistributionGGX(N, H, inRoughness);
-        float G   = GeometrySmith(N, V, L, inRoughness);
-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+    // cook-torrance brdf
+    float NDF = DistributionGGX(N, H, inRoughness);
+    float G   = GeometrySmith(N, V, L, inRoughness);
+    vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-        vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - inMetallic;
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - inMetallic;
 
-        vec3 numerator    = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-        vec3 specular     = numerator / denominator;
+    vec3 numerator    = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+    vec3 specular     = numerator / denominator;
 
-        // add to outgoing radiance Lo
-        float NdotL = max(dot(N, L), 0.0);
-        Lo += (kD * inAlbedo / PI + specular) * radiance * NdotL;
-    }
+    // add to outgoing radiance Lo
+    float NdotL = max(dot(N, L), 0.0);
 
-    return Lo;
+    return (kD * inAlbedo / PI + specular) * radiance * NdotL;
 }
