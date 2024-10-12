@@ -19,6 +19,9 @@ private:
 
 	vk::DescriptorSet GetCurrentDescriptorSet();
 	void UpdateCurrentTexture();
+	void UpdateViewportImageSize();
+
+	ImVec2 ClampToAspectRatio(const ImVec2& inSize, const ImVec2& inAspectRatio) const;
 
 private:
 	List<vk::DescriptorSet> myDescriptorSets;
