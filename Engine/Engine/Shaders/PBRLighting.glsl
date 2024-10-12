@@ -58,20 +58,25 @@ vec3 GetNormalFromMap(vec3 inNormalFromNormalTexture, vec3 inVertexNormal, vec3 
 }
 
 // inLightDirection = lightPositions[i] - inFragWorldPos; (Non normalized!!)
-vec3 CalculateDirectionalLight(vec3 inLightDirection, vec3 inLightColor, vec3 inNormal, vec3 inCamPos, vec3 inFragWorldPos, vec3 inAlbedo, float inMetallic, float inRoughness)
+vec3 CalculateDirectionalLight(vec3 inLightDirection, vec3 inLightColor, float inLightRange, vec3 inNormal, vec3 inCamPos, vec3 inFragWorldPos, vec3 inAlbedo, float inMetallic, float inRoughness)
 {
     vec3 N = normalize(inNormal);
     vec3 V = normalize(inCamPos - inFragWorldPos);
 
-    vec3 F0 = vec3(0.04);
+    vec3 F0 = vec3(0.0);
     F0 = mix(F0, inAlbedo, inMetallic);
 
     // calculate per-light radiance
     vec3 L = normalize(inLightDirection);
     vec3 H = normalize(V + L);
     float distance    = length(inLightDirection);
-    float attenuation = 1.0 / (distance * distance);
-    vec3 radiance     = inLightColor * attenuation;
+    float physicalAttenuation = 1.0 / (distance * distance);
+
+    float linearAttenuation = distance / inLightRange;
+    linearAttenuation = 1.0f - linearAttenuation;
+    linearAttenuation = saturate(linearAttenuation);
+
+    vec3 radiance     = inLightColor * linearAttenuation * physicalAttenuation;
 
     // cook-torrance brdf
     float NDF = DistributionGGX(N, H, inRoughness);

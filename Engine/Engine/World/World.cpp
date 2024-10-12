@@ -44,8 +44,21 @@ void World::Init()
 	DirectionalLightComponent* light = dirLightObject->AddComponent<DirectionalLightComponent>();
 	light->SetColor({1, 1, 1, 1});
 
-	GameObject* pointLightObject = myComponentSystem->CreateGameObject();
-	PointLightComponent* pointLight = pointLightObject->AddComponent<PointLightComponent>();
+	glm::vec3 startPosition = glm::vec3(-800.0f, 50.0f, -35.0f);
+	for (int i = 0; i < 5; i++)
+	{
+		GameObject* pointLightObject = myComponentSystem->CreateGameObject();
+		PointLightComponent* pointLight = pointLightObject->AddComponent<PointLightComponent>();
+		
+		const auto& transform = pointLightObject->GetTransform();
+		transform->SetPosition(startPosition);
+		transform->Move(glm::right() * (i * 400.0f));
+
+		pointLight->SetIntensity(40000.0f);
+		pointLight->SetRange(600.0f);
+		pointLight->TEMP_SendToGPU();
+	}
+	
 
 	//GameObject* cubeObject = myComponentSystem->CreateGameObject();
 	//myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [cubeObject](Model* inModel)
@@ -53,6 +66,7 @@ void World::Init()
 	//	cubeObject->AddComponent<StaticMeshComponent>()->SetModel(inModel);
 	//});
 
+	/*
 	GameObject* cactus = myComponentSystem->CreateGameObject();
 	cactus->GetTransform()->SetPosition(500, 0, 0);
 	myAssetRegistry->GetAssetAsync<Model>("Assets/Cactus.fbx", [cactus](Model* inModel)
@@ -61,6 +75,7 @@ void World::Init()
 	});
 	
 	cactus->AddComponent<SinWaveMovementComponent>();
+	*/
 }
 
 void World::Update()

@@ -28,6 +28,7 @@ void PointLightSystem::AddLight(TransformComponent* inTransform, PointLightCompo
     PointLightData pointLightData{};
     pointLightData.myColor = glm::vec4(inLight->GetColor(), 1.0f);
     pointLightData.myRange = inLight->GetRange();
+    pointLightData.myIntensity = inLight->GetIntensity();
     pointLightData.myPosition = inTransform->GetPosition();
 
     constexpr int lengthByteOffset = 32;

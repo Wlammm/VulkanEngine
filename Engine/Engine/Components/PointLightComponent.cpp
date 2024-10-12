@@ -10,6 +10,10 @@ PointLightComponent::PointLightComponent()
 }
 void PointLightComponent::Start()
 {
+}
+
+void PointLightComponent::TEMP_SendToGPU()
+{
     Engine::GetEngineSystem<PointLightSystem>().AddLight(&GetTransform(), this);
 }
 

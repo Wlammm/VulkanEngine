@@ -17,6 +17,7 @@ public:
 	const vk::Format& GetFormat() const;
 
 	uint GetFrameIndex() const;
+	uint GetSyncIndex() const;
 
 	uint GetWidth() const;
 	uint GetHeight() const;

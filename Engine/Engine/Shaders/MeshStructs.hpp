@@ -49,4 +49,5 @@ struct PointLightData
     ALIGNAS(16) vec4 myColor;
     ALIGNAS(16) vec3 myPosition;
     ALIGNAS(4) float myRange;
+    ALIGNAS(4) float myIntensity;
 };
