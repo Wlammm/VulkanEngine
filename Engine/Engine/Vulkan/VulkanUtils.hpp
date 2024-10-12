@@ -74,6 +74,7 @@ public:
 		for(auto& [mode, sampler] : mySamplers)
 		{
 			VulkanContext::GetDevice()->destroySampler(sampler);
+			sampler = nullptr;
 		}
 	}
 

@@ -22,8 +22,6 @@ Viewport::~Viewport()
 	LOG_WARNING("Viewport::~Viewport waits device idle");
 	VulkanContext::GetDevice()->waitIdle();
 
-	VulkanContext::GetDevice()->destroySampler(mySampler);
-
 	for(uint i  = 0; i < 3; ++i)
 	{
 		if (myDescriptorSets[i])
