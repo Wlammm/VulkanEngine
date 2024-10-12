@@ -37,8 +37,7 @@ Viewport::~Viewport()
 void Viewport::Tick()
 {
 	UpdateCurrentTexture();
-	ImVec2 size = { static_cast<float>(Engine::GetRenderResolution().x), static_cast<float>(Engine::GetRenderResolution().y) };
-	ImGui::Image(GetCurrentDescriptorSet(), size);
+	UpdateViewportImageSize();
 }
 
 vk::DescriptorSet Viewport::GetCurrentDescriptorSet()
@@ -53,4 +52,42 @@ void Viewport::UpdateCurrentTexture()
 	
 	ImGui_ImplVulkan_RemoveTexture(myDescriptorSets[currentIndex]);
 	myDescriptorSets[currentIndex] = ImGui_ImplVulkan_AddTexture(mySampler, renderSystem.GetRenderTexture()->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+}
+
+void Viewport::UpdateViewportImageSize()
+{
+	ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+	ImVec2 viewportOffset = ImVec2(8, 18);
+
+	ImVec2 size = ClampToAspectRatio(viewportPanelSize, ImVec2(16, 9));
+
+	ImVec2 p0 = { (viewportPanelSize.x - size.x) * 0.5f, (viewportPanelSize.y - size.y) * 0.5f };
+
+	p0.x += viewportOffset.x;
+	p0.y += viewportOffset.y + 8.0f;
+
+	ImGui::SetCursorPos(p0);
+	ImGui::Image(GetCurrentDescriptorSet(), size);
+}
+
+ImVec2 Viewport::ClampToAspectRatio(const ImVec2& inSize, const ImVec2& inAspectRatio) const
+{
+	float x = inSize.x, y = inSize.y;
+
+	if (inSize.x < inSize.y * (inAspectRatio.x / inAspectRatio.y))
+	{
+		y = inSize.x * (inAspectRatio.y / inAspectRatio.x);
+		x = inSize.x;
+	}
+	else if (inSize.y < inSize.x * (inAspectRatio.y / inAspectRatio.x))
+	{
+		y = inSize.y;
+		x = inSize.y * (inAspectRatio.x / inAspectRatio.y);
+	}
+	else
+	{
+		y = inSize.y;
+		x = inSize.x;
+	}
+	return ImVec2(x, y);
 }
