@@ -17,6 +17,9 @@ public:
 
 	static VmaAllocator GetVMAAllocator();
 
+	// This should be VulkanContext::FrameLag + 1
+	inline static constexpr int DestructionFrameDelay = 4;
+
 private:
 	void DestroyBufferInternal(VulkanBuffer* inBuffer);
 	void DestroyImageInternal(VulkanImage* inImage);

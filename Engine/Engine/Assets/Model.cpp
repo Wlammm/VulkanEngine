@@ -179,7 +179,7 @@ List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::p
 			for (uint texCoordIndex = 0; texCoordIndex < 2; ++texCoordIndex)
 			{
 				if (aiMesh->mTextureCoords[texCoordIndex])
-					vertex.myTexCoords[texCoordIndex] = { aiMesh->mTextureCoords[texCoordIndex][vertexIndex].x, aiMesh->mTextureCoords[texCoordIndex][vertexIndex].y };
+					vertex.myTexCoords[texCoordIndex] = { aiMesh->mTextureCoords[texCoordIndex][vertexIndex].x, -aiMesh->mTextureCoords[texCoordIndex][vertexIndex].y };
 			}
 
 			meshData.myVertices.Add(vertex);

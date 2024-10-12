@@ -28,7 +28,7 @@ VulkanAllocator::VulkanAllocator(vk::Instance inInstance, const VulkanPhysicalDe
 VulkanAllocator::~VulkanAllocator()
 {
 	VulkanContext::GetDevice()->waitIdle();
-	for(int i = 0; i < VulkanContext::FrameLag; ++i)
+	for(int i = 0; i < VulkanAllocator::DestructionFrameDelay; ++i)
 	{
 		TickBufferDeletes();
 		TickImageDeletes();
@@ -85,12 +85,12 @@ VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, cons
 
 void VulkanAllocator::DestroyBuffer_TS(VulkanBuffer* inBuffer)
 {
-	myInstance->myBufferDeleteData.Add({ VulkanContext::FrameLag, inBuffer });
+	myInstance->myBufferDeleteData.Add({ VulkanAllocator::DestructionFrameDelay, inBuffer });
 }
 
 void VulkanAllocator::DestroyBuffer_TS(ResizableBuffer* inBuffer)
 {
-	myInstance->myResizableBufferDeleteData.Add({VulkanContext::FrameLag, inBuffer });
+	myInstance->myResizableBufferDeleteData.Add({VulkanAllocator::DestructionFrameDelay, inBuffer });
 }
 
 VulkanImage* VulkanAllocator::AllocateImage_TS(const std::string& inName, const vk::ImageCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
@@ -121,7 +121,7 @@ VulkanImage* VulkanAllocator::AllocateImage_TS(const std::string& inName, const 
 
 void VulkanAllocator::DestroyImage_TS(VulkanImage* inImage)
 {
-	myInstance->myImageDeleteData.Add({ VulkanContext::FrameLag, inImage });
+	myInstance->myImageDeleteData.Add({ VulkanAllocator::DestructionFrameDelay, inImage });
 }
 
 VmaAllocator VulkanAllocator::GetVMAAllocator()
