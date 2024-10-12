@@ -6,6 +6,9 @@
 #include "Engine/Vulkan/VulkanImage.h"
 #include "Engine/Engine.h"
 #include "Engine/Rendering/RenderSystem.h"
+#include "Engine/World/World.h"
+#include "Engine/ComponentSystem/ComponentSystem.h"
+#include "Engine/Components/EditorCameraMovementComponent.h"
 
 Viewport::Viewport()
 	: EditorWindow("Viewport", false)
@@ -36,6 +39,7 @@ void Viewport::Tick()
 {
 	UpdateCurrentTexture();
 	UpdateViewportImageSize();
+	UpdateCaptureMouse();
 }
 
 vk::DescriptorSet Viewport::GetCurrentDescriptorSet()
@@ -54,18 +58,62 @@ void Viewport::UpdateCurrentTexture()
 
 void Viewport::UpdateViewportImageSize()
 {
-	ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-	ImVec2 viewportOffset = ImVec2(8, 18);
+	constexpr ImVec2 viewportOffset = ImVec2(8, 18);
 
+	ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 	ImVec2 size = ClampToAspectRatio(viewportPanelSize, ImVec2(16, 9));
 
-	ImVec2 p0 = { (viewportPanelSize.x - size.x) * 0.5f, (viewportPanelSize.y - size.y) * 0.5f };
+	myP0 = { (viewportPanelSize.x - size.x) * 0.5f, (viewportPanelSize.y - size.y) * 0.5f };
 
-	p0.x += viewportOffset.x;
-	p0.y += viewportOffset.y + 8.0f;
+	myP0.x += viewportOffset.x;
+	myP0.y += viewportOffset.y + 8.0f;
+	
+	myP1 = { myP0.x + size.x, myP0.y + size.y };
 
-	ImGui::SetCursorPos(p0);
+	ImGui::SetCursorPos(myP0);
 	ImGui::Image(GetCurrentDescriptorSet(), size);
+}
+
+void Viewport::UpdateCaptureMouse()
+{
+	constexpr float somePadding = 5.0f;
+
+	bool isMovingMouse = ImGui::GetIO().MouseDown[ImGuiMouseButton_Right];
+	if (!isMovingMouse)
+		return;
+
+	if (myEditorCamera == nullptr)
+	{
+		World& world = Engine::GetWorld();
+		ComponentSystem& componentSystem = world.GetComponentSystem();
+
+		if (!(myEditorCamera = componentSystem.GetAnyComponentOfType<EditorCameraMovementComponent>()))
+			return;
+	}
+
+	ImVec2 mousePosition = ImGui::GetIO().MousePos;
+
+	if (mousePosition.x > myP1.x - 20.0f)
+	{
+		SetCursorPos(static_cast<int>(myP0.x + 20.0f + 8.0f * 2.0f), static_cast<int>(mousePosition.y));
+		myEditorCamera->ResetMouseDelta();
+	}
+	else if (mousePosition.x < myP0.x + 20.0f)
+	{
+		SetCursorPos(static_cast<int>(myP1.x - 20.0f), static_cast<int>(mousePosition.y));
+		myEditorCamera->ResetMouseDelta();
+	}
+
+	if (mousePosition.y > myP1.y - 20.0f)
+	{
+		SetCursorPos(static_cast<int>(mousePosition.x), static_cast<int>(myP0.y + 20.0f + 18.0f * 2));
+		myEditorCamera->ResetMouseDelta();
+	}
+	else if (mousePosition.y < myP0.y + 20.0f)
+	{
+		SetCursorPos(static_cast<int>(mousePosition.x), static_cast<int>(myP1.y - 20.0f));
+		myEditorCamera->ResetMouseDelta();
+	}
 }
 
 ImVec2 Viewport::ClampToAspectRatio(const ImVec2& inSize, const ImVec2& inAspectRatio) const
