@@ -62,6 +62,11 @@ vec3 GetNormalFromNormalTexture(vec3 inSampledNormal, vec3 inWorldPos, vec2 inTe
     return normalize(TBN * tangentNormal);
 }
 
+vec3 HDRToLDR(vec3 inColor)
+{
+    return inColor / (inColor + 1.0f);
+}
+
 void main()
 {
     PerDrawData drawData = inPerDrawData.perDrawData[inDrawID];
@@ -93,5 +98,5 @@ void main()
     
     vec3 dirLightColor = CalculateDirectionalLight(directionalLightDirection, directionalLightColor, normalColor, myCameraPosition, inFragPos, albedoColor, metalness, roughness);
     vec3 ambientLight = albedoColor * 0.04;
-    outColor = vec4(LinearToGamma((dirLightColor + ambientLight)), 1.0);
+    outColor = vec4(LinearToGamma(HDRToLDR((dirLightColor + ambientLight))), 1.0);
 }
