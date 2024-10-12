@@ -49,7 +49,8 @@ public:
 	void CreateDepthView();
 
 	const glm::vec2& GetSize() const;
-
+	uint GetNumMipLevels() const;
+	
 private:
 	// Only create & destroy via allocator.
 	VulkanImage() = default;
@@ -67,6 +68,8 @@ private:
 	vk::ImageView myView;
 	vk::Format myFormat;
 	glm::vec2 mySize;
+	
+    uint myNumMipLevels = 1;
 
 #ifdef DEBUG
 	std::string myName = "";

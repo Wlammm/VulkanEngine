@@ -17,8 +17,8 @@ public:
     {
         ComponentType* component = new ComponentType(std::forward<Args>(inArgs)...);
         component->myGameObject = this;
-        component->Start();
         myComponents.Add(component);
+        component->Start();
         return component;
     }
     
