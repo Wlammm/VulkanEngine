@@ -117,12 +117,12 @@ void VulkanSwapChain::EndFrame()
 
 const vk::CommandBuffer& VulkanSwapChain::GetCommandBuffer() const
 {
-	return myCommandBuffers[myFrameIndex];
+	return myCommandBuffers[mySyncIndex];
 }
 
 const vk::Image& VulkanSwapChain::GetImage() const
 {
-	return myImages[myFrameIndex];
+	return myImages[mySyncIndex];
 }
 
 const vk::SurfaceKHR& VulkanSwapChain::GetSurface() const
