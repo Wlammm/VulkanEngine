@@ -140,6 +140,11 @@ uint VulkanSwapChain::GetFrameIndex() const
 	return myFrameIndex;
 }
 
+uint VulkanSwapChain::GetSyncIndex() const
+{
+	return mySyncIndex;
+}
+
 uint VulkanSwapChain::GetWidth() const
 {
 	return mySwapChainWidth;

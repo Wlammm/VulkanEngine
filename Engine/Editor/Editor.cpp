@@ -8,7 +8,7 @@ Editor::Editor()
 	check(myInstance == nullptr && "There is already an instance of this class. Only one allowed!");
 	myInstance = this;
 
-	//AddWindow<Viewport>();
+	AddWindow<Viewport>();
 }
 
 Editor::~Editor()
@@ -28,14 +28,14 @@ void Editor::StaticTick()
 
 void Editor::Tick()
 {
-	//BeginMainDockSpace();
+	BeginMainDockSpace();
 
 	for(const auto& window : myWindows)
 	{
 		window->DoTick();
 	}
 
-	//ImGui::End();
+	ImGui::End();
 }
 
 void Editor::RemoveWindow(EditorWindow* inEditorWindow)
