@@ -98,5 +98,5 @@ void main()
     
     vec3 dirLightColor = CalculateDirectionalLight(directionalLightDirection, directionalLightColor, normalColor, myCameraPosition, inFragPos, albedoColor, metalness, roughness);
     vec3 ambientLight = albedoColor * 0.04;
-    outColor = vec4(LinearToGamma(HDRToLDR((dirLightColor + ambientLight))), 1.0);
+    outColor = vec4(HDRToLDR(LinearToGamma(((dirLightColor + ambientLight)))), 1.0);
 }
