@@ -129,7 +129,7 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
 
 	vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
 		.setImageType(vk::ImageType::e2D)
-		.setFormat(vk::Format::eR8G8B8A8Srgb)
+		.setFormat(vk::Format::eR8G8B8A8Unorm)
 		.setExtent({ static_cast<uint32_t>(inImageData.myWidth), static_cast<uint32_t>(inImageData.myHeight), 1 })
 		.setMipLevels(1)
 		.setArrayLayers(1)
