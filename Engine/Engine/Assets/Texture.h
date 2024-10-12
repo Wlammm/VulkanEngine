@@ -11,6 +11,7 @@ struct ImageData
     int myWidth;
     int myHeight;
     int myChannels;
+    uint myNumMipLevels;
     List<unsigned char> myPixelData;
 };
 
@@ -34,6 +35,8 @@ private:
     static bool TryLoadImageDataFromCache(const CachePath& inPath, ImageData& out);
 
     void InitializeFromImageData(const ImageData& inImageData);
+
+    void GenerateMipLevels(vk::CommandBuffer inCommandBuffer);
     
 private:
     VulkanImage* myImage = nullptr;

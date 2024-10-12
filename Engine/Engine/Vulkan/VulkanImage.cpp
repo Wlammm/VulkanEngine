@@ -20,7 +20,7 @@ void VulkanImage::CreateView(vk::ImageViewType inViewType)
 	vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
 		.setAspectMask(vk::ImageAspectFlagBits::eColor)
 		.setBaseMipLevel(0)
-		.setLevelCount(1)
+		.setLevelCount(myNumMipLevels)
 		.setLayerCount(1);
 	CreateView(inViewType, subresourceRange);
 
@@ -54,6 +54,11 @@ void VulkanImage::CreateDepthView()
 const glm::vec2& VulkanImage::GetSize() const
 {
 	return mySize;
+}
+
+uint VulkanImage::GetNumMipLevels() const
+{
+	return myNumMipLevels;
 }
 
 vk::Image VulkanImage::GetAPIResource() const
