@@ -80,8 +80,6 @@ void Viewport::UpdateViewportImageSize()
 
 void Viewport::UpdateCaptureMouse()
 {
-	constexpr float somePadding = 5.0f;
-
 	bool isMovingMouse = ImGui::GetIO().MouseDown[ImGuiMouseButton_Right];
 	if (!isMovingMouse)
 		return;
