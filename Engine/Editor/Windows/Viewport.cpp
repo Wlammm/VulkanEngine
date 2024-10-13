@@ -68,10 +68,14 @@ void Viewport::UpdateViewportImageSize()
 	myP0.x += viewportOffset.x;
 	myP0.y += viewportOffset.y + 8.0f;
 	
-	myP1 = { myP0.x + size.x, myP0.y + size.y };
-
 	ImGui::SetCursorPos(myP0);
 	ImGui::Image(GetCurrentDescriptorSet(), size);
+
+	ImVec2 windowPos = ImGui::GetWindowPos();
+	myP0.x += windowPos.x;
+	myP0.y += windowPos.y;
+
+	myP1 = { myP0.x + size.x, myP0.y + size.y };
 }
 
 void Viewport::UpdateCaptureMouse()
@@ -93,25 +97,25 @@ void Viewport::UpdateCaptureMouse()
 
 	ImVec2 mousePosition = ImGui::GetIO().MousePos;
 
-	if (mousePosition.x > myP1.x - 20.0f)
+	if (mousePosition.x > myP1.x - 5.0f)
 	{
-		SetCursorPos(static_cast<int>(myP0.x + 20.0f + 8.0f * 2.0f), static_cast<int>(mousePosition.y));
+		SetCursorPos(static_cast<int>(myP0.x + 10.0f), static_cast<int>(mousePosition.y));
 		myEditorCamera->ResetMouseDelta();
 	}
-	else if (mousePosition.x < myP0.x + 20.0f)
+	else if (mousePosition.x < myP0.x + 5.0f)
 	{
-		SetCursorPos(static_cast<int>(myP1.x - 20.0f), static_cast<int>(mousePosition.y));
+		SetCursorPos(static_cast<int>(myP1.x - 10.0f), static_cast<int>(mousePosition.y));
 		myEditorCamera->ResetMouseDelta();
 	}
 
-	if (mousePosition.y > myP1.y - 20.0f)
+	if (mousePosition.y > myP1.y - 5.0f)
 	{
-		SetCursorPos(static_cast<int>(mousePosition.x), static_cast<int>(myP0.y + 20.0f + 18.0f * 2));
+		SetCursorPos(static_cast<int>(mousePosition.x), static_cast<int>(myP0.y + 10.0f + 18.0f * 2.0f));
 		myEditorCamera->ResetMouseDelta();
 	}
-	else if (mousePosition.y < myP0.y + 20.0f)
+	else if (mousePosition.y < myP0.y + 5.0f)
 	{
-		SetCursorPos(static_cast<int>(mousePosition.x), static_cast<int>(myP1.y - 20.0f));
+		SetCursorPos(static_cast<int>(mousePosition.x), static_cast<int>(myP1.y - 10.0f));
 		myEditorCamera->ResetMouseDelta();
 	}
 }
