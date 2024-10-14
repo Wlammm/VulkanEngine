@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/AutoInit.h"
+#include "Engine/Core/AutoInit.h"
 
 class DirectionalLightComponent;
 class ComponentSystem;

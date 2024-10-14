@@ -7,9 +7,21 @@
 
 void EditorCameraMovementComponent::Tick()
 {
+    UpdateMovement();
+    UpdateRotation();
+}
+
+void EditorCameraMovementComponent::ResetMouseDelta()
+{
+    myMouseDelta = glm::vec2(0.0f, 0.0f);
+    myResetMouseDelta = true;
+}
+
+void EditorCameraMovementComponent::UpdateMovement()
+{
     glm::vec3 movement{};
 
-    if(Input::IsKeyPressed(KeyCode::W))
+    if (Input::IsKeyPressed(KeyCode::W))
     {
         movement += GetTransform().GetForward();
     }
@@ -49,18 +61,35 @@ void EditorCameraMovementComponent::Tick()
         myMovementSpeed /= myScrollMultiplier;
 
     GetTransform().Move(movement * myMovementSpeed);
+}
+
+void EditorCameraMovementComponent::UpdateRotation()
+{
+    auto& io = ImGui::GetIO();
 
     if (Input::IsKeyPressed(MouseButton::Right))
     {
-        glm::vec2 mouseDelta = Input::GetMouseDelta() / Engine::GetRenderResolution();
+        static bool reset = false;
+        if (!reset)
+        {
+            myMouseDelta = Input::GetMouseDelta() / Engine::GetRenderResolution();
 
-        static float yaw = GetTransform().GetRotationRad().y;
-        static float pitch = GetTransform().GetRotationRad().x;
+            myYaw += myMouseDelta.x * myMouseSensitivity;
+            myPitch += myMouseDelta.y * myMouseSensitivity;
+        }
 
-        yaw += mouseDelta.x * myMouseSensitivity;
-        pitch += mouseDelta.y * myMouseSensitivity;
-        pitch = glm::clamp(-glm::pi<float>() * 0.5f + 0.001f, glm::pi<float>() * 0.5f - 0.001f, pitch);
+        if (reset)
+        {
+            reset = false;
+        }
 
-        GetTransform().SetRotationRad({ pitch, yaw, 0.0f });
+        if (myResetMouseDelta)
+        {
+            reset = true;
+            myResetMouseDelta = false;
+        }
+
+        myPitch = glm::clamp(myPitch, -glm::pi<float>() * 0.5f + 0.001f, glm::pi<float>() * 0.5f - 0.001f);
+        GetTransform().SetRotationRad({ myPitch, myYaw, 0.0f });
     }
 }

@@ -11,6 +11,7 @@ Bin/Cache/
 *.vcxproj.user
 *.exe
 *.pdb
+*.ini
 
 # VTuner stuff
 Engine/Launcher/VTune Profiler Results/
