@@ -107,7 +107,7 @@ VulkanImage* VulkanAllocator::AllocateImage_TS(const std::string& inName, const 
 	outImage->myFormat = inCreateInfo.format;
 	outImage->mySize = glm::vec2(inCreateInfo.extent.width, inCreateInfo.extent.height);
 	outImage->myNumMipLevels = inCreateInfo.mipLevels;
-
+	outImage->myNumMSAASamples = inCreateInfo.samples;
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
 		.setObjectHandle(VulkanContext::GetVulkanHandle(outImage->GetAPIResource()))

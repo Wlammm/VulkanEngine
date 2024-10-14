@@ -9,6 +9,7 @@
 #include "Utils/Debug.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
+#include "Vulkan/VulkanPhysicalDevice.h"
 
 DebugPipeline::DebugPipeline()
 {
@@ -97,7 +98,7 @@ void DebugPipeline::CreatePipeline()
 		.setDepthBiasEnable(VK_FALSE)
 		.setLineWidth(1.0f);
 
-	const auto multisampleInfo = vk::PipelineMultisampleStateCreateInfo();
+	const auto multisampleInfo = vk::PipelineMultisampleStateCreateInfo().setRasterizationSamples(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples());
 	const auto stencilOp = vk::StencilOpState().setFailOp(vk::StencilOp::eKeep).setPassOp(vk::StencilOp::eKeep).setCompareOp(vk::CompareOp::eAlways);
 
 	const auto depthStencilInfo = vk::PipelineDepthStencilStateCreateInfo()

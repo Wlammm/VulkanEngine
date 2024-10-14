@@ -20,6 +20,8 @@ public:
 	const List<vk::QueueFamilyProperties> GetQueueFamilyProperties() const;
 	const vk::PhysicalDeviceMemoryProperties& GetMemoryProperties() const;
 
+	vk::SampleCountFlagBits GetMaxMSAASamples() const;
+
 	vk::PhysicalDevice GetPhysicalDevice() const;
 
 private:
@@ -27,12 +29,16 @@ private:
 
 	void GetQueueIndices();
 
+	vk::SampleCountFlagBits QueryMaxUsableSampleCount();
+	
 private:
 	vk::PhysicalDevice myDevice;
 	vk::PhysicalDeviceFeatures2 myFeatures;
 	vk::PhysicalDeviceMemoryProperties myMemoryProperties;
 	List<vk::QueueFamilyProperties> myQueueFamilyProperties;
 
+	vk::SampleCountFlagBits myMSAASampleCount = vk::SampleCountFlagBits::e1;
+	
 	int myGraphicsQueueIndex = -1;
 	int myComputeQueueIndex = -1;
 	int myTransferQueueIndex = -1;

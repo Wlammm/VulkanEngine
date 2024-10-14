@@ -56,7 +56,7 @@ void VulkanImGui::Start()
 	createInfo.DescriptorPool = imguiPool;
 	createInfo.MinImageCount = VulkanContext::GetSwapChain().GetMinImageCount();
 	createInfo.ImageCount = VulkanContext::FrameLag;
-	createInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+	createInfo.MSAASamples = static_cast<VkSampleCountFlagBits>(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples());
 	createInfo.CheckVkResultFn = VulkanCheckResult;
 
 	ImGui_ImplVulkan_Init(&createInfo, Engine::GetEngineSystem<RenderSystem>().GetRenderPass());
@@ -79,6 +79,8 @@ void VulkanImGui::Destroy()
 
 void VulkanImGui::BeginFrame()
 {
+	// TODO: IMGUI
+	return;
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 

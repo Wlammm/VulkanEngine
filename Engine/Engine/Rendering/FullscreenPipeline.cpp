@@ -5,15 +5,18 @@
 #include "Assets/Shader.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
+#include "Vulkan/VulkanPhysicalDevice.h"
 #include "Vulkan/VulkanUtils.hpp"
 
-FullscreenPipeline::FullscreenPipeline(Shader* inFragmentShader, VulkanImage* inSource)
+FullscreenPipeline::FullscreenPipeline(Shader* inFragmentShader, VulkanImage* inSource, vk::RenderPass inRenderPass)
 {
 	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FullscreenVS.vert");
 	myVertexShader->OnShaderRecompiled.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
 
 	myFragmentShader = inFragmentShader;
 	myFragmentShader->OnShaderRecompiled.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
+
+	myRenderPass = inRenderPass;
 	
 	CreateDescriptors(inSource);
 	CreatePipeline();
@@ -69,7 +72,7 @@ void FullscreenPipeline::CreatePipeline()
 		.setDepthBiasEnable(VK_FALSE)
 		.setLineWidth(1.0f);
 
-	const auto multisampleInfo = vk::PipelineMultisampleStateCreateInfo();
+	const auto multisampleInfo = vk::PipelineMultisampleStateCreateInfo().setRasterizationSamples(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples());
 	const auto stencilOp = vk::StencilOpState().setFailOp(vk::StencilOp::eKeep).setPassOp(vk::StencilOp::eKeep).setCompareOp(vk::CompareOp::eAlways);
 
 	const auto depthStencilInfo = vk::PipelineDepthStencilStateCreateInfo()
@@ -103,7 +106,7 @@ void FullscreenPipeline::CreatePipeline()
 		.setPColorBlendState(&colorBlendInfo)
 		.setPDynamicState(&dynamicStateInfo)
 		.setLayout(myPipelineLayout)
-		.setRenderPass(Engine::GetEngineSystem<RenderSystem>().GetRenderPass()));
+		.setRenderPass(myRenderPass));
 
 	check(returnValue.result == vk::Result::eSuccess);
 	myPipeline = returnValue.value;

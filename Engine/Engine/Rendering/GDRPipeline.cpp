@@ -22,6 +22,7 @@
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
+#include "Vulkan/VulkanPhysicalDevice.h"
 #include "Vulkan/VulkanSwapchain.h"
 #include "Vulkan/VulkanUtils.hpp"
 #include "World/World.h"
@@ -389,7 +390,7 @@ void GDRPipeline::CreateGraphicsPipeline()
 		.setDepthBiasEnable(VK_FALSE)
 		.setLineWidth(1.0f);
 
-	const auto multisampleInfo = vk::PipelineMultisampleStateCreateInfo();
+	const auto multisampleInfo = vk::PipelineMultisampleStateCreateInfo().setRasterizationSamples(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples());
 	const auto stencilOp = vk::StencilOpState().setFailOp(vk::StencilOp::eKeep).setPassOp(vk::StencilOp::eKeep).setCompareOp(vk::CompareOp::eAlways);
 
 	const auto depthStencilInfo = vk::PipelineDepthStencilStateCreateInfo()

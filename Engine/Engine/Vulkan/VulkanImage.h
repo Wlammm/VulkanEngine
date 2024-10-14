@@ -4,7 +4,7 @@
 class VulkanImage
 {
 public:
-	static vk::ImageCreateInfo DepthCreateInfo(const glm::vec2& inResolution)
+	static vk::ImageCreateInfo DepthCreateInfo(const glm::vec2& inResolution, vk::SampleCountFlagBits inSampleCount = vk::SampleCountFlagBits::e1)
 	{
 		const vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
 			.setImageType(vk::ImageType::e2D)
@@ -12,7 +12,7 @@ public:
 			.setExtent({ static_cast<uint>(inResolution.x), static_cast<uint>(inResolution.y), 1 })
 			.setMipLevels(1)
 			.setArrayLayers(1)
-			.setSamples(vk::SampleCountFlagBits::e1)
+			.setSamples(inSampleCount)
 			.setTiling(vk::ImageTiling::eOptimal)
 			.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment)
 			.setSharingMode(vk::SharingMode::eExclusive)
@@ -50,6 +50,7 @@ public:
 
 	const glm::vec2& GetSize() const;
 	uint GetNumMipLevels() const;
+	vk::SampleCountFlagBits GetNumMSAASamples() const;
 	
 private:
 	// Only create & destroy via allocator.
@@ -70,6 +71,7 @@ private:
 	glm::vec2 mySize;
 	
     uint myNumMipLevels = 1;
+	vk::SampleCountFlagBits myNumMSAASamples = vk::SampleCountFlagBits::e1;
 
 #ifdef DEBUG
 	std::string myName = "";

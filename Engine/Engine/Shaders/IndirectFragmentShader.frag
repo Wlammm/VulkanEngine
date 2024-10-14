@@ -94,7 +94,7 @@ void main()
     float metalness = materialColor.b;
 
 
-    float ambientLightStrength = 0.01;
+    float ambientLightStrength = 0.005;
     vec3 dirLightColor = vec3(0, 0, 0);
 
     for(int i = 0; i < inPointLightBuffer.myNumLights; ++i)

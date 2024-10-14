@@ -6,7 +6,7 @@ class Shader;
 class FullscreenPipeline
 {
 public:
-	FullscreenPipeline(Shader* inFragmentShader, class VulkanImage* inSource);
+	FullscreenPipeline(Shader* inFragmentShader, class VulkanImage* inSource,vk::RenderPass inRenderPass);
 	~FullscreenPipeline();
 
 	void AddFullscreenPass(const vk::CommandBuffer inCommandBuffer);
@@ -23,6 +23,7 @@ private:
 
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;
+	vk::RenderPass myRenderPass;
 
 	VulkanDescriptorSet myDescriptorSet;
 };

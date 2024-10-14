@@ -28,6 +28,8 @@ void Editor::StaticTick()
 
 void Editor::Tick()
 {
+	// TODO: IMGUI
+	return;
 	BeginMainDockSpace();
 
 	for(const auto& window : myWindows)

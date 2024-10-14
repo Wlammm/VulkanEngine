@@ -18,6 +18,7 @@ public:
     void Init() override final;
     void Tick();
 
+    //vk::RenderPass& GetRenderTextureRenderPass();
     vk::RenderPass& GetRenderPass();
     
     class VulkanImage* GetRenderTexture();
@@ -75,7 +76,7 @@ private:
     class GDRPipeline* myGDRPipeline = nullptr;
 
     vk::RenderPass myRenderPass;
-    vk::RenderPass myRenderTextureRenderPass;
+    //vk::RenderPass myRenderTextureRenderPass;
 
     vk::Framebuffer myRenderTextureFrameBuffer;
     List<vk::Framebuffer> mySwapchainFrameBuffers;

@@ -105,8 +105,9 @@ void Engine::Tick()
 	myVulkanContext->EndFrame();
 	Input::EndFrame();
 
-	ImGui::UpdatePlatformWindows();
-	ImGui::RenderPlatformWindowsDefault();
+	// TODO: IMGUI
+	//ImGui::UpdatePlatformWindows();
+	//ImGui::RenderPlatformWindowsDefault();
 }
 
 bool Engine::ShouldRun() const

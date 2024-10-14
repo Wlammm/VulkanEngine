@@ -61,6 +61,11 @@ uint VulkanImage::GetNumMipLevels() const
 	return myNumMipLevels;
 }
 
+vk::SampleCountFlagBits VulkanImage::GetNumMSAASamples() const
+{
+	return myNumMSAASamples;
+}
+
 vk::Image VulkanImage::GetAPIResource() const
 {
 	return myImage;
