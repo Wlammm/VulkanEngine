@@ -77,26 +77,31 @@ void RenderSystem::Tick()
 		{
 			AddCPUPass(commandBuffer);
 		}
-		
-		//AddFullscreenCopyPass(commandBuffer);
+
+		AddFullscreenCopyPass(commandBuffer);
 	}
 
 	commandBuffer.end();
 }
-
-//vk::RenderPass& RenderSystem::GetRenderTextureRenderPass()
-//{
-//	return myRenderTextureRenderPass;
-//}
 
 vk::RenderPass& RenderSystem::GetRenderPass()
 {
 	return myRenderPass;
 }
 
+vk::RenderPass& RenderSystem::GetImGuiRenderPass()
+{
+	return myCopyToSwapchainRenderPass;
+}
+
 VulkanImage* RenderSystem::GetRenderTexture()
 {
 	return myRenderTexture;
+}
+
+class VulkanImage* RenderSystem::GetResolvedRenderTexture() const
+{
+	return myResolvedRenderTexture;
 }
 
 VulkanImage* RenderSystem::GetDepthTexture()
@@ -253,12 +258,9 @@ void RenderSystem::AddCPUPass(vk::CommandBuffer inCommandBuffer)
 			.setClearValueCount(2)
 			.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
 			, vk::SubpassContents::eInline);
-
 	
 	AddMeshPass(inCommandBuffer);
 	AddDebugPass(inCommandBuffer);
-	// TODO: IMGUI
-	//VulkanImGui::Render(inCommandBuffer);
 	inCommandBuffer.endRenderPass();
 }
 
@@ -326,10 +328,9 @@ void RenderSystem::AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer)
 	ZoneScoped;
 	GPUMARK_SCOPE(inCommandBuffer, "FullscreenCopyPass");
 
-	// Temporary to change image format of swapchain textures.
 	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-		.setRenderPass(myRenderPass)
-		.setFramebuffer(GetVkFrameBuffer())
+		.setRenderPass(myCopyToSwapchainRenderPass)
+		.setFramebuffer(GetVkCopyToSwapchainFrameBuffer())
 		.setPClearValues(myClearValues)
 		.setClearValueCount(2)
 		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
@@ -363,6 +364,24 @@ void RenderSystem::AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer)
 		.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));*/
 }
 
+void RenderSystem::AddImGuiPass(vk::CommandBuffer inCommandBuffer)
+{
+	ZoneScoped;
+	GPUMARK_SCOPE(inCommandBuffer, "ImGuiPass");
+
+	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
+		.setRenderPass(myCopyToSwapchainRenderPass)
+		.setFramebuffer(GetVkCopyToSwapchainFrameBuffer())
+		.setPClearValues(myClearValues)
+		.setClearValueCount(2)
+		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
+		, vk::SubpassContents::eInline);
+
+	VulkanImGui::Render(inCommandBuffer);
+	
+	inCommandBuffer.endRenderPass();
+}
+
 void RenderSystem::CreateRenderResources()
 {
 	CreateRenderTextures();
@@ -375,12 +394,14 @@ void RenderSystem::DestroyRenderResources()
 {
 	for (uint i = 0; i < VulkanContext::FrameLag; ++i)
 	{
-		VulkanContext::GetDevice()->destroyFramebuffer(mySwapchainFrameBuffers[i]);
+		VulkanContext::GetDevice()->destroyFramebuffer(myCopyToSwapchainFrameBuffers[i]);
 	}
-	VulkanContext::GetDevice()->destroyFramebuffer(myRenderTextureFrameBuffer);
-	mySwapchainFrameBuffers.Clear();
+	myCopyToSwapchainFrameBuffers.Clear();
+
+	VulkanContext::GetDevice()->destroyFramebuffer(myVkFrameBuffer);
 
 	VulkanAllocator::DestroyImage_TS(myRenderTexture);
+	VulkanAllocator::DestroyImage_TS(myResolvedRenderTexture);
 	VulkanAllocator::DestroyImage_TS(myDepthBuffer);
 	del(myCopyPipeline);
 	del(myMeshPipeline);
@@ -389,7 +410,7 @@ void RenderSystem::DestroyRenderResources()
 	del(myGDRPipeline);
 
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderPass);
-	//VulkanContext::GetDevice()->destroyRenderPass(myRenderTextureRenderPass);
+	VulkanContext::GetDevice()->destroyRenderPass(myCopyToSwapchainRenderPass);
 }
 
 void RenderSystem::CreatePipelines()
@@ -398,25 +419,46 @@ void RenderSystem::CreatePipelines()
 	myGDRPipeline = new GDRPipeline();
 	myMeshPipeline = new MeshPipeline();
 	myDebugPipeline = new DebugPipeline();
-	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FullscreenCopy.frag"), myRenderTexture, myRenderPass);
+	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FullscreenCopy.frag"), myResolvedRenderTexture, myCopyToSwapchainRenderPass);
 }
 
 void RenderSystem::CreateRenderTextures()
 {
-	vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
-		.setImageType(vk::ImageType::e2D)
-		.setFormat(VulkanContext::GetSwapChain().GetFormat() /*vk::Format::eR32G32B32A32Sfloat*/)
-		.setExtent({ static_cast<uint>(Engine::GetRenderResolution().x), static_cast<uint>(Engine::GetRenderResolution().y), 1 })
-		.setMipLevels(1)
-		.setArrayLayers(1)
-		.setSamples(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples())
-		.setTiling(vk::ImageTiling::eOptimal)
-		.setUsage(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled)
-		.setSharingMode(vk::SharingMode::eExclusive)
-		.setInitialLayout(vk::ImageLayout::eUndefined);
+	// Multisampled render texture
+	{
+		vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
+			.setImageType(vk::ImageType::e2D)
+			.setFormat(VulkanContext::GetSwapChain().GetFormat() /*vk::Format::eR32G32B32A32Sfloat*/)
+			.setExtent({ static_cast<uint>(Engine::GetRenderResolution().x), static_cast<uint>(Engine::GetRenderResolution().y), 1 })
+			.setMipLevels(1)
+			.setArrayLayers(1)
+			.setSamples(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples())
+			.setTiling(vk::ImageTiling::eOptimal)
+			.setUsage(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled)
+			.setSharingMode(vk::SharingMode::eExclusive)
+			.setInitialLayout(vk::ImageLayout::eUndefined);
 
-	myRenderTexture = VulkanAllocator::AllocateImage_TS("Render texture", createInfo, VMA_MEMORY_USAGE_AUTO);
-	myRenderTexture->CreateView(vk::ImageViewType::e2D);
+		myRenderTexture = VulkanAllocator::AllocateImage_TS("Render texture", createInfo, VMA_MEMORY_USAGE_AUTO);
+		myRenderTexture->CreateView(vk::ImageViewType::e2D);
+	}
+
+	// Resolved render texture
+	{
+		vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
+			.setImageType(vk::ImageType::e2D)
+			.setFormat(VulkanContext::GetSwapChain().GetFormat() /*vk::Format::eR32G32B32A32Sfloat*/)
+			.setExtent({ static_cast<uint>(Engine::GetRenderResolution().x), static_cast<uint>(Engine::GetRenderResolution().y), 1 })
+			.setMipLevels(1)
+			.setArrayLayers(1)
+			.setSamples(vk::SampleCountFlagBits::e1)
+			.setTiling(vk::ImageTiling::eOptimal)
+			.setUsage(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled)
+			.setSharingMode(vk::SharingMode::eExclusive)
+			.setInitialLayout(vk::ImageLayout::eUndefined);
+
+		myResolvedRenderTexture = VulkanAllocator::AllocateImage_TS("Resolved render texture", createInfo, VMA_MEMORY_USAGE_AUTO);
+		myResolvedRenderTexture->CreateView(vk::ImageViewType::e2D);
+	}
 	
 	myDepthBuffer = VulkanAllocator::AllocateImage_TS(
 		"Depth texture",
@@ -455,7 +497,7 @@ void RenderSystem::CreateRenderPass()
 				.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
 				.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
 				.setInitialLayout(vk::ImageLayout::eUndefined)
-				.setFinalLayout(vk::ImageLayout::ePresentSrcKHR),
+				.setFinalLayout(vk::ImageLayout::eShaderReadOnlyOptimal),
 		};
 
 		const auto colorReference = vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eColorAttachmentOptimal);
@@ -484,90 +526,72 @@ void RenderSystem::CreateRenderPass()
 	}
 
 	// Render texture pass.
-	//{
-	//	const std::array<vk::AttachmentDescription, 2> attachments = {
-	//		vk::AttachmentDescription()
-	//			.setFormat(VulkanContext::GetSwapChain().GetFormat())
-	//			.setSamples(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples())
-	//			.setLoadOp(vk::AttachmentLoadOp::eClear)
-	//			.setStoreOp(vk::AttachmentStoreOp::eStore)
-	//			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-	//			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-	//			.setInitialLayout(vk::ImageLayout::eUndefined)
-	//			.setFinalLayout(vk::ImageLayout::eShaderReadOnlyOptimal),
-	//		vk::AttachmentDescription()
-	//			.setFormat(myDepthBuffer->GetFormat())
-	//			.setSamples(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples())
-	//			.setLoadOp(vk::AttachmentLoadOp::eClear)
-	//			.setStoreOp(vk::AttachmentStoreOp::eDontCare)
-	//			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-	//			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-	//			.setInitialLayout(vk::ImageLayout::eUndefined)
-	//			.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal),
-	//	};
-//
-	//	const auto colorReference = vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eColorAttachmentOptimal);
-	//	const auto depthReference = vk::AttachmentReference().setAttachment(1).setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
-//
-	//	const auto subpass = vk::SubpassDescription()
-	//		.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
-	//		.setColorAttachments(colorReference)
-	//		.setPDepthStencilAttachment(&depthReference);
-//
-	//	vk::PipelineStageFlags stages = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
-	//	const std::array<vk::SubpassDependency, 2> dependencies = {
-	//		vk::SubpassDependency()  // Depth buffer is shared between swapchain images
-	//			.setSrcSubpass(VK_SUBPASS_EXTERNAL)
-	//			.setDstSubpass(0)
-	//			.setSrcStageMask(stages)
-	//			.setDstStageMask(stages)
-	//			.setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
-	//			.setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
-	//			.setDependencyFlags(vk::DependencyFlags()),
-	//		vk::SubpassDependency()
-	//			.setSrcSubpass(VK_SUBPASS_EXTERNAL)
-	//			.setDstSubpass(0)
-	//			.setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
-	//			.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
-	//			.setSrcAccessMask(vk::AccessFlagBits())
-	//			.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead)
-	//			.setDependencyFlags(vk::DependencyFlags()),
-	//	};
-//
-	//	//myRenderTextureRenderPass = VulkanContext::GetDevice()->createRenderPass(vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass).setDependencies(dependencies));
-	//}
+	{
+		const std::array<vk::AttachmentDescription, 1> attachments = {
+			vk::AttachmentDescription()
+				.setFormat(VulkanContext::GetSwapChain().GetFormat())
+				.setSamples(vk::SampleCountFlagBits::e1)
+				.setLoadOp(vk::AttachmentLoadOp::eClear)
+				.setStoreOp(vk::AttachmentStoreOp::eStore)
+				.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
+				.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
+				.setInitialLayout(vk::ImageLayout::eUndefined)
+				.setFinalLayout(vk::ImageLayout::ePresentSrcKHR),
+		};
+		
+		const auto colorReference = vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eColorAttachmentOptimal);
+
+		const auto subpass = vk::SubpassDescription()
+			.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
+			.setColorAttachments(colorReference);
+
+		vk::PipelineStageFlags stages = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+		const std::array<vk::SubpassDependency, 1> dependencies = {
+			vk::SubpassDependency()
+				.setSrcSubpass(VK_SUBPASS_EXTERNAL)
+				.setDstSubpass(0)
+				.setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+				.setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
+				.setSrcAccessMask(vk::AccessFlagBits())
+				.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead)
+				.setDependencyFlags(vk::DependencyFlags()),
+		};
+
+		myCopyToSwapchainRenderPass = VulkanContext::GetDevice()->createRenderPass(vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass).setDependencies(dependencies));
+	}
 }
 
 void RenderSystem::CreateFrameBuffers()
 {
+	// Main pass
 	{
 		std::array<vk::ImageView, 3> attachments;
 		attachments[0] = myRenderTexture->GetImageView();
 		attachments[1] = myDepthBuffer->GetImageView();
+		attachments[2] = myResolvedRenderTexture->GetImageView();
+		
+		myVkFrameBuffer = VulkanContext::GetDevice()->createFramebuffer(vk::FramebufferCreateInfo()
+			.setRenderPass(myRenderPass)
+			.setAttachments(attachments)
+			.setWidth(VulkanContext::GetSwapChain().GetWidth())
+			.setHeight(VulkanContext::GetSwapChain().GetHeight())
+			.setLayers(1));
+	}
+
+	// ImGui
+	{
+		std::array<vk::ImageView, 1> attachments;
 		for (uint i = 0; i < VulkanContext::FrameLag; ++i)
 		{
-			attachments[2] = VulkanContext::GetSwapChain().GetImageView(i);
-			mySwapchainFrameBuffers.Add(VulkanContext::GetDevice()->createFramebuffer(vk::FramebufferCreateInfo()
-				.setRenderPass(myRenderPass)
+			attachments[0] = VulkanContext::GetSwapChain().GetImageView(i);
+			myCopyToSwapchainFrameBuffers.Add(VulkanContext::GetDevice()->createFramebuffer(vk::FramebufferCreateInfo()
+				.setRenderPass(myCopyToSwapchainRenderPass)
 				.setAttachments(attachments)
 				.setWidth(VulkanContext::GetSwapChain().GetWidth())
 				.setHeight(VulkanContext::GetSwapChain().GetHeight())
 				.setLayers(1)));
 		}
 	}
-
-	// Render texture.
-	//{
-	//	std::array<vk::ImageView, 2> attachments;
-	//	attachments[1] = myDepthBuffer->GetImageView();
-	//	attachments[0] = myRenderTexture->GetImageView();
-	//	myRenderTextureFrameBuffer = VulkanContext::GetDevice()->createFramebuffer(vk::FramebufferCreateInfo()
-	//		.setRenderPass(myRenderTextureRenderPass)
-	//		.setAttachments(attachments)
-	//		.setWidth(VulkanContext::GetSwapChain().GetWidth())
-	//		.setHeight(VulkanContext::GetSwapChain().GetHeight())
-	//		.setLayers(1));
-	//}
 }
 
 //void RenderSubsystem::UpdateFrameBuffer()
@@ -593,5 +617,10 @@ void RenderSystem::CreateFrameBuffers()
 
 vk::Framebuffer RenderSystem::GetVkFrameBuffer() const
 {
-	return mySwapchainFrameBuffers[VulkanContext::GetSwapChain().GetFrameIndex()];
+	return myVkFrameBuffer;
+}
+
+vk::Framebuffer RenderSystem::GetVkCopyToSwapchainFrameBuffer() const
+{
+	return myCopyToSwapchainFrameBuffers[VulkanContext::GetSwapChain().GetFrameIndex()];
 }

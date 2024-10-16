@@ -51,9 +51,10 @@ void Viewport::UpdateCurrentTexture()
 {
 	const uint currentIndex = VulkanContext::GetSwapChain().GetSyncIndex();
 	RenderSystem& renderSystem = Engine::GetEngineSystem<RenderSystem>();
-	
+
+	// This is probably incorrectly setup and only requires one descriptor set for all of them.
 	ImGui_ImplVulkan_RemoveTexture(myDescriptorSets[currentIndex]);
-	myDescriptorSets[currentIndex] = ImGui_ImplVulkan_AddTexture(mySampler, renderSystem.GetRenderTexture()->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	myDescriptorSets[currentIndex] = ImGui_ImplVulkan_AddTexture(mySampler, renderSystem.GetResolvedRenderTexture()->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 void Viewport::UpdateViewportImageSize()

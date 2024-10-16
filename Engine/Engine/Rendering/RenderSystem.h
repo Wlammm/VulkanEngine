@@ -18,10 +18,11 @@ public:
     void Init() override final;
     void Tick();
 
-    //vk::RenderPass& GetRenderTextureRenderPass();
     vk::RenderPass& GetRenderPass();
+    vk::RenderPass& GetImGuiRenderPass();
     
     class VulkanImage* GetRenderTexture();
+    class VulkanImage* GetResolvedRenderTexture() const;
     class VulkanImage* GetDepthTexture();
     class VulkanImage* GetDirectionalLightShadowMap() const;
     
@@ -43,6 +44,7 @@ private:
     void AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer);
     void AddDebugPass(vk::CommandBuffer inCommandBuffer);
     void AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer);
+    void AddImGuiPass(vk::CommandBuffer inCommandBuffer);
 
 private:
     void CreateRenderResources();
@@ -57,6 +59,7 @@ private:
     //void UpdateObjectBuffer(const Transform& inTransform);
 
     vk::Framebuffer GetVkFrameBuffer() const;
+    vk::Framebuffer GetVkCopyToSwapchainFrameBuffer() const;
 
 private:
     struct UploadCommandData
@@ -76,10 +79,10 @@ private:
     class GDRPipeline* myGDRPipeline = nullptr;
 
     vk::RenderPass myRenderPass;
-    //vk::RenderPass myRenderTextureRenderPass;
+    vk::RenderPass myCopyToSwapchainRenderPass;
 
-    vk::Framebuffer myRenderTextureFrameBuffer;
-    List<vk::Framebuffer> mySwapchainFrameBuffers;
+    vk::Framebuffer myVkFrameBuffer;
+    List<vk::Framebuffer> myCopyToSwapchainFrameBuffers;
 
     /*
     * Index 0 is for main texture.
@@ -91,6 +94,9 @@ private:
 
     class VulkanImage* myDepthBuffer = nullptr;
     class VulkanImage* myRenderTexture = nullptr;
+    
+    // This is a resolved render texture that has a MSAA count of 1. This is required so we can use it as input to imgui for the editor viewport. 
+    class VulkanImage* myResolvedRenderTexture = nullptr;
 
     static constexpr glm::vec2 myShadowMapSize = glm::vec2(4096, 4096);
     class VulkanImage* myDirectionalLightShadowMap = nullptr;

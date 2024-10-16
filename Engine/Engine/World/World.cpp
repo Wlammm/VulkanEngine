@@ -66,7 +66,7 @@ void World::Init()
 	//	cubeObject->AddComponent<StaticMeshComponent>()->SetModel(inModel);
 	//});
 
-	/*
+	
 	GameObject* cactus = myComponentSystem->CreateGameObject();
 	cactus->GetTransform()->SetPosition(500, 0, 0);
 	myAssetRegistry->GetAssetAsync<Model>("Assets/Cactus.fbx", [cactus](Model* inModel)
@@ -75,7 +75,7 @@ void World::Init()
 	});
 	
 	cactus->AddComponent<SinWaveMovementComponent>();
-	*/
+	
 }
 
 void World::Update()

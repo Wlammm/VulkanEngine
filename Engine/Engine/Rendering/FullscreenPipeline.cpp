@@ -72,7 +72,7 @@ void FullscreenPipeline::CreatePipeline()
 		.setDepthBiasEnable(VK_FALSE)
 		.setLineWidth(1.0f);
 
-	const auto multisampleInfo = vk::PipelineMultisampleStateCreateInfo().setRasterizationSamples(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples());
+	const auto multisampleInfo = vk::PipelineMultisampleStateCreateInfo().setRasterizationSamples(vk::SampleCountFlagBits::e1);
 	const auto stencilOp = vk::StencilOpState().setFailOp(vk::StencilOp::eKeep).setPassOp(vk::StencilOp::eKeep).setCompareOp(vk::CompareOp::eAlways);
 
 	const auto depthStencilInfo = vk::PipelineDepthStencilStateCreateInfo()

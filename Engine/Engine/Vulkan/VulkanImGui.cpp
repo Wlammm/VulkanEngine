@@ -56,10 +56,10 @@ void VulkanImGui::Start()
 	createInfo.DescriptorPool = imguiPool;
 	createInfo.MinImageCount = VulkanContext::GetSwapChain().GetMinImageCount();
 	createInfo.ImageCount = VulkanContext::FrameLag;
-	createInfo.MSAASamples = static_cast<VkSampleCountFlagBits>(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples());
+	createInfo.MSAASamples = static_cast<VkSampleCountFlagBits>(vk::SampleCountFlagBits::e1);
 	createInfo.CheckVkResultFn = VulkanCheckResult;
 
-	ImGui_ImplVulkan_Init(&createInfo, Engine::GetEngineSystem<RenderSystem>().GetRenderPass());
+	ImGui_ImplVulkan_Init(&createInfo, Engine::GetEngineSystem<RenderSystem>().GetImGuiRenderPass());
 
 	vk::CommandBuffer cmd = VulkanContext::GetDevice().CreateCommandBuffer(true);
 	ImGui_ImplVulkan_CreateFontsTexture(cmd);
@@ -79,8 +79,6 @@ void VulkanImGui::Destroy()
 
 void VulkanImGui::BeginFrame()
 {
-	// TODO: IMGUI
-	return;
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 
