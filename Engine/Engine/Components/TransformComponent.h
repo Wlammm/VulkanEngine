@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "ComponentSystem/Component.h"
+#include "Delegates/MulticastDelegate.hpp"
 
 class TransformComponent : public Component
 {
@@ -62,6 +63,7 @@ public:
 
     void Move(const glm::vec3& inDisplacement);
 
+    inline static MulticastDelegate<void(TransformComponent*)> OnMarkedDirty;
 private:
     void MarkDirty();
 

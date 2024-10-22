@@ -242,6 +242,11 @@ public:
 		mySize--;
 	}
 
+	void RemoveLast()
+	{
+		RemoveIndex(mySize - 1);
+	}
+
 	void Remove(const ElementType& inValue) requires ComparisonOperator<ElementType>
 	{
 		for (SizeType i = 0; i < mySize; ++i)

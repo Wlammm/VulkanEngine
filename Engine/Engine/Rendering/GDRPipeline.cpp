@@ -16,7 +16,7 @@
 #include "ComponentSystem/GameObject.h"
 #include "Shaders/MeshStructs.hpp"
 #include "Systems/PointLightSystem.h"
-#include "Vulkan/ObjectSystem.h"
+#include "Vulkan/GPUSceneSystem.h"
 #include "Vulkan/ResizableBuffer.h"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
@@ -36,10 +36,14 @@ GDRPipeline::GDRPipeline()
     CreatePrePassResources();
     CreateCullPassResources();
 	CreateDrawPassResources();
+	
+	TransformComponent::OnMarkedDirty.Bind(&GDRPipeline::OnTransformMarkedDirty, this);
 }
 
 GDRPipeline::~GDRPipeline()
 {
+	TransformComponent::OnMarkedDirty.UnBind(&GDRPipeline::OnTransformMarkedDirty, this);
+	
 	myVertexShader->OnShaderRecompiled.UnBind(&GDRPipeline::OnShaderRecompiled, this);
 	myFragmentShader->OnShaderRecompiled.UnBind(&GDRPipeline::OnShaderRecompiled, this);
 	
@@ -155,7 +159,7 @@ ResizableBuffer* GDRPipeline::GetPerDrawDataBuffer() const
 
 void GDRPipeline::CreateBuffers()
 {
-    const ObjectSystem& objectSystem = Engine::GetEngineSystem<ObjectSystem>();
+    const GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
     
     myCountBuffer = VulkanAllocator::AllocateBuffer_TS("IndirectDrawCount Buffer",
         vk::BufferCreateInfo()
@@ -206,7 +210,7 @@ void GDRPipeline::ExecuteComputePass(vk::CommandBuffer inCommandBuffer, const Co
 
 void GDRPipeline::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
 {
-    ObjectSystem& objectSystem = Engine::GetEngineSystem<ObjectSystem>();
+    GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
 
     size_t requiredSize = objectSystem.GetNumObjects() * sizeof(vk::DrawIndexedIndirectCommand);
     if(requiredSize > myIndirectCommandsBuffer->GetBuffer()->GetSize())
@@ -263,7 +267,7 @@ void GDRPipeline::CreatePrePassResources()
 {
     // Create descriptors
     MeshSystem& meshSystem = Engine::GetEngineSystem<MeshSystem>();
-    ObjectSystem& objectSystem = Engine::GetEngineSystem<ObjectSystem>();
+    GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
     
     myPrePass.myDescriptorSet = new VulkanDescriptorSet();
     myPrePass.myDescriptorSet->BindBuffer(myCountBuffer, vk::ShaderStageFlagBits::eCompute, 0, vk::DescriptorType::eStorageBuffer);
@@ -287,11 +291,12 @@ void GDRPipeline::CreateCullPassResources()
 {
     // Create descriptors
     MeshSystem& meshSystem = Engine::GetEngineSystem<MeshSystem>();
-    ObjectSystem& objectSystem = Engine::GetEngineSystem<ObjectSystem>();
+    GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
 
     myCullPass.myDescriptorSet = new VulkanDescriptorSet();
     myCullPass.myDescriptorSet->BindBuffer(meshSystem.GetBuffer(), vk::ShaderStageFlagBits::eCompute, 0, vk::DescriptorType::eStorageBuffer);
-    myCullPass.myDescriptorSet->BindBuffer(objectSystem.GetBuffer(), vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
+    myCullPass.myDescriptorSet->BindBuffer(objectSystem.GetSparseBuffer(), vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
+    myCullPass.myDescriptorSet->BindBuffer(objectSystem.GetDenseBuffer(), vk::ShaderStageFlagBits::eCompute, 5, vk::DescriptorType::eStorageBuffer);
     myCullPass.myDescriptorSet->BindBuffer(myIndirectCommandsBuffer, vk::ShaderStageFlagBits::eCompute, 2, vk::DescriptorType::eStorageBuffer);
     myCullPass.myDescriptorSet->BindBuffer(myCountBuffer, vk::ShaderStageFlagBits::eCompute, 3, vk::DescriptorType::eStorageBuffer);
     myCullPass.myDescriptorSet->BindBuffer(myPerDrawDataBuffer, vk::ShaderStageFlagBits::eCompute, 4, vk::DescriptorType::eStorageBuffer);
@@ -465,4 +470,9 @@ void GDRPipeline::BuildDirectionalLightBuffer() const
 	}
 	buffer.myColor = glm::vec4(0, 0, 0, 0);
 	LOG("No directional light found.");
+}
+
+void GDRPipeline::OnTransformMarkedDirty(TransformComponent* inTransform)
+{
+	myDirtyTransforms.Add(inTransform);
 }

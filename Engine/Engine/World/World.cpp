@@ -12,6 +12,7 @@
 #include "Components/SinWaveMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TransformComponent.h"
+#include "Core/Input.h"
 
 World::World()
 {
@@ -67,20 +68,23 @@ void World::Init()
 	//});
 
 	
-	GameObject* cactus = myComponentSystem->CreateGameObject();
-	cactus->GetTransform()->SetPosition(500, 0, 0);
-	myAssetRegistry->GetAssetAsync<Model>("Assets/Cactus.fbx", [cactus](Model* inModel)
-	{
-		cactus->AddComponent<StaticMeshComponent>()->SetModel(inModel);
-	});
 	
-	cactus->AddComponent<SinWaveMovementComponent>();
-	
+	ToggleCactus();
 }
 
 void World::Update()
 {
-	myComponentSystem->Tick();	
+	myComponentSystem->Tick();
+
+	if(Input::IsKeyDown(KeyCode::Y))
+	{
+		ToggleCactus();
+	}
+}
+
+void World::Destroy()
+{
+	
 }
 
 AssetRegistry& World::GetAssetRegistry() const
@@ -96,4 +100,24 @@ DirectionalLightComponent* World::GetDirectionalLight() const
 ComponentSystem& World::GetComponentSystem() const
 {
 	return *myComponentSystem;	
+}
+
+void World::ToggleCactus()
+{
+	LOG("Toggle cactus");
+	if(myCactus)
+	{
+		myCactus->Destroy();
+		myCactus = nullptr;
+		return;
+	}
+	
+	myCactus  = myComponentSystem->CreateGameObject();
+	myCactus->GetTransform()->SetPosition(500, 0, 0);
+	myAssetRegistry->GetAssetAsync<Model>("Assets/Cactus.fbx", [this](Model* inModel)
+	{
+		myCactus->AddComponent<StaticMeshComponent>()->SetModel(inModel);
+	});
+	
+	myCactus->AddComponent<SinWaveMovementComponent>();
 }

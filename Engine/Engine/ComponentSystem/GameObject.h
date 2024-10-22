@@ -48,6 +48,7 @@ public:
     }
 
     TransformComponent* GetTransform() const;
+    void Destroy();
 
 private:
     friend ComponentSystem;

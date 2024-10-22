@@ -24,7 +24,7 @@
 #include "Rendering/VertexBufferSystem.h"
 #include "System/SystemManager.h"
 #include "Systems/PointLightSystem.h"
-#include "Vulkan/ObjectSystem.h"
+#include "Vulkan/GPUSceneSystem.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -176,7 +176,7 @@ void Engine::CreateSystems()
 	mySystemManager->AddSystem<RenderSystem>();
 	mySystemManager->AddSystem<TextureSystem>();
 	mySystemManager->AddSystem<MeshSystem>();
-	mySystemManager->AddSystem<ObjectSystem>();
+	mySystemManager->AddSystem<GPUSceneSystem>();
 	mySystemManager->AddSystem<IndexBufferSystem>();
 	mySystemManager->AddSystem<VertexBufferSystem>();
 	mySystemManager->AddSystem<PointLightSystem>();

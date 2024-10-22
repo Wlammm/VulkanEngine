@@ -7,12 +7,16 @@ layout(std430, set = 0, binding = 0) readonly buffer MeshBuffer
     MeshData myMeshes[];
 } inMeshBuffer;
 
-layout(set = 0, binding = 1) readonly buffer ObjectBuffer
+layout(set = 0, binding = 1) readonly buffer SparseObjectBuffer
+{
+    MeshInstanceData myObjects[];
+} inSparseObjectBuffer;
+
+layout(set = 0, binding = 5) readonly buffer DenseObjectBuffer
 {
     uint myNumObjects;
-    vec3 padding;
-    ObjectData myObjects[];
-} inObjectBuffer;
+    uint myIndices[];
+} inDenseObjectBuffer;
 
 layout(std430, set = 0, binding = 2) buffer OutIndirectBuffer
 {
@@ -32,13 +36,15 @@ layout(std430, set = 0, binding = 4) buffer OutPerDrawDataBuffer
 layout (local_size_x = 256) in;
 
 void main() {
-    uint objectIndex = gl_GlobalInvocationID.x;
+    uint denseIndex = gl_GlobalInvocationID.x;
     
-    if(objectIndex >= inObjectBuffer.myNumObjects)
+    if(denseIndex >= inDenseObjectBuffer.myNumObjects)
         return;
     
-    ObjectData objectData = inObjectBuffer.myObjects[objectIndex];
-    MeshData meshData = inMeshBuffer.myMeshes[objectData.myMeshIndex];
+    uint sparseIndex = inDenseObjectBuffer.myIndices[denseIndex];
+
+    MeshInstanceData instanceData = inSparseObjectBuffer.myObjects[sparseIndex];
+    MeshData meshData = inMeshBuffer.myMeshes[instanceData.myMeshIndex];
     
     uint renderIndex = atomicAdd(outCountBuffer.myDrawCount, 1);
     
@@ -49,10 +55,8 @@ void main() {
     outIndirectBuffer.drawCommands[renderIndex].vertexOffset = int(meshData.myVertexOffset);
     outIndirectBuffer.drawCommands[renderIndex].firstIndex = meshData.myIndexOffset;
     
-    outPerDrawData.perDrawData[renderIndex].myAlbedoIndex = objectData.myAlbedoIndex;
-    outPerDrawData.perDrawData[renderIndex].myNormalIndex = objectData.myNormalIndex;
-    outPerDrawData.perDrawData[renderIndex].myMaterialIndex = objectData.myMaterialIndex;
-    outPerDrawData.perDrawData[renderIndex].myToWorld = objectData.myToWorld;
-    
-    // We need to have a per instance buffer that is bound to the vertex shaders 
+    outPerDrawData.perDrawData[renderIndex].myAlbedoIndex = instanceData.myAlbedoIndex;
+    outPerDrawData.perDrawData[renderIndex].myNormalIndex = instanceData.myNormalIndex;
+    outPerDrawData.perDrawData[renderIndex].myMaterialIndex = instanceData.myMaterialIndex;
+    outPerDrawData.perDrawData[renderIndex].myToWorld = instanceData.myToWorld;
 }

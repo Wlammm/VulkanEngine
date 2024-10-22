@@ -6,8 +6,10 @@
 #include "AssetRegistry/AssetRegistry.h"
 #include "Assets/Material.h"
 #include "Assets/Model.h"
+#include "Assets/Texture.h"
 #include "Rendering/Mesh.h"
-#include "Vulkan/ObjectSystem.h"
+#include "Shaders/MeshStructs.hpp"
+#include "Vulkan/GPUSceneSystem.h"
 
 void StaticMeshComponent::Start()
 {
@@ -18,14 +20,18 @@ StaticMeshComponent::~StaticMeshComponent()
 {
     if(!myModel)
         return;
-
-    // Remove object from here.    
+    
+    RemoveFromGPUScene(); 
 }
 
 void StaticMeshComponent::SetModel(Model* inModel)
 {
+    if(myModel == inModel)
+        return;
+    
     myModel = inModel;
-    RegisterMeshesToObjectSystem();
+    RemoveFromGPUScene();
+    RegisterToGPUScene();
 }
 
 Model* StaticMeshComponent::GetModel() const
@@ -35,7 +41,7 @@ Model* StaticMeshComponent::GetModel() const
 
 void StaticMeshComponent::SetMaterial(Material* inMaterial, const uint inIndex)
 {
-    myMaterials[inIndex] = inMaterial;    
+    myMaterials[inIndex] = inMaterial;
 }
 
 Material* StaticMeshComponent::GetMaterial(const uint inIndex) const
@@ -43,7 +49,7 @@ Material* StaticMeshComponent::GetMaterial(const uint inIndex) const
     if(!myMaterials.IsValidIndex(inIndex))
         return nullptr;
     
-    return myMaterials[inIndex];    
+    return myMaterials[inIndex];
 }
 
 void StaticMeshComponent::SetMaterialForMesh(Material* inMaterial, Mesh* inMesh)
@@ -60,7 +66,7 @@ Material* StaticMeshComponent::GetMaterialForMesh(Mesh* inMesh) const
     return GetMaterial(index);
 }
 
-void StaticMeshComponent::RegisterMeshesToObjectSystem()
+void StaticMeshComponent::RegisterToGPUScene()
 {
     if(!myModel)
         return;
@@ -76,9 +82,30 @@ void StaticMeshComponent::RegisterMeshesToObjectSystem()
         
         if(std::filesystem::exists(albedoPath) && std::filesystem::exists(normalPath) && std::filesystem::exists(materialPath))
         {
+            if(myMaterials[i])
+                del(myMaterials[i]);
+            
             myMaterials[i] = new Material(albedoPath, normalPath, materialPath);
         }
+
+        MeshInstanceData data{ GetTransform().GetMatrix(), mesh->GetHandle() };
+
+        if(myMaterials[i])
+        {
+            data.myAlbedoIndex = myMaterials[i]->GetAlbedo()->GetBindlessIndex();
+            data.myNormalIndex = myMaterials[i]->GetNormal()->GetBindlessIndex();
+            data.myMaterialIndex = myMaterials[i]->GetMaterial()->GetBindlessIndex();
+        }
         
-        Engine::GetEngineSystem<ObjectSystem>().AddObject(GetTransform().GetMatrix(), mesh, myMaterials[i]);
+        myMeshInstances.Add(Engine::GetEngineSystem<GPUSceneSystem>().AddMeshInstance(data));
     }
+}
+
+void StaticMeshComponent::RemoveFromGPUScene()
+{
+    for(const MeshInstanceIndex instanceIndex : myMeshInstances)
+    {
+        Engine::GetEngineSystem<GPUSceneSystem>().RemoveMeshInstance(instanceIndex);
+    }
+    myMeshInstances.Clear();
 }

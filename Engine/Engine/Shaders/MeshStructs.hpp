@@ -5,8 +5,10 @@ using mat4 = glm::mat4;
 using vec3 = glm::vec3;
 
 #define ALIGNAS(x) alignas(x)
+#define DEFAULT_TO(x) = x
 #else
-#define ALIGNAS(x) 
+#define ALIGNAS(x)
+#define DEFAULT_TO(x) 
 #endif
 
 /*
@@ -26,13 +28,13 @@ struct MeshData
     ALIGNAS(4) uint myMaterialIndex;
 };
 
-struct ALIGNAS(16) ObjectData
+struct ALIGNAS(16) MeshInstanceData
 {
     ALIGNAS(16) mat4 myToWorld;
-    ALIGNAS(4) uint myMeshIndex;
-    ALIGNAS(4) uint myAlbedoIndex;
-    ALIGNAS(4) uint myNormalIndex;
-    ALIGNAS(4) uint myMaterialIndex;
+    ALIGNAS(4) uint myMeshIndex DEFAULT_TO((uint)-1);
+    ALIGNAS(4) uint myAlbedoIndex DEFAULT_TO((uint)-1);
+    ALIGNAS(4) uint myNormalIndex DEFAULT_TO((uint)-1);
+    ALIGNAS(4) uint myMaterialIndex DEFAULT_TO((uint)-1);
 };
 
 struct PerDrawData

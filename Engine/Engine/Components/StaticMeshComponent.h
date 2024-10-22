@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "ComponentSystem/Component.h"
+#include "Vulkan/GPUSceneSystem.h"
 
 class Mesh;
 class Material;
@@ -21,9 +22,12 @@ public:
     Material* GetMaterialForMesh(Mesh* inMesh) const;
     
 private:
-    void RegisterMeshesToObjectSystem();
+    void RegisterToGPUScene();
+    void RemoveFromGPUScene();
     
 private:
     List<Material*> myMaterials{};
     Model* myModel = nullptr;
+
+    List<MeshInstanceIndex> myMeshInstances{};
 };

@@ -255,6 +255,8 @@ void TransformComponent::MarkDirty()
 		myDirtyComponents.Add(this);
 
 	myIsDirty = true;
+	OnMarkedDirty(this);
+	
 	for(TransformComponent* child : myChildren)
 	{
 		child->MarkDirty();

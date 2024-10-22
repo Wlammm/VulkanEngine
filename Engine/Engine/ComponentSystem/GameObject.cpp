@@ -2,6 +2,7 @@
 #include "GameObject.h"
 
 #include "Component.h"
+#include "ComponentSystem.h"
 #include "Components/TransformComponent.h"
 
 GameObject::~GameObject()
@@ -24,4 +25,9 @@ void GameObject::Tick()
 TransformComponent* GameObject::GetTransform() const
 {
     return GetComponent<TransformComponent>();
+}
+
+void GameObject::Destroy()
+{
+    myComponentSystem->DestroyGameObject(this);
 }

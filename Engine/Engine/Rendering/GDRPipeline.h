@@ -2,6 +2,7 @@
 #include "Vulkan/VulkanDescriptorSet.h"
 // GPU Driven Rendering Pipeline.
 
+class TransformComponent;
 class Shader;
 class VulkanBuffer;
 
@@ -44,6 +45,8 @@ private:
 
     void BuildFrameBuffer() const;
     void BuildDirectionalLightBuffer() const;
+
+    void OnTransformMarkedDirty(TransformComponent* inTransform);
     
 private:
     Shader* myPrePassShader = nullptr;
@@ -83,4 +86,6 @@ private:
         glm::mat4 myLightProjection;
     };
     VulkanBuffer* myDirectionalLightBuffer;
+
+    List<TransformComponent*> myDirtyTransforms;
 };

@@ -16,15 +16,21 @@ public:
 
 	void Update();
 
+	void Destroy();
+
 	class AssetRegistry& GetAssetRegistry() const;
 
 	DirectionalLightComponent* GetDirectionalLight() const;
 
 	ComponentSystem& GetComponentSystem() const;
 	
+	void ToggleCactus();
 	
 private:
 	class AssetRegistry* myAssetRegistry = nullptr;
 
 	ComponentSystem* myComponentSystem = nullptr;
+
+	class GameObject* myCactus = nullptr;
+	
 };

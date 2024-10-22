@@ -46,6 +46,37 @@ void ResizableBuffer::SetData(const void* inData, const size_t inSize, uint inOf
     }
 }
 
+void ResizableBuffer::MoveData(const uint inSourceOffset, const uint inDstOffset, const size_t inSize)
+{
+    // This might fail if we have a buffer resize already queued this frame.
+    RenderSystem::AddUploadCommand_TS(this, [&, inSourceOffset, inDstOffset, inSize](vk::CommandBuffer inCommandBuffer)
+    {
+        vk::BufferCopy copy = vk::BufferCopy().setSize(inSize).setSrcOffset(inSourceOffset).setDstOffset(inDstOffset);
+        inCommandBuffer.copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
+        
+        vk::BufferMemoryBarrier bufferMemoryBarrier{};
+        bufferMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+        bufferMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
+        bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        bufferMemoryBarrier.buffer = myBuffer->GetAPIResource();
+        bufferMemoryBarrier.offset = inDstOffset;
+        bufferMemoryBarrier.size = inSize;
+        
+        vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eTransfer;
+        vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eComputeShader;
+
+        inCommandBuffer.pipelineBarrier(
+            srcStageMask,              
+            dstStageMask,              
+            {},                        
+            nullptr,                   
+            bufferMemoryBarrier,       
+            nullptr                    
+        );
+    });
+}
+
 void ResizableBuffer::DequeueUploads()
 {
     check(myBuffer->GetCreateInfo().usage & vk::BufferUsageFlagBits::eTransferSrc &&
