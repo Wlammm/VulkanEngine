@@ -30,8 +30,7 @@ void StaticMeshComponent::SetModel(Model* inModel)
         return;
     
     myModel = inModel;
-    RemoveFromGPUScene();
-    RegisterToGPUScene();
+    MarkRenderStateDirty();
 }
 
 Model* StaticMeshComponent::GetModel() const
@@ -42,6 +41,7 @@ Model* StaticMeshComponent::GetModel() const
 void StaticMeshComponent::SetMaterial(Material* inMaterial, const uint inIndex)
 {
     myMaterials[inIndex] = inMaterial;
+    MarkRenderStateDirty();
 }
 
 Material* StaticMeshComponent::GetMaterial(const uint inIndex) const
@@ -66,8 +66,10 @@ Material* StaticMeshComponent::GetMaterialForMesh(Mesh* inMesh) const
     return GetMaterial(index);
 }
 
-void StaticMeshComponent::RegisterToGPUScene()
+void StaticMeshComponent::OnRenderStateDirty()
 {
+    RemoveFromGPUScene();
+    
     if(!myModel)
         return;
 

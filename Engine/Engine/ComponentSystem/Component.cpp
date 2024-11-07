@@ -4,6 +4,11 @@
 #include "GameObject.h"
 #include "Components/TransformComponent.h"
 
+void Component::MarkRenderStateDirty()
+{
+    myGameObject->MarkRenderStateDirty();
+}
+
 GameObject* Component::GetGameObject() const
 {
     return myGameObject;

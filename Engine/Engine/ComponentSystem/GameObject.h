@@ -50,6 +50,8 @@ public:
     TransformComponent* GetTransform() const;
     void Destroy();
 
+    void MarkRenderStateDirty();
+    
 private:
     friend ComponentSystem;
     ComponentSystem* myComponentSystem = nullptr;

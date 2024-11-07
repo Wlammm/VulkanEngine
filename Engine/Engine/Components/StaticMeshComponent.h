@@ -20,9 +20,10 @@ public:
 
     void SetMaterialForMesh(Material* inMaterial, Mesh* inMesh);
     Material* GetMaterialForMesh(Mesh* inMesh) const;
+
+    void OnRenderStateDirty() override;
     
 private:
-    void RegisterToGPUScene();
     void RemoveFromGPUScene();
     
 private:

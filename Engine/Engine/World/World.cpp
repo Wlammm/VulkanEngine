@@ -13,6 +13,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/TransformComponent.h"
 #include "Core/Input.h"
+#include "Core/Time.h"
 
 World::World()
 {

@@ -80,7 +80,6 @@ void GPUSceneSystem::RemoveMeshInstance(const MeshInstanceIndex inMeshInstance)
 {
     const uint denseIndex = myDenseBufferCPURepresentation.FindIndex(inMeshInstance);
     
-    // Add the sparse index back to the free list
     myFreeSparseIndices.Add(inMeshInstance);
 
     uint lastIndex = myDenseBufferCPURepresentation.size() - 1;
@@ -92,7 +91,6 @@ void GPUSceneSystem::RemoveMeshInstance(const MeshInstanceIndex inMeshInstance)
         myDenseBufferCPURepresentation[denseIndex] = myDenseBufferCPURepresentation[lastIndex];
     }
 
-    // Remove the last element in the dense representation
     myDenseBufferCPURepresentation.RemoveLast();
 
     // Update the dense buffer with the new size

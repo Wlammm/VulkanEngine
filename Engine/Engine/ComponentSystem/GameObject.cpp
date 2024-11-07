@@ -31,3 +31,12 @@ void GameObject::Destroy()
 {
     myComponentSystem->DestroyGameObject(this);
 }
+
+void GameObject::MarkRenderStateDirty()
+{
+    // TODO: This should probably be queued and only updated once per frame. No need to update multiple times a frame.
+    for(Component* comp : myComponents)
+    {
+        comp->OnRenderStateDirty();
+    }
+}

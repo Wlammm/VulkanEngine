@@ -37,12 +37,12 @@ GDRPipeline::GDRPipeline()
     CreateCullPassResources();
 	CreateDrawPassResources();
 	
-	TransformComponent::OnMarkedDirty.Bind(&GDRPipeline::OnTransformMarkedDirty, this);
+	//TransformComponent::OnMarkedDirty.Bind(&GDRPipeline::OnTransformMarkedDirty, this);
 }
 
 GDRPipeline::~GDRPipeline()
 {
-	TransformComponent::OnMarkedDirty.UnBind(&GDRPipeline::OnTransformMarkedDirty, this);
+	//TransformComponent::OnMarkedDirty.UnBind(&GDRPipeline::OnTransformMarkedDirty, this);
 	
 	myVertexShader->OnShaderRecompiled.UnBind(&GDRPipeline::OnShaderRecompiled, this);
 	myFragmentShader->OnShaderRecompiled.UnBind(&GDRPipeline::OnShaderRecompiled, this);

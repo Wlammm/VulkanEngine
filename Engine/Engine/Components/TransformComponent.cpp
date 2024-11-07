@@ -8,8 +8,6 @@ TransformComponent::TransformComponent()
 
 TransformComponent::~TransformComponent()
 {
-	MarkDirty();
-	
 	if (myParent)
 		RemoveParent();
 
@@ -18,16 +16,17 @@ TransformComponent::~TransformComponent()
 	{
 		child->myParent = nullptr;
 	}
+	MarkDirty();
 }
 
 void TransformComponent::SetParent(TransformComponent* inParent)
 {
-	MarkDirty();
 	if (myParent)
 		RemoveParent();
 
 	myParent = inParent;
 	myParent->AddChild(this);
+	MarkDirty();
 }
 
 void TransformComponent::RemoveParent()
@@ -35,7 +34,6 @@ void TransformComponent::RemoveParent()
 	if (!myParent)
 		return;
 
-	MarkDirty();
 	glm::vec3 position = GetPosition();
 	glm::quat rotation = GetRotation();
 	glm::vec3 scale = GetScale();
@@ -46,6 +44,7 @@ void TransformComponent::RemoveParent()
 	myScale = scale;
 
 	myParent = nullptr;
+	MarkDirty();
 }
 
 void TransformComponent::AddChild(TransformComponent* inChild)
@@ -62,29 +61,29 @@ void TransformComponent::RemoveChild(TransformComponent* inChild)
 
 void TransformComponent::SetRotationLocal(const glm::quat& inQuaternion)
 {
-	MarkDirty();
 	myRotation = inQuaternion;
+	MarkDirty();
 }
 
 void TransformComponent::SetScaleLocal(const glm::vec3& inScale)
 {
-	MarkDirty();
 	myScale = inScale;
+	MarkDirty();
 }
 
 void TransformComponent::SetScaleLocal(const float inScale)
 {
-	MarkDirty();
 	myScale = glm::vec3(inScale);
+	MarkDirty();
 }
 
 void TransformComponent::SetPosition(const glm::vec3& inPosition)
 {
-	MarkDirty();
 	if (myParent)
 		myPosition = glm::vec3((glm::vec4(inPosition, 1.0f) * glm::inverse(myParent->GetMatrix())));
 	else
 		myPosition = inPosition;
+	MarkDirty();
 }
 
 void TransformComponent::SetPosition(const float inX, const float inY, const float inZ)
@@ -109,11 +108,11 @@ void TransformComponent::SetPositionZ(const float inZ)
 
 void TransformComponent::SetScale(const glm::vec3& inScale)
 {
-	MarkDirty();
 	if (myParent)
 		myScale = inScale * (1.f / myParent->GetScale());
 	else
 		myScale = inScale;
+	MarkDirty();
 }
 
 void TransformComponent::SetScale(const float inX, const float inY, const float inZ)
@@ -128,17 +127,17 @@ void TransformComponent::SetScale(const float inScalar)
 
 void TransformComponent::SetRotation(const glm::quat& inQuat)
 {
-	MarkDirty();
 	if (myParent)
 		myRotation = inQuat * glm::inverse(myParent->GetRotation());
 	else
 		myRotation = inQuat;
+	MarkDirty();
 }
 
 void TransformComponent::SetRotationRad(const glm::vec3& inRotation)
 {
-	MarkDirty();
 	myRotation = glm::quat(inRotation);
+	MarkDirty();
 }
 
 void TransformComponent::SetRotationDeg(const glm::vec3& inRotation)
@@ -245,21 +244,17 @@ glm::vec3 TransformComponent::GetRight() const
 
 void TransformComponent::Move(const glm::vec3& inDisplacement)
 {
-	MarkDirty();
 	myPosition += inDisplacement;
+	MarkDirty();
 }
 
 void TransformComponent::MarkDirty()
 {
-	if(!myIsDirty)
-		myDirtyComponents.Add(this);
+	MarkRenderStateDirty();
 
-	myIsDirty = true;
-	OnMarkedDirty(this);
-	
 	for(TransformComponent* child : myChildren)
 	{
-		child->MarkDirty();
+		child->MarkRenderStateDirty();
 	}
 }
 
@@ -293,6 +288,6 @@ const glm::vec3 TransformComponent::LocalUp() const
 
 void TransformComponent::SetPositionLocal(const glm::vec3& inPosition)
 {
-	MarkDirty();
 	myPosition = inPosition;
+	MarkDirty();
 }

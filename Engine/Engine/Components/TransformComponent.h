@@ -63,12 +63,9 @@ public:
 
     void Move(const glm::vec3& inDisplacement);
 
-    inline static MulticastDelegate<void(TransformComponent*)> OnMarkedDirty;
 private:
     void MarkDirty();
 
-    inline static List<TransformComponent*> myDirtyComponents{};
-    
     glm::vec3 myPosition { 0, 0, 0 };
     glm::quat myRotation {};
     glm::vec3 myScale { 1, 1, 1 };

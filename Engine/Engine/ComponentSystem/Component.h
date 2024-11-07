@@ -12,6 +12,11 @@ public:
     virtual void Start() {}
     virtual void Tick() {}
 
+    void MarkRenderStateDirty();
+    
+    // Callback when render state is marked dirty on the gameobject.
+    virtual void OnRenderStateDirty() {}
+
     GameObject* GetGameObject() const;
 
     TransformComponent& GetTransform() const;
