@@ -44,7 +44,8 @@ void World::Init()
 	
 	GameObject* dirLightObject = myComponentSystem->CreateGameObject();
 	DirectionalLightComponent* light = dirLightObject->AddComponent<DirectionalLightComponent>();
-	light->SetColor({1, 1, 1, 1});
+	dirLightObject->GetTransform()->SetRotationDeg(321, 314, -50);
+	light->SetColor({1, 168/255.0, 120/255.0, 1});
 
 	glm::vec3 startPosition = glm::vec3(-800.0f, 50.0f, -35.0f);
 	for (int i = 0; i < 5; i++)

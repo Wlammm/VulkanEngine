@@ -57,9 +57,10 @@ vec3 GetNormalFromMap(vec3 inNormalFromNormalTexture, vec3 inVertexNormal, vec3 
     return normalize(TBN * tangentNormal);
 }
 
-// inLightDirection = lightPositions[i] - inFragWorldPos; (Non normalized!!)
-vec3 CalculateDirectionalLight(vec3 inLightDirection, vec3 inLightColor, float inLightRange, vec3 inNormal, vec3 inCamPos, vec3 inFragWorldPos, vec3 inAlbedo, float inMetallic, float inRoughness)
+vec3 CalculatePointLight(vec3 inLightPosition, vec3 inLightColor, float inLightRange, vec3 inNormal, vec3 inCamPos, vec3 inFragWorldPos, vec3 inAlbedo, float inMetallic, float inRoughness)
 {
+    vec3 lightDirection = inLightPosition - inFragWorldPos;
+    
     vec3 N = normalize(inNormal);
     vec3 V = normalize(inCamPos - inFragWorldPos);
 
@@ -67,9 +68,9 @@ vec3 CalculateDirectionalLight(vec3 inLightDirection, vec3 inLightColor, float i
     F0 = mix(F0, inAlbedo, inMetallic);
 
     // calculate per-light radiance
-    vec3 L = normalize(inLightDirection);
+    vec3 L = normalize(lightDirection);
     vec3 H = normalize(V + L);
-    float distance    = length(inLightDirection);
+    float distance    = length(lightDirection);
     float physicalAttenuation = 1.0 / (distance * distance);
 
     float linearAttenuation = distance / inLightRange;
@@ -95,4 +96,35 @@ vec3 CalculateDirectionalLight(vec3 inLightDirection, vec3 inLightColor, float i
     float NdotL = max(dot(N, L), 0.0);
 
     return (kD * inAlbedo / PI + specular) * radiance * NdotL;
+}
+
+vec3 CalculateDirectionalLight(vec3 inLightDirection, vec3 inLightColor, vec3 inNormal, vec3 inCamPos, vec3 inFragWorldPos, vec3 inAlbedo, float inMetallic, float inRoughness)
+{
+    vec3 N = normalize(inNormal);
+    vec3 V = normalize(inCamPos - inFragWorldPos);
+
+    vec3 F0 = vec3(0.0);
+    F0 = mix(F0, inAlbedo, inMetallic);
+
+    // calculate per-light radiance
+    vec3 L = normalize(inLightDirection);
+    vec3 H = normalize(V + L);
+
+    // cook-torrance brdf
+    float NDF = DistributionGGX(N, H, inRoughness);
+    float G   = GeometrySmith(N, V, L, inRoughness);
+    vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - inMetallic;
+
+    vec3 numerator    = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+    vec3 specular     = numerator / denominator;
+
+    // add to outgoing radiance Lo
+    float NdotL = max(dot(N, L), 0.0);
+
+    return inLightColor * (kD * inAlbedo / PI + specular) * NdotL;
 }

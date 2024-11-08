@@ -1,5 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "DirectionalLightComponent.h"
+
+#include "TransformComponent.h"
 #include "Vulkan/VulkanImage.h"
 
 DirectionalLightComponent::DirectionalLightComponent()
@@ -11,19 +13,25 @@ DirectionalLightComponent::~DirectionalLightComponent()
 {
 }
 
+void DirectionalLightComponent::Tick()
+{
+    Component::Tick();
+
+}
+
 void DirectionalLightComponent::SetColor(const glm::vec4& inColor)
 {
     myColor = inColor;
 }
 
+void DirectionalLightComponent::SetIntensity(const float inValue)
+{
+    myColor.a = inValue;
+}
+
 const glm::vec4& DirectionalLightComponent::GetColor() const
 {
     return myColor;
-}
-
-const glm::mat4& DirectionalLightComponent::GetLightView() const
-{
-    return myLightView;
 }
 
 const glm::mat4& DirectionalLightComponent::GetLightProjection() const

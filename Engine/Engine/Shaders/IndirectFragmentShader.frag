@@ -92,20 +92,19 @@ void main()
     
     float roughness = materialColor.g;
     float metalness = materialColor.b;
-
-
+    
+    
     float ambientLightStrength = 0.005;
-    vec3 dirLightColor = vec3(0, 0, 0);
+    vec3 pointLightColor = vec3(0, 0, 0);
 
     for(int i = 0; i < inPointLightBuffer.myNumLights; ++i)
     {
-        vec3 directionalLightDirection = inPointLightBuffer.myLights[i].myPosition - inFragPos;
-        vec3 directionalLightColor = inPointLightBuffer.myLights[i].myColor.rgb * inPointLightBuffer.myLights[i].myIntensity;
-        float range = inPointLightBuffer.myLights[i].myRange;
-
-        dirLightColor += CalculateDirectionalLight(directionalLightDirection, directionalLightColor, range, normalColor, myCameraPosition, inFragPos, albedoColor, metalness, roughness);
+        vec3 lightColor = inPointLightBuffer.myLights[i].myColor.rgb * inPointLightBuffer.myLights[i].myIntensity;
+        pointLightColor += CalculatePointLight(inPointLightBuffer.myLights[i].myPosition, lightColor, inPointLightBuffer.myLights[i].myRange, normalColor, myCameraPosition, inFragPos, albedoColor, metalness, roughness);
     }
     
+    vec3 directionalLightColor = CalculateDirectionalLight(inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor.xyz, normalColor, myCameraPosition, inFragPos, albedoColor, metalness, roughness);
+    directionalLightColor *= inDirectionalLightBuffer.myColor.a;
     vec3 ambientLight = albedoColor * ambientLightStrength;
-    outColor = vec4(HDRToLDR(LinearToGamma(((dirLightColor + ambientLight)))), 1.0);
+    outColor = vec4(HDRToLDR(LinearToGamma(((ambientLight + directionalLightColor + pointLightColor)))), 1.0);
 }

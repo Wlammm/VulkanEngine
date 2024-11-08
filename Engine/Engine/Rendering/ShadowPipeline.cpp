@@ -272,10 +272,9 @@ void ShadowPipeline::BuildFrameBuffer(const TransformComponent* inLightTransform
 	FrameData data = {};
 
 	data.myProjection = inLight->GetLightProjection();
-	data.myToView = glm::affineInverse(inLight->GetLightView());
+	data.myToView = glm::affineInverse(inLightTransform->GetMatrix());
 
 	// This shouldnt be needed for this pass. It should only be used in pixel shader for lighting. (I think)
 	data.myCameraPosition = glm::vec3(0, 0, 0);
 	myFrameDataBuffer->SetData(data);
 }
-
