@@ -95,9 +95,13 @@ void Engine::Tick()
 #endif
 
 	myWorld->Update();
-	
-	TickNextFrame.Invoke();
-	TickNextFrame.Clear();
+
+	{
+		// Move the data so that we can bind the same function for the next frame inside this invocation.
+		MulticastDelegate<void()> ticksThisFrame = std::move(TickNextFrame);
+		TickNextFrame.Clear();
+		ticksThisFrame.Invoke();
+	}
 	
 	GetEngineSystem<TextureSystem>().Tick();
 	GetEngineSystem<RenderSystem>().Tick();

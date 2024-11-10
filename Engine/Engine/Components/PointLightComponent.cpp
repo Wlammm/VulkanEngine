@@ -14,7 +14,7 @@ void PointLightComponent::Start()
 
 void PointLightComponent::TEMP_SendToGPU()
 {
-    Engine::GetEngineSystem<PointLightSystem>().AddLight(&GetTransform(), this);
+    Engine::GetEngineSystem<PointLightSystem>().AddLight(GetTransform(), this);
 }
 
 const glm::vec3& PointLightComponent::GetColor() const

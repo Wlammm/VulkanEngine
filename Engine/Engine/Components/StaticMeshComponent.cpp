@@ -90,7 +90,7 @@ void StaticMeshComponent::OnRenderStateDirty()
             myMaterials[i] = new Material(albedoPath, normalPath, materialPath);
         }
 
-        MeshInstanceData data{ GetTransform().GetMatrix(), mesh->GetHandle() };
+        MeshInstanceData data{ GetTransform()->GetMatrix(), mesh->GetHandle() };
 
         if(myMaterials[i])
         {

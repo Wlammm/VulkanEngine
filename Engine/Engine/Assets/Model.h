@@ -42,7 +42,6 @@ private:
 	void InitializeStagingBuffers(List<SerializationMeshData>& inMeshDatas);
 	uint GetRequiredVertexBufferSize(const List<SerializationMeshData>& inMeshDatas);
 	
-	static glm::vec4 CalculateSphereBounds(const List<Vertex>& inVertices);
 
 private:
 	List<Mesh*> myMeshes{};

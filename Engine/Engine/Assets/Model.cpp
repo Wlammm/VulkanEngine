@@ -10,6 +10,7 @@
 #include "Rendering/IndexBufferSystem.h"
 #include "Rendering/Mesh.h"
 #include "Rendering/MeshSystem.h"
+#include "Rendering/MeshUtils.h"
 #include "Rendering/VertexBufferSystem.h"
 #include "Serialization/BinaryReader.h"
 #include "Serialization/BinaryWriter.h"
@@ -213,7 +214,7 @@ List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::p
 			meshData.myMaterialPath = materialPath.C_Str();
 		}
 		
-		meshData.mySphereCenterBounds = CalculateSphereBounds(meshData.myVertices);
+		meshData.mySphereCenterBounds = MeshUtils::CalculateSphereBounds(meshData.myVertices);
 	}
 
 	myImporter.FreeScene();
@@ -284,24 +285,4 @@ uint Model::GetRequiredVertexBufferSize(const List<SerializationMeshData>& inMes
 		requiredSize += sizeof(Vertex) * meshData.myVertices.size();
 	}
 	return requiredSize;
-}
-
-glm::vec4 Model::CalculateSphereBounds(const List<Vertex>& inVertices)
-{
-	//ZoneScoped;
-	glm::vec3 centerPos = glm::vec3();
-
-	for(const Vertex& vertex : inVertices)
-	{
-		centerPos += glm::vec3(vertex.myPosition);
-	}
-	
-	centerPos /= inVertices.size();
-
-	float maxDistanceFromCenter = 0;
-	for(const Vertex& vertex : inVertices)
-	{
-		maxDistanceFromCenter = std::max(maxDistanceFromCenter, glm::distance(centerPos, glm::vec3(vertex.myPosition)));
-	}
-	return glm::vec4(centerPos, maxDistanceFromCenter);
 }

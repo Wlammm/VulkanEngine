@@ -109,6 +109,7 @@ project "Engine"
 		"%{EXTERNAL}/tracy/",
 		"%{EXTERNAL}/glm/",
 		"%{EXTERNAL}/mimalloc/include/",
+		"%{EXTERNAL}/PerlinNoise/",
 	}
 	filter "files:../Engine/Tracy/TracyClient.cpp"
 		flags { "NoPCH" }

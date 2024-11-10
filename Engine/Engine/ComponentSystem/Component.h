@@ -19,7 +19,7 @@ public:
 
     GameObject* GetGameObject() const;
 
-    TransformComponent& GetTransform() const;
+    TransformComponent* GetTransform() const;
 
 private:
     friend GameObject;

@@ -14,7 +14,7 @@ GameObject* Component::GetGameObject() const
     return myGameObject;
 }
 
-TransformComponent& Component::GetTransform() const
+TransformComponent* Component::GetTransform() const
 {
-    return *myGameObject->GetComponent<TransformComponent>();    
+    return myGameObject->GetTransform();    
 }

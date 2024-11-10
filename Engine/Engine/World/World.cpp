@@ -8,12 +8,14 @@
 #include "ComponentSystem/ComponentSystem.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/EditorCameraMovementComponent.h"
+#include "Components/LandscapeRenderComponent.h"
 #include "Components/PointLightComponent.h"
 #include "Components/SinWaveMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TransformComponent.h"
 #include "Core/Input.h"
 #include "Core/Time.h"
+#include "Systems/LandscapeSystem.h"
 
 World::World()
 {
@@ -23,12 +25,21 @@ World::World()
 
 World::~World()
 {
+	for(WorldSystem* system : mySystems)
+	{
+		del(system);
+	}
+	mySystems.Clear();
+	
 	del(myComponentSystem);
 	del(myAssetRegistry);
 }
 
 void World::Init()
 {
+	mySystems.Add(new LandscapeSystem());
+
+	// World objects.
 	GameObject* camObject = myComponentSystem->CreateGameObject();
 	CameraComponent* camera = camObject->AddComponent<CameraComponent>();
 	camera->CreatePerspective(Engine::GetRenderResolution());
@@ -62,14 +73,15 @@ void World::Init()
 		pointLight->TEMP_SendToGPU();
 	}
 	
-
 	//GameObject* cubeObject = myComponentSystem->CreateGameObject();
 	//myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [cubeObject](Model* inModel)
 	//{
 	//	cubeObject->AddComponent<StaticMeshComponent>()->SetModel(inModel);
 	//});
 
-	
+	GameObject* landscape = myComponentSystem->CreateGameObject();
+	landscape->GetTransform()->SetPosition(0, 0, 0);
+	landscape->AddComponent<LandscapeRenderComponent>();
 	
 	ToggleCactus();
 }

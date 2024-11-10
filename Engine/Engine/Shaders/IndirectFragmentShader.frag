@@ -104,7 +104,7 @@ void main()
     }
     
     vec3 directionalLightColor = CalculateDirectionalLight(inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor.xyz, normalColor, myCameraPosition, inFragPos, albedoColor, metalness, roughness);
-    directionalLightColor *= inDirectionalLightBuffer.myColor.a;
+    directionalLightColor *= inDirectionalLightBuffer.myColor.a * 10;
     vec3 ambientLight = albedoColor * ambientLightStrength;
     outColor = vec4(HDRToLDR(LinearToGamma(((ambientLight + directionalLightColor + pointLightColor)))), 1.0);
 }

@@ -27,6 +27,12 @@ public:
 		myList = List<ElementType, SizeType>(inCopy);
 	}
 
+	MutexList(const MutexList<ElementType>& inCopy)
+	{
+		LockMutex;
+		myList = List<ElementType, SizeType>(inCopy.myList);
+	}
+
 	MutexList(const std::vector<ElementType>& inCopy)
 	{
 		LockMutex;
@@ -39,10 +45,18 @@ public:
 		myList = List<ElementType, SizeType>(inInitList);
 	}
 	
-	void operator=(const List<ElementType>& inCopy)
+	MutexList<ElementType, SizeType>& operator=(const List<ElementType>& inCopy)
 	{
 		LockMutex;
 		myList.operator=(inCopy);
+		return *this;
+	}
+
+	MutexList<ElementType, SizeType>& operator=(const MutexList<ElementType>& inCopy)
+	{
+		LockMutex;
+		myList.operator=(inCopy);
+		return *this;
 	}
 
 	void Clear()

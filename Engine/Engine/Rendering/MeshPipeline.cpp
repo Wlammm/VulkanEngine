@@ -119,7 +119,7 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 				constantData.myNormalIndex = -1;
 				constantData.myMaterialIndex = -1; 
 			}
-			constantData.myToWorld = staticMesh->GetTransform().GetMatrix();
+			constantData.myToWorld = staticMesh->GetTransform()->GetMatrix();
 			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &constantData);
 
 			if(!mesh->GetIndexBuffer() || !mesh->GetVertexBuffer())

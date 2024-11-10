@@ -124,7 +124,7 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 
 			// Insert push constant with material indices here.
 			PushConstantData constantData;
-			constantData.myToWorld = staticMesh->GetTransform().GetMatrix();
+			constantData.myToWorld = staticMesh->GetTransform()->GetMatrix();
 			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &constantData);
 			
 			inCommandBuffer.drawIndexed(mesh->GetIndexBuffer()->GetIndexCount(), 1, mesh->GetIndexBuffer()->GetOffset(), mesh->GetVertexBuffer()->GetOffset(), 0);
