@@ -9,6 +9,5 @@ public:
     
 private:
     friend class VertexBufferSystem;
-    uint myOffset;
-    uint myVertexCount = -1;
+    uint myIndex = -1;
 };

@@ -36,10 +36,22 @@ VertexBuffer* VertexBufferSystem::UploadVertexBuffer(VulkanBuffer* inStagingBuff
     VertexBuffer* buffer = new VertexBuffer();
     const uint sizeIncrease = inVertexCount * sizeof(Vertex);
     const uint requiredSize = myUsedBufferSize + sizeIncrease;
+
+    uint dataIndex = -1;
+    if(!myFreeVertexBufferIndices.empty())
+    {
+        dataIndex = myFreeVertexBufferIndices.back();
+        myFreeVertexBufferIndices.pop();
+    }
+    else
+    {
+        dataIndex = myNextVertexBufferIndex++;
+    }
     
     myBuffer->CopyDataFromBuffer(inStagingBuffer, sizeIncrease, myUsedBufferSize);
-    buffer->myOffset = myCurrentVertexOffset;
-    buffer->myVertexCount = inVertexCount;
+    buffer->myIndex = dataIndex;
+    //buffer->myOffset = myCurrentVertexOffset;
+    //buffer->myVertexCount = inVertexCount;
     myVertexBuffers.Add(buffer);
 
     myUsedBufferSize += sizeIncrease;

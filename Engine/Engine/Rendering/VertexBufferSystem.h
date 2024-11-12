@@ -6,6 +6,12 @@
 class VertexBuffer;
 class VulkanBuffer;
 
+struct VertexBufferDataBuffer
+{
+    uint myOffset;
+    uint myCount;
+};
+
 class VertexBufferSystem : public System
 {
 public:
@@ -26,5 +32,13 @@ private:
 
     List<VertexBuffer*> myVertexBuffers;
 
+    
+    // This buffer contains the offsets & sizes for different meshes. This is a sparse buffer.
+    ResizableBuffer* myVertexBufferDataBuffer;
+    List<VertexBufferDataBuffer> myVertexBufferDataBuffer_CPURepresentation;
+    uint myNextVertexBufferIndex = 0;
+    std::queue<uint> myFreeVertexBufferIndices;
+
+    
     ResizableBuffer* myBuffer = nullptr;
 };
