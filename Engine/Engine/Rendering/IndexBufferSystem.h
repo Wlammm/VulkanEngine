@@ -2,7 +2,7 @@
 #include "System/System.h"
 
 class ResizableBuffer;
-class IndexBuffer;
+class IndexBufferHandle;
 class VulkanBuffer;
 
 class IndexBufferSystem : public System
@@ -11,17 +11,17 @@ public:
     IndexBufferSystem();
     ~IndexBufferSystem();
 
-    IndexBuffer* UploadIndexBuffer(const List<uint>& inIndices);
-    IndexBuffer* UploadIndexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount);
+    IndexBufferHandle* UploadIndexBuffer(const List<uint>& inIndices);
+    IndexBufferHandle* UploadIndexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount);
     
-    void RemoveIndexBuffer(const IndexBuffer* inBuffer);
+    void RemoveIndexBuffer(const IndexBufferHandle* inBuffer);
     const ResizableBuffer* GetGlobalIndexBuffer() const;
 
 private:
     uint myUsedBufferSize = 0;
     uint myCurrentIndexOffset = 0;
 
-    List<IndexBuffer*> myIndexBuffers;
+    List<IndexBufferHandle*> myIndexBuffers;
 
     ResizableBuffer* myBuffer = nullptr;
 };

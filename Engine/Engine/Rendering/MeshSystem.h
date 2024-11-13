@@ -3,8 +3,8 @@
 #include "System/System.h"
 
 class Mesh;
-class IndexBuffer;
-class VertexBuffer;
+class IndexBufferHandle;
+class VertexBufferHandle;
 class ResizableBuffer;
 
 class MeshSystem : public System
@@ -13,7 +13,7 @@ public:
     MeshSystem();
     ~MeshSystem();
 
-    Mesh* UploadMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer, const glm::vec4& inBoundingSphere);
+    Mesh* UploadMesh(VertexBufferHandle* inVertexBuffer, IndexBufferHandle* inIndexBuffer, const glm::vec4& inBoundingSphere);
 
     ResizableBuffer* GetBuffer() const;
     

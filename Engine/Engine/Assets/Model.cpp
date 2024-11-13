@@ -249,10 +249,10 @@ void Model::InitializeFromMeshData(const List<SerializationMeshData>& inMeshData
 	//ZoneScoped;
 	for(const SerializationMeshData& meshData : inMeshDatas)
 	{
-		VertexBuffer* vertexBuffer = Engine::GetEngineSystem<VertexBufferSystem>().UploadVertexBuffer(meshData.myStagingVertexBuffer, meshData.myVertices.size());
+		VertexBufferHandle* vertexBuffer = Engine::GetEngineSystem<VertexBufferSystem>().UploadVertexBuffer(meshData.myStagingVertexBuffer, meshData.myVertices.size());
 		VulkanAllocator::DestroyBuffer_TS(meshData.myStagingVertexBuffer);
 		
-		IndexBuffer* indexBuffer = Engine::GetEngineSystem<IndexBufferSystem>().UploadIndexBuffer(meshData.myStagingIndexBuffer, meshData.myIndices.size());
+		IndexBufferHandle* indexBuffer = Engine::GetEngineSystem<IndexBufferSystem>().UploadIndexBuffer(meshData.myStagingIndexBuffer, meshData.myIndices.size());
 		VulkanAllocator::DestroyBuffer_TS(meshData.myStagingIndexBuffer);
 
 		const glm::vec4 boudingSphere = meshData.mySphereCenterBounds;

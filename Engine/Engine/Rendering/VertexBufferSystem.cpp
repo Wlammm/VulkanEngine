@@ -3,7 +3,7 @@
 
 #include "Engine.h"
 #include "RenderSystem.h"
-#include "VertexBuffer.h"
+#include "VertexBufferHandle.h"
 #include "Utils/MathUtils.hpp"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
@@ -16,67 +16,103 @@ VertexBufferSystem::VertexBufferSystem()
         .setUsage(vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst| vk::BufferUsageFlagBits::eTransferSrc)
         , VMA_MEMORY_USAGE_AUTO,
         false));
+
+    mySparseVertexDataBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("Global Sparse Vertex Data Buffer",
+      vk::BufferCreateInfo()
+      .setSize(sizeof(VertexBufferData) * 16)
+      .setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst| vk::BufferUsageFlagBits::eTransferSrc)
+      , VMA_MEMORY_USAGE_AUTO,
+      false));
+
 }
 
 VertexBufferSystem::~VertexBufferSystem()
 {
     VulkanAllocator::DestroyBuffer_TS(myBuffer);
+    VulkanAllocator::DestroyBuffer_TS(mySparseVertexDataBuffer);
     myUsedBufferSize = 0;
 
-    for(VertexBuffer* vertexBuffer : myVertexBuffers)
+    for(VertexBufferHandle* vertexBuffer : myVertexBuffers)
     {
         del(vertexBuffer);
     }
     myVertexBuffers.Clear();
 }
 
-VertexBuffer* VertexBufferSystem::UploadVertexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount)
+VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount)
 {
     check(inVertexCount > 0);
-    VertexBuffer* buffer = new VertexBuffer();
-    const uint sizeIncrease = inVertexCount * sizeof(Vertex);
-    const uint requiredSize = myUsedBufferSize + sizeIncrease;
 
+    // Updload the new data to the vertex data buffer.
     uint dataIndex = -1;
-    if(!myFreeVertexBufferIndices.empty())
+    if(!myFreeSparseIndices.IsEmpty())
     {
-        dataIndex = myFreeVertexBufferIndices.back();
-        myFreeVertexBufferIndices.pop();
+        dataIndex = myFreeSparseIndices.Last();
+        myFreeSparseIndices.RemoveLast();
     }
     else
     {
-        dataIndex = myNextVertexBufferIndex++;
+        dataIndex = mySparseVertexData_CPURepresentation.size();
+        mySparseVertexData_CPURepresentation.Emplace();
     }
     
-    myBuffer->CopyDataFromBuffer(inStagingBuffer, sizeIncrease, myUsedBufferSize);
-    buffer->myIndex = dataIndex;
-    //buffer->myOffset = myCurrentVertexOffset;
-    //buffer->myVertexCount = inVertexCount;
-    myVertexBuffers.Add(buffer);
+    VertexBufferData& data = mySparseVertexData_CPURepresentation[dataIndex];
+    data.myOffset = myCurrentVertexOffset;
+    data.myVertexCount = inVertexCount;
 
+    // Upload the new vertices.
+    const uint sizeIncrease = inVertexCount * sizeof(Vertex);
+    const uint requiredSize = myUsedBufferSize + sizeIncrease;
+    
+    myBuffer->CopyDataFromBuffer(inStagingBuffer, sizeIncrease, myUsedBufferSize);
+    mySparseVertexDataBuffer->SetData(&data, sizeof(VertexBufferData), sizeof(VertexBufferData) * dataIndex);
+    
     myUsedBufferSize += sizeIncrease;
     myCurrentVertexOffset += inVertexCount;
+
+    VertexBufferHandle* buffer = new VertexBufferHandle();
+    myVertexBuffers.Add(buffer);
+    buffer->myIndex = dataIndex;
+    
     return buffer;
 }
 
-VertexBuffer* VertexBufferSystem::UploadVertexBuffer(const List<Vertex>& inVertices)
+VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(const List<Vertex>& inVertices)
 {
     ZoneScoped;
-    VertexBuffer* buffer = new VertexBuffer();
+
+    // Updload the new data to the vertex data buffer.
+    uint dataIndex = -1;
+    if(!myFreeSparseIndices.IsEmpty())
+    {
+        dataIndex = myFreeSparseIndices.Last();
+        myFreeSparseIndices.RemoveLast();
+    }
+    else
+    {
+        dataIndex = mySparseVertexData_CPURepresentation.size();
+        mySparseVertexData_CPURepresentation.Emplace();
+    }
+    
+    VertexBufferData& data = mySparseVertexData_CPURepresentation[dataIndex];
+    data.myOffset = myCurrentVertexOffset;
+    data.myVertexCount = inVertices.size();
+
+    
     const uint sizeIncrease = inVertices.size() * sizeof(Vertex);
     const uint requiredSize = myUsedBufferSize + sizeIncrease;
     myBuffer->SetData(inVertices.data(), sizeIncrease, myUsedBufferSize);
 
-    buffer->myOffset = myCurrentVertexOffset;
-    buffer->myVertexCount = inVertices.size();
-    myVertexBuffers.Add(buffer);
-    
     myUsedBufferSize += sizeIncrease;
     myCurrentVertexOffset += static_cast<uint>(inVertices.size());
+
+    VertexBufferHandle* buffer = new VertexBufferHandle();
+    myVertexBuffers.Add(buffer);
+    buffer->myIndex = dataIndex;
     return buffer;
 }
 
-void VertexBufferSystem::RemoveVertexBuffer(const VertexBuffer* inBuffer)
+void VertexBufferSystem::RemoveVertexBuffer(const VertexBufferHandle* inBuffer)
 {
     LOG_WARNING("VertexBufferSubsystem::RemoveVertexBuffer not implemented.");
 }
@@ -84,6 +120,11 @@ void VertexBufferSystem::RemoveVertexBuffer(const VertexBuffer* inBuffer)
 const ResizableBuffer* VertexBufferSystem::GetGlobalVertexBuffer() const
 {
     return myBuffer;
+}
+
+const ResizableBuffer* VertexBufferSystem::GetGlobalSparseVertexDataBuffer() const
+{
+    return mySparseVertexDataBuffer;
 }
 
 uint VertexBufferSystem::GetUsedBufferSize() const

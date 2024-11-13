@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 // Create using IndexBufferSystem
-class IndexBuffer
+class IndexBufferHandle
 {
 public:
     uint GetOffset() const;

@@ -1,11 +1,10 @@
 ﻿#pragma once
 
 // Create using VertexBufferSystem
-class VertexBuffer
+class VertexBufferHandle
 {
 public:
-    uint GetOffset() const;
-    uint GetVertexCount() const;  
+    uint GetIndex() const;
     
 private:
     friend class VertexBufferSystem;

@@ -1,12 +1,12 @@
 ﻿#include "EnginePch.h"
 #include "Mesh.h"
 
-VertexBuffer* Mesh::GetVertexBuffer() const
+VertexBufferHandle* Mesh::GetVertexBuffer() const
 {
     return myVertexBuffer;    
 }
 
-IndexBuffer* Mesh::GetIndexBuffer() const
+IndexBufferHandle* Mesh::GetIndexBuffer() const
 {
     return myIndexBuffer;
 }

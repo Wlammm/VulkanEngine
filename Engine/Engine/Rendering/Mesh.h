@@ -1,13 +1,13 @@
 ﻿#pragma once
 
-class IndexBuffer;
-class VertexBuffer;
+class IndexBufferHandle;
+class VertexBufferHandle;
 
 class Mesh
 {
 public:
-    VertexBuffer* GetVertexBuffer() const;
-    IndexBuffer* GetIndexBuffer() const;
+    VertexBufferHandle* GetVertexBuffer() const;
+    IndexBufferHandle* GetIndexBuffer() const;
     const glm::vec4& GetSphereBounds() const;
 
     uint GetHandle() const;
@@ -19,8 +19,8 @@ public:
     const std::string& GetMaterialPath() const;
     
 private:
-    VertexBuffer* myVertexBuffer;
-    IndexBuffer* myIndexBuffer;
+    VertexBufferHandle* myVertexBuffer;
+    IndexBufferHandle* myIndexBuffer;
     glm::vec4 mySphereBounds;
 
     friend class MeshSystem;

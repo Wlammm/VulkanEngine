@@ -2,7 +2,7 @@
 #include "IndexBufferSystem.h"
 
 #include "Engine.h"
-#include "IndexBuffer.h"
+#include "IndexBufferHandle.h"
 #include "RenderSystem.h"
 #include "Utils/MathUtils.hpp"
 #include "Vulkan/ResizableBuffer.h"
@@ -21,7 +21,7 @@ IndexBufferSystem::~IndexBufferSystem()
     myUsedBufferSize = 0;
     myCurrentIndexOffset = 0;
 
-    for(IndexBuffer* indexBuffer : myIndexBuffers)
+    for(IndexBufferHandle* indexBuffer : myIndexBuffers)
     {
         del(indexBuffer);
     }
@@ -30,10 +30,10 @@ IndexBufferSystem::~IndexBufferSystem()
     VulkanAllocator::DestroyBuffer_TS(myBuffer);
 }
 
-IndexBuffer* IndexBufferSystem::UploadIndexBuffer(const List<uint>& inIndices)
+IndexBufferHandle* IndexBufferSystem::UploadIndexBuffer(const List<uint>& inIndices)
 {
     ZoneScoped;
-    IndexBuffer* buffer = new IndexBuffer();
+    IndexBufferHandle* buffer = new IndexBufferHandle();
     const uint sizeIncrease = inIndices.size() * sizeof(uint);
 
     myBuffer->SetData(inIndices.data(), sizeIncrease, myUsedBufferSize);
@@ -47,10 +47,10 @@ IndexBuffer* IndexBufferSystem::UploadIndexBuffer(const List<uint>& inIndices)
     return buffer;
 }
 
-IndexBuffer* IndexBufferSystem::UploadIndexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount)
+IndexBufferHandle* IndexBufferSystem::UploadIndexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount)
 {
     ZoneScoped;
-    IndexBuffer* buffer = new IndexBuffer();
+    IndexBufferHandle* buffer = new IndexBufferHandle();
     const uint sizeIncrease = inVertexCount * sizeof(uint);
 
     myBuffer->CopyDataFromBuffer(inStagingBuffer, sizeIncrease, myUsedBufferSize);
@@ -64,7 +64,7 @@ IndexBuffer* IndexBufferSystem::UploadIndexBuffer(VulkanBuffer* inStagingBuffer,
     return buffer;
 }
 
-void IndexBufferSystem::RemoveIndexBuffer(const IndexBuffer* inBuffer)
+void IndexBufferSystem::RemoveIndexBuffer(const IndexBufferHandle* inBuffer)
 {
     LOG_WARNING("IndexBufferSubsystem::RemoveIndexBuffer not implemented.");
 }

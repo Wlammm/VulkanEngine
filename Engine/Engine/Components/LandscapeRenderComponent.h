@@ -3,8 +3,8 @@
 #include "Vulkan/GPUSceneSystem.h"
 
 class Mesh;
-class VertexBuffer;
-class IndexBuffer;
+class VertexBufferHandle;
+class IndexBufferHandle;
 
 class LandscapeRenderComponent : public Component
 {
@@ -22,8 +22,8 @@ private:
     void CreateLandscapeMesh();
 
 private:
-    VertexBuffer* myVertexBuffer = nullptr;
-    IndexBuffer* myIndexBuffer = nullptr;
+    VertexBufferHandle* myVertexBuffer = nullptr;
+    IndexBufferHandle* myIndexBuffer = nullptr;
     Mesh* myMesh = nullptr;
     
     MeshInstanceIndex myMeshInstance = -1;

@@ -3,7 +3,7 @@
 
 #include "Engine.h"
 #include "GDRPipeline.h"
-#include "IndexBuffer.h"
+#include "IndexBufferHandle.h"
 #include "IndexBufferSystem.h"
 #include "Mesh.h"
 #include "TextureSystem.h"
@@ -16,7 +16,7 @@
 #include "Vulkan/VulkanAllocator.h"
 
 #include "Vertex.hpp"
-#include "VertexBuffer.h"
+#include "VertexBufferHandle.h"
 #include "VertexBufferSystem.h"
 #include "Assets/Material.h"
 #include "Assets/Model.h"

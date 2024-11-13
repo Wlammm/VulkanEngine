@@ -1,9 +1,9 @@
 ﻿#include "EnginePch.h"
 #include "MeshSystem.h"
 
-#include "IndexBuffer.h"
+#include "IndexBufferHandle.h"
 #include "Mesh.h"
-#include "VertexBuffer.h"
+#include "VertexBufferHandle.h"
 #include "Vulkan/ResizableBuffer.h"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
@@ -24,7 +24,7 @@ MeshSystem::~MeshSystem()
     VulkanAllocator::DestroyBuffer_TS(myBuffer);
 }
 
-Mesh* MeshSystem::UploadMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer, const glm::vec4& inBoundingSphere)
+Mesh* MeshSystem::UploadMesh(VertexBufferHandle* inVertexBuffer, IndexBufferHandle* inIndexBuffer, const glm::vec4& inBoundingSphere)
 {
     ZoneScoped;
     Mesh* mesh = new Mesh();
