@@ -28,6 +28,13 @@ struct MeshData
     ALIGNAS(4) uint myMaterialIndex;
 };
 
+struct VertexBufferData
+{
+    ALIGNAS(4) uint myOffset;
+    // TODO: Vertex count can be removed. myOffset is implemented in cull shader.
+    ALIGNAS(4) uint myVertexCount;
+};
+
 struct ALIGNAS(16) MeshInstanceData
 {
     ALIGNAS(16) mat4 myToWorld;

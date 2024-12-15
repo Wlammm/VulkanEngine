@@ -2,15 +2,10 @@
 #include "Vertex.hpp"
 #include "System/System.h"
 #include "Vulkan/ResizableBuffer.h"
+#include "Shaders/MeshStructs.hpp"
 
 class VertexBufferHandle;
 class VulkanBuffer;
-
-struct VertexBufferData
-{
-    uint myOffset;
-    uint myVertexCount;
-};
 
 /*
  *  This systems handles all vertex buffers for the game. It works by storing all vertex buffers in one big vertex buffer and then using offsets and count when rendering.

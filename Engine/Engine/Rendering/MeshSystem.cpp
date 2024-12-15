@@ -33,8 +33,8 @@ Mesh* MeshSystem::UploadMesh(VertexBufferHandle* inVertexBuffer, IndexBufferHand
     meshData.myIndexCount = inIndexBuffer->GetIndexCount();
     meshData.myIndexOffset = inIndexBuffer->GetOffset();
     check(meshData.myIndexOffset != (uint)-1);
-    meshData.myVertexOffset = inVertexBuffer->GetOffset();
-    check(meshData.myVertexOffset != (uint)-1);
+    meshData.myVertexIndex = inVertexBuffer->GetIndex();
+    check(meshData.myVertexIndex != (uint)-1);
     
     myBuffer->SetData(&meshData, sizeof(MeshData), sizeof(MeshData) * myNumObjects);
     mesh->myHandle = myNumObjects;

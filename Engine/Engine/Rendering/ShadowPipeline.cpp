@@ -126,8 +126,8 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 			PushConstantData constantData;
 			constantData.myToWorld = staticMesh->GetTransform()->GetMatrix();
 			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &constantData);
-			
-			inCommandBuffer.drawIndexed(mesh->GetIndexBuffer()->GetIndexCount(), 1, mesh->GetIndexBuffer()->GetOffset(), mesh->GetVertexBuffer()->GetOffset(), 0);
+			check(false && "Line commented out. Shit wont work");
+			//inCommandBuffer.drawIndexed(mesh->GetIndexBuffer()->GetIndexCount(), 1, mesh->GetIndexBuffer()->GetOffset(), mesh->GetVertexBuffer()->GetOffset(), 0);
 		}
 	}
 	

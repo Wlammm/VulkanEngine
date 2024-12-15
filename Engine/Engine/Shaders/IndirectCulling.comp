@@ -7,6 +7,11 @@ layout(std430, set = 0, binding = 0) readonly buffer MeshBuffer
     MeshData myMeshes[];
 } inMeshBuffer;
 
+layout(std430, set = 0, binding = 6) readonly buffer VertexDataBuffer
+{
+    VertexBufferData myVertexDatas[];
+} inVertexDataBuffer;
+
 layout(set = 0, binding = 1) readonly buffer SparseObjectBuffer
 {
     MeshInstanceData myObjects[];
@@ -36,7 +41,7 @@ layout(std430, set = 0, binding = 4) buffer OutPerDrawDataBuffer
 layout (local_size_x = 256) in;
 
 void main() {
-    uint denseIndex = gl_GlobalInvocationIlD.x;
+    uint denseIndex = gl_GlobalInvocationID.x;
     
     if(denseIndex >= inDenseObjectBuffer.myNumObjects)
         return;
@@ -45,6 +50,7 @@ void main() {
 
     MeshInstanceData instanceData = inSparseObjectBuffer.myObjects[sparseIndex];
     MeshData meshData = inMeshBuffer.myMeshes[instanceData.myMeshIndex];
+    VertexBufferData vertexData = inVertexDataBuffer.myVertexDatas[meshData.myVertexIndex];
     
     uint renderIndex = atomicAdd(outCountBuffer.myDrawCount, 1);
     
@@ -52,7 +58,7 @@ void main() {
     outIndirectBuffer.drawCommands[renderIndex].firstInstance = 0;
     outIndirectBuffer.drawCommands[renderIndex].instanceCount = 1;
     outIndirectBuffer.drawCommands[renderIndex].indexCount = meshData.myIndexCount;
-    outIndirectBuffer.drawCommands[renderIndex].vertexOffset = int(meshData.myVertexOffset);
+    outIndirectBuffer.drawCommands[renderIndex].vertexOffset = int(vertexData.myOffset);
     outIndirectBuffer.drawCommands[renderIndex].firstIndex = meshData.myIndexOffset;
     
     outPerDrawData.perDrawData[renderIndex].myAlbedoIndex = instanceData.myAlbedoIndex;

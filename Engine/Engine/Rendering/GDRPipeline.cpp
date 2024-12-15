@@ -292,9 +292,11 @@ void GDRPipeline::CreateCullPassResources()
     // Create descriptors
     MeshSystem& meshSystem = Engine::GetEngineSystem<MeshSystem>();
     GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
-
+	VertexBufferSystem& vertexSystem = Engine::GetEngineSystem<VertexBufferSystem>();
+	
     myCullPass.myDescriptorSet = new VulkanDescriptorSet();
     myCullPass.myDescriptorSet->BindBuffer(meshSystem.GetBuffer(), vk::ShaderStageFlagBits::eCompute, 0, vk::DescriptorType::eStorageBuffer);
+    myCullPass.myDescriptorSet->BindBuffer(vertexSystem.GetGlobalSparseVertexDataBuffer(), vk::ShaderStageFlagBits::eCompute, 6, vk::DescriptorType::eStorageBuffer);
     myCullPass.myDescriptorSet->BindBuffer(objectSystem.GetSparseBuffer(), vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
     myCullPass.myDescriptorSet->BindBuffer(objectSystem.GetDenseBuffer(), vk::ShaderStageFlagBits::eCompute, 5, vk::DescriptorType::eStorageBuffer);
     myCullPass.myDescriptorSet->BindBuffer(myIndirectCommandsBuffer, vk::ShaderStageFlagBits::eCompute, 2, vk::DescriptorType::eStorageBuffer);

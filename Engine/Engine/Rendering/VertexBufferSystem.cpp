@@ -97,7 +97,6 @@ VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(const List<Vertex>& i
     VertexBufferData& data = mySparseVertexData_CPURepresentation[dataIndex];
     data.myOffset = myCurrentVertexOffset;
     data.myVertexCount = inVertices.size();
-
     
     const uint sizeIncrease = inVertices.size() * sizeof(Vertex);
     const uint requiredSize = myUsedBufferSize + sizeIncrease;

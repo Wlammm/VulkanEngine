@@ -124,8 +124,9 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 
 			if(!mesh->GetIndexBuffer() || !mesh->GetVertexBuffer())
 				continue;
-			
-			inCommandBuffer.drawIndexed(mesh->GetIndexBuffer()->GetIndexCount(), 1, mesh->GetIndexBuffer()->GetOffset(), mesh->GetVertexBuffer()->GetOffset(), 0);
+
+			check(false && "Line underneath is commented out. This wont work until its fixed.");
+			//inCommandBuffer.drawIndexed(mesh->GetIndexBuffer()->GetIndexCount(), 1, mesh->GetIndexBuffer()->GetOffset(), mesh->GetVertexBuffer()->GetOffset(), 0);
 		}
 	}
 }
