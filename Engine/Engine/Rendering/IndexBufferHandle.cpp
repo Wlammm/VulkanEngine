@@ -1,11 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "IndexBufferHandle.h"
 
-uint IndexBufferHandle::GetOffset() const
+uint IndexBufferHandle::GetIndex() const
 {
-    return myOffset;
-}
-uint IndexBufferHandle::GetIndexCount() const
-{
-    return myIndexCount;
+    return myIndex;
 }

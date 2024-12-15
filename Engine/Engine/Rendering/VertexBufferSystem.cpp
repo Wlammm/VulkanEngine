@@ -79,8 +79,9 @@ VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(VulkanBuffer* inStagi
 VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(const List<Vertex>& inVertices)
 {
     ZoneScoped;
+    check(false && "Not sure this is working with the new sparse buffer system. Check and fix before using.");
 
-    // Updload the new data to the vertex data buffer.
+    // Upload the new data to the vertex data buffer.
     uint dataIndex = -1;
     if(!myFreeSparseIndices.IsEmpty())
     {

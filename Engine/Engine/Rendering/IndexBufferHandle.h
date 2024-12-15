@@ -4,12 +4,9 @@
 class IndexBufferHandle
 {
 public:
-    uint GetOffset() const;
-    uint GetIndexCount() const;
+    uint GetIndex() const;
 
 private:
     friend class IndexBufferSystem;
-    
-    uint myOffset = (uint)-1;
-    uint myIndexCount;
+    uint myIndex = -1;  
 };

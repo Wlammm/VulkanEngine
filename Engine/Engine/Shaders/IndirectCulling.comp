@@ -12,6 +12,11 @@ layout(std430, set = 0, binding = 6) readonly buffer VertexDataBuffer
     VertexBufferData myVertexDatas[];
 } inVertexDataBuffer;
 
+layout(std430, set = 0, binding = 7) readonly buffer IndexDataBuffer
+{
+    IndexBufferData myIndexDatas[];
+} inIndexDataBuffer;
+
 layout(set = 0, binding = 1) readonly buffer SparseObjectBuffer
 {
     MeshInstanceData myObjects[];
@@ -51,15 +56,16 @@ void main() {
     MeshInstanceData instanceData = inSparseObjectBuffer.myObjects[sparseIndex];
     MeshData meshData = inMeshBuffer.myMeshes[instanceData.myMeshIndex];
     VertexBufferData vertexData = inVertexDataBuffer.myVertexDatas[meshData.myVertexIndex];
+    IndexBufferData indexData = inIndexDataBuffer.myIndexDatas[meshData.myIndexDataIndex];
     
     uint renderIndex = atomicAdd(outCountBuffer.myDrawCount, 1);
     
     // Build indirect buffer that will be sent into vertex shader stage.
     outIndirectBuffer.drawCommands[renderIndex].firstInstance = 0;
     outIndirectBuffer.drawCommands[renderIndex].instanceCount = 1;
-    outIndirectBuffer.drawCommands[renderIndex].indexCount = meshData.myIndexCount;
+    outIndirectBuffer.drawCommands[renderIndex].indexCount = indexData.myCount;
     outIndirectBuffer.drawCommands[renderIndex].vertexOffset = int(vertexData.myOffset);
-    outIndirectBuffer.drawCommands[renderIndex].firstIndex = meshData.myIndexOffset;
+    outIndirectBuffer.drawCommands[renderIndex].firstIndex = indexData.myOffset;
     
     outPerDrawData.perDrawData[renderIndex].myAlbedoIndex = instanceData.myAlbedoIndex;
     outPerDrawData.perDrawData[renderIndex].myNormalIndex = instanceData.myNormalIndex;

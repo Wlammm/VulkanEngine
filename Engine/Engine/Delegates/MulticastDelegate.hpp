@@ -44,6 +44,11 @@ public:
     // Delete copy constructor and copy assignment operator
     MulticastDelegate(const MulticastDelegate&) = delete;
     MulticastDelegate& operator=(const MulticastDelegate&) = delete;
+
+    bool IsBound(const Delegate<void(ArgTypes...)>& inDelegate) const
+    {
+        return myBoundDelegates.Contains(inDelegate);
+    }
     
     void Bind(const Delegate<void(ArgTypes...)> inDelegate)
     {

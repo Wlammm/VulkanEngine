@@ -83,7 +83,7 @@ public:
 		return myList.FindIndex(inValue);
 	}
 
-	bool Contains(const ElementType& inValue) requires ComparisonOperator<ElementType>
+	bool Contains(const ElementType& inValue) const requires ComparisonOperator<ElementType>
 	{
 		LockMutex;
 		return myList.Contains(inValue);

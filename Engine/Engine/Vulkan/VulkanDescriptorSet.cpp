@@ -57,7 +57,8 @@ void VulkanDescriptorSet::BindBuffer(const ResizableBuffer* inBuffer, vk::Shader
 	data.myDescriptorType = inDescriptorType;
 	myResizableBuffer.Add(data);
 
-	inBuffer->OnBufferResized.Bind(&VulkanDescriptorSet::Rebuild, this);
+	if(!inBuffer->OnBufferResized.IsBound(Delegate<void()>(&VulkanDescriptorSet::Rebuild, this)))
+		inBuffer->OnBufferResized.Bind(&VulkanDescriptorSet::Rebuild, this);
 }
 
 void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags, const vk::ImageLayout inImageLayout)

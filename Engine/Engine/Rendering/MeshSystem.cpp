@@ -30,9 +30,8 @@ Mesh* MeshSystem::UploadMesh(VertexBufferHandle* inVertexBuffer, IndexBufferHand
     Mesh* mesh = new Mesh();
     MeshData meshData{};
     meshData.myBoundingSphereModelSpace = inBoundingSphere;
-    meshData.myIndexCount = inIndexBuffer->GetIndexCount();
-    meshData.myIndexOffset = inIndexBuffer->GetOffset();
-    check(meshData.myIndexOffset != (uint)-1);
+    meshData.myIndexDataIndex = inIndexBuffer->GetIndex();
+    check(meshData.myIndexDataIndex != (uint)-1);
     meshData.myVertexIndex = inVertexBuffer->GetIndex();
     check(meshData.myVertexIndex != (uint)-1);
     

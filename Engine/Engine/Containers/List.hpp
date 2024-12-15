@@ -168,7 +168,7 @@ public:
 		Construct();
 	}
 
-	bool Contains(const ElementType& inValue) requires ComparisonOperator<ElementType>
+	bool Contains(const ElementType& inValue) const requires ComparisonOperator<ElementType>
 	{
 		for (const ElementType& value : *this)
 		{
