@@ -58,7 +58,6 @@ VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(VulkanBuffer* inStagi
     
     VertexBufferData& data = mySparseVertexData_CPURepresentation[dataIndex];
     data.myOffset = myCurrentVertexOffset;
-    data.myVertexCount = inVertexCount;
 
     // Upload the new vertices.
     const uint sizeIncrease = inVertexCount * sizeof(Vertex);
@@ -96,7 +95,6 @@ VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(const List<Vertex>& i
     
     VertexBufferData& data = mySparseVertexData_CPURepresentation[dataIndex];
     data.myOffset = myCurrentVertexOffset;
-    data.myVertexCount = inVertices.size();
     
     const uint sizeIncrease = inVertices.size() * sizeof(Vertex);
     const uint requiredSize = myUsedBufferSize + sizeIncrease;
