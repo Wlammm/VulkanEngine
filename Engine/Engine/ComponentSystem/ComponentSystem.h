@@ -1,16 +1,14 @@
 ﻿#pragma once
-#include "Engine/ComponentSystem/GameObject.h"
-#include "Engine/System/WorldSystem.h"
+#include "GameObject.h"
 
 class GameObject;
 
-class ComponentSystem : public WorldSystem
+class ComponentSystem
 {
 public:
-    ComponentSystem(World* inWorld) : WorldSystem(inWorld) {}
+    ComponentSystem();
 
-    void Tick() override;
-    void TickPhysics();
+    void Tick();
 
     GameObject* CreateGameObject();
     void DestroyGameObject(GameObject* inGameObject);

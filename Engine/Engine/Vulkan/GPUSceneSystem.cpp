@@ -49,7 +49,7 @@ MeshInstanceIndex GPUSceneSystem::AddMeshInstance(const MeshInstanceData& inMesh
         instanceIndex = myNextFreeSparseIndex;
         myNextFreeSparseIndex++;
     }
-    
+
     mySparseBuffer->SetData(&inMeshInstanceData, sizeof(MeshInstanceData), sizeof(MeshInstanceData) * instanceIndex);
     
     myDenseBufferCPURepresentation.Add(instanceIndex);

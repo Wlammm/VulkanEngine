@@ -1,7 +1,0 @@
-#pragma once
-
-struct PointLight
-{
-	Color myColor;
-	float myRange;
-};

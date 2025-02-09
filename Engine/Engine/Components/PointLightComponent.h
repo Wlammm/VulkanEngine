@@ -6,7 +6,7 @@ class PointLightComponent : public Component
 public:
     PointLightComponent();
 
-    void OnCreate() override;
+    void Start() override;
     
     void TEMP_SendToGPU();
 

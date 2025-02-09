@@ -1,7 +1,6 @@
 ﻿#include "EnginePch.h"
 #include "TransformComponent.h"
 
-
 TransformComponent::TransformComponent()
 {
 
@@ -19,22 +18,6 @@ TransformComponent::~TransformComponent()
 	}
 	MarkDirty();
 }
-
-physx::PxTransform TransformComponent::AsPxTransform() const
-{
-	glm::vec3 pos = GetPosition();
-	glm::quat quat = GetRotation();
-	
-	physx::PxTransform transform;
-	transform.p = {pos.x, pos.y, pos.z};
-	transform.q.x = quat.x;
-	transform.q.y = quat.y;
-	transform.q.z = quat.z;
-	transform.q.w = quat.w;
-
-	return transform;
-}
-
 
 void TransformComponent::SetParent(TransformComponent* inParent)
 {
@@ -105,27 +88,22 @@ void TransformComponent::SetPosition(const glm::vec3& inPosition)
 
 void TransformComponent::SetPosition(const float inX, const float inY, const float inZ)
 {
-	SetPosition(glm::vec3{ inX, inY, inZ });
-}
-
-void TransformComponent::SetPosition(const physx::PxVec3T<float>& inPosition)
-{
-	SetPosition(glm::vec3(inPosition.x, inPosition.y, inPosition.z));
+	SetPosition({ inX, inY, inZ });
 }
 
 void TransformComponent::SetPositionX(const float inX)
 {
-	SetPosition(glm::vec3{ inX, myPosition.y, myPosition.z });
+	SetPosition({ inX, myPosition.y, myPosition.z });
 }
 
 void TransformComponent::SetPositionY(const float inY)
 {
-	SetPosition(glm::vec3{ myPosition.x, inY, myPosition.z });
+	SetPosition({ myPosition.x, inY, myPosition.z });
 }
 
 void TransformComponent::SetPositionZ(const float inZ)
 {
-	SetPosition(glm::vec3{ myPosition.x, myPosition.y, inZ });
+	SetPosition({ myPosition.x, myPosition.y, inZ });
 }
 
 void TransformComponent::SetScale(const glm::vec3& inScale)
@@ -154,11 +132,6 @@ void TransformComponent::SetRotation(const glm::quat& inQuat)
 	else
 		myRotation = inQuat;
 	MarkDirty();
-}
-
-void TransformComponent::SetRotation(const physx::PxQuatT<float>& inQuat)
-{
-	SetRotation(glm::quat(inQuat.w, inQuat.x, inQuat.y, inQuat.z));
 }
 
 void TransformComponent::SetRotationRad(const glm::vec3& inRotation)

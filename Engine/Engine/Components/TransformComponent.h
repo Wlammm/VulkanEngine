@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "ComponentSystem/Component.h"
 #include "Delegates/MulticastDelegate.hpp"
-#include <foundation/PxTransform.h>
 
 class TransformComponent : public Component
 {
@@ -9,8 +8,6 @@ public:
     TransformComponent();
     ~TransformComponent();
 
-    physx::PxTransform AsPxTransform() const;
-    
     void SetParent(TransformComponent* inParent);
     void RemoveParent();
 
@@ -24,7 +21,6 @@ public:
 
     void SetPosition(const glm::vec3& inPosition);
     void SetPosition(const float inX, const float inY, const float inZ);
-    void SetPosition(const physx::PxVec3T<float>& inPosition);
 
     void SetPositionX(const float inX);
     void SetPositionY(const float inY);
@@ -35,7 +31,6 @@ public:
     void SetScale(const float inScalar);
 
     void SetRotation(const glm::quat& inQuat);
-    void SetRotation(const physx::PxQuatT<float>& inQuat);
     void SetRotationRad(const glm::vec3& inRotation);
     void SetRotationDeg(const glm::vec3& inRotation);
     void SetRotationDeg(const float inX, const float inY, const float inZ);
@@ -72,7 +67,7 @@ private:
     void MarkDirty();
 
     glm::vec3 myPosition { 0, 0, 0 };
-    glm::quat myRotation = glm::identity<glm::quat>();
+    glm::quat myRotation {};
     glm::vec3 myScale { 1, 1, 1 };
     bool myIsDirty = false;
 

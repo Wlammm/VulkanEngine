@@ -1,4 +1,4 @@
-
+#pragma once
 #ifdef DEBUG
 #include <windows.h>
 #undef min
