@@ -1,3 +1,28 @@
+#extension GL_EXT_nonuniform_qualifier : enable
+
+const float Epsilon = 0.00001;
+const float PI = 3.14159265359;
+
+vec4 LinearToGamma(vec4 inLinear)
+{
+    return pow(inLinear, vec4(1.0/2.2));
+}
+
+vec4 GammaToLinear(vec4 inGamma)
+{
+    return pow(inGamma, vec4(2.2));
+}
+
+vec3 LinearToGamma(vec3 inLinear)
+{
+    return pow(inLinear, vec3(1.0/2.2));
+}
+
+vec3 GammaToLinear(vec3 inGamma)
+{
+    return pow(inGamma, vec3(2.2));
+}
+
 float saturate(float inValue)
 {
     return clamp(inValue, 0.0, 1.0);
@@ -16,6 +41,16 @@ vec3 saturate(vec3 inValue)
 vec4 saturate(vec4 inValue)
 {
     return clamp(inValue, vec4(0.0, 0.0, 0.0, 0.0), vec4(1.0, 1.0, 1.0, 1.0));
+}
+
+vec4 LinearColorFromColor(int inColor)
+{
+    float r = float(inColor & 0xFF) / 255.0;
+    float g = float((inColor >> 8) & 0xFF) / 255.0;
+    float b = float((inColor >> 16) & 0xFF) / 255.0;
+    float a = float((inColor >> 24) & 0xFF) / 255.0;
+
+    return vec4(r, g, b, a);
 }
 
 // Shader avoid branching article: https://theorangeduck.com/page/avoiding-shader-conditionals

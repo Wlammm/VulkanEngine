@@ -3,26 +3,28 @@
 
 #include "Core/Time.h"
 #include "Core/Input.h"
-#include "Containers/List.hpp"
 
 #include "Windows/WindowHandler.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanSwapChain.h"
 
-#include "ECS/SystemDispatcher.h"
-#include "ECS/Systems/RenderSystem.h"
-
 #include "World/World.h"
-#include "ECS/Systems/CameraSystem.h"
-#include "Vulkan/VulkanImGui.h"
 #include "Events/EventHandler.h"
-#include "Assets/AssetRegistry.h"
+#include "AssetRegistry/AssetRegistry.h"
 #include "Core/ThreadPool.h"
 #include "Core/Filewatcher.h"
 #include "Utils/ThreadUtils.hpp"
 
 #include "Tracy/tracy/Tracy.hpp"
-#include "ECS/Systems/PointLightSystem.h"
+#include "Core/AutoInitManager.h"
+#include "Rendering/IndexBufferSystem.h"
+#include "Rendering/MeshSystem.h"
+#include "Rendering/RenderSystem.h"
+#include "Rendering/TextureSystem.h"
+#include "Rendering/VertexBufferSystem.h"
+#include "System/SystemManager.hpp"
+#include "Systems/PointLightSystem.h"
+#include "Vulkan/GPUSceneSystem.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -31,35 +33,38 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	check(!myInstance && "Cant have multiple Engine instances.");
 	myInstance = this;
 
+	if(GetEngineProperties().HasStartupArgument("-waitfordebugger"))
+	{
+		while(!IsDebuggerPresent())
+		{
+			Sleep(10);		
+		}
+		__debugbreak();
+	}
+
+	AssetRegistry::ScanAssetsFolder();
+	
 	myPostMaster = new EventHandler();
-	myConsole = new Console();
 	myThreadPool = new ThreadPool();
 	myFilewatcher = new Filewatcher();
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
 	myAssetRegistry = new AssetRegistry();
-	mySystemDispatcher = new SystemDispatcher();
-
-	// This might cause issues in the future.
+	mySystemManager = new SystemManager<System>();
 	CreateSystems();
-	myAssetRegistry->Init();
-
-	VulkanImGui::Start();
 
 	SetWorld(new World());
-	GetWorld().Init();
 }
 
 Engine::~Engine()
 {
 	del(myWorld);
-	del(mySystemDispatcher);
+	del(mySystemManager);
 	del(myAssetRegistry);
 	del(myVulkanContext);
 	del(myWindowHandler);
 	del(myFilewatcher);
 	del(myThreadPool);
-	del(myConsole);
 	del(myPostMaster);
 
 	myInstance = nullptr;
@@ -70,10 +75,11 @@ void Engine::Tick()
 	FrameMark;
 	ZoneScoped;
 	Time::Tick();
-
+	AutoInitManager::Tick();
+	
 #if !TRACY_ENABLE // Disable fps limit when we're profiling.
-	constexpr float targetFPS = 144.f;
-	long long sleepTimeMicroseconds = static_cast<long long>((1.0f / targetFPS - Time::GetDeltaTime()) * 1000000);
+	constexpr double targetFPS = 144.f;
+	long long sleepTimeMicroseconds = static_cast<long long>((1.0 / targetFPS - Time::GetDeltaTime()) * 1000000);
 	std::this_thread::sleep_for(std::chrono::microseconds(sleepTimeMicroseconds));
 #endif
 
@@ -88,8 +94,18 @@ void Engine::Tick()
 	myEditorTick();
 #endif
 
-	mySystemDispatcher->DispatchSystems();
+	myWorld->Update();
 
+	{
+		// Move the data so that we can bind the same function for the next frame inside this invocation.
+		MulticastDelegate<void()> ticksThisFrame = std::move(TickNextFrame);
+		TickNextFrame.Clear();
+		ticksThisFrame.Invoke();
+	}
+	
+	GetEngineSystem<TextureSystem>().Tick();
+	GetEngineSystem<RenderSystem>().Tick();
+	
 	myVulkanContext->EndFrame();
 	Input::EndFrame();
 
@@ -110,11 +126,6 @@ void Engine::SetIsRunning(const bool inIsRunning)
 const EngineProperties& Engine::GetEngineProperties()
 {
 	return myInstance->myEngineProperties;
-}
-
-const SystemDispatcher& Engine::GetSystemDispatcher()
-{
-	return *myInstance->mySystemDispatcher;
 }
 
 const WindowHandler& Engine::GetWindowHandler()
@@ -152,7 +163,7 @@ void Engine::SetWorld(World* inWorld)
 	myInstance->myWorld = inWorld;
 }
 
-Vec2ui Engine::GetRenderResolution()
+glm::vec2 Engine::GetRenderResolution()
 {
 	return { myInstance->myVulkanContext->GetSwapChain().GetWidth(), myInstance->myVulkanContext->GetSwapChain().GetHeight() };
 }
@@ -166,7 +177,13 @@ void Engine::SetEditorTickFunction(const std::function<void()> inEditorTickFunct
 
 void Engine::CreateSystems()
 {
-	mySystemDispatcher->AddSystem<RenderSystem>();
-	mySystemDispatcher->AddSystem<CameraSystem>();
-	mySystemDispatcher->AddSystem<PointLightSystem>();
+	mySystemManager->AddSystem<RenderSystem>();
+	mySystemManager->AddSystem<TextureSystem>();
+	mySystemManager->AddSystem<MeshSystem>();
+	mySystemManager->AddSystem<GPUSceneSystem>();
+	mySystemManager->AddSystem<IndexBufferSystem>();
+	mySystemManager->AddSystem<VertexBufferSystem>();
+	mySystemManager->AddSystem<PointLightSystem>();
+
+	mySystemManager->InitAllSystems();
 }

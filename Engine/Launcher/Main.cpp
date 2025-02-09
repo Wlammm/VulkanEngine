@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Engine/Engine.h"
+#include "Engine/Core/Console.h"
 
 #if EDITOR
 #include <Editor/Editor.h>
@@ -7,6 +8,7 @@
 
 int main(int argc, char** argv)
 {
+	Console console{argc, argv};
 	try
 	{
 		EngineProperties properties{};
@@ -31,12 +33,18 @@ int main(int argc, char** argv)
 
 		return 0;
 	}
-	catch(const std::exception& e)
+	catch(...)
 	{
-		std::string s = "CRASH due to: ";
-		s += e.what();
-		std::cout << s << std::endl;
-		check(false);
-		return 1;
+		std::exception_ptr eptr = std::current_exception();
+		try
+		{
+			if (eptr)
+				std::rethrow_exception(eptr);
+		}
+		catch(const std::exception& e)
+		{
+			LOG("Caught exception: %s", e.what());
+			return 1;
+		}
 	}
 }

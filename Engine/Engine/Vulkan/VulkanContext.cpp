@@ -7,9 +7,9 @@
 #include "Utils/String.hpp"
 #include "VulkanAllocator.h"
 #include "VulkanImGui.h"
-#include "Assets/Material.h"
 #include "Tracy/tracy/Tracy.hpp"
 #include "VulkanUtils.hpp"
+#include "Aftermath/NvidiaAftermathTracker.h"
 
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
@@ -57,6 +57,13 @@ VulkanContext::VulkanContext()
 	CreateDebugLayer();
 
 	myPhysicalDevice = new VulkanPhysicalDevice();
+	
+	if(Engine::GetEngineProperties().HasStartupArgument("-aftermath"))
+	{
+		myNvidiaAftermathDebugger = new NvidiaAftermathTracker(markerMap);
+		myNvidiaAftermathDebugger->Initialize();
+	}
+	
 	myDevice = new VulkanDevice(*myPhysicalDevice);
 	myAllocator = new VulkanAllocator(myVulkanInstance, *myPhysicalDevice, *myDevice);
 	mySwapChain = new VulkanSwapChain(*myDevice);
@@ -71,7 +78,6 @@ VulkanContext::~VulkanContext()
 	VulkanImGui::Destroy();
 
 	// This will destroy all descriptor sets and layouts that are allocated from it.
-	GetDevice()->destroyDescriptorSetLayout(Material::GetMaterialDescriptorLayout());
 	GetDevice()->destroyDescriptorPool(myDescriptorPool);
 	GetDevice()->destroyPipelineCache(myPipelineCache);
 	VulkanUtils::DestroySamplers();
@@ -79,6 +85,10 @@ VulkanContext::~VulkanContext()
 	del(mySwapChain);
 	del(myAllocator);
 	del(myDevice);
+
+	if(myNvidiaAftermathDebugger)
+		del(myNvidiaAftermathDebugger);
+	
 	del(myPhysicalDevice);
 	DestroyDebugLayer();
 	myVulkanInstance.destroy();
@@ -114,9 +124,14 @@ VulkanAllocator& VulkanContext::GetAllocator()
 	return *myInstance->myAllocator;
 }
 
-Vec2f VulkanContext::GetRenderResolution()
+NvidiaAftermathTracker* VulkanContext::GetAftermathTracker()
 {
-	return Vec2f{ static_cast<float>(GetSwapChain().GetWidth()), static_cast<float>(GetSwapChain().GetHeight()) };
+	return myInstance->myNvidiaAftermathDebugger;
+}
+
+glm::vec2 VulkanContext::GetRenderResolution()
+{
+	return glm::vec2{ static_cast<float>(GetSwapChain().GetWidth()), static_cast<float>(GetSwapChain().GetHeight()) };
 }
 
 void VulkanContext::BeginFrame()
@@ -129,6 +144,7 @@ void VulkanContext::BeginFrame()
 
 void VulkanContext::EndFrame()
 {
+	ZoneScoped;
 	myInstance->mySwapChain->EndFrame();
 }
 
@@ -183,8 +199,8 @@ void VulkanContext::CreateInstance()
 		.setApplicationVersion(1)
 		.setPEngineName("Engine")
 		.setEngineVersion(1)
-		.setApiVersion(VK_API_VERSION_1_3);
-
+		.setApiVersion(USED_VULKAN_VERSION);
+	
 	vk::InstanceCreateInfo instInfo = vk::InstanceCreateInfo()
 		.setFlags(vk::InstanceCreateFlags())
 		.setPApplicationInfo(&appInfo)

@@ -1,5 +1,10 @@
 #pragma once
+#include <vector>
+#include <../External/tracy/tracy/Tracy.hpp>
+
+#include "Engine/Core/CheckDefine.hpp"
 #include "ContainerTypes.hpp"
+#include <string>
 
 #define CanCopy std::is_trivially_copyable<ElementType>::value || IsCopyable<ElementType>::value
 
@@ -62,6 +67,7 @@ public:
 
 	virtual ~List()
 	{
+		ZoneScoped;
 		Clear();
 		if (myPtr)
 		{
@@ -112,8 +118,14 @@ public:
 		return mySize == 0;
 	}
 
+	bool IsValidIndex(const SizeType inIndex) const
+	{
+		return inIndex > 0 && inIndex < mySize;
+	}
+
 	void Clear()
 	{
+		ZoneScoped;	
 		if constexpr(!std::is_trivially_destructible<ElementType>::value)
 		{
 			for (const auto& value : *this)
@@ -136,7 +148,7 @@ public:
 		Grow(inSize);
 	}
 
-	SizeType FindIndex(const ElementType& inValue) requires ComparisonOperator<ElementType>
+	SizeType FindIndex(const ElementType& inValue) const requires ComparisonOperator<ElementType>
 	{
 		for(SizeType i = 0; i < mySize; ++i)
 		{
@@ -146,7 +158,17 @@ public:
 		return -1;
 	}
 
-	bool Contains(const ElementType& inValue) requires ComparisonOperator<ElementType>
+	void Reset()
+	{
+		ZoneScoped;	
+		Clear();
+		mySize = 0;
+		free(myPtr);
+		myPtr = nullptr;
+		Construct();
+	}
+
+	bool Contains(const ElementType& inValue) const requires ComparisonOperator<ElementType>
 	{
 		for (const ElementType& value : *this)
 		{
@@ -218,6 +240,11 @@ public:
 			}
 		}
 		mySize--;
+	}
+
+	void RemoveLast()
+	{
+		RemoveIndex(mySize - 1);
 	}
 
 	void Remove(const ElementType& inValue) requires ComparisonOperator<ElementType>
@@ -326,6 +353,12 @@ private:
 
 	void Grow(const SizeType inNewCapacity)
 	{
+		ZoneScoped;
+		std::string text = "Capacity: ";
+		text += std::to_string(inNewCapacity);
+		text += " index count: ";
+		text += std::to_string(inNewCapacity / sizeof(ElementType));
+		ZoneText(text.c_str(), 20);
 		ElementType* oldPtr = myPtr;
 		myPtr = reinterpret_cast<ElementType*>(calloc(inNewCapacity, sizeof(ElementType)));
 		myCapacity = inNewCapacity;

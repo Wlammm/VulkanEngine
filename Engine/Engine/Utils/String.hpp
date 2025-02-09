@@ -12,6 +12,23 @@ public:
 		return str;
 	}
 
+	static bool Contains(const std::string& inString, const std::string& inToSearchFor)
+	{
+		return inString.find(inToSearchFor) != std::string::npos;
+	}
+
+	static std::string Replace(const std::string& inString, const std::string& inToSearchFor, const std::string& inNewPart)
+	{
+		size_t index = inString.find(inToSearchFor);
+
+		if(index == std::string::npos)
+			return "";
+
+		std::string returnString = inString;
+		returnString.replace(index, inToSearchFor.length(), inNewPart);
+		return returnString;
+	}
+
 	static std::wstring ToWString(const std::string& inString)
 	{
 		return { inString.begin(), inString.end() };

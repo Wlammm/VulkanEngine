@@ -1,12 +1,3 @@
-[LOG]: 
-[LOG]: 
-[LOG]: 
-[LOG]: 
-[WARNING]: 
-[LOG]: 
-[WARNING]: 
-[WARNING]: 
-[WARNING]: 
-[WARNING]: 
-[WARNING]: 
-[WARNING]: 
+[LOG]: Creating threadpool with 9 threads
+[LOG]: Vulkan instance created successfully.
+[LOG]: Vulkan debug layer attached.

@@ -28,6 +28,7 @@ struct EngineProperties
 		StartupArguments.insert(String::ToLowerCopy(inArg));
 	}
 
+	// Expects argument as -ArgumentName. Not case sensitive.
 	bool HasStartupArgument(const std::string& inArg) const
 	{
 		return StartupArguments.count(String::ToLowerCopy(inArg));

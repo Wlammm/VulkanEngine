@@ -19,7 +19,7 @@ void Filewatcher::SetShouldRun(const bool inState)
 	myShouldRun = inState;
 }
 
-Filewatcher::CallbackHandle Filewatcher::InsertWatch(const std::filesystem::path& inPath, const std::function<void()> inCallback)
+Filewatcher::CallbackHandle Filewatcher::InsertWatch_TS(const std::filesystem::path& inPath, const std::function<void()> inCallback)
 {
 	check(std::filesystem::exists(inPath));
 
@@ -38,7 +38,7 @@ Filewatcher::CallbackHandle Filewatcher::InsertWatch(const std::filesystem::path
 	return handle;
 }
 
-void Filewatcher::RemoveWatch(const std::filesystem::path& inPath, const CallbackHandle& inHandle)
+void Filewatcher::RemoveWatch_TS(const std::filesystem::path& inPath, const CallbackHandle& inHandle)
 {
 	std::unique_lock<std::mutex>(myLock);
 

@@ -1,10 +1,37 @@
-#include "EnginePch.h"
+﻿#include "EnginePch.h"
 #include "Mesh.h"
-#include "Vulkan/VulkanBuffer.h"
 
-void Mesh::Bind(vk::CommandBuffer inCommandBuffer) const
+VertexBufferHandle* Mesh::GetVertexBuffer() const
 {
-	check(VertexBuffer && IndexBuffer && "Invalid buffers");
-	inCommandBuffer.bindVertexBuffers(0, { VertexBuffer->GetAPIResource() }, { 0 });
-	inCommandBuffer.bindIndexBuffer(IndexBuffer->GetAPIResource(), 0, vk::IndexType::eUint32);
+    return myVertexBuffer;    
+}
+
+IndexBufferHandle* Mesh::GetIndexBuffer() const
+{
+    return myIndexBuffer;
+}
+
+const glm::vec4& Mesh::GetSphereBounds() const
+{
+    return mySphereBounds;
+}
+
+uint Mesh::GetHandle() const
+{
+    return myHandle;
+}
+
+const std::string& Mesh::GetAlbedoPath() const
+{
+    return myAlbedoPath;
+}
+
+const std::string& Mesh::GetNormalPath() const
+{
+    return myNormalPath;
+}
+
+const std::string& Mesh::GetMaterialPath() const
+{
+    return myMaterialPath;
 }

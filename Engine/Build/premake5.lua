@@ -28,31 +28,51 @@ workspace "Engine"
 	filter "configurations:Game Debug"
 		defines { "DEBUG" }
 		symbols "On"
+		staticruntime "on"
+		runtime "Debug"
 	filter "configurations:Game Release"
 		defines { "" }
 		optimize "On"
+		symbols "On"
+		staticruntime "on"
+		runtime "Release"
 	filter "configurations:Editor Debug"
 		defines { "DEBUG", "EDITOR" }
 		symbols "On"
+		staticruntime "on"
+		runtime "Debug"
 	filter "configurations:Editor Release"
 		defines { "EDITOR" }
 		optimize "On"
+		symbols "On"
+		staticruntime "on"
+		runtime "Release"
 		
 	filter "configurations:PROFILE Game Debug"
 		defines { "DEBUG", "TRACY_ENABLE" }
 		symbols "On"
+		runtime "Debug"
+		staticruntime "on"
 		editandcontinue "Off"
 	filter "configurations:PROFILE Game Release"
 		defines { "TRACY_ENABLE" }
 		optimize "On"
+		symbols "On"
+		runtime "Release"
+		staticruntime "on"
 		editandcontinue "Off"
 	filter "configurations:PROFILE Editor Debug"
 		defines { "DEBUG", "EDITOR", "TRACY_ENABLE" }
 		symbols "On"
+		runtime "Debug"
+		staticruntime "on"
 		editandcontinue "Off"
 	filter "configurations:PROFILE Editor Release"
 		defines { "EDITOR", "TRACY_ENABLE" }
 		optimize "On"
+		symbols "On"
+		runtime "Release"
+		staticruntime "on"
 		editandcontinue "Off"
 		
 project "Launcher"
@@ -69,14 +89,56 @@ project "Launcher"
 	
 	links
 	{
+		"%{EXTERNAL}/mimalloc/Lib/mimalloc-static.lib",
 		"Engine",
 		"Editor",
 		"%{VULKAN_SDK}/Lib/vulkan-1.lib",
 		"%{EXTERNAL}/assimp/lib/assimp-vc143-mt.lib",
+		"%{EXTERNAL}/aftermath/lib/GFSDK_Aftermath_Lib.x64.lib",
 		"%{VULKAN_SDK}/Lib/shaderc_shared.lib",
 		"%{VULKAN_SDK}/Lib/shaderc_util.lib",
 		"ImGui",
 	}
+	
+	filter "configurations:*Release*"
+		links
+		{
+			"%{EXTERNAL}/PhysX/lib/Release/LowLevel_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/LowLevelAABB_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/LowLevelDynamics_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/PhysX_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/PhysXCharacterKinematic_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/PhysXCommon_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/PhysXCooking_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/PhysXExtensions_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/PhysXFoundation_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/PhysXPvdSDK_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/PhysXTask_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/PhysXVehicle_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/PhysXVehicle2_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/SceneQuery_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Release/SimulationController_static_64.lib",
+		}
+		
+	filter "configurations:*Debug*"
+		links
+		{
+			"%{EXTERNAL}/PhysX/lib/Debug/LowLevel_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/LowLevelAABB_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/LowLevelDynamics_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/PhysX_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/PhysXCharacterKinematic_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/PhysXCommon_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/PhysXCooking_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/PhysXExtensions_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/PhysXFoundation_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/PhysXPvdSDK_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/PhysXTask_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/PhysXVehicle_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/PhysXVehicle2_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/SceneQuery_static_64.lib",
+			"%{EXTERNAL}/PhysX/lib/Debug/SimulationController_static_64.lib",
+		}
 
 project "Engine"
     kind "StaticLib"
@@ -90,8 +152,13 @@ project "Engine"
 		"%{VULKAN_SDK}/Include/",
 		"$(SolutionDir)External/",
 		"%{EXTERNAL}/assimp/include/",
+		"%{EXTERNAL}/aftermath/include/",
 		"$(SolutionDir)ImGui/",
 		"%{EXTERNAL}/tracy/",
+		"%{EXTERNAL}/glm/",
+		"%{EXTERNAL}/mimalloc/include/",
+		"%{EXTERNAL}/PerlinNoise/",
+		"%{EXTERNAL}/PhysX/include/",
 	}
 	filter "files:../Engine/Tracy/TracyClient.cpp"
 		flags { "NoPCH" }
@@ -108,8 +175,11 @@ project "Editor"
 		"%{VULKAN_SDK}/Include/",
 		"$(SolutionDir)External/",
 		"%{EXTERNAL}/assimp/include/",
+		"%{EXTERNAL}/aftermath/include/",
 		"$(SolutionDir)ImGui/",
 		"%{EXTERNAL}/tracy/",
+		"%{EXTERNAL}/glm/",
+		"%{EXTERNAL}/PhysX/include/",
 	}
 	
 project "ImGui"
@@ -126,7 +196,7 @@ project "Unit Test"
 	location "../%{prj.name}"
 	pchheader "UnitTestPch.h"
 	pchsource "../Unit Test/UnitTestPch.cpp"
-	staticruntime "off"
+	staticruntime "on"
 	runtime "Release"
 	links
 	{

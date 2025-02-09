@@ -5,8 +5,8 @@
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "Engine.h"
-#include "ECS/Systems/RenderSystem.h"
 #include "Events/EventHandler.h"
+#include "Events/EventTypes.hpp"
 
 VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
 	: myDevice{ inDevice }
@@ -64,12 +64,21 @@ void VulkanSwapChain::EndFrame()
 {
 	vk::PipelineStageFlags pipelineStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
 
-	VulkanContext::GetDevice().GetGraphicsQueue().submit(vk::SubmitInfo()
+	vk::Result submitResult = VulkanContext::GetDevice().GetGraphicsQueue().submit(1, &vk::SubmitInfo()
 		.setWaitDstStageMask(pipelineStageFlags)
 		.setWaitSemaphores(myImageAcquiredSemaphores[mySyncIndex])
 		.setCommandBuffers(GetCommandBuffer())
 		.setSignalSemaphores(myDrawCompleteSemaphores[mySyncIndex]),
 		myFences[mySyncIndex]);
+
+	check(submitResult == vk::Result::eSuccess);
+	
+	//VulkanContext::GetDevice().GetGraphicsQueue().submit(vk::SubmitInfo()
+	//	.setWaitDstStageMask(pipelineStageFlags)
+	//	.setWaitSemaphores(myImageAcquiredSemaphores[mySyncIndex])
+	//	.setCommandBuffers(GetCommandBuffer())
+	//	.setSignalSemaphores(myDrawCompleteSemaphores[mySyncIndex]),
+	//	myFences[mySyncIndex]);
 
 	const vk::PresentInfoKHR presentInfo = vk::PresentInfoKHR()
 		.setWaitSemaphores(myDrawCompleteSemaphores[mySyncIndex])
@@ -108,12 +117,12 @@ void VulkanSwapChain::EndFrame()
 
 const vk::CommandBuffer& VulkanSwapChain::GetCommandBuffer() const
 {
-	return myCommandBuffers[myFrameIndex];
+	return myCommandBuffers[mySyncIndex];
 }
 
 const vk::Image& VulkanSwapChain::GetImage() const
 {
-	return myImages[myFrameIndex];
+	return myImages[mySyncIndex];
 }
 
 const vk::SurfaceKHR& VulkanSwapChain::GetSurface() const
@@ -129,6 +138,11 @@ const vk::Format& VulkanSwapChain::GetFormat() const
 uint VulkanSwapChain::GetFrameIndex() const
 {
 	return myFrameIndex;
+}
+
+uint VulkanSwapChain::GetSyncIndex() const
+{
+	return mySyncIndex;
 }
 
 uint VulkanSwapChain::GetWidth() const
@@ -199,8 +213,10 @@ void VulkanSwapChain::CreateSwapChain()
 	List<vk::PresentModeKHR> availablePresentModes = VulkanContext::GetPhysicalDevice()->getSurfacePresentModesKHR(myWindowSurface);
 	for(const auto& mode : availablePresentModes)
 	{
+#if TRACY_ENABLE
 		if (mode == vk::PresentModeKHR::eImmediate)
 			swapChainPresentMode = vk::PresentModeKHR::eImmediate;
+#endif
 	}
 
 	uint32_t numSwapchainImages = 3;
@@ -323,7 +339,7 @@ void VulkanSwapChain::Resize()
 
 	Engine::GetEventHandler().FireEvent(EventType::SwapchainResized);
 
-	LOG("Resize")
+	LOG("Resize");
 }
 
 int VulkanSwapChain::GetPresentQueueIndex() const

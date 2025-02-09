@@ -1,22 +1,30 @@
 #include "EnginePch.h"
 #include "ShadowPipeline.h"
 #include "Engine.h"
-#include "Assets/AssetRegistry.h"
-#include "Vulkan/VulkanShader.h"
+#include "IndexBufferHandle.h"
+#include "IndexBufferSystem.h"
+#include "Mesh.h"
+#include "AssetRegistry/AssetRegistry.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vertex.hpp"
+#include "VertexBufferHandle.h"
+#include "VertexBufferSystem.h"
+#include "Assets/Model.h"
+#include "Assets/Shader.h"
+#include "Components/DirectionalLightComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/TransformComponent.h"
+#include "ComponentSystem/ComponentSystem.h"
 #include "World/World.h"
-#include "ECS/Components/Transform.h"
-#include "ECS/Components/StaticMesh.h"
-#include "ECS/Components/DirectionalLight.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanAllocator.h"
+#include "Vulkan/VulkanImage.h"
 
 ShadowPipeline::ShadowPipeline()
 {
-	myVertexShader = Engine::GetAssetRegistry().GetShader("VertexShader.vert");
-	myVertexShader->AddObserver(this);
+	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("VertexShader.vert");
+	myVertexShader->OnShaderRecompiled.Bind(&ShadowPipeline::OnShaderRecompiled, this);
 
 	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
 		"FrameDataBuffer",
@@ -24,25 +32,30 @@ ShadowPipeline::ShadowPipeline()
 		VMA_MEMORY_USAGE_AUTO,
 		true);
 
-	myObjectDataBuffer = VulkanAllocator::AllocateBuffer_TS(
-		"ObjectDataBuffer",
-		VulkanBuffer::UniformBufferCreateInfo(sizeof(ObjectData)),
-		VMA_MEMORY_USAGE_AUTO,
-		true);
-
 	CreateRenderPass();
 	CreateDescriptors();
 	CreatePipeline();
+
+	VulkanImage* directionalLightShadowMap = Engine::GetEngineSystem<RenderSystem>().GetDirectionalLightShadowMap();
+	std::array<vk::ImageView, 1> attachments = { directionalLightShadowMap->GetImageView() };
+	myDirectionalLightFrameBuffer = VulkanContext::GetDevice()->createFramebuffer(vk::FramebufferCreateInfo()
+								.setRenderPass(myRenderPass)
+								.setAttachments(attachments)
+								.setWidth(static_cast<uint>(directionalLightShadowMap->GetSize().x))
+								.setHeight(static_cast<uint>(directionalLightShadowMap->GetSize().y))
+								.setLayers(1));
 
 	LOG_WARNING("ShadowPipeline uses entities without being a system. This will cause errors in the future");
 }
 
 ShadowPipeline::~ShadowPipeline()
 {
+	if (myDirectionalLightFrameBuffer)
+		VulkanContext::GetDevice()->destroyFramebuffer(myDirectionalLightFrameBuffer);
+	
 	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
-	VulkanAllocator::DestroyBuffer_TS(myObjectDataBuffer);
 
-	myVertexShader->RemoveObserver(this);
+	myVertexShader->OnShaderRecompiled.UnBind(&ShadowPipeline::OnShaderRecompiled, this);
 
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
@@ -51,50 +64,99 @@ ShadowPipeline::~ShadowPipeline()
 
 void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 {
-	const auto directionalLightView = Engine::GetWorld().GetRegistry().view<const Transform, const DirectionalLight>();
-	if (directionalLightView.size_hint() == 0)
+	DirectionalLightComponent* directionalLight = Engine::GetWorld().GetDirectionalLight();
+	if(!directionalLight)
+		return;
+	
+	if (Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<StaticMeshComponent>().IsEmpty())
+		return;
+	
+	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
+	inCommandBuffer.bindVertexBuffers(0, vertexBufferSystem.GetGlobalVertexBuffer()->GetBuffer()->GetAPIResource(), {0});
+	
+	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
+	inCommandBuffer.bindIndexBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetBuffer()->GetAPIResource(), 0, vk::IndexType::eUint32);
+	
+	const vk::ClearValue clearValue = vk::ClearDepthStencilValue(1.0f, 0u);
+
+	if (!directionalLight->IsShadowsEnabled())
 		return;
 
-	const auto meshView = Engine::GetWorld().GetRegistry().view<const Transform, const StaticMesh>();
-	if (meshView.size_hint() == 0)
-		return;
-
-	//inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-	//								.setRenderPass(myRenderPass)
-	//								.setFramebuffer(GetVkFrameBuffer())
-	//								.setPClearValues(myClearValues)
-	//								.setClearValueCount(2)
-	//								.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
-	//								, vk::SubpassContents::eInline);
-	//
+	VulkanImage* directionalLightShadowMap = Engine::GetEngineSystem<RenderSystem>().GetDirectionalLightShadowMap();
+	check(directionalLightShadowMap);
+	
+	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
+									.setRenderPass(myRenderPass)
+									.setFramebuffer(myDirectionalLightFrameBuffer)
+									.setPClearValues(&clearValue)
+									.setClearValueCount(1)
+									.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(static_cast<uint>(directionalLightShadowMap->GetSize().x), static_cast<uint>(directionalLightShadowMap->GetSize().y))))
+									, vk::SubpassContents::eInline);
+	
 	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
+	
+	inCommandBuffer.setViewport(0, vk::Viewport()
+								.setX(0)
+								.setY(0)
+								.setWidth(static_cast<float>(directionalLightShadowMap->GetSize().x))
+								.setHeight(static_cast<float>(directionalLightShadowMap->GetSize().y))
+								.setMinDepth(0.0f)
+								.setMaxDepth(1.0f));
+	
+	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(static_cast<uint>(directionalLightShadowMap->GetSize().x), static_cast<uint>(directionalLightShadowMap->GetSize().y))));
 
-	for (const auto [entity, transform, light] : directionalLightView.each())
+	TransformComponent* lightTransform = directionalLight->GetGameObject()->GetTransform();
+	
+	BuildFrameBuffer(lightTransform, directionalLight);
+	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
+
+	for(GameObject* object : Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<StaticMeshComponent>())
 	{
-		BuildFrameBuffer(light);
-		inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
-
-		for (const auto [entity, transform, mesh] : meshView.each())
+		StaticMeshComponent* staticMesh = object->GetComponent<StaticMeshComponent>();
+		if (!staticMesh->GetModel())
+			continue;
+	
+		for (Mesh* mesh : staticMesh->GetModel()->GetMeshes())
 		{
-			if (!mesh.myModel)
+			Material* material = staticMesh->GetMaterialForMesh(mesh);
+			if (!material)
 				continue;
 
-			BuildObjectBuffer(transform);
-			inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, myObjectDescriptorSet.GetSet(), {});
-
-			for (const Mesh& mesh : mesh.myModel->GetMeshes())
-			{
-				if (!mesh.myMaterial)
-					continue;
-
-				mesh.Bind(inCommandBuffer);
-				inCommandBuffer.drawIndexed(mesh.NumIndices, 1, 0, 0, 0);
-			}
+			// Insert push constant with material indices here.
+			PushConstantData constantData;
+			constantData.myToWorld = staticMesh->GetTransform()->GetMatrix();
+			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &constantData);
+			check(false && "Line commented out. Shit wont work");
+			//inCommandBuffer.drawIndexed(mesh->GetIndexBuffer()->GetIndexCount(), 1, mesh->GetIndexBuffer()->GetOffset(), mesh->GetVertexBuffer()->GetOffset(), 0);
 		}
 	}
+	
+	//vk::ImageMemoryBarrier barrier = vk::ImageMemoryBarrier()
+	//	.setOldLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal)
+	//	.setNewLayout(vk::ImageLayout::eReadOnlyOptimal)
+	//	.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+	//	.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+	//	.setImage(light.myShadowMap->GetAPIResource())
+	//	.setSubresourceRange(vk::ImageSubresourceRange()
+	//						 .setAspectMask(vk::ImageAspectFlagBits::eDepth)
+	//						 .setBaseMipLevel(0)
+	//						 .setLevelCount(1)
+	//						 .setBaseArrayLayer(0)
+	//						 .setLayerCount(1))
+	//	.setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+	//	.setDstAccessMask(vk::AccessFlagBits::eShaderRead);
+	//
+	//inCommandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eLateFragmentTests, vk::PipelineStageFlagBits::eFragmentShader, {}, {}, {}, barrier);
+	
+	inCommandBuffer.endRenderPass();
 }
 
-void ShadowPipeline::OnAssetUpdated()
+vk::RenderPass ShadowPipeline::GetRenderPass() const
+{
+	return myRenderPass;
+}
+
+void ShadowPipeline::OnShaderRecompiled()
 {
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
@@ -106,9 +168,6 @@ void ShadowPipeline::CreateDescriptors()
 {
 	myFrameDescriptorSet.BindBuffer(myFrameDataBuffer, vk::ShaderStageFlagBits::eVertex, 0, vk::DescriptorType::eUniformBuffer);
 	myFrameDescriptorSet.Build();
-
-	myObjectDescriptorSet.BindBuffer(myObjectDataBuffer, vk::ShaderStageFlagBits::eVertex, 0, vk::DescriptorType::eUniformBuffer);
-	myObjectDescriptorSet.Build();
 }
 
 void ShadowPipeline::CreateRenderPass()
@@ -118,12 +177,12 @@ void ShadowPipeline::CreateRenderPass()
 			.setFormat(myShadowMapFormat)
 			.setSamples(vk::SampleCountFlagBits::e1)
 			.setLoadOp(vk::AttachmentLoadOp::eClear)
-			.setStoreOp(vk::AttachmentStoreOp::eDontCare)
+			.setStoreOp(vk::AttachmentStoreOp::eStore)
 			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
 			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
 			.setInitialLayout(vk::ImageLayout::eUndefined)
-			.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal),
-	};
+			.setFinalLayout(vk::ImageLayout::eDepthStencilReadOnlyOptimal),
+	};// VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL
 	const auto depthReference = vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
 	const auto subpass = vk::SubpassDescription()
@@ -135,10 +194,10 @@ void ShadowPipeline::CreateRenderPass()
 		vk::SubpassDependency() 
 			.setSrcSubpass(VK_SUBPASS_EXTERNAL)
 			.setDstSubpass(0)
-			.setSrcStageMask(stages)
-			.setDstStageMask(stages)
+			.setSrcStageMask(vk::PipelineStageFlagBits::eEarlyFragmentTests)
+			.setDstStageMask(vk::PipelineStageFlagBits::eLateFragmentTests)
 			.setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
-			.setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+			.setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead)
 			.setDependencyFlags(vk::DependencyFlags()),
 	};
 
@@ -147,11 +206,12 @@ void ShadowPipeline::CreateRenderPass()
 
 void ShadowPipeline::CreatePipeline()
 {
-	List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout(), myObjectDescriptorSet.GetLayout() };
-	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
+	List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout() };
+	const List<vk::PushConstantRange> pushConstants { vk::PushConstantRange().setSize(sizeof(PushConstantData)).setStageFlags(vk::ShaderStageFlagBits::eVertex) };
+	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts).setPushConstantRanges(pushConstants));
 
 	const std::array<vk::PipelineShaderStageCreateInfo, 1> shaderStageInfo = {
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(*myVertexShader).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(myVertexShader->GetAPIResource()).setPName("main"),
 	};
 
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo().setVertexAttributeDescriptions(Vertex::GetAttributeDescriptions()).setVertexBindingDescriptions(Vertex::GetBindingDescriptions());
@@ -163,7 +223,7 @@ void ShadowPipeline::CreatePipeline()
 		.setRasterizerDiscardEnable(VK_FALSE)
 		.setPolygonMode(vk::PolygonMode::eFill)
 		.setCullMode(vk::CullModeFlagBits::eBack)
-		.setFrontFace(vk::FrontFace::eClockwise)
+		.setFrontFace(vk::FrontFace::eCounterClockwise)
 		.setDepthBiasEnable(VK_FALSE)
 		.setLineWidth(1.0f);
 
@@ -205,31 +265,16 @@ void ShadowPipeline::CreatePipeline()
 
 	check(returnValue.result == vk::Result::eSuccess);
 	myPipeline = returnValue.value;
-
 }
 
-void ShadowPipeline::BuildFrameBuffer(const DirectionalLight& inLight)
+void ShadowPipeline::BuildFrameBuffer(const TransformComponent* inLightTransform, const DirectionalLightComponent* inLight)
 {
-	FrameData buffer = {};
-	myFrameDataBuffer->SetData(buffer);
+	FrameData data = {};
 
-	//for (auto ent : view)
-	//{
-	//	buffer.myProjection = view.get<const Camera>(ent).myProjection.Transposed();
-	//	buffer.myToView = view.get<const Transform>(ent).GetMatrix().FastInverse().Transposed();
-	//	buffer.myCameraPosition = view.get<const Transform>(ent).GetPosition();
-	//	return;
-	//}
+	data.myProjection = inLight->GetLightProjection();
+	data.myToView = glm::affineInverse(inLightTransform->GetMatrix());
 
-	LOG("No render camera found.");
-
+	// This shouldnt be needed for this pass. It should only be used in pixel shader for lighting. (I think)
+	data.myCameraPosition = glm::vec3(0, 0, 0);
+	myFrameDataBuffer->SetData(data);
 }
-
-void ShadowPipeline::BuildObjectBuffer(const Transform& inTransform)
-{
-	ObjectData buffer = {};
-	buffer.myToWorld = inTransform.GetMatrix();
-
-	myObjectDataBuffer->SetData(buffer);
-}
-

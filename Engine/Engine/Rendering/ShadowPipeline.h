@@ -1,12 +1,11 @@
 #pragma once
-#include "Assets/AssetObserver.h"
 #include "Vulkan/VulkanDescriptorSet.h"
 
-class VulkanShader;
-class Transform;
-struct DirectionalLight;
+class Shader;
+class TransformComponent;
+class DirectionalLightComponent;
 
-class ShadowPipeline : public AssetObserver
+class ShadowPipeline
 {
 public:
 	ShadowPipeline();
@@ -14,40 +13,45 @@ public:
 
 	void AddCommands(const vk::CommandBuffer inCommandBuffer);
 
+	vk::RenderPass GetRenderPass() const;
+
 private:
 	// Inherited via AssetObserver
-	virtual void OnAssetUpdated() override;
+	void OnShaderRecompiled();
 
 	void CreateDescriptors();
 	void CreateRenderPass();
 	void CreatePipeline();
 
-	void BuildFrameBuffer(const DirectionalLight& inLight);
-	void BuildObjectBuffer(const Transform& inTransform);
+	void BuildFrameBuffer(const TransformComponent* inLightTransform, const DirectionalLightComponent* inLight);
 
 private:
 	inline static constexpr vk::Format myShadowMapFormat = vk::Format::eD32Sfloat;
 
 	VulkanDescriptorSet myFrameDescriptorSet;
-	VulkanDescriptorSet myObjectDescriptorSet;
-
+	
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;
 
 	vk::RenderPass myRenderPass;
 
-	VulkanShader* myVertexShader;
+	Shader* myVertexShader;
 
 	struct FrameData
 	{
-		Mat4f myToView;
-		Mat4f myProjection;
+		glm::mat4 myToView;
+		glm::mat4 myProjection;
+		glm::vec3 myCameraPosition;
 	};
 	VulkanBuffer* myFrameDataBuffer;
 
-	struct ObjectData
+	vk::Framebuffer myDirectionalLightFrameBuffer = nullptr;
+
+	struct PushConstantData
 	{
-		Mat4f myToWorld;
+		glm::mat4 myToWorld;
+		int myAlbedoIndex;
+		int myNormalIndex;
+		int myMaterialIndex;
 	};
-	VulkanBuffer* myObjectDataBuffer;
 };

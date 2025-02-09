@@ -1,30 +1,31 @@
 #include "EnginePch.h"
 #include "FullscreenPipeline.h"
 #include "Engine.h"
-#include "Assets/AssetRegistry.h"
-#include "Vulkan/VulkanShader.h"
+#include "AssetRegistry/AssetRegistry.h"
+#include "Assets/Shader.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
-#include "ECS/Systems/RenderSystem.h"
+#include "Vulkan/VulkanPhysicalDevice.h"
 #include "Vulkan/VulkanUtils.hpp"
-#include "ECS/Components/Transform.h"
 
-FullscreenPipeline::FullscreenPipeline(VulkanShader* inFragmentShader, VulkanImage* inSource)
+FullscreenPipeline::FullscreenPipeline(Shader* inFragmentShader, VulkanImage* inSource, vk::RenderPass inRenderPass)
 {
-	myVertexShader = Engine::GetAssetRegistry().GetShader("FullscreenVS.vert");
-	myVertexShader->AddObserver(this);
+	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FullscreenVS.vert");
+	myVertexShader->OnShaderRecompiled.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
 
 	myFragmentShader = inFragmentShader;
-	myFragmentShader->AddObserver(this);
+	myFragmentShader->OnShaderRecompiled.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
 
+	myRenderPass = inRenderPass;
+	
 	CreateDescriptors(inSource);
 	CreatePipeline();
 }
 
 FullscreenPipeline::~FullscreenPipeline()
 {
-	myVertexShader->RemoveObserver(this);
-	myFragmentShader->RemoveObserver(this);
+	myVertexShader->OnShaderRecompiled.UnBind(&FullscreenPipeline::OnShaderRecompiled, this);
+	myFragmentShader->OnShaderRecompiled.UnBind(&FullscreenPipeline::OnShaderRecompiled, this);
 
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
@@ -37,7 +38,7 @@ void FullscreenPipeline::AddFullscreenPass(const vk::CommandBuffer inCommandBuff
 	inCommandBuffer.draw(3, 1, 0, 0);
 }
 
-void FullscreenPipeline::OnAssetUpdated()
+void FullscreenPipeline::OnShaderRecompiled()
 {
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
@@ -52,8 +53,8 @@ void FullscreenPipeline::CreatePipeline()
 	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
 
 	const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(*myVertexShader).setPName("main"),
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(*myFragmentShader).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(myVertexShader->GetAPIResource()).setPName("main"),
+		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(myFragmentShader->GetAPIResource()).setPName("main"),
 	};
 
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo()
@@ -67,11 +68,11 @@ void FullscreenPipeline::CreatePipeline()
 		.setRasterizerDiscardEnable(VK_FALSE)
 		.setPolygonMode(vk::PolygonMode::eFill)
 		.setCullMode(vk::CullModeFlagBits::eBack)
-		.setFrontFace(vk::FrontFace::eClockwise)
+		.setFrontFace(vk::FrontFace::eCounterClockwise)	
 		.setDepthBiasEnable(VK_FALSE)
 		.setLineWidth(1.0f);
 
-	const auto multisampleInfo = vk::PipelineMultisampleStateCreateInfo();
+	const auto multisampleInfo = vk::PipelineMultisampleStateCreateInfo().setRasterizationSamples(vk::SampleCountFlagBits::e1);
 	const auto stencilOp = vk::StencilOpState().setFailOp(vk::StencilOp::eKeep).setPassOp(vk::StencilOp::eKeep).setCompareOp(vk::CompareOp::eAlways);
 
 	const auto depthStencilInfo = vk::PipelineDepthStencilStateCreateInfo()
@@ -105,7 +106,7 @@ void FullscreenPipeline::CreatePipeline()
 		.setPColorBlendState(&colorBlendInfo)
 		.setPDynamicState(&dynamicStateInfo)
 		.setLayout(myPipelineLayout)
-		.setRenderPass(Engine::GetSystem<RenderSystem>()->GetRenderPass()));
+		.setRenderPass(myRenderPass));
 
 	check(returnValue.result == vk::Result::eSuccess);
 	myPipeline = returnValue.value;

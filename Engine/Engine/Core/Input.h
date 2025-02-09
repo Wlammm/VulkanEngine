@@ -177,11 +177,11 @@ public:
 	// The frames the user is pressing the button.
 	static bool IsKeyPressed(const MouseButton aMouseButton);
 
-	static const Vec2ui& GetMousePosition();
-	static const Vec2ui& GetMousePositionClientRelative();
+	static const glm::vec2& GetMousePosition();
+	static const glm::vec2& GetMousePositionClientRelative();
 
-	static const Vec2i GetMouseDelta();
-	static const Vec2i GetMouseDeltaClientRelative();
+	static const glm::vec2 GetMouseDelta();
+	static const glm::vec2 GetMouseDeltaClientRelative();
 
 	static bool UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam);
 	static void EndFrame();
@@ -197,11 +197,11 @@ private:
 		bool myIsUp = false;
 	};
 	inline static KeyState myKeyState[254];
-	inline static Vec2ui myMousePos = { 0, 0 };
-	inline static Vec2ui myMousePosLastFrame = { 0, 0 };
+	inline static glm::vec2 myMousePos = { 0, 0 };
+	inline static glm::vec2 myMousePosLastFrame = { 0, 0 };
 
-	inline static Vec2ui myMousePosClientRelative = { 0, 0 };
-	inline static Vec2ui myMousePosClientRelativeLastFrame = { 0, 0 };
+	inline static glm::vec2 myMousePosClientRelative = { 0, 0 };
+	inline static glm::vec2 myMousePosClientRelativeLastFrame = { 0, 0 };
 };
 
 using KeyCode = Input::KeyCode;

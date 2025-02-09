@@ -1,12 +1,39 @@
 #include "EnginePch.h"
 #include "VulkanDevice.h"
+
+#include "VulkanContext.h"
 #include "VulkanPhysicalDevice.h"
 
 VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	: myPhysicalDevice{ inPhysicalDevice }
 {
 	const List<vk::DeviceQueueCreateInfo> queueCreateInfos = GetQueueFamilyCreateInfos();
+
 	vk::DeviceCreateInfo createInfo = vk::DeviceCreateInfo().setQueueCreateInfos(queueCreateInfos).setPEnabledExtensionNames(myPhysicalDevice.GetExtensions());
+
+	vk::PhysicalDeviceVulkan12Features vulkan12Features{};
+	createInfo.pNext = &vulkan12Features;
+	vulkan12Features.drawIndirectCount = VK_TRUE;
+	vulkan12Features.descriptorBindingPartiallyBound = VK_TRUE;
+	vulkan12Features.runtimeDescriptorArray = VK_TRUE;
+	vulkan12Features.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
+	vulkan12Features.descriptorBindingVariableDescriptorCount = VK_TRUE;
+
+	vk::PhysicalDeviceVulkan11Features vulkan11Features{};
+	vulkan12Features.pNext = &vulkan11Features;
+	vulkan11Features.shaderDrawParameters = VK_TRUE;
+
+	vk::DeviceDiagnosticsConfigCreateInfoNV aftermathInfo = {};
+	if(VulkanContext::GetAftermathTracker())
+	{
+		vulkan11Features.pNext = &aftermathInfo;
+		vk::DeviceDiagnosticsConfigFlagsNV aftermathFlags =
+			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableResourceTracking |
+			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableAutomaticCheckpoints |
+			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableShaderDebugInfo;
+		aftermathInfo.setFlags(aftermathFlags);
+	}
+	
 	myDevice = myPhysicalDevice->createDevice(createInfo);
 
 	myGraphicsQueue = myDevice.getQueue(myPhysicalDevice.GetGraphicsQueueIndex(), 0);
@@ -77,7 +104,6 @@ void VulkanDevice::FlushCommandBuffer(vk::CommandBuffer inCommandBuffer)
 	inCommandBuffer.end();
 
 	vk::SubmitInfo submitInfo = vk::SubmitInfo().setCommandBufferCount(1).setCommandBuffers(inCommandBuffer);
-
 	vk::FenceCreateInfo fenceInfo{};
 	vk::Fence fence = myDevice.createFence(fenceInfo);
 

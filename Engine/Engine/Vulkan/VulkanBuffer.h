@@ -1,4 +1,5 @@
 #pragma once
+#include "Delegates/MulticastDelegate.hpp"
 #include "Rendering/Vertex.hpp"
 
 class VulkanBuffer
@@ -42,13 +43,22 @@ public:
 			.setSharingMode(vk::SharingMode::eExclusive);
 	}
 
+	static vk::BufferCreateInfo ResizableStorageBufferCreateInfo(size_t inSize)
+	{
+		return vk::BufferCreateInfo()
+			.setSize(inSize)
+			.setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc)
+			.setSharingMode(vk::SharingMode::eExclusive);
+	}
+	
 public:
 	vk::Buffer GetAPIResource() const;
 
-	void SetData(void* inData, const size_t inSize);
-	
+	void CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const size_t inSize, uint inOffset);
+	void SetData(const void* inData, const size_t inSize, uint inOffset = 0);
+
 	template<typename T>
-	void SetData(T& inData)
+	void SetData(const T& inData)
 	{
 		static_assert(!std::is_pointer<T>::value && "Data type cannot be of pointer type");
 		SetData(&inData, sizeof(T));
@@ -58,6 +68,16 @@ public:
 	void Unmap();
 
 	size_t GetSize() const;
+	const vk::BufferCreateInfo& GetCreateInfo() const;
+	VmaMemoryUsage GetVmaMemoryUsage() const;
+	bool IsMappable() const;
+
+#if DEBUG
+	const std::string& GetName() const;
+#else
+	std::string GetName() const;
+#endif
+	
 
 private:
 	// Only create and destroy this resource via VulkanAllocator.
@@ -65,15 +85,16 @@ private:
 	~VulkanBuffer() = default;
 	VulkanBuffer(const VulkanBuffer& inOther) = delete;
 
-	void UploadMapped(void* inData, size_t inSize);
-	void UploadStaged(void* inData, size_t inSize);
+	void UploadMapped(const void* inData, size_t inSize, uint inOffset);
+	void UploadStaged(const void* inData, size_t inSize, uint inOffset);
 
 private:
 	friend class VulkanAllocator;
 	VmaAllocation myAllocation;
 	vk::Buffer myBuffer;
+	vk::BufferCreateInfo myCreateInfo;
+	VmaMemoryUsage myMemoryUsage;
 
-	size_t mySize = 0;
 	bool myIsMappingAllowed = false;
 
 #ifdef DEBUG

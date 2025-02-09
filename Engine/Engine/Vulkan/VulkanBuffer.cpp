@@ -2,24 +2,38 @@
 #include "VulkanBuffer.h"
 #include "VulkanAllocator.h"
 #include <vma/vk_mem_alloc.h>
-#include "ECS/Systems/RenderSystem.h"
+
+#include "Engine.h"
+#include "Rendering/RenderSystem.h"
 
 vk::Buffer VulkanBuffer::GetAPIResource() const
 {
 	return myBuffer;
 }
 
-void VulkanBuffer::SetData(void* inData, const size_t inSize)
+void VulkanBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const size_t inSize, uint inOffset)
 {
-	check(inSize <= mySize);
+	check(GetSize() >= inSize + inOffset);
+
+	Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [this, inStagingBuffer, inSize, inOffset](vk::CommandBuffer inCommandBuffer)
+	{
+		  vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset);
+		  inCommandBuffer.copyBuffer(inStagingBuffer->GetAPIResource(), GetAPIResource(), { copyRegion });
+	});
+}
+
+void VulkanBuffer::SetData(const void* inData, const size_t inSize, uint inOffset)
+{
+	ZoneScoped;
+	check(GetSize() >= inSize + inOffset);
 
 	if(myIsMappingAllowed)
 	{
-		UploadMapped(inData, inSize);
+		UploadMapped(inData, inSize, inOffset);
 	}
 	else
 	{
-		UploadStaged(inData, inSize);
+		UploadStaged(inData, inSize, inOffset);
 	}
 }
 
@@ -38,24 +52,53 @@ void VulkanBuffer::Unmap()
 
 size_t VulkanBuffer::GetSize() const
 {
-	return mySize;
+	return myCreateInfo.size;
 }
 
-void VulkanBuffer::UploadMapped(void* inData, size_t inSize)
+const vk::BufferCreateInfo& VulkanBuffer::GetCreateInfo() const
 {
-	void* ptr = Map();
-	memcpy(ptr, inData, inSize);
+	return myCreateInfo;
+}
+
+VmaMemoryUsage VulkanBuffer::GetVmaMemoryUsage() const
+{
+	return myMemoryUsage;	
+}
+
+bool VulkanBuffer::IsMappable() const
+{
+	return myIsMappingAllowed;
+}
+
+#if DEBUG
+const std::string& VulkanBuffer::GetName() const
+{
+	return myName;	
+}
+#else
+std::string VulkanBuffer::GetName() const
+{
+	return "";
+}
+#endif
+
+void VulkanBuffer::UploadMapped(const void* inData, size_t inSize, uint inOffset)
+{
+	ZoneScoped;
+	char* ptr = static_cast<char*>(Map());
+	memcpy(ptr + inOffset, inData, inSize);
 	Unmap();
 }
 
-void VulkanBuffer::UploadStaged(void* inData, size_t inSize)
+void VulkanBuffer::UploadStaged(const void* inData, size_t inSize, uint inOffset)
 {
+	ZoneScoped;
 	VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer-Staging", VulkanBuffer::StagingCreateInfo(inSize), VMA_MEMORY_USAGE_AUTO, true);
 	stagingBuffer->SetData(inData, inSize);
 
-	RenderSystem::AddUploadCommand_TS(this, [this, stagingBuffer, inSize](vk::CommandBuffer inCommandBuffer)
+	Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [this, stagingBuffer, inSize, inOffset](vk::CommandBuffer inCommandBuffer)
 	{
-		  vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize);
+		  vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset);
 		  inCommandBuffer.copyBuffer(stagingBuffer->GetAPIResource(), GetAPIResource(), { copyRegion });
 	});
 

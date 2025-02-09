@@ -1,14 +1,34 @@
-#pragma once
+﻿#pragma once
 
-struct Mesh
+class IndexBufferHandle;
+class VertexBufferHandle;
+
+class Mesh
 {
-	uint NumVertices = 0;
-	uint NumIndices = 0;
+public:
+    VertexBufferHandle* GetVertexBuffer() const;
+    IndexBufferHandle* GetIndexBuffer() const;
+    const glm::vec4& GetSphereBounds() const;
 
-	class VulkanBuffer* VertexBuffer = nullptr;
-	class VulkanBuffer* IndexBuffer = nullptr;
+    uint GetHandle() const;
 
-	class Material* myMaterial = nullptr;
+    const std::filesystem::path& GetAlbedoPathTemp() const;
 
-	void Bind(vk::CommandBuffer inCommandBuffer) const;
+    const std::string& GetAlbedoPath() const;
+    const std::string& GetNormalPath() const;
+    const std::string& GetMaterialPath() const;
+    
+private:
+    VertexBufferHandle* myVertexBuffer;
+    IndexBufferHandle* myIndexBuffer;
+    glm::vec4 mySphereBounds;
+
+    friend class MeshSystem;
+    uint myHandle;
+    
+    // These are imported from the source file if they exists. They are not necessarily what is being used on the mesh in engine. That is determined by the StaticMeshComponent.
+    friend class Model;
+    std::string myAlbedoPath;
+    std::string myNormalPath;
+    std::string myMaterialPath;
 };

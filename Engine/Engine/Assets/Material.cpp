@@ -1,55 +1,70 @@
 #include "EnginePch.h"
 #include "Material.h"
 #include "Engine.h"
-#include "ECS/Systems/RenderSystem.h"
-#include "Engine/Assets/AssetRegistry.h"
-
-#include "Vulkan/VulkanShader.h"
-#include "Vulkan/VulkanImage.h"
-#include "Vulkan/VulkanContext.h"
-#include "Vulkan/VulkanAllocator.h"
-
+#include "Engine/AssetRegistry/AssetRegistry.h"
 #include <tracy/Tracy.hpp>
+
+#include "Texture.h"
 
 Material::Material()
 {
 	ZoneScoped;
-	myAlbedo = Engine::GetAssetRegistry().GetImage("Assets/Leaves.tga");
-	myNormal = Engine::GetAssetRegistry().GetImage("Assets/Leaves.tga");
-	myMaterial = Engine::GetAssetRegistry().GetImage("Assets/Leaves.tga");
+	
+	Engine::GetAssetRegistry().GetAssetAsync<Texture>("Assets/Leaves.tga", [&](Texture* inTexture)
+	{
+		myAlbedoTexture = inTexture;
+	});
 
-	BuildDescriptorSet();
+	Engine::GetAssetRegistry().GetAssetAsync<Texture>("Assets/Leaves.tga", [&](Texture* inTexture)
+	{
+		myNormalTexture = inTexture;
+	});
+
+	Engine::GetAssetRegistry().GetAssetAsync<Texture>("Assets/Leaves.tga", [&](Texture* inTexture)
+	{
+		myMaterialTexture = inTexture;
+	});
 }
 
 Material::Material(const std::filesystem::path& inAlbedo, const std::filesystem::path& inNormal, const std::filesystem::path& inMaterial)
 {
 	ZoneScoped;
-	myAlbedoPath = inAlbedo;
-	myAlbedo = Engine::GetAssetRegistry().GetImage(inAlbedo);
+/*
+	Engine::GetAssetRegistry().GetAssetAsync<Texture>(inAlbedo, [&](Texture* inTexture)
+	{
+		myAlbedoTexture = inTexture;
+	});
 
-	myNormalPath = inNormal;
-	myNormal = Engine::GetAssetRegistry().GetImage(inNormal);
+	Engine::GetAssetRegistry().GetAssetAsync<Texture>(inNormal, [&](Texture* inTexture)
+	{
+		myNormalTexture = inTexture;
+	});
 
-	myMaterialPath = inMaterial;
-	myMaterial = Engine::GetAssetRegistry().GetImage(inMaterial);
+	Engine::GetAssetRegistry().GetAssetAsync<Texture>(inMaterial, [&](Texture* inTexture)
+	{
+		myMaterialTexture = inTexture;
+	});*/
 
-	BuildDescriptorSet();
+	myAlbedoTexture = Engine::GetAssetRegistry().GetAssetSynchronous<Texture>(inAlbedo);
+	myNormalTexture = Engine::GetAssetRegistry().GetAssetSynchronous<Texture>(inNormal);
+	myMaterialTexture = Engine::GetAssetRegistry().GetAssetSynchronous<Texture>(inMaterial);
 }
 
 Material::~Material()
 {
 }
 
-vk::DescriptorSet Material::GetDescriptorSet()
+Texture* Material::GetAlbedo() const
 {
-	return myDescriptorSet.GetSet();
+	return myAlbedoTexture;
 }
 
-void Material::BuildDescriptorSet()
+Texture* Material::GetNormal() const
 {
-	ZoneScoped;
-	myDescriptorSet.BindImage(myAlbedo, VulkanUtils::GetSampler(SamplerMode::Wrap), 0, vk::ShaderStageFlagBits::eFragment);
-	myDescriptorSet.BindImage(myNormal, VulkanUtils::GetSampler(SamplerMode::Wrap), 1, vk::ShaderStageFlagBits::eFragment);
-	myDescriptorSet.BindImage(myMaterial, VulkanUtils::GetSampler(SamplerMode::Wrap), 2, vk::ShaderStageFlagBits::eFragment);
-	myDescriptorSet.Build();
+	return myNormalTexture;
+}
+
+Texture* Material::GetMaterial() const
+{
+	return myMaterialTexture;
 }

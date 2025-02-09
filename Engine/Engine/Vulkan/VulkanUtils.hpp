@@ -22,7 +22,7 @@ public:
 			const auto samplerInfo = vk::SamplerCreateInfo()
 				.setMagFilter(vk::Filter::eNearest)
 				.setMinFilter(vk::Filter::eNearest)
-				.setMipmapMode(vk::SamplerMipmapMode::eNearest)
+				.setMipmapMode(vk::SamplerMipmapMode::eLinear)
 				.setAddressModeU(samplerMode)
 				.setAddressModeV(samplerMode)
 				.setAddressModeW(samplerMode)
@@ -32,7 +32,7 @@ public:
 				.setCompareEnable(VK_FALSE)
 				.setCompareOp(vk::CompareOp::eNever)
 				.setMinLod(0.0f)
-				.setMaxLod(0.0f)
+				.setMaxLod(VK_LOD_CLAMP_NONE)
 				.setBorderColor(vk::BorderColor::eFloatOpaqueWhite)
 				.setUnnormalizedCoordinates(VK_FALSE);
 
@@ -46,7 +46,7 @@ public:
 			const auto samplerInfo = vk::SamplerCreateInfo()
 				.setMagFilter(vk::Filter::eNearest)
 				.setMinFilter(vk::Filter::eNearest)
-				.setMipmapMode(vk::SamplerMipmapMode::eNearest)
+				.setMipmapMode(vk::SamplerMipmapMode::eLinear)
 				.setAddressModeU(samplerMode)
 				.setAddressModeV(samplerMode)
 				.setAddressModeW(samplerMode)
@@ -56,7 +56,7 @@ public:
 				.setCompareEnable(VK_FALSE)
 				.setCompareOp(vk::CompareOp::eNever)
 				.setMinLod(0.0f)
-				.setMaxLod(0.0f)
+				.setMaxLod(VK_LOD_CLAMP_NONE)
 				.setBorderColor(vk::BorderColor::eFloatOpaqueWhite)
 				.setUnnormalizedCoordinates(VK_FALSE);
 
@@ -74,6 +74,7 @@ public:
 		for(auto& [mode, sampler] : mySamplers)
 		{
 			VulkanContext::GetDevice()->destroySampler(sampler);
+			sampler = nullptr;
 		}
 	}
 

@@ -1,0 +1,74 @@
+#version 450
+#include "MeshStructs.hpp"
+#include "VulkanStructs.glsl"
+
+layout(std430, set = 0, binding = 0) readonly buffer MeshBuffer
+{
+    MeshData myMeshes[];
+} inMeshBuffer;
+
+layout(std430, set = 0, binding = 6) readonly buffer VertexDataBuffer
+{
+    VertexBufferData myVertexDatas[];
+} inVertexDataBuffer;
+
+layout(std430, set = 0, binding = 7) readonly buffer IndexDataBuffer
+{
+    IndexBufferData myIndexDatas[];
+} inIndexDataBuffer;
+
+layout(set = 0, binding = 1) readonly buffer SparseObjectBuffer
+{
+    MeshInstanceData myObjects[];
+} inSparseObjectBuffer;
+
+layout(set = 0, binding = 5) readonly buffer DenseObjectBuffer
+{
+    uint myNumObjects;
+    uint myIndices[];
+} inDenseObjectBuffer;
+
+layout(std430, set = 0, binding = 2) buffer OutIndirectBuffer
+{
+    DrawIndexedIndirectCommand drawCommands[];
+} outIndirectBuffer;
+
+layout(std430, set = 0, binding = 3) buffer OutCountBuffer
+{
+    uint myDrawCount;
+} outCountBuffer;
+
+layout(std430, set = 0, binding = 4) buffer OutPerDrawDataBuffer
+{
+    PerDrawData perDrawData[];
+} outPerDrawData;
+
+layout (local_size_x = 256) in;
+
+void main() {
+    uint denseIndex = gl_GlobalInvocationID.x;
+    
+    if(denseIndex >= inDenseObjectBuffer.myNumObjects)
+        return;
+    
+    uint sparseIndex = inDenseObjectBuffer.myIndices[denseIndex];
+
+    MeshInstanceData instanceData = inSparseObjectBuffer.myObjects[sparseIndex];
+    MeshData meshData = inMeshBuffer.myMeshes[instanceData.myMeshIndex];
+    VertexBufferData vertexData = inVertexDataBuffer.myVertexDatas[meshData.myVertexIndex];
+    IndexBufferData indexData = inIndexDataBuffer.myIndexDatas[meshData.myIndexDataIndex];
+    
+    uint renderIndex = atomicAdd(outCountBuffer.myDrawCount, 1);
+    
+    // Build indirect buffer that will be sent into vertex shader stage.
+    outIndirectBuffer.drawCommands[renderIndex].firstInstance = 0;
+    outIndirectBuffer.drawCommands[renderIndex].instanceCount = 1;
+    outIndirectBuffer.drawCommands[renderIndex].indexCount = indexData.myCount;
+    outIndirectBuffer.drawCommands[renderIndex].vertexOffset = int(vertexData.myOffset);
+    outIndirectBuffer.drawCommands[renderIndex].firstIndex = indexData.myOffset;
+    
+    outPerDrawData.perDrawData[renderIndex].myAlbedoIndex = instanceData.myAlbedoIndex;
+    outPerDrawData.perDrawData[renderIndex].myNormalIndex = instanceData.myNormalIndex;
+    outPerDrawData.perDrawData[renderIndex].myMaterialIndex = instanceData.myMaterialIndex;
+    outPerDrawData.perDrawData[renderIndex].myToWorld = instanceData.myToWorld;
+}

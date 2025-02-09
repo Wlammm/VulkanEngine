@@ -1,17 +1,46 @@
 #pragma once
+#include "Engine/Core/AutoInit.h"
+#include "Engine/System/SystemManager.hpp"
+#include "Engine/System/WorldSystem.h"
 
-class World 
+class DirectionalLightComponent;
+class ComponentSystem;
+class ECSRegistry;
+struct DirectionalLight;
+
+class World : public AutoInit
 {
 public:
 	World();
 	~World();
 
-	void Init();
+	void Init() override final;
 
-	entt::registry& GetRegistry();
-	class AssetRegistry& GetAssetRegistry();
+	void Update();
 
+	void Destroy();
+
+	class AssetRegistry& GetAssetRegistry() const;
+
+	DirectionalLightComponent* GetDirectionalLight() const;
+
+	ComponentSystem& GetComponentSystem() const;
+	
+	void ToggleCactus();
+
+	template<typename SystemType>
+	SystemType& GetWorldSystem() const
+	{
+		return mySystemManager->GetSystem<SystemType>();
+	}
+	
 private:
-	entt::registry myRegistry{};
+	void CreateWorldSystems();
+	
+private:
 	class AssetRegistry* myAssetRegistry = nullptr;
+
+	SystemManager<WorldSystem>* mySystemManager = nullptr;
+
+	class GameObject* myCactus = nullptr;
 };
