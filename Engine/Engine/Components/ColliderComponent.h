@@ -18,7 +18,7 @@ public:
 
     physx::PxShape* GetShape() const;
 
-    void OnRigidbodyCreated(RigidbodyComponent* inRigidbody);
+    void OnComponentAdded(Component* inComponent);
     
 protected:
     physx::PxShape* myShape = nullptr;

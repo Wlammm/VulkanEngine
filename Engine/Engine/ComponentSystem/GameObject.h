@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Engine/Delegates/MulticastDelegate.hpp"
 
 class World;
 class TransformComponent;
@@ -23,6 +24,7 @@ public:
         component->myGameObject = this;
         myComponents.Add(component);
         component->OnCreate();
+        OnComponentAdded(component);
         return component;
     }
     
@@ -64,7 +66,11 @@ public:
         if(!component)
             return;
 
+        OnPreComponentRemoved(component);
+        component->OnDestroy();
+        
         myComponents.Remove(component);
+        delete component;
     }
 
     TransformComponent* GetTransform() const;
@@ -73,6 +79,12 @@ public:
     void MarkRenderStateDirty();
 
     World* GetWorld() const;
+
+    // Called after a component was added. Right after Component::OnCreate
+    MulticastDelegate<void(Component*)> OnComponentAdded;
+    
+    // Called right before a component is deleted.
+    MulticastDelegate<void(Component*)> OnPreComponentRemoved;
     
 private:
     friend ComponentSystem;

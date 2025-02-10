@@ -35,6 +35,8 @@ void ColliderComponent::OnCreate()
         myActor->attachShape(*myShape);
         inScene->addActor(*myActor);
     });
+
+    GetGameObject()->OnComponentAdded.Bind(&ColliderComponent::OnComponentAdded, this);
 }
 
 physx::PxShape* ColliderComponent::GetShape() const
@@ -42,8 +44,12 @@ physx::PxShape* ColliderComponent::GetShape() const
     return myShape;
 }
 
-void ColliderComponent::OnRigidbodyCreated(RigidbodyComponent* inRigidbody)
+void ColliderComponent::OnComponentAdded(Component* inComponent)
 {
+    if(!inComponent->IsA<RigidbodyComponent>())
+        return;
+
+    RigidbodyComponent* rigidbody = static_cast<RigidbodyComponent*>(inComponent);
     if(myActor)
     {
         myActor->detachShape(*myShape);
@@ -51,5 +57,5 @@ void ColliderComponent::OnRigidbodyCreated(RigidbodyComponent* inRigidbody)
         myActor = nullptr;
     }
 
-    inRigidbody->AttachCollider(this);
+    rigidbody->AttachCollider(this);
 }

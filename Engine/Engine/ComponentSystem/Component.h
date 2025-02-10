@@ -10,6 +10,8 @@ public:
     virtual ~Component() = default;
 
     virtual void OnCreate() {}
+    virtual void OnDestroy() {}
+    
     virtual void Tick() {}
     // This tick is called in-between physics updates. It is the only place we're allowed to interact with PhysX directly.
     virtual void TickPhysics() {}
@@ -23,6 +25,15 @@ public:
 
     TransformComponent* GetTransform() const;
 
+    template<typename ComponentType>
+    bool IsA()
+    {
+        static_assert(std::is_base_of<Component, ComponentType>::value && "ComponentType must derive from Component");
+        
+        // TODO: Replace this with faster check whenever we have the posibility for this.
+        return dynamic_cast<ComponentType*>(this) != nullptr;
+    }
+    
     template<typename ComponentType>
     ComponentType* GetComponent() const
     {

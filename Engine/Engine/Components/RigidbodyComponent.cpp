@@ -23,7 +23,6 @@ void RigidbodyComponent::TickPhysics()
     physx::PxTransform transform = myActor->getGlobalPose();
     GetTransform()->SetPosition(transform.p);
     GetTransform()->SetRotation(transform.q);
-    LOG("Setting transform to: %s", glm::to_string(GetTransform()->GetPosition()).c_str());
 }
 
 void RigidbodyComponent::OnCreate()
@@ -49,19 +48,36 @@ void RigidbodyComponent::OnCreate()
         List<ColliderComponent*> colliderComponents = GetComponents<ColliderComponent>();
         for (ColliderComponent* colliderComponent : colliderComponents)
         {
-            colliderComponent->OnRigidbodyCreated(this);
+            colliderComponent->OnComponentAdded(this);
         }
+    });
+}
+
+void RigidbodyComponent::OnDestroy()
+{
+    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
+    physicsSystem.QueuePhysicsCommand([this](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
+    {
+        inScene->removeActor(*myActor);
     });
 }
 
 void RigidbodyComponent::AttachCollider(ColliderComponent* inCollider)
 {
-    myActor->attachShape(*inCollider->GetShape());
-    physx::PxRigidBodyExt::updateMassAndInertia(*myActor, 1.0f);
+    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
+    physicsSystem.QueuePhysicsCommand([this, inCollider](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
+    {
+        myActor->attachShape(*inCollider->GetShape());
+        physx::PxRigidBodyExt::updateMassAndInertia(*myActor, 1.0f);
+    });
 }
 
 void RigidbodyComponent::DetachCollider(ColliderComponent* inCollider)
 {
-    myActor->detachShape(*inCollider->GetShape());
-    physx::PxRigidBodyExt::updateMassAndInertia(*myActor, 1.0f);
+    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
+    physicsSystem.QueuePhysicsCommand([this, inCollider](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
+    {
+        myActor->detachShape(*inCollider->GetShape());
+        physx::PxRigidBodyExt::updateMassAndInertia(*myActor, 1.0f);
+    });
 }

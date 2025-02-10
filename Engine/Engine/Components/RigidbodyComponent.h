@@ -16,6 +16,7 @@ public:
     void TickPhysics() override;
     
     void OnCreate() override;
+    void OnDestroy() override;
     
     void AttachCollider(ColliderComponent* inCollider);
     void DetachCollider(ColliderComponent* inCollider);
