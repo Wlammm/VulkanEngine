@@ -12,6 +12,19 @@
 
 #define PhysXRelease(x) if(x) x->release()
 
+physx::PxFilterFlags SimulationFilterShader(
+    physx::PxFilterObjectAttributes attributes0,
+    physx::PxFilterData filterData0, 
+    physx::PxFilterObjectAttributes attributes1,
+    physx::PxFilterData filterData1,
+    physx::PxPairFlags& pairFlags,
+    const void* constantBlock,
+    physx::PxU32 constantBlockSize)
+{
+    return physx::PxFilterFlag::eDEFAULT;
+}
+
+
 PhysicsSystem::PhysicsSystem(World* inWorld)
     : WorldSystem(inWorld)
 {
@@ -25,16 +38,11 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
     myFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *myDefaultAllocator, *myDefaultErrorCallback);
     check(myFoundation && "Could not create physics foundation.");
 
-    // OLD PVD CODE:
-    //myPvd = physx::PxCreatePvd(*myFoundation);
-    //myPvdTransport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-    //bool successfulPvdConnection = myPvd->connect(*myPvdTransport, physx::PxPvdInstrumentationFlag::eALL);
-    //if(successfulPvdConnection) 
-    //    LOG("PhysicsSystem::PhysicsSystem - Successfully connected to PhysX PVD");
-//#if PX_ENABLE_OMNI_PVD 
-    //physx::PxOmniPvd* omniPvd = physx::PxCreateOmniPvd(*myFoundation);
-    
-//#endif
+    myPvd = physx::PxCreatePvd(*myFoundation);
+    myPvdTransport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+    bool successfulPvdConnection = myPvd->connect(*myPvdTransport, physx::PxPvdInstrumentationFlag::eALL);
+    if(successfulPvdConnection) 
+        LOG("PhysicsSystem::PhysicsSystem - Successfully connected to PhysX PVD");
     
     constexpr bool recordMemoryAllocations = true;
     myPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *myFoundation, *myToleranceScale, recordMemoryAllocations, myPvd);
@@ -42,27 +50,35 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
 
     physx::PxSceneDesc sceneDesc = physx::PxSceneDesc(*myToleranceScale);
     sceneDesc.gravity = physx::PxVec3(0.0f, -981.f, 0.0f);
+    sceneDesc.bounceThresholdVelocity = 0.2f * 981.f;
 
-    sceneDesc.cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(2); // 2 threads for simulation
+    sceneDesc.cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(4);
     check(sceneDesc.cpuDispatcher && "Could not create CPU dispatcher.");
 
     sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+    //sceneDesc.filterShader = SimulationFilterShader;
     
     myScene = myPhysics->createScene(sceneDesc);
 
     myDefaultMaterial = myPhysics->createMaterial(0.5f, 0.5f, 0.2f);
 }
 
+
+
 PhysicsSystem::~PhysicsSystem()
 {
     del(myToleranceScale)
     PhysXRelease(myDefaultMaterial);
     PhysXRelease(myScene);
-    PhysXRelease(myPvdTransport);
-    if(myPvd)
-        myPvd->disconnect();
-    PhysXRelease(myPvd);
     PhysXRelease(myPhysics);
+    
+    if(myPvd && myPvd->isConnected())
+    {
+        myPvdTransport->disconnect();
+        myPvd->disconnect();
+    }
+    PhysXRelease(myPvdTransport);
+    PhysXRelease(myPvd);
     PhysXRelease(myFoundation);
     del(myDefaultAllocator);
     del(myDefaultErrorCallback);

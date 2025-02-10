@@ -40,18 +40,16 @@ void RigidbodyComponent::OnCreate()
         myActor->setMaxAngularVelocity(83000.0f);
         myActor->setRigidBodyFlag(physx::PxRigidBodyFlag::eENABLE_CCD, true);
         myActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, false);
-        myActor->setMass(1.0f);
-        myActor->setLinearDamping(0);
 
         physicsSystem.GetScene()->addActor(*myActor);
-        physx::PxRigidBodyExt::updateMassAndInertia(*myActor, 0.1f);
+        physx::PxRigidBodyExt::updateMassAndInertia(*myActor, 1.0f);
 
         // Notify already existing colliders of this components existence.
         // TODO: Create a generalized system for subscribing on gameobject changes like component addition and such.
         List<ColliderComponent*> colliderComponents = GetComponents<ColliderComponent>();
         for (ColliderComponent* colliderComponent : colliderComponents)
         {
-         colliderComponent->OnRigidbodyCreated(this);
+            colliderComponent->OnRigidbodyCreated(this);
         }
     });
 }
@@ -59,9 +57,11 @@ void RigidbodyComponent::OnCreate()
 void RigidbodyComponent::AttachCollider(ColliderComponent* inCollider)
 {
     myActor->attachShape(*inCollider->GetShape());
+    physx::PxRigidBodyExt::updateMassAndInertia(*myActor, 1.0f);
 }
 
 void RigidbodyComponent::DetachCollider(ColliderComponent* inCollider)
 {
     myActor->detachShape(*inCollider->GetShape());
+    physx::PxRigidBodyExt::updateMassAndInertia(*myActor, 1.0f);
 }
