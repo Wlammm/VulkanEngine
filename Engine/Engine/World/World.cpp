@@ -36,6 +36,7 @@ void World::Init()
 {
 	// World objects.
 	GameObject* camObject = GetComponentSystem().CreateGameObject();
+	camObject->GetTransform()->SetPosition(0, 500, -1500);
 	CameraComponent* camera = camObject->AddComponent<CameraComponent>();
 	camera->CreatePerspective(Engine::GetRenderResolution());
 	camObject->AddComponent<EditorCameraMovementComponent>();
@@ -54,7 +55,7 @@ void World::Init()
 	light->SetColor({1, 168/255.0, 120/255.0, 1});
 
 	GameObject* platform = GetComponentSystem().CreateGameObject();
-	platform->GetTransform()->SetScale(10, 10, 10);
+	platform->GetTransform()->SetScale(1, 1, 1);
 	platform->AddComponent<BoxColliderComponent>();
 	StaticMeshComponent* staticMesh1 = platform->AddComponent<StaticMeshComponent>();
 	myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [staticMesh1](Model* inModel)

@@ -63,8 +63,6 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
     myDefaultMaterial = myPhysics->createMaterial(0.5f, 0.5f, 0.2f);
 }
 
-
-
 PhysicsSystem::~PhysicsSystem()
 {
     del(myToleranceScale)

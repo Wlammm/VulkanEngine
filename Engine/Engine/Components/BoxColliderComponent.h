@@ -12,5 +12,5 @@ public:
     void OnCreate() override;
     
 private:
-    glm::vec3 mySize = glm::vec3(100.0f, 100.0f, 100.0f);
+    glm::vec3 myHalfSize = glm::vec3(50.0f, 50.0f, 50.0f);
 };

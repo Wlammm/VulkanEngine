@@ -5,6 +5,7 @@
 #include <PxPhysics.h>
 
 #include "Engine.h"
+#include "TransformComponent.h"
 #include "Physics/PhysicsSystem.h"
 #include "World/World.h"
 
@@ -24,15 +25,18 @@ void BoxColliderComponent::OnCreate()
     
     physicsSystem.QueuePhysicsCommand([this, &physicsSystem](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
+        const glm::vec3 scale = GetTransform()->GetScale();
+        
         // TODO: Should this be exclusive?
-        myShape = inPhysics->createShape(physx::PxBoxGeometry(mySize.x, mySize.y, mySize.z), *physicsSystem.GetDefaultMaterial(), true);
+
+        // Make sure the box is not of 0 size. TODO: This shouldnt be a crash later but for now it is .
+        check(myHalfSize.length() * scale.length() > 0);
+        
+        myShape = inPhysics->createShape(physx::PxBoxGeometry(myHalfSize.x * scale.x, myHalfSize.y * scale.y, myHalfSize.z * scale.z), *physicsSystem.GetDefaultMaterial(), true);
         physx::PxMaterial* val = physicsSystem.GetDefaultMaterial();
         myShape->setMaterials(&val, 1);
-        check(mySize.length() > 0);
         myShape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, true);
     });
     
-   
-
     ColliderComponent::OnCreate();
 }
