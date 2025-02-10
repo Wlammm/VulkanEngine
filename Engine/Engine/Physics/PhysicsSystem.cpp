@@ -10,23 +10,11 @@
 #include "Physics/PhysicsErrorCallback.h"
 #include <omnipvd/PxOmniPvd.h>
 
-#include "Engine.h"
-#include "pvdruntime/OmniPvdWriter.h"
-#include "pvdruntime/OmniPvdFileWriteStream.h"
-
-#define PhysXRelease(x) if(x) x->release(); x = nullptr
-
-class Something
-{
-public:
-    virtual void TestSomething() {};
-};
+#define PhysXRelease(x) if(x) x->release()
 
 PhysicsSystem::PhysicsSystem(World* inWorld)
     : WorldSystem(inWorld)
 {
-    
-    
     // TODO: Maybe these needs to be made static or into some other system as this is currently created once for each world.
     myDefaultAllocator = new physx::PxDefaultAllocator();
     myDefaultErrorCallback = new PhysicsErrorCallback();
@@ -37,39 +25,22 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
     myFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *myDefaultAllocator, *myDefaultErrorCallback);
     check(myFoundation && "Could not create physics foundation.");
 
-    const bool tryInitOmniPvd = Engine::GetEngineProperties().HasStartupArgument("-omnipvd");
+    // OLD PVD CODE:
+    //myPvd = physx::PxCreatePvd(*myFoundation);
+    //myPvdTransport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+    //bool successfulPvdConnection = myPvd->connect(*myPvdTransport, physx::PxPvdInstrumentationFlag::eALL);
+    //if(successfulPvdConnection) 
+    //    LOG("PhysicsSystem::PhysicsSystem - Successfully connected to PhysX PVD");
+//#if PX_ENABLE_OMNI_PVD 
+    //physx::PxOmniPvd* omniPvd = physx::PxCreateOmniPvd(*myFoundation);
     
-    if(tryInitOmniPvd)
-    {
-        myOmniPvd = PxCreateOmniPvd(*myFoundation);
-        if(myOmniPvd)
-        {
-            OmniPvdWriter* omniWriter = myOmniPvd->getWriter();
-            OmniPvdFileWriteStream* omniFileWriteStream = myOmniPvd->getFileWriteStream();
-            if(omniWriter && omniFileWriteStream)
-            {
-                myWithOmniPvd = true;
-                omniWriter->setWriteStream(*omniFileWriteStream);
-            }
-        }
-    }
+//#endif
     
     constexpr bool recordMemoryAllocations = true;
-    myPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *myFoundation, *myToleranceScale, recordMemoryAllocations, 0, myOmniPvd);
+    myPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *myFoundation, *myToleranceScale, recordMemoryAllocations, myPvd);
     check(myPhysics && "Could not create physics engine.");
 
-    if(myWithOmniPvd)
-    {
-        myOmniPvd->getFileWriteStream()->setFileName("Temporary/OmniPvd/LatestRecording.ovd");
-
-        bool success = myOmniPvd->startSampling();
-        if(!success)
-        {
-            LOG_ERROR("OmniPvd was requested but failed to start sampling.");
-        }
-    }
-    
-    physx::PxSceneDesc sceneDesc = physx::PxSceneDesc(physx::PxTolerancesScale());
+    physx::PxSceneDesc sceneDesc = physx::PxSceneDesc(*myToleranceScale);
     sceneDesc.gravity = physx::PxVec3(0.0f, -981.f, 0.0f);
 
     sceneDesc.cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(2); // 2 threads for simulation
@@ -87,10 +58,12 @@ PhysicsSystem::~PhysicsSystem()
     del(myToleranceScale)
     PhysXRelease(myDefaultMaterial);
     PhysXRelease(myScene);
+    PhysXRelease(myPvdTransport);
+    if(myPvd)
+        myPvd->disconnect();
+    PhysXRelease(myPvd);
     PhysXRelease(myPhysics);
-    PhysXRelease(myOmniPvd);
     PhysXRelease(myFoundation);
-
     del(myDefaultAllocator);
     del(myDefaultErrorCallback);
 }

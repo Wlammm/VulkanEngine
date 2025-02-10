@@ -1,7 +1,8 @@
 #pragma once
 #include "Engine/Core/AutoInit.h"
+#include "Engine/System/SystemManager.hpp"
+#include "Engine/System/WorldSystem.h"
 
-class WorldSystem;
 class DirectionalLightComponent;
 class ComponentSystem;
 class ECSRegistry;
@@ -26,14 +27,20 @@ public:
 	ComponentSystem& GetComponentSystem() const;
 	
 	void ToggleCactus();
+
+	template<typename SystemType>
+	SystemType& GetWorldSystem() const
+	{
+		return mySystemManager->GetSystem<SystemType>();
+	}
+	
+private:
+	void CreateWorldSystems();
 	
 private:
 	class AssetRegistry* myAssetRegistry = nullptr;
 
-	ComponentSystem* myComponentSystem = nullptr;
-	
-	List<WorldSystem*> mySystems{};
+	SystemManager<WorldSystem>* mySystemManager = nullptr;
 
 	class GameObject* myCactus = nullptr;
-
 };

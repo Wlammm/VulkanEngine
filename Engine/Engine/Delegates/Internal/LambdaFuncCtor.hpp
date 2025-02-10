@@ -16,10 +16,12 @@ private:
 
 public:
     explicit LambdaFuncCtor(LambdaType inLambda)
-        : myLambda(std::move(inLambda)) { }
+        : myLambda(std::move(inLambda))
+    { }
 
     LambdaFuncCtor(const LambdaFuncCtor& other)
-        : myLambda(other.myLambda) { }
+        : myLambda(other.myLambda)
+    { }
 
     LambdaFuncCtor(LambdaFuncCtor&& other) noexcept
         : myLambda(std::move(other.myLambda))

@@ -18,3 +18,8 @@ TransformComponent* Component::GetTransform() const
 {
     return myGameObject->GetTransform();    
 }
+
+World* Component::GetWorld() const
+{
+    return myGameObject->GetWorld();
+}

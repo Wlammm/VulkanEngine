@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <../External/tracy/tracy/Tracy.hpp>
+#include <External/tracy/tracy/Tracy.hpp>
 
 #include "Engine/Core/CheckDefine.hpp"
 #include "ContainerTypes.hpp"

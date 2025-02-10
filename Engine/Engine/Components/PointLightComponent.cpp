@@ -8,7 +8,7 @@ PointLightComponent::PointLightComponent()
 {
     
 }
-void PointLightComponent::Start()
+void PointLightComponent::OnCreate()
 {
 }
 

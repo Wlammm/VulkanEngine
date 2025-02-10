@@ -16,9 +16,26 @@ GameObject::~GameObject()
 
 void GameObject::Tick()
 {
+    if(myRenderStateDirty)
+    {
+        for(Component* comp : myComponents)
+        {
+            comp->OnRenderStateDirty();
+        }
+        myRenderStateDirty = false;
+    }
+    
     for(Component* comp : myComponents)
     {
         comp->Tick();
+    }
+}
+
+void GameObject::TickPhysics()
+{
+    for(Component* comp : myComponents)
+    {
+        comp->TickPhysics();
     }
 }
 
@@ -34,9 +51,10 @@ void GameObject::Destroy()
 
 void GameObject::MarkRenderStateDirty()
 {
-    // TODO: This should probably be queued and only updated once per frame. No need to update multiple times a frame.
-    for(Component* comp : myComponents)
-    {
-        comp->OnRenderStateDirty();
-    }
+    myRenderStateDirty = true;
+}
+
+World* GameObject::GetWorld() const
+{
+    return myComponentSystem->GetWorld();
 }

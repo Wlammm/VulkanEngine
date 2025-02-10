@@ -23,7 +23,7 @@ LandscapeRenderComponent::~LandscapeRenderComponent()
     // Remove buffers.
 }
 
-void LandscapeRenderComponent::Start()
+void LandscapeRenderComponent::OnCreate()
 {
     CreateLandscapeMesh();
 }

@@ -9,7 +9,7 @@ class Model;
 class StaticMeshComponent : public Component
 {
 public:
-    void Start() override;
+    void OnCreate() override;
     ~StaticMeshComponent();
 
     void SetModel(Model* inModel);

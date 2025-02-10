@@ -11,9 +11,9 @@
 #include "Shaders/MeshStructs.hpp"
 #include "Vulkan/GPUSceneSystem.h"
 
-void StaticMeshComponent::Start()
+void StaticMeshComponent::OnCreate()
 {
-    Component::Start();
+    Component::OnCreate();
 }
 
 StaticMeshComponent::~StaticMeshComponent()
@@ -28,6 +28,8 @@ void StaticMeshComponent::SetModel(Model* inModel)
 {
     if(myModel == inModel)
         return;
+
+    LOG("Setting model");
     
     myModel = inModel;
     MarkRenderStateDirty();

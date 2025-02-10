@@ -10,4 +10,6 @@ cd Bin/
 del /s *.pdb
 cd ..
 rmdir /s /q Temp
+cd PhysX/physx/
+rmdir /s /q bin
 pause

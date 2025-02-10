@@ -2,7 +2,7 @@
 
 #include "Delegates/MulticastDelegate.hpp"
 #include "Engine/EngineProperties.hpp"
-#include "System/SystemManager.h"
+#include "System/SystemManager.hpp"
 
 class Engine
 {
@@ -49,7 +49,7 @@ private:
 
 	EngineProperties myEngineProperties;
 
-	class SystemManager* mySystemManager = nullptr;
+	class SystemManager<System>* mySystemManager = nullptr;
 	class EventHandler* myPostMaster = nullptr;
 	class ThreadPool* myThreadPool = nullptr;
 	class Filewatcher* myFilewatcher = nullptr;

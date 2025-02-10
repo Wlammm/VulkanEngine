@@ -22,7 +22,7 @@
 #include "Rendering/RenderSystem.h"
 #include "Rendering/TextureSystem.h"
 #include "Rendering/VertexBufferSystem.h"
-#include "System/SystemManager.h"
+#include "System/SystemManager.hpp"
 #include "Systems/PointLightSystem.h"
 #include "Vulkan/GPUSceneSystem.h"
 
@@ -50,7 +50,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
 	myAssetRegistry = new AssetRegistry();
-	mySystemManager = new SystemManager();
+	mySystemManager = new SystemManager<System>();
 	CreateSystems();
 
 	SetWorld(new World());

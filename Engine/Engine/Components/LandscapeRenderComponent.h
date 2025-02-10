@@ -12,7 +12,7 @@ public:
     LandscapeRenderComponent();
     ~LandscapeRenderComponent();
 
-    void Start() override;
+    void OnCreate() override;
     
     void Tick() override;
 

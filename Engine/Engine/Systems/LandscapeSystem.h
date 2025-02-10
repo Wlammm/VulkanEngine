@@ -1,10 +1,13 @@
 ﻿#pragma once
 #include "System/WorldSystem.h"
 
-class LandscapeSystem : public WorldSystem
+class LandscapeSystem final : public WorldSystem
 {
 public:
-    LandscapeSystem();
+    explicit LandscapeSystem(World* inWorld)
+        : WorldSystem(inWorld)
+    { }
+
     ~LandscapeSystem() override;
 
 private:

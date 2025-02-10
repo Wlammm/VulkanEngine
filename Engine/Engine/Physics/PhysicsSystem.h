@@ -4,7 +4,6 @@
 
 namespace physx
 {
-    class PxOmniPvd;
     class PxErrorCallback;
     class PxTolerancesScale;
     class PxMaterial;
@@ -40,14 +39,13 @@ private:
     physx::PxDefaultAllocator* myDefaultAllocator = nullptr;
     physx::PxTolerancesScale* myToleranceScale = nullptr;
     physx::PxFoundation* myFoundation = nullptr;
+    physx::PxPvd* myPvd = nullptr;
+    physx::PxPvdTransport* myPvdTransport = nullptr;
     physx::PxMaterial* myDefaultMaterial = nullptr;
 
     // It is not allowed to add, remove, or modify objects while the simulation is running. Use QueuePhysicsCommand if you want to make changes to these objects.
     physx::PxPhysics* myPhysics = nullptr;
     physx::PxScene* myScene = nullptr;
 
-    bool myWithOmniPvd = false;
-    physx::PxOmniPvd* myOmniPvd = nullptr;
-    
     bool myHasActiveSimulation = false;
 };

@@ -1,6 +1,27 @@
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 EXTERNAL = "$(SolutionDir)External"
 
+PHYSX_PATH = "../../PhysX/"
+
+PHYSX_BIN_DIR = "../../PhysX/physx/bin/win.x86_64.vc143.mt/"
+PHYSX_INCLUDE_DIR = "../../PhysX/physx/include/"
+PHYSX_LIB_DIR = "%{PHYSX_BIN_DIR}/release" -- Default to release
+PHYSX_LIB_DIR_LIBSEARCH = "../../PhysX/physx/bin/win.x86_64.vc143.mt/release/*.lib"
+
+filter { "configurations:*Debug*" }
+    PHYSX_LIB_DIR = "%{PHYSX_BIN_DIR}/debug"
+	PHYSX_LIB_DIR_LIBSEARCH = "../../PhysX/physx/bin/win.x86_64.vc143.mt/debug/*.lib"
+
+filter {}
+
+if not os.isdir(PHYSX_BIN_DIR) then 
+	os.execute("cd internal_scripts/ && generate_physx_files.bat")
+	os.execute("cd internal_scripts/ && compile_physx.bat")
+else
+	print("PhysX already compiled. Skipping")
+end
+
+
 workspace "Engine"
     configurations 
 	{ 
@@ -13,7 +34,7 @@ workspace "Engine"
     language "C++"
     cppdialect "C++20"
 	flags { "FatalWarnings" }
-	debugdir "$(SolutionDir)../Bin/"
+	debugdir "$(OutDir)"
 	targetdir  "../../Temp/$(Configuration)/"
 	objdir  "../../Temp/$(Configuration)/"
 	files 
@@ -29,43 +50,51 @@ workspace "Engine"
 		defines { "DEBUG" }
 		symbols "On"
 		runtime "Debug"
+		staticruntime "on"
 	filter "configurations:Game Release"
 		defines { "" }
 		optimize "On"
 		symbols "On"
 		runtime "Release"
+		staticruntime "on"
 	filter "configurations:Editor Debug"
 		defines { "DEBUG", "EDITOR" }
 		symbols "On"
 		runtime "Debug"
+		staticruntime "on"
 	filter "configurations:Editor Release"
 		defines { "EDITOR" }
 		optimize "On"
 		symbols "On"
 		runtime "Release"
+		staticruntime "on"
 		
 	filter "configurations:PROFILE Game Debug"
 		defines { "DEBUG", "TRACY_ENABLE" }
 		symbols "On"
 		runtime "Debug"
 		editandcontinue "Off"
+		staticruntime "on"
 	filter "configurations:PROFILE Game Release"
 		defines { "TRACY_ENABLE" }
 		optimize "On"
 		symbols "On"
 		runtime "Release"
 		editandcontinue "Off"
+		staticruntime "on"
 	filter "configurations:PROFILE Editor Debug"
 		defines { "DEBUG", "EDITOR", "TRACY_ENABLE" }
 		symbols "On"
 		runtime "Debug"
 		editandcontinue "Off"
+		staticruntime "on"
 	filter "configurations:PROFILE Editor Release"
 		defines { "EDITOR", "TRACY_ENABLE" }
 		optimize "On"
 		symbols "On"
 		runtime "Release"
 		editandcontinue "Off"
+		staticruntime "on"
 		
 project "Launcher"
     kind "ConsoleApp"
@@ -77,6 +106,11 @@ project "Launcher"
 		"$(SolutionDir)",
 		"$(SolutionDir)External/",
 		"$(SolutionDir)ImGui/",
+		"%{PHYSX_INCLUDE_DIR}",
+	}
+	libdirs
+	{
+		"%{PHYSX_LIB_DIR}",
 	}
 	
 	links
@@ -90,6 +124,22 @@ project "Launcher"
 		"%{VULKAN_SDK}/Lib/shaderc_shared.lib",
 		"%{VULKAN_SDK}/Lib/shaderc_util.lib",
 		"ImGui",
+	}
+	
+	-- Collect all .lib files in the PhysX library directory
+	local physxLibs = os.matchfiles(PHYSX_LIB_DIR_LIBSEARCH)
+
+
+	-- Link all found .lib files
+	links(physxLibs)
+	
+	for _, lib in ipairs(physxLibs) do
+		print("Linking PhysX lib: " .. lib)
+	end
+
+	postbuildcommands
+	{
+		"{COPY} %{PHYSX_LIB_DIR}/*.dll ../../Bin/"
 	}
 
 project "Engine"
@@ -110,6 +160,7 @@ project "Engine"
 		"%{EXTERNAL}/glm/",
 		"%{EXTERNAL}/mimalloc/include/",
 		"%{EXTERNAL}/PerlinNoise/",
+		"%{PHYSX_INCLUDE_DIR}",
 	}
 	filter "files:../Engine/Tracy/TracyClient.cpp"
 		flags { "NoPCH" }
@@ -147,7 +198,10 @@ project "Unit Test"
 	pchheader "UnitTestPch.h"
 	pchsource "../Unit Test/UnitTestPch.cpp"
 	staticruntime "off"
-	runtime "Release"
+	filter { "configurations:*Debug*" }
+		runtime "Debug"
+	filter { "configurations:*Release*" }
+		runtime "Release"
 	links
 	{
 		"Engine",

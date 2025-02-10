@@ -3,11 +3,6 @@
 #include "GameObject.h"
 #include "Components/TransformComponent.h"
 
-ComponentSystem::ComponentSystem()
-{
-    
-}
-
 void ComponentSystem::Tick()
 {
     for(GameObject* gameObject : myObjects)
@@ -21,6 +16,14 @@ void ComponentSystem::Tick()
         delete gameObject;
     }
     myObjectsToDestory.Clear();
+}
+
+void ComponentSystem::TickPhysics()
+{
+    for(GameObject* gameObject : myObjects)
+    {
+        gameObject->TickPhysics();
+    }
 }
 
 GameObject* ComponentSystem::CreateGameObject()
