@@ -5,12 +5,14 @@ PHYSX_PATH = "../../PhysX/"
 
 PHYSX_BIN_DIR = "../../PhysX/physx/bin/win.x86_64.vc143.mt/"
 PHYSX_INCLUDE_DIR = "../../PhysX/physx/include/"
-PHYSX_LIB_DIR = "%{PHYSX_BIN_DIR}/release" -- Default to release
-PHYSX_LIB_DIR_LIBSEARCH = "../../PhysX/physx/bin/win.x86_64.vc143.mt/release/*.lib"
+PHYSX_LIB_DIR = "%{PHYSX_BIN_DIR}/%{cfg.runtime}" -- Default to release
+PHYSX_LIB_DIR_LIBSEARCH = "../../PhysX/physx/bin/win.x86_64.vc143.mt/debug/*.lib"
 
-filter { "configurations:*Debug*" }
-    PHYSX_LIB_DIR = "%{PHYSX_BIN_DIR}/debug"
-	PHYSX_LIB_DIR_LIBSEARCH = "../../PhysX/physx/bin/win.x86_64.vc143.mt/debug/*.lib"
+
+
+--filter { "configurations:*Debug*" }
+--    PHYSX_LIB_DIR = "%{PHYSX_BIN_DIR}/debug"
+--	PHYSX_LIB_DIR_LIBSEARCH = "../../PhysX/physx/bin/win.x86_64.vc143.mt/debug/*.lib"
 
 filter {}
 
@@ -52,7 +54,7 @@ workspace "Engine"
 		runtime "Debug"
 		staticruntime "on"
 	filter "configurations:Game Release"
-		defines { "" }
+		defines { "NDEBUG" }
 		optimize "On"
 		symbols "On"
 		runtime "Release"
@@ -63,7 +65,7 @@ workspace "Engine"
 		runtime "Debug"
 		staticruntime "on"
 	filter "configurations:Editor Release"
-		defines { "EDITOR" }
+		defines { "EDITOR", "NDEBUG" }
 		optimize "On"
 		symbols "On"
 		runtime "Release"
@@ -76,7 +78,7 @@ workspace "Engine"
 		editandcontinue "Off"
 		staticruntime "on"
 	filter "configurations:PROFILE Game Release"
-		defines { "TRACY_ENABLE" }
+		defines { "TRACY_ENABLE", "NDEBUG" }
 		optimize "On"
 		symbols "On"
 		runtime "Release"
@@ -89,7 +91,7 @@ workspace "Engine"
 		editandcontinue "Off"
 		staticruntime "on"
 	filter "configurations:PROFILE Editor Release"
-		defines { "EDITOR", "TRACY_ENABLE" }
+		defines { "EDITOR", "TRACY_ENABLE", "NDEBUG" }
 		optimize "On"
 		symbols "On"
 		runtime "Release"
@@ -129,16 +131,22 @@ project "Launcher"
 	-- Collect all .lib files in the PhysX library directory
 	local physxLibs = os.matchfiles(PHYSX_LIB_DIR_LIBSEARCH)
 
+	-- Extract only the file names
+	local physxLibNames = {}
+	for _, lib in ipairs(physxLibs) do
+		table.insert(physxLibNames, path.getname(lib))
+	end
 
 	-- Link all found .lib files
-	links(physxLibs)
+	links(physxLibNames)
 	
-	for _, lib in ipairs(physxLibs) do
+	for _, lib in ipairs(physxLibNames) do
 		print("Linking PhysX lib: " .. lib)
 	end
 
 	postbuildcommands
 	{
+		"echo Running post build",
 		"{COPY} %{PHYSX_LIB_DIR}/*.dll ../../Bin/"
 	}
 
