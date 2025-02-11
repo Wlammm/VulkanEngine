@@ -16,9 +16,14 @@ public:
     // Make sure to set the value of myShape before calling this.
     void OnCreate() override;
 
+    void OnDestroy() override;
+
+    void OnPhysicsStateDirty() override;
+    
     physx::PxShape* GetShape() const;
 
     void OnComponentAdded(Component* inComponent);
+    void OnComponentRemoved(Component* inComponent);
     
 protected:
     physx::PxShape* myShape = nullptr;

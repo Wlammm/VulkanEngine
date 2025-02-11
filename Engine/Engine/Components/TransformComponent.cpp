@@ -110,7 +110,9 @@ void TransformComponent::SetPosition(const float inX, const float inY, const flo
 
 void TransformComponent::SetPosition(const physx::PxVec3T<float>& inPosition)
 {
+	mySkipPhysicsUpdate = true;
 	SetPosition(glm::vec3(inPosition.x, inPosition.y, inPosition.z));
+	mySkipPhysicsUpdate = false;
 }
 
 void TransformComponent::SetPositionX(const float inX)
@@ -158,7 +160,9 @@ void TransformComponent::SetRotation(const glm::quat& inQuat)
 
 void TransformComponent::SetRotation(const physx::PxQuatT<float>& inQuat)
 {
+	mySkipPhysicsUpdate = true;
 	SetRotation(glm::quat(inQuat.w, inQuat.x, inQuat.y, inQuat.z));
+	mySkipPhysicsUpdate = false;
 }
 
 void TransformComponent::SetRotationRad(const glm::vec3& inRotation)
@@ -275,12 +279,22 @@ void TransformComponent::Move(const glm::vec3& inDisplacement)
 	MarkDirty();
 }
 
+void TransformComponent::Move(const float inX, const float inY, const float inZ)
+{
+	Move({inX, inY, inZ});
+}
+
 void TransformComponent::MarkDirty()
 {
+	if(!mySkipPhysicsUpdate)
+		MarkPhysicsStateDirty();
 	MarkRenderStateDirty();
-
+	
 	for(TransformComponent* child : myChildren)
 	{
+		if(!mySkipPhysicsUpdate)
+			child->MarkPhysicsStateDirty();
+		
 		child->MarkRenderStateDirty();
 	}
 }

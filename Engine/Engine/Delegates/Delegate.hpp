@@ -50,7 +50,13 @@ public:
     }
 
     // Move constructor
-    Delegate(Delegate&& other) noexcept : myFuncCtor(std::move(other.myFuncCtor)) {}
+    Delegate(Delegate&& other) noexcept : myFuncCtor(std::move(other.myFuncCtor))
+    {
+        other.myFuncCtor.reset();
+#if DEBUG
+        mySourceLocation = std::move(other.mySourceLocation);
+#endif
+    }
 
     ~Delegate() = default;
     
@@ -89,6 +95,7 @@ public:
         if (this != &inOther)
         {
             myFuncCtor = std::move(inOther.myFuncCtor);
+            inOther.myFuncCtor.reset();
 #if DEBUG
             mySourceLocation = inOther.mySourceLocation;
 #endif
@@ -152,6 +159,12 @@ public:
         return Invoke(std::forward<ArgTypes>(inArgs)...);
     }
 
+#if DEBUG
+    std::source_location GetSourceLocation() const
+    {
+        return mySourceLocation;
+    }
+#endif
 private:
     std::unique_ptr<FuncCtor> myFuncCtor;
 #if DEBUG

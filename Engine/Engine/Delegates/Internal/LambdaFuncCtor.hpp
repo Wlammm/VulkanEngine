@@ -17,15 +17,14 @@ private:
 public:
     explicit LambdaFuncCtor(LambdaType inLambda)
         : myLambda(std::move(inLambda))
-    { }
+    {
+    }
 
     LambdaFuncCtor(const LambdaFuncCtor& other)
-        : myLambda(other.myLambda)
-    { }
+        : myLambda(other.myLambda) {}
 
     LambdaFuncCtor(LambdaFuncCtor&& other) noexcept
-        : myLambda(std::move(other.myLambda))
-    { }
+        : myLambda(std::move(other.myLambda)) {}
 
     LambdaFuncCtor& operator=(const LambdaFuncCtor& other)
     {
@@ -41,6 +40,7 @@ public:
         if (this != &other)
         {
             myLambda = std::move(other.myLambda);
+            other.myLambda = nullptr;
         }
         return *this;
     }

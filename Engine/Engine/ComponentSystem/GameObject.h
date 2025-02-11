@@ -77,6 +77,7 @@ public:
     void Destroy();
 
     void MarkRenderStateDirty();
+    void MarkPhysicsStateDirty();
 
     World* GetWorld() const;
 
@@ -84,7 +85,7 @@ public:
     MulticastDelegate<void(Component*)> OnComponentAdded;
     
     // Called right before a component is deleted.
-    MulticastDelegate<void(Component*)> OnPreComponentRemoved;
+    MulticastDelegate<void(Component*)> OnComponentRemoved;
     
 private:
     friend ComponentSystem;
@@ -92,4 +93,5 @@ private:
     List<Component*> myComponents{};
 
     bool myRenderStateDirty = false;
+    bool myPhysicsStateDirty = false;
 };

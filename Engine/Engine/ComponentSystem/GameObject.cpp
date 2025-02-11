@@ -33,6 +33,15 @@ void GameObject::Tick()
 
 void GameObject::TickPhysics()
 {
+    if(myPhysicsStateDirty)
+    {
+        for(Component* comp : myComponents)
+        {
+            comp->OnPhysicsStateDirty();
+        }
+        myPhysicsStateDirty = false;
+    }
+    
     for(Component* comp : myComponents)
     {
         comp->TickPhysics();
@@ -52,6 +61,11 @@ void GameObject::Destroy()
 void GameObject::MarkRenderStateDirty()
 {
     myRenderStateDirty = true;
+}
+
+void GameObject::MarkPhysicsStateDirty()
+{
+    myPhysicsStateDirty = true;
 }
 
 World* GameObject::GetWorld() const

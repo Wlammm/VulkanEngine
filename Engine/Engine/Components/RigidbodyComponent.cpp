@@ -9,6 +9,7 @@
 #include "ColliderComponent.h"
 #include "Engine.h"
 #include "TransformComponent.h"
+#include "Core/Input.h"
 #include "Physics/PhysicsSystem.h"
 #include "World/World.h"
 
@@ -23,6 +24,9 @@ void RigidbodyComponent::TickPhysics()
     physx::PxTransform transform = myActor->getGlobalPose();
     GetTransform()->SetPosition(transform.p);
     GetTransform()->SetRotation(transform.q);
+
+    if(Input::IsKeyPressed(KeyCode::J))
+        GetTransform()->SetPositionY(1000);
 }
 
 void RigidbodyComponent::OnCreate()
@@ -46,10 +50,10 @@ void RigidbodyComponent::OnCreate()
         // Notify already existing colliders of this components existence.
         // TODO: Create a generalized system for subscribing on gameobject changes like component addition and such.
         List<ColliderComponent*> colliderComponents = GetComponents<ColliderComponent>();
-        for (ColliderComponent* colliderComponent : colliderComponents)
-        {
-            colliderComponent->OnComponentAdded(this);
-        }
+        //for (ColliderComponent* colliderComponent : colliderComponents)
+        //{
+        //    colliderComponent->OnComponentAdded(this);
+        //}
     });
 }
 
@@ -60,6 +64,11 @@ void RigidbodyComponent::OnDestroy()
     {
         inScene->removeActor(*myActor);
     });
+}
+
+void RigidbodyComponent::OnPhysicsStateDirty()
+{
+    myActor->setGlobalPose(GetTransform()->AsPxTransform());
 }
 
 void RigidbodyComponent::AttachCollider(ColliderComponent* inCollider)

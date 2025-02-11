@@ -6,6 +6,7 @@
 
 #include "Engine.h"
 #include "TransformComponent.h"
+#include "Core/Input.h"
 #include "Physics/PhysicsSystem.h"
 #include "World/World.h"
 
@@ -27,11 +28,11 @@ void BoxColliderComponent::OnCreate()
     {
         const glm::vec3 scale = GetTransform()->GetScale();
         
-        // TODO: Should this be exclusive?
 
         // Make sure the box is not of 0 size. TODO: This shouldnt be a crash later but for now it is .
         check(myHalfSize.length() * scale.length() > 0);
         
+        // TODO: Should this be exclusive?
         myShape = inPhysics->createShape(physx::PxBoxGeometry(myHalfSize.x * scale.x, myHalfSize.y * scale.y, myHalfSize.z * scale.z), *physicsSystem.GetDefaultMaterial(), true);
         physx::PxMaterial* val = physicsSystem.GetDefaultMaterial();
         myShape->setMaterials(&val, 1);
@@ -39,4 +40,12 @@ void BoxColliderComponent::OnCreate()
     });
     
     ColliderComponent::OnCreate();
+}
+
+void BoxColliderComponent::Tick()
+{
+    ColliderComponent::Tick();
+
+    if(Input::IsKeyPressed(KeyCode::K))
+        GetTransform()->Move(0, -10, 0);
 }

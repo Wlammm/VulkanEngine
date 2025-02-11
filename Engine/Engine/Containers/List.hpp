@@ -362,7 +362,6 @@ private:
 		ElementType* oldPtr = myPtr;
 		myPtr = reinterpret_cast<ElementType*>(calloc(inNewCapacity, sizeof(ElementType)));
 		myCapacity = inNewCapacity;
-
 		if (oldPtr)
 		{
 			if constexpr (CanCopy)

@@ -17,6 +17,8 @@ public:
     
     void OnCreate() override;
     void OnDestroy() override;
+
+    void OnPhysicsStateDirty() override;
     
     void AttachCollider(ColliderComponent* inCollider);
     void DetachCollider(ColliderComponent* inCollider);

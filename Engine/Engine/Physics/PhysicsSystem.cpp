@@ -91,7 +91,7 @@ void PhysicsSystem::Tick()
         myHasActiveSimulation = false;
     }
 
-    for(auto& physicsCommand : myPhysicsCommands)
+    for(const Delegate<void(physx::PxPhysics* inPhysics, physx::PxScene* inScene)>& physicsCommand : myPhysicsCommands)
     {
         physicsCommand.Invoke(myPhysics, myScene);
     }

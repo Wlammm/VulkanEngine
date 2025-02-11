@@ -9,6 +9,11 @@ void Component::MarkRenderStateDirty()
     myGameObject->MarkRenderStateDirty();
 }
 
+void Component::MarkPhysicsStateDirty()
+{
+    myGameObject->MarkPhysicsStateDirty();
+}
+
 GameObject* Component::GetGameObject() const
 {
     return myGameObject;

@@ -31,12 +31,34 @@ void ColliderComponent::OnCreate()
             rigidbody->AttachCollider(this);
             return;
         }
+        
         myActor = inPhysics->createRigidStatic(GetTransform()->AsPxTransform());
         myActor->attachShape(*myShape);
         inScene->addActor(*myActor);
     });
 
     GetGameObject()->OnComponentAdded.Bind(&ColliderComponent::OnComponentAdded, this);
+    GetGameObject()->OnComponentRemoved.Bind(&ColliderComponent::OnComponentRemoved, this);
+}
+
+void ColliderComponent::OnDestroy()
+{
+    GetGameObject()->OnComponentAdded.UnBind(&ColliderComponent::OnComponentAdded, this);
+    GetGameObject()->OnComponentRemoved.UnBind(&ColliderComponent::OnComponentRemoved, this);
+}
+
+void ColliderComponent::OnPhysicsStateDirty()
+{
+    Component::OnPhysicsStateDirty();
+
+    if(!myActor)
+        return;
+
+    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
+    physicsSystem.QueuePhysicsCommand([this](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
+    {
+        myActor->setGlobalPose(GetTransform()->AsPxTransform());
+    });
 }
 
 physx::PxShape* ColliderComponent::GetShape() const
@@ -50,12 +72,31 @@ void ColliderComponent::OnComponentAdded(Component* inComponent)
         return;
 
     RigidbodyComponent* rigidbody = static_cast<RigidbodyComponent*>(inComponent);
-    if(myActor)
+    
+    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
+    physicsSystem.QueuePhysicsCommand([this, rigidbody](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
-        myActor->detachShape(*myShape);
-        myActor->release();
-        myActor = nullptr;
-    }
+        if(myActor)
+        {
+            myActor->detachShape(*myShape);
+            myActor->release();
+            myActor = nullptr;
+        }
+    });
 
     rigidbody->AttachCollider(this);
+}
+
+void ColliderComponent::OnComponentRemoved(Component* inComponent)
+{
+    if(!inComponent->IsA<RigidbodyComponent>())
+        return;
+
+    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
+    physicsSystem.QueuePhysicsCommand([this](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
+    {
+        myActor = inPhysics->createRigidStatic(GetTransform()->AsPxTransform());
+        myActor->attachShape(*myShape);
+        inScene->addActor(*myActor);
+    });
 }

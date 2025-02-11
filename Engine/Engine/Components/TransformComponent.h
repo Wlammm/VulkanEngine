@@ -67,6 +67,7 @@ public:
     glm::vec3 GetRight() const;
 
     void Move(const glm::vec3& inDisplacement);
+    void Move(const float inX, const float inY, const float inZ);
 
 private:
     void MarkDirty();
@@ -74,8 +75,12 @@ private:
     glm::vec3 myPosition { 0, 0, 0 };
     glm::quat myRotation = glm::identity<glm::quat>();
     glm::vec3 myScale { 1, 1, 1 };
-    bool myIsDirty = false;
 
+    // This bool is set to true whenever we get an update from physics.
+    // It is done in the physx implementations of SetPosition and SetRotation.
+    // This is required as otherwise we will fall into an infinite loop of telling PhysX that we've updated our position when we're just updating the transform from the simulation.
+    bool mySkipPhysicsUpdate = false;
+    
     TransformComponent* myParent = nullptr;
     List<TransformComponent*> myChildren;
 };
