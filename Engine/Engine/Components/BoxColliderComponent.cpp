@@ -3,6 +3,7 @@
 
 #include <PxMaterial.h>
 #include <PxPhysics.h>
+#include <PxRigidStatic.h>
 
 #include "Engine.h"
 #include "TransformComponent.h"
@@ -35,8 +36,6 @@ void BoxColliderComponent::OnCreate()
         // TODO: Should this be exclusive?
         myShape = inPhysics->createShape(physx::PxBoxGeometry(myHalfSize.x * scale.x, myHalfSize.y * scale.y, myHalfSize.z * scale.z), *physicsSystem.GetDefaultMaterial(), true);
         physx::PxMaterial* val = physicsSystem.GetDefaultMaterial();
-        myShape->setMaterials(&val, 1);
-        myShape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, true);
     });
     
     ColliderComponent::OnCreate();
@@ -45,7 +44,7 @@ void BoxColliderComponent::OnCreate()
 void BoxColliderComponent::Tick()
 {
     ColliderComponent::Tick();
-
+    
     if(Input::IsKeyPressed(KeyCode::K))
         GetTransform()->Move(0, -10, 0);
 }

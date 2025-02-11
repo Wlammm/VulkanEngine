@@ -51,8 +51,8 @@ MeshInstanceIndex GPUSceneSystem::AddMeshInstance(const MeshInstanceData& inMesh
     }
     
     mySparseBuffer->SetData(&inMeshInstanceData, sizeof(MeshInstanceData), sizeof(MeshInstanceData) * instanceIndex);
-    
     myDenseBufferCPURepresentation.Add(instanceIndex);
+    
     myDenseBuffer->SetData(&instanceIndex, sizeof(uint), 4 + sizeof(uint) * (myDenseBufferCPURepresentation.size() - 1));
 
     // Update the num objects for the dense buffer.
@@ -79,7 +79,6 @@ uint GPUSceneSystem::GetNumObjects() const
 void GPUSceneSystem::RemoveMeshInstance(const MeshInstanceIndex inMeshInstance)
 {
     const uint denseIndex = myDenseBufferCPURepresentation.FindIndex(inMeshInstance);
-    
     myFreeSparseIndices.Add(inMeshInstance);
 
     uint lastIndex = myDenseBufferCPURepresentation.size() - 1;

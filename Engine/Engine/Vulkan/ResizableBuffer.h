@@ -15,11 +15,11 @@ public:
 
     VulkanBuffer* GetBuffer() const;
 
-    void CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const size_t inSize, uint inOffset);
-    void SetData(const void* inData, const size_t inSize, uint inOffset = 0);
+    void CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const uint inSize, uint inOffset);
+    void SetData(const void* inData, const uint inSize, uint inOffset = 0);
 
     // This function moves data from one part of the buffer to another.
-    void MoveData(const uint inSourceOffset, const uint inDstOffset, const size_t inSize);
+    void MoveData(const uint inSourceOffset, const uint inDstOffset, const uint inSize);
 
     template<typename T>
     void SetData(const T& inData)
@@ -41,19 +41,6 @@ private:
     VulkanBuffer* myBuffer = nullptr;
     size_t myCurrentSize = 0;
 
-    struct UploadData
-    {
-        void* myCopiedData = nullptr;
-        size_t mySize = 0;
-        uint myOffset = 0;
-    };
-    List<UploadData> myDataToUpload{};
-
-    struct StagedUploadData
-    {
-        VulkanBuffer* myBuffer = nullptr;
-        size_t mySize = 0;
-        uint myOffset = 0;
-    };
-    List<StagedUploadData> myStagedDataToUpload{};
+    List<Delegate<void()>> myUploadCommands{};
+    uint myRequiredSizeForUpload = 0;
 };

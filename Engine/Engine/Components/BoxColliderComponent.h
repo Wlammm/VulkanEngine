@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include <PxShape.h>
 
 #include "ColliderComponent.h"
 

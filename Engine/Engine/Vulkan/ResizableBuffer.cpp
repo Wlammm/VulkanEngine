@@ -17,12 +17,14 @@ VulkanBuffer* ResizableBuffer::GetBuffer() const
     return myBuffer;
 }
 
-void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const size_t inSize, uint inOffset)
+void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const uint inSize, uint inOffset)
 {
-    StagedUploadData& data = myStagedDataToUpload.Emplace();
-    data.myBuffer = inStagingBuffer;
-    data.mySize = inSize;
-    data.myOffset = inOffset;
+    myRequiredSizeForUpload = std::max(myRequiredSizeForUpload, inSize + inOffset);
+    
+    myUploadCommands.Emplace([this, inStagingBuffer, inSize, inOffset]()
+    {
+        myBuffer->CopyDataFromBuffer(inStagingBuffer, inSize, inOffset);
+    });
 
     if(!myHasRegisteredForTick)
     {
@@ -31,13 +33,18 @@ void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const si
     }
 }
 
-void ResizableBuffer::SetData(const void* inData, const size_t inSize, uint inOffset)
+void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffset)
 {
-    UploadData& data = myDataToUpload.Emplace();
-    data.myCopiedData = new char[inSize];
-    memcpy(data.myCopiedData, inData, inSize);
-    data.mySize = inSize;
-    data.myOffset = inOffset;
+    char* copiedData = new char[inSize];
+    memcpy(copiedData, inData, inSize);
+
+    myRequiredSizeForUpload = std::max(myRequiredSizeForUpload, inSize + inOffset);
+    
+    myUploadCommands.Emplace([this, copiedData, inSize, inOffset]()
+    {
+        myBuffer->SetData(copiedData, inSize, inOffset);
+        delete copiedData;
+    });
 
     if(!myHasRegisteredForTick)
     {
@@ -46,34 +53,37 @@ void ResizableBuffer::SetData(const void* inData, const size_t inSize, uint inOf
     }
 }
 
-void ResizableBuffer::MoveData(const uint inSourceOffset, const uint inDstOffset, const size_t inSize)
+void ResizableBuffer::MoveData(const uint inSourceOffset, const uint inDstOffset, const uint inSize)
 {
-    // This might fail if we have a buffer resize already queued this frame.
-    RenderSystem::AddUploadCommand_TS(this, [&, inSourceOffset, inDstOffset, inSize](vk::CommandBuffer inCommandBuffer)
+    myRequiredSizeForUpload = std::max(myRequiredSizeForUpload, inSize + inDstOffset);
+    myUploadCommands.Emplace([this, inSourceOffset, inDstOffset, inSize]()
     {
-        vk::BufferCopy copy = vk::BufferCopy().setSize(inSize).setSrcOffset(inSourceOffset).setDstOffset(inDstOffset);
-        inCommandBuffer.copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
-        
-        vk::BufferMemoryBarrier bufferMemoryBarrier{};
-        bufferMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-        bufferMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
-        bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        bufferMemoryBarrier.buffer = myBuffer->GetAPIResource();
-        bufferMemoryBarrier.offset = inDstOffset;
-        bufferMemoryBarrier.size = inSize;
-        
-        vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eTransfer;
-        vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eComputeShader;
+        RenderSystem::AddUploadCommand_TS(this, [&, inSourceOffset, inDstOffset, inSize](vk::CommandBuffer inCommandBuffer)
+        {
+            vk::BufferCopy copy = vk::BufferCopy().setSize(inSize).setSrcOffset(inSourceOffset).setDstOffset(inDstOffset);
+            inCommandBuffer.copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
+            
+            vk::BufferMemoryBarrier bufferMemoryBarrier{};
+            bufferMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+            bufferMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
+            bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            bufferMemoryBarrier.buffer = myBuffer->GetAPIResource();
+            bufferMemoryBarrier.offset = inDstOffset;
+            bufferMemoryBarrier.size = inSize;
+            
+            vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eTransfer;
+            vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eComputeShader;
 
-        inCommandBuffer.pipelineBarrier(
-            srcStageMask,              
-            dstStageMask,              
-            {},                        
-            nullptr,                   
-            bufferMemoryBarrier,       
-            nullptr                    
-        );
+            inCommandBuffer.pipelineBarrier(
+                srcStageMask,              
+                dstStageMask,              
+                {},                        
+                nullptr,                   
+                bufferMemoryBarrier,       
+                nullptr                    
+            );
+        });
     });
 }
 
@@ -82,35 +92,17 @@ void ResizableBuffer::DequeueUploads()
     check(myBuffer->GetCreateInfo().usage & vk::BufferUsageFlagBits::eTransferSrc &&
           myBuffer->GetCreateInfo().usage & vk::BufferUsageFlagBits::eTransferDst && "Buffers wasnt created with transfer src & dest usage flags.");
 
-    size_t requiredSize = myCurrentSize;
-    for(const UploadData& uploadData : myDataToUpload)
+    if(myBuffer->GetSize() < myRequiredSizeForUpload)
     {
-        requiredSize = std::max(requiredSize, uploadData.mySize + uploadData.myOffset);
+        Resize(myRequiredSizeForUpload);
     }
 
-    for(const StagedUploadData& uploadData : myStagedDataToUpload)
+    for(auto& command : myUploadCommands)
     {
-        requiredSize = std::max(requiredSize, uploadData.mySize + uploadData.myOffset);
+        command();
     }
-
-    if(myBuffer->GetSize() < requiredSize)
-    {
-        Resize(requiredSize);
-    }
+    myUploadCommands.Clear();
     
-    for(UploadData& uploadData : myDataToUpload)
-    {
-        myBuffer->SetData(uploadData.myCopiedData, uploadData.mySize, uploadData.myOffset);
-        del(uploadData.myCopiedData);
-    }
-
-    for(const StagedUploadData& uploadData : myStagedDataToUpload)
-    {
-        myBuffer->CopyDataFromBuffer(uploadData.myBuffer, uploadData.mySize, uploadData.myOffset);
-    }
-    
-    myDataToUpload.Clear();
-    myStagedDataToUpload.Clear();
     myHasRegisteredForTick = false;
 }
 

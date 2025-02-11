@@ -29,8 +29,6 @@ void StaticMeshComponent::SetModel(Model* inModel)
     if(myModel == inModel)
         return;
 
-    LOG("Setting model");
-    
     myModel = inModel;
     MarkRenderStateDirty();
 }

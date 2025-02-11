@@ -12,6 +12,7 @@
 #include "Components/LandscapeRenderComponent.h"
 #include "Components/PointLightComponent.h"
 #include "Components/SinWaveMovementComponent.h"
+#include "Components/SphereColliderComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TransformComponent.h"
 #include "Core/Input.h"
@@ -55,24 +56,46 @@ void World::Init()
 	light->SetColor({1, 168/255.0, 120/255.0, 1});
 
 	GameObject* platform = GetComponentSystem().CreateGameObject();
-	platform->GetTransform()->SetScale(1, 1, 1);
+	platform->GetTransform()->SetScale(100, 1, 100);
 	platform->AddComponent<BoxColliderComponent>();
 	StaticMeshComponent* staticMesh1 = platform->AddComponent<StaticMeshComponent>();
 	myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [staticMesh1](Model* inModel)
 	{
-		LOG("Set model1");
 		staticMesh1->SetModel(inModel);
 	});
 
-	GameObject* platform1 = GetComponentSystem().CreateGameObject();
-	platform1->GetTransform()->SetPositionY(1000);
-	platform1->AddComponent<BoxColliderComponent>();
-	platform1->AddComponent<RigidbodyComponent>();
-	StaticMeshComponent* staticMesh2 = platform1->AddComponent<StaticMeshComponent>();
-	myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [staticMesh2](Model* inModel)
 	{
-		LOG("Set model2");
-		staticMesh2->SetModel(inModel);
+		GameObject* platform1 = GetComponentSystem().CreateGameObject();
+		platform1->GetTransform()->SetPositionY(1000);
+		platform1->AddComponent<BoxColliderComponent>();
+		platform1->AddComponent<RigidbodyComponent>();
+		StaticMeshComponent* staticMesh2 = platform1->AddComponent<StaticMeshComponent>();
+		myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [staticMesh2](Model* inModel)
+		{
+			staticMesh2->SetModel(inModel);
+		});
+	}
+
+	{
+		GameObject* platform1 = GetComponentSystem().CreateGameObject();
+		platform1->GetTransform()->SetPositionY(150);
+		platform1->AddComponent<BoxColliderComponent>();
+		platform1->AddComponent<RigidbodyComponent>();
+		StaticMeshComponent* staticMesh2 = platform1->AddComponent<StaticMeshComponent>();
+		myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [staticMesh2](Model* inModel)
+		{
+			staticMesh2->SetModel(inModel);
+		});
+	}
+
+	GameObject* sphere1 = GetComponentSystem().CreateGameObject();
+	sphere1->GetTransform()->SetPositionY(1500);
+	sphere1->AddComponent<SphereColliderComponent>();
+	sphere1->AddComponent<RigidbodyComponent>();
+	StaticMeshComponent* staticMesh3 = sphere1->AddComponent<StaticMeshComponent>();
+	myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Sphere.fbx", [staticMesh3](Model* inModel)
+	{
+		staticMesh3->SetModel(inModel);
 	});
 	
 	glm::vec3 startPosition = glm::vec3(-800.0f, 50.0f, -35.0f);
@@ -89,6 +112,7 @@ void World::Init()
 		pointLight->SetRange(600.0f);
 		pointLight->TEMP_SendToGPU();
 	}
+
 	
 	//GameObject* cubeObject = GetComponentSystem().CreateGameObject();
 	//myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [cubeObject](Model* inModel)
@@ -105,6 +129,24 @@ void World::Init()
 
 void World::Update()
 {
+	static float timeSinceSpawn = 0;
+	timeSinceSpawn += Time::GetDeltaTime();
+
+	float multiplier =2;
+	if(timeSinceSpawn * multiplier > 0.1f)
+	{
+		timeSinceSpawn = 0;
+		GameObject* platform1 = GetComponentSystem().CreateGameObject();
+		platform1->GetTransform()->SetPosition(sin((float)Time::GetSeconds() * 4 * multiplier) * 500.f, 1000.f, cos((float)Time::GetSeconds()  * 4 * multiplier) * 500.f);
+		platform1->AddComponent<BoxColliderComponent>();
+		platform1->AddComponent<RigidbodyComponent>();
+		StaticMeshComponent* staticMesh2 = platform1->AddComponent<StaticMeshComponent>();
+		myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [staticMesh2](Model* inModel)
+		{
+			staticMesh2->SetModel(inModel);
+		});
+	}
+	
 	for(WorldSystem* system : mySystemManager->GetAllSystems())
 	{
 		system->Tick();
