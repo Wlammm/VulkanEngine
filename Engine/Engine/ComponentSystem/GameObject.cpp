@@ -18,31 +18,34 @@ void GameObject::Tick()
 {
     if(myRenderStateDirty)
     {
-        for(Component* comp : myComponents)
+        for(Component* comp : myRenderStateDirtyComponents)
         {
             comp->OnRenderStateDirty();
         }
         myRenderStateDirty = false;
     }
     
-    for(Component* comp : myComponents)
+    for(Component* comp : myTickingComponents)
     {
+        ZoneScopedN("GameObject::TickComponents");
         comp->Tick();
     }
 }
 
 void GameObject::TickPhysics()
 {
+    ZoneScoped;
     if(myPhysicsStateDirty)
     {
-        for(Component* comp : myComponents)
+        for(Component* comp : myPhysicsStateDirtyComponents)
         {
+            ZoneScopedN("OnPhysicsStateDirty");
             comp->OnPhysicsStateDirty();
         }
         myPhysicsStateDirty = false;
     }
     
-    for(Component* comp : myComponents)
+    for(Component* comp : myPhysicsStateDirtyComponents)
     {
         comp->TickPhysics();
     }

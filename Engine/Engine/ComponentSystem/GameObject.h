@@ -23,6 +23,16 @@ public:
         ComponentType* component = new ComponentType(std::forward<Args>(inArgs)...);
         component->myGameObject = this;
         myComponents.Add(component);
+    
+        if(component->DoesComponentTick())
+            myTickingComponents.Add(component);
+
+        if(component->DoesComponentImplementOnRenderStateDirty())
+            myRenderStateDirtyComponents.Add(component);
+
+        if(component->DoesComponentImplementPhysicsFunctions())
+            myPhysicsStateDirtyComponents.Add(component);
+        
         component->OnCreate();
         OnComponentAdded(component);
         return component;
@@ -68,6 +78,15 @@ public:
 
         OnPreComponentRemoved(component);
         component->OnDestroy();
+
+        if(component->DoesComponentTick())
+            myTickingComponents.Remove(component);
+
+        if(component->DoesComponentImplementOnRenderStateDirty())
+            myRenderStateDirtyComponents.Remove(component);
+
+        if(component->DoesComponentImplementPhysicsFunctions())
+            myPhysicsStateDirtyComponents.Remove(component);
         
         myComponents.Remove(component);
         delete component;
@@ -91,6 +110,11 @@ private:
     friend ComponentSystem;
     ComponentSystem* myComponentSystem = nullptr;
     List<Component*> myComponents{};
+
+    // Optimized lists of components that actually need update every frame.
+    List<Component*> myTickingComponents{};
+    List<Component*> myRenderStateDirtyComponents{};
+    List<Component*> myPhysicsStateDirtyComponents{};
 
     bool myRenderStateDirty = false;
     bool myPhysicsStateDirty = false;

@@ -4,6 +4,8 @@
 class EditorCameraMovementComponent : public Component
 {
 public:
+    bool DoesComponentTick() const override { return true; }
+    
     void Tick() override final;
 
     void ResetMouseDelta();

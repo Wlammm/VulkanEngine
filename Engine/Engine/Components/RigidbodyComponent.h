@@ -13,6 +13,8 @@ class RigidbodyComponent : public Component
 public:
     RigidbodyComponent();
 
+    bool DoesComponentImplementPhysicsFunctions() const override { return true; }
+    
     void TickPhysics() override;
     
     void OnCreate() override;

@@ -12,6 +12,8 @@ public:
     void OnCreate() override;
     ~StaticMeshComponent();
 
+    bool DoesComponentImplementOnRenderStateDirty() const override { return true; }
+    
     void SetModel(Model* inModel);
     Model* GetModel() const;
 

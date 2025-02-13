@@ -105,7 +105,6 @@ void StaticMeshComponent::OnRenderStateDirty()
         Engine::GetEngineSystem<GPUSceneSystem>().RemoveMeshInstance(instanceIndex);
     }
     
-    myMaterials.Resize(myModel->GetMeshes().size());
     for(int meshIndex = 0; meshIndex < myModel->GetMeshes().size(); ++meshIndex)
     {
         const Mesh* mesh = myModel->GetMeshes()[meshIndex];

@@ -40,11 +40,3 @@ void BoxColliderComponent::OnCreate()
     
     ColliderComponent::OnCreate();
 }
-
-void BoxColliderComponent::Tick()
-{
-    ColliderComponent::Tick();
-    
-    if(Input::IsKeyPressed(KeyCode::K))
-        GetTransform()->Move(0, -10, 0);
-}

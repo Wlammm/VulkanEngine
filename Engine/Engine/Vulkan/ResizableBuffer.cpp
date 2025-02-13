@@ -42,7 +42,8 @@ void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffs
     memcpy(copiedData, inData, inSize);
 
     myRequiredSizeForUpload = std::max(myRequiredSizeForUpload, inSize + inOffset);
-    
+
+    // TODO: Do we need to do this if the buffer is writable or can we just write to it directly and skip a lot of the shit work?
     myUploadCommands.Emplace([this, copiedData, inSize, inOffset]()
     {
         myBuffer->SetData(copiedData, inSize, inOffset);

@@ -13,6 +13,8 @@ class ColliderComponent : public Component
 public:
     ColliderComponent();
 
+    bool DoesComponentImplementPhysicsFunctions() const override { return true; }
+    
     // Make sure to set the value of myShape before calling this.
     void OnCreate() override;
 

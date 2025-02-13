@@ -5,4 +5,6 @@ class SinWaveMovementComponent : public Component
 {
 public:
     void Tick() override final;
+
+    bool DoesComponentTick() const override { return true; }
 };
