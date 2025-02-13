@@ -30,7 +30,7 @@ private:
         void Destroy();
     };
 
-    void ExecuteComputePass(vk::CommandBuffer inCommandBuffer, const ComputePassResources& inComputePassResources);
+    void ExecuteComputePass(vk::CommandBuffer inCommandBuffer, const ComputePassResources& inComputePassResources, const glm::u32vec3& inGroupCount = glm::u32vec3(1, 1, 1));
 
     void EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer);
     

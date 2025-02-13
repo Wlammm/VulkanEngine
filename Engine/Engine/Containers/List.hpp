@@ -4,7 +4,6 @@
 
 #include "Engine/Core/CheckDefine.hpp"
 #include "ContainerTypes.hpp"
-#include <string>
 
 #define CanCopy std::is_trivially_copyable<ElementType>::value || IsCopyable<ElementType>::value
 
@@ -67,7 +66,6 @@ public:
 
 	virtual ~List()
 	{
-		ZoneScoped;
 		Clear();
 		if (myPtr)
 		{
@@ -125,7 +123,6 @@ public:
 
 	void Clear()
 	{
-		ZoneScoped;	
 		if constexpr(!std::is_trivially_destructible<ElementType>::value)
 		{
 			for (const auto& value : *this)
@@ -139,6 +136,9 @@ public:
 
 	void Resize(const SizeType inSize)
 	{
+		if(mySize == inSize)
+			return;
+		
 		Grow(inSize);
 		mySize = inSize;
 	}
@@ -160,7 +160,6 @@ public:
 
 	void Reset()
 	{
-		ZoneScoped;	
 		Clear();
 		mySize = 0;
 		free(myPtr);
@@ -353,12 +352,6 @@ private:
 
 	void Grow(const SizeType inNewCapacity)
 	{
-		ZoneScoped;
-		std::string text = "Capacity: ";
-		text += std::to_string(inNewCapacity);
-		text += " index count: ";
-		text += std::to_string(inNewCapacity / sizeof(ElementType));
-		ZoneText(text.c_str(), 20);
 		ElementType* oldPtr = myPtr;
 		myPtr = reinterpret_cast<ElementType*>(calloc(inNewCapacity, sizeof(ElementType)));
 		myCapacity = inNewCapacity;

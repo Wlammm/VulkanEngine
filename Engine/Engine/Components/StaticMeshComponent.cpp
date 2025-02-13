@@ -68,6 +68,7 @@ Material* StaticMeshComponent::GetMaterialForMesh(Mesh* inMesh) const
 
 void StaticMeshComponent::OnRenderStateDirty()
 {
+    ZoneScoped;
     RemoveFromGPUScene();
     
     if(!myModel)

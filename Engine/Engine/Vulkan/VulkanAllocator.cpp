@@ -71,6 +71,12 @@ VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, cons
 	outBuffer->myCreateInfo = inCreateInfo;
 	outBuffer->myMemoryUsage = inUsage;
 
+	if(inMappable)
+	{
+		result = vmaMapMemory(myInstance->myAllocator, outBuffer->myAllocation, &outBuffer->myPtr);
+		check(result == VK_SUCCESS);
+	}
+
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
 		.setObjectHandle(VulkanContext::GetVulkanHandle(outBuffer->GetAPIResource()))
@@ -137,6 +143,10 @@ void VulkanAllocator::DestroyBufferInternal(VulkanBuffer* inBuffer)
 #if DEBUG
 	myInstance->myAllocatedNames.Remove(inBuffer->myName);
 #endif
+
+	if(inBuffer->myIsMappingAllowed)
+		vmaUnmapMemory(myInstance->myAllocator, inBuffer->myAllocation);
+
 	vmaDestroyBuffer(myInstance->myAllocator, inBuffer->myBuffer, inBuffer->myAllocation);
 	del(inBuffer);
 }

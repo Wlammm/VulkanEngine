@@ -84,8 +84,9 @@ void GDRPipeline::AddComputeCommands(vk::CommandBuffer inCommandBuffer)
 			nullptr,
 			barrier,
 			nullptr);
-	
-	ExecuteComputePass(inCommandBuffer, myCullPass);
+
+	GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
+	ExecuteComputePass(inCommandBuffer, myCullPass, {std::ceil(objectSystem.GetNumObjects() / 256.0f), 1, 1});
 
 	// Memory barrier to ensure the compute shader writes are visible to subsequent draw calls
 	vk::BufferMemoryBarrier bufferMemoryBarriers[] = {
@@ -201,11 +202,11 @@ void GDRPipeline::ComputePassResources::Destroy()
     del(myDescriptorSet);
 }
 
-void GDRPipeline::ExecuteComputePass(vk::CommandBuffer inCommandBuffer, const ComputePassResources& inComputePassResources)
+void GDRPipeline::ExecuteComputePass(vk::CommandBuffer inCommandBuffer, const ComputePassResources& inComputePassResources, const glm::u32vec3& inGroupCount)
 {
     inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, inComputePassResources.myPipeline);
     inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, inComputePassResources.myPipelineLayout, 0, inComputePassResources.myDescriptorSet->GetSet(), {});
-    inCommandBuffer.dispatch(1, 1, 1);
+    inCommandBuffer.dispatch(inGroupCount.x, inGroupCount.y, inGroupCount.z);
 }
 
 void GDRPipeline::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)

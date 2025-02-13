@@ -38,6 +38,7 @@ GPUSceneSystem::~GPUSceneSystem()
 
 MeshInstanceIndex GPUSceneSystem::AddMeshInstance(const MeshInstanceData& inMeshInstanceData)
 {
+    ZoneScoped;
     MeshInstanceIndex instanceIndex = -1;
     if(!myFreeSparseIndices.IsEmpty())
     {

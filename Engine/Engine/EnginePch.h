@@ -5,7 +5,7 @@
 #undef max
 #undef min
 
-#define TRACY_FIBERS
+//#define TRACY_FIBERS
 
 #include <iostream>
 #include <string>

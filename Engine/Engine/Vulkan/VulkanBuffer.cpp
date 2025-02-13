@@ -1,17 +1,21 @@
 #include "EnginePch.h"
 #include "VulkanBuffer.h"
+
+#include <stacktrace>
+
 #include "VulkanAllocator.h"
 #include <vma/vk_mem_alloc.h>
 
 #include "Engine.h"
 #include "Rendering/RenderSystem.h"
+#include "Staging/StagingSystem.h"
 
 vk::Buffer VulkanBuffer::GetAPIResource() const
 {
 	return myBuffer;
 }
 
-void VulkanBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const size_t inSize, uint inOffset)
+void VulkanBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const uint inSize, uint inOffset)
 {
 	check(GetSize() >= inSize + inOffset);
 
@@ -22,7 +26,7 @@ void VulkanBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const size_
 	});
 }
 
-void VulkanBuffer::SetData(const void* inData, const size_t inSize, uint inOffset)
+void VulkanBuffer::SetData(const void* inData, const uint inSize, uint inOffset)
 {
 	ZoneScoped;
 	check(GetSize() >= inSize + inOffset);
@@ -35,19 +39,6 @@ void VulkanBuffer::SetData(const void* inData, const size_t inSize, uint inOffse
 	{
 		UploadStaged(inData, inSize, inOffset);
 	}
-}
-
-void* VulkanBuffer::Map()
-{
-	void* ptr;
-	VkResult result = vmaMapMemory(VulkanAllocator::GetVMAAllocator(), myAllocation, &ptr);
-	check(result == VK_SUCCESS);
-	return ptr;
-}
-
-void VulkanBuffer::Unmap()
-{
-	vmaUnmapMemory(VulkanAllocator::GetVMAAllocator(), myAllocation);
 }
 
 size_t VulkanBuffer::GetSize() const
@@ -82,25 +73,32 @@ std::string VulkanBuffer::GetName() const
 }
 #endif
 
-void VulkanBuffer::UploadMapped(const void* inData, size_t inSize, uint inOffset)
+void* VulkanBuffer::GetPtr() const
 {
-	ZoneScoped;
-	char* ptr = static_cast<char*>(Map());
-	memcpy(ptr + inOffset, inData, inSize);
-	Unmap();
+	check(myIsMappingAllowed && myPtr);
+	return myPtr;
 }
 
-void VulkanBuffer::UploadStaged(const void* inData, size_t inSize, uint inOffset)
+void VulkanBuffer::UploadMapped(const void* inData, uint inSize, uint inOffset)
 {
 	ZoneScoped;
-	VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer-Staging", VulkanBuffer::StagingCreateInfo(inSize), VMA_MEMORY_USAGE_AUTO, true);
-	stagingBuffer->SetData(inData, inSize);
+	check(myPtr);
+	memcpy((char*)myPtr + inOffset, inData, inSize);
+}
+
+void VulkanBuffer::UploadStaged(const void* inData, uint inSize, uint inOffset)
+{
+	ZoneScoped;
+	//VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer::UploadStaged Staging buffer", VulkanBuffer::StagingCreateInfo(inSize), VMA_MEMORY_USAGE_AUTO, true);
+	//stagingBuffer->SetData(inData, inSize);
+
+	StagingSystem& stagingSystem = Engine::GetEngineSystem<StagingSystem>();
+	StagingBuffer stagingBuffer = stagingSystem.GetStagingBufferWithSize(inSize);
+	stagingBuffer.SetData(inData, inSize);
 
 	Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [this, stagingBuffer, inSize, inOffset](vk::CommandBuffer inCommandBuffer)
 	{
-		  vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset);
-		  inCommandBuffer.copyBuffer(stagingBuffer->GetAPIResource(), GetAPIResource(), { copyRegion });
+		  vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset).setSrcOffset(stagingBuffer.GetOffset());
+		  inCommandBuffer.copyBuffer(stagingBuffer.GetUnderlyingBuffer()->GetAPIResource(), GetAPIResource(), { copyRegion });
 	});
-
-	VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 }

@@ -132,20 +132,33 @@ void World::Update()
 	static float timeSinceSpawn = 0;
 	timeSinceSpawn += Time::GetDeltaTime();
 
-	float multiplier =2;
-	if(timeSinceSpawn * multiplier > 0.1f)
+	float multiplier = 4;
+	static bool stopSpawn = false;
+
+	if(Input::IsKeyPressed(KeyCode::O))
+		stopSpawn = !stopSpawn;
+
+	Model* model = myAssetRegistry->GetAssetSynchronous<Model>("Assets/Primitives/Cube.fbx");
+	DO_ONCE(
+	for(int x  = 0; x < 5; ++x)
+	for(int y  = 0; y < 5; ++y)
+	for(int z  = 0; z < 5; ++z)
+	
+	//if(timeSinceSpawn * multiplier > 0.1f && !stopSpawn)
 	{
 		timeSinceSpawn = 0;
 		GameObject* platform1 = GetComponentSystem().CreateGameObject();
-		platform1->GetTransform()->SetPosition(sin((float)Time::GetSeconds() * 4 * multiplier) * 500.f, 1000.f, cos((float)Time::GetSeconds()  * 4 * multiplier) * 500.f);
+		//platform1->GetTransform()->SetPosition(sin((float)Time::GetSeconds() * 4 * multiplier) * 500.f, 1000.f, cos((float)Time::GetSeconds()  * 4 * multiplier) * 500.f);
+		platform1->GetTransform()->SetPosition(x * 400.f, y * 400.f, z * 400.f);
 		platform1->AddComponent<BoxColliderComponent>();
 		platform1->AddComponent<RigidbodyComponent>();
 		StaticMeshComponent* staticMesh2 = platform1->AddComponent<StaticMeshComponent>();
-		myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [staticMesh2](Model* inModel)
-		{
-			staticMesh2->SetModel(inModel);
-		});
-	}
+		//myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [staticMesh2](Model* inModel)
+		//{
+		//	staticMesh2->SetModel(inModel);
+		//});
+		staticMesh2->SetModel(model);
+	});
 	
 	for(WorldSystem* system : mySystemManager->GetAllSystems())
 	{

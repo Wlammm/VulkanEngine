@@ -1,0 +1,32 @@
+﻿#pragma once
+#include "StagingBuffer.h"
+#include "System/System.h"
+#include "Vulkan/VulkanContext.h"
+
+
+class ResizableBuffer;
+
+class StagingSystem : public System
+{
+public:
+    StagingSystem();
+    ~StagingSystem();
+
+    StagingBuffer GetStagingBufferWithSize(const uint inSize);
+
+    void Tick();
+    
+private:
+    void PrepareThisFramesStagingBuffer();
+    
+private:
+    struct BufferData
+    {
+        ResizableBuffer* myBuffer;
+        uint myOffset = 0;
+    };
+
+    BufferData* myCurrentStageData = nullptr;
+    
+    std::array<BufferData, VulkanContext::FrameLag> myStagingBuffers;
+};

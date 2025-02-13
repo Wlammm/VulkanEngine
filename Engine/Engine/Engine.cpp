@@ -25,6 +25,7 @@
 #include "System/SystemManager.hpp"
 #include "Systems/PointLightSystem.h"
 #include "Vulkan/GPUSceneSystem.h"
+#include "Vulkan/Staging/StagingSystem.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -90,6 +91,9 @@ void Engine::Tick()
 
 	myVulkanContext->BeginFrame();
 	myFilewatcher->FlushChanges();
+	
+	GetEngineSystem<StagingSystem>().Tick();
+	
 #if EDITOR
 	myEditorTick();
 #endif
@@ -97,6 +101,7 @@ void Engine::Tick()
 	myWorld->Update();
 
 	{
+		ZoneScopedN("TicksNextFrame");
 		// Move the data so that we can bind the same function for the next frame inside this invocation.
 		MulticastDelegate<void()> ticksThisFrame = std::move(TickNextFrame);
 		TickNextFrame.Clear();
@@ -177,6 +182,7 @@ void Engine::SetEditorTickFunction(const std::function<void()> inEditorTickFunct
 
 void Engine::CreateSystems()
 {
+	mySystemManager->AddSystem<StagingSystem>();
 	mySystemManager->AddSystem<RenderSystem>();
 	mySystemManager->AddSystem<TextureSystem>();
 	mySystemManager->AddSystem<MeshSystem>();

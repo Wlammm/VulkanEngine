@@ -34,7 +34,7 @@ workspace "Engine"
     location "../"
     startproject "Launcher"
     language "C++"
-    cppdialect "C++20"
+    cppdialect "C++23"
 	flags { "FatalWarnings" }
 	debugdir "$(OutDir)"
 	targetdir  "../../Temp/$(Configuration)/"
@@ -72,13 +72,13 @@ workspace "Engine"
 		staticruntime "on"
 		
 	filter "configurations:PROFILE Game Debug"
-		defines { "DEBUG", "TRACY_ENABLE" }
+		defines { "DEBUG", "TRACY_ENABLE", "TRACY_FIBERS" }
 		symbols "On"
 		runtime "Debug"
 		editandcontinue "Off"
 		staticruntime "on"
 	filter "configurations:PROFILE Game Release"
-		defines { "TRACY_ENABLE", "NDEBUG" }
+		defines { "TRACY_ENABLE", "NDEBUG", "TRACY_FIBERS" }
 		optimize "On"
 		symbols "On"
 		runtime "Release"

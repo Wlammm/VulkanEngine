@@ -5,7 +5,7 @@
 class VulkanBuffer
 {
 public:
-	static vk::BufferCreateInfo StagingCreateInfo(size_t inSize)
+	static vk::BufferCreateInfo StagingCreateInfo(uint inSize)
 	{
 		return vk::BufferCreateInfo()
 			.setSize(inSize)
@@ -28,14 +28,14 @@ public:
 
 	}
 
-	static vk::BufferCreateInfo UniformBufferCreateInfo(size_t inSize)
+	static vk::BufferCreateInfo UniformBufferCreateInfo(uint inSize)
 	{
 		return vk::BufferCreateInfo()
 			.setSize(inSize)
 			.setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
 	}
 
-	static vk::BufferCreateInfo StorageBufferCreateInfo(size_t inSize)
+	static vk::BufferCreateInfo StorageBufferCreateInfo(uint inSize)
 	{
 		return vk::BufferCreateInfo()
 			.setSize(inSize)
@@ -43,7 +43,7 @@ public:
 			.setSharingMode(vk::SharingMode::eExclusive);
 	}
 
-	static vk::BufferCreateInfo ResizableStorageBufferCreateInfo(size_t inSize)
+	static vk::BufferCreateInfo ResizableStorageBufferCreateInfo(uint inSize)
 	{
 		return vk::BufferCreateInfo()
 			.setSize(inSize)
@@ -54,8 +54,8 @@ public:
 public:
 	vk::Buffer GetAPIResource() const;
 
-	void CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const size_t inSize, uint inOffset);
-	void SetData(const void* inData, const size_t inSize, uint inOffset = 0);
+	void CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const uint inSize, uint inOffset);
+	void SetData(const void* inData, const uint inSize, uint inOffset = 0);
 
 	template<typename T>
 	void SetData(const T& inData)
@@ -63,9 +63,6 @@ public:
 		static_assert(!std::is_pointer<T>::value && "Data type cannot be of pointer type");
 		SetData(&inData, sizeof(T));
 	}
-
-	void* Map();
-	void Unmap();
 
 	size_t GetSize() const;
 	const vk::BufferCreateInfo& GetCreateInfo() const;
@@ -78,15 +75,16 @@ public:
 	std::string GetName() const;
 #endif
 	
-
+	void* GetPtr() const;
+	
 private:
 	// Only create and destroy this resource via VulkanAllocator.
 	VulkanBuffer() = default;
 	~VulkanBuffer() = default;
 	VulkanBuffer(const VulkanBuffer& inOther) = delete;
 
-	void UploadMapped(const void* inData, size_t inSize, uint inOffset);
-	void UploadStaged(const void* inData, size_t inSize, uint inOffset);
+	void UploadMapped(const void* inData, uint inSize, uint inOffset);
+	void UploadStaged(const void* inData, uint inSize, uint inOffset);
 
 private:
 	friend class VulkanAllocator;
@@ -97,6 +95,8 @@ private:
 
 	bool myIsMappingAllowed = false;
 
+	void* myPtr = nullptr;
+	
 #ifdef DEBUG
 	std::string myName = "";
 #endif

@@ -1,6 +1,8 @@
 ﻿#include "EnginePch.h"
 #include "ResizableBuffer.h"
 
+#include <stacktrace>
+
 #include "Engine.h"
 #include "VulkanAllocator.h"
 #include "VulkanBuffer.h"
@@ -97,6 +99,7 @@ void ResizableBuffer::DequeueUploads()
         Resize(myRequiredSizeForUpload);
     }
 
+    LOG("ResizableBuffer uploads: %i", myUploadCommands.size());
     for(auto& command : myUploadCommands)
     {
         command();

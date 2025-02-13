@@ -268,11 +268,11 @@ void Model::InitializeStagingBuffers(List<SerializationMeshData>& inMeshDatas)
 	for(SerializationMeshData& meshData : inMeshDatas)
 	{
 		const uint vertexSize = meshData.myVertices.size() * sizeof(Vertex);
-		meshData.myStagingVertexBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer-Staging", VulkanBuffer::StagingCreateInfo(vertexSize), VMA_MEMORY_USAGE_AUTO, true);
+		meshData.myStagingVertexBuffer = VulkanAllocator::AllocateBuffer_TS("ModelVertexBufferStaging", VulkanBuffer::StagingCreateInfo(vertexSize), VMA_MEMORY_USAGE_AUTO, true);
 		meshData.myStagingVertexBuffer->SetData(meshData.myVertices.data(), vertexSize);
 
 		const uint indexSize = meshData.myIndices.size() * sizeof(uint);
-		meshData.myStagingIndexBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer-Staging", VulkanBuffer::StagingCreateInfo(indexSize), VMA_MEMORY_USAGE_AUTO, true);
+		meshData.myStagingIndexBuffer = VulkanAllocator::AllocateBuffer_TS("ModelIndexBufferStaging", VulkanBuffer::StagingCreateInfo(indexSize), VMA_MEMORY_USAGE_AUTO, true);
 		meshData.myStagingIndexBuffer->SetData(meshData.myIndices.data(), indexSize);
 	}
 }

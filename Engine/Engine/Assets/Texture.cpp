@@ -129,10 +129,9 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
 		.setSharingMode(vk::SharingMode::eExclusive);
 	VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("Texture staging buffer", stagingCreateInfo, VMA_MEMORY_USAGE_AUTO, true);
 
-	void* ptr = stagingBuffer->Map();
+	void* ptr = stagingBuffer->GetPtr();
 	//check(inImageData.myChannels == 4); // Make sure channels is 4. We dont support anything else atm.
 	memcpy(ptr, inImageData.myPixelData.data(), inImageData.myWidth * inImageData.myHeight * 4);
-	stagingBuffer->Unmap();
 
 	vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
 		.setImageType(vk::ImageType::e2D)
