@@ -84,6 +84,7 @@ PhysicsSystem::~PhysicsSystem()
 
 void PhysicsSystem::Tick()
 {
+    ZoneScoped;
     // TODO: This should potentially be moved into a fixed update function.
     if(myHasActiveSimulation)
     {
@@ -91,11 +92,14 @@ void PhysicsSystem::Tick()
         myHasActiveSimulation = false;
     }
 
-    for(const Delegate<void(physx::PxPhysics* inPhysics, physx::PxScene* inScene)>& physicsCommand : myPhysicsCommands)
     {
-        physicsCommand.Invoke(myPhysics, myScene);
+        ZoneScopedN("Dequeue PhysicsCommands");
+        for(const Delegate<void(physx::PxPhysics* inPhysics, physx::PxScene* inScene)>& physicsCommand : myPhysicsCommands)
+        {
+            physicsCommand.Invoke(myPhysics, myScene);
+        }
+        myPhysicsCommands.Clear();
     }
-    myPhysicsCommands.Clear();
     
     GetWorld()->GetComponentSystem().TickPhysics();
     

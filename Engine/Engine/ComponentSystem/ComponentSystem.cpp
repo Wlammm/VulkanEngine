@@ -5,6 +5,7 @@
 
 void ComponentSystem::Tick()
 {
+    ZoneScoped;
     for(GameObject* gameObject : myObjects)
     {
         gameObject->Tick();
@@ -20,6 +21,7 @@ void ComponentSystem::Tick()
 
 void ComponentSystem::TickPhysics()
 {
+    ZoneScoped;
     for(GameObject* gameObject : myObjects)
     {
         gameObject->TickPhysics();

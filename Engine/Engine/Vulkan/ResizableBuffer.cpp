@@ -30,6 +30,7 @@ void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const ui
 
     if(!myHasRegisteredForTick)
     {
+        ZoneScopedN("DequeueUploads CopyDataFromBuffer");
         Engine::TickNextFrame.Bind(&ResizableBuffer::DequeueUploads, this);
         myHasRegisteredForTick = true;
     }
@@ -50,6 +51,7 @@ void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffs
 
     if(!myHasRegisteredForTick)
     {
+        ZoneScopedN("DequeueUploads - SetData");
         Engine::TickNextFrame.Bind(&ResizableBuffer::DequeueUploads, this);
         myHasRegisteredForTick = true;
     }
@@ -99,7 +101,6 @@ void ResizableBuffer::DequeueUploads()
         Resize(myRequiredSizeForUpload);
     }
 
-    LOG("ResizableBuffer uploads: %i", myUploadCommands.size());
     for(auto& command : myUploadCommands)
     {
         command();

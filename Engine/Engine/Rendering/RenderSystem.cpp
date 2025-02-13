@@ -161,6 +161,7 @@ const GDRPipeline& RenderSystem::GetGDRPipeline() const
 
 void RenderSystem::AddGDRPass(vk::CommandBuffer inCommandBuffer)
 {
+	ZoneScoped;
 	{
 		GPUMARK_SCOPE(inCommandBuffer, "Indirect Culling");
 		myGDRPipeline->AddComputeCommands(inCommandBuffer);
@@ -266,6 +267,7 @@ void RenderSystem::AddCPUPass(vk::CommandBuffer inCommandBuffer)
 
 void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 {
+	ZoneScoped;
 	GPUMARK_SCOPE(inCommandBuffer, "UploadPass");
 	myUploadCommandsMutex.lock();
 

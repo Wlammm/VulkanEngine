@@ -1,9 +1,9 @@
 ﻿#pragma once
+#include "Assets/Material.h"
 #include "ComponentSystem/Component.h"
 #include "Vulkan/GPUSceneSystem.h"
 
 class Mesh;
-class Material;
 class Model;
 
 class StaticMeshComponent : public Component
@@ -16,10 +16,10 @@ public:
     Model* GetModel() const;
 
     void SetMaterial(Material* inMaterial, const uint inIndex);
-    Material* GetMaterial(const uint inIndex) const;
+    const Material* GetMaterial(const uint inIndex) const;
 
     void SetMaterialForMesh(Material* inMaterial, Mesh* inMesh);
-    Material* GetMaterialForMesh(Mesh* inMesh) const;
+    const Material* GetMaterialForMesh(Mesh* inMesh) const;
 
     void OnRenderStateDirty() override;
     
@@ -27,7 +27,7 @@ private:
     void RemoveFromGPUScene();
     
 private:
-    List<Material*> myMaterials{};
+    List<Material> myMaterials{};
     Model* myModel = nullptr;
 
     List<MeshInstanceIndex> myMeshInstances{};

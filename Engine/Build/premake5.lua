@@ -85,13 +85,13 @@ workspace "Engine"
 		editandcontinue "Off"
 		staticruntime "on"
 	filter "configurations:PROFILE Editor Debug"
-		defines { "DEBUG", "EDITOR", "TRACY_ENABLE" }
+		defines { "DEBUG", "EDITOR", "TRACY_ENABLE", "TRACY_FIBERS" }
 		symbols "On"
 		runtime "Debug"
 		editandcontinue "Off"
 		staticruntime "on"
 	filter "configurations:PROFILE Editor Release"
-		defines { "EDITOR", "TRACY_ENABLE", "NDEBUG" }
+		defines { "EDITOR", "TRACY_ENABLE", "NDEBUG", "TRACY_FIBERS" }
 		optimize "On"
 		symbols "On"
 		runtime "Release"

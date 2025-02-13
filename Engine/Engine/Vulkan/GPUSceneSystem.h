@@ -13,8 +13,11 @@ class GPUSceneSystem final : public System
 public:
     GPUSceneSystem();
     ~GPUSceneSystem();
+
+    void Tick();
     
     MeshInstanceIndex AddMeshInstance(const MeshInstanceData& inMeshInstanceData);
+    void UpdateMeshInstance(const MeshInstanceIndex inMeshIndex, const MeshInstanceData& inMeshInstanceData);
     void RemoveMeshInstance(const MeshInstanceIndex inMeshInstance);
 
     const ResizableBuffer* GetSparseBuffer() const;
@@ -30,6 +33,9 @@ private:
     List<MeshInstanceIndex> myFreeSparseIndices{};
     MeshInstanceIndex myNextFreeSparseIndex = 0;
     ResizableBuffer* mySparseBuffer = nullptr;
+
+    // The amount of objects added/removed/changed this frame. 
+    uint myNumGPUObjectUpdatesThisFrame = 0;
 
 
     // This holds a cpu representation of the dense buffer. We need this to find what index a specific mesh is in so we can remove it from the gpu scene.

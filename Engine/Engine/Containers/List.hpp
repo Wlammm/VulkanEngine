@@ -118,7 +118,7 @@ public:
 
 	bool IsValidIndex(const SizeType inIndex) const
 	{
-		return inIndex > 0 && inIndex < mySize;
+		return inIndex >= 0 && inIndex < mySize;
 	}
 
 	void Clear()

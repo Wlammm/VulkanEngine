@@ -101,7 +101,7 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 	
 		for (Mesh* mesh : staticMesh->GetModel()->GetMeshes())
 		{
-			Material* material = staticMesh->GetMaterialForMesh(mesh);
+			const Material* material = staticMesh->GetMaterialForMesh(mesh);
 			//if (!material)
 			//	continue;
 	

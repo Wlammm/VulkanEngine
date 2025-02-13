@@ -36,9 +36,16 @@ GPUSceneSystem::~GPUSceneSystem()
     VulkanAllocator::DestroyBuffer_TS(myDenseBuffer);
 }
 
+void GPUSceneSystem::Tick()
+{
+    LOG("GPU Object Updates Last Frame: %i", myNumGPUObjectUpdatesThisFrame);
+    myNumGPUObjectUpdatesThisFrame = 0;
+}
+
 MeshInstanceIndex GPUSceneSystem::AddMeshInstance(const MeshInstanceData& inMeshInstanceData)
 {
     ZoneScoped;
+    myNumGPUObjectUpdatesThisFrame++;
     MeshInstanceIndex instanceIndex = -1;
     if(!myFreeSparseIndices.IsEmpty())
     {
@@ -62,6 +69,12 @@ MeshInstanceIndex GPUSceneSystem::AddMeshInstance(const MeshInstanceData& inMesh
     return instanceIndex;
 }
 
+void GPUSceneSystem::UpdateMeshInstance(const MeshInstanceIndex inMeshIndex, const MeshInstanceData& inMeshInstanceData)
+{
+    myNumGPUObjectUpdatesThisFrame++;
+    mySparseBuffer->SetData(&inMeshInstanceData, sizeof(MeshInstanceData), sizeof(MeshInstanceData) * inMeshIndex);
+}
+
 const ResizableBuffer* GPUSceneSystem::GetSparseBuffer() const
 {
     return mySparseBuffer;
@@ -79,6 +92,7 @@ uint GPUSceneSystem::GetNumObjects() const
 
 void GPUSceneSystem::RemoveMeshInstance(const MeshInstanceIndex inMeshInstance)
 {
+    myNumGPUObjectUpdatesThisFrame++;
     const uint denseIndex = myDenseBufferCPURepresentation.FindIndex(inMeshInstance);
     myFreeSparseIndices.Add(inMeshInstance);
 

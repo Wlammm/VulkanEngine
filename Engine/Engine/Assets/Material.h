@@ -15,7 +15,10 @@ public:
 	Texture* GetNormal() const;
 	Texture* GetMaterial() const;
 
+	bool IsValid() const { return myIsValid;}
+	
 private:
+	bool myIsValid = false;
 	Texture* myAlbedoTexture;
 	Texture* myNormalTexture;
 	Texture* myMaterialTexture;

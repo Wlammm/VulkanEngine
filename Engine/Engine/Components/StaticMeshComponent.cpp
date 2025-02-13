@@ -30,6 +30,26 @@ void StaticMeshComponent::SetModel(Model* inModel)
         return;
 
     myModel = inModel;
+
+    // Update materials for the new mesh.
+    myMaterials.Resize(myModel->GetMeshes().size());
+    for(int meshIndex = 0; meshIndex < myModel->GetMeshes().size(); meshIndex++)
+    {
+        const Mesh* mesh = myModel->GetMeshes()[meshIndex];
+        std::filesystem::path albedoPath = AssetRegistry::GetPathFromAssetName(mesh->GetAlbedoPath());
+        std::filesystem::path normalPath = AssetRegistry::GetPathFromAssetName(mesh->GetNormalPath());
+        std::filesystem::path materialPath = AssetRegistry::GetPathFromAssetName(mesh->GetMaterialPath());
+
+        if(std::filesystem::exists(albedoPath) && std::filesystem::exists(normalPath) && std::filesystem::exists(materialPath))
+        {
+            myMaterials[meshIndex] = Material(albedoPath, normalPath, materialPath);
+        }
+        else
+        {
+            myMaterials[meshIndex] = Material();
+        }
+    }
+    
     MarkRenderStateDirty();
 }
 
@@ -40,16 +60,16 @@ Model* StaticMeshComponent::GetModel() const
 
 void StaticMeshComponent::SetMaterial(Material* inMaterial, const uint inIndex)
 {
-    myMaterials[inIndex] = inMaterial;
+    myMaterials[inIndex] = *inMaterial;
     MarkRenderStateDirty();
 }
 
-Material* StaticMeshComponent::GetMaterial(const uint inIndex) const
+const Material* StaticMeshComponent::GetMaterial(const uint inIndex) const
 {
     if(!myMaterials.IsValidIndex(inIndex))
         return nullptr;
     
-    return myMaterials[inIndex];
+    return &myMaterials[inIndex];
 }
 
 void StaticMeshComponent::SetMaterialForMesh(Material* inMaterial, Mesh* inMesh)
@@ -59,7 +79,7 @@ void StaticMeshComponent::SetMaterialForMesh(Material* inMaterial, Mesh* inMesh)
     SetMaterial(inMaterial, index);
 }
 
-Material* StaticMeshComponent::GetMaterialForMesh(Mesh* inMesh) const
+const Material* StaticMeshComponent::GetMaterialForMesh(Mesh* inMesh) const
 {
     uint index = myModel->GetMeshes().FindIndex(inMesh);
     check(index != -1 && "Mesh is not part of the model.");
@@ -69,37 +89,45 @@ Material* StaticMeshComponent::GetMaterialForMesh(Mesh* inMesh) const
 void StaticMeshComponent::OnRenderStateDirty()
 {
     ZoneScoped;
-    RemoveFromGPUScene();
-    
+
     if(!myModel)
-        return;
-
-    myMaterials.Resize(myModel->GetMeshes().size());
-    for(int i = 0; i < myModel->GetMeshes().size(); ++i)
     {
-        const Mesh* mesh = myModel->GetMeshes()[i];
-
-        std::filesystem::path albedoPath = AssetRegistry::GetPathFromAssetName(mesh->GetAlbedoPath());
-        std::filesystem::path normalPath = AssetRegistry::GetPathFromAssetName(mesh->GetNormalPath());
-        std::filesystem::path materialPath = AssetRegistry::GetPathFromAssetName(mesh->GetMaterialPath());
+        // We need to remove all active mesh instances on the gpu.
+        if(!myMeshInstances.IsEmpty())
+            RemoveFromGPUScene();
         
-        if(std::filesystem::exists(albedoPath) && std::filesystem::exists(normalPath) && std::filesystem::exists(materialPath))
-        {
-            if(myMaterials[i])
-                del(myMaterials[i]);
-            
-            myMaterials[i] = new Material(albedoPath, normalPath, materialPath);
-        }
+        return;
+    }
+
+    // Remove all mesh instances that are more than the mesh count.
+    for(int instanceIndex = myModel->GetMeshes().size(); instanceIndex < myMeshInstances.size(); instanceIndex++)
+    {
+        Engine::GetEngineSystem<GPUSceneSystem>().RemoveMeshInstance(instanceIndex);
+    }
+    
+    myMaterials.Resize(myModel->GetMeshes().size());
+    for(int meshIndex = 0; meshIndex < myModel->GetMeshes().size(); ++meshIndex)
+    {
+        const Mesh* mesh = myModel->GetMeshes()[meshIndex];
 
         MeshInstanceData data{ GetTransform()->GetMatrix(), mesh->GetHandle() };
 
-        if(myMaterials[i])
+        check(myMaterials.IsValidIndex(meshIndex));
+        if(myMaterials[meshIndex].IsValid())
         {
-            data.myAlbedoIndex = myMaterials[i]->GetAlbedo()->GetBindlessIndex();
-            data.myNormalIndex = myMaterials[i]->GetNormal()->GetBindlessIndex();
-            data.myMaterialIndex = myMaterials[i]->GetMaterial()->GetBindlessIndex();
+            data.myAlbedoIndex = myMaterials[meshIndex].GetAlbedo()->GetBindlessIndex();
+            data.myNormalIndex = myMaterials[meshIndex].GetNormal()->GetBindlessIndex();
+            data.myMaterialIndex = myMaterials[meshIndex].GetMaterial()->GetBindlessIndex();
         }
         
+        // If we already have a mesh instance we can just update that instead of adding a new one which is cheaper
+        if(myMeshInstances.IsValidIndex(meshIndex))
+        {
+            Engine::GetEngineSystem<GPUSceneSystem>().UpdateMeshInstance(myMeshInstances[meshIndex], data);
+            continue;
+        }
+
+        // Otherwise we add a new mesh instance for this one.
         myMeshInstances.Add(Engine::GetEngineSystem<GPUSceneSystem>().AddMeshInstance(data));
     }
 }

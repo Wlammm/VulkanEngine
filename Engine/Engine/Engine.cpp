@@ -93,6 +93,7 @@ void Engine::Tick()
 	myFilewatcher->FlushChanges();
 	
 	GetEngineSystem<StagingSystem>().Tick();
+	GetEngineSystem<GPUSceneSystem>().Tick();
 	
 #if EDITOR
 	myEditorTick();
