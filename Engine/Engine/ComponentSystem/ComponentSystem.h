@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Engine/ComponentSystem/GameObject.h"
+#include "ComponentArray.h"
 #include "Engine/System/WorldSystem.h"
 
 class GameObject;
@@ -16,30 +16,40 @@ public:
     void DestroyGameObject(GameObject* inGameObject);
 
     template<typename ComponentType>
-    ComponentType* GetAnyComponentOfType() const
+    ComponentArray<ComponentType>& GetComponentArrayForType() const
     {
-        for(GameObject* object : myObjects)
+        // TODO: Can this be constant look up time? Not sure its even worth spending time on.
+        for(IComponentArray* array : myComponentArrays)
         {
-            if(ComponentType* component = object->GetComponent<ComponentType>())
-                return component;
+            if(ComponentArray<ComponentType>* castedArray = dynamic_cast<ComponentArray<ComponentType>*>(array))
+            {
+                return *castedArray;
+            }
         }
-        return nullptr;
+
+        ComponentArray<ComponentType>* newArray = new ComponentArray<ComponentType>();
+        myComponentArrays.Add(newArray);
+        return *newArray;
+    }
+    
+    template<typename ComponentType>
+    ComponentType* GetAnyComponentOfType()
+    {
+        ComponentArray<ComponentType>& componentArray = GetComponentArrayForType<ComponentType>();
+        return componentArray.GetFirstComponentOrNull();
     }
 
     template<typename ComponentType>
-    List<GameObject*> GetAllGameObjectsWithComponent() const
+    const SegmentedList<ComponentType, ComponentArray<ComponentType>::ComponentsPerSegment>& GetAllComponentsOfType() const
     {
-        List<GameObject*> objects{};
-        for(GameObject* object : myObjects)
-        {
-            if(object->GetComponent<ComponentType>())
-                objects.Add(object);
-        }
-        return objects;
+        return GetComponentArrayForType<ComponentType>().GetAllComponents();
     }
-    
+
+    const List<IComponentArray*>& GetAllComponentArrays() const;
     
 private:
     List<GameObject*> myObjects{};
     List<GameObject*> myObjectsToDestory{};
+
+    mutable List<IComponentArray*> myComponentArrays;
 };

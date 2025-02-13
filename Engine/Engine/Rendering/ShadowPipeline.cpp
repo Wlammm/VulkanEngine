@@ -68,7 +68,7 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 	if(!directionalLight)
 		return;
 	
-	if (Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<StaticMeshComponent>().IsEmpty())
+	if (Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<StaticMeshComponent>().IsEmpty())
 		return;
 	
 	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
@@ -110,21 +110,20 @@ void ShadowPipeline::AddCommands(const vk::CommandBuffer inCommandBuffer)
 	BuildFrameBuffer(lightTransform, directionalLight);
 	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
 
-	for(GameObject* object : Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<StaticMeshComponent>())
+	for(const StaticMeshComponent& staticMesh : Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<StaticMeshComponent>())
 	{
-		StaticMeshComponent* staticMesh = object->GetComponent<StaticMeshComponent>();
-		if (!staticMesh->GetModel())
+		if (!staticMesh.GetModel())
 			continue;
 	
-		for (Mesh* mesh : staticMesh->GetModel()->GetMeshes())
+		for (Mesh* mesh : staticMesh.GetModel()->GetMeshes())
 		{
-			const Material* material = staticMesh->GetMaterialForMesh(mesh);
+			const Material* material = staticMesh.GetMaterialForMesh(mesh);
 			if (!material)
 				continue;
 
 			// Insert push constant with material indices here.
 			PushConstantData constantData;
-			constantData.myToWorld = staticMesh->GetTransform()->GetMatrix();
+			constantData.myToWorld = staticMesh.GetTransform()->GetMatrix();
 			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &constantData);
 			check(false && "Line commented out. Shit wont work");
 			//inCommandBuffer.drawIndexed(mesh->GetIndexBuffer()->GetIndexCount(), 1, mesh->GetIndexBuffer()->GetOffset(), mesh->GetVertexBuffer()->GetOffset(), 0);

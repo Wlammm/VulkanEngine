@@ -30,7 +30,7 @@ public:
 
     void MarkRenderStateDirty();
     void MarkPhysicsStateDirty();
-    
+
     // Callback when render state is marked dirty on the gameobject. Needs to have DoesComponentImplementOnRenderStateDirty() implemeneted and return true for this to take effect.
     virtual void OnRenderStateDirty() {}
 
@@ -56,13 +56,7 @@ public:
     {
         return myGameObject->GetComponent<ComponentType>();
     }
-    
-    template<typename ComponentType>
-    List<ComponentType*> GetComponents() const
-    {
-        return myGameObject->GetComponents<ComponentType>();
-    }
-    
+
     World* GetWorld() const;
 
 private:

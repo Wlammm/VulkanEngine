@@ -285,7 +285,7 @@ void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
 	ZoneScoped;
 
 	GPUMARK_SCOPE(inCommandBuffer, "MeshPass");
-	if(Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<StaticMeshComponent>().IsEmpty())
+	if(Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<StaticMeshComponent>().IsEmpty())
 		return;
 	
 	inCommandBuffer.setViewport(0, vk::Viewport()

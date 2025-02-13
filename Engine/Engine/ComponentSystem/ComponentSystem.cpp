@@ -6,9 +6,9 @@
 void ComponentSystem::Tick()
 {
     ZoneScoped;
-    for(GameObject* gameObject : myObjects)
+    for(IComponentArray* array : myComponentArrays)
     {
-        gameObject->Tick();
+        array->Tick();
     }
 
     for(GameObject* gameObject : myObjectsToDestory)
@@ -22,9 +22,9 @@ void ComponentSystem::Tick()
 void ComponentSystem::TickPhysics()
 {
     ZoneScoped;
-    for(GameObject* gameObject : myObjects)
+    for(IComponentArray* array : myComponentArrays)
     {
-        gameObject->TickPhysics();
+        array->TickPhysics();
     }
 }
 
@@ -40,4 +40,9 @@ GameObject* ComponentSystem::CreateGameObject()
 void ComponentSystem::DestroyGameObject(GameObject* inGameObject)
 {
     myObjectsToDestory.Add(inGameObject);
+}
+
+const List<IComponentArray*>& ComponentSystem::GetAllComponentArrays() const
+{
+    return myComponentArrays;
 }

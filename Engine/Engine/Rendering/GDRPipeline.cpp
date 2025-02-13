@@ -442,13 +442,12 @@ void GDRPipeline::CreateGraphicsPipeline()
 
 void GDRPipeline::BuildFrameBuffer() const
 {
-	for (GameObject* object : Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<CameraComponent>())
+	for (const CameraComponent& camera : Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<CameraComponent>())
 	{
-		CameraComponent* camera = object->GetComponent<CameraComponent>();
-		TransformComponent* transform = object->GetTransform();
+		TransformComponent* transform = camera.GetTransform();
 		
 		FrameData data{};
-		data.myProjection = camera->GetProjection();
+		data.myProjection = camera.GetProjection();
 		data.myToView = glm::affineInverse(transform->GetMatrix());
 		data.myCameraPosition = transform->GetPosition();
 		myFrameDataBuffer->SetData(data);
@@ -462,14 +461,13 @@ void GDRPipeline::BuildDirectionalLightBuffer() const
 {
 	DirectionalLightBuffer buffer = {};
 
-	for (GameObject* object : Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<DirectionalLightComponent>())
+	for (const DirectionalLightComponent& light : Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<DirectionalLightComponent>())
 	{
-		DirectionalLightComponent* light = object->GetComponent<DirectionalLightComponent>();
-		TransformComponent* transform = object->GetTransform();
-		buffer.myColor = light->GetColor();
+		TransformComponent* transform = light.GetTransform();
+		buffer.myColor = light.GetColor();
 		buffer.myDirection = transform->GetForward();
 		buffer.myLightView = glm::affineInverse(transform->GetMatrix());
-		buffer.myLightProjection = light->GetLightProjection();
+		buffer.myLightProjection = light.GetLightProjection();
 		myDirectionalLightBuffer->SetData(buffer);
 		return;
 	}

@@ -72,7 +72,7 @@ MeshPipeline::~MeshPipeline()
 
 void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 {
-	const List<GameObject*> objectsToRender = Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<StaticMeshComponent>();
+	const auto& objectsToRender = Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<StaticMeshComponent>();
 	if (objectsToRender.IsEmpty())
 		return;
 	
@@ -92,16 +92,15 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 	TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
 	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, textureSystem.GetDescriptorSet(), {});
 
-	for (GameObject* object : objectsToRender)
+	for (const StaticMeshComponent& staticMesh : objectsToRender)
 	{
-		StaticMeshComponent* staticMesh = object->GetComponent<StaticMeshComponent>();
-		TransformComponent* transform = object->GetTransform();
-		if (!staticMesh->GetModel())
+		TransformComponent* transform = staticMesh.GetTransform();
+		if (!staticMesh.GetModel())
 			continue;
 	
-		for (Mesh* mesh : staticMesh->GetModel()->GetMeshes())
+		for (Mesh* mesh : staticMesh.GetModel()->GetMeshes())
 		{
-			const Material* material = staticMesh->GetMaterialForMesh(mesh);
+			const Material* material = staticMesh.GetMaterialForMesh(mesh);
 			//if (!material)
 			//	continue;
 	
@@ -119,7 +118,7 @@ void MeshPipeline::AddDrawCommands(const vk::CommandBuffer inCommandBuffer)
 				constantData.myNormalIndex = -1;
 				constantData.myMaterialIndex = -1; 
 			}
-			constantData.myToWorld = staticMesh->GetTransform()->GetMatrix();
+			constantData.myToWorld = staticMesh.GetTransform()->GetMatrix();
 			inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &constantData);
 
 			if(!mesh->GetIndexBuffer() || !mesh->GetVertexBuffer())
@@ -229,13 +228,12 @@ void MeshPipeline::CreatePipeline()
 
 void MeshPipeline::BuildFrameBuffer()
 {
-	for (GameObject* object : Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<CameraComponent>())
+	for (const CameraComponent& camera : Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<CameraComponent>())
 	{
-		CameraComponent* camera = object->GetComponent<CameraComponent>();
-		TransformComponent* transform = object->GetTransform();
+		TransformComponent* transform = camera.GetTransform();
 		
 		FrameData data{};
-		data.myProjection = camera->GetProjection();
+		data.myProjection = camera.GetProjection();
 		data.myToView = glm::affineInverse(transform->GetMatrix());
 		data.myCameraPosition = transform->GetPosition();
 		myFrameDataBuffer->SetData(data);
@@ -249,14 +247,13 @@ void MeshPipeline::BuildDirectionalLightBuffer()
 {
 	DirectionalLightBuffer buffer = {};
 
-	for (GameObject* object : Engine::GetWorld().GetComponentSystem().GetAllGameObjectsWithComponent<DirectionalLightComponent>())
+	for (const DirectionalLightComponent& light : Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<DirectionalLightComponent>())
 	{
-		DirectionalLightComponent* light = object->GetComponent<DirectionalLightComponent>();
-		TransformComponent* transform = object->GetTransform();
-		buffer.myColor = light->GetColor();
+		TransformComponent* transform = light.GetTransform();
+		buffer.myColor = light.GetColor();
 		buffer.myDirection = transform->GetForward();
 		buffer.myLightView = glm::affineInverse(transform->GetMatrix());
-		buffer.myLightProjection = light->GetLightProjection();
+		buffer.myLightProjection = light.GetLightProjection();
 		myDirectionalLightBuffer->SetData(buffer);
 		return;
 	}

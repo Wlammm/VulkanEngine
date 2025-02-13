@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "ComponentArray.h"
+#include "ComponentSystem.h"
 #include "Engine/Delegates/MulticastDelegate.hpp"
 
 class World;
@@ -12,27 +14,20 @@ public:
     GameObject() = default;
     ~GameObject();
     
-    void Tick();
+    bool IsRenderStateDirty() const;
+    bool IsPhysicsStateDirty() const;
 
-    // This tick is called in-between physics updates. It is the only place we're allowed to interact with PhysX directly.
-    void TickPhysics();
-
+    void ResetRenderStateDirtyFlag();
+    void ResetPhysicsStateDirtyFlag();
+    
+    // TODO: Need to find new way of referencing components. We cant reference them via pointers as they move around in memory. Either that or implement some type of segmented list in ComponentArray.
     template<typename ComponentType, typename... Args>
     ComponentType* AddComponent(Args&&... inArgs)
     {
-        ComponentType* component = new ComponentType(std::forward<Args>(inArgs)...);
+        ComponentArray<ComponentType>& componentArray = myComponentSystem->GetComponentArrayForType<ComponentType>();
+        ComponentType* component = componentArray.AddComponentForGameObject(this, std::forward<Args>(inArgs)...);
         component->myGameObject = this;
-        myComponents.Add(component);
-    
-        if(component->DoesComponentTick())
-            myTickingComponents.Add(component);
 
-        if(component->DoesComponentImplementOnRenderStateDirty())
-            myRenderStateDirtyComponents.Add(component);
-
-        if(component->DoesComponentImplementPhysicsFunctions())
-            myPhysicsStateDirtyComponents.Add(component);
-        
         component->OnCreate();
         OnComponentAdded(component);
         return component;
@@ -42,54 +37,27 @@ public:
     ComponentType* GetComponent() const
     {
         static_assert(std::is_base_of<Component, ComponentType>() && "ComponentType is an invalid type. Did you forget to include it?");
-        for(Component* comp : myComponents)
-        {
-            if(ComponentType* castedComponent = dynamic_cast<ComponentType*>(comp))
-            {
-                return castedComponent;
-            }
-        }
-        return nullptr;
-    }
+        ComponentArray<ComponentType>& componentArray = myComponentSystem->GetComponentArrayForType<ComponentType>();
 
-    template<typename ComponentType>
-    List<ComponentType*> GetComponents() const
-    {
-        static_assert(std::is_base_of<Component, ComponentType>() && "ComponentType is an invalid type. Did you forget to include it?");
-
-        List<ComponentType*> returnVal{};
-        for(Component* comp : myComponents)
-        {
-            if(ComponentType* castedComponent = dynamic_cast<ComponentType*>(comp))
-            {
-                returnVal.Add(castedComponent);
-            }
-        }
-        return returnVal;
+        // TODO: This is doing double work. Maybe have the gameobject know if the component exists on it or not?
+        if(!componentArray.HasComponentForGameObject(this))
+            return nullptr;
+        
+        return componentArray.GetComponentForGameObject(this);
     }
 
     template<typename ComponentType>
     void RemoveComponent()
     {
+        static_assert(std::is_base_of<Component, ComponentType>() && "ComponentType is an invalid type. Did you forget to include it?");
+        LOG("Remove Component called.");
+        ComponentArray<ComponentType>& componentArray = myComponentSystem->GetComponentArrayForType<ComponentType>();
+
         ComponentType* component = GetComponent<ComponentType>();
-
-        if(!component)
-            return;
-
         OnPreComponentRemoved(component);
         component->OnDestroy();
-
-        if(component->DoesComponentTick())
-            myTickingComponents.Remove(component);
-
-        if(component->DoesComponentImplementOnRenderStateDirty())
-            myRenderStateDirtyComponents.Remove(component);
-
-        if(component->DoesComponentImplementPhysicsFunctions())
-            myPhysicsStateDirtyComponents.Remove(component);
         
-        myComponents.Remove(component);
-        delete component;
+        componentArray->RemoveComponentForGameObject(this);
     }
 
     TransformComponent* GetTransform() const;
@@ -109,12 +77,6 @@ public:
 private:
     friend ComponentSystem;
     ComponentSystem* myComponentSystem = nullptr;
-    List<Component*> myComponents{};
-
-    // Optimized lists of components that actually need update every frame.
-    List<Component*> myTickingComponents{};
-    List<Component*> myRenderStateDirtyComponents{};
-    List<Component*> myPhysicsStateDirtyComponents{};
 
     bool myRenderStateDirty = false;
     bool myPhysicsStateDirty = false;

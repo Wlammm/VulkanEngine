@@ -33,7 +33,7 @@ public:
 	{
 		return mySystemManager->GetSystem<SystemType>();
 	}
-	
+
 private:
 	void CreateWorldSystems();
 	

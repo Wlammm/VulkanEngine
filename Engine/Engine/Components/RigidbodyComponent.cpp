@@ -50,7 +50,7 @@ void RigidbodyComponent::OnCreate()
 
         // Notify already existing colliders of this components existence.
         // TODO: Create a generalized system for subscribing on gameobject changes like component addition and such.
-        List<ColliderComponent*> colliderComponents = GetComponents<ColliderComponent>();
+        //List<ColliderComponent*> colliderComponents = GetComponents<ColliderComponent>();
         //for (ColliderComponent* colliderComponent : colliderComponents)
         //{
         //    colliderComponent->OnComponentAdded(this);

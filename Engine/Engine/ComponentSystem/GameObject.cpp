@@ -7,48 +7,33 @@
 
 GameObject::~GameObject()
 {
-    for(Component* comp : myComponents)
+    // Remove all components.
+    LOG("GameObject being destroyed.");
+    const List<IComponentArray*>& arrays = myComponentSystem->GetAllComponentArrays();
+    for(IComponentArray* array : arrays)
     {
-        del(comp);
-    }
-    myComponents.Clear();
-}
-
-void GameObject::Tick()
-{
-    if(myRenderStateDirty)
-    {
-        for(Component* comp : myRenderStateDirtyComponents)
-        {
-            comp->OnRenderStateDirty();
-        }
-        myRenderStateDirty = false;
-    }
-    
-    for(Component* comp : myTickingComponents)
-    {
-        ZoneScopedN("GameObject::TickComponents");
-        comp->Tick();
+        array->TryRemoveComponentForGameObject(this);
     }
 }
 
-void GameObject::TickPhysics()
+bool GameObject::IsRenderStateDirty() const
 {
-    ZoneScoped;
-    if(myPhysicsStateDirty)
-    {
-        for(Component* comp : myPhysicsStateDirtyComponents)
-        {
-            ZoneScopedN("OnPhysicsStateDirty");
-            comp->OnPhysicsStateDirty();
-        }
-        myPhysicsStateDirty = false;
-    }
-    
-    for(Component* comp : myPhysicsStateDirtyComponents)
-    {
-        comp->TickPhysics();
-    }
+    return myRenderStateDirty;
+}
+
+bool GameObject::IsPhysicsStateDirty() const
+{
+    return myPhysicsStateDirty;
+}
+
+void GameObject::ResetRenderStateDirtyFlag()
+{
+    myRenderStateDirty = false;
+}
+
+void GameObject::ResetPhysicsStateDirtyFlag()
+{
+    myPhysicsStateDirty = false;
 }
 
 TransformComponent* GameObject::GetTransform() const
