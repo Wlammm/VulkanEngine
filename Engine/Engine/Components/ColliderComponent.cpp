@@ -66,6 +66,21 @@ physx::PxShape* ColliderComponent::GetShape() const
     return myShape;
 }
 
+void ColliderComponent::SetIsTrigger(const bool inIsTrigger) const
+{
+    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
+    physicsSystem.QueuePhysicsCommand([this, inIsTrigger](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
+    {
+        if(myShape)
+        {
+            myShape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, false);
+            myShape->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, false);
+            myShape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, !inIsTrigger);
+            myShape->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, inIsTrigger);
+        }
+    });
+}
+
 void ColliderComponent::OnComponentAdded(Component* inComponent)
 {
     if(!inComponent->IsA<RigidbodyComponent>())

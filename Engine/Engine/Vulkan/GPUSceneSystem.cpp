@@ -38,7 +38,7 @@ GPUSceneSystem::~GPUSceneSystem()
 
 void GPUSceneSystem::Tick()
 {
-    LOG("GPU Object Updates Last Frame: %i", myNumGPUObjectUpdatesThisFrame);
+    //LOG("GPU Object Updates Last Frame: %i", myNumGPUObjectUpdatesThisFrame);
     myNumGPUObjectUpdatesThisFrame = 0;
 }
 

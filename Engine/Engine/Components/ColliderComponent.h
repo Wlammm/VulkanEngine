@@ -24,6 +24,8 @@ public:
     
     physx::PxShape* GetShape() const;
 
+    void SetIsTrigger(const bool inIsTrigger) const;
+
     void OnComponentAdded(Component* inComponent);
     void OnComponentRemoved(Component* inComponent);
     

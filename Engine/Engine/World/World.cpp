@@ -115,9 +115,9 @@ void World::Init()
 
 	myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [this](Model* inModel)
 		{
-			for(int x  = 0; x < 25; ++x)
-			for(int y  = 0; y < 25; ++y)
-			for(int z  = 0; z < 25; ++z)
+			for(int x  = 0; x < 5; ++x)
+			for(int y  = 0; y < 5; ++y)
+			for(int z  = 0; z < 5; ++z)
 		
 						//if(timeSinceSpawn * multiplier > 0.1f && !stopSpawn)
 					{
@@ -152,6 +152,17 @@ void World::Init()
 void World::Update()
 {
 	ZoneScoped;
+
+	static bool isTrigger = false;
+	if(Input::IsKeyDown(KeyCode::K))
+	{
+		LOG("Pressed");
+		isTrigger = !isTrigger;
+		for(const BoxColliderComponent& collider : GetComponentSystem().GetAllComponentsOfType<BoxColliderComponent>())
+		{
+			collider.SetIsTrigger(isTrigger);
+		}
+	}
 	
 	for(WorldSystem* system : mySystemManager->GetAllSystems())
 	{
