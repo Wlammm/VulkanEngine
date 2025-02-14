@@ -155,62 +155,61 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
 														   .setObjectType(vk::ObjectType::eImage));
 #endif
 	myImage->CreateView(vk::ImageViewType::e2D);
+
+	vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
+
+	vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
+	.setAspectMask(vk::ImageAspectFlagBits::eColor)
+	.setBaseMipLevel(0)
+	.setLevelCount(inImageData.myNumMipLevels)
+	.setLayerCount(1);
+
+	vk::ImageMemoryBarrier imageMemoryBarrier = vk::ImageMemoryBarrier()
+		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+		.setImage(myImage->GetAPIResource())
+		.setSubresourceRange(subresourceRange)
+		.setSrcAccessMask(vk::AccessFlagBits::eNone)
+		.setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
+		.setOldLayout(vk::ImageLayout::eUndefined)
+		.setNewLayout(vk::ImageLayout::eTransferDstOptimal);
+	commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eHost, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlagBits(), {}, {}, { imageMemoryBarrier });
 	
-	RenderSystem::AddUploadCommand_TS(this, [this, inImageData, stagingBuffer](vk::CommandBuffer inCommandBuffer)
-	{
-		vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
+	vk::BufferImageCopy bufferCopyRegion{};
+	bufferCopyRegion.imageSubresource
 		.setAspectMask(vk::ImageAspectFlagBits::eColor)
-		.setBaseMipLevel(0)
-		.setLevelCount(inImageData.myNumMipLevels)
+		.setMipLevel(0)
+		.setBaseArrayLayer(0)
 		.setLayerCount(1);
+	bufferCopyRegion.imageExtent
+		.setWidth(inImageData.myWidth)
+		.setHeight(inImageData.myHeight)
+		.setDepth(1);
+	bufferCopyRegion.setBufferOffset(0);
+	
+	commandBuffer.copyBufferToImage(stagingBuffer->GetAPIResource(), myImage->GetAPIResource(), vk::ImageLayout::eTransferDstOptimal, { bufferCopyRegion });
 
-		vk::ImageMemoryBarrier imageMemoryBarrier = vk::ImageMemoryBarrier()
-			.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-			.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-			.setImage(myImage->GetAPIResource())
-			.setSubresourceRange(subresourceRange)
-			.setSrcAccessMask(vk::AccessFlagBits::eNone)
-			.setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
-			.setOldLayout(vk::ImageLayout::eUndefined)
-			.setNewLayout(vk::ImageLayout::eTransferDstOptimal);
-		inCommandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eHost, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlagBits(), {}, {}, { imageMemoryBarrier });
-		
-		vk::BufferImageCopy bufferCopyRegion{};
-		bufferCopyRegion.imageSubresource
-			.setAspectMask(vk::ImageAspectFlagBits::eColor)
-			.setMipLevel(0)
-			.setBaseArrayLayer(0)
-			.setLayerCount(1);
-		bufferCopyRegion.imageExtent
-			.setWidth(inImageData.myWidth)
-			.setHeight(inImageData.myHeight)
-			.setDepth(1);
-		bufferCopyRegion.setBufferOffset(0);
-		
-		inCommandBuffer.copyBufferToImage(stagingBuffer->GetAPIResource(), myImage->GetAPIResource(), vk::ImageLayout::eTransferDstOptimal, { bufferCopyRegion });
-
-		// Not needed as generate mip levels will transition it to correct layout.
-		//inCommandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader, vk::DependencyFlagBits(), {}, {},
-		//							  vk::ImageMemoryBarrier()
-		//							  .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-		//							  .setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eInputAttachmentRead)
-		//							  .setOldLayout(vk::ImageLayout::eTransferDstOptimal)
-		//							  .setNewLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-		//							  .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		//							  .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		//							  .setImage(myImage->GetAPIResource())
-		//							  .setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));
-		
-		VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
-		
-		GenerateMipLevels(inCommandBuffer);
+	// Not needed as generate mip levels will transition it to correct layout.
+	//inCommandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader, vk::DependencyFlagBits(), {}, {},
+	//							  vk::ImageMemoryBarrier()
+	//							  .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+	//							  .setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eInputAttachmentRead)
+	//							  .setOldLayout(vk::ImageLayout::eTransferDstOptimal)
+	//							  .setNewLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+	//							  .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+	//							  .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+	//							  .setImage(myImage->GetAPIResource())
+	//							  .setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));
+	
+	VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
+	
+	GenerateMipLevels(commandBuffer);
 #if DEBUG
-		VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
-															   .setObjectHandle(VulkanContext::GetVulkanHandle(myImage->GetImageView()))
-															   .setPObjectName(inImageData.mySourceFile.string().c_str())
-															   .setObjectType(vk::ObjectType::eImageView));
+	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
+														   .setObjectHandle(VulkanContext::GetVulkanHandle(myImage->GetImageView()))
+														   .setPObjectName(inImageData.mySourceFile.string().c_str())
+														   .setObjectType(vk::ObjectType::eImageView));
 #endif
-	});
 	TextureSystem::RegisterTexture_TS(this);
 }
 

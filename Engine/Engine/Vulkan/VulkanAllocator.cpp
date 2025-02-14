@@ -32,6 +32,7 @@ VulkanAllocator::~VulkanAllocator()
 	{
 		TickBufferDeletes();
 		TickImageDeletes();
+		TickDelegateDeletes();
 	}
 
 #if DEBUG
@@ -97,6 +98,11 @@ void VulkanAllocator::DestroyBuffer_TS(VulkanBuffer* inBuffer)
 void VulkanAllocator::DestroyBuffer_TS(ResizableBuffer* inBuffer)
 {
 	myInstance->myResizableBufferDeleteData.Add({VulkanAllocator::DestructionFrameDelay, inBuffer });
+}
+
+void VulkanAllocator::QueueDestroyCommand(const Delegate<void()>& inCommand)
+{
+	myInstance->myDelegateDeletes.Add({VulkanAllocator::DestructionFrameDelay, inCommand });
 }
 
 VulkanImage* VulkanAllocator::AllocateImage_TS(const std::string& inName, const vk::ImageCreateInfo& inCreateInfo, VmaMemoryUsage inUsage)
@@ -204,4 +210,20 @@ void VulkanAllocator::TickImageDeletes()
 		}
 	}
 	myImageDeleteData.Unlock();
+}
+
+void VulkanAllocator::TickDelegateDeletes()
+{
+	ZoneScoped;
+	myDelegateDeletes.Lock();
+	for (int i = myDelegateDeletes.size() - 1; i >= 0; --i)
+	{
+		myDelegateDeletes[i].myFramesUntilDelete--;
+		if (myDelegateDeletes[i].myFramesUntilDelete <= 0)
+		{
+			myDelegateDeletes[i].myDelegate();
+			myDelegateDeletes.RemoveIndex(i);
+		}
+	}
+	myDelegateDeletes.Unlock();
 }

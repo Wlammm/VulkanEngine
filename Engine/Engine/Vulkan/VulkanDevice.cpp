@@ -79,6 +79,11 @@ vk::Device VulkanDevice::GetDevice() const
 	return myDevice;
 }
 
+vk::CommandPool VulkanDevice::GetCommandPool() const
+{
+	return myCommandPool;
+}
+
 vk::CommandBuffer VulkanDevice::CreateCommandBuffer(const bool inBegin, const bool inCompute)
 {
 	vk::CommandBufferAllocateInfo allocInfo = vk::CommandBufferAllocateInfo()

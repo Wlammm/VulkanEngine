@@ -28,9 +28,7 @@ public:
     
     void OnSwapChainResize();
 	
-    static void AddUploadCommand_TS(void* inOwner, std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction);
-    void RemoveUploadCommandsForOwner_TS(void* inOwner);
-    void FlushUploadCommands();
+    static vk::CommandBuffer GetUploadCommandBuffer_TS();
 
     const class ShadowPipeline& GetShadowPipeline();
     const class GDRPipeline& GetGDRPipeline() const;
@@ -45,6 +43,8 @@ private:
     void AddDebugPass(vk::CommandBuffer inCommandBuffer);
     void AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer);
     void AddImGuiPass(vk::CommandBuffer inCommandBuffer);
+
+    void FlushUploadCommands();
 
 private:
     void CreateRenderResources();
@@ -62,13 +62,8 @@ private:
     vk::Framebuffer GetVkCopyToSwapchainFrameBuffer() const;
 
 private:
-    struct UploadCommandData
-    {
-        void* myOwner;
-        std::function<void(vk::CommandBuffer)> myFunction;
-    };
-    inline static std::mutex myUploadCommandsMutex;
-    inline static List<UploadCommandData> myUploadCommands{};
+    inline static std::mutex myUploadMapMutex;
+    inline static std::map<std::thread::id, vk::CommandBuffer> myUploadCommandBuffers;
 
     bool myIsUsingGPUDrivenRendering = true;
     

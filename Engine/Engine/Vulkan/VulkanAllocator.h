@@ -1,4 +1,5 @@
 #pragma once
+#include "Delegates/Delegate.hpp"
 
 class VulkanAllocator
 {
@@ -11,6 +12,9 @@ public:
 	static class VulkanBuffer* AllocateBuffer_TS(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage, bool inMappable = false);
 	static void DestroyBuffer_TS(class VulkanBuffer* inBuffer);
 	static void DestroyBuffer_TS(class ResizableBuffer* inBuffer);
+
+	// Will call this delegate when its safe to delete the resource as long as it hasnt been queued after this call.
+	static void QueueDestroyCommand(const Delegate<void()>& inCommand);
 
 	static class VulkanImage* AllocateImage_TS(const std::string& inName, const vk::ImageCreateInfo& inCreateInfo, VmaMemoryUsage inUsage);
 	static void DestroyImage_TS(class VulkanImage* inImage);
@@ -26,6 +30,7 @@ private:
 
 	void TickBufferDeletes();
 	void TickImageDeletes();
+	void TickDelegateDeletes();
 
 private:
 	inline static VulkanAllocator* myInstance = nullptr;
@@ -42,6 +47,13 @@ private:
 	MutexList<DeleteData<ResizableBuffer>> myResizableBufferDeleteData;
 	MutexList<DeleteData<VulkanImage>> myImageDeleteData;
 
+	struct DelegateDeleteData
+	{
+		int myFramesUntilDelete = 0;
+		Delegate<void()> myDelegate;
+	};
+	MutexList<DelegateDeleteData> myDelegateDeletes;
+	
 #if DEBUG
 	MutexList<std::string> myAllocatedNames;
 #endif

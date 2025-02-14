@@ -120,33 +120,17 @@ void RenderSystem::OnSwapChainResize()
 	CreateRenderResources();
 }
 
-void RenderSystem::AddUploadCommand_TS(void* inOwner, std::function<void(vk::CommandBuffer inCommandBuffer)> inFunction)
+vk::CommandBuffer RenderSystem::GetUploadCommandBuffer_TS()
 {
-	ZoneScoped;
-	myUploadCommandsMutex.lock();
-	myUploadCommands.Add({ inOwner, inFunction });
-	myUploadCommandsMutex.unlock();
-}
+	std::thread::id id = std::this_thread::get_id();
 
-void RenderSystem::RemoveUploadCommandsForOwner_TS(void* inOwner)
-{
-	myUploadCommandsMutex.lock();
-	if(!myUploadCommands.IsEmpty())
+	std::scoped_lock<std::mutex> lock(myUploadMapMutex);
+	if(myUploadCommandBuffers.find(id) == myUploadCommandBuffers.end())
 	{
-		for (int i = myUploadCommands.size() - 1; i >= 0; --i)
-		{
-			if (myUploadCommands[i].myOwner == inOwner)
-				myUploadCommands.RemoveIndex(i);
-		}
+		myUploadCommandBuffers[id] = VulkanContext::GetDevice().CreateCommandBuffer(true);
 	}
-	myUploadCommandsMutex.unlock();
-}
 
-void RenderSystem::FlushUploadCommands()
-{
-	vk::CommandBuffer buffer = VulkanContext::GetDevice().CreateCommandBuffer(true);
-	AddUploadPass(buffer);
-	VulkanContext::GetDevice().FlushCommandBuffer(buffer);
+	return myUploadCommandBuffers[id];
 }
 
 const ShadowPipeline& RenderSystem::GetShadowPipeline()
@@ -269,15 +253,17 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
 	GPUMARK_SCOPE(inCommandBuffer, "UploadPass");
-	myUploadCommandsMutex.lock();
 
-	for(auto& [owner, func] : myUploadCommands)
+	for(auto [threadid, commandBuffer] : myUploadCommandBuffers)
 	{
-		func(inCommandBuffer);
+		commandBuffer.end();
+		inCommandBuffer.executeCommands(commandBuffer);
+		VulkanAllocator::QueueDestroyCommand([commandBuffer]()
+		{
+			VulkanContext::GetDevice()->freeCommandBuffers(VulkanContext::GetDevice().GetCommandPool(), commandBuffer);
+		});
 	}
-	myUploadCommands.Clear();
-
-	myUploadCommandsMutex.unlock();
+	myUploadCommandBuffers.clear();
 }
 
 void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
@@ -382,6 +368,15 @@ void RenderSystem::AddImGuiPass(vk::CommandBuffer inCommandBuffer)
 	VulkanImGui::Render(inCommandBuffer);
 	
 	inCommandBuffer.endRenderPass();
+}
+
+void RenderSystem::FlushUploadCommands()
+{
+	for(auto [threadid, commandBuffer] : myUploadCommandBuffers)
+	{
+		VulkanContext::GetDevice().FlushCommandBuffer(commandBuffer);
+	}
+	myUploadCommandBuffers.clear();
 }
 
 void RenderSystem::CreateRenderResources()

@@ -19,11 +19,9 @@ void VulkanBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const uint 
 {
 	check(GetSize() >= inSize + inOffset);
 
-	Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [this, inStagingBuffer, inSize, inOffset](vk::CommandBuffer inCommandBuffer)
-	{
-		  vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset);
-		  inCommandBuffer.copyBuffer(inStagingBuffer->GetAPIResource(), GetAPIResource(), { copyRegion });
-	});
+	vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
+	vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset);
+	commandBuffer.copyBuffer(inStagingBuffer->GetAPIResource(), GetAPIResource(), { copyRegion });
 }
 
 void VulkanBuffer::SetData(const void* inData, const uint inSize, uint inOffset)
@@ -96,9 +94,8 @@ void VulkanBuffer::UploadStaged(const void* inData, uint inSize, uint inOffset)
 	StagingBuffer stagingBuffer = stagingSystem.GetStagingBufferWithSize(inSize);
 	stagingBuffer.SetData(inData, inSize);
 
-	Engine::GetEngineSystem<RenderSystem>().AddUploadCommand_TS(this, [this, stagingBuffer, inSize, inOffset](vk::CommandBuffer inCommandBuffer)
-	{
-		  vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset).setSrcOffset(stagingBuffer.GetOffset());
-		  inCommandBuffer.copyBuffer(stagingBuffer.GetUnderlyingBuffer()->GetAPIResource(), GetAPIResource(), { copyRegion });
-	});
+	
+	vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
+	vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset).setSrcOffset(stagingBuffer.GetOffset());
+	commandBuffer.copyBuffer(stagingBuffer.GetUnderlyingBuffer()->GetAPIResource(), GetAPIResource(), { copyRegion });
 }

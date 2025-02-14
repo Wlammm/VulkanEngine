@@ -18,6 +18,8 @@ public:
 	
 	vk::Device GetDevice() const;
 
+	vk::CommandPool GetCommandPool() const;
+	
 	vk::CommandBuffer CreateCommandBuffer(const bool inBegin, const bool inCompute = false);
 	void FlushCommandBuffer(vk::CommandBuffer inCommandBuffer);
 
