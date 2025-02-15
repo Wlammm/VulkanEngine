@@ -29,6 +29,7 @@ public:
 	template<typename SystemType>
 	static SystemType& GetEngineSystem()
 	{
+		ZoneScoped;
 		return myInstance->mySystemManager->GetSystem<SystemType>();
 	}
 

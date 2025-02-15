@@ -194,7 +194,6 @@ glm::mat4 TransformComponent::GetMatrix() const
 	//m *= glm::mat4_cast(GetRotation());
 	//m = glm::translate(m, GetPosition());
 	//return m;
-
 	return glm::translate(glm::mat4(1.0f), GetPosition()) * glm::mat4_cast(GetRotation()) * glm::scale(glm::mat4(1.0f), GetScale());
 }
 

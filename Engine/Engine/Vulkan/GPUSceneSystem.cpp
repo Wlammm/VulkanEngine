@@ -73,7 +73,6 @@ void GPUSceneSystem::UpdateMeshInstance(const MeshInstanceIndex inMeshIndex, con
 {
     myNumGPUObjectUpdatesThisFrame++;
     mySparseBuffer->SetData(&inMeshInstanceData, sizeof(MeshInstanceData), sizeof(MeshInstanceData) * inMeshIndex);
-    std::thread();
 }
 
 const ResizableBuffer* GPUSceneSystem::GetSparseBuffer() const

@@ -19,6 +19,7 @@ RigidbodyComponent::RigidbodyComponent()
 
 void RigidbodyComponent::TickPhysics()
 {
+    ZoneScoped;
     Component::TickPhysics();
 
     // No need to update position if its sleeping. This would just cause the GPUScene to keep pushing the same position to the GPU each frame.

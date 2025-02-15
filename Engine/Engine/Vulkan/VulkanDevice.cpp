@@ -90,7 +90,6 @@ vk::CommandBuffer VulkanDevice::CreateCommandBuffer(const bool inBegin, const bo
 		.setCommandPool(myCommandPool)
 		.setLevel(isSecondaryBuffer ? vk::CommandBufferLevel::eSecondary : vk::CommandBufferLevel::ePrimary)
 		.setCommandBufferCount(1);
-	
 
 	vk::CommandBuffer buffer = myDevice.allocateCommandBuffers(allocInfo).front();
 

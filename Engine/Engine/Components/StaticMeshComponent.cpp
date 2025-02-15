@@ -108,7 +108,7 @@ void StaticMeshComponent::OnRenderStateDirty()
     for(int meshIndex = 0; meshIndex < myModel->GetMeshes().size(); ++meshIndex)
     {
         const Mesh* mesh = myModel->GetMeshes()[meshIndex];
-
+        
         MeshInstanceData data{ GetTransform()->GetMatrix(), mesh->GetHandle() };
 
         check(myMaterials.IsValidIndex(meshIndex));
