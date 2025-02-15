@@ -64,7 +64,7 @@ public:
 		SetData(&inData, sizeof(T));
 	}
 
-	size_t GetSize() const;
+	uint GetSize() const;
 	const vk::BufferCreateInfo& GetCreateInfo() const;
 	VmaMemoryUsage GetVmaMemoryUsage() const;
 	bool IsMappable() const;

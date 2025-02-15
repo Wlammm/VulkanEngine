@@ -39,9 +39,9 @@ void VulkanBuffer::SetData(const void* inData, const uint inSize, uint inOffset)
 	}
 }
 
-size_t VulkanBuffer::GetSize() const
+uint VulkanBuffer::GetSize() const
 {
-	return myCreateInfo.size;
+	return static_cast<uint>(myCreateInfo.size);
 }
 
 const vk::BufferCreateInfo& VulkanBuffer::GetCreateInfo() const
@@ -93,7 +93,6 @@ void VulkanBuffer::UploadStaged(const void* inData, uint inSize, uint inOffset)
 	StagingSystem& stagingSystem = Engine::GetEngineSystem<StagingSystem>();
 	StagingBuffer stagingBuffer = stagingSystem.GetStagingBufferWithSize(inSize);
 	stagingBuffer.SetData(inData, inSize);
-
 	
 	vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
 	vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset).setSrcOffset(stagingBuffer.GetOffset());

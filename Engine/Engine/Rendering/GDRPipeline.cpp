@@ -213,7 +213,7 @@ void GDRPipeline::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
 {
     GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
 
-    size_t requiredSize = objectSystem.GetNumObjects() * sizeof(vk::DrawIndexedIndirectCommand);
+    uint requiredSize = objectSystem.GetNumObjects() * sizeof(vk::DrawIndexedIndirectCommand);
     if(requiredSize > myIndirectCommandsBuffer->GetBuffer()->GetSize())
     {
         myIndirectCommandsBuffer->Resize(requiredSize);
@@ -238,7 +238,7 @@ void GDRPipeline::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
 		);
     }
 
-    size_t drawCallRequiredSize = objectSystem.GetNumObjects() * sizeof(PerDrawData);
+    uint drawCallRequiredSize = objectSystem.GetNumObjects() * sizeof(PerDrawData);
     if(drawCallRequiredSize > myPerDrawDataBuffer->GetBuffer()->GetSize())
     {
         myPerDrawDataBuffer->Resize(drawCallRequiredSize);

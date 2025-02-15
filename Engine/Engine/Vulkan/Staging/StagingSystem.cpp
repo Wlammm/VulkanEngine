@@ -19,6 +19,8 @@ StagingSystem::StagingSystem()
         data.myBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("StagingSystem-StagingBuffer", info, VMA_MEMORY_USAGE_CPU_TO_GPU, true ));
         myStagingBuffers[i] = data;
     }
+
+    PrepareThisFramesStagingBuffer();
 }
 
 StagingSystem::~StagingSystem()

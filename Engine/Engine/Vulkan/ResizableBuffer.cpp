@@ -21,100 +21,96 @@ VulkanBuffer* ResizableBuffer::GetBuffer() const
 
 void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const uint inSize, uint inOffset)
 {
-    myRequiredSizeForUpload = std::max(myRequiredSizeForUpload, inSize + inOffset);
-    
-    myUploadCommands.Emplace([this, inStagingBuffer, inSize, inOffset]()
-    {
-        myBuffer->CopyDataFromBuffer(inStagingBuffer, inSize, inOffset);
-    });
+    CheckCapacity(inSize + inOffset);
+    myBuffer->CopyDataFromBuffer(inStagingBuffer, inSize, inOffset);
 
-    if(!myHasRegisteredForTick)
-    {
-        ZoneScopedN("DequeueUploads CopyDataFromBuffer");
-        Engine::TickNextFrame.Bind(&ResizableBuffer::DequeueUploads, this);
-        myHasRegisteredForTick = true;
-    }
+    vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
+    
+    vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
+        .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+        .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
+        .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+        .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+        .setBuffer(myBuffer->GetAPIResource())
+        .setOffset(0)
+        .setSize(VK_WHOLE_SIZE);
+
+    commandBuffer.pipelineBarrier(
+                vk::PipelineStageFlagBits::eTransfer,
+                vk::PipelineStageFlagBits::eTransfer,
+                vk::DependencyFlags{},
+                nullptr,
+                barrier,
+                nullptr);
 }
 
 void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffset)
 {
-    char* copiedData = new char[inSize];
-    memcpy(copiedData, inData, inSize);
+    CheckCapacity(inSize + inOffset);
+    myBuffer->SetData(inData, inSize, inOffset);
 
-    myRequiredSizeForUpload = std::max(myRequiredSizeForUpload, inSize + inOffset);
-
-    // TODO: Do we need to do this if the buffer is writable or can we just write to it directly and skip a lot of the shit work?
-    myUploadCommands.Emplace([this, copiedData, inSize, inOffset]()
+    // If the buffer isnt writable we need to insert a barrier for other copies to wait for this to finish or we cant guarantee that the memory is correct.
+    if(!myBuffer->IsMappable())
     {
-        myBuffer->SetData(copiedData, inSize, inOffset);
-        delete copiedData;
-    });
+        vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
+        
+        vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
+        .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+        .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
+        .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+        .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+        .setBuffer(myBuffer->GetAPIResource())
+        .setOffset(0)
+        .setSize(VK_WHOLE_SIZE);
 
-    if(!myHasRegisteredForTick)
-    {
-        ZoneScopedN("DequeueUploads - SetData");
-        Engine::TickNextFrame.Bind(&ResizableBuffer::DequeueUploads, this);
-        myHasRegisteredForTick = true;
+        commandBuffer.pipelineBarrier(
+                    vk::PipelineStageFlagBits::eTransfer,
+                    vk::PipelineStageFlagBits::eTransfer,
+                    vk::DependencyFlags{},
+                    nullptr,
+                    barrier,
+                    nullptr);
     }
 }
 
 void ResizableBuffer::MoveData(const uint inSourceOffset, const uint inDstOffset, const uint inSize)
 {
-    myRequiredSizeForUpload = std::max(myRequiredSizeForUpload, inSize + inDstOffset);
-    myUploadCommands.Emplace([this, inSourceOffset, inDstOffset, inSize]()
-    {
-        vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
-        vk::BufferCopy copy = vk::BufferCopy().setSize(inSize).setSrcOffset(inSourceOffset).setDstOffset(inDstOffset);
-        commandBuffer.copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
-        
-        vk::BufferMemoryBarrier bufferMemoryBarrier{};
-        bufferMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-        bufferMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
-        bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        bufferMemoryBarrier.buffer = myBuffer->GetAPIResource();
-        bufferMemoryBarrier.offset = inDstOffset;
-        bufferMemoryBarrier.size = inSize;
-        
-        vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eTransfer;
-        vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eComputeShader;
+    CheckCapacity(inSize + std::max(inDstOffset, inSourceOffset));
+    
+    vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
+    vk::BufferCopy copy = vk::BufferCopy().setSize(inSize).setSrcOffset(inSourceOffset).setDstOffset(inDstOffset);
+    commandBuffer.copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
+    
+    vk::BufferMemoryBarrier bufferMemoryBarrier{};
+    bufferMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+    bufferMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
+    bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    bufferMemoryBarrier.buffer = myBuffer->GetAPIResource();
+    bufferMemoryBarrier.offset = inDstOffset;
+    bufferMemoryBarrier.size = inSize;
+    
+    vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eTransfer;
+    vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eComputeShader;
 
-        commandBuffer.pipelineBarrier(
-            srcStageMask,              
-            dstStageMask,              
-            {},                        
-            nullptr,                   
-            bufferMemoryBarrier,       
-            nullptr                    
-        );
-    });
+    commandBuffer.pipelineBarrier(
+        srcStageMask,              
+        dstStageMask,              
+        {},                        
+        nullptr,                   
+        bufferMemoryBarrier,       
+        nullptr                    
+    );
 }
 
-void ResizableBuffer::DequeueUploads()
+void ResizableBuffer::Resize(const uint inRequiredSize)
 {
-    check(myBuffer->GetCreateInfo().usage & vk::BufferUsageFlagBits::eTransferSrc &&
-          myBuffer->GetCreateInfo().usage & vk::BufferUsageFlagBits::eTransferDst && "Buffers wasnt created with transfer src & dest usage flags.");
+    if(inRequiredSize <= myBuffer->GetSize())
+        return;
 
-    if(myBuffer->GetSize() < myRequiredSizeForUpload)
-    {
-        Resize(myRequiredSizeForUpload);
-    }
-
-    for(auto& command : myUploadCommands)
-    {
-        command();
-    }
-    myUploadCommands.Clear();
-    
-    myHasRegisteredForTick = false;
-}
-
-void ResizableBuffer::Resize(const size_t inRequiredSize)
-{
-    check(!myHasActiveUpload && "You can only resize this buffer once per frame. This can happen if you call this method directly or via SetData. SetData can be called multiple times but you cant call SetData and Resize during the same frame.");
-    
     // Resize buffer.
-    size_t newSize = MathUtils::UpperPowerOfTwo(inRequiredSize);
+    uint newSize = MathUtils::UpperPowerOfTwo(inRequiredSize);
+
     VulkanBuffer* oldBuffer = myBuffer;
     vk::BufferCreateInfo createInfo = myBuffer->GetCreateInfo();
     createInfo.setSize(newSize);
@@ -126,12 +122,32 @@ void ResizableBuffer::Resize(const size_t inRequiredSize)
     vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize());
     commandBuffer.copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
 
+    // Ensure the copy is finished before any further copies to this buffer
+    vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
+        .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+        .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
+        .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+        .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+        .setBuffer(myBuffer->GetAPIResource())
+        .setOffset(0)
+        .setSize(VK_WHOLE_SIZE);
+
+    commandBuffer.pipelineBarrier(
+                vk::PipelineStageFlagBits::eTransfer,
+                vk::PipelineStageFlagBits::eTransfer,
+                vk::DependencyFlags{},
+                nullptr,
+                barrier,
+                nullptr);
+
     VulkanAllocator::DestroyBuffer_TS(oldBuffer);
     OnBufferResized();
 }
 
-/*
- *  ResizableBuffer->SetData(somePtr, 4, 4)
- *
- *
- */
+void ResizableBuffer::CheckCapacity(const uint inRequiredSize)
+{
+    if(inRequiredSize <= myBuffer->GetSize())
+        return;
+
+    Resize(inRequiredSize);
+}

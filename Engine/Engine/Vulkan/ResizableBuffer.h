@@ -28,9 +28,10 @@ public:
         SetData(&inData, sizeof(T));
     }
 
-    void DequeueUploads();
+    void Resize(const uint inRequiredSize);
 
-    void Resize(const size_t inRequiredSize);
+    // Ensures the buffer is bigger or equally big as inRequiredSize.
+    void CheckCapacity(const uint inRequiredSize);
     
 private:
     friend class VulkanAllocator;
@@ -39,8 +40,4 @@ private:
     bool myHasActiveUpload = false;
     bool myHasRegisteredForTick = false;
     VulkanBuffer* myBuffer = nullptr;
-    size_t myCurrentSize = 0;
-
-    List<Delegate<void()>> myUploadCommands{};
-    uint myRequiredSizeForUpload = 0;
 };
