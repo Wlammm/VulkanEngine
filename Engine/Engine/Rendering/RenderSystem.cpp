@@ -127,7 +127,7 @@ vk::CommandBuffer RenderSystem::GetUploadCommandBuffer_TS()
 	std::scoped_lock<std::mutex> lock(myUploadMapMutex);
 	if(myUploadCommandBuffers.find(id) == myUploadCommandBuffers.end())
 	{
-		myUploadCommandBuffers[id] = VulkanContext::GetDevice().CreateCommandBuffer(true);
+		myUploadCommandBuffers[id] = VulkanContext::GetDevice().CreateCommandBuffer(true, true);
 	}
 
 	return myUploadCommandBuffers[id];

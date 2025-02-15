@@ -20,7 +20,7 @@ public:
 
 	vk::CommandPool GetCommandPool() const;
 	
-	vk::CommandBuffer CreateCommandBuffer(const bool inBegin, const bool inCompute = false);
+	vk::CommandBuffer CreateCommandBuffer(const bool inBegin, const bool isSecondaryBuffer = false);
 	void FlushCommandBuffer(vk::CommandBuffer inCommandBuffer);
 
 private:

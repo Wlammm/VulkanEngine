@@ -84,18 +84,20 @@ vk::CommandPool VulkanDevice::GetCommandPool() const
 	return myCommandPool;
 }
 
-vk::CommandBuffer VulkanDevice::CreateCommandBuffer(const bool inBegin, const bool inCompute)
+vk::CommandBuffer VulkanDevice::CreateCommandBuffer(const bool inBegin, const bool isSecondaryBuffer)
 {
 	vk::CommandBufferAllocateInfo allocInfo = vk::CommandBufferAllocateInfo()
-		.setCommandPool(inCompute ? myComputeCommandPool : myCommandPool)
-		.setLevel(vk::CommandBufferLevel::ePrimary)
+		.setCommandPool(myCommandPool)
+		.setLevel(isSecondaryBuffer ? vk::CommandBufferLevel::eSecondary : vk::CommandBufferLevel::ePrimary)
 		.setCommandBufferCount(1);
+	
 
 	vk::CommandBuffer buffer = myDevice.allocateCommandBuffers(allocInfo).front();
 
 	if(inBegin)
 	{
-		vk::CommandBufferBeginInfo beginInfo{};
+		vk::CommandBufferInheritanceInfo inheritanceInfo;
+		vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo().setPInheritanceInfo(&inheritanceInfo);
 		buffer.begin(beginInfo);
 	}
 
