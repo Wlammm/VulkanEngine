@@ -27,4 +27,5 @@ public:
     
 private:
     physx::PxRigidDynamic* myActor = nullptr;
+    int myFramesSinceStartSleep = 0;
 };

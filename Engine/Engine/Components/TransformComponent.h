@@ -69,6 +69,11 @@ public:
     void Move(const glm::vec3& inDisplacement);
     void Move(const float inX, const float inY, const float inZ);
 
+    MulticastDelegate<void()> OnScaleChanged;
+
+private:
+    void MarkScaleChanged();
+    
 private:
     void MarkDirty();
 

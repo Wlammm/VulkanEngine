@@ -86,12 +86,14 @@ void TransformComponent::SetScaleLocal(const glm::vec3& inScale)
 {
 	myScale = inScale;
 	MarkDirty();
+	MarkScaleChanged();
 }
 
 void TransformComponent::SetScaleLocal(const float inScale)
 {
 	myScale = glm::vec3(inScale);
 	MarkDirty();
+	MarkScaleChanged();
 }
 
 void TransformComponent::SetPosition(const glm::vec3& inPosition)
@@ -100,6 +102,7 @@ void TransformComponent::SetPosition(const glm::vec3& inPosition)
 		myPosition = glm::vec3((glm::vec4(inPosition, 1.0f) * glm::inverse(myParent->GetMatrix())));
 	else
 		myPosition = inPosition;
+	
 	MarkDirty();
 }
 
@@ -137,6 +140,7 @@ void TransformComponent::SetScale(const glm::vec3& inScale)
 	else
 		myScale = inScale;
 	MarkDirty();
+	MarkScaleChanged();
 }
 
 void TransformComponent::SetScale(const float inX, const float inY, const float inZ)
@@ -281,6 +285,16 @@ void TransformComponent::Move(const glm::vec3& inDisplacement)
 void TransformComponent::Move(const float inX, const float inY, const float inZ)
 {
 	Move({inX, inY, inZ});
+}
+
+void TransformComponent::MarkScaleChanged()
+{
+	OnScaleChanged();
+
+	for(TransformComponent* child : myChildren)
+	{
+		child->MarkScaleChanged();
+	}
 }
 
 void TransformComponent::MarkDirty()

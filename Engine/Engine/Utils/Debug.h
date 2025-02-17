@@ -15,6 +15,8 @@ public:
 
 	static void DrawSphere(const glm::vec3& inPosition, const float inRadius, const Color& inColor = Color::White(), const int inSphereSubdivisions = 25);
 
+	static void DrawCapsule(const glm::vec3& inPosition, const glm::quat& inRotation, const float inRadius, const float inHeight, const Color& inColor = Color::White());
+
 	static const List<DrawLineInfos>& GetDrawInfos();
 	static void ClearDrawInfos();
 private:

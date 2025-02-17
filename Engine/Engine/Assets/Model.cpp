@@ -60,6 +60,27 @@ const List<Mesh*>& Model::GetMeshes() const
 	return myMeshes;
 }
 
+List<SerializationMeshData> Model::GetSerializationDataForModel(Model* inModel)
+{
+	ZoneScoped;
+	check(inModel);
+	
+	List<SerializationMeshData> meshDatas;
+
+	bool foundValidData = true;
+	if(IsCached(inModel->myPath))
+	{
+		foundValidData = TryLoadMeshDatasFromCache(inModel->myPath, meshDatas);
+	}
+
+	if(!foundValidData)
+	{
+		meshDatas = LoadMeshDatasFromFbx(inModel->myPath);
+	}
+
+	return meshDatas;
+}
+
 std::filesystem::path Model::GetCachedFilePath(const std::filesystem::path& inPath)
 {
 	return L"Cache/ModelCache/" + inPath.filename().wstring() + L".model";

@@ -6,6 +6,8 @@
 #include "Assets/Model.h"
 #include "Components/BoxColliderComponent.h"
 #include "Components/CameraComponent.h"
+#include "Components/CapsuleColliderComponent.h"
+#include "Components/ConvexColliderComponent.h"
 #include "ComponentSystem/ComponentSystem.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/EditorCameraMovementComponent.h"
@@ -97,6 +99,27 @@ void World::Init()
 	{
 		staticMesh3->SetModel(inModel);
 	});
+
+	GameObject* capsule = GetComponentSystem().CreateGameObject();
+	capsule->GetTransform()->SetPositionY(1500);
+	capsule->AddComponent<CapsuleColliderComponent>();
+	capsule->AddComponent<RigidbodyComponent>();
+	StaticMeshComponent* casuleMesh = capsule->AddComponent<StaticMeshComponent>();
+	myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Capsule.fbx", [casuleMesh](Model* inModel)
+	{
+		casuleMesh->SetModel(inModel);
+	});
+
+	GameObject* capsule1 = GetComponentSystem().CreateGameObject();
+	capsule1->GetTransform()->SetPositionY(1500);
+	capsule1->GetTransform()->SetPositionX(100);
+	capsule1->AddComponent<CapsuleColliderComponent>();
+	capsule1->AddComponent<RigidbodyComponent>();
+	StaticMeshComponent* casuleMesh1 = capsule1->AddComponent<StaticMeshComponent>();
+	myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Capsule.fbx", [casuleMesh1](Model* inModel)
+	{
+		casuleMesh1->SetModel(inModel);
+	});
 	
 	glm::vec3 startPosition = glm::vec3(-800.0f, 50.0f, -35.0f);
 	for (int i = 0; i < 5; i++)
@@ -114,39 +137,27 @@ void World::Init()
 	}
 
 	myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [this](Model* inModel)
+	{
+#if DEBUG
+		const int numIters = 5;
+#else
+		const int numIters = 25;
+#endif
+		for(int x  = 0; x < numIters; ++x)
+		for(int y  = 0; y < numIters; ++y)
+		for(int z  = 0; z < numIters; ++z)
 		{
-			for(int x  = 0; x < 25; ++x)
-			for(int y  = 0; y < 25; ++y)
-			for(int z  = 0; z < 25; ++z)
-		
-						//if(timeSinceSpawn * multiplier > 0.1f && !stopSpawn)
-					{
-						GameObject* platform1 = GetComponentSystem().CreateGameObject();
-						//platform1->GetTransform()->SetPosition(sin((float)Time::GetSeconds() * 4 * multiplier) * 500.f, 1000.f, cos((float)Time::GetSeconds()  * 4 * multiplier) * 500.f);
-						platform1->GetTransform()->SetPosition(x * 400.f, y * 400.f, z * 400.f);
-						platform1->AddComponent<BoxColliderComponent>();
-						platform1->AddComponent<RigidbodyComponent>();
-						StaticMeshComponent* staticMesh2 = platform1->AddComponent<StaticMeshComponent>();
-						//myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [staticMesh2](Model* inModel)
-						//{
-						//	staticMesh2->SetModel(inModel);
-						//});
-						staticMesh2->SetModel(inModel);
-					}
-			});
+			GameObject* platform1 = GetComponentSystem().CreateGameObject();
+			platform1->GetTransform()->SetPosition(x * 400.f, y * 400.f, z * 400.f);
+			platform1->AddComponent<BoxColliderComponent>();
+			platform1->AddComponent<RigidbodyComponent>();
+			StaticMeshComponent* staticMesh2 = platform1->AddComponent<StaticMeshComponent>();
+			
+			staticMesh2->SetModel(inModel);
+		}
+	});
 
 	
-	//GameObject* cubeObject = GetComponentSystem().CreateGameObject();
-	//myAssetRegistry->GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [cubeObject](Model* inModel)
-	//{
-	//	cubeObject->AddComponent<StaticMeshComponent>()->SetModel(inModel);
-	//});
-
-	//GameObject* landscape = GetComponentSystem().CreateGameObject();
-	//landscape->GetTransform()->SetPosition(0, 0, 0);
-	//landscape->AddComponent<LandscapeRenderComponent>();
-	
-	//ToggleCactus();
 }
 
 void World::Update()
@@ -210,8 +221,9 @@ void World::ToggleCactus()
 	myAssetRegistry->GetAssetAsync<Model>("Assets/Cactus.fbx", [this](Model* inModel)
 	{
 		myCactus->AddComponent<StaticMeshComponent>()->SetModel(inModel);
+		myCactus->AddComponent<ConvexColliderComponent>()->SetModel(inModel);
+		myCactus->AddComponent<RigidbodyComponent>();
 	});
-	myCactus->AddComponent<RigidbodyComponent>();
 }
 
 void World::CreateWorldSystems()

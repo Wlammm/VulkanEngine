@@ -6,6 +6,11 @@ class SphereColliderComponent : public ColliderComponent
 public:
     void OnCreate() override;
 
+    void SetRadius(const float inRadius);
+    
+private:
+    void OnScaleChanged() override;
+    
 private:
     float myRadius = 50;
 };

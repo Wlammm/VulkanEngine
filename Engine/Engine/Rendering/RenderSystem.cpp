@@ -227,6 +227,8 @@ void RenderSystem::AddGDRPass(vk::CommandBuffer inCommandBuffer)
 		myGDRPipeline->AddGraphicsCommands(inCommandBuffer);
 	}
 
+	AddDebugPass(inCommandBuffer);
+
 	inCommandBuffer.endRenderPass();
 }
 

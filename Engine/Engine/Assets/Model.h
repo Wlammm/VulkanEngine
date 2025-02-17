@@ -29,21 +29,21 @@ public:
 
 	const List<Mesh*>& GetMeshes() const;
 
+	// Used to query vertex information about a model.
+	static List<SerializationMeshData> GetSerializationDataForModel(Model* inModel);
 	
 private:
 	static CachePath GetCachedFilePath(const std::filesystem::path& inPath);
 	static bool IsCached(const std::filesystem::path& inPath);
-	
-	bool TryLoadMeshDatasFromCache(const CachePath& inPath, List<SerializationMeshData>& outMeshDatas);
-	List<SerializationMeshData> LoadMeshDatasFromFbx(const std::filesystem::path& inPath);
+
+	static bool TryLoadMeshDatasFromCache(const CachePath& inPath, List<SerializationMeshData>& outMeshDatas);
+	static List<SerializationMeshData> LoadMeshDatasFromFbx(const std::filesystem::path& inPath);
 	void SaveToCache(const List<SerializationMeshData>& inMeshDatas, const std::filesystem::path& inSourcePath);
 
 	void InitializeFromMeshData(const List<SerializationMeshData>& inMeshDatas);
 	void InitializeStagingBuffers(List<SerializationMeshData>& inMeshDatas);
 	uint GetRequiredVertexBufferSize(const List<SerializationMeshData>& inMeshDatas);
 	
-
 private:
 	List<Mesh*> myMeshes{};
-
 };

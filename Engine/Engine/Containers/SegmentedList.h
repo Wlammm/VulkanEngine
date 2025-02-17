@@ -159,7 +159,6 @@ public:
         {
             outIndex = myFreeIndices.Last();
             myFreeIndices.RemoveLast();
-            myCurrentSize++;
         }
         else
         {

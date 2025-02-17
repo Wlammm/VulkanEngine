@@ -11,14 +11,12 @@
 #include "Physics/PhysicsSystem.h"
 #include "World/World.h"
 
-ColliderComponent::ColliderComponent()
-{
-}
-
 void ColliderComponent::OnCreate()
 {
     Component::OnCreate();
-    
+
+    GetTransform()->OnScaleChanged.Bind(&ColliderComponent::OnScaleChanged, this);
+
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
     
     RigidbodyComponent* rigidbody = GetComponent<RigidbodyComponent>();
@@ -31,7 +29,6 @@ void ColliderComponent::OnCreate()
             rigidbody->AttachCollider(this);
             return;
         }
-        
         myActor = inPhysics->createRigidStatic(GetTransform()->AsPxTransform());
         myActor->attachShape(*myShape);
         inScene->addActor(*myActor);
@@ -43,6 +40,9 @@ void ColliderComponent::OnCreate()
 
 void ColliderComponent::OnDestroy()
 {
+    check(false && "Need to implement destruction of shapes and actors here.");
+    GetTransform()->OnScaleChanged.UnBind(&ColliderComponent::OnScaleChanged, this);
+    
     GetGameObject()->OnComponentAdded.UnBind(&ColliderComponent::OnComponentAdded, this);
     GetGameObject()->OnComponentRemoved.UnBind(&ColliderComponent::OnComponentRemoved, this);
 }

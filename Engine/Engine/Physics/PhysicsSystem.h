@@ -28,6 +28,8 @@ public:
     void Tick();
 
     void QueuePhysicsCommand(Delegate<void(physx::PxPhysics* inPhysics, physx::PxScene* inScene)> inDelegate);
+
+    physx::PxTolerancesScale* GetToleranceScale() const;
     
     physx::PxMaterial* GetDefaultMaterial() const;
     physx::PxScene* GetScene() const;

@@ -86,7 +86,7 @@ public:
     template<typename... Args>
     ComponentType* AddComponentForGameObject(GameObject* inGameObject, Args&&... inArgs)
     {
-        check(myGameObjectToComponentIndex.find(inGameObject) == myGameObjectToComponentIndex.end());
+        check(myGameObjectToComponentIndex.find(inGameObject) == myGameObjectToComponentIndex.end() && "Object already have one of these components on it. Only one of each type is allowed.");
         
         uint index;
         ComponentType& component = myComponents.EmplaceAndGetIndex(index, std::forward<Args>(inArgs)...);
@@ -109,7 +109,9 @@ public:
 
         // The gameobject should keep track of what component types each gameobject has.
         check(iter != myGameObjectToComponentIndex.end());
+        
         myComponents.RemoveIndex(iter->second);
+        myGameObjectToComponentIndex.erase(iter);
     }
 
     bool HasComponentForGameObject(const GameObject* inObject) const

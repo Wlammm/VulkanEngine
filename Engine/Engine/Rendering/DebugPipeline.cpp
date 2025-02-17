@@ -4,12 +4,16 @@
 #include "Engine.h"
 #include "AssetRegistry/AssetRegistry.h"
 #include "Assets/Shader.h"
+#include "Components/CameraComponent.h"
+#include "Components/TransformComponent.h"
+#include "ComponentSystem/ComponentSystem.h"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Utils/Debug.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanPhysicalDevice.h"
+#include "World/World.h"
 
 DebugPipeline::DebugPipeline()
 {
@@ -170,16 +174,17 @@ VulkanBuffer* DebugPipeline::BuildVertexBuffer()
 
 void DebugPipeline::UpdateFrameBuffer()
 {
-	LOG("DebugPipeline::UpdateFrameBuffer commented out.");
-	//for (auto [ent, transform, camera] : Engine::GetWorld().GetRegistry().IterateComponents<const Transform, const Camera>())
-	//{
-	//	FrameData data{};
-	//	data.myProjection = camera.myProjection;
-	//	data.myToView = glm::affineInverse(transform.GetMatrix());
-	//	data.myCameraPosition = transform.GetPosition();
-	//	myFrameDataBuffer->SetData(data);
-	//	return;
-	//}
+	for (const CameraComponent& camera : Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<CameraComponent>())
+	{
+		TransformComponent* transform = camera.GetTransform();
+		
+		FrameData data{};
+		data.myProjection = camera.GetProjection();
+		data.myToView = glm::affineInverse(transform->GetMatrix());
+		data.myCameraPosition = transform->GetPosition();
+		myFrameDataBuffer->SetData(data);
+		return;
+	}
 
-	LOG("No render camera found.");
+	LOG("No render camera found.");	
 }

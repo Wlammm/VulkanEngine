@@ -54,7 +54,7 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
 
     sceneDesc.cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(4);
     check(sceneDesc.cpuDispatcher && "Could not create CPU dispatcher.");
-
+    
     sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
     //sceneDesc.filterShader = SimulationFilterShader;
     
@@ -110,6 +110,11 @@ void PhysicsSystem::Tick()
 void PhysicsSystem::QueuePhysicsCommand(Delegate<void(physx::PxPhysics* inPhysics, physx::PxScene* inScene)> inDelegate)
 {
     myPhysicsCommands.Add(inDelegate);
+}
+
+physx::PxTolerancesScale* PhysicsSystem::GetToleranceScale() const
+{
+    return myToleranceScale;
 }
 
 physx::PxMaterial* PhysicsSystem::GetDefaultMaterial() const

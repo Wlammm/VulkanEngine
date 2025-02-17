@@ -22,9 +22,15 @@ void RigidbodyComponent::TickPhysics()
     ZoneScoped;
     Component::TickPhysics();
 
-    // No need to update position if its sleeping. This would just cause the GPUScene to keep pushing the same position to the GPU each frame.
+    // Update the position one extra time before going to sleep.
     if(myActor->isSleeping())
-        return;
+    {
+        myFramesSinceStartSleep++;
+
+        if(myFramesSinceStartSleep > 2)
+            return;
+    }
+    myFramesSinceStartSleep = 0;
 
     physx::PxTransform transform = myActor->getGlobalPose();
     GetTransform()->SetPosition(transform.p);
