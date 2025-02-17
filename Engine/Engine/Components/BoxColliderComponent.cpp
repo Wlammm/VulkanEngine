@@ -19,7 +19,6 @@ void BoxColliderComponent::OnCreate()
     {
         const glm::vec3 scale = GetTransform()->GetScale();
         
-
         // Make sure the box is not of 0 size. TODO: This shouldnt be a crash later but for now it is .
         check(myHalfSize.length() * scale.length() > 0);
         

@@ -12,6 +12,7 @@
 #include "Components/DirectionalLightComponent.h"
 #include "Components/EditorCameraMovementComponent.h"
 #include "Components/LandscapeRenderComponent.h"
+#include "Components/MeshColliderComponent.h"
 #include "Components/PointLightComponent.h"
 #include "Components/SinWaveMovementComponent.h"
 #include "Components/SphereColliderComponent.h"
@@ -221,8 +222,8 @@ void World::ToggleCactus()
 	myAssetRegistry->GetAssetAsync<Model>("Assets/Cactus.fbx", [this](Model* inModel)
 	{
 		myCactus->AddComponent<StaticMeshComponent>()->SetModel(inModel);
-		myCactus->AddComponent<ConvexColliderComponent>()->SetModel(inModel);
-		myCactus->AddComponent<RigidbodyComponent>();
+		myCactus->AddComponent<MeshColliderComponent>()->SetModel(inModel);
+		// myCactus->AddComponent<RigidbodyComponent>();
 	});
 }
 

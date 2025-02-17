@@ -31,6 +31,7 @@ void ColliderComponent::OnCreate()
         }
         myActor = inPhysics->createRigidStatic(GetTransform()->AsPxTransform());
         myActor->attachShape(*myShape);
+        // Call release on shape so it gets destroyed whenever the actor is removed from the scene.
         inScene->addActor(*myActor);
     });
 
@@ -40,7 +41,19 @@ void ColliderComponent::OnCreate()
 
 void ColliderComponent::OnDestroy()
 {
-    check(false && "Need to implement destruction of shapes and actors here.");
+    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
+    physicsSystem.QueuePhysicsCommand([this](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
+    {
+        if(myShape)
+            myShape->release();
+        
+        if(myActor)
+        {
+            inScene->removeActor(*myActor);
+            myActor->release();
+        }
+    });
+        
     GetTransform()->OnScaleChanged.UnBind(&ColliderComponent::OnScaleChanged, this);
     
     GetGameObject()->OnComponentAdded.UnBind(&ColliderComponent::OnComponentAdded, this);

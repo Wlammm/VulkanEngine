@@ -2,6 +2,7 @@
 #include "ComponentArray.h"
 #include "Engine/System/WorldSystem.h"
 
+class Component;
 class GameObject;
 
 class ComponentSystem : public WorldSystem

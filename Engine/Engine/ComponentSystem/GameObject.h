@@ -19,6 +19,8 @@ public:
 
     void ResetRenderStateDirtyFlag();
     void ResetPhysicsStateDirtyFlag();
+
+    List<Component*> GetComponents() const;
     
     // TODO: Need to find new way of referencing components. We cant reference them via pointers as they move around in memory. Either that or implement some type of segmented list in ComponentArray.
     template<typename ComponentType, typename... Args>

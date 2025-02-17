@@ -13,6 +13,7 @@ public:
     virtual void TickPhysics() = 0;
 
     virtual void TryRemoveComponentForGameObject(const GameObject* inObject) = 0;
+    virtual class Component* TryGetComponentForGameObject(const GameObject* inObject) = 0;
 };
 
 /*
@@ -101,6 +102,15 @@ public:
             return;
 
         RemoveComponentForGameObject(inObject);
+    }
+
+    class Component* TryGetComponentForGameObject(const GameObject* inObject) override
+    {
+        const auto iter = myGameObjectToComponentIndex.find(inObject);
+        if(iter == myGameObjectToComponentIndex.end())
+            return nullptr;
+        
+        return &myComponents[iter->second];
     }
 
     void RemoveComponentForGameObject(const GameObject* inGameObject)

@@ -8,7 +8,11 @@
 GameObject::~GameObject()
 {
     // Remove all components.
-    LOG("GameObject being destroyed.");
+    for(Component* comp : GetComponents())
+    {
+        comp->OnDestroy();
+    }
+    
     const List<IComponentArray*>& arrays = myComponentSystem->GetAllComponentArrays();
     for(IComponentArray* array : arrays)
     {
@@ -34,6 +38,18 @@ void GameObject::ResetRenderStateDirtyFlag()
 void GameObject::ResetPhysicsStateDirtyFlag()
 {
     myPhysicsStateDirty = false;
+}
+
+List<Component*> GameObject::GetComponents() const
+{
+    List<Component*> components;
+
+    for(IComponentArray* array : myComponentSystem->GetAllComponentArrays())
+    {
+        if(Component* comp = array->TryGetComponentForGameObject(this))
+            components.Add(comp);
+    }
+    return components;
 }
 
 TransformComponent* GameObject::GetTransform() const
