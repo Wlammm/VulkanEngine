@@ -28,6 +28,54 @@ void ComponentSystem::TickPhysics()
     }
 }
 
+void ComponentSystem::OnCollisionEnterForGameObject(GameObject* inObject, GameObject* inOther)
+{
+    for(IComponentArray* array : myComponentArrays)
+    {
+        array->OnCollisionEnterForGameObject(inObject, inOther);
+    }
+}
+
+void ComponentSystem::OnCollisionForGameObject(GameObject* inObject, GameObject* inOther)
+{
+    for(IComponentArray* array : myComponentArrays)
+    {
+        array->OnCollisionForGameObject(inObject, inOther);
+    }
+}
+
+void ComponentSystem::OnCollisionExitForGameObject(GameObject* inObject, GameObject* inOther)
+{
+    for(IComponentArray* array : myComponentArrays)
+    {
+        array->OnCollisionExitForGameObject(inObject, inOther);
+    }
+}
+
+void ComponentSystem::OnTriggerEnterForGameObject(GameObject* inObject, GameObject* inOther)
+{
+    for(IComponentArray* array : myComponentArrays)
+    {
+        array->OnTriggerEnterForGameObject(inObject, inOther);
+    }
+}
+
+void ComponentSystem::OnTriggerForGameObject(GameObject* inObject, GameObject* inOther)
+{
+    for(IComponentArray* array : myComponentArrays)
+    {
+        array->OnTriggerForGameObject(inObject, inOther);
+    }
+}
+
+void ComponentSystem::OnTriggerExitForGameObject(GameObject* inObject, GameObject* inOther)
+{
+    for(IComponentArray* array : myComponentArrays)
+    {
+        array->OnTriggerExitForGameObject(inObject, inOther);
+    }
+}
+
 GameObject* ComponentSystem::CreateGameObject()
 {
     GameObject* gameObject = new GameObject();

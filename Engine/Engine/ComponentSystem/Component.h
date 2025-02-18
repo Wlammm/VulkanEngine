@@ -12,6 +12,14 @@ public:
     virtual void OnCreate() {}
     virtual void OnDestroy() {}
 
+    virtual void OnTriggerEnter(GameObject* inOther) {}
+    virtual void OnTrigger(GameObject* inOther) {}
+    virtual void OnTriggerExit(GameObject* inOther) {}
+    
+    virtual void OnCollisionEnter(GameObject* inOther) {}
+    virtual void OnCollision(GameObject* inOther) {}
+    virtual void OnCollisionExit(GameObject* inOther) {}
+    
     // This function does not get called unless DoesComponentTick is implemented and returns true.
     virtual void Tick() {}
     

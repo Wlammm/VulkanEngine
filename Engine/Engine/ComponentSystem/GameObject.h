@@ -76,14 +76,6 @@ public:
     // Called right before a component is deleted.
     MulticastDelegate<void(Component*)> OnComponentRemoved;
 
-    virtual void OnTriggerEnter(GameObject* inOther) {}
-    virtual void OnTrigger(GameObject* inOther) {}
-    virtual void OnTriggerExit(GameObject* inOther) {}
-
-    virtual void OnCollisionEnter(GameObject* inOther) {}
-    virtual void OnCollision(GameObject* inOther) {}
-    virtual void OnCollisionExit(GameObject* inOther) {}
-    
 private:
     friend ComponentSystem;
     ComponentSystem* myComponentSystem = nullptr;

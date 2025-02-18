@@ -14,7 +14,22 @@ public:
 
     virtual void TryRemoveComponentForGameObject(const GameObject* inObject) = 0;
     virtual class Component* TryGetComponentForGameObject(const GameObject* inObject) = 0;
+    
+    virtual void OnTriggerEnterForGameObject(GameObject* inObject, GameObject* inOther) = 0;
+    virtual void OnTriggerForGameObject(GameObject* inObject, GameObject* inOther) = 0;
+    virtual void OnTriggerExitForGameObject(GameObject* inObject, GameObject* inOther) = 0;
+    
+    virtual void OnCollisionEnterForGameObject(GameObject* inObject, GameObject* inOther) = 0;
+    virtual void OnCollisionForGameObject(GameObject* inObject, GameObject* inOther) = 0;
+    virtual void OnCollisionExitForGameObject(GameObject* inObject, GameObject* inOther) = 0;
 };
+
+#define IMPLEMENTS_METHOD(methodName)\
+template<typename A = Component, typename B = ComponentType> \
+static consteval bool Implements##methodName() \
+{ \
+    return !std::is_same_v<decltype(&A::methodName), decltype(&B::methodName)>; \
+}
 
 /*
  * 
@@ -25,6 +40,19 @@ class ComponentArray : public IComponentArray
 public:
     // The amount of components each segment consists of.
     inline static constexpr int ComponentsPerSegment = 128;
+
+    IMPLEMENTS_METHOD(Tick);
+    IMPLEMENTS_METHOD(TickPhysics);
+    IMPLEMENTS_METHOD(OnRenderStateDirty);
+    IMPLEMENTS_METHOD(OnPhysicsStateDirty);
+    
+    IMPLEMENTS_METHOD(OnTriggerEnter);
+    IMPLEMENTS_METHOD(OnTrigger);
+    IMPLEMENTS_METHOD(OnTriggerExit);
+    
+    IMPLEMENTS_METHOD(OnCollisionEnter);
+    IMPLEMENTS_METHOD(OnCollision);
+    IMPLEMENTS_METHOD(OnCollisionExit);
     
     ComponentType* GetFirstComponentOrNull()
     {
@@ -57,30 +85,6 @@ public:
         }
     }
 
-    template<typename A = Component, typename B = ComponentType>
-    static consteval bool ImplementsTick()
-    {
-        return !std::is_same_v<decltype(&A::Tick), decltype(&B::Tick)>;
-    }
-
-    template<typename A = Component, typename B = ComponentType>
-    static consteval bool ImplementsOnRenderStateDirty()
-    {
-        return !std::is_same_v<decltype(&A::OnRenderStateDirty), decltype(&B::OnRenderStateDirty)>;
-    }
-
-    template<typename A = Component, typename B = ComponentType>
-    static consteval bool ImplementsTickPhysics()
-    {
-        return !std::is_same_v<decltype(&A::TickPhysics), decltype(&B::TickPhysics)>;
-    }
-
-    template<typename A = Component, typename B = ComponentType>
-    static consteval bool ImplementsOnPhysicsStateDirty()
-    {
-        return !std::is_same_v<decltype(&A::OnPhysicsStateDirty), decltype(&B::OnPhysicsStateDirty)>;
-    }
-
     void TickPhysics() override
     {
         if constexpr (ImplementsOnPhysicsStateDirty())
@@ -102,6 +106,78 @@ public:
                 component.ComponentType::TickPhysics();
             }
         }
+    }
+
+    void OnTriggerEnterForGameObject(GameObject* inObject, GameObject* inOther) override
+    {
+        if constexpr (!ImplementsOnTriggerEnter())
+            return;
+
+        Component* comp = TryGetComponentForGameObject(inObject);
+        if(!comp)
+            return;
+        
+        comp->OnTriggerEnter(inOther);
+    }
+
+    void OnTriggerForGameObject(GameObject* inObject, GameObject* inOther) override
+    {
+        if constexpr (!ImplementsOnTrigger())
+            return;
+
+        Component* comp = TryGetComponentForGameObject(inObject);
+        if(!comp)
+            return;
+        
+        comp->OnTrigger(inOther);
+    }
+
+    void OnTriggerExitForGameObject(GameObject* inObject, GameObject* inOther) override
+    {
+        if constexpr (!ImplementsOnTriggerExit())
+            return;
+
+        Component* comp = TryGetComponentForGameObject(inObject);
+        if(!comp)
+            return;
+        
+        comp->OnTriggerExit(inOther);
+    }
+
+    void OnCollisionEnterForGameObject(GameObject* inObject, GameObject* inOther) override
+    {
+        if constexpr (!ImplementsOnCollisionEnter())
+            return;
+
+        Component* comp = TryGetComponentForGameObject(inObject);
+        if(!comp)
+            return;
+        
+        comp->OnCollisionEnter(inOther);
+    }
+
+    void OnCollisionForGameObject(GameObject* inObject, GameObject* inOther) override
+    {
+        if constexpr (!ImplementsOnCollision())
+            return;
+
+        Component* comp = TryGetComponentForGameObject(inObject);
+        if(!comp)
+            return;
+        
+        comp->OnCollision(inOther);
+    }
+
+    void OnCollisionExitForGameObject(GameObject* inObject, GameObject* inOther) override
+    {
+        if constexpr (!ImplementsOnCollisionExit())
+            return;
+
+        Component* comp = TryGetComponentForGameObject(inObject);
+        if(!comp)
+            return;
+        
+        comp->OnCollisionExit(inOther);
     }
 
     template<typename... Args>

@@ -13,6 +13,14 @@ public:
     void Tick() override;
     void TickPhysics();
 
+    void OnCollisionEnterForGameObject(GameObject* inObject, GameObject* inOther);
+    void OnCollisionForGameObject(GameObject* inObject, GameObject* inOther);
+    void OnCollisionExitForGameObject(GameObject* inObject, GameObject* inOther);
+    
+    void OnTriggerEnterForGameObject(GameObject* inObject, GameObject* inOther);
+    void OnTriggerForGameObject(GameObject* inObject, GameObject* inOther);
+    void OnTriggerExitForGameObject(GameObject* inObject, GameObject* inOther);
+
     GameObject* CreateGameObject();
     void DestroyGameObject(GameObject* inGameObject);
 
