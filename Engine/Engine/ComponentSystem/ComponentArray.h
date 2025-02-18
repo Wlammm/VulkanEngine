@@ -42,7 +42,7 @@ public:
             {
                 if(component.GetGameObject()->IsRenderStateDirty())
                 {
-                    component.OnRenderStateDirty();
+                    component.ComponentType::OnRenderStateDirty();
                     component.GetGameObject()->ResetRenderStateDirtyFlag();
                 }
             }
@@ -52,7 +52,7 @@ public:
         {
             for(ComponentType& component : myComponents)
             {
-                component.Tick();
+                component.ComponentType::Tick();
             }
         }
     }
@@ -89,7 +89,7 @@ public:
             {
                 if(component.GetGameObject()->IsPhysicsStateDirty())
                 {
-                    component.OnPhysicsStateDirty();
+                    component.ComponentType::OnPhysicsStateDirty();
                     component.GetGameObject()->ResetPhysicsStateDirtyFlag();
                 }
             }
@@ -99,7 +99,7 @@ public:
         {
             for(ComponentType& component : myComponents)
             {
-                component.TickPhysics();
+                component.ComponentType::TickPhysics();
             }
         }
     }

@@ -23,6 +23,33 @@ physx::PxFilterFlags SimulationFilterShader(
     const void* constantBlock,
     physx::PxU32 constantBlockSize)
 {
+    /*
+    * Adding exclusions:
+    * 
+    * uint excluded = Tag::Enemy | Tag::Player;
+    * myExcludedCollisions.insert(excluded);
+    * 
+    */
+    pairFlags = physx::PxPairFlag::eTRIGGER_DEFAULT;
+
+    //uint filterCombo = filterData0.word0 | filterData1.word0;
+    //if (Main::GetPhysicsManager().myExcludedCollisions.count(filterCombo))
+    //{
+    //    return physx::PxFilterFlag::eSUPPRESS;
+    //}
+
+    pairFlags = physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
+    if (physx::PxFilterObjectIsTrigger(attributes0) || physx::PxFilterObjectIsTrigger(attributes1))
+    {
+        pairFlags |= physx::PxPairFlag::eTRIGGER_DEFAULT;
+        return physx::PxFilterFlag::eDEFAULT;
+    }
+
+    pairFlags |= physx::PxPairFlag::eSOLVE_CONTACT;
+    pairFlags |= physx::PxPairFlag::eDETECT_DISCRETE_CONTACT;
+    pairFlags |= physx::PxPairFlag::eDETECT_CCD_CONTACT;
+
+    //pairFlags |= physx::PxPairFlag::eCONTACT_DEFAULT;
     return physx::PxFilterFlag::eDEFAULT;
 }
 
@@ -58,8 +85,8 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
     sceneDesc.cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(4);
     check(sceneDesc.cpuDispatcher && "Could not create CPU dispatcher.");
     
-    sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
-    //sceneDesc.filterShader = SimulationFilterShader;
+    //sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+    sceneDesc.filterShader = SimulationFilterShader;
 
     sceneDesc.simulationEventCallback = myListener;
     myScene = myPhysics->createScene(sceneDesc);
@@ -69,11 +96,11 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
 
 PhysicsSystem::~PhysicsSystem()
 {
-    del(myListener);
     del(myToleranceScale);
     PhysXRelease(myDefaultMaterial);
     PhysXRelease(myScene);
     PhysXRelease(myPhysics);
+    del(myListener);
     
     if(myPvd && myPvd->isConnected())
     {
@@ -90,13 +117,15 @@ PhysicsSystem::~PhysicsSystem()
 void PhysicsSystem::Tick()
 {
     ZoneScoped;
-    // TODO: This should potentially be moved into a fixed update function.
+    // TODO: This should potentially be moved into a fixed update function. Make sure the Listener::Tick() is outside the fixed function call though.
     if(myHasActiveSimulation)
     {
         myScene->fetchResults(true);
         myHasActiveSimulation = false;
     }
-
+    
+    myListener->Tick();
+    
     {
         ZoneScopedN("Dequeue PhysicsCommands");
         for(const Delegate<void(physx::PxPhysics* inPhysics, physx::PxScene* inScene)>& physicsCommand : myPhysicsCommands)

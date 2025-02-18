@@ -40,8 +40,6 @@ void PhysicsListener::onContact(const physx::PxContactPairHeader& pairHeader, co
     GameObject* firstObject = (GameObject*)pairHeader.actors[0]->userData;
     GameObject* secondObject = (GameObject*)pairHeader.actors[1]->userData;
 
-    LOG("Collision between %p and %p", firstObject, secondObject);
-
     if(myCollisionPairs.Contains({firstObject, secondObject}))
     {
         myDequeueCollisionsDelegate.Bind([firstObject, secondObject]()
@@ -77,7 +75,6 @@ void PhysicsListener::onSleep(physx::PxActor** actors, physx::PxU32 count)
 void PhysicsListener::onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform* poseBuffer,
     const physx::PxU32 count)
 {
-    
 }
 
 void PhysicsListener::Tick()
