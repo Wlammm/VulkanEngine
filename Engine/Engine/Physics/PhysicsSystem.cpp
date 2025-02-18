@@ -10,6 +10,8 @@
 #include "Physics/PhysicsErrorCallback.h"
 #include <omnipvd/PxOmniPvd.h>
 
+#include "PhysicsListener.h"
+
 #define PhysXRelease(x) if(x) x->release()
 
 physx::PxFilterFlags SimulationFilterShader(
@@ -32,6 +34,7 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
     myDefaultAllocator = new physx::PxDefaultAllocator();
     myDefaultErrorCallback = new PhysicsErrorCallback();
     myToleranceScale = new physx::PxTolerancesScale();
+    myListener = new PhysicsListener();
     myToleranceScale->length = 100.0f;
     myToleranceScale->speed = 981.f;
     
@@ -43,7 +46,7 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
     bool successfulPvdConnection = myPvd->connect(*myPvdTransport, physx::PxPvdInstrumentationFlag::eALL);
     if(successfulPvdConnection) 
         LOG("PhysicsSystem::PhysicsSystem - Successfully connected to PhysX PVD");
-    
+
     constexpr bool recordMemoryAllocations = true;
     myPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *myFoundation, *myToleranceScale, recordMemoryAllocations, myPvd);
     check(myPhysics && "Could not create physics engine.");
@@ -51,13 +54,14 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
     physx::PxSceneDesc sceneDesc = physx::PxSceneDesc(*myToleranceScale);
     sceneDesc.gravity = physx::PxVec3(0.0f, -981.f, 0.0f);
     sceneDesc.bounceThresholdVelocity = 0.2f * 981.f;
-
+    
     sceneDesc.cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(4);
     check(sceneDesc.cpuDispatcher && "Could not create CPU dispatcher.");
     
     sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
     //sceneDesc.filterShader = SimulationFilterShader;
-    
+
+    sceneDesc.simulationEventCallback = myListener;
     myScene = myPhysics->createScene(sceneDesc);
 
     myDefaultMaterial = myPhysics->createMaterial(0.5f, 0.5f, 0.2f);
@@ -65,7 +69,8 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
 
 PhysicsSystem::~PhysicsSystem()
 {
-    del(myToleranceScale)
+    del(myListener);
+    del(myToleranceScale);
     PhysXRelease(myDefaultMaterial);
     PhysXRelease(myScene);
     PhysXRelease(myPhysics);

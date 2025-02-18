@@ -43,7 +43,8 @@ void BoxColliderComponent::OnScaleChanged()
     // Make sure the box is not of 0 size. TODO: This shouldnt be a crash later but for now it is .
     check(newSize.length() > 0);
     
-    Engine::GetEngineSystem<PhysicsSystem>().QueuePhysicsCommand([this, newSize](physx::PxPhysics *,physx::PxScene *)
+    
+    GetWorld()->GetWorldSystem<PhysicsSystem>().QueuePhysicsCommand([this, newSize](physx::PxPhysics *,physx::PxScene *)
     {
         physx::PxBoxGeometry geometry = physx::PxBoxGeometry(newSize.x, newSize.y, newSize.z);
         myShape->setGeometry(geometry);

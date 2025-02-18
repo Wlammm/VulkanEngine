@@ -149,8 +149,8 @@ List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::p
 		aiProcess_Triangulate |
 		aiProcess_CalcTangentSpace |
 		aiProcess_SortByPType |
-		aiProcess_PreTransformVertices |
-		aiProcess_FlipWindingOrder;
+		aiProcess_PreTransformVertices;// |
+		// aiProcess_FlipWindingOrder;
 	flags &= ~aiProcess_JoinIdenticalVertices;
 
 	myImporter.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);

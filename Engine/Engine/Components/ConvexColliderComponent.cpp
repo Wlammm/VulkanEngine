@@ -1,5 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "ConvexColliderComponent.h"
+
+#include "TransformComponent.h"
 #include "Physics/PhysXInclude.h"
 #include "Assets/Model.h"
 #include "Physics/PhysicsSystem.h"
@@ -48,7 +50,17 @@ void ConvexColliderComponent::OnCreate()
 
 void ConvexColliderComponent::OnScaleChanged()
 {
+    const glm::vec3 scale = GetTransform()->GetScale();
+
+    // Make sure the box is not of 0 size. TODO: This shouldnt be a crash later but for now it is .
+    check(scale.length() > 0);
     
+    GetWorld()->GetWorldSystem<PhysicsSystem>().QueuePhysicsCommand([this, scale](physx::PxPhysics *,physx::PxScene *)
+    {
+        physx::PxConvexMeshGeometry geometry = static_cast<const physx::PxConvexMeshGeometry&>(myShape->getGeometry());
+        geometry.scale = physx::PxMeshScale({scale.x, scale.y, scale.z });
+        myShape->setGeometry(geometry);
+    });    
 }
 
 void ConvexColliderComponent::SetModel(Model* inModel)

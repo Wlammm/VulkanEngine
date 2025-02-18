@@ -8,16 +8,7 @@ class Component
 public:
     Component() = default;
     virtual ~Component() = default;
-
-    // Enables Tick.
-    virtual bool DoesComponentTick() const { return false; }
-
-    // Enabled OnRenderStateDirty.
-    virtual bool DoesComponentImplementOnRenderStateDirty() const { return false;}
-
-    // Enables OnPhysicsStateDirty and TickPhysics 
-    virtual bool DoesComponentImplementPhysicsFunctions() const { return false; }
-
+    
     virtual void OnCreate() {}
     virtual void OnDestroy() {}
 

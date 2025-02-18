@@ -30,6 +30,8 @@ void ColliderComponent::OnCreate()
             return;
         }
         myActor = inPhysics->createRigidStatic(GetTransform()->AsPxTransform());
+        myActor->userData = GetGameObject();
+        
         myActor->attachShape(*myShape);
         // Call release on shape so it gets destroyed whenever the actor is removed from the scene.
         inScene->addActor(*myActor);
@@ -53,7 +55,7 @@ void ColliderComponent::OnDestroy()
             myActor->release();
         }
     });
-        
+
     GetTransform()->OnScaleChanged.UnBind(&ColliderComponent::OnScaleChanged, this);
     
     GetGameObject()->OnComponentAdded.UnBind(&ColliderComponent::OnComponentAdded, this);

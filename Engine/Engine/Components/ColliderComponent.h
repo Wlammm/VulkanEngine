@@ -11,8 +11,6 @@ namespace physx
 class ColliderComponent : public Component
 {
 public:
-    bool DoesComponentImplementPhysicsFunctions() const override { return true; }
-    
     // Make sure to set the value of myShape before calling this.
     void OnCreate() override;
 
@@ -31,5 +29,7 @@ public:
     
 protected:
     physx::PxShape* myShape = nullptr;
+
+private:
     physx::PxRigidStatic* myActor = nullptr;
 };

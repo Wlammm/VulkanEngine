@@ -7,6 +7,7 @@
 #include <extensions/PxDefaultStreams.h>
 #include <geometry/PxTriangleMeshGeometry.h>
 
+#include "TransformComponent.h"
 #include "Assets/Model.h"
 #include "Physics/PhysicsSystem.h"
 #include "World/World.h"
@@ -18,8 +19,10 @@ void MeshColliderComponent::OnCreate()
     if(!myModel)
         return;
 
+    const glm::vec3 scale = GetTransform()->GetScale();
+    
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
-    physicsSystem.QueuePhysicsCommand([this, &physicsSystem](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
+    physicsSystem.QueuePhysicsCommand([this, &physicsSystem, scale](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
         // TODO: Cache cooked physics shapes to improve startup time.
         const List<SerializationMeshData> meshData = Model::GetSerializationDataForModel(myModel);
@@ -56,7 +59,10 @@ void MeshColliderComponent::OnCreate()
         check(result && "Failed to cook mesh.");
         physx::PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
         physx::PxTriangleMesh* triangleMesh = inPhysics->createTriangleMesh(input);
-        myShape = inPhysics->createShape(physx::PxTriangleMeshGeometry(triangleMesh), *physicsSystem.GetDefaultMaterial());
+        
+        physx::PxMeshScale pxScale = physx::PxMeshScale({scale.x, scale.y, scale.z });
+            
+        myShape = inPhysics->createShape(physx::PxTriangleMeshGeometry(triangleMesh, pxScale), *physicsSystem.GetDefaultMaterial());
         triangleMesh->release();
     });
     
@@ -65,7 +71,21 @@ void MeshColliderComponent::OnCreate()
 
 void MeshColliderComponent::OnScaleChanged()
 {
-    check(false);
+    OnDestroy();
+    OnCreate();
+    
+    return;
+    const glm::vec3 scale = GetTransform()->GetScale();
+
+    // Make sure the box is not of 0 size. TODO: This shouldn't be a crash later but for now it is .
+    check(scale.length() > 0);
+    
+    GetWorld()->GetWorldSystem<PhysicsSystem>().QueuePhysicsCommand([this, scale](physx::PxPhysics *,physx::PxScene *)
+    {
+        physx::PxTriangleMeshGeometry geometry = static_cast<const physx::PxTriangleMeshGeometry&>(myShape->getGeometry());
+        geometry.scale = physx::PxMeshScale({scale.x, scale.y, scale.z });
+        myShape->setGeometry(geometry);
+    });  
 }
 
 void MeshColliderComponent::SetModel(Model* inModel)

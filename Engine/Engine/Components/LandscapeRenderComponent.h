@@ -12,8 +12,6 @@ public:
     LandscapeRenderComponent();
     ~LandscapeRenderComponent();
 
-    bool DoesComponentImplementOnRenderStateDirty() const override { return true;}
-    
     void OnCreate() override;
     
     void Tick() override;

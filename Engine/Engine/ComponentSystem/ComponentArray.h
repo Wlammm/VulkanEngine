@@ -36,12 +36,7 @@ public:
     
     void Tick() override
     {
-        ComponentType* defaultComponent = GetFirstComponentOrNull();
-
-        if(!defaultComponent)
-            return;
-
-        if(defaultComponent->DoesComponentImplementOnRenderStateDirty())
+        if constexpr (ImplementsOnRenderStateDirty())
         {
             for(ComponentType& component : myComponents)
             {
@@ -53,7 +48,7 @@ public:
             }
         }
 
-        if(defaultComponent->DoesComponentTick())
+        if constexpr (ImplementsTick())
         {
             for(ComponentType& component : myComponents)
             {
@@ -62,25 +57,50 @@ public:
         }
     }
 
+    template<typename A = Component, typename B = ComponentType>
+    static consteval bool ImplementsTick()
+    {
+        return !std::is_same_v<decltype(&A::Tick), decltype(&B::Tick)>;
+    }
+
+    template<typename A = Component, typename B = ComponentType>
+    static consteval bool ImplementsOnRenderStateDirty()
+    {
+        return !std::is_same_v<decltype(&A::OnRenderStateDirty), decltype(&B::OnRenderStateDirty)>;
+    }
+
+    template<typename A = Component, typename B = ComponentType>
+    static consteval bool ImplementsTickPhysics()
+    {
+        return !std::is_same_v<decltype(&A::TickPhysics), decltype(&B::TickPhysics)>;
+    }
+
+    template<typename A = Component, typename B = ComponentType>
+    static consteval bool ImplementsOnPhysicsStateDirty()
+    {
+        return !std::is_same_v<decltype(&A::OnPhysicsStateDirty), decltype(&B::OnPhysicsStateDirty)>;
+    }
+
     void TickPhysics() override
     {
-        ComponentType* defaultComponent = GetFirstComponentOrNull();
-
-        if(!defaultComponent)
-            return;
-        
-        if(!defaultComponent->DoesComponentImplementPhysicsFunctions())
-            return;
-
-        for(ComponentType& component : myComponents)
+        if constexpr (ImplementsOnPhysicsStateDirty())
         {
-            if(component.GetGameObject()->IsPhysicsStateDirty())
+            for(ComponentType& component : myComponents)
             {
-                component.OnPhysicsStateDirty();
-                component.GetGameObject()->ResetPhysicsStateDirtyFlag();
+                if(component.GetGameObject()->IsPhysicsStateDirty())
+                {
+                    component.OnPhysicsStateDirty();
+                    component.GetGameObject()->ResetPhysicsStateDirtyFlag();
+                }
             }
-
-            component.TickPhysics();
+        }
+        
+        if constexpr (ImplementsTickPhysics())
+        {
+            for(ComponentType& component : myComponents)
+            {
+                component.TickPhysics();
+            }
         }
     }
 

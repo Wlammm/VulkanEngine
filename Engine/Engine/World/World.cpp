@@ -222,7 +222,9 @@ void World::ToggleCactus()
 	myAssetRegistry->GetAssetAsync<Model>("Assets/Cactus.fbx", [this](Model* inModel)
 	{
 		myCactus->AddComponent<StaticMeshComponent>()->SetModel(inModel);
+		myCactus->GetTransform()->SetScale(10, 1, 1);
 		myCactus->AddComponent<MeshColliderComponent>()->SetModel(inModel);
+		myCactus->GetTransform()->SetScale(10, 1, 10);
 		// myCactus->AddComponent<RigidbodyComponent>();
 	});
 }
