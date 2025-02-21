@@ -28,10 +28,6 @@ VulkanSwapChain::~VulkanSwapChain()
 
 void VulkanSwapChain::BeginFrame()
 {
-	// Skip starting a frame here as we've already started one in init. This is required as we need to have a valid frame index for the staging system whenever we're creating our world and creating the initial gameobjects.
-	if(myIsFirstFrame)
-		return;
-	
 	// Wait for gpu to finish.
 	vk::Result result = myDevice->waitForFences(myFences[mySyncIndex], VK_TRUE, UINT64_MAX);
 	check(result == vk::Result::eSuccess);
@@ -66,8 +62,6 @@ void VulkanSwapChain::BeginFrame()
 
 void VulkanSwapChain::EndFrame()
 {
-	myIsFirstFrame = false;
-	
 	vk::PipelineStageFlags pipelineStageFlags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
 
 	vk::Result submitResult = VulkanContext::GetDevice().GetGraphicsQueue().submit(1, &vk::SubmitInfo()
@@ -306,9 +300,6 @@ void VulkanSwapChain::Init()
 
 	myFrameIndex = 0;
 	myFrameIndex = 0;
-
-	BeginFrame();
-	myIsFirstFrame = true;
 }
 
 void VulkanSwapChain::DestroySwapChainRelatedObjects()
