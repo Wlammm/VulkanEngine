@@ -27,6 +27,7 @@ LandscapeRenderComponent::~LandscapeRenderComponent()
 
 void LandscapeRenderComponent::OnCreate()
 {
+    
     CreateLandscapeMesh();
 }
 
@@ -46,7 +47,10 @@ void LandscapeRenderComponent::OnRenderStateDirty()
         Engine::GetEngineSystem<GPUSceneSystem>().RemoveMeshInstance(myMeshInstance);
     }
     
-    MeshInstanceData data{ GetTransform()->GetMatrix(), myMesh->GetHandle() }; 
+    MeshInstanceData data{ GetTransform()->GetMatrix(), myMesh->GetHandle() };
+    data.myAlbedoIndex;
+    data.myNormalIndex;
+    data.myMaterialIndex;
     myMeshInstance = Engine::GetEngineSystem<GPUSceneSystem>().AddMeshInstance(data);
 }
 
@@ -139,7 +143,4 @@ void LandscapeRenderComponent::CreateLandscapeMesh()
 
     myMesh = Engine::GetEngineSystem<MeshSystem>().UploadMesh(myVertexBuffer, myIndexBuffer, sphereBounds);
     MarkRenderStateDirty();
-    
-    //MeshInstanceData data{ GetTransform()->GetMatrix(), myMesh->GetHandle() };
-    //myMeshInstance = Engine::GetEngineSystem<GPUSceneSystem>().AddMeshInstance(data);
 }

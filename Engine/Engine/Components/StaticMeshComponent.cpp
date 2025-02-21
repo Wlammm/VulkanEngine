@@ -10,6 +10,7 @@
 #include "Rendering/Mesh.h"
 #include "Shaders/MeshStructs.hpp"
 #include "Vulkan/GPUSceneSystem.h"
+#include "World/World.h"
 
 void StaticMeshComponent::OnCreate()
 {
@@ -42,11 +43,26 @@ void StaticMeshComponent::SetModel(Model* inModel)
 
         if(std::filesystem::exists(albedoPath) && std::filesystem::exists(normalPath) && std::filesystem::exists(materialPath))
         {
-            myMaterials[meshIndex] = Material(albedoPath, normalPath, materialPath);
+            const std::string generatedString = GENERATED_MATERIAL_PREFIX + albedoPath.string() + normalPath.string() + materialPath.string();
+
+            if(GetWorld()->GetAssetRegistry().HasAsset(generatedString))
+            {
+                GetWorld()->GetAssetRegistry().GetAssetAsync<Material>(generatedString, [this, meshIndex](Material* inMaterial)
+                {
+                    myMaterials[meshIndex] = inMaterial;
+                });                
+            }
+            else
+            {
+                Material* material = new Material(GetWorld(), albedoPath, normalPath, materialPath);
+                GetWorld()->GetAssetRegistry().RegisterTemporaryAsset(generatedString, material);
+                myMaterials[meshIndex] = material;
+            }
         }
         else
         {
-            myMaterials[meshIndex] = Material();
+            // TODO: This should be default material.
+            myMaterials[meshIndex] = nullptr;
         }
     }
     
@@ -60,7 +76,7 @@ Model* StaticMeshComponent::GetModel() const
 
 void StaticMeshComponent::SetMaterial(Material* inMaterial, const uint inIndex)
 {
-    myMaterials[inIndex] = *inMaterial;
+    myMaterials[inIndex] = inMaterial;
     MarkRenderStateDirty();
 }
 
@@ -69,7 +85,7 @@ const Material* StaticMeshComponent::GetMaterial(const uint inIndex) const
     if(!myMaterials.IsValidIndex(inIndex))
         return nullptr;
     
-    return &myMaterials[inIndex];
+    return myMaterials[inIndex];
 }
 
 void StaticMeshComponent::SetMaterialForMesh(Material* inMaterial, Mesh* inMesh)
@@ -112,11 +128,11 @@ void StaticMeshComponent::OnRenderStateDirty()
         MeshInstanceData data{ GetTransform()->GetMatrix(), mesh->GetHandle() };
 
         check(myMaterials.IsValidIndex(meshIndex));
-        if(myMaterials[meshIndex].IsValid())
+        if(myMaterials[meshIndex] && myMaterials[meshIndex]->IsValid())
         {
-            data.myAlbedoIndex = myMaterials[meshIndex].GetAlbedo()->GetBindlessIndex();
-            data.myNormalIndex = myMaterials[meshIndex].GetNormal()->GetBindlessIndex();
-            data.myMaterialIndex = myMaterials[meshIndex].GetMaterial()->GetBindlessIndex();
+            data.myAlbedoIndex = myMaterials[meshIndex]->GetAlbedo()->GetBindlessIndex();
+            data.myNormalIndex = myMaterials[meshIndex]->GetNormal()->GetBindlessIndex();
+            data.myMaterialIndex = myMaterials[meshIndex]->GetMaterial()->GetBindlessIndex();
         }
         
         // If we already have a mesh instance we can just update that instead of adding a new one which is cheaper

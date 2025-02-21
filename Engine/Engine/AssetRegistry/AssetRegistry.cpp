@@ -47,3 +47,22 @@ std::filesystem::path AssetRegistry::GetPathFromAssetName(const std::string& inA
     
     return myFilenameToPathLUT.at(inAssetName);    
 }
+
+bool AssetRegistry::HasAsset(const std::filesystem::path& inAssetPath) const
+{
+    return myLoadedAssets.contains(inAssetPath);
+}
+
+void AssetRegistry::RegisterTemporaryAsset(const std::filesystem::path& inAssetPath, Asset* inAsset)
+{
+    inAsset->myAssetRegistry = this;
+    myMutex.lock();
+    if(myLoadedAssets.contains(inAssetPath))
+    {
+        myMutex.unlock();
+        return;
+    }
+
+    myLoadedAssets.insert({inAssetPath, inAsset});
+    myMutex.unlock();
+}

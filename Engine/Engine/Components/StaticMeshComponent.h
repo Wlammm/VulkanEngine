@@ -6,6 +6,9 @@
 class Mesh;
 class Model;
 
+// Use GENERATED_MATERIAL_PREFIX + albedoPath.string() + normalPath.string() + materialPath.string() for asset registry insertion.
+constexpr const char* GENERATED_MATERIAL_PREFIX = "GENERATED_STATICMESHMATERIAL_";
+
 class StaticMeshComponent : public Component
 {
 public:
@@ -27,7 +30,7 @@ private:
     void RemoveFromGPUScene();
     
 private:
-    List<Material> myMaterials{};
+    List<Material*> myMaterials{};
     Model* myModel = nullptr;
 
     List<MeshInstanceIndex> myMeshInstances{};

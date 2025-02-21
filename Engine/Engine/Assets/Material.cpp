@@ -4,56 +4,60 @@
 #include "Engine/AssetRegistry/AssetRegistry.h"
 #include <tracy/Tracy.hpp>
 
+#include "JsonAsset.h"
 #include "Texture.h"
+#include "Coroutines/Awaitable.h"
+#include "World/World.h"
 
-Material::Material()
+Coroutine<void, void, false> Material::Load(const std::filesystem::path inPath)
 {
-	ZoneScoped;
+	JsonAsset* jsonAsset = nullptr;
+	co_await Awaitables::WaitForAsset<JsonAsset>(inPath, GetAssetRegistry(), jsonAsset);
+
+	const nlohmann::json& json = jsonAsset->GetJson();
+
+	const std::string albedoPath = json["albedoPath"];
+	const std::string normalPath = json["normalPath"];
+	const std::string materialPath = json["materialPath"];
+
+	if(!std::filesystem::exists(albedoPath))
+	{
+		LOG_ERROR("Material requested albedo texture %s but it doesnt exists.", albedoPath.c_str());
+		check(false);
+	}
+
+	if(!std::filesystem::exists(normalPath))
+	{
+		LOG_ERROR("Material requested normal texture %s but it doesnt exists.", normalPath.c_str());
+		check(false);
+	}
+
+	if(!std::filesystem::exists(materialPath))
+	{
+		LOG_ERROR("Material requested material texture %s but it doesnt exists.", materialPath.c_str());
+		check(false);
+	}
+
+	co_await Awaitables::WaitForAsset<Texture>(albedoPath, GetAssetRegistry(), myAlbedoTexture);
+	co_await Awaitables::WaitForAsset<Texture>(normalPath, GetAssetRegistry(), myNormalTexture);
+	co_await Awaitables::WaitForAsset<Texture>(materialPath, GetAssetRegistry(), myMaterialTexture);
 	
-	//Engine::GetAssetRegistry().GetAssetAsync<Texture>("Assets/Leaves.tga", [&](Texture* inTexture)
-	//{
-	//	myAlbedoTexture = inTexture;
-	//});
-//
-	//Engine::GetAssetRegistry().GetAssetAsync<Texture>("Assets/Leaves.tga", [&](Texture* inTexture)
-	//{
-	//	myNormalTexture = inTexture;
-	//});
-//
-	//Engine::GetAssetRegistry().GetAssetAsync<Texture>("Assets/Leaves.tga", [&](Texture* inTexture)
-	//{
-	//	myMaterialTexture = inTexture;
-	//});
+	co_return;
 }
 
-Material::Material(const std::filesystem::path& inAlbedo, const std::filesystem::path& inNormal, const std::filesystem::path& inMaterial)
+Material::Material(World* inWorld, const std::filesystem::path& inAlbedo, const std::filesystem::path& inNormal,
+	const std::filesystem::path& inMaterial)
 {
-	ZoneScoped;
+	myAlbedoTexture = inWorld->GetAssetRegistry().GetAssetSynchronous<Texture>(inAlbedo);
+	myNormalTexture = inWorld->GetAssetRegistry().GetAssetSynchronous<Texture>(inNormal);
+	myMaterialTexture = inWorld->GetAssetRegistry().GetAssetSynchronous<Texture>(inMaterial);
+
 	myIsValid = true;
-/*
-	Engine::GetAssetRegistry().GetAssetAsync<Texture>(inAlbedo, [&](Texture* inTexture)
-	{
-		myAlbedoTexture = inTexture;
-	});
-
-	Engine::GetAssetRegistry().GetAssetAsync<Texture>(inNormal, [&](Texture* inTexture)
-	{
-		myNormalTexture = inTexture;
-	});
-
-	Engine::GetAssetRegistry().GetAssetAsync<Texture>(inMaterial, [&](Texture* inTexture)
-	{
-		myMaterialTexture = inTexture;
-	});*/
-
-	// TODO: Need to fix material system and asset system to not have race conditions.
-	myAlbedoTexture = Engine::GetAssetRegistry().GetAssetSynchronous<Texture>(inAlbedo);
-	myNormalTexture = Engine::GetAssetRegistry().GetAssetSynchronous<Texture>(inNormal);
-	myMaterialTexture = Engine::GetAssetRegistry().GetAssetSynchronous<Texture>(inMaterial);
 }
 
-Material::~Material()
+void Material::Unload()
 {
+	// No need to unload the textures here for now. They're automatically handled by the asset registry.
 }
 
 Texture* Material::GetAlbedo() const

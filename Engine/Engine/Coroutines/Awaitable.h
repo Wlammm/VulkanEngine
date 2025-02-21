@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <coroutine>
 
+#include "AssetRegistry/AssetRegistry.h"
+
 class Awaitable
 {
 public:
@@ -47,6 +49,32 @@ namespace Awaitables
     
     private:
         float mySeconds;
+    };
+
+    template<typename AssetType>
+    class WaitForAsset : public Awaitable
+    {
+    public:
+        WaitForAsset(const std::filesystem::path inPath, AssetRegistry* inAssetRegistry, AssetType*& outAsset)
+            : myOutAsset{ outAsset }
+        {
+            myPath = inPath;
+            myAssetRegistry = inAssetRegistry;
+        }
+
+        void OnAwait(std::coroutine_handle<> inCoroutineHandle) override
+        {
+            myAssetRegistry->GetAssetAsync<AssetType>(myPath, [inCoroutineHandle, this](AssetType* inAsset)
+            {
+                myOutAsset = inAsset;
+                inCoroutineHandle.resume();
+            });
+        }
+
+    private:
+        std::filesystem::path myPath;
+        AssetRegistry* myAssetRegistry = nullptr;
+        AssetType*& myOutAsset;
     };
 
 }
