@@ -13,6 +13,8 @@ public:
 	void Tick();
 
 	bool ShouldRun() const;
+
+	static uint GetFrameIndex();
 	
 	static void SetIsRunning(const bool inIsRunning);
 
@@ -46,6 +48,8 @@ private:
 	void CreateSystems();
 
 private:
+	uint myFrameIndex = 0;
+
 	bool myIsRunning = true;
 
 	EngineProperties myEngineProperties;

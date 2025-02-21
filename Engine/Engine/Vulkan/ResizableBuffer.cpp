@@ -108,6 +108,7 @@ void ResizableBuffer::Resize(const uint inRequiredSize)
     if(inRequiredSize <= myBuffer->GetSize())
         return;
 
+    LOG("Resizing buffer: %s - FrameIndex: %i", myBuffer->GetName().c_str(), Engine::GetFrameIndex());
     // Resize buffer.
     uint newSize = MathUtils::UpperPowerOfTwo(inRequiredSize);
 

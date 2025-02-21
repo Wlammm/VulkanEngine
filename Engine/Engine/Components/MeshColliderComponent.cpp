@@ -31,7 +31,7 @@ void MeshColliderComponent::OnCreate()
         List<uint> indices;
         for(const SerializationMeshData& mesh : meshData)
         {
-            const uint vertexOffset = vertices.size();
+            const uint vertexOffset = static_cast<uint>(vertices.size());
             for(const Vertex& vertex : mesh.myVertices)
             {
                 vertices.Add({vertex.myPosition.x, vertex.myPosition.y, vertex.myPosition.z});

@@ -42,6 +42,8 @@ private:
 	vk::SurfaceFormatKHR PickSurfaceFormat() const;
 
 private:
+	bool myIsFirstFrame = false;
+	
 	const VulkanDevice& myDevice;
 
 	vk::SurfaceKHR myWindowSurface;

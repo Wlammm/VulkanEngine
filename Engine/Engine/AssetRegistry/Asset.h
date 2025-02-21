@@ -13,6 +13,8 @@ public:
     virtual Coroutine<void, void, false> Load(const std::filesystem::path inPath) = 0;
     virtual void Unload() = 0;
 
+    const std::filesystem::path GetPath() const;
+
 protected:
     friend class AssetRegistry;
     AssetRegistry* GetAssetRegistry() const;

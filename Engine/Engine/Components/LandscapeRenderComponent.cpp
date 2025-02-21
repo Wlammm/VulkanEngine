@@ -12,6 +12,8 @@
 #include "Vulkan/GPUSceneSystem.h"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
+#include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanSwapChain.h"
 
 LandscapeRenderComponent::LandscapeRenderComponent()
 {
@@ -35,12 +37,16 @@ void LandscapeRenderComponent::Tick()
 
 void LandscapeRenderComponent::OnRenderStateDirty()
 {
+    if(!myMesh)
+        return;
+    
+    LOG("Adding Landscape on frame: %i", VulkanContext::GetSwapChain().GetFrameIndex());
     if(myMeshInstance != (uint)-1)
     {
         Engine::GetEngineSystem<GPUSceneSystem>().RemoveMeshInstance(myMeshInstance);
     }
     
-    MeshInstanceData data{ GetTransform()->GetMatrix(), myMesh->GetHandle() };
+    MeshInstanceData data{ GetTransform()->GetMatrix(), myMesh->GetHandle() }; 
     myMeshInstance = Engine::GetEngineSystem<GPUSceneSystem>().AddMeshInstance(data);
 }
 
@@ -82,8 +88,8 @@ void LandscapeRenderComponent::CreateLandscapeMesh()
             uint bottomLeft = (z + 1) * chunkSize + x;
             uint bottomRight = bottomLeft + 1;
 
-            indices.Add(bottomLeft);
             indices.Add(topLeft);
+            indices.Add(bottomLeft);
             indices.Add(topRight);
 
             glm::vec3 edge1 = vertices[bottomLeft].myPosition - vertices[topLeft].myPosition;
@@ -94,8 +100,8 @@ void LandscapeRenderComponent::CreateLandscapeMesh()
             vertices[topLeft].myNormal += normal1;
             vertices[bottomRight].myNormal += normal1;
 
-            indices.Add(bottomLeft);
             indices.Add(topRight);
+            indices.Add(bottomLeft);
             indices.Add(bottomRight);
 
             edge1 = vertices[bottomLeft].myPosition - vertices[topRight].myPosition;
@@ -130,7 +136,10 @@ void LandscapeRenderComponent::CreateLandscapeMesh()
     VulkanAllocator::DestroyBuffer_TS(stagingIndexBuffer);
 
     const glm::vec4 sphereBounds = MeshUtils::CalculateSphereBounds(vertices);
-    
+
     myMesh = Engine::GetEngineSystem<MeshSystem>().UploadMesh(myVertexBuffer, myIndexBuffer, sphereBounds);
     MarkRenderStateDirty();
+    
+    //MeshInstanceData data{ GetTransform()->GetMatrix(), myMesh->GetHandle() };
+    //myMeshInstance = Engine::GetEngineSystem<GPUSceneSystem>().AddMeshInstance(data);
 }

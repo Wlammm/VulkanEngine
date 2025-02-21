@@ -54,7 +54,12 @@ void StagingSystem::Tick()
 void StagingSystem::PrepareThisFramesStagingBuffer()
 {
     myCurrentStageData = &myStagingBuffers[VulkanContext::GetSwapChain().GetFrameIndex()];
-    myCurrentStageData->myOffset = 0;
+
+    // We do this as first frame we will get 2 ticks here before we get a new frame index. We cant overwrite this data then or shit gets corrupted.
+    if(VulkanContext::GetSwapChain().GetFrameIndex() != myLastFrameIndex)
+        myCurrentStageData->myOffset = 0;
+
+    myLastFrameIndex = VulkanContext::GetSwapChain().GetFrameIndex();
 }
 
 

@@ -73,6 +73,7 @@ Engine::~Engine()
 
 void Engine::Tick()
 {
+	myFrameIndex++;
 	FrameMark;
 	ZoneScoped;
 	Time::Tick();
@@ -95,11 +96,12 @@ void Engine::Tick()
 	GetEngineSystem<StagingSystem>().Tick();
 	GetEngineSystem<GPUSceneSystem>().Tick();
 	
+	myWorld->Update();
+
+	
 #if EDITOR
 	myEditorTick();
 #endif
-
-	myWorld->Update();
 
 	{
 		ZoneScopedN("TicksNextFrame");
@@ -122,6 +124,11 @@ void Engine::Tick()
 bool Engine::ShouldRun() const
 {
 	return myIsRunning;
+}
+
+uint Engine::GetFrameIndex()
+{
+	return myInstance->myFrameIndex;
 }
 
 void Engine::SetIsRunning(const bool inIsRunning)

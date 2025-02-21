@@ -26,6 +26,7 @@ private:
         uint myOffset = 0;
     };
 
+    uint myLastFrameIndex = (uint)-1;
     BufferData* myCurrentStageData = nullptr;
     
     std::array<BufferData, VulkanContext::FrameLag> myStagingBuffers;

@@ -15,11 +15,11 @@ public:
 	~World();
 
 	void Init() override final;
-
 	void Update();
-
 	void Destroy();
 
+	//bool Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, )
+	
 	class AssetRegistry& GetAssetRegistry() const;
 
 	DirectionalLightComponent* GetDirectionalLight() const;

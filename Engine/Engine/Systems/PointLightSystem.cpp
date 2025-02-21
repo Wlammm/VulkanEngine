@@ -7,10 +7,12 @@
 #include "Vulkan/ResizableBuffer.h"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
+#include "Vulkan/VulkanContext.h"
+#include "Vulkan/VulkanSwapChain.h"
 
 PointLightSystem::PointLightSystem()
 {
-    myBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("PointLightBuffer", VulkanBuffer::ResizableStorageBufferCreateInfo(32), VMA_MEMORY_USAGE_AUTO, false));
+    myBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("PointLightBuffer", VulkanBuffer::ResizableStorageBufferCreateInfo(sizeof(PointLightData) * 16), VMA_MEMORY_USAGE_AUTO, false));
 }
 
 PointLightSystem::~PointLightSystem()
@@ -30,10 +32,12 @@ void PointLightSystem::AddLight(TransformComponent* inTransform, PointLightCompo
     pointLightData.myRange = inLight->GetRange();
     pointLightData.myIntensity = inLight->GetIntensity();
     pointLightData.myPosition = inTransform->GetPosition();
-
+    
     constexpr int lengthByteOffset = 32;
     myBuffer->SetData(&pointLightData, sizeof(PointLightData), lengthByteOffset + sizeof(PointLightData) * myNumPointLights);
     
     myNumPointLights++;
     myBuffer->SetData(&myNumPointLights, sizeof(uint), 0);
+
+    LOG("Adding pointlight on frame: %i", VulkanContext::GetSwapChain().GetFrameIndex());
 }
