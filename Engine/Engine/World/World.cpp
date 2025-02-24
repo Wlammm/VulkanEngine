@@ -44,14 +44,28 @@ void World::Init()
 	CameraComponent* camera = camObject->AddComponent<CameraComponent>();
 	camera->CreatePerspective(Engine::GetRenderResolution());
 	camObject->AddComponent<EditorCameraMovementComponent>();
-	
-	GameObject* sponza = GetComponentSystem().CreateGameObject();
-	StaticMeshComponent* staticMesh = sponza->AddComponent<StaticMeshComponent>();
-	myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/Sponza.gltf", [staticMesh, sponza](Model* inModel)
+
 	{
-		staticMesh->SetModel(inModel);
-	});
-	sponza->GetTransform()->SetScale(100.0f);
+		GameObject* sponza = GetComponentSystem().CreateGameObject();
+		sponza->GetTransform()->SetPositionY(2000);
+		StaticMeshComponent* staticMesh = sponza->AddComponent<StaticMeshComponent>();
+		myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/Sponza.gltf", [staticMesh, sponza](Model* inModel)
+		{
+			staticMesh->SetModel(inModel);
+		});
+		sponza->GetTransform()->SetScale(100.0f);
+	}
+
+	{
+		GameObject* sponza = GetComponentSystem().CreateGameObject();
+		sponza->GetTransform()->SetPosition(5000, 2000, 0);
+		StaticMeshComponent* staticMesh = sponza->AddComponent<StaticMeshComponent>();
+		myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/Sponza.gltf", [staticMesh, sponza](Model* inModel)
+		{
+			staticMesh->SetModel(inModel);
+		});
+		sponza->GetTransform()->SetScale(100.0f);
+	}
 	
 	GameObject* landscape = GetComponentSystem().CreateGameObject();
 	landscape->AddComponent<LandscapeRenderComponent>();

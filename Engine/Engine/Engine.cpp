@@ -31,6 +31,8 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
 {
 	ThreadUtils::NameThread(GetCurrentThread(), L"Main thread");
+	ThreadUtils::RegisterThisThreadAsMainThread();
+	
 	check(!myInstance && "Cant have multiple Engine instances.");
 	myInstance = this;
 

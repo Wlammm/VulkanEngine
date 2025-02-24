@@ -14,11 +14,11 @@ AssetRegistry::~AssetRegistry()
 {
     myMutex.lock();
 
-    for(auto [path, asset] : myLoadedAssets)
+    for(auto [path, asset] : myAssets)
     {
         asset->Unload();
     }
-    myLoadedAssets.clear();
+    myAssets.clear();
     
     myMutex.unlock();
 }
@@ -50,19 +50,21 @@ std::filesystem::path AssetRegistry::GetPathFromAssetName(const std::string& inA
 
 bool AssetRegistry::HasAsset(const std::filesystem::path& inAssetPath) const
 {
-    return myLoadedAssets.contains(inAssetPath);
+    return myAssets.contains(inAssetPath);
 }
 
 void AssetRegistry::RegisterTemporaryAsset(const std::filesystem::path& inAssetPath, Asset* inAsset)
 {
     inAsset->myAssetRegistry = this;
     myMutex.lock();
-    if(myLoadedAssets.contains(inAssetPath))
+    if(myAssets.contains(inAssetPath))
     {
+        // TODO: Delete the inAsset here?
         myMutex.unlock();
         return;
     }
 
-    myLoadedAssets.insert({inAssetPath, inAsset});
+    check(inAsset);
+    myAssets.insert({inAssetPath, inAsset});
     myMutex.unlock();
 }

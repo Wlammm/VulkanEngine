@@ -1,10 +1,13 @@
 ﻿#pragma once
+#include "Asset.h"
 #include "Engine.h"
 #include "Core/ThreadPool.h"
 #include "Coroutines/Coroutine.h"
 #include "Delegates/Delegate.hpp"
+#include "Utils/ThreadUtils.hpp"
 
 class Asset;
+
 class AssetRegistry
 {
 public:
@@ -20,63 +23,82 @@ public:
     void RegisterTemporaryAsset(const std::filesystem::path& inAssetPath, Asset* inAsset);
 
     bool HasAsset(const std::filesystem::path& inAssetPath) const;
-    
-    template<typename AssetType>
+
+    template <typename AssetType>
     void GetAssetAsync(const std::filesystem::path& inPath, const Delegate<void(AssetType* inAsset)> inOnAssetLoaded)
     {
         ZoneScoped;
-        myMutex.lock();
-        if(myLoadedAssets.contains(inPath))
+        std::scoped_lock lock(myMutex);
+        
+        if (myPendingOnAssetLoaded.contains(inPath))
         {
-            // TODO: This might be an issue if we request more assets in here that might cause a deadlock.
-            inOnAssetLoaded(static_cast<AssetType*>(myLoadedAssets[inPath]));
-            myMutex.unlock();
+            AssetType* asset = static_cast<AssetType*>(myAssets.at(inPath));
+            myPendingOnAssetLoaded[inPath].Bind([inOnAssetLoaded, asset]()
+            {
+                inOnAssetLoaded(asset);
+            });
             return;
         }
 
-        Engine::GetThreadPool().QueueTask([inPath, inOnAssetLoaded, this]()
+        if(myAssets.contains(inPath))
+        {
+            inOnAssetLoaded(static_cast<AssetType*>(myAssets.at(inPath)));
+            return;
+        }
+
+        AssetType* asset = new AssetType();
+        asset->myPath = inPath;
+        asset->myAssetRegistry = this;
+        myAssets.insert({inPath, asset});
+        
+        myPendingOnAssetLoaded.insert({inPath, {}});
+        myPendingOnAssetLoaded[inPath].Bind([inOnAssetLoaded, asset]()
+        {
+            inOnAssetLoaded(asset);
+        });
+        
+        Engine::GetThreadPool().QueueTask([asset, inPath, inOnAssetLoaded, this]()
         {
             ZoneScoped;
-            AssetType* asset = new AssetType();
-            asset->myPath = inPath;
             Coroutine<void, void, false> loadCoroutine = asset->Load(inPath);
-            loadCoroutine.GetOnCoroutineComplete().Bind([asset, inOnAssetLoaded]()
+            loadCoroutine.GetOnCoroutineComplete().Bind([this, inPath, asset]()
             {
+                std::scoped_lock<std::recursive_mutex> lock(myMutex);
+                check(asset);
+                
                 asset->myIsValid = true;
-                inOnAssetLoaded(asset);
+                myPendingOnAssetLoaded[inPath].Invoke();
+                myPendingOnAssetLoaded.erase(inPath);
             });
             loadCoroutine.Resume();
-            myMutex.lock();
-            myLoadedAssets.insert({inPath, asset});
-            myMutex.unlock();
         });
-        myMutex.unlock();
     }
 
     template<typename AssetType>
     AssetType* GetAssetSynchronous(const std::filesystem::path& inPath)
     {
-        myMutex.lock();
-        if(myLoadedAssets.contains(inPath))
+        std::scoped_lock<std::recursive_mutex> lock(myMutex);
+        if (myAssets.contains(inPath))
         {
-            AssetType* asset = static_cast<AssetType*>(myLoadedAssets[inPath]);
-            myMutex.unlock();
+            AssetType* asset = static_cast<AssetType*>(myAssets.at(inPath));
             return asset;
         }
-        
+
         AssetType* asset = new AssetType();
         asset->myPath = inPath;
         Coroutine<void, void, false> loadCoroutine = asset->Load(inPath);
+        // TODO: Is this even guaranteed to work correctly? if we return an awaitable it will be considered ready here even though it isnt.
         loadCoroutine.Resume();
         asset->myIsValid = true;
-        myLoadedAssets.insert({inPath, asset});
-        myMutex.unlock();
+        check(asset);
+        myAssets.insert({inPath, asset});
         return asset;
     }
 
 private:
     inline static std::unordered_map<std::string, std::filesystem::path> myFilenameToPathLUT{};
-    
-    std::mutex myMutex{};
-    std::unordered_map<std::filesystem::path, Asset*> myLoadedAssets{};
+
+    std::recursive_mutex myMutex{};
+    std::unordered_map<std::filesystem::path, Asset*> myAssets{};
+    std::unordered_map<std::filesystem::path, MulticastDelegate<void()>> myPendingOnAssetLoaded{};
 };

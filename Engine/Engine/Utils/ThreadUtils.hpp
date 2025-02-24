@@ -13,4 +13,17 @@ public:
 		HRESULT result = SetThreadDescription(inThreadHandle, inString.c_str());
 		check(SUCCEEDED(result));
 	}
+	
+	static void RegisterThisThreadAsMainThread()
+	{
+		myMainThreadID = std::this_thread::get_id();
+	}
+	
+	static bool IsOnMainThread()
+	{
+		return myMainThreadID == std::this_thread::get_id();
+	}
+	
+private:
+	inline static std::thread::id myMainThreadID;
 };
