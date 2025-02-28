@@ -3,6 +3,7 @@
 
 #include "VulkanContext.h"
 #include "VulkanPhysicalDevice.h"
+#include "Utils/ThreadUtils.hpp"
 
 VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	: myPhysicalDevice{ inPhysicalDevice }
@@ -40,15 +41,26 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	myComputeQueue = myDevice.getQueue(myPhysicalDevice.GetComputeQueueIndex(), 0);
 	myTransferQueue = myDevice.getQueue(myPhysicalDevice.GetTransferQueueIndex(), 0);
 
-	CreateCommandPools();
+	check(ThreadUtils::IsOnMainThread());
+	CreateCommandPoolForThread(std::this_thread::get_id());
 
 	LOG("Logical device created.");
 }
 
 VulkanDevice::~VulkanDevice()
 {
-	myDevice.destroyCommandPool(myCommandPool);
-	myDevice.destroyCommandPool(myComputeCommandPool);
+	std::scoped_lock lock(myCommandPoolsMutex);
+	for(auto& [id, commandPool] : myCommandPools)
+	{
+		myDevice.destroyCommandPool(commandPool);
+	}
+	myCommandPools.clear();
+	
+	for(auto& [id, commandPool] : myComputeCommandPools)
+	{
+		myDevice.destroyCommandPool(commandPool);
+	}
+	myComputeCommandPools.clear();
 
 	myDevice.destroy();
 }
@@ -79,15 +91,30 @@ vk::Device VulkanDevice::GetDevice() const
 	return myDevice;
 }
 
-vk::CommandPool VulkanDevice::GetCommandPool() const
+vk::CommandPool VulkanDevice::GetCommandPoolForThread(const std::thread::id inThreadId) const
 {
-	return myCommandPool;
+	std::scoped_lock lock(myCommandPoolsMutex);
+	return myCommandPools.at(inThreadId);
 }
 
-vk::CommandBuffer VulkanDevice::CreateCommandBuffer(const bool inBegin, const bool isSecondaryBuffer)
+vk::CommandBuffer VulkanDevice::CreateCommandBufferForThread(const std::thread::id inThreadId, const bool inBegin, const bool isSecondaryBuffer)
 {
+	std::map<std::thread::id, vk::CommandPool>::iterator iter;
+	{
+		std::scoped_lock lock(myCommandPoolsMutex);
+		iter = myCommandPools.find(inThreadId);
+	}
+
+	if(iter == myCommandPools.end())
+	{
+		CreateCommandPoolForThread(inThreadId);
+		iter = myCommandPools.find(inThreadId);
+	}
+
+	vk::CommandPool commandPool = iter->second;
+	
 	vk::CommandBufferAllocateInfo allocInfo = vk::CommandBufferAllocateInfo()
-		.setCommandPool(myCommandPool)
+		.setCommandPool(commandPool)
 		.setLevel(isSecondaryBuffer ? vk::CommandBufferLevel::eSecondary : vk::CommandBufferLevel::ePrimary)
 		.setCommandBufferCount(1);
 
@@ -103,7 +130,7 @@ vk::CommandBuffer VulkanDevice::CreateCommandBuffer(const bool inBegin, const bo
 	return buffer;
 }
 
-void VulkanDevice::FlushCommandBuffer(vk::CommandBuffer inCommandBuffer)
+void VulkanDevice::FlushCommandBufferFromThread(const std::thread::id inThreadId, vk::CommandBuffer inCommandBuffer)
 {
 	const uint64_t DEFAULT_FENCE_TIMEOUT = 100000000000;
 
@@ -118,7 +145,9 @@ void VulkanDevice::FlushCommandBuffer(vk::CommandBuffer inCommandBuffer)
 	check(result == vk::Result::eSuccess);
 
 	myDevice.destroyFence(fence);
-	myDevice.freeCommandBuffers(myCommandPool, inCommandBuffer);
+	
+	std::scoped_lock lock(myCommandPoolsMutex);
+	myDevice.freeCommandBuffers(myCommandPools.at(inThreadId), inCommandBuffer);
 }
 
 List<vk::DeviceQueueCreateInfo> VulkanDevice::GetQueueFamilyCreateInfos()
@@ -149,14 +178,19 @@ bool VulkanDevice::ShouldAddQueueWithIndex(const int inIndex, const List<vk::Dev
 	return true;
 }
 
-void VulkanDevice::CreateCommandPools()
+void VulkanDevice::CreateCommandPoolForThread(const std::thread::id inThreadId)
 {
+	std::scoped_lock lock(myCommandPoolsMutex);
+	
 	vk::CommandPoolCreateInfo createInfo = vk::CommandPoolCreateInfo()
 		.setQueueFamilyIndex(myPhysicalDevice.GetGraphicsQueueIndex())
 		.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 
-	myCommandPool = myDevice.createCommandPool(createInfo);
+	check(!myCommandPools.contains(inThreadId));
+	myCommandPools.insert({inThreadId, myDevice.createCommandPool(createInfo)});
 	
-	createInfo.setQueueFamilyIndex(myPhysicalDevice.GetComputeQueueIndex());
-	myComputeCommandPool = myDevice.createCommandPool(createInfo);
+	//createInfo.setQueueFamilyIndex(myPhysicalDevice.GetComputeQueueIndex());
+	//
+	//check(!myComputeCommandPools.contains(inThreadId));
+	//myComputeCommandPools.insert({inThreadId, myDevice.createCommandPool(createInfo)});
 }

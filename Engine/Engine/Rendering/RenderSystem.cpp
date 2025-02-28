@@ -127,7 +127,7 @@ vk::CommandBuffer RenderSystem::GetUploadCommandBuffer_TS()
 	std::scoped_lock<std::mutex> lock(myUploadMapMutex);
 	if(myUploadCommandBuffers.find(id) == myUploadCommandBuffers.end())
 	{
-		myUploadCommandBuffers[id] = VulkanContext::GetDevice().CreateCommandBuffer(true, true);
+		myUploadCommandBuffers[id] = VulkanContext::GetDevice().CreateCommandBufferForThread(id, true, true);
 	}
 
 	return myUploadCommandBuffers[id];
@@ -256,13 +256,13 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 	ZoneScoped;
 	GPUMARK_SCOPE(inCommandBuffer, "UploadPass");
 
-	for(auto [threadid, commandBuffer] : myUploadCommandBuffers)
+	for(auto [threadId, commandBuffer] : myUploadCommandBuffers)
 	{
 		commandBuffer.end();
 		inCommandBuffer.executeCommands(commandBuffer);
-		VulkanAllocator::QueueDestroyCommand([commandBuffer]()
+		VulkanAllocator::QueueDestroyCommand([threadId, commandBuffer]()
 		{
-			VulkanContext::GetDevice()->freeCommandBuffers(VulkanContext::GetDevice().GetCommandPool(), commandBuffer);
+			VulkanContext::GetDevice()->freeCommandBuffers(VulkanContext::GetDevice().GetCommandPoolForThread(threadId), commandBuffer);
 		});
 	}
 	myUploadCommandBuffers.clear();
@@ -374,9 +374,9 @@ void RenderSystem::AddImGuiPass(vk::CommandBuffer inCommandBuffer)
 
 void RenderSystem::FlushUploadCommands()
 {
-	for(auto [threadid, commandBuffer] : myUploadCommandBuffers)
+	for(auto [threadId, commandBuffer] : myUploadCommandBuffers)
 	{
-		VulkanContext::GetDevice().FlushCommandBuffer(commandBuffer);
+		VulkanContext::GetDevice().FlushCommandBufferFromThread(threadId, commandBuffer);
 	}
 	myUploadCommandBuffers.clear();
 }

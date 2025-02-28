@@ -27,4 +27,6 @@ private:
     Mesh* myMesh = nullptr;
     
     MeshInstanceIndex myMeshInstance = -1;
+    
+    Material* myMaterial = nullptr;
 };

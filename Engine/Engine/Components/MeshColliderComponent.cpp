@@ -27,39 +27,55 @@ void MeshColliderComponent::OnCreate()
         // TODO: Cache cooked physics shapes to improve startup time.
         const List<SerializationMeshData> meshData = Model::GetSerializationDataForModel(myModel);
 
-        List<glm::vec3> vertices;
+        List<physx::PxVec3> vertices;
         List<uint> indices;
+        std::unordered_map<glm::vec3, int> indexMap;
+        int index = 0;
         for(const SerializationMeshData& mesh : meshData)
         {
-            const uint vertexOffset = static_cast<uint>(vertices.size());
+            check(mesh.myIndices.size() % 3 == 0);
+            index++;
             for(const Vertex& vertex : mesh.myVertices)
             {
+                if(indexMap.contains(vertex.myPosition))
+                    continue;
+                
+                indexMap.insert({ vertex.myPosition, vertices.size() });
                 vertices.Add({vertex.myPosition.x, vertex.myPosition.y, vertex.myPosition.z});
             }
 
             for(const uint index : mesh.myIndices)
             {
                 // Offset the indices by the vertices of the other meshes as otherwise the mesh won't be created correctly.
-                indices.Add(vertexOffset + index);
+                const glm::vec3& vertexPos = mesh.myVertices[index].myPosition;
+                
+                indices.Add(indexMap[vertexPos]);
             }
         }
         
         physx::PxTriangleMeshDesc desc;
         desc.points.count = vertices.size();
-        desc.points.stride = sizeof(glm::vec3);
+        desc.points.stride = sizeof(physx::PxVec3);
         desc.points.data = vertices.data();
 
         desc.triangles.count = indices.size() / 3;
         desc.triangles.stride = sizeof(uint) * 3;
         desc.triangles.data = indices.data();
+        std::cout << "Vertices: " << vertices.size() << ", Indices: " << indices.size() << "\n";
+        std::cout << "Triangles: " << indices.size() / 3 << "\n";
         
         physx::PxDefaultMemoryOutputStream buf;
         physx::PxCookingParams params = physx::PxCookingParams(*physicsSystem.GetToleranceScale());
+        params.meshPreprocessParams.raise(physx::PxMeshPreprocessingFlag::eFORCE_32BIT_INDICES);
+
+        bool res = PxValidateTriangleMesh(params, desc);
+        check(res);
+        
         bool result = PxCookTriangleMesh(params, desc, buf);
         check(result && "Failed to cook mesh.");
         physx::PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
         physx::PxTriangleMesh* triangleMesh = inPhysics->createTriangleMesh(input);
-        
+
         physx::PxMeshScale pxScale = physx::PxMeshScale({scale.x, scale.y, scale.z });
             
         myShape = inPhysics->createShape(physx::PxTriangleMeshGeometry(triangleMesh, pxScale), *physicsSystem.GetDefaultMaterial());

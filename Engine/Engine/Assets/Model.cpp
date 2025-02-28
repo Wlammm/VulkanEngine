@@ -119,7 +119,7 @@ bool Model::TryLoadMeshDatasFromCache(const CachePath& inPath, List<Serializatio
 	}
 
 	if (fbxLastWriteTime != lastWriteTimeSourceFile)
-	{
+	{ 
 		LOG_WARNING("Model: Cache is out of date. Model not loaded: %s", inPath.string().c_str());
 		return false;
 	}

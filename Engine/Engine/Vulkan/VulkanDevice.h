@@ -18,10 +18,10 @@ public:
 	
 	vk::Device GetDevice() const;
 
-	vk::CommandPool GetCommandPool() const;
+	vk::CommandPool GetCommandPoolForThread(const std::thread::id inThreadId) const;
 	
-	vk::CommandBuffer CreateCommandBuffer(const bool inBegin, const bool isSecondaryBuffer = false);
-	void FlushCommandBuffer(vk::CommandBuffer inCommandBuffer);
+	vk::CommandBuffer CreateCommandBufferForThread(const std::thread::id inThreadId, const bool inBegin, const bool isSecondaryBuffer = false);
+	void FlushCommandBufferFromThread(const std::thread::id inThreadId, vk::CommandBuffer inCommandBuffer);
 
 private:
 	List<vk::DeviceQueueCreateInfo> GetQueueFamilyCreateInfos();
@@ -29,7 +29,7 @@ private:
 	// You cant create 2 queues with the same index. This method is used to make sure we do not add duplicate create infos with same index.
 	bool ShouldAddQueueWithIndex(const int inIndex, const List<vk::DeviceQueueCreateInfo>& inCreateInfos) const;
 
-	void CreateCommandPools();
+	void CreateCommandPoolForThread(const std::thread::id inThreadId);
 
 private:
 	const VulkanPhysicalDevice& myPhysicalDevice;
@@ -40,6 +40,7 @@ private:
 	vk::Queue myComputeQueue;
 	vk::Queue myTransferQueue;
 
-	vk::CommandPool myCommandPool;
-	vk::CommandPool myComputeCommandPool;
+	mutable std::recursive_mutex myCommandPoolsMutex;
+	std::map<std::thread::id, vk::CommandPool> myCommandPools;
+	std::map<std::thread::id, vk::CommandPool> myComputeCommandPools;
 };

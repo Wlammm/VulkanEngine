@@ -61,9 +61,9 @@ void VulkanImGui::Start()
 
 	ImGui_ImplVulkan_Init(&createInfo, Engine::GetEngineSystem<RenderSystem>().GetImGuiRenderPass());
 
-	vk::CommandBuffer cmd = VulkanContext::GetDevice().CreateCommandBuffer(true);
+	vk::CommandBuffer cmd = VulkanContext::GetDevice().CreateCommandBufferForThread(std::this_thread::get_id(), true);
 	ImGui_ImplVulkan_CreateFontsTexture(cmd);
-	VulkanContext::GetDevice().FlushCommandBuffer(cmd);
+	VulkanContext::GetDevice().FlushCommandBufferFromThread(std::this_thread::get_id(), cmd);
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 
 	myDescriptorPool = imguiPool;

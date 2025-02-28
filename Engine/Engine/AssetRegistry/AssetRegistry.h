@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Asset.h"
+#include "AssetContainer.h"
 #include "Engine.h"
 #include "Core/ThreadPool.h"
 #include "Coroutines/Coroutine.h"
@@ -20,39 +21,61 @@ public:
     // This method can be used to register temporary generated assets. Example of this can be a generated mesh material based on the texture paths
     // extracted from the mesh. The inAsset argument should be a heap allocated asset and the lifetime ownership will be transferred to this AssetRegistry
     // which will handle the deletion of the asset.
-    void RegisterTemporaryAsset(const std::filesystem::path& inAssetPath, Asset* inAsset);
+    template<typename AssetType>
+    void RegisterTemporaryAsset(const std::filesystem::path& inAssetPath, AssetType* inAsset)
+    {
+        std::scoped_lock lock(myMutex);
+        AssetContainer<AssetType>* container = GetContainerForAssetType<AssetType>();
+        
+        inAsset->myAssetRegistry = this;
+        if(container->myAssets.contains(inAssetPath))
+        {
+            // TODO: Delete the inAsset here?
+            return;
+        }
 
-    bool HasAsset(const std::filesystem::path& inAssetPath) const;
+        check(inAsset);
+        container->myAssets.insert({inAssetPath, inAsset});
+    }
+
+    template<typename AssetType>
+    bool HasAsset(const std::filesystem::path& inAssetPath)
+    {
+        std::scoped_lock lock(myMutex);
+        AssetContainer<AssetType>* container = GetContainerForAssetType<AssetType>();
+        return container->myAssets.contains(inAssetPath);
+    }
 
     template <typename AssetType>
     void GetAssetAsync(const std::filesystem::path& inPath, const Delegate<void(AssetType* inAsset)> inOnAssetLoaded)
     {
         ZoneScoped;
         std::scoped_lock lock(myMutex);
+        AssetContainer<AssetType>* container = GetContainerForAssetType<AssetType>();
         
-        if (myPendingOnAssetLoaded.contains(inPath))
+        if (container->myPendingOnAssetLoaded.contains(inPath))
         {
-            AssetType* asset = static_cast<AssetType*>(myAssets.at(inPath));
-            myPendingOnAssetLoaded[inPath].Bind([inOnAssetLoaded, asset]()
+            AssetType* asset = static_cast<AssetType*>(container->myAssets.at(inPath));
+            container->myPendingOnAssetLoaded[inPath].Bind([inOnAssetLoaded, asset]()
             {
                 inOnAssetLoaded(asset);
             });
             return;
         }
 
-        if(myAssets.contains(inPath))
+        if(container->myAssets.contains(inPath))
         {
-            inOnAssetLoaded(static_cast<AssetType*>(myAssets.at(inPath)));
+            inOnAssetLoaded(static_cast<AssetType*>(container->myAssets.at(inPath)));
             return;
         }
 
         AssetType* asset = new AssetType();
         asset->myPath = inPath;
         asset->myAssetRegistry = this;
-        myAssets.insert({inPath, asset});
+        container->myAssets.insert({inPath, asset});
         
-        myPendingOnAssetLoaded.insert({inPath, {}});
-        myPendingOnAssetLoaded[inPath].Bind([inOnAssetLoaded, asset]()
+        container->myPendingOnAssetLoaded.insert({inPath, {}});
+        container->myPendingOnAssetLoaded[inPath].Bind([inOnAssetLoaded, asset]()
         {
             inOnAssetLoaded(asset);
         });
@@ -66,9 +89,10 @@ public:
                 std::scoped_lock<std::recursive_mutex> lock(myMutex);
                 check(asset);
                 
+                AssetContainer<AssetType>* container = GetContainerForAssetType<AssetType>();
                 asset->myIsValid = true;
-                myPendingOnAssetLoaded[inPath].Invoke();
-                myPendingOnAssetLoaded.erase(inPath);
+                container->myPendingOnAssetLoaded[inPath].Invoke();
+                container->myPendingOnAssetLoaded.erase(inPath);
             });
             loadCoroutine.Resume();
         });
@@ -78,9 +102,11 @@ public:
     AssetType* GetAssetSynchronous(const std::filesystem::path& inPath)
     {
         std::scoped_lock<std::recursive_mutex> lock(myMutex);
-        if (myAssets.contains(inPath))
+        AssetContainer<AssetType>* container = GetContainerForAssetType<AssetType>();
+        
+        if (container->myAssets.contains(inPath))
         {
-            AssetType* asset = static_cast<AssetType*>(myAssets.at(inPath));
+            AssetType* asset = static_cast<AssetType*>(container->myAssets.at(inPath));
             return asset;
         }
 
@@ -91,14 +117,27 @@ public:
         loadCoroutine.Resume();
         asset->myIsValid = true;
         check(asset);
-        myAssets.insert({inPath, asset});
+        container->myAssets.insert({inPath, asset});
         return asset;
     }
 
+    template<typename AssetType>
+    AssetContainer<AssetType>* GetContainerForAssetType()
+    {
+        std::scoped_lock<std::recursive_mutex> lock(myMutex);
+        for(IAssetContainer* container : myContainers)
+        {
+            if(AssetContainer<AssetType>* castedContainer = dynamic_cast<AssetContainer<AssetType>*>(container))
+                return castedContainer;
+        }
+
+        myContainers.Add(new AssetContainer<AssetType>());
+        return static_cast<AssetContainer<AssetType>*>(myContainers.Last());
+    }
+    
 private:
     inline static std::unordered_map<std::string, std::filesystem::path> myFilenameToPathLUT{};
 
     std::recursive_mutex myMutex{};
-    std::unordered_map<std::filesystem::path, Asset*> myAssets{};
-    std::unordered_map<std::filesystem::path, MulticastDelegate<void()>> myPendingOnAssetLoaded{};
+    List<IAssetContainer*> myContainers{};
 };

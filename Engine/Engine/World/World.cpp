@@ -63,6 +63,7 @@ void World::Init()
 		myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/Sponza.gltf", [staticMesh, sponza](Model* inModel)
 		{
 			staticMesh->SetModel(inModel);
+			//sponza->AddComponent<MeshColliderComponent>()->SetModel(inModel);
 		});
 		sponza->GetTransform()->SetScale(100.0f);
 	}

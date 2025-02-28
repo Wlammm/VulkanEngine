@@ -4,7 +4,21 @@
 
 Coroutine<void, void, false> JsonAsset::Load(const std::filesystem::path inPath)
 {
-    myJson = nlohmann::json::parse(inPath.string());
+    check(std::filesystem::exists(inPath));
+
+    try
+    {
+        std::ifstream file;
+        file.open(inPath);
+        file >> myJson;
+        file.close();
+    }
+    catch(nlohmann::detail::exception exception)
+    {
+        LOG_ERROR("Failed to parse json: %s", exception.what());
+        check(false);
+    }
+    
     co_return;
 }
 

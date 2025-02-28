@@ -10,6 +10,7 @@ layout(location = 2) in vec3 inFragPos;
 layout(location = 3) in flat int inDrawID;
 layout(location = 4) in vec3 inTangent;
 layout(location = 5) in vec3 inBinormals;
+layout(location = 6) in vec3 inTangentViewDir;
 
 layout(set = 1, binding = 0) uniform sampler2D textures[];
 
@@ -67,27 +68,37 @@ vec3 HDRToLDR(vec3 inColor)
     return inColor / (inColor + 1.0f);
 }
 
+
+/*
+    Texture packing:
+    R: AO
+    G: Roughness
+    B: Metalness
+    A: height (Not implemented yet)
+*/
 void main()
 {
     PerDrawData drawData = inPerDrawData.perDrawData[inDrawID];
 
+    vec2 texCoord = inTexCoord;
+    
     vec3 albedoColor = vec3(0.8, 0.2, 1);
     if(drawData.myAlbedoIndex != -1)
     {
-        albedoColor = texture(textures[drawData.myAlbedoIndex], inTexCoord).rgb;
+        albedoColor = texture(textures[drawData.myAlbedoIndex], texCoord).rgb;
         albedoColor = GammaToLinear(albedoColor);
     }
 
     vec3 normalColor = inNormal;
     if(drawData.myNormalIndex != -1)
     {
-        normalColor = GetNormalFromNormalTexture(texture(textures[drawData.myNormalIndex], inTexCoord).rgb, inFragPos, inTexCoord, inNormal);
+        normalColor = GetNormalFromNormalTexture(texture(textures[drawData.myNormalIndex], texCoord).rgb, inFragPos, texCoord, inNormal);
     }
     
-    vec3 materialColor = vec3(0, 0, 0);
+    vec4 materialColor = vec4(0, 0, 0, 0);
     if(drawData.myMaterialIndex != -1)
     {
-        materialColor = texture(textures[drawData.myMaterialIndex], inTexCoord).rgb;
+        materialColor = texture(textures[drawData.myMaterialIndex], texCoord);
     }
     
     float roughness = materialColor.g;
@@ -100,9 +111,8 @@ void main()
     {
         vec3 lightColor = inPointLightBuffer.myLights[i].myColor.rgb * inPointLightBuffer.myLights[i].myIntensity;
         pointLightColor += CalculatePointLight(inPointLightBuffer.myLights[i].myPosition, lightColor, inPointLightBuffer.myLights[i].myRange, normalColor, myCameraPosition, inFragPos, albedoColor, metalness, roughness);
-
     }
-    
+    vec3 lightDir = inDirectionalLightBuffer.myDirection;
     vec3 directionalLightColor = CalculateDirectionalLight(inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor.xyz, normalColor, myCameraPosition, inFragPos, albedoColor, metalness, roughness);
     
     directionalLightColor *= inDirectionalLightBuffer.myColor.a * 10;

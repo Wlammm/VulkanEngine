@@ -45,7 +45,7 @@ void StaticMeshComponent::SetModel(Model* inModel)
         {
             const std::string generatedString = GENERATED_MATERIAL_PREFIX + albedoPath.string() + normalPath.string() + materialPath.string();
 
-            if(GetWorld()->GetAssetRegistry().HasAsset(generatedString))
+            if(GetWorld()->GetAssetRegistry().HasAsset<Material>(generatedString))
             {
                 GetWorld()->GetAssetRegistry().GetAssetAsync<Material>(generatedString, [this, meshIndex](Material* inMaterial)
                 {
@@ -55,7 +55,7 @@ void StaticMeshComponent::SetModel(Model* inModel)
             else
             {
                 Material* material = new Material(GetWorld(), albedoPath, normalPath, materialPath);
-                GetWorld()->GetAssetRegistry().RegisterTemporaryAsset(generatedString, material);
+                GetWorld()->GetAssetRegistry().RegisterTemporaryAsset<Material>(generatedString, material);
                 myMaterials[meshIndex] = material;
             }
         }

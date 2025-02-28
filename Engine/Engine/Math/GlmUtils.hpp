@@ -1,5 +1,18 @@
 #pragma once
 
+namespace std {
+	template <>
+	struct hash<glm::vec3> {
+		size_t operator()(const glm::vec3& v) const {
+			// Simple hash using x, y, z components
+			size_t h1 = std::hash<float>()(v.x);
+			size_t h2 = std::hash<float>()(v.y);
+			size_t h3 = std::hash<float>()(v.z);
+			return h1 ^ (h2 << 1) ^ (h3 << 2);
+		}
+	};
+}
+
 namespace glm
 {
 	inline glm::vec3 right()

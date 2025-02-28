@@ -14,6 +14,7 @@ layout(location = 2) out vec3 outFragPos;
 layout(location = 3) out int outDrawID;
 layout(location = 4) out vec3 outTangent;
 layout(location = 5) out vec3 outBinormals;
+layout(location = 6) out vec3 outTangentViewDir;
 
 layout(set = 0, binding = 0) uniform FrameBuffer 
 {
@@ -41,4 +42,10 @@ void main()
 	outFragPos = vec3(drawData.myToWorld * vec4(inPosition, 1.0));
 	outTexCoord = inTexCoords[0];
 	outDrawID = gl_DrawID;
+
+	vec3 T = normalize(outTangent);
+	vec3 N = normalize(outNormal);
+	vec3 B = cross(N, T);
+	mat3 TBN = transpose(mat3(T, B, N));
+	outTangentViewDir = TBN * (myCameraPosition - outFragPos);
 }

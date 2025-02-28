@@ -18,7 +18,8 @@ WindowHandler::WindowHandler()
 	wndClass.hbrBackground = (HBRUSH) CreateSolidBrush(RGB(10, 10, 10));
 	RegisterClass(&wndClass);
 
-	myHWND = CreateWindow(Engine::GetEngineProperties().Title.c_str(), Engine::GetEngineProperties().Title.c_str(), WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE, 100, 100, 1600, 900, nullptr, nullptr, nullptr, nullptr);
+	// -1920 here as I want the window to start on my left display. TODO: Change to zero for packaged games.
+	myHWND = CreateWindow(Engine::GetEngineProperties().Title.c_str(), Engine::GetEngineProperties().Title.c_str(), WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE, -1920, 100, 1600, 900, nullptr, nullptr, nullptr, nullptr);
 
 	myHInstance = GetModuleHandle(NULL);
 }
