@@ -28,7 +28,8 @@ public:
     
     void OnSwapChainResize();
 	
-    static vk::CommandBuffer GetUploadCommandBuffer_TS();
+    static vk::CommandBuffer CreateUploadCommandBuffer_TS();
+    static void QueueCommandBufferForUpload_TS(vk::CommandBuffer commandBuffer);
 
     const class ShadowPipeline& GetShadowPipeline();
     const class GDRPipeline& GetGDRPipeline() const;
@@ -62,9 +63,10 @@ private:
     vk::Framebuffer GetVkCopyToSwapchainFrameBuffer() const;
 
 private:
-    inline static std::mutex myUploadMapMutex;
-    inline static std::map<std::thread::id, vk::CommandBuffer> myUploadCommandBuffers;
-
+    inline static std::recursive_mutex myUploadMutex;
+    inline static std::map<vk::CommandBuffer, std::thread::id> myUploadCommandBuffersToThreadIDLUT;
+    inline static List<vk::CommandBuffer> myQueuedUploadCommandBuffers;
+    
     bool myIsUsingGPUDrivenRendering = true;
     
     class MeshPipeline* myMeshPipeline = nullptr;

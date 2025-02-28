@@ -156,7 +156,7 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
 #endif
 	myImage->CreateView(vk::ImageViewType::e2D);
 
-	vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
+	vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
 
 	vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
 	.setAspectMask(vk::ImageAspectFlagBits::eColor)
@@ -204,6 +204,7 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
 	VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 	
 	GenerateMipLevels(commandBuffer);
+	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
 														   .setObjectHandle(VulkanContext::GetVulkanHandle(myImage->GetImageView()))

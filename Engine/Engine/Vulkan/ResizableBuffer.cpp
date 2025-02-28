@@ -24,7 +24,7 @@ void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const ui
     CheckCapacity(inSize + inOffset);
     myBuffer->CopyDataFromBuffer(inStagingBuffer, inSize, inOffset);
 
-    vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
+    vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
     
     vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
         .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
@@ -42,6 +42,7 @@ void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const ui
                 nullptr,
                 barrier,
                 nullptr);
+	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
 }
 
 void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffset)
@@ -52,7 +53,7 @@ void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffs
     // If the buffer isnt writable we need to insert a barrier for other copies to wait for this to finish or we cant guarantee that the memory is correct.
     if(!myBuffer->IsMappable())
     {
-        vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
+        vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
         
         vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
         .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
@@ -70,6 +71,7 @@ void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffs
                     nullptr,
                     barrier,
                     nullptr);
+	    RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
     }
 }
 
@@ -77,7 +79,7 @@ void ResizableBuffer::MoveData(const uint inSourceOffset, const uint inDstOffset
 {
     CheckCapacity(inSize + std::max(inDstOffset, inSourceOffset));
     
-    vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
+    vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
     vk::BufferCopy copy = vk::BufferCopy().setSize(inSize).setSrcOffset(inSourceOffset).setDstOffset(inDstOffset);
     commandBuffer.copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
     
@@ -101,6 +103,7 @@ void ResizableBuffer::MoveData(const uint inSourceOffset, const uint inDstOffset
         bufferMemoryBarrier,       
         nullptr                    
     );
+	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
 }
 
 void ResizableBuffer::Resize(const uint inRequiredSize)
@@ -118,7 +121,7 @@ void ResizableBuffer::Resize(const uint inRequiredSize)
     myBuffer = VulkanAllocator::AllocateBuffer_TS(myBuffer->GetName(), createInfo, myBuffer->GetVmaMemoryUsage(), myBuffer->IsMappable());
     myHasActiveUpload = true;
     
-    vk::CommandBuffer commandBuffer = RenderSystem::GetUploadCommandBuffer_TS();
+    vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
     myHasActiveUpload = false;
     vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize());
     commandBuffer.copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
@@ -140,6 +143,7 @@ void ResizableBuffer::Resize(const uint inRequiredSize)
                 nullptr,
                 barrier,
                 nullptr);
+	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
 
     VulkanAllocator::DestroyBuffer_TS(oldBuffer);
     OnBufferResized();

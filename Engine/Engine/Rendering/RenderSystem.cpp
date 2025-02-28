@@ -120,17 +120,19 @@ void RenderSystem::OnSwapChainResize()
 	CreateRenderResources();
 }
 
-vk::CommandBuffer RenderSystem::GetUploadCommandBuffer_TS()
+vk::CommandBuffer RenderSystem::CreateUploadCommandBuffer_TS()
 {
-	std::thread::id id = std::this_thread::get_id();
+	vk::CommandBuffer commandBuffer = VulkanContext::GetDevice().CreateCommandBufferForThread(std::this_thread::get_id(), true, true);
+	
+	std::scoped_lock lock(myUploadMutex);
+	myUploadCommandBuffersToThreadIDLUT.insert({commandBuffer, std::this_thread::get_id()});
+	return commandBuffer;
+}
 
-	std::scoped_lock<std::mutex> lock(myUploadMapMutex);
-	if(myUploadCommandBuffers.find(id) == myUploadCommandBuffers.end())
-	{
-		myUploadCommandBuffers[id] = VulkanContext::GetDevice().CreateCommandBufferForThread(id, true, true);
-	}
-
-	return myUploadCommandBuffers[id];
+void RenderSystem::QueueCommandBufferForUpload_TS(vk::CommandBuffer commandBuffer)
+{
+	std::scoped_lock lock(myUploadMutex);
+	myQueuedUploadCommandBuffers.Add(commandBuffer);
 }
 
 const ShadowPipeline& RenderSystem::GetShadowPipeline()
@@ -256,16 +258,20 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 	ZoneScoped;
 	GPUMARK_SCOPE(inCommandBuffer, "UploadPass");
 
-	for(auto [threadId, commandBuffer] : myUploadCommandBuffers)
+	std::scoped_lock lock(myUploadMutex);
+	for(vk::CommandBuffer commandBuffer : myQueuedUploadCommandBuffers)
 	{
 		commandBuffer.end();
 		inCommandBuffer.executeCommands(commandBuffer);
+		std::thread::id threadId = myUploadCommandBuffersToThreadIDLUT.at(commandBuffer);
+		myUploadCommandBuffersToThreadIDLUT.erase(commandBuffer);
+		
 		VulkanAllocator::QueueDestroyCommand([threadId, commandBuffer]()
 		{
 			VulkanContext::GetDevice()->freeCommandBuffers(VulkanContext::GetDevice().GetCommandPoolForThread(threadId), commandBuffer);
 		});
 	}
-	myUploadCommandBuffers.clear();
+	myQueuedUploadCommandBuffers.Clear();
 }
 
 void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
@@ -374,11 +380,14 @@ void RenderSystem::AddImGuiPass(vk::CommandBuffer inCommandBuffer)
 
 void RenderSystem::FlushUploadCommands()
 {
-	for(auto [threadId, commandBuffer] : myUploadCommandBuffers)
+	std::scoped_lock lock(myUploadMutex);
+	for(vk::CommandBuffer commandBuffer : myQueuedUploadCommandBuffers)
 	{
+		std::thread::id threadId = myUploadCommandBuffersToThreadIDLUT.at(commandBuffer);
+		myUploadCommandBuffersToThreadIDLUT.erase(commandBuffer);
 		VulkanContext::GetDevice().FlushCommandBufferFromThread(threadId, commandBuffer);
 	}
-	myUploadCommandBuffers.clear();
+	myQueuedUploadCommandBuffers.Clear();
 }
 
 void RenderSystem::CreateRenderResources()
