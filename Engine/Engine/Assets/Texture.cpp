@@ -35,8 +35,6 @@ Coroutine<void, void, false> Texture::Load(const std::filesystem::path inPath)
 
     InitializeFromImageData(imageData);
 
-	LOG("Finished loading: %s", inPath.string().c_str());
-	
 	co_return;
 }
 

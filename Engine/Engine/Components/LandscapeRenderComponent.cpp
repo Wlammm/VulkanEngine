@@ -36,7 +36,6 @@ void LandscapeRenderComponent::OnCreate()
     {
         myMaterial = inMaterial;
         MarkRenderStateDirty();
-        LOG("Finished loading landscape material.");
     });
     CreateLandscapeMesh();
 }
