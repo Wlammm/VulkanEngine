@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Vulkan/VulkanDescriptorSet.h"
 
+class Texture;
 class Model;
 class TextureCube;
 class Shader;
@@ -41,5 +42,5 @@ private:
     VulkanBuffer* myFrameDataBuffer;
 
     Model* mySkyboxModel = nullptr;
-    TextureCube* mySkybox = nullptr;
+    Texture* mySkybox = nullptr;
 };

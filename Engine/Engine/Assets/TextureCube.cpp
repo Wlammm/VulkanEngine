@@ -20,7 +20,7 @@ Coroutine<void, void, false> TextureCube::Load(const std::filesystem::path inPat
     float* data = stbi_loadf(inPath.string().c_str(), &width, &height, &numComponents, 0);
 
     vk::BufferCreateInfo stagingCreateInfo = vk::BufferCreateInfo()
-            .setSize(sizeof(float) * width * height * 4)
+            .setSize(sizeof(float) * width * height * numComponents)
             .setUsage(vk::BufferUsageFlagBits::eTransferSrc)
             .setSharingMode(vk::SharingMode::eExclusive);
     VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("Texture staging buffer", stagingCreateInfo, VMA_MEMORY_USAGE_AUTO, true);

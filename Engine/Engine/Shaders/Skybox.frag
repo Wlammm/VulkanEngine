@@ -23,6 +23,9 @@ vec2 SampleSphericalMap(vec3 v)
     vec2 uv = vec2(atan(v.z, v.x), asin(v.y));
     uv *= invAtan;
     uv += 0.5;
+    
+    // Should this be here or is this an overshight somewhere else? 
+    uv *= vec2(1, -1);
     return uv;
 }
 

@@ -10,6 +10,7 @@
 #include "AssetRegistry/AssetRegistry.h"
 #include "Assets/Model.h"
 #include "Assets/Shader.h"
+#include "Assets/Texture.h"
 #include "Assets/TextureCube.h"
 #include "Components/CameraComponent.h"
 #include "Components/TransformComponent.h"
@@ -21,7 +22,7 @@
 
 SkyboxPipeline::SkyboxPipeline()
 {
-	Engine::GetAssetRegistry().GetAssetAsync<TextureCube>("Assets/Cubemaps/sunflowers_puresky_4k.hdr", [this](TextureCube* inCubemap)
+	Engine::GetAssetRegistry().GetAssetAsync<Texture>("Assets/Cubemaps/sunflowers_puresky_4k.hdr", [this](Texture* inCubemap)
 	{
 		mySkybox = inCubemap;
 	});
