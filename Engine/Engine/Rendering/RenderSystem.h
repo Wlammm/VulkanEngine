@@ -31,16 +31,12 @@ public:
     static vk::CommandBuffer CreateUploadCommandBuffer_TS();
     static void QueueCommandBufferForUpload_TS(vk::CommandBuffer commandBuffer);
 
-    const class ShadowPipeline& GetShadowPipeline();
     const class GDRPipeline& GetGDRPipeline() const;
 
 private:
     void AddGDRPass(vk::CommandBuffer inCommandBuffer);
-    void AddCPUPass(vk::CommandBuffer inCommandBuffer);
     
     void AddUploadPass(vk::CommandBuffer inCommandBuffer);
-    void AddMeshPass(vk::CommandBuffer inCommandBuffer);
-    void AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer);
     void AddDebugPass(vk::CommandBuffer inCommandBuffer);
     void AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer);
     void AddImGuiPass(vk::CommandBuffer inCommandBuffer);
@@ -69,9 +65,7 @@ private:
     
     bool myIsUsingGPUDrivenRendering = true;
     
-    class MeshPipeline* myMeshPipeline = nullptr;
     class FullscreenPipeline* myCopyPipeline = nullptr;
-    class ShadowPipeline* myShadowPipeline = nullptr;
     class DebugPipeline* myDebugPipeline = nullptr;
     class GDRPipeline* myGDRPipeline = nullptr;
 

@@ -6,8 +6,6 @@
 #include "FullscreenPipeline.h"
 #include "GDRPipeline.h"
 #include "IndexBufferSystem.h"
-#include "MeshPipeline.h"
-#include "ShadowPipeline.h"
 #include "VertexBufferSystem.h"
 #include "AssetRegistry/AssetRegistry.h"
 #include "Assets/Shader.h"
@@ -54,12 +52,6 @@ void RenderSystem::Init()
 void RenderSystem::Tick()
 {
 	ZoneScoped;
-
-	if(Input::IsKeyDown(KeyCode::F7))
-	{
-		myIsUsingGPUDrivenRendering = !myIsUsingGPUDrivenRendering;
-		LOG("GDR enabled: %d", myIsUsingGPUDrivenRendering);
-	}
 	
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
@@ -68,16 +60,7 @@ void RenderSystem::Tick()
 		GPUMARK_SCOPE(commandBuffer, "Frame");
 
 		AddUploadPass(commandBuffer);
-
-		if(myIsUsingGPUDrivenRendering)
-		{
-			AddGDRPass(commandBuffer);
-		}
-		else
-		{
-			AddCPUPass(commandBuffer);
-		}
-
+		AddGDRPass(commandBuffer);
 		AddFullscreenCopyPass(commandBuffer);
 	}
 
@@ -133,11 +116,6 @@ void RenderSystem::QueueCommandBufferForUpload_TS(vk::CommandBuffer commandBuffe
 {
 	std::scoped_lock lock(myUploadMutex);
 	myQueuedUploadCommandBuffers.Add(commandBuffer);
-}
-
-const ShadowPipeline& RenderSystem::GetShadowPipeline()
-{
-	return *myShadowPipeline;
 }
 
 const GDRPipeline& RenderSystem::GetGDRPipeline() const
@@ -234,25 +212,6 @@ void RenderSystem::AddGDRPass(vk::CommandBuffer inCommandBuffer)
 	inCommandBuffer.endRenderPass();
 }
 
-void RenderSystem::AddCPUPass(vk::CommandBuffer inCommandBuffer)
-{
-	AddShadowGenerationPass(inCommandBuffer);
-
-	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-			//.setRenderPass(myRenderTextureRenderPass)
-			.setRenderPass(myRenderPass)
-			//.setFramebuffer(myRenderTextureFrameBuffer)
-			.setFramebuffer(GetVkFrameBuffer())
-			.setPClearValues(myClearValues)
-			.setClearValueCount(2)
-			.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
-			, vk::SubpassContents::eInline);
-	
-	AddMeshPass(inCommandBuffer);
-	AddDebugPass(inCommandBuffer);
-	inCommandBuffer.endRenderPass();
-}
-
 void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
@@ -272,34 +231,6 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 		});
 	}
 	myQueuedUploadCommandBuffers.Clear();
-}
-
-void RenderSystem::AddMeshPass(vk::CommandBuffer inCommandBuffer)
-{
-	ZoneScoped;
-
-	GPUMARK_SCOPE(inCommandBuffer, "MeshPass");
-	if(Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<StaticMeshComponent>().IsEmpty())
-		return;
-	
-	inCommandBuffer.setViewport(0, vk::Viewport()
-		.setX(0)
-		.setY(0)
-		.setWidth(static_cast<float>(Engine::GetRenderResolution().x))
-		.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
-		.setMinDepth(0.0f)
-		.setMaxDepth(1.0f));
-	
-	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
-	
-	myMeshPipeline->AddDrawCommands(inCommandBuffer);
-}
-
-void RenderSystem::AddShadowGenerationPass(vk::CommandBuffer inCommandBuffer)
-{
-	ZoneScoped;
-	GPUMARK_SCOPE(inCommandBuffer, "ShadowMapGenerationPass");
-	myShadowPipeline->AddCommands(inCommandBuffer);
 }
 
 void RenderSystem::AddDebugPass(vk::CommandBuffer inCommandBuffer)
@@ -412,8 +343,6 @@ void RenderSystem::DestroyRenderResources()
 	VulkanAllocator::DestroyImage_TS(myResolvedRenderTexture);
 	VulkanAllocator::DestroyImage_TS(myDepthBuffer);
 	del(myCopyPipeline);
-	del(myMeshPipeline);
-	del(myShadowPipeline);
 	del(myDebugPipeline);
 	del(myGDRPipeline);
 
@@ -423,9 +352,7 @@ void RenderSystem::DestroyRenderResources()
 
 void RenderSystem::CreatePipelines()
 {
-	myShadowPipeline = new ShadowPipeline();
 	myGDRPipeline = new GDRPipeline();
-	myMeshPipeline = new MeshPipeline();
 	myDebugPipeline = new DebugPipeline();
 	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FullscreenCopy.frag"), myResolvedRenderTexture, myCopyToSwapchainRenderPass);
 }
