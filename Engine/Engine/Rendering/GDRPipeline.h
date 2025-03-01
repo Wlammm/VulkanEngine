@@ -2,6 +2,7 @@
 #include "Vulkan/VulkanDescriptorSet.h"
 // GPU Driven Rendering Pipeline.
 
+class TextureCube;
 class TransformComponent;
 class Shader;
 class VulkanBuffer;
@@ -52,6 +53,8 @@ private:
     Shader* myPrePassShader = nullptr;
     Shader* myCullShader = nullptr;
 
+    TextureCube* myCubemap = nullptr;
+
     ComputePassResources myPrePass;
     ComputePassResources myCullPass;
     
@@ -73,6 +76,7 @@ private:
         glm::mat4 myToView;
         glm::mat4 myProjection;
         glm::vec3 myCameraPosition;
+        uint myCubemapIndex = (uint)-1;
     };
     VulkanBuffer* myFrameDataBuffer; 
 

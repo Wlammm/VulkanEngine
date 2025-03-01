@@ -6,6 +6,7 @@
 #include "FullscreenPipeline.h"
 #include "GDRPipeline.h"
 #include "IndexBufferSystem.h"
+#include "SkyboxPipeline.h"
 #include "VertexBufferSystem.h"
 #include "AssetRegistry/AssetRegistry.h"
 #include "Assets/Shader.h"
@@ -203,7 +204,8 @@ void RenderSystem::AddGDRPass(vk::CommandBuffer inCommandBuffer)
 			.setMaxDepth(1.0f));
 	
 		inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
-		
+
+		mySkyboxPipeline->AddGraphicsCommands(inCommandBuffer);
 		myGDRPipeline->AddGraphicsCommands(inCommandBuffer);
 	}
 
@@ -344,6 +346,7 @@ void RenderSystem::DestroyRenderResources()
 	VulkanAllocator::DestroyImage_TS(myDepthBuffer);
 	del(myCopyPipeline);
 	del(myDebugPipeline);
+	del(mySkyboxPipeline);
 	del(myGDRPipeline);
 
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderPass);
@@ -353,6 +356,7 @@ void RenderSystem::DestroyRenderResources()
 void RenderSystem::CreatePipelines()
 {
 	myGDRPipeline = new GDRPipeline();
+	mySkyboxPipeline = new SkyboxPipeline();
 	myDebugPipeline = new DebugPipeline();
 	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FullscreenCopy.frag"), myResolvedRenderTexture, myCopyToSwapchainRenderPass);
 }

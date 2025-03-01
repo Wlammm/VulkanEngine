@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "System/System.h"
 
+class TextureCube;
 class Texture;
 class VulkanImage;
 class VulkanDescriptorSet;
@@ -15,6 +16,7 @@ public:
     void Tick();
     
     static void RegisterTexture_TS(Texture* inTexture);
+    static void RegisterTextureCube_TS(TextureCube* inTexture);
 
     vk::DescriptorSet GetDescriptorSet() const;
     vk::DescriptorSetLayout GetDescriptorLayout() const;
@@ -29,6 +31,7 @@ private:
     
 private:
     inline static MutexList<Texture*> myTextures;
+    inline static MutexList<TextureCube*> myTextureCubes;
     
     vk::DescriptorPool myDescriptorPool;
     

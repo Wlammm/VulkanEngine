@@ -56,10 +56,10 @@ public:
         ComponentArray<ComponentType>& componentArray = myComponentSystem->GetComponentArrayForType<ComponentType>();
 
         ComponentType* component = GetComponent<ComponentType>();
-        OnPreComponentRemoved(component);
+        OnComponentRemoved(component);
         component->OnDestroy();
         
-        componentArray->RemoveComponentForGameObject(this);
+        componentArray.RemoveComponentForGameObject(this);
     }
 
     TransformComponent* GetTransform() const;

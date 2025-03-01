@@ -68,6 +68,7 @@ private:
     class FullscreenPipeline* myCopyPipeline = nullptr;
     class DebugPipeline* myDebugPipeline = nullptr;
     class GDRPipeline* myGDRPipeline = nullptr;
+    class SkyboxPipeline* mySkyboxPipeline = nullptr;
 
     vk::RenderPass myRenderPass;
     vk::RenderPass myCopyToSwapchainRenderPass;

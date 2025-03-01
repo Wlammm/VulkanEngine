@@ -25,8 +25,9 @@ public:
     const ResizableBuffer* GetGlobalVertexBuffer() const;
     const ResizableBuffer* GetGlobalSparseVertexDataBuffer() const;
     
-    
     uint GetUsedBufferSize() const;
+
+    uint GetVertexOffsetFromVertexHandle(VertexBufferHandle* inBuffer) const;
     
 private:
     uint myUsedBufferSize = 0;

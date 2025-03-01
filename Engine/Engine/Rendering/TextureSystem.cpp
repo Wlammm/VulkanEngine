@@ -2,6 +2,7 @@
 #include "TextureSystem.h"
 
 #include "Assets/Texture.h"
+#include "Assets/TextureCube.h"
 #include "Vulkan/VulkanContext.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanImage.h"
@@ -50,6 +51,28 @@ void TextureSystem::RegisterTexture_TS(Texture* inTexture)
     myTextures.Add(inTexture);
     
     //myTexturesToRegister.Add(inTexture);
+}
+
+void TextureSystem::RegisterTextureCube_TS(TextureCube* inTexture)
+{
+    vk::Sampler sampler = VulkanUtils::GetSampler(SamplerMode::Wrap);
+    uint handle = myNextArrayIndex++;
+    const vk::DescriptorImageInfo imageInfo = vk::DescriptorImageInfo()
+        .setSampler(sampler)
+        .setImageView(inTexture->GetImageView())
+        .setImageLayout(vk::ImageLayout::eReadOnlyOptimal);
+
+    const vk::WriteDescriptorSet write = vk::WriteDescriptorSet()
+        .setDescriptorCount(1)
+        .setDstArrayElement(handle)
+        .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+        .setDstSet(myDescriptorSet)
+        .setDstBinding(BINDLESS_BINDING)
+        .setImageInfo(imageInfo);
+
+    VulkanContext::GetDevice()->updateDescriptorSets({write}, {});
+    inTexture->myBindlessIndex = handle;
+    myTextureCubes.Add(inTexture);
 }
 
 vk::DescriptorSet TextureSystem::GetDescriptorSet() const

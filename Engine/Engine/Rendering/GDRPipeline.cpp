@@ -8,6 +8,7 @@
 #include "VertexBufferSystem.h"
 #include "AssetRegistry/AssetRegistry.h"
 #include "Assets/Shader.h"
+#include "Assets/TextureCube.h"
 #include "Components/CameraComponent.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/PointLightComponent.h"
@@ -120,7 +121,8 @@ void GDRPipeline::AddComputeCommands(vk::CommandBuffer inCommandBuffer)
 }
 
 void GDRPipeline::AddGraphicsCommands(vk::CommandBuffer inCommandBuffer)
-{	
+{
+	GPUMARK_SCOPE(inCommandBuffer, "MainPass");
 	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
 	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
 	
@@ -450,6 +452,10 @@ void GDRPipeline::BuildFrameBuffer() const
 		data.myProjection = camera.GetProjection();
 		data.myToView = glm::affineInverse(transform->GetMatrix());
 		data.myCameraPosition = transform->GetPosition();
+
+		if(myCubemap)
+			data.myCubemapIndex = myCubemap->GetBindlessIndex();
+		
 		myFrameDataBuffer->SetData(data);
 		return;
 	}

@@ -21,6 +21,7 @@ layout(set = 0, binding = 0) uniform FrameBuffer
 	mat4 myToView;
 	mat4 myProjection;
 	vec3 myCameraPosition;
+    uint myCubemapIndex;
 };
 
 layout(set = 0, binding = 1) readonly buffer PointLightBuffer

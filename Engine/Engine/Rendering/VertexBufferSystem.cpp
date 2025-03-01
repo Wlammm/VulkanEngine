@@ -129,3 +129,8 @@ uint VertexBufferSystem::GetUsedBufferSize() const
 {
     return myUsedBufferSize;    
 }
+
+uint VertexBufferSystem::GetVertexOffsetFromVertexHandle(VertexBufferHandle* inBuffer) const
+{
+    return mySparseVertexData_CPURepresentation[inBuffer->myIndex].myOffset;
+}

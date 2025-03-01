@@ -117,6 +117,11 @@ IndexBufferHandle* IndexBufferSystem::UploadIndexBuffer(VulkanBuffer* inStagingB
     return buffer;
 }
 
+const IndexBufferData& IndexBufferSystem::GetIndexBufferDataFromIndexHandle(IndexBufferHandle* inHandle)
+{
+    return mySparseIndexData_CPURepresentation[inHandle->myIndex];
+}
+
 void IndexBufferSystem::RemoveIndexBuffer(const IndexBufferHandle* inBuffer)
 {
     LOG_WARNING("IndexBufferSubsystem::RemoveIndexBuffer not implemented.");

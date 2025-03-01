@@ -14,6 +14,8 @@ public:
 
     IndexBufferHandle* UploadIndexBuffer(const List<uint>& inIndices);
     IndexBufferHandle* UploadIndexBuffer(VulkanBuffer* inStagingBuffer, const uint inIndexCount);
+
+    const IndexBufferData& GetIndexBufferDataFromIndexHandle(IndexBufferHandle* inHandle);
     
     void RemoveIndexBuffer(const IndexBufferHandle* inBuffer);
     const ResizableBuffer* GetGlobalIndexBuffer() const;

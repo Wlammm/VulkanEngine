@@ -37,7 +37,7 @@ StagingBuffer StagingSystem::GetStagingBufferWithSize(const uint inSize)
     if(myCurrentStageData->myOffset + inSize > myCurrentStageData->myBuffer->GetBuffer()->GetSize())
     {
         LOG("Staging buffer overflow. Resizing");
-        myCurrentStageData->myBuffer->Resize(MathUtils::UpperPowerOfTwo(myCurrentStageData->myBuffer->GetBuffer()->GetSize() + 1));
+        myCurrentStageData->myBuffer->Resize(MathUtils::UpperPowerOfTwo(myCurrentStageData->myOffset + inSize + 1));
     }
     
     StagingBuffer buffer = StagingBuffer(myCurrentStageData->myBuffer->GetBuffer(), inSize, myCurrentStageData->myOffset);
