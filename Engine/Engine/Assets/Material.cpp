@@ -45,14 +45,31 @@ Coroutine<void, void, false> Material::Load(const std::filesystem::path inPath)
 	co_return;
 }
 
-Material::Material(World* inWorld, const std::filesystem::path& inAlbedo, const std::filesystem::path& inNormal,
-	const std::filesystem::path& inMaterial)
+Coroutine<void, void, false> Material::Load(const std::filesystem::path inPath, const std::filesystem::path inAlbedo, const std::filesystem::path inNormal, const std::filesystem::path inMaterial)
 {
-	myAlbedoTexture = inWorld->GetAssetRegistry().GetAssetSynchronous<Texture>(inAlbedo);
-	myNormalTexture = inWorld->GetAssetRegistry().GetAssetSynchronous<Texture>(inNormal);
-	myMaterialTexture = inWorld->GetAssetRegistry().GetAssetSynchronous<Texture>(inMaterial);
+	if(!std::filesystem::exists(inAlbedo))
+	{
+		LOG_ERROR("Material requested albedo texture %s but it doesnt exists.", inAlbedo.c_str());
+		check(false);
+	}
 
-	myIsValid = true;
+	if(!std::filesystem::exists(inNormal))
+	{
+		LOG_ERROR("Material requested normal texture %s but it doesnt exists.", inNormal.c_str());
+		check(false);
+	}
+
+	if(!std::filesystem::exists(inMaterial))
+	{
+		LOG_ERROR("Material requested material texture %s but it doesnt exists.", inMaterial.c_str());
+		check(false);
+	}
+
+	co_await Awaitables::WaitForAsset<Texture>(inAlbedo, GetAssetRegistry(), myAlbedoTexture);
+	co_await Awaitables::WaitForAsset<Texture>(inNormal, GetAssetRegistry(), myNormalTexture);
+	co_await Awaitables::WaitForAsset<Texture>(inMaterial, GetAssetRegistry(), myMaterialTexture);
+
+	co_return;
 }
 
 void Material::Unload()

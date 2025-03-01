@@ -27,8 +27,12 @@ public:
 
     // Move constructor
     MulticastDelegate(MulticastDelegate&& other) noexcept
-        : myBoundDelegates(std::move(other.myBoundDelegates)) // Move the list
     {
+        if(this == &other)
+            return;
+
+        std::scoped_lock lock(myBoundDelegates.GetMutex(), other.myBoundDelegates.GetMutex());
+        myBoundDelegates = std::move(other.myBoundDelegates);
     }
 
     // Move assignment operator

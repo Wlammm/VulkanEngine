@@ -55,7 +55,7 @@ public:
 	MutexList<ElementType, SizeType>& operator=(const MutexList<ElementType>& inCopy)
 	{
 		LockMutex;
-		myList.operator=(inCopy);
+		myList.operator=(inCopy.myList);
 		return *this;
 	}
 

@@ -50,13 +50,18 @@ void StaticMeshComponent::SetModel(Model* inModel)
                 GetWorld()->GetAssetRegistry().GetAssetAsync<Material>(generatedString, [this, meshIndex](Material* inMaterial)
                 {
                     myMaterials[meshIndex] = inMaterial;
+                    MarkRenderStateDirty();
                 });                
             }
             else
             {
-                Material* material = new Material(GetWorld(), albedoPath, normalPath, materialPath);
-                GetWorld()->GetAssetRegistry().RegisterTemporaryAsset<Material>(generatedString, material);
-                myMaterials[meshIndex] = material;
+                LOG("Queueing material for mesh index: %i with albedo: %s, normal: %s, material: %s", meshIndex, albedoPath.string().c_str(), normalPath.string().c_str(), materialPath.string().c_str());
+                GetWorld()->GetAssetRegistry().GetAssetAsync<Material>(generatedString, [this, meshIndex](Material* inMaterial)
+                {
+                    LOG("Finished loading index %i on frame %i", meshIndex, Engine::GetFrameIndex());
+                    myMaterials[meshIndex] = inMaterial;
+                    MarkRenderStateDirty();
+                }, albedoPath, normalPath, materialPath);
             }
         }
         else
@@ -133,6 +138,10 @@ void StaticMeshComponent::OnRenderStateDirty()
             data.myAlbedoIndex = myMaterials[meshIndex]->GetAlbedo()->GetBindlessIndex();
             data.myNormalIndex = myMaterials[meshIndex]->GetNormal()->GetBindlessIndex();
             data.myMaterialIndex = myMaterials[meshIndex]->GetMaterial()->GetBindlessIndex();
+        }
+        else
+        {
+            LOG("Invalid material on index: %i", meshIndex);
         }
         
         // If we already have a mesh instance we can just update that instead of adding a new one which is cheaper

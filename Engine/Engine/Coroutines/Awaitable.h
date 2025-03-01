@@ -60,6 +60,7 @@ namespace Awaitables
         {
             myPath = inPath;
             myAssetRegistry = inAssetRegistry;
+            myContinueOnMainThread = ThreadUtils::IsOnMainThread();
         }
 
         void OnAwait(std::coroutine_handle<> inCoroutineHandle) override
@@ -67,7 +68,17 @@ namespace Awaitables
             myAssetRegistry->GetAssetAsync<AssetType>(myPath, [inCoroutineHandle, this](AssetType* inAsset)
             {
                 myOutAsset = inAsset;
-                inCoroutineHandle.resume();
+                if(myContinueOnMainThread)
+                {
+                    inCoroutineHandle.resume();
+                }
+                else
+                {
+                    Engine::GetThreadPool().QueueTask([inCoroutineHandle]()
+                    {
+                        inCoroutineHandle.resume();
+                    });
+                }
             });
         }
 
@@ -75,6 +86,7 @@ namespace Awaitables
         std::filesystem::path myPath;
         AssetRegistry* myAssetRegistry = nullptr;
         AssetType*& myOutAsset;
+        bool myContinueOnMainThread = false;
     };
 
 }

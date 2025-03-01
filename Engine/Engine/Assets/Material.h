@@ -10,8 +10,9 @@ class Material : public Asset
 public:
 	Coroutine<void, void, false> Load(const std::filesystem::path inPath) override;
 
+	Coroutine<void, void, false> Load(const std::filesystem::path inPath, const std::filesystem::path inAlbedo, const std::filesystem::path inNormal, const std::filesystem::path inMaterial);
+	
 	Material() = default;
-	Material(World* inWorld, const std::filesystem::path& inAlbedo, const std::filesystem::path& inNormal, const std::filesystem::path& inMaterial);
 	
 	void Unload() override;
 	

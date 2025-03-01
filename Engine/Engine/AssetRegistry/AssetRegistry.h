@@ -46,8 +46,8 @@ public:
         return container->myAssets.contains(inAssetPath);
     }
 
-    template <typename AssetType>
-    void GetAssetAsync(const std::filesystem::path& inPath, const Delegate<void(AssetType* inAsset)> inOnAssetLoaded)
+    template <typename AssetType, typename... Args>
+    void GetAssetAsync(const std::filesystem::path& inPath, const Delegate<void(AssetType* inAsset)> inOnAssetLoaded, Args&&... inArgs)
     {
         ZoneScoped;
         std::scoped_lock lock(myMutex);
@@ -80,10 +80,14 @@ public:
             inOnAssetLoaded(asset);
         });
         
-        Engine::GetThreadPool().QueueTask([asset, inPath, inOnAssetLoaded, this]()
+        Engine::GetThreadPool().QueueTask([asset, inPath, inOnAssetLoaded, this,  inArgs = std::make_tuple(std::forward<Args>(inArgs)...)]()
         {
             ZoneScoped;
-            Coroutine<void, void, false> loadCoroutine = asset->Load(inPath);
+            Coroutine<void, void, false> loadCoroutine = std::apply(
+                    [&](auto&&... args) { return asset->Load(inPath, std::forward<decltype(args)>(args)...); },
+                    inArgs
+                );
+            
             loadCoroutine.GetOnCoroutineComplete().Bind([this, inPath, asset]()
             {
                 std::scoped_lock<std::recursive_mutex> lock(myMutex);

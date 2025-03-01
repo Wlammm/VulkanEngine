@@ -7,6 +7,7 @@
 #include "Rendering/RenderSystem.h"
 #include "Rendering/TextureSystem.h"
 #include "Serialization/BinaryReader.h"
+#include "Utils/ThreadUtils.hpp"
 #include "Vulkan/VulkanAllocator.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanContext.h"
@@ -33,6 +34,9 @@ Coroutine<void, void, false> Texture::Load(const std::filesystem::path inPath)
     }
 
     InitializeFromImageData(imageData);
+
+	LOG("Finished loading: %s", inPath.string().c_str());
+	
 	co_return;
 }
 
@@ -201,10 +205,10 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
 	//							  .setImage(myImage->GetAPIResource())
 	//							  .setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));
 	
-	VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 	
 	GenerateMipLevels(commandBuffer);
 	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+	VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
 														   .setObjectHandle(VulkanContext::GetVulkanHandle(myImage->GetImageView()))
