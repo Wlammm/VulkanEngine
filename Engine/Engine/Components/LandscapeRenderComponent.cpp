@@ -5,6 +5,7 @@
 #include "TransformComponent.h"
 #include <PerlinNoise.hpp>
 
+#include "LandscapeColliderComponent.h"
 #include "AssetRegistry/AssetRegistry.h"
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
@@ -90,8 +91,7 @@ void LandscapeRenderComponent::CreateLandscapeMesh()
     constexpr int chunkSize = 64;
     constexpr float chunkScale = 20000.0f;
 
-    const siv::PerlinNoise::seed_type seed = 321u;
-    const siv::BasicPerlinNoise<float> perlinNoise{ seed };
+    
     
     List<Vertex> vertices;
     List<uint> indices;
@@ -104,9 +104,7 @@ void LandscapeRenderComponent::CreateLandscapeMesh()
             float zPos = (static_cast<float>(z) / static_cast<float>(chunkSize - 1) - 0.5f) * chunkScale;
             Vertex vertex{};
 
-            constexpr float frequency = 0.0001f;
-            constexpr float amplitude = 3000.0f;
-            float yPos = perlinNoise.octave2D_01((static_cast<float>(xPos) * frequency), (static_cast<float>(zPos) * frequency), 4) * amplitude;
+            float yPos = myHeightfield.GetHeight({x, z});
             
             vertex.myPosition = { xPos, yPos, zPos };
             vertex.myTexCoords[0] = {xPos / 100.0f, zPos / 100.0f };
@@ -194,4 +192,7 @@ void LandscapeRenderComponent::CreateLandscapeMesh()
 
     myMesh = Engine::GetEngineSystem<MeshSystem>().UploadMesh(myVertexBuffer, myIndexBuffer, sphereBounds);
     MarkRenderStateDirty();
+
+    if (myShouldCreateCollider)
+        GetGameObject()->AddComponent<LandscapeColliderComponent>(vertices, indices);
 }

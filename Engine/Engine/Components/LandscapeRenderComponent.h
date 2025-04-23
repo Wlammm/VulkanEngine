@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "ComponentSystem/Component.h"
+#include "Math/Heightfield.h"
 #include "Vulkan/GPUSceneSystem.h"
 
 class Mesh;
@@ -22,6 +23,10 @@ private:
     void CreateLandscapeMesh();
 
 private:
+    constexpr bool myShouldCreateCollider = true;
+
+    Heightfield myHeightfield{};
+    
     VertexBufferHandle* myVertexBuffer = nullptr;
     IndexBufferHandle* myIndexBuffer = nullptr;
     Mesh* myMesh = nullptr;
