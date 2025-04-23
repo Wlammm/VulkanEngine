@@ -2,6 +2,7 @@
 #include <unordered_map>
 
 #include "Engine/Containers/SegmentedList.h"
+#include "plf/Colony.hpp"
 
 class GameObject;
 
@@ -56,10 +57,10 @@ public:
     
     ComponentType* GetFirstComponentOrNull()
     {
-        if(myComponents.IsEmpty())
+        if(myComponents.empty())
             return nullptr;
 
-        return &myComponents.First();
+        return &(*myComponents.begin());
     }
     
     void Tick() override
@@ -184,12 +185,11 @@ public:
     ComponentType* AddComponentForGameObject(GameObject* inGameObject, Args&&... inArgs)
     {
         check(myGameObjectToComponentIndex.find(inGameObject) == myGameObjectToComponentIndex.end() && "Object already have one of these components on it. Only one of each type is allowed.");
+
+        auto iterator = myComponents.emplace(std::forward<Args>(inArgs)...);
+        myGameObjectToComponentIndex.insert({ inGameObject, iterator });
         
-        uint index;
-        ComponentType& component = myComponents.EmplaceAndGetIndex(index, std::forward<Args>(inArgs)...);
-        myGameObjectToComponentIndex.insert({ inGameObject, index });
-        
-        return &component;
+        return &(*iterator);
     }
 
     void TryRemoveComponentForGameObject(const GameObject* inObject) override
@@ -205,8 +205,8 @@ public:
         const auto iter = myGameObjectToComponentIndex.find(inObject);
         if(iter == myGameObjectToComponentIndex.end())
             return nullptr;
-        
-        return &myComponents[iter->second];
+
+        return &(*iter->second);
     }
 
     void RemoveComponentForGameObject(const GameObject* inGameObject)
@@ -216,7 +216,7 @@ public:
         // The gameobject should keep track of what component types each gameobject has.
         check(iter != myGameObjectToComponentIndex.end());
         
-        myComponents.RemoveIndex(iter->second);
+        myComponents.erase(iter->second);
         myGameObjectToComponentIndex.erase(iter);
     }
 
@@ -231,17 +231,17 @@ public:
         if(iter == myGameObjectToComponentIndex.end())
             return nullptr;
 
-        return &myComponents[iter->second];
+        return &(*iter->second);
     }
 
-    const SegmentedList<ComponentType, ComponentsPerSegment>& GetAllComponents() const
+    const plf::colony<ComponentType>& GetAllComponents() const
     {
         return myComponents;
     }
 
 private:
-    SegmentedList<ComponentType, ComponentsPerSegment> myComponents;
+    plf::colony<ComponentType> myComponents{};
     
     // TODO: Investigate performance impact of this vs an ordered map.
-    std::unordered_map<const GameObject*, uint> myGameObjectToComponentIndex;
+    std::unordered_map<const GameObject*, typename plf::colony<ComponentType>::iterator> myGameObjectToComponentIndex;
 };

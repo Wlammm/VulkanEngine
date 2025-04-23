@@ -49,7 +49,7 @@ public:
     }
 
     template<typename ComponentType>
-    const SegmentedList<ComponentType, ComponentArray<ComponentType>::ComponentsPerSegment>& GetAllComponentsOfType() const
+    const plf::colony<ComponentType>& GetAllComponentsOfType() const
     {
         return GetComponentArrayForType<ComponentType>().GetAllComponents();
     }
