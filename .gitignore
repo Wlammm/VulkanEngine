@@ -13,6 +13,9 @@ Bin/Cache/
 *.pdb
 *.ini
 
+PhysX*.dll
+PVD*.dll
+
 # VTuner stuff
 Engine/Launcher/VTune Profiler Results/
 Engine/GPUCache/

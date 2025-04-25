@@ -7,10 +7,6 @@
 #include "Physics/PhysicsSystem.h"
 #include "World/World.h"
 
-LandscapeColliderComponent::LandscapeColliderComponent()
-{
-}
-
 void LandscapeColliderComponent::OnCreate()
 {
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
@@ -23,4 +19,9 @@ void LandscapeColliderComponent::OnCreate()
     });
     
     ColliderComponent::OnCreate();
+}
+
+void LandscapeColliderComponent::OnScaleChanged()
+{
+    check(false); // TODO: Implement this
 }

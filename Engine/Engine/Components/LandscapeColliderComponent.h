@@ -5,9 +5,8 @@
 class LandscapeColliderComponent : public ColliderComponent
 {
 public:
-    LandscapeColliderComponent();
-
     void OnCreate() override;
-    
+
+    void OnScaleChanged() override;
 private:
 };

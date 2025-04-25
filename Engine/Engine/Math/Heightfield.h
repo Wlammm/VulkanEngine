@@ -13,6 +13,6 @@ private:
     siv::PerlinNoise::seed_type mySeed = 321u;
     siv::BasicPerlinNoise<float> myPerlinNoise;
     
-    constexpr float frequency = 0.0001f;
-    constexpr float amplitude = 3000.0f;
+    static constexpr float frequency = 0.0001f;
+    static constexpr float amplitude = 3000.0f;
 };

@@ -23,8 +23,6 @@ private:
     void CreateLandscapeMesh();
 
 private:
-    constexpr bool myShouldCreateCollider = true;
-
     Heightfield myHeightfield{};
     
     VertexBufferHandle* myVertexBuffer = nullptr;

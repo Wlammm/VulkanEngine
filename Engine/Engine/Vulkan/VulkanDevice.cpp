@@ -123,7 +123,7 @@ vk::CommandBuffer VulkanDevice::CreateCommandBufferForThread(const std::thread::
 	if(inBegin)
 	{
 		vk::CommandBufferInheritanceInfo inheritanceInfo;
-		vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo().setPInheritanceInfo(&inheritanceInfo);
+		vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo().setPInheritanceInfo(&inheritanceInfo).setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse);
 		buffer.begin(beginInfo);
 	}
 
