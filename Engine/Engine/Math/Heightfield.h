@@ -7,7 +7,7 @@ class Heightfield
 public:
     Heightfield(const siv::PerlinNoise::seed_type inSeed = 321u);
 
-    float GetHeight(const glm::vec2 inCoordinates);
+    float GetHeight(const glm::vec2 inCoordinates) const;
 
 private:
     siv::PerlinNoise::seed_type mySeed = 321u;

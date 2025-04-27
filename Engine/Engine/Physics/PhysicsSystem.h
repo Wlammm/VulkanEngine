@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <geometry/PxHeightFieldSample.h>
+
 #include "Delegates/Delegate.hpp"
 #include "System/WorldSystem.h"
 
@@ -15,6 +17,7 @@ namespace physx
     class PxPvd;
     class PxFoundation;
     class PxDefaultAllocator;
+    PxHeightFieldSample&& PxHeightfieldSample();
 }
 
 class PhysicsSystem : public WorldSystem

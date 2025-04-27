@@ -18,6 +18,12 @@ public:
     void Tick() override;
 
     void OnRenderStateDirty() override;
+
+    const Heightfield& GetHeightfield() const;
+    
+    // TODO: Should this really be here?
+    static constexpr int chunkSize = 64;
+    static constexpr float chunkScale = 20000.0f;
     
 private:
     void CreateLandscapeMesh();

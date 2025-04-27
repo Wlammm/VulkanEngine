@@ -67,6 +67,11 @@ void LandscapeRenderComponent::OnRenderStateDirty()
     myMeshInstance = Engine::GetEngineSystem<GPUSceneSystem>().AddMeshInstance(data);
 }
 
+const Heightfield& LandscapeRenderComponent::GetHeightfield() const
+{
+    return myHeightfield;
+}
+
 glm::vec3 ComputeTangent(const glm::vec3& edge1, const glm::vec3& edge2,
                          const glm::vec2& uv1, const glm::vec2& uv2, const glm::vec2& uv3)
 {
@@ -86,11 +91,6 @@ glm::vec3 ComputeTangent(const glm::vec3& edge1, const glm::vec3& edge2,
 
 void LandscapeRenderComponent::CreateLandscapeMesh()
 {
-    constexpr int chunkSize = 64;
-    constexpr float chunkScale = 20000.0f;
-
-    
-    
     List<Vertex> vertices;
     List<uint> indices;
 
