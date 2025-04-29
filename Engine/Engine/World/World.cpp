@@ -11,6 +11,7 @@
 #include "ComponentSystem/ComponentSystem.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/EditorCameraMovementComponent.h"
+#include "Components/LandscapeColliderComponent.h"
 #include "Components/LandscapeRenderComponent.h"
 #include "Components/MeshColliderComponent.h"
 #include "Components/PointLightComponent.h"
@@ -70,6 +71,19 @@ void World::Init()
 	
 	GameObject* landscape = GetComponentSystem().CreateGameObject();
 	landscape->AddComponent<LandscapeRenderComponent>();
+	landscape->AddComponent<LandscapeColliderComponent>();
+
+	GetAssetRegistry().GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [&](Model* inModel)
+	{
+		for (int i =0; i < 50; ++i)
+		{
+			GameObject* cube = GetComponentSystem().CreateGameObject();
+			cube->GetTransform()->SetPosition(glm::vec3{(float)i * 100, 10000, 0});
+			cube->AddComponent<StaticMeshComponent>()->SetModel(inModel);
+			cube->AddComponent<BoxColliderComponent>();
+			cube->AddComponent<RigidbodyComponent>();
+		}
+	});
 	
 	GameObject* dirLightObject = GetComponentSystem().CreateGameObject();
 	DirectionalLightComponent* light = dirLightObject->AddComponent<DirectionalLightComponent>();

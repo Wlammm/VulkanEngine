@@ -23,6 +23,7 @@ void ColliderComponent::OnCreate()
     physicsSystem.QueuePhysicsCommand([this, rigidbody](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
         check(myShape && "Shape must be initialized before calling this function.");
+        check(myShape->getReferenceCount() == 1 && "Reference count should always be one here until we add support for non exclusive shapes.");
         
         if (rigidbody)
         {
@@ -33,7 +34,10 @@ void ColliderComponent::OnCreate()
         myActor->userData = GetGameObject();
         
         myActor->attachShape(*myShape);
+        
         // Call release on shape so it gets destroyed whenever the actor is removed from the scene.
+        myShape->release();
+
         inScene->addActor(*myActor);
     });
 
@@ -72,7 +76,7 @@ void ColliderComponent::OnPhysicsStateDirty()
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
     physicsSystem.QueuePhysicsCommand([this](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
-        myActor->setGlobalPose(GetTransform()->AsPxTransform());
+        myActor->setGlobalPose(GetTransform()->AsPxTransform(myOffset));
     });
 }
 
@@ -108,6 +112,9 @@ void ColliderComponent::OnComponentAdded(Component* inComponent)
     {
         if(myActor)
         {
+            // Add a reference here before we detach the shape and release in rigidbody. Otherwise it will be garbage collected before we can add it to our new actor.
+            myShape->acquireReference();
+            
             myActor->detachShape(*myShape);
             myActor->release();
             myActor = nullptr;
@@ -129,4 +136,10 @@ void ColliderComponent::OnComponentRemoved(Component* inComponent)
         myActor->attachShape(*myShape);
         inScene->addActor(*myActor);
     });
+}
+
+void ColliderComponent::SetPhysicsOffset(const glm::vec3& inOffset)
+{
+    myOffset = inOffset;
+    MarkPhysicsStateDirty();
 }

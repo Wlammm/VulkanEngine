@@ -9,7 +9,7 @@ public:
     TransformComponent();
     ~TransformComponent();
 
-    physx::PxTransform AsPxTransform() const;
+    physx::PxTransform AsPxTransform(const glm::vec3& inPositionOffset = {0, 0, 0}) const;
     
     void SetParent(TransformComponent* inParent);
     void RemoveParent();

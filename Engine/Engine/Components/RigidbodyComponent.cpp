@@ -87,6 +87,10 @@ void RigidbodyComponent::AttachCollider(ColliderComponent* inCollider)
     physicsSystem.QueuePhysicsCommand([this, inCollider](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
         myActor->attachShape(*inCollider->GetShape());
+        
+        // Remove the reference temporarily added in ColliderComponent::OnComponentAdded. 
+        inCollider->GetShape()->release();
+
         physx::PxRigidBodyExt::updateMassAndInertia(*myActor, 1.0f);
     });
 }

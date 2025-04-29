@@ -26,10 +26,15 @@ public:
     void OnComponentRemoved(Component* inComponent);
 
     virtual void OnScaleChanged() = 0;
+
+    // An offset applied to the position of the physX actor.
+    void SetPhysicsOffset(const glm::vec3& inOffset);
     
 protected:
     physx::PxShape* myShape = nullptr;
 
-private:
+    glm::vec3 myOffset = {0, 0, 0};
+    
+    // This will be filled in automatically most of the time. But needed for landscape collider.
     physx::PxRigidStatic* myActor = nullptr;
 };

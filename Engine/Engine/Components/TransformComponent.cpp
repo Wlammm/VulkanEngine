@@ -20,13 +20,13 @@ TransformComponent::~TransformComponent()
 	MarkDirty();
 }
 
-physx::PxTransform TransformComponent::AsPxTransform() const
+physx::PxTransform TransformComponent::AsPxTransform(const glm::vec3& inPositionOffset) const
 {
 	glm::vec3 pos = GetPosition();
 	glm::quat quat = GetRotation();
 	
 	physx::PxTransform transform;
-	transform.p = {pos.x, pos.y, pos.z};
+	transform.p = {pos.x + inPositionOffset.x, pos.y + inPositionOffset.y, pos.z + inPositionOffset.z};
 	transform.q.x = quat.x;
 	transform.q.y = quat.y;
 	transform.q.z = quat.z;
@@ -34,7 +34,6 @@ physx::PxTransform TransformComponent::AsPxTransform() const
 
 	return transform;
 }
-
 
 void TransformComponent::SetParent(TransformComponent* inParent)
 {

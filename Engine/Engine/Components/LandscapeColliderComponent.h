@@ -8,6 +8,8 @@ class LandscapeColliderComponent : public ColliderComponent
 public:
     void OnCreate() override;
 
+    void Tick() override;
+
     void OnScaleChanged() override;
     
 private:
