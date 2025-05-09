@@ -2,7 +2,7 @@
 #include "DirectionalLightComponent.h"
 
 #include "TransformComponent.h"
-#include "Vulkan/VulkanImage.h"
+#include "Engine/Vulkan/VulkanImage.h"
 
 DirectionalLightComponent::DirectionalLightComponent()
 {

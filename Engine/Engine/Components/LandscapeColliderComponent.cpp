@@ -9,9 +9,9 @@
 
 #include "LandscapeRenderComponent.h"
 #include "TransformComponent.h"
-#include "Physics/PhysicsSystem.h"
-#include "Utils/Debug.h"
-#include "World/World.h"
+#include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/Utils/Debug.h"
+#include "Engine/World/World.h"
 
 void LandscapeColliderComponent::OnCreate()
 {
@@ -25,15 +25,8 @@ void LandscapeColliderComponent::OnCreate()
     CreateCollider();
 }
 
-void LandscapeColliderComponent::Tick()
-{
-    ColliderComponent::Tick();
-    Debug::DrawLine(GetTransform()->GetPosition(), GetTransform()->GetPosition() + glm::vec3{0, 10000, 0});
-}
-
 void LandscapeColliderComponent::OnScaleChanged()
 {
-    check(false); // TODO: Implement this
 }
 
 void LandscapeColliderComponent::OnComponentAdded(Component* inComponent)
@@ -48,6 +41,7 @@ void LandscapeColliderComponent::CreateCollider()
     
     physicsSystem.QueuePhysicsCommand([this, &physicsSystem](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
+        ZoneScopedN("LandscapeColliderComponent::CreateCollider - Cook landscape collider");
         constexpr int chunkSize = LandscapeRenderComponent::chunkSize * 5;
         
         const glm::vec3 scale = GetTransform()->GetScale();
@@ -86,7 +80,7 @@ void LandscapeColliderComponent::CreateCollider()
 
         physx::PxHeightField* heightField = PxCreateHeightField(desc, inPhysics->getPhysicsInsertionCallback());
 
-        const float chunkScale = LandscapeRenderComponent::chunkScale / chunkSize;
+        constexpr float chunkScale = LandscapeRenderComponent::chunkScale / chunkSize;
         physx::PxHeightFieldGeometry heightFieldGeometry = physx::PxHeightFieldGeometry(heightField, physx::PxMeshGeometryFlags(), 0.1f, chunkScale, chunkScale);
         myShape = inPhysics->createShape(heightFieldGeometry, *physicsSystem.GetDefaultMaterial(), true);
     });

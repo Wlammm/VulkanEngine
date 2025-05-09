@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "ComponentSystem/Component.h"
+#include "Engine/ComponentSystem/Component.h"
 
 class PointLightComponent : public Component
 {

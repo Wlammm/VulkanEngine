@@ -3,11 +3,11 @@
 
 #include <stacktrace>
 
-#include "Engine.h"
+#include "Engine/Engine.h"
 #include "VulkanAllocator.h"
 #include "VulkanBuffer.h"
-#include "Rendering/RenderSystem.h"
-#include "Utils/MathUtils.hpp"
+#include "Engine/Rendering/RenderSystem.h"
+#include "Engine/Utils/MathUtils.hpp"
 
 ResizableBuffer::ResizableBuffer(VulkanBuffer* inBuffer)
 {

@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <geometry/PxHeightFieldSample.h>
 
-#include "Delegates/Delegate.hpp"
-#include "System/WorldSystem.h"
+#include "Engine/Delegates/Delegate.hpp"
+#include "Engine/System/WorldSystem.h"
 
 class PhysicsListener;
 

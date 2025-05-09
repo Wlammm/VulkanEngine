@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "AssetRegistry/Asset.h"
-#include "Core/Filewatcher.h"
-#include "Delegates/MulticastDelegate.hpp"
+#include "Engine/AssetRegistry/Asset.h"
+#include "Engine/Core/Filewatcher.h"
+#include "Engine/Delegates/MulticastDelegate.hpp"
 
 class VulkanShader;
 class Shader : public Asset

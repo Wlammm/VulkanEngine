@@ -1,28 +1,31 @@
 #include "EnginePch.h"
 #include "World.h"
 
-#include "Engine.h"
-#include "AssetRegistry/AssetRegistry.h"
-#include "Assets/Model.h"
-#include "Components/BoxColliderComponent.h"
-#include "Components/CameraComponent.h"
-#include "Components/CapsuleColliderComponent.h"
-#include "Components/ConvexColliderComponent.h"
-#include "ComponentSystem/ComponentSystem.h"
-#include "Components/DirectionalLightComponent.h"
-#include "Components/EditorCameraMovementComponent.h"
-#include "Components/LandscapeColliderComponent.h"
-#include "Components/LandscapeRenderComponent.h"
-#include "Components/MeshColliderComponent.h"
-#include "Components/PointLightComponent.h"
-#include "Components/SinWaveMovementComponent.h"
-#include "Components/SphereColliderComponent.h"
-#include "Components/StaticMeshComponent.h"
-#include "Components/TransformComponent.h"
-#include "Core/Input.h"
-#include "Core/Time.h"
-#include "Physics/PhysicsSystem.h"
-#include "Systems/LandscapeSystem.h"
+#include <PxRigidActor.h>
+#include <PxScene.h>
+
+#include "Engine/Engine.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/Assets/Model.h"
+#include "Engine/Components/BoxColliderComponent.h"
+#include "Engine/Components/CameraComponent.h"
+#include "Engine/Components/CapsuleColliderComponent.h"
+#include "Engine/Components/ConvexColliderComponent.h"
+#include "Engine/ComponentSystem/ComponentSystem.h"
+#include "Engine/Components/DirectionalLightComponent.h"
+#include "Engine/Components/EditorCameraMovementComponent.h"
+#include "Engine/Components/LandscapeColliderComponent.h"
+#include "Engine/Components/LandscapeRenderComponent.h"
+#include "Engine/Components/MeshColliderComponent.h"
+#include "Engine/Components/PointLightComponent.h"
+#include "Engine/Components/SinWaveMovementComponent.h"
+#include "Engine/Components/SphereColliderComponent.h"
+#include "Engine/Components/StaticMeshComponent.h"
+#include "Engine/Components/TransformComponent.h"
+#include "Engine/Core/Input.h"
+#include "Engine/Core/Time.h"
+#include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/Systems/LandscapeSystem.h"
 
 World::World()
 {
@@ -119,6 +122,88 @@ void World::Update()
 void World::Destroy()
 {
 	
+}
+
+bool World::Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, RaycastHit& outHit, const float inMaxDistance, bool inIgnoreTriggers)
+{
+	check(length(inDirection) != 0);
+	
+	if (inIgnoreTriggers)
+	{
+		List<RaycastHit> hits;
+		bool result = RaycastAll(inOrigin, inDirection, hits, inMaxDistance, inIgnoreTriggers);
+		
+		if (!result)
+			return false;
+
+		std::sort(hits.begin(), hits.end(), [](const RaycastHit& lhs, const RaycastHit& rhs)
+		{
+			return lhs.myHitDistance < rhs.myHitDistance;
+		});
+
+		outHit = hits[0];
+		return true;
+	}
+
+	PhysicsSystem& physicsSystem = GetWorldSystem<PhysicsSystem>();
+	physx::PxRaycastBuffer hitBuffer;
+	physx::PxVec3 origin = {inOrigin.x, inOrigin.y, inOrigin.z};
+	physx::PxVec3 direction = {inDirection.x, inDirection.y, inDirection.z};
+	direction.normalize();
+	bool result = physicsSystem.GetScene()->raycast(origin, direction, inMaxDistance, hitBuffer);
+
+	if (!result)
+		return false;
+
+	const physx::PxRaycastHit& touch = hitBuffer.block;
+	
+	outHit.myHitDistance = touch.distance;
+	outHit.myHitPosition = { touch.position.x, touch.position.y, touch.position.z };
+	outHit.myHitNormal = { touch.normal.x, touch.normal.y, touch.normal.z };
+	outHit.myHitGameObject = (GameObject*)touch.actor->userData;
+	return true;
+}
+
+bool World::RaycastAll(const glm::vec3& inOrigin, const glm::vec3& inDirection, List<RaycastHit>& outHits, const float inMaxDistance, bool inIgnoreTriggers)
+{
+	check(length(inDirection) != 0);
+	
+	PhysicsSystem& physicsSystem = GetWorldSystem<PhysicsSystem>();
+
+	physx::PxRaycastBuffer hitBuffer;
+	physx::PxRaycastHit touches[32];
+	hitBuffer.touches = touches;
+	hitBuffer.maxNbTouches = 32;
+
+	physx::PxQueryFilterData filterData;
+	filterData.flags |= physx::PxQueryFlag::eDYNAMIC | physx::PxQueryFlag::eSTATIC | physx::PxQueryFlag::ePREFILTER | physx::PxQueryFlag::eNO_BLOCK;
+
+	physx::PxVec3 origin = {inOrigin.x, inOrigin.y, inOrigin.z};
+	physx::PxVec3 direction = {inDirection.x, inDirection.y, inDirection.z};
+	direction.normalize();
+	
+	bool result = physicsSystem.GetScene()->raycast(origin, direction, inMaxDistance, hitBuffer, physx::PxHitFlag::eDEFAULT, filterData);
+	if (!result)
+		return false;
+
+	for (uint i = 0; i < hitBuffer.nbTouches; i++)
+	{
+		physx::PxRaycastHit touch = hitBuffer.getTouch(i);
+
+		if (inIgnoreTriggers)
+		{
+			if (touch.shape->getFlags().isSet(physx::PxShapeFlag::eTRIGGER_SHAPE))
+				continue;
+		}
+		
+		RaycastHit& outHit = outHits.Emplace();
+		outHit.myHitDistance = touch.distance;
+		outHit.myHitNormal = { touch.normal.x, touch.normal.y, touch.normal.z };
+		outHit.myHitPosition = { touch.position.x, touch.position.y, touch.position.z };
+		outHit.myHitGameObject = (GameObject*)touch.actor->userData;
+	}
+
+	return true;
 }
 
 AssetRegistry& World::GetAssetRegistry() const

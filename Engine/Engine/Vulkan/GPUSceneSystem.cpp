@@ -1,17 +1,17 @@
 ﻿#include "EnginePch.h"
 #include "GPUSceneSystem.h"
 
-#include "Engine.h"
+#include "Engine/Engine.h"
 #include "ResizableBuffer.h"
 #include "VulkanAllocator.h"
-#include "Assets/Material.h"
-#include "Assets/Texture.h"
-#include "Components/StaticMeshComponent.h"
-#include "ComponentSystem/ComponentSystem.h"
-#include "Rendering/Mesh.h"
-#include "World/World.h"
+#include "Engine/Assets/Material.h"
+#include "Engine/Assets/Texture.h"
+#include "Engine/Components/StaticMeshComponent.h"
+#include "Engine/ComponentSystem/ComponentSystem.h"
+#include "Engine/Rendering/Mesh.h"
+#include "Engine/World/World.h"
 
-#include "Shaders/MeshStructs.hpp"
+#include "Engine/Shaders/MeshStructs.hpp"
 
 GPUSceneSystem::GPUSceneSystem()
 {

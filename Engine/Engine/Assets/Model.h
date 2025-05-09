@@ -1,7 +1,7 @@
 #pragma once
 
-#include "AssetRegistry/Asset.h"
-#include "Rendering/Vertex.hpp"
+#include "Engine/AssetRegistry/Asset.h"
+#include "Engine/Rendering/Vertex.hpp"
 
 class VulkanBuffer;
 class Mesh;

@@ -1,12 +1,12 @@
 #include "EnginePch.h"
 #include "VulkanImGui.h"
-#include "Engine.h"
-#include "Windows/WindowHandler.h"
+#include "Engine/Engine.h"
+#include "Engine/Windows/WindowHandler.h"
 #include "VulkanContext.h"
 #include "VulkanDevice.h"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanSwapChain.h"
-#include "Rendering/RenderSystem.h"
+#include "Engine/Rendering/RenderSystem.h"
 
 void VulkanImGui::Start()
 {

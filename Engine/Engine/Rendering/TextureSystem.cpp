@@ -1,11 +1,11 @@
 ﻿#include "EnginePch.h"
 #include "TextureSystem.h"
 
-#include "Assets/Texture.h"
-#include "Assets/TextureCube.h"
-#include "Vulkan/VulkanContext.h"
-#include "Vulkan/VulkanDevice.h"
-#include "Vulkan/VulkanImage.h"
+#include "Engine/Assets/Texture.h"
+#include "Engine/Assets/TextureCube.h"
+#include "Engine/Vulkan/VulkanContext.h"
+#include "Engine/Vulkan/VulkanDevice.h"
+#include "Engine/Vulkan/VulkanImage.h"
 
 static const uint MAX_BINDLESS_RESOURCES = 16536;
 static const uint BINDLESS_BINDING = 0;

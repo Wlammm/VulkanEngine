@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "Engine.h"
+#include "Engine/Engine.h"
 #include "VulkanAllocator.h"
 #include "VulkanBuffer.h"
-#include "Delegates/MulticastDelegate.hpp"
-#include "Rendering/RenderSystem.h"
-#include "Utils/MathUtils.hpp"
+#include "Engine/Delegates/MulticastDelegate.hpp"
+#include "Engine/Rendering/RenderSystem.h"
+#include "Engine/Utils/MathUtils.hpp"
 
 /*
  * This is a GPU dynamic buffer. It grows automatically when you add an item. Keeps track of free indices and reuses them before allocating new ones at the back.

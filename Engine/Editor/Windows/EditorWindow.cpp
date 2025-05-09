@@ -1,6 +1,6 @@
 #include "EditorPch.h"
 #include "EditorWindow.h"
-#include "Editor.h"
+#include "Editor/Editor.h"
 
 EditorWindow::EditorWindow(const std::string& inWindowName, const bool inClosable)
 	:myWindowName{ inWindowName }, myIsClosable{ inClosable }

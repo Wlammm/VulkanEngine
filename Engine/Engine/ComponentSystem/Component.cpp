@@ -2,7 +2,7 @@
 #include "Component.h"
 
 #include "GameObject.h"
-#include "Components/TransformComponent.h"
+#include "Engine/Components/TransformComponent.h"
 
 void Component::MarkRenderStateDirty()
 {

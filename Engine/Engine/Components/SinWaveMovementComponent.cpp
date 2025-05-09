@@ -2,7 +2,7 @@
 #include "SinWaveMovementComponent.h"
 
 #include "TransformComponent.h"
-#include "Core/Time.h"
+#include "Engine/Core/Time.h"
 
 void SinWaveMovementComponent::Tick()
 {

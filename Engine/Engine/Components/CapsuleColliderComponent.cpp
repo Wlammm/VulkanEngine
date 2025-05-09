@@ -4,9 +4,9 @@
 #include <PxPhysics.h>
 
 #include "TransformComponent.h"
-#include "Physics/PhysicsSystem.h"
-#include "Utils/Debug.h"
-#include "World/World.h"
+#include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/Utils/Debug.h"
+#include "Engine/World/World.h"
 
 void CapsuleColliderComponent::OnCreate()
 {

@@ -28,8 +28,12 @@ void Editor::StaticTick()
 
 void Editor::Tick()
 {
-	BeginMainDockSpace();
+	// TODO: This should probably be removed whenever we implement play in editor.
+	check(myGameTickFunction.IsValid());
+	myGameTickFunction.Invoke();
 
+	BeginMainDockSpace();
+	
 	for(const auto& window : myWindows)
 	{
 		window->DoTick();
@@ -42,6 +46,11 @@ void Editor::RemoveWindow(EditorWindow* inEditorWindow)
 {
 	myInstance->myWindows.Remove(inEditorWindow);
 	del(inEditorWindow);
+}
+
+void Editor::SetGameTickFunction(const Delegate<void()>& inTickFunction)
+{
+	myGameTickFunction = inTickFunction;
 }
 
 void Editor::BeginMainDockSpace()

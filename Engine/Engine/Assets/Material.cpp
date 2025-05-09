@@ -1,13 +1,13 @@
 #include "EnginePch.h"
 #include "Material.h"
-#include "Engine.h"
+#include "Engine/Engine.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
 #include <tracy/Tracy.hpp>
 
 #include "JsonAsset.h"
 #include "Texture.h"
-#include "Coroutines/Awaitable.h"
-#include "World/World.h"
+#include "Engine/Coroutines/Awaitable.h"
+#include "Engine/World/World.h"
 
 Coroutine<void, void, false> Material::Load(const std::filesystem::path inPath)
 {

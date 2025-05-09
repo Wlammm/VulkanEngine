@@ -1,8 +1,8 @@
 ﻿#include "EnginePch.h"
 #include "PointLightComponent.h"
 
-#include "Engine.h"
-#include "Systems/PointLightSystem.h"
+#include "Engine/Engine.h"
+#include "Engine/Systems/PointLightSystem.h"
 
 PointLightComponent::PointLightComponent()
 {

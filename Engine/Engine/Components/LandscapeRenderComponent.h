@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "ComponentSystem/Component.h"
-#include "Math/Heightfield.h"
-#include "Vulkan/GPUSceneSystem.h"
+#include "Engine/ComponentSystem/Component.h"
+#include "Engine/Math/Heightfield.h"
+#include "Engine/Vulkan/GPUSceneSystem.h"
 
 class Mesh;
 class VertexBufferHandle;

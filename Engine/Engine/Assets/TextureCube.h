@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "AssetRegistry/Asset.h"
+#include "Engine/AssetRegistry/Asset.h"
 
 class VulkanImage;
 

@@ -1,12 +1,12 @@
 ﻿#include "EnginePch.h"
 #include "VertexBufferSystem.h"
 
-#include "Engine.h"
+#include "Engine/Engine.h"
 #include "RenderSystem.h"
 #include "VertexBufferHandle.h"
-#include "Utils/MathUtils.hpp"
-#include "Vulkan/VulkanAllocator.h"
-#include "Vulkan/VulkanBuffer.h"
+#include "Engine/Utils/MathUtils.hpp"
+#include "Engine/Vulkan/VulkanAllocator.h"
+#include "Engine/Vulkan/VulkanBuffer.h"
 
 VertexBufferSystem::VertexBufferSystem()
 {

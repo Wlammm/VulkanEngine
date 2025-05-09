@@ -1,7 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "StagingBuffer.h"
 
-#include "Vulkan/VulkanBuffer.h"
+#include "Engine/Vulkan/VulkanBuffer.h"
 
 StagingBuffer::StagingBuffer(VulkanBuffer* inUnderlyingBuffer, const uint inSize, const uint inOffset)
 {

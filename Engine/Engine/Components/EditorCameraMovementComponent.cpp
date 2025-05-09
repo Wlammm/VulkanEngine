@@ -1,9 +1,9 @@
 ﻿#include "EnginePch.h"
 #include "EditorCameraMovementComponent.h"
 
-#include "Engine.h"
+#include "Engine/Engine.h"
 #include "TransformComponent.h"
-#include "Core/Input.h"
+#include "Engine/Core/Input.h"
 
 void EditorCameraMovementComponent::Tick()
 {

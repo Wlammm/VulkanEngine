@@ -3,13 +3,13 @@
 
 #include <stb/stb_image.h>
 
-#include "Rendering/RenderSystem.h"
-#include "Rendering/TextureSystem.h"
-#include "Vulkan/VulkanAllocator.h"
-#include "Vulkan/VulkanBuffer.h"
-#include "Vulkan/VulkanImage.h"
-#include "Vulkan/Staging/StagingBuffer.h"
-#include "Vulkan/Staging/StagingSystem.h"
+#include "Engine/Rendering/RenderSystem.h"
+#include "Engine/Rendering/TextureSystem.h"
+#include "Engine/Vulkan/VulkanAllocator.h"
+#include "Engine/Vulkan/VulkanBuffer.h"
+#include "Engine/Vulkan/VulkanImage.h"
+#include "Engine/Vulkan/Staging/StagingBuffer.h"
+#include "Engine/Vulkan/Staging/StagingSystem.h"
 
 // TODO: Do we need full 32 bit resolution here? 
 const vk::Format IMAGE_FORMAT = vk::Format::eR32G32B32A32Sfloat;

@@ -8,9 +8,9 @@
 #include <geometry/PxTriangleMeshGeometry.h>
 
 #include "TransformComponent.h"
-#include "Assets/Model.h"
-#include "Physics/PhysicsSystem.h"
-#include "World/World.h"
+#include "Engine/Assets/Model.h"
+#include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/World/World.h"
 
 void MeshColliderComponent::OnCreate()
 {

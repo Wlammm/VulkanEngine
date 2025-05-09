@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "StagingBuffer.h"
-#include "System/System.h"
-#include "Vulkan/VulkanContext.h"
+#include "Engine/System/System.h"
+#include "Engine/Vulkan/VulkanContext.h"
 
 
 class ResizableBuffer;

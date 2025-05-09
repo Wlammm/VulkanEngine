@@ -101,9 +101,7 @@ void Engine::Tick()
 	myWorld->Update();
 
 	
-#if EDITOR
-	myEditorTick();
-#endif
+	myExternalTickFunction();
 
 	{
 		ZoneScopedN("TicksNextFrame");
@@ -183,12 +181,10 @@ glm::vec2 Engine::GetRenderResolution()
 	return { myInstance->myVulkanContext->GetSwapChain().GetWidth(), myInstance->myVulkanContext->GetSwapChain().GetHeight() };
 }
 
-#if EDITOR
-void Engine::SetEditorTickFunction(const std::function<void()> inEditorTickFunction)
+void Engine::SetExternalTickFunction(const std::function<void()> inExternalTickFunction)
 {
-	myInstance->myEditorTick = inEditorTickFunction;
+	myInstance->myExternalTickFunction = inExternalTickFunction;
 }
-#endif
 
 void Engine::CreateSystems()
 {

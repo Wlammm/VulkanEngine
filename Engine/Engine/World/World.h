@@ -2,6 +2,7 @@
 #include "Engine/Core/AutoInit.h"
 #include "Engine/System/SystemManager.hpp"
 #include "Engine/System/WorldSystem.h"
+#include "Engine/Physics/PhysicsQueryStructs.h"
 
 class DirectionalLightComponent;
 class ComponentSystem;
@@ -18,7 +19,8 @@ public:
 	void Update();
 	void Destroy();
 
-	//bool Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, )
+	bool Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, RaycastHit& outHit, const float inMaxDistance = FLOAT_MAX, bool inIgnoreTriggers = true);
+	bool RaycastAll(const glm::vec3& inOrigin, const glm::vec3& inDirection, List<RaycastHit>& outHits, const float inMaxDistance = FLOAT_MAX, bool inIgnoreTriggers = true);
 	
 	class AssetRegistry& GetAssetRegistry() const;
 

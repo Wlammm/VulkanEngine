@@ -1,14 +1,14 @@
 ﻿#include "EnginePch.h"
 #include "PointLightSystem.h"
 
-#include "Components/PointLightComponent.h"
-#include "Components/TransformComponent.h"
-#include "Shaders/MeshStructs.hpp"
-#include "Vulkan/ResizableBuffer.h"
-#include "Vulkan/VulkanAllocator.h"
-#include "Vulkan/VulkanBuffer.h"
-#include "Vulkan/VulkanContext.h"
-#include "Vulkan/VulkanSwapChain.h"
+#include "Engine/Components/PointLightComponent.h"
+#include "Engine/Components/TransformComponent.h"
+#include "Engine/Shaders/MeshStructs.hpp"
+#include "Engine/Vulkan/ResizableBuffer.h"
+#include "Engine/Vulkan/VulkanAllocator.h"
+#include "Engine/Vulkan/VulkanBuffer.h"
+#include "Engine/Vulkan/VulkanContext.h"
+#include "Engine/Vulkan/VulkanSwapChain.h"
 
 PointLightSystem::PointLightSystem()
 {

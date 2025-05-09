@@ -5,11 +5,11 @@
 #include <PxPhysics.h>
 #include <PxRigidStatic.h>
 
-#include "Engine.h"
+#include "Engine/Engine.h"
 #include "TransformComponent.h"
-#include "Core/Input.h"
-#include "Physics/PhysicsSystem.h"
-#include "World/World.h"
+#include "Engine/Core/Input.h"
+#include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/World/World.h"
 
 void BoxColliderComponent::OnCreate()
 {

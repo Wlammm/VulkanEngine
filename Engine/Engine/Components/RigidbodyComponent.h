@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "ComponentSystem/Component.h"
+#include "Engine/ComponentSystem/Component.h"
 
 namespace physx
 {
@@ -22,6 +22,8 @@ public:
     
     void AttachCollider(ColliderComponent* inCollider);
     void DetachCollider(ColliderComponent* inCollider);
+
+    void SetRotationConstraint(const bool inX, const bool inY, const bool inZ);
     
 private:
     physx::PxRigidDynamic* myActor = nullptr;

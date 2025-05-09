@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Engine/Engine.h"
 #include "Engine/Core/Console.h"
+#include "Game/Game.h"
 
 #if EDITOR
 #include <Editor/Editor.h>
@@ -17,9 +18,14 @@ int main(int argc, char** argv)
 
 		Engine engine{ properties };
 
+		Game game{};
+		
 #if EDITOR
 		Editor editor{};
-		Engine::SetEditorTickFunction(Editor::StaticTick);
+		editor.SetGameTickFunction(Game::StaticTick);
+		Engine::SetExternalTickFunction(Editor::StaticTick);
+#else
+		Engine::SetExternalTickFunction(Game::StaticTick);
 #endif
 
 		bool isRunning = true;

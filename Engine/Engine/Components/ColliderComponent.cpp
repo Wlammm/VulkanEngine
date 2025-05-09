@@ -5,11 +5,11 @@
 #include <PxRigidStatic.h>
 #include <PxScene.h>
 
-#include "Engine.h"
+#include "Engine/Engine.h"
 #include "RigidbodyComponent.h"
 #include "TransformComponent.h"
-#include "Physics/PhysicsSystem.h"
-#include "World/World.h"
+#include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/World/World.h"
 
 void ColliderComponent::OnCreate()
 {
@@ -30,6 +30,7 @@ void ColliderComponent::OnCreate()
             rigidbody->AttachCollider(this);
             return;
         }
+        auto transform = GetTransform();
         myActor = inPhysics->createRigidStatic(GetTransform()->AsPxTransform());
         myActor->userData = GetGameObject();
         

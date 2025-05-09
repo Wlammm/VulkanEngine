@@ -3,10 +3,10 @@
 
 #include <shaderc/shaderc.hpp>
 
-#include "Engine.h"
-#include "Vulkan/VulkanContext.h"
-#include "Vulkan/VulkanDevice.h"
-#include "Vulkan/VulkanShaderIncluder.h"
+#include "Engine/Engine.h"
+#include "Engine/Vulkan/VulkanContext.h"
+#include "Engine/Vulkan/VulkanDevice.h"
+#include "Engine/Vulkan/VulkanShaderIncluder.h"
 
 shaderc_shader_kind GetKindFromExtension(const std::string& inExtension)
 {

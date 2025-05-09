@@ -1,12 +1,12 @@
 #include "EnginePch.h"
 #include "VulkanSwapChain.h"
-#include "Windows/WindowHandler.h"
+#include "Engine/Windows/WindowHandler.h"
 #include "VulkanContext.h"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
-#include "Engine.h"
-#include "Events/EventHandler.h"
-#include "Events/EventTypes.hpp"
+#include "Engine/Engine.h"
+#include "Engine/Events/EventHandler.h"
+#include "Engine/Events/EventTypes.hpp"
 
 VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
 	: myDevice{ inDevice }

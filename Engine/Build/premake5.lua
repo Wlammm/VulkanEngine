@@ -120,6 +120,7 @@ project "Launcher"
 		"%{EXTERNAL}/mimalloc/Lib/mimalloc-static.lib",
 		"Engine",
 		"Editor",
+		"Game",
 		"%{VULKAN_SDK}/Lib/vulkan-1.lib",
 		"%{EXTERNAL}/assimp/lib/assimp-vc143-mt.lib",
 		"%{EXTERNAL}/aftermath/lib/GFSDK_Aftermath_Lib.x64.lib",
@@ -158,7 +159,6 @@ project "Engine"
 	includedirs
 	{
 		"$(SolutionDir)",
-		"$(ProjectDir)",
 		"%{VULKAN_SDK}/Include/",
 		"$(SolutionDir)External/",
 		"%{EXTERNAL}/",
@@ -182,7 +182,6 @@ project "Editor"
 	includedirs
 	{
 		"$(SolutionDir)",
-		"$(ProjectDir)",
 		"%{VULKAN_SDK}/Include/",
 		"%{EXTERNAL}/",
 		"$(SolutionDir)External/",
@@ -191,6 +190,25 @@ project "Editor"
 		"$(SolutionDir)ImGui/",
 		"%{EXTERNAL}/tracy/",
 		"%{EXTERNAL}/glm/",
+	}
+	
+project "Game"
+	kind "StaticLib"
+	location "../%{prj.name}"
+	pchheader "GamePch.h"
+	pchsource "../Game/GamePch.cpp"
+	includedirs
+	{
+		"$(SolutionDir)",
+		"%{VULKAN_SDK}/Include/",
+		"%{EXTERNAL}/",
+		"$(SolutionDir)External/",
+		"%{EXTERNAL}/assimp/include/",
+		"%{EXTERNAL}/aftermath/include/",
+		"$(SolutionDir)ImGui/",
+		"%{EXTERNAL}/tracy/",
+		"%{EXTERNAL}/glm/",
+		"%{PHYSX_INCLUDE_DIR}",
 	}
 	
 project "ImGui"

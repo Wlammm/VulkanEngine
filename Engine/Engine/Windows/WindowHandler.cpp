@@ -1,7 +1,7 @@
 #include "EnginePch.h"
-#include "Windows/WindowHandler.h"
-#include "Engine.h"
-#include "Core\Input.h"
+#include "Engine/Windows/WindowHandler.h"
+#include "Engine/Engine.h"
+#include "Engine/Core/Input.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

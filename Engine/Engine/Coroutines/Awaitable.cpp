@@ -1,8 +1,8 @@
 ﻿#include "EnginePch.h"
 #include "Awaitable.h"
 
-#include "Engine.h"
-#include "Core/ThreadPool.h"
+#include "Engine/Engine.h"
+#include "Engine/Core/ThreadPool.h"
 
 void Awaitables::SwitchToThread::OnAwait(std::coroutine_handle<> inCoroutineHandle)
 {

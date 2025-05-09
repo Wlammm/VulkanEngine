@@ -55,3 +55,5 @@
 #include "Engine/Utils/CommonMacros.h"
 
 using uint = unsigned int;
+
+static constexpr float FLOAT_MAX = 3.402823466e+38f;

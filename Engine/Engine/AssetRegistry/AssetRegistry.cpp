@@ -2,8 +2,8 @@
 #include "AssetRegistry.h"
 
 #include "Asset.h"
-#include "Engine.h"
-#include "Core/ThreadPool.h"
+#include "Engine/Engine.h"
+#include "Engine/Core/ThreadPool.h"
 
 AssetRegistry::AssetRegistry()
 {

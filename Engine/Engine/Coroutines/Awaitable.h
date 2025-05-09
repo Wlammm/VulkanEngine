@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <coroutine>
 
-#include "AssetRegistry/AssetRegistry.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 
 class Awaitable
 {

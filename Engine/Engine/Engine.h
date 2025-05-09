@@ -40,9 +40,7 @@ public:
 	// Ticks right before rendering.
 	inline static MulticastDelegate<void()> TickNextFrame;
 
-#if EDITOR
-	static void SetEditorTickFunction(const std::function<void()> inEditorTickFunction);
-#endif
+	static void SetExternalTickFunction(const std::function<void()> inExternalTickFunction);
 
 private:
 	void CreateSystems();
@@ -66,9 +64,7 @@ private:
 
 	class World* myWorld = nullptr;
 
-#if EDITOR
-	std::function<void()> myEditorTick = nullptr;
-#endif
+	std::function<void()> myExternalTickFunction = nullptr;
 
 private:
 	inline static Engine* myInstance = nullptr;

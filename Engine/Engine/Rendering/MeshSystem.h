@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "Shaders/MeshStructs.hpp"
-#include "System/System.h"
+#include "Engine/Shaders/MeshStructs.hpp"
+#include "Engine/System/System.h"
 
 class Mesh;
 class IndexBufferHandle;

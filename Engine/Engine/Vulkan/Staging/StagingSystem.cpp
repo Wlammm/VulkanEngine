@@ -1,11 +1,11 @@
 ﻿#include "EnginePch.h"
 #include "StagingSystem.h"
 
-#include "Utils/MathUtils.hpp"
-#include "Vulkan/ResizableBuffer.h"
-#include "Vulkan/VulkanAllocator.h"
-#include "Vulkan/VulkanBuffer.h"
-#include "Vulkan/VulkanSwapchain.h"
+#include "Engine/Utils/MathUtils.hpp"
+#include "Engine/Vulkan/ResizableBuffer.h"
+#include "Engine/Vulkan/VulkanAllocator.h"
+#include "Engine/Vulkan/VulkanBuffer.h"
+#include "Engine/Vulkan/VulkanSwapchain.h"
 
 // 4 mb default.
 constexpr uint DefaultStagingBufferSize = 4'194'304;

@@ -5,7 +5,6 @@ class IAssetContainer
 public:
     IAssetContainer() = default;
     virtual ~IAssetContainer() = default;
-
     virtual void UnloadAllAssets() = 0;
 };
 

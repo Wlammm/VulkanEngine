@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "Assets/Material.h"
-#include "ComponentSystem/Component.h"
-#include "Vulkan/GPUSceneSystem.h"
+#include "Engine/Assets/Material.h"
+#include "Engine/ComponentSystem/Component.h"
+#include "Engine/Vulkan/GPUSceneSystem.h"
 
 class Mesh;
 class Model;
@@ -12,6 +12,8 @@ constexpr const char* GENERATED_MATERIAL_PREFIX = "GENERATED_STATICMESHMATERIAL_
 class StaticMeshComponent : public Component
 {
 public:
+    StaticMeshComponent();
+    StaticMeshComponent(const std::filesystem::path& inPath);
     void OnCreate() override;
     ~StaticMeshComponent();
 
@@ -30,6 +32,8 @@ private:
     void RemoveFromGPUScene();
     
 private:
+    std::filesystem::path myPath = "";
+    
     List<Material*> myMaterials{};
     Model* myModel = nullptr;
 

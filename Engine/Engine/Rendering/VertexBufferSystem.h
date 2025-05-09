@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "Vertex.hpp"
-#include "System/System.h"
-#include "Vulkan/ResizableBuffer.h"
-#include "Shaders/MeshStructs.hpp"
+#include "Engine/System/System.h"
+#include "Engine/Vulkan/ResizableBuffer.h"
+#include "Engine/Shaders/MeshStructs.hpp"
 
 class VertexBufferHandle;
 class VulkanBuffer;

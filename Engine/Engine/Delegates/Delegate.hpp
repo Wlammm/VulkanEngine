@@ -137,6 +137,11 @@ public:
         myFuncCtor.reset(new ConstMemberFuncCtor<ReturnType(Class::*)(ArgTypes...) const>(memberFunction, &inInstance));
     }
 
+    bool IsValid() const
+    {
+        return myFuncCtor != nullptr;
+    }
+
     bool operator==(const Delegate& inOther) const
     {
         if (!myFuncCtor || !inOther.myFuncCtor)

@@ -1,7 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "ComponentSystem.h"
 #include "GameObject.h"
-#include "Components/TransformComponent.h"
+#include "Engine/Components/TransformComponent.h"
 
 void ComponentSystem::Tick()
 {

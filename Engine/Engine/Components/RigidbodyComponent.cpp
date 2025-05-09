@@ -7,11 +7,11 @@
 #include <extensions/PxRigidBodyExt.h>
 
 #include "ColliderComponent.h"
-#include "Engine.h"
+#include "Engine/Engine.h"
 #include "TransformComponent.h"
-#include "Core/Input.h"
-#include "Physics/PhysicsSystem.h"
-#include "World/World.h"
+#include "Engine/Core/Input.h"
+#include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/World/World.h"
 
 RigidbodyComponent::RigidbodyComponent()
 {
@@ -102,5 +102,19 @@ void RigidbodyComponent::DetachCollider(ColliderComponent* inCollider)
     {
         myActor->detachShape(*inCollider->GetShape());
         physx::PxRigidBodyExt::updateMassAndInertia(*myActor, 1.0f);
+    });
+}
+
+void RigidbodyComponent::SetRotationConstraint(const bool inX, const bool inY, const bool inZ)
+{
+    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
+    physicsSystem.QueuePhysicsCommand([this, inX, inY, inZ](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
+    {
+        if (!myActor)
+            return;
+        
+        myActor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, inX);
+        myActor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, inY);
+        myActor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, inZ);
     });
 }

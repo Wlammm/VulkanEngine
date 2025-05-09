@@ -6,8 +6,8 @@
 #include "VulkanAllocator.h"
 #include <vma/vk_mem_alloc.h>
 
-#include "Engine.h"
-#include "Rendering/RenderSystem.h"
+#include "Engine/Engine.h"
+#include "Engine/Rendering/RenderSystem.h"
 #include "Staging/StagingSystem.h"
 
 vk::Buffer VulkanBuffer::GetAPIResource() const

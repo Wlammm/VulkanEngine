@@ -1,6 +1,6 @@
 #pragma once
-#include "AssetRegistry/Asset.h"
-#include "Vulkan/VulkanDescriptorSet.h"
+#include "Engine/AssetRegistry/Asset.h"
+#include "Engine/Vulkan/VulkanDescriptorSet.h"
 
 class Texture;
 class VulkanShader;

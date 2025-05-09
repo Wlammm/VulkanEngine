@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "Asset.h"
 #include "AssetContainer.h"
-#include "Engine.h"
-#include "Core/ThreadPool.h"
-#include "Coroutines/Coroutine.h"
-#include "Delegates/Delegate.hpp"
-#include "Utils/ThreadUtils.hpp"
+#include "Engine/Engine.h"
+#include "Engine/Core/ThreadPool.h"
+#include "Engine/Coroutines/Coroutine.h"
+#include "Engine/Delegates/Delegate.hpp"
+#include "Engine/Utils/ThreadUtils.hpp"
 
 class Asset;
 

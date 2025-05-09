@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <nlohmann/json.hpp>
 
-#include "AssetRegistry/Asset.h"
+#include "Engine/AssetRegistry/Asset.h"
 
 class JsonAsset : public Asset
 {

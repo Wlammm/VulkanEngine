@@ -1,13 +1,13 @@
 ﻿#include "EnginePch.h"
 #include "IndexBufferSystem.h"
 
-#include "Engine.h"
+#include "Engine/Engine.h"
 #include "IndexBufferHandle.h"
 #include "RenderSystem.h"
-#include "Utils/MathUtils.hpp"
-#include "Vulkan/ResizableBuffer.h"
-#include "Vulkan/VulkanAllocator.h"
-#include "Vulkan/VulkanBuffer.h"
+#include "Engine/Utils/MathUtils.hpp"
+#include "Engine/Vulkan/ResizableBuffer.h"
+#include "Engine/Vulkan/VulkanAllocator.h"
+#include "Engine/Vulkan/VulkanBuffer.h"
 
 IndexBufferSystem::IndexBufferSystem()
 {

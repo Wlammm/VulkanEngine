@@ -5,18 +5,18 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-#include "Engine.h"
-#include "Coroutines/Awaitable.h"
-#include "Rendering/IndexBufferSystem.h"
-#include "Rendering/Mesh.h"
-#include "Rendering/MeshSystem.h"
-#include "Rendering/MeshUtils.h"
-#include "Rendering/VertexBufferSystem.h"
-#include "Serialization/BinaryReader.h"
-#include "Serialization/BinaryWriter.h"
-#include "Vulkan/VulkanAllocator.h"
-#include "Vulkan/VulkanBuffer.h"
-#include "Vulkan/VulkanContext.h"
+#include "Engine/Engine.h"
+#include "Engine/Coroutines/Awaitable.h"
+#include "Engine/Rendering/IndexBufferSystem.h"
+#include "Engine/Rendering/Mesh.h"
+#include "Engine/Rendering/MeshSystem.h"
+#include "Engine/Rendering/MeshUtils.h"
+#include "Engine/Rendering/VertexBufferSystem.h"
+#include "Engine/Serialization/BinaryReader.h"
+#include "Engine/Serialization/BinaryWriter.h"
+#include "Engine/Vulkan/VulkanAllocator.h"
+#include "Engine/Vulkan/VulkanBuffer.h"
+#include "Engine/Vulkan/VulkanContext.h"
 
 Coroutine<void, void, false> Model::Load(const std::filesystem::path inPath)
 {

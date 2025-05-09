@@ -1,20 +1,37 @@
 ﻿#include "EnginePch.h"
 #include "StaticMeshComponent.h"
 
-#include "Engine.h"
+#include "Engine/Engine.h"
 #include "TransformComponent.h"
-#include "AssetRegistry/AssetRegistry.h"
-#include "Assets/Material.h"
-#include "Assets/Model.h"
-#include "Assets/Texture.h"
-#include "Rendering/Mesh.h"
-#include "Shaders/MeshStructs.hpp"
-#include "Vulkan/GPUSceneSystem.h"
-#include "World/World.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/Assets/Material.h"
+#include "Engine/Assets/Model.h"
+#include "Engine/Assets/Texture.h"
+#include "Engine/Rendering/Mesh.h"
+#include "Engine/Shaders/MeshStructs.hpp"
+#include "Engine/Vulkan/GPUSceneSystem.h"
+#include "Engine/World/World.h"
+
+StaticMeshComponent::StaticMeshComponent()
+{
+}
+
+StaticMeshComponent::StaticMeshComponent(const std::filesystem::path& inPath)
+{
+    myPath = inPath;
+}
 
 void StaticMeshComponent::OnCreate()
 {
     Component::OnCreate();
+
+    if (!myPath.empty())
+    {
+        GetWorld()->GetAssetRegistry().GetAssetAsync<Model>(myPath, [this](Model* inModel)
+        {
+            SetModel(inModel);
+        });
+    }
 }
 
 StaticMeshComponent::~StaticMeshComponent()

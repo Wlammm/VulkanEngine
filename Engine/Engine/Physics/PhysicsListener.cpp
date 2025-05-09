@@ -3,9 +3,9 @@
 
 #include <PxActor.h>
 
-#include "Engine.h"
-#include "ComponentSystem/GameObject.h"
-#include "World/World.h"
+#include "Engine/Engine.h"
+#include "Engine/ComponentSystem/GameObject.h"
+#include "Engine/World/World.h"
 
 void PhysicsListener::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 {

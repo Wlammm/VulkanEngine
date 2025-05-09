@@ -1,6 +1,6 @@
 #pragma once
-#include "Delegates/MulticastDelegate.hpp"
-#include "Rendering/Vertex.hpp"
+#include "Engine/Delegates/MulticastDelegate.hpp"
+#include "Engine/Rendering/Vertex.hpp"
 
 class VulkanBuffer
 {

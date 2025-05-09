@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <coroutine>
 
-#include "Engine.h"
-#include "Delegates/MulticastDelegate.hpp"
+#include "Engine/Engine.h"
+#include "Engine/Delegates/MulticastDelegate.hpp"
 
 /*
  *  initial_suspend return type declares if the coroutine should be entered when it is constructed. std::suspend_never will run it immediately while std::suspend_always will yield it immediately.

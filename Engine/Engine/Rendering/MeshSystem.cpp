@@ -4,9 +4,9 @@
 #include "IndexBufferHandle.h"
 #include "Mesh.h"
 #include "VertexBufferHandle.h"
-#include "Vulkan/ResizableBuffer.h"
-#include "Vulkan/VulkanAllocator.h"
-#include "Vulkan/VulkanBuffer.h"
+#include "Engine/Vulkan/ResizableBuffer.h"
+#include "Engine/Vulkan/VulkanAllocator.h"
+#include "Engine/Vulkan/VulkanBuffer.h"
 
 MeshSystem::MeshSystem()
 {

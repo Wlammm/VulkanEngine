@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "RigidbodyComponent.h"
-#include "ComponentSystem/Component.h"
+#include "Engine/ComponentSystem/Component.h"
 
 namespace physx
 {

@@ -4,16 +4,16 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
-#include "Rendering/RenderSystem.h"
-#include "Rendering/TextureSystem.h"
-#include "Serialization/BinaryReader.h"
-#include "Utils/ThreadUtils.hpp"
-#include "Vulkan/VulkanAllocator.h"
-#include "Vulkan/VulkanBuffer.h"
-#include "Vulkan/VulkanContext.h"
-#include "Vulkan/VulkanDevice.h"
-#include "Vulkan/VulkanImage.h"
-#include "Vulkan/VulkanPhysicalDevice.h"
+#include "Engine/Rendering/RenderSystem.h"
+#include "Engine/Rendering/TextureSystem.h"
+#include "Engine/Serialization/BinaryReader.h"
+#include "Engine/Utils/ThreadUtils.hpp"
+#include "Engine/Vulkan/VulkanAllocator.h"
+#include "Engine/Vulkan/VulkanBuffer.h"
+#include "Engine/Vulkan/VulkanContext.h"
+#include "Engine/Vulkan/VulkanDevice.h"
+#include "Engine/Vulkan/VulkanImage.h"
+#include "Engine/Vulkan/VulkanPhysicalDevice.h"
 
 const vk::Format IMAGE_FORMAT = vk::Format::eR8G8B8A8Unorm;
 

@@ -1,8 +1,8 @@
 #include "EnginePch.h"
 #include "ThreadPool.h"
 
-#include "Utils/ThreadUtils.hpp"
-#include "Tracy/tracy/Tracy.hpp"
+#include "Engine/Utils/ThreadUtils.hpp"
+#include <Tracy/tracy/Tracy.hpp>
 
 ThreadPool::ThreadPool(const int inThreadCount)
 {

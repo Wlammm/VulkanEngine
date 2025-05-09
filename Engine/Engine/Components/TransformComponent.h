@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "ComponentSystem/Component.h"
-#include "Delegates/MulticastDelegate.hpp"
+#include "Engine/ComponentSystem/Component.h"
+#include "Engine/Delegates/MulticastDelegate.hpp"
 #include <foundation/PxTransform.h>
 
 class TransformComponent : public Component

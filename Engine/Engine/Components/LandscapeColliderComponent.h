@@ -1,14 +1,12 @@
 ﻿#pragma once
 #include "ColliderComponent.h"
-#include "Rendering/Vertex.hpp"
+#include "Engine/Rendering/Vertex.hpp"
 
 // Depends on the render component to get heightfield from.
 class LandscapeColliderComponent : public ColliderComponent
 {
 public:
     void OnCreate() override;
-
-    void Tick() override;
 
     void OnScaleChanged() override;
     

@@ -3,7 +3,7 @@
 
 #include "VulkanContext.h"
 #include "VulkanPhysicalDevice.h"
-#include "Utils/ThreadUtils.hpp"
+#include "Engine/Utils/ThreadUtils.hpp"
 
 VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	: myPhysicalDevice{ inPhysicalDevice }
