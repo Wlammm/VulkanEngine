@@ -28,13 +28,21 @@ public:
     virtual void OnScaleChanged() = 0;
 
     // An offset applied to the position of the physX actor.
-    void SetPhysicsOffset(const glm::vec3& inOffset);
-    
+    void SetLocalShapePosition(const glm::vec3& inOffset);
+    void SetLocalShapeRotation(const glm::vec3& inRotation);
+
 protected:
     physx::PxShape* myShape = nullptr;
 
-    glm::vec3 myOffset = {0, 0, 0};
-    
     // This will be filled in automatically most of the time. But needed for landscape collider.
     physx::PxRigidStatic* myActor = nullptr;
+    
+private:
+    void QueueLocalPoseUpdate() const;
+
+    // This should only be called when physics isnt running. Use QueueLocalPoseUpdate instead.
+    void ApplyLocalPose() const;
+    
+    glm::vec3 myLocalShapePosition = {0, 0, 0};
+    glm::vec3 myLocalShapeRotation = {0, 0, 0};
 };

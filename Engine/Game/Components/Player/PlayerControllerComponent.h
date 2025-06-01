@@ -9,4 +9,6 @@ public:
     void Tick() override;
 
 private:
+    float mySpeed = 100;
+    
 };

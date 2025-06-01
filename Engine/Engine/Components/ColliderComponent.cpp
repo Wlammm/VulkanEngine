@@ -24,6 +24,7 @@ void ColliderComponent::OnCreate()
     {
         check(myShape && "Shape must be initialized before calling this function.");
         check(myShape->getReferenceCount() == 1 && "Reference count should always be one here until we add support for non exclusive shapes.");
+        ApplyLocalPose();
         
         if (rigidbody)
         {
@@ -77,7 +78,7 @@ void ColliderComponent::OnPhysicsStateDirty()
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
     physicsSystem.QueuePhysicsCommand([this](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
-        myActor->setGlobalPose(GetTransform()->AsPxTransform(myOffset));
+        myActor->setGlobalPose(GetTransform()->AsPxTransform());
     });
 }
 
@@ -139,8 +140,41 @@ void ColliderComponent::OnComponentRemoved(Component* inComponent)
     });
 }
 
-void ColliderComponent::SetPhysicsOffset(const glm::vec3& inOffset)
+void ColliderComponent::SetLocalShapePosition(const glm::vec3& inOffset)
 {
-    myOffset = inOffset;
-    MarkPhysicsStateDirty();
+    myLocalShapePosition = inOffset;
+    QueueLocalPoseUpdate();
+}
+
+void ColliderComponent::SetLocalShapeRotation(const glm::vec3& inRotation)
+{
+    myLocalShapeRotation = inRotation;
+    QueueLocalPoseUpdate();
+}
+
+void ColliderComponent::QueueLocalPoseUpdate() const
+{
+    if (!myShape)
+        return;
+    
+    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
+    physicsSystem.QueuePhysicsCommand([this](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
+    {
+        ApplyLocalPose();
+    });
+}
+
+void ColliderComponent::ApplyLocalPose() const
+{
+    glm::vec3 pos = myLocalShapePosition;
+    glm::quat quat = glm::quat(glm::radians(myLocalShapeRotation));
+	    
+    physx::PxTransform transform;
+    transform.p = {pos.x, pos.y, pos.z};
+    transform.q.x = quat.x;
+    transform.q.y = quat.y;
+    transform.q.z = quat.z;
+    transform.q.w = quat.w;
+
+    myShape->setLocalPose(transform);
 }

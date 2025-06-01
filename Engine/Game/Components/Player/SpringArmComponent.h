@@ -1,19 +1,16 @@
 ﻿#pragma once
 #include "Engine/ComponentSystem/Component.h"
 
-class SprintArmComponent : public Component
+class SpringArmComponent : public Component
 {
 public:
-    SprintArmComponent();
+    SpringArmComponent();
     
-    void AttachGameObject(GameObject* inGameObject);
     void SetLength(const float inLength);
 
     void Tick() override;
     
 private:
-    GameObject* myGameObject = nullptr;
-
     float myLength = 100;
 
     // Offset from components position.

@@ -34,7 +34,8 @@ void PlayerControllerComponent::Tick()
 
     movement.y = 0;
     if (length(movement) != 0)
-        movement = glm::normalize(movement);
-
-    GetTransform()->Move(movement);
+    {
+        movement = glm::normalize(movement) * mySpeed;
+        GetTransform()->Move(movement);
+    }
 }

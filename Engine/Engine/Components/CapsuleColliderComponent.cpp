@@ -10,8 +10,9 @@
 
 void CapsuleColliderComponent::OnCreate()
 {
-    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
+    SetLocalShapeRotation({0, 0, 90});
     
+    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
     physicsSystem.QueuePhysicsCommand([this, &physicsSystem](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
         myShape = inPhysics->createShape(physx::PxCapsuleGeometry(myRadius, myHeight), *physicsSystem.GetDefaultMaterial());

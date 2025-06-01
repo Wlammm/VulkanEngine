@@ -85,6 +85,6 @@ void LandscapeColliderComponent::CreateCollider()
         myShape = inPhysics->createShape(heightFieldGeometry, *physicsSystem.GetDefaultMaterial(), true);
     });
 
-    SetPhysicsOffset({-LandscapeRenderComponent::chunkScale * 0.5f, 0, -LandscapeRenderComponent::chunkScale * 0.5f});
+    SetLocalShapePosition({-LandscapeRenderComponent::chunkScale * 0.5f, 0, -LandscapeRenderComponent::chunkScale * 0.5f});
     ColliderComponent::OnCreate();
 }

@@ -9,14 +9,16 @@ public:
     TransformComponent();
     ~TransformComponent();
 
-    physx::PxTransform AsPxTransform(const glm::vec3& inPositionOffset = {0, 0, 0}) const;
+    physx::PxTransform AsPxTransform() const;
     
     void SetParent(TransformComponent* inParent);
     void RemoveParent();
 
     void AddChild(TransformComponent* inChild);
     void RemoveChild(TransformComponent* inChild);
+    const List<TransformComponent*>& GetChildren() const;
 
+    
     void SetPositionLocal(const glm::vec3& inPosition);
     void SetRotationLocal(const glm::quat& inQuaternion);
     void SetScaleLocal(const glm::vec3& inScale);
