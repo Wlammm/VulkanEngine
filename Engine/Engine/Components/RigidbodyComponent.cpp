@@ -32,6 +32,9 @@ void RigidbodyComponent::TickPhysics()
     }
     myFramesSinceStartSleep = 0;
 
+    if (GetGameObject()->IsPhysicsStateDirty())
+        return;
+    
     physx::PxTransform transform = myActor->getGlobalPose();
     GetTransform()->SetPosition(transform.p);
     GetTransform()->SetRotation(transform.q);

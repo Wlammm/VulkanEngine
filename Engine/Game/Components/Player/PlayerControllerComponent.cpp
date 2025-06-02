@@ -15,21 +15,21 @@ void PlayerControllerComponent::Tick()
 
     glm::vec3 movement{};
 
-    if (Input::IsKeyDown(KeyCode::W))
+    if (Input::IsKeyPressed(KeyCode::W))
     {
         movement += GetTransform()->GetForward();
     }
-    if (Input::IsKeyDown(KeyCode::S))
+    if (Input::IsKeyPressed(KeyCode::S))
     {
-        movement += -GetTransform()->GetForward();
+        movement -= GetTransform()->GetForward();
     }
-    if (Input::IsKeyDown(KeyCode::A))
+    if (Input::IsKeyPressed(KeyCode::A))
+    {
+        movement -= GetTransform()->GetRight();
+    }
+    if (Input::IsKeyPressed(KeyCode::D))
     {
         movement += GetTransform()->GetRight();
-    }
-    if (Input::IsKeyDown(KeyCode::D))
-    {
-        movement += -GetTransform()->GetRight();
     }
 
     movement.y = 0;

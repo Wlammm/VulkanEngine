@@ -17,6 +17,11 @@ void ComponentSystem::Tick()
         delete gameObject;
     }
     myObjectsToDestory.Clear();
+
+    for (GameObject* gameObject : myObjects)
+    {
+        gameObject->ResetRenderStateDirtyFlag();
+    }
 }
 
 void ComponentSystem::TickPhysics()
@@ -25,6 +30,11 @@ void ComponentSystem::TickPhysics()
     for(IComponentArray* array : myComponentArrays)
     {
         array->TickPhysics();
+    }
+
+    for (GameObject* gameObject : myObjects)
+    {
+        gameObject->ResetPhysicsStateDirtyFlag();
     }
 }
 

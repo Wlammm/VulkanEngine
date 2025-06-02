@@ -72,7 +72,6 @@ public:
                 if(component.GetGameObject()->IsRenderStateDirty())
                 {
                     component.ComponentType::OnRenderStateDirty();
-                    component.GetGameObject()->ResetRenderStateDirtyFlag();
                 }
             }
         }
@@ -88,6 +87,14 @@ public:
 
     void TickPhysics() override
     {
+        if constexpr (ImplementsTickPhysics())
+        {
+            for(ComponentType& component : myComponents)
+            {
+                component.ComponentType::TickPhysics();
+            }
+        }
+        
         if constexpr (ImplementsOnPhysicsStateDirty())
         {
             for(ComponentType& component : myComponents)
@@ -95,16 +102,7 @@ public:
                 if(component.GetGameObject()->IsPhysicsStateDirty())
                 {
                     component.ComponentType::OnPhysicsStateDirty();
-                    component.GetGameObject()->ResetPhysicsStateDirtyFlag();
                 }
-            }
-        }
-        
-        if constexpr (ImplementsTickPhysics())
-        {
-            for(ComponentType& component : myComponents)
-            {
-                component.ComponentType::TickPhysics();
             }
         }
     }

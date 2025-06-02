@@ -28,6 +28,7 @@ Game::Game()
 
     GameObject* camera =  Engine::GetWorld().GetComponentSystem().CreateGameObject();
     CameraComponent* cameraComp = camera->AddComponent<CameraComponent>();
+    cameraComp->CreatePerspective(Engine::GetRenderResolution());
     camera->AddComponent<SpringArmComponent>()->SetLength(200);
     camera->GetTransform()->SetParent(player->GetTransform());
 }
