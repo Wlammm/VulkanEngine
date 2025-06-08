@@ -11,14 +11,12 @@ class ColliderComponent;
 class RigidbodyComponent : public Component
 {
 public:
-    RigidbodyComponent();
+    RigidbodyComponent() = default;
     
     void TickPhysics() override;
     
     void OnCreate() override;
     void OnDestroy() override;
-
-    void OnPhysicsStateDirty() override;
 
     // This should only be called during TickPhysics.
     void SetVelocity(const glm::vec3& inVelocity);
@@ -30,6 +28,10 @@ public:
     void DetachCollider(ColliderComponent* inCollider);
 
     void SetRotationConstraint(const bool inX, const bool inY, const bool inZ);
+
+private:
+    void OnPositionChanged();
+    void OnRotationChanged();
     
 private:
     physx::PxRigidDynamic* myActor = nullptr;

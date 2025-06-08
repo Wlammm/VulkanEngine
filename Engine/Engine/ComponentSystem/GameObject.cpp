@@ -25,19 +25,9 @@ bool GameObject::IsRenderStateDirty() const
     return myRenderStateDirty;
 }
 
-bool GameObject::IsPhysicsStateDirty() const
-{
-    return myPhysicsStateDirty;
-}
-
 void GameObject::ResetRenderStateDirtyFlag()
 {
     myRenderStateDirty = false;
-}
-
-void GameObject::ResetPhysicsStateDirtyFlag()
-{
-    myPhysicsStateDirty = false;
 }
 
 List<Component*> GameObject::GetComponents() const

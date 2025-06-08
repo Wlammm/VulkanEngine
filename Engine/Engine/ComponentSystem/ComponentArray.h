@@ -45,7 +45,6 @@ public:
     IMPLEMENTS_METHOD(Tick);
     IMPLEMENTS_METHOD(TickPhysics);
     IMPLEMENTS_METHOD(OnRenderStateDirty);
-    IMPLEMENTS_METHOD(OnPhysicsStateDirty);
     
     IMPLEMENTS_METHOD(OnTriggerEnter);
     IMPLEMENTS_METHOD(OnTrigger);
@@ -92,17 +91,6 @@ public:
             for(ComponentType& component : myComponents)
             {
                 component.ComponentType::TickPhysics();
-            }
-        }
-        
-        if constexpr (ImplementsOnPhysicsStateDirty())
-        {
-            for(ComponentType& component : myComponents)
-            {
-                if(component.GetGameObject()->IsPhysicsStateDirty())
-                {
-                    component.ComponentType::OnPhysicsStateDirty();
-                }
             }
         }
     }

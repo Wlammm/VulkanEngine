@@ -18,5 +18,7 @@ void PlayerCameraControllerComponent::Tick()
 
     myPitch = glm::clamp(myPitch, -glm::pi<float>() * 0.5f + 0.001f, glm::pi<float>() * 0.5f - 0.001f);
     
-    GetTransform()->SetRotationLocal(glm::quat({myPitch, myYaw, 0}));
+    GetTransform()->GetParent()->SetRotationRad({0, myYaw, 0 });
+
+    GetTransform()->SetRotationLocal(glm::quat({myPitch, 0, 0}));
 }

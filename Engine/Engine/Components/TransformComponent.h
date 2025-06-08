@@ -10,6 +10,8 @@ public:
     ~TransformComponent();
 
     physx::PxTransform AsPxTransform() const;
+
+    void TickPhysics() override;
     
     void SetParent(TransformComponent* inParent);
     void RemoveParent();
@@ -18,7 +20,6 @@ public:
     void RemoveChild(TransformComponent* inChild);
     const List<TransformComponent*>& GetChildren() const;
 
-    
     void SetPositionLocal(const glm::vec3& inPosition);
     void SetRotationLocal(const glm::quat& inQuaternion);
     void SetScaleLocal(const glm::vec3& inScale);
@@ -73,14 +74,17 @@ public:
 
     void Rotate(const glm::vec3& inRotation);
     void Rotate(const float inX, const float inY, const float inZ);
-    
+
+    MulticastDelegate<void()> OnPositionChanged;
+    MulticastDelegate<void()> OnRotationChanged;
     MulticastDelegate<void()> OnScaleChanged;
 
 private:
-    void MarkScaleChanged();
-    
-private:
-    void MarkDirty();
+    void MarkDirty(bool inPosition, bool inRotation, bool inScale);
+
+    bool myPositionDirty = false;
+    bool myRotationDirty = false;
+    bool myScaleDirty = false;
 
     glm::vec3 myPosition { 0, 0, 0 };
     glm::quat myRotation = glm::identity<glm::quat>();

@@ -17,7 +17,7 @@ TransformComponent::~TransformComponent()
 	{
 		child->myParent = nullptr;
 	}
-	MarkDirty();
+	MarkDirty(true, true, true);
 }
 
 physx::PxTransform TransformComponent::AsPxTransform() const
@@ -35,6 +35,24 @@ physx::PxTransform TransformComponent::AsPxTransform() const
 	return transform;
 }
 
+void TransformComponent::TickPhysics()
+{
+	Component::TickPhysics();
+
+	if (myPositionDirty)
+		OnPositionChanged();
+
+	if (myRotationDirty)
+		OnRotationChanged();
+
+	if (myScaleDirty)
+		OnScaleChanged();
+
+	myPositionDirty = false;
+	myRotationDirty = false;
+	myScaleDirty = false;
+}
+
 void TransformComponent::SetParent(TransformComponent* inParent)
 {
 	if (myParent)
@@ -42,7 +60,7 @@ void TransformComponent::SetParent(TransformComponent* inParent)
 
 	myParent = inParent;
 	myParent->AddChild(this);
-	MarkDirty();
+	MarkDirty(true, true, true);
 }
 
 void TransformComponent::RemoveParent()
@@ -60,7 +78,7 @@ void TransformComponent::RemoveParent()
 	myScale = scale;
 
 	myParent = nullptr;
-	MarkDirty();
+	MarkDirty(true, true, true);
 }
 
 void TransformComponent::AddChild(TransformComponent* inChild)
@@ -83,21 +101,18 @@ const List<TransformComponent*>& TransformComponent::GetChildren() const
 void TransformComponent::SetRotationLocal(const glm::quat& inQuaternion)
 {
 	myRotation = inQuaternion;
-	MarkDirty();
+	MarkDirty(false, true, false);
 }
 
 void TransformComponent::SetScaleLocal(const glm::vec3& inScale)
 {
 	myScale = inScale;
-	MarkDirty();
-	MarkScaleChanged();
+	MarkDirty(false, false, true);
 }
 
 void TransformComponent::SetScaleLocal(const float inScale)
 {
-	myScale = glm::vec3(inScale);
-	MarkDirty();
-	MarkScaleChanged();
+	SetScaleLocal(glm::vec3(inScale));
 }
 
 void TransformComponent::SetPosition(const glm::vec3& inPosition)
@@ -107,7 +122,7 @@ void TransformComponent::SetPosition(const glm::vec3& inPosition)
 	else
 		myPosition = inPosition;
 	
-	MarkDirty();
+	MarkDirty(true, false, false);
 }
 
 void TransformComponent::SetPosition(const float inX, const float inY, const float inZ)
@@ -143,8 +158,7 @@ void TransformComponent::SetScale(const glm::vec3& inScale)
 		myScale = inScale * (1.f / myParent->GetScale());
 	else
 		myScale = inScale;
-	MarkDirty();
-	MarkScaleChanged();
+	MarkDirty(false, false, true);
 }
 
 void TransformComponent::SetScale(const float inX, const float inY, const float inZ)
@@ -160,10 +174,10 @@ void TransformComponent::SetScale(const float inScalar)
 void TransformComponent::SetRotation(const glm::quat& inQuat)
 {
 	if (myParent)
-		myRotation = inQuat * glm::inverse(myParent->GetRotation());
+		myRotation = glm::inverse(myParent->GetRotation()) * inQuat;
 	else
 		myRotation = inQuat;
-	MarkDirty();
+	MarkDirty(false, true, false);
 }
 
 void TransformComponent::SetRotation(const physx::PxQuatT<float>& inQuat)
@@ -219,7 +233,7 @@ glm::vec3 TransformComponent::GetPosition() const
 	if (myParent)
 	{
 		const glm::vec3 scaledLocalPos = myPosition * myParent->myScale;
-		const glm::vec3 rotatedLocalPos = scaledLocalPos * myParent->GetRotation();
+		const glm::vec3 rotatedLocalPos = myParent->GetRotation() * scaledLocalPos;
 		return myParent->GetPosition() + rotatedLocalPos;
 	}
 	else
@@ -231,14 +245,14 @@ glm::vec3 TransformComponent::GetPosition() const
 glm::quat TransformComponent::GetRotation() const
 {
 	if (myParent)
-		return myRotation * myParent->GetRotation();
+		return myParent->GetRotation() * myRotation;
 	else
 		return myRotation;
 }
 
 glm::vec3 TransformComponent::GetRotationRad() const
 {
-	return glm::eulerAngles(myRotation);
+	return glm::eulerAngles(GetRotation());
 }
 
 glm::vec3 TransformComponent::GetRotationDeg() const
@@ -282,7 +296,7 @@ glm::vec3 TransformComponent::GetRight() const
 void TransformComponent::Move(const glm::vec3& inDisplacement)
 {
 	myPosition += inDisplacement;
-	MarkDirty();
+	MarkDirty(true, false, false);
 }
 
 void TransformComponent::Move(const float inX, const float inY, const float inZ)
@@ -300,28 +314,20 @@ void TransformComponent::Rotate(const float inX, const float inY, const float in
 	Rotate({inX, inY, inZ});
 }
 
-void TransformComponent::MarkScaleChanged()
+void TransformComponent::MarkDirty(bool inPosition, bool inRotation, bool inScale)
 {
-	OnScaleChanged();
-
-	for(TransformComponent* child : myChildren)
-	{
-		child->MarkScaleChanged();
-	}
-}
-
-void TransformComponent::MarkDirty()
-{
-	if(!mySkipPhysicsUpdate)
-		MarkPhysicsStateDirty();
 	MarkRenderStateDirty();
+
+	if (!mySkipPhysicsUpdate)
+	{
+		myPositionDirty = myPositionDirty || inPosition;
+		myRotationDirty = myRotationDirty || inRotation;
+		myScaleDirty = myScaleDirty || inScale;
+	}
 	
 	for(TransformComponent* child : myChildren)
 	{
-		if(!mySkipPhysicsUpdate)
-			child->MarkPhysicsStateDirty();
-		
-		child->MarkRenderStateDirty();
+		child->MarkDirty(inPosition, inRotation, inScale);
 	}
 }
 
@@ -356,5 +362,5 @@ const glm::vec3 TransformComponent::LocalUp() const
 void TransformComponent::SetPositionLocal(const glm::vec3& inPosition)
 {
 	myPosition = inPosition;
-	MarkDirty();
+	MarkDirty(true, false, false);
 }

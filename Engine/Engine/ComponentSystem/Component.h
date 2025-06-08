@@ -28,15 +28,10 @@ public:
     virtual void TickPhysics() {}
 
     void MarkRenderStateDirty();
-    void MarkPhysicsStateDirty();
 
     // Callback when render state is marked dirty on the gameobject. Needs to have DoesComponentImplementOnRenderStateDirty() implemeneted and return true for this to take effect.
     virtual void OnRenderStateDirty() {}
 
-    // Called whenever the transform has been tampered with outside of physics. It is safe to interact with physx during this callback as its called inside TickPhysics.
-    // Component needs to have DoesComponentImplementPhysicsFunctions implemented and returning true for this function to be called.
-    virtual void OnPhysicsStateDirty() {}
-    
     GameObject* GetGameObject() const;
 
     TransformComponent* GetTransform() const;

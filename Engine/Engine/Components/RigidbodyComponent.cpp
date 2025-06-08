@@ -13,10 +13,6 @@
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/World/World.h"
 
-RigidbodyComponent::RigidbodyComponent()
-{
-}
-
 void RigidbodyComponent::TickPhysics()
 {
     ZoneScoped;
@@ -32,9 +28,6 @@ void RigidbodyComponent::TickPhysics()
     }
     myFramesSinceStartSleep = 0;
 
-    if (GetGameObject()->IsPhysicsStateDirty())
-        return;
-    
     physx::PxTransform transform = myActor->getGlobalPose();
     GetTransform()->SetPosition(transform.p);
     GetTransform()->SetRotation(transform.q);
@@ -43,6 +36,11 @@ void RigidbodyComponent::TickPhysics()
 void RigidbodyComponent::OnCreate()
 {
     Component::OnCreate();
+
+    TransformComponent* transform = GetTransform();
+    transform->OnPositionChanged.Bind(&RigidbodyComponent::OnPositionChanged, this);
+    transform->OnRotationChanged.Bind(&RigidbodyComponent::OnRotationChanged, this);
+    
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
     
     physicsSystem.QueuePhysicsCommand([this, &physicsSystem](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
@@ -77,11 +75,10 @@ void RigidbodyComponent::OnDestroy()
     {
         inScene->removeActor(*myActor);
     });
-}
-
-void RigidbodyComponent::OnPhysicsStateDirty()
-{
-    myActor->setGlobalPose(GetTransform()->AsPxTransform());
+    
+    TransformComponent* transform = GetTransform();
+    transform->OnPositionChanged.UnBind(&RigidbodyComponent::OnPositionChanged, this);
+    transform->OnRotationChanged.UnBind(&RigidbodyComponent::OnRotationChanged, this);
 }
 
 void RigidbodyComponent::SetVelocity(const glm::vec3& inVelocity)
@@ -138,4 +135,22 @@ void RigidbodyComponent::SetRotationConstraint(const bool inX, const bool inY, c
         myActor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, inY);
         myActor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, inZ);
     });
+}
+
+void RigidbodyComponent::OnPositionChanged()
+{
+    check(!PhysicsSystem::IsSimulatingPhysics);
+    const glm::vec3& position = GetTransform()->GetPosition();
+    physx::PxTransform pose = myActor->getGlobalPose();
+    pose.p = { position.x, position.y, position.z };
+    myActor->setGlobalPose(pose);
+}
+
+void RigidbodyComponent::OnRotationChanged()
+{
+    check(!PhysicsSystem::IsSimulatingPhysics);
+    const glm::quat& rotation = GetTransform()->GetRotation();
+    physx::PxTransform pose = myActor->getGlobalPose();
+    pose.q = { rotation.x, rotation.y, rotation.z, rotation.w };
+    myActor->setGlobalPose(pose);
 }

@@ -21,10 +21,8 @@ public:
     ~GameObject();
     
     bool IsRenderStateDirty() const;
-    bool IsPhysicsStateDirty() const;
 
     void ResetRenderStateDirtyFlag();
-    void ResetPhysicsStateDirtyFlag();
 
     List<Component*> GetComponents() const;
     

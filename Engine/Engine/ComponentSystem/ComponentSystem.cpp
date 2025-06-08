@@ -31,11 +31,6 @@ void ComponentSystem::TickPhysics()
     {
         array->TickPhysics();
     }
-
-    for (GameObject* gameObject : myObjects)
-    {
-        gameObject->ResetPhysicsStateDirtyFlag();
-    }
 }
 
 void ComponentSystem::OnCollisionEnterForGameObject(GameObject* inObject, GameObject* inOther)

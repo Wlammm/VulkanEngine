@@ -16,7 +16,7 @@ public:
 
     void OnDestroy() override;
 
-    void OnPhysicsStateDirty() override;
+    void OnPhysicsStateDirty();
     
     physx::PxShape* GetShape() const;
 

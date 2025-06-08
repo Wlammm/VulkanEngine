@@ -15,6 +15,8 @@ void ColliderComponent::OnCreate()
 {
     Component::OnCreate();
 
+    GetTransform()->OnPositionChanged.Bind(&ColliderComponent::OnPhysicsStateDirty, this);
+    GetTransform()->OnRotationChanged.Bind(&ColliderComponent::OnPhysicsStateDirty, this);
     GetTransform()->OnScaleChanged.Bind(&ColliderComponent::OnScaleChanged, this);
 
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
@@ -62,6 +64,8 @@ void ColliderComponent::OnDestroy()
         }
     });
 
+    GetTransform()->OnPositionChanged.UnBind(&ColliderComponent::OnPhysicsStateDirty, this);
+    GetTransform()->OnRotationChanged.UnBind(&ColliderComponent::OnPhysicsStateDirty, this);
     GetTransform()->OnScaleChanged.UnBind(&ColliderComponent::OnScaleChanged, this);
     
     GetGameObject()->OnComponentAdded.UnBind(&ColliderComponent::OnComponentAdded, this);
@@ -70,8 +74,7 @@ void ColliderComponent::OnDestroy()
 
 void ColliderComponent::OnPhysicsStateDirty()
 {
-    Component::OnPhysicsStateDirty();
-
+    check(!PhysicsSystem::IsSimulatingPhysics);
     if(!myActor)
         return;
 
