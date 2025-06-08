@@ -1,4 +1,5 @@
 #pragma once
+#include "Engine/ComponentSystem/GameObject.h"
 #include "Engine/Core/AutoInit.h"
 #include "Engine/System/SystemManager.hpp"
 #include "Engine/System/WorldSystem.h"
@@ -19,8 +20,8 @@ public:
 	void Update();
 	void Destroy();
 
-	bool Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, RaycastHit& outHit, const float inMaxDistance = FLOAT_MAX, bool inIgnoreTriggers = true);
-	bool RaycastAll(const glm::vec3& inOrigin, const glm::vec3& inDirection, List<RaycastHit>& outHits, const float inMaxDistance = FLOAT_MAX, bool inIgnoreTriggers = true);
+	bool Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, RaycastHit& outHit, const float inMaxDistance = FLOAT_MAX, const TagMask inExcludedTags = 0, bool inIgnoreTriggers = true);
+	bool RaycastAll(const glm::vec3& inOrigin, const glm::vec3& inDirection, List<RaycastHit>& outHits, const float inMaxDistance = FLOAT_MAX, const TagMask inExcludedTags = 0, bool inIgnoreTriggers = true);
 	
 	class AssetRegistry& GetAssetRegistry() const;
 

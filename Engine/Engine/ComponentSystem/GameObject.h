@@ -8,6 +8,12 @@ class TransformComponent;
 class ComponentSystem;
 class Component;
 
+#ifndef DEBUG_GAMEOBJECT_NAMES
+#define DEBUG_GAMEOBJECT_NAMES DEBUG
+#endif
+
+using TagMask = uint32_t;
+
 class GameObject
 {
 public:
@@ -65,6 +71,13 @@ public:
     TransformComponent* GetTransform() const;
     void Destroy();
 
+    TagMask GetTags() const;
+    void AddTags(TagMask inTags);
+    void RemoveTags(TagMask inTags);
+    void ClearTags();
+    bool HasAnyTag(TagMask inTags) const;
+    bool HasAllTags(TagMask inTags) const;
+    
     void MarkRenderStateDirty();
     void MarkPhysicsStateDirty();
 
@@ -79,7 +92,14 @@ public:
 private:
     friend ComponentSystem;
     ComponentSystem* myComponentSystem = nullptr;
+    TransformComponent* myTransform = nullptr;
 
     bool myRenderStateDirty = false;
     bool myPhysicsStateDirty = false;
+
+    TagMask myTags;
+
+#if DEBUG_GAMEOBJECT_NAMES
+    std::string myName = "Unnamed GameObject";
+#endif
 };

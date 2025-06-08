@@ -84,6 +84,24 @@ void RigidbodyComponent::OnPhysicsStateDirty()
     myActor->setGlobalPose(GetTransform()->AsPxTransform());
 }
 
+void RigidbodyComponent::SetVelocity(const glm::vec3& inVelocity)
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+
+    if(!myActor)
+        return;
+    
+    myActor->setLinearVelocity(physx::PxVec3(inVelocity.x, inVelocity.y, inVelocity.z));
+}
+
+glm::vec3 RigidbodyComponent::GetVelocity() const
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+
+    physx::PxVec3 velocity = myActor->getLinearVelocity();
+    return glm::vec3(velocity.x, velocity.y, velocity.z);
+}
+
 void RigidbodyComponent::AttachCollider(ColliderComponent* inCollider)
 {
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();

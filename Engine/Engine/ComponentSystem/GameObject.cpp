@@ -62,6 +62,36 @@ void GameObject::Destroy()
     myComponentSystem->DestroyGameObject(this);
 }
 
+TagMask GameObject::GetTags() const
+{
+    return myTags;
+}
+
+void GameObject::AddTags(TagMask inTags)
+{
+    myTags |= inTags;
+}
+
+void GameObject::RemoveTags(TagMask inTags)
+{
+    myTags &= ~inTags;
+}
+
+void GameObject::ClearTags()
+{
+    myTags = 0;
+}
+
+bool GameObject::HasAnyTag(TagMask inTags) const
+{
+    return myTags & inTags;
+}
+
+bool GameObject::HasAllTags(TagMask inTags) const
+{
+    return myTags == inTags;
+}
+
 void GameObject::MarkRenderStateDirty()
 {
     myRenderStateDirty = true;

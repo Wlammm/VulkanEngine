@@ -103,7 +103,7 @@ void TransformComponent::SetScaleLocal(const float inScale)
 void TransformComponent::SetPosition(const glm::vec3& inPosition)
 {
 	if (myParent)
-		myPosition = glm::vec3((glm::vec4(inPosition, 1.0f) * glm::inverse(myParent->GetMatrix())));
+		myPosition = glm::vec3(glm::inverse(myParent->GetMatrix()) * (glm::vec4(inPosition, 1.0f)));
 	else
 		myPosition = inPosition;
 	
@@ -175,8 +175,7 @@ void TransformComponent::SetRotation(const physx::PxQuatT<float>& inQuat)
 
 void TransformComponent::SetRotationRad(const glm::vec3& inRotation)
 {
-	myRotation = glm::quat(inRotation);
-	MarkDirty();
+	SetRotation(glm::quat(inRotation));
 }
 
 void TransformComponent::SetRotationDeg(const glm::vec3& inRotation)
@@ -289,6 +288,16 @@ void TransformComponent::Move(const glm::vec3& inDisplacement)
 void TransformComponent::Move(const float inX, const float inY, const float inZ)
 {
 	Move({inX, inY, inZ});
+}
+
+void TransformComponent::Rotate(const glm::vec3& inRotation)
+{
+	SetRotationDeg(GetRotationDeg() + inRotation);
+}
+
+void TransformComponent::Rotate(const float inX, const float inY, const float inZ)
+{
+	Rotate({inX, inY, inZ});
 }
 
 void TransformComponent::MarkScaleChanged()

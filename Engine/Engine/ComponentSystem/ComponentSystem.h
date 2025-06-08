@@ -21,7 +21,7 @@ public:
     void OnTriggerForGameObject(GameObject* inObject, GameObject* inOther);
     void OnTriggerExitForGameObject(GameObject* inObject, GameObject* inOther);
 
-    GameObject* CreateGameObject();
+    GameObject* CreateGameObject(const std::string& inObjectName);
     void DestroyGameObject(GameObject* inGameObject);
 
     template<typename ComponentType>

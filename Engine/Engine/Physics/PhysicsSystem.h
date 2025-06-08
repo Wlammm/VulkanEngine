@@ -23,6 +23,8 @@ namespace physx
 class PhysicsSystem : public WorldSystem
 {
 public:
+    inline static bool IsSimulatingPhysics = false;
+    
     PhysicsSystem(World* inWorld);
     ~PhysicsSystem();
 

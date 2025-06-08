@@ -123,6 +123,7 @@ void PhysicsSystem::Tick()
         myScene->fetchResults(true);
         myHasActiveSimulation = false;
     }
+    IsSimulatingPhysics = false;
     
     myListener->Tick();
     
@@ -136,7 +137,8 @@ void PhysicsSystem::Tick()
     }
     
     GetWorld()->GetComponentSystem().TickPhysics();
-    
+
+    IsSimulatingPhysics = true;
     myHasActiveSimulation = true;
     myScene->simulate(Time::GetDeltaTime());
 }

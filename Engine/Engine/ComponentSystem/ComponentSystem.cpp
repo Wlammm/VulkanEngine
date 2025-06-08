@@ -86,12 +86,15 @@ void ComponentSystem::OnTriggerExitForGameObject(GameObject* inObject, GameObjec
     }
 }
 
-GameObject* ComponentSystem::CreateGameObject()
+GameObject* ComponentSystem::CreateGameObject(const std::string& inObjectName)
 {
     GameObject* gameObject = new GameObject();
     gameObject->myComponentSystem = this;
+#if DEBUG_GAMEOBJECT_NAMES
+    gameObject->myName = inObjectName;
+#endif
     myObjects.Add(gameObject);
-    gameObject->AddComponent<TransformComponent>();
+    gameObject->myTransform = gameObject->AddComponent<TransformComponent>();
     return gameObject;
 }
 

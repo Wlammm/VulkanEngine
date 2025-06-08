@@ -19,6 +19,12 @@ public:
     void OnDestroy() override;
 
     void OnPhysicsStateDirty() override;
+
+    // This should only be called during TickPhysics.
+    void SetVelocity(const glm::vec3& inVelocity);
+    
+    // This should only be called during TickPhysics.
+    glm::vec3 GetVelocity() const;
     
     void AttachCollider(ColliderComponent* inCollider);
     void DetachCollider(ColliderComponent* inCollider);

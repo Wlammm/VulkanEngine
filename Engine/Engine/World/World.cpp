@@ -43,14 +43,14 @@ World::~World()
 void World::Init()
 {
 	// World objects.
-	GameObject* camObject = GetComponentSystem().CreateGameObject();
-	camObject->GetTransform()->SetPosition(0, 500, -1500);
-	CameraComponent* camera = camObject->AddComponent<CameraComponent>();
-	camera->CreatePerspective(Engine::GetRenderResolution());
-	camObject->AddComponent<EditorCameraMovementComponent>();
+	//GameObject* camObject = GetComponentSystem().CreateGameObject();
+	//camObject->GetTransform()->SetPosition(0, 500, -1500);
+	//CameraComponent* camera = camObject->AddComponent<CameraComponent>();
+	//camera->CreatePerspective(Engine::GetRenderResolution());
+	//camObject->AddComponent<EditorCameraMovementComponent>();
 
 	{
-		GameObject* sponza = GetComponentSystem().CreateGameObject();
+		GameObject* sponza = GetComponentSystem().CreateGameObject("Sponza");
 		sponza->GetTransform()->SetPositionY(2000);
 		StaticMeshComponent* staticMesh = sponza->AddComponent<StaticMeshComponent>();
 		myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/Sponza.gltf", [staticMesh, sponza](Model* inModel)
@@ -61,7 +61,7 @@ void World::Init()
 	}
 
 	{
-		GameObject* sponza = GetComponentSystem().CreateGameObject();
+		GameObject* sponza = GetComponentSystem().CreateGameObject("Sponza2");
 		sponza->GetTransform()->SetPosition(5000, 2000, 0);
 		StaticMeshComponent* staticMesh = sponza->AddComponent<StaticMeshComponent>();
 		myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/Sponza.gltf", [staticMesh, sponza](Model* inModel)
@@ -72,7 +72,7 @@ void World::Init()
 		sponza->GetTransform()->SetScale(100.0f);
 	}
 	
-	GameObject* landscape = GetComponentSystem().CreateGameObject();
+	GameObject* landscape = GetComponentSystem().CreateGameObject("Landscape");
 	landscape->AddComponent<LandscapeRenderComponent>();
 	landscape->AddComponent<LandscapeColliderComponent>();
 
@@ -80,7 +80,7 @@ void World::Init()
 	{
 		for (int i =0; i < 50; ++i)
 		{
-			GameObject* cube = GetComponentSystem().CreateGameObject();
+			GameObject* cube = GetComponentSystem().CreateGameObject("Cube");
 			cube->GetTransform()->SetPosition(glm::vec3{(float)i * 100, 10000, 0});
 			cube->AddComponent<StaticMeshComponent>()->SetModel(inModel);
 			cube->AddComponent<BoxColliderComponent>();
@@ -88,7 +88,7 @@ void World::Init()
 		}
 	});
 	
-	GameObject* dirLightObject = GetComponentSystem().CreateGameObject();
+	GameObject* dirLightObject = GetComponentSystem().CreateGameObject("DirectionalLight");
 	DirectionalLightComponent* light = dirLightObject->AddComponent<DirectionalLightComponent>();
 	dirLightObject->GetTransform()->SetRotationDeg(321, 314, -50);
 	light->SetColor({1, 168/255.0, 120/255.0, 1});
@@ -96,7 +96,7 @@ void World::Init()
 	glm::vec3 startPosition = glm::vec3(-800.0f, 50.0f, -35.0f);
 	for (int i = 0; i < 5; i++)
 	{
-		GameObject* pointLightObject = GetComponentSystem().CreateGameObject();
+		GameObject* pointLightObject = GetComponentSystem().CreateGameObject("PointLight");
 		PointLightComponent* pointLight = pointLightObject->AddComponent<PointLightComponent>();
 		
 		const auto& transform = pointLightObject->GetTransform();
@@ -124,14 +124,14 @@ void World::Destroy()
 	
 }
 
-bool World::Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, RaycastHit& outHit, const float inMaxDistance, bool inIgnoreTriggers)
+bool World::Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, RaycastHit& outHit, const float inMaxDistance, const TagMask inExcludedTags, bool inIgnoreTriggers)
 {
 	check(length(inDirection) != 0);
 	
-	if (inIgnoreTriggers)
+	if (inIgnoreTriggers || inExcludedTags != 0)
 	{
 		List<RaycastHit> hits;
-		bool result = RaycastAll(inOrigin, inDirection, hits, inMaxDistance, inIgnoreTriggers);
+		bool result = RaycastAll(inOrigin, inDirection, hits, inMaxDistance, inIgnoreTriggers, inExcludedTags);
 		
 		if (!result)
 			return false;
@@ -164,7 +164,7 @@ bool World::Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, Ray
 	return true;
 }
 
-bool World::RaycastAll(const glm::vec3& inOrigin, const glm::vec3& inDirection, List<RaycastHit>& outHits, const float inMaxDistance, bool inIgnoreTriggers)
+bool World::RaycastAll(const glm::vec3& inOrigin, const glm::vec3& inDirection, List<RaycastHit>& outHits, const float inMaxDistance, const TagMask inExcludedTags, bool inIgnoreTriggers)
 {
 	check(length(inDirection) != 0);
 	
@@ -195,15 +195,20 @@ bool World::RaycastAll(const glm::vec3& inOrigin, const glm::vec3& inDirection, 
 			if (touch.shape->getFlags().isSet(physx::PxShapeFlag::eTRIGGER_SHAPE))
 				continue;
 		}
+
+		GameObject* gameObject = (GameObject*)touch.actor->userData;
+
+		if(gameObject->HasAnyTag(inExcludedTags))
+			continue;
 		
 		RaycastHit& outHit = outHits.Emplace();
 		outHit.myHitDistance = touch.distance;
 		outHit.myHitNormal = { touch.normal.x, touch.normal.y, touch.normal.z };
 		outHit.myHitPosition = { touch.position.x, touch.position.y, touch.position.z };
-		outHit.myHitGameObject = (GameObject*)touch.actor->userData;
+		outHit.myHitGameObject = gameObject;
 	}
 
-	return true;
+	return !outHits.IsEmpty();
 }
 
 AssetRegistry& World::GetAssetRegistry() const
@@ -231,7 +236,7 @@ void World::ToggleCactus()
 		return;
 	}
 	
-	myCactus  = GetComponentSystem().CreateGameObject();
+	myCactus  = GetComponentSystem().CreateGameObject("Cactus");
 	myCactus->GetTransform()->SetPosition(0, 100, 0);
 	myAssetRegistry->GetAssetAsync<Model>("Assets/Cactus.fbx", [this](Model* inModel)
 	{

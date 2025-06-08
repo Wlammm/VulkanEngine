@@ -5,9 +5,9 @@ class PlayerControllerComponent : public Component
 {
 public:
     PlayerControllerComponent();
-
-    void Tick() override;
+    
+    void TickPhysics() override;
 
 private:
-    float mySpeed = 10;
+    float mySpeed = 500;
 };

@@ -71,6 +71,9 @@ public:
     void Move(const glm::vec3& inDisplacement);
     void Move(const float inX, const float inY, const float inZ);
 
+    void Rotate(const glm::vec3& inRotation);
+    void Rotate(const float inX, const float inY, const float inZ);
+    
     MulticastDelegate<void()> OnScaleChanged;
 
 private:

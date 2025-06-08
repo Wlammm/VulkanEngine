@@ -1,6 +1,7 @@
 ﻿#include "GamePch.h"
 #include "PlayerControllerComponent.h"
 
+#include "Engine/Components/RigidbodyComponent.h"
 #include "Engine/Components/TransformComponent.h"
 #include "Engine/Core/Input.h"
 
@@ -9,9 +10,9 @@ PlayerControllerComponent::PlayerControllerComponent()
     
 }
 
-void PlayerControllerComponent::Tick()
+void PlayerControllerComponent::TickPhysics()
 {
-    Component::Tick();
+    Component::TickPhysics();
 
     glm::vec3 movement{};
 
@@ -35,7 +36,13 @@ void PlayerControllerComponent::Tick()
     movement.y = 0;
     if (length(movement) != 0)
     {
+        RigidbodyComponent* rigidbody = GetComponent<RigidbodyComponent>();
+        if(!rigidbody)
+            return;
+
         movement = glm::normalize(movement) * mySpeed;
-        GetTransform()->Move(movement);
+        movement.y = rigidbody->GetVelocity().y;
+
+        rigidbody->SetVelocity(movement);
     }
 }
