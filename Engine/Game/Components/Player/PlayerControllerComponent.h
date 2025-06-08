@@ -10,4 +10,7 @@ public:
 
 private:
     float mySpeed = 500;
+    float mySprintSpeed = 1500;
+
+    float myJumpForce = 1000;
 };

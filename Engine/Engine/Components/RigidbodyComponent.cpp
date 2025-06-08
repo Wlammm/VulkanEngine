@@ -99,6 +99,25 @@ glm::vec3 RigidbodyComponent::GetVelocity() const
     return glm::vec3(velocity.x, velocity.y, velocity.z);
 }
 
+void RigidbodyComponent::SetAngularVelocity(const glm::vec3& inAngularVelocity)
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+
+    if(!myActor)
+        return;
+    
+    myActor->setAngularVelocity(physx::PxVec3(inAngularVelocity.x, inAngularVelocity.y, inAngularVelocity.z));
+}
+
+glm::vec3 RigidbodyComponent::GetAngularVelocity() const
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+
+    physx::PxVec3 velocity = myActor->getAngularVelocity();
+    return glm::vec3(velocity.x, velocity.y, velocity.z);
+}
+
+// TODO: Replace this with OnComponentAdded instead
 void RigidbodyComponent::AttachCollider(ColliderComponent* inCollider)
 {
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
@@ -135,6 +154,110 @@ void RigidbodyComponent::SetRotationConstraint(const bool inX, const bool inY, c
         myActor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, inY);
         myActor->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, inZ);
     });
+}
+
+void RigidbodyComponent::SetMass(const float inMass)
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+
+    if (!myActor)
+        return;
+
+    myMass = inMass;
+    myActor->setMass(inMass);
+}
+
+float RigidbodyComponent::GetMass() const
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+
+    if (!myActor)
+        return -1.0f;
+    
+    return myActor->getMass();
+}
+
+void RigidbodyComponent::SetDrag(const float inDrag)
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+
+    if (!myActor)
+        return;
+
+    myActor->setLinearDamping(inDrag);
+}
+
+float RigidbodyComponent::GetDrag() const
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+
+    if (!myActor)
+        return -1.0f;
+
+    return myActor->getLinearDamping();
+}
+
+void RigidbodyComponent::SetAngularDrag(const float inDrag)
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+
+    if (!myActor)
+        return;
+
+    myActor->setAngularDamping(inDrag);
+}
+
+float RigidbodyComponent::GetAngularDrag() const
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+
+    if (!myActor)
+        return -1.0f;
+
+    return myActor->getAngularDamping();
+}
+
+void RigidbodyComponent::UseGravity(const bool inValue)
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+
+    if (!myActor)
+        return;
+
+    myActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, !inValue);
+}
+
+void RigidbodyComponent::SetKinematic(const bool inValue)
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+
+    if (!myActor)
+        return;
+    
+     myActor->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, inValue);
+
+     if (inValue)
+         myActor->setMass(0);
+     else
+         myActor->setMass(myMass);
+}
+
+void RigidbodyComponent::AddForce(const glm::vec3& inForce, const ForceMode inForceMode)
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+    if(!myActor)
+        return;
+
+    myActor->addForce({inForce.x, inForce.y, inForce.z}, static_cast<physx::PxForceMode::Enum>(inForceMode));
+}
+
+void RigidbodyComponent::AddTorque(const glm::vec3& inTorque, const ForceMode inForceMode)
+{
+    check(!PhysicsSystem::IsSimulatingPhysics && "This should only be called from TickPhysics");
+    if(!myActor)
+        return;
+
+    myActor->addTorque({inTorque.x, inTorque.y, inTorque.z}, static_cast<physx::PxForceMode::Enum>(inForceMode));
 }
 
 void RigidbodyComponent::OnPositionChanged()

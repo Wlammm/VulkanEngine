@@ -170,11 +170,11 @@ public:
 	// The frame the user released the button.
 	static bool IsKeyUp(const MouseButton aMouseButton);
 
-	// The frames the user is pressing the button.
+	// Every frame the button is pressed.
 	static bool IsKeyPressed(const int aKeyCode);
-	// The frames the user is pressing the button.
+	// Every frame the button is pressed.
 	static bool IsKeyPressed(const KeyCode aKeyCode);
-	// The frames the user is pressing the button.
+	// Every frame the button is pressed.
 	static bool IsKeyPressed(const MouseButton aMouseButton);
 
 	static const glm::vec2& GetMousePosition();

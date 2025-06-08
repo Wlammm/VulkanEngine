@@ -40,9 +40,25 @@ void PlayerControllerComponent::TickPhysics()
         if(!rigidbody)
             return;
 
-        movement = glm::normalize(movement) * mySpeed;
+        movement = glm::normalize(movement);
+
+        if (Input::IsKeyPressed(KeyCode::LeftShift))
+            movement *= mySprintSpeed;
+        else
+            movement *= mySpeed;
+        
         movement.y = rigidbody->GetVelocity().y;
 
         rigidbody->SetVelocity(movement);
+    }
+
+    if (Input::IsKeyDown(KeyCode::Space))
+    {
+        RigidbodyComponent* rigidbody = GetComponent<RigidbodyComponent>();
+        if(!rigidbody)
+            return;
+
+        float mass = rigidbody->GetMass();
+        rigidbody->AddForce(glm::up() * myJumpForce * rigidbody->GetMass(), ForceMode::Impulse);
     }
 }
