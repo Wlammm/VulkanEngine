@@ -105,7 +105,7 @@ void LandscapeRenderComponent::CreateLandscapeMesh()
             float yPos = myHeightfield.GetHeight({xPos, zPos});
             
             vertex.myPosition = { xPos, yPos, zPos };
-            vertex.myTexCoords[0] = {xPos / 100.0f, zPos / 100.0f };
+            vertex.myTexCoords[0] = {xPos / 1000.0f, zPos / 1000.0f };
             vertices.Add(vertex);
         }
     }

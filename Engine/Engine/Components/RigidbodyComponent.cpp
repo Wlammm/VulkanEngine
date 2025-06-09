@@ -26,7 +26,10 @@ void RigidbodyComponent::TickPhysics()
         if(myFramesSinceStartSleep > 2)
             return;
     }
-    myFramesSinceStartSleep = 0;
+    else
+    {
+        myFramesSinceStartSleep = 0;
+    }
 
     physx::PxTransform transform = myActor->getGlobalPose();
     GetTransform()->SetPosition(transform.p);

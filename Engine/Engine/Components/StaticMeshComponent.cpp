@@ -125,7 +125,6 @@ const Material* StaticMeshComponent::GetMaterialForMesh(Mesh* inMesh) const
 void StaticMeshComponent::OnRenderStateDirty()
 {
     ZoneScoped;
-
     if(!myModel)
     {
         // We need to remove all active mesh instances on the gpu.

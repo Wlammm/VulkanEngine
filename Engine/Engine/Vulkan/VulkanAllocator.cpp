@@ -52,6 +52,7 @@ void VulkanAllocator::Tick()
 {
 	TickBufferDeletes();
 	TickImageDeletes();
+	TickDelegateDeletes();
 }
 
 VulkanBuffer* VulkanAllocator::AllocateBuffer_TS(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage, bool inMappable)

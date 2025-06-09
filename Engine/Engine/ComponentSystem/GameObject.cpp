@@ -30,6 +30,11 @@ void GameObject::ResetRenderStateDirtyFlag()
     myRenderStateDirty = false;
 }
 
+const std::string& GameObject::GetName() const
+{
+    return myName;
+}
+
 List<Component*> GameObject::GetComponents() const
 {
     List<Component*> components;
