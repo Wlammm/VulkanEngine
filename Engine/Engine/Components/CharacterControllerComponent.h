@@ -43,8 +43,6 @@ private:
     float myGravity = 981;
     float myTerminalVelocity = 5500;
 
-    bool myWasGroundedLastFrame = false;
-    
     glm::vec3 myDisplacement = glm::vec3(0, 0, 0);
     glm::vec3 myPositionOffset = glm::vec3(0, 0, 0);
 };

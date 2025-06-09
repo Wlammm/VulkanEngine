@@ -1,0 +1,5 @@
+{
+	"albedoPath": "Assets/Characters/PlayerCharacter/Character_A.png",
+	"normalPath": "Assets/Characters/PlayerCharacter/Character_N.png",
+	"materialPath": "Assets/Characters/PlayerCharacter/Character_M.png"
+}

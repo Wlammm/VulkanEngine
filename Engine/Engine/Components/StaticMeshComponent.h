@@ -20,6 +20,7 @@ public:
     void SetModel(Model* inModel);
     Model* GetModel() const;
 
+    void SetMaterialAsync(const std::filesystem::path& inMaterialPath, const uint inIndex);
     void SetMaterial(Material* inMaterial, const uint inIndex);
     const Material* GetMaterial(const uint inIndex) const;
 

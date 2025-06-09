@@ -94,6 +94,14 @@ Model* StaticMeshComponent::GetModel() const
     return myModel;
 }
 
+void StaticMeshComponent::SetMaterialAsync(const std::filesystem::path& inMaterialPath, const uint inIndex)
+{
+    GetWorld()->GetAssetRegistry().GetAssetAsync<Material>(inMaterialPath, [this, inIndex](Material* inMaterial)
+    {
+        SetMaterial(inMaterial, inIndex);
+    });
+}
+
 void StaticMeshComponent::SetMaterial(Material* inMaterial, const uint inIndex)
 {
     myMaterials[inIndex] = inMaterial;

@@ -10,6 +10,8 @@ public:
     void SetLength(const float inLength);
     void SetExclusionTags(const TagMask inTags);
 
+    void SetOffset(const glm::vec3& inOffset);
+
     void Tick() override;
     
 private:

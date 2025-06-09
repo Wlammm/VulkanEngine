@@ -77,21 +77,18 @@ void CharacterControllerComponent::TickPhysics()
 
     if (myUseGravity)
     {
-        if (!IsGrounded())
-        {
-            myDownVelocity += myGravity * Time::GetDeltaTime();
-            myDownVelocity = std::min(myDownVelocity, myTerminalVelocity);
-        }
+        myDownVelocity += myGravity * Time::GetDeltaTime();
+        myDownVelocity = std::min(myDownVelocity, myTerminalVelocity);
 
-        if (IsGrounded() && !myWasGroundedLastFrame)
+        if (IsGrounded() && myDownVelocity > 0)
             myDownVelocity = myGravity * 0.01f;
     }
 
     myDisplacement += -glm::up() * myDownVelocity * Time::GetDeltaTime();
+
     myCollisionFlags = myController->move({myDisplacement.x, myDisplacement.y, myDisplacement.z}, myMinDist, Time::GetDeltaTime(), myFilter);
     myDisplacement = glm::vec3(0, 0, 0);
     
-    myWasGroundedLastFrame = IsGrounded();
 }
 
 float CharacterControllerComponent::GetHeight() const

@@ -57,6 +57,7 @@ void PlayerComponent::TickPhysics()
         if(!characterController)
             return;
 
-        characterController->Jump(myJumpForce);
+        if (characterController->IsGrounded())
+            characterController->Jump(myJumpForce);
     }
 }

@@ -73,6 +73,7 @@ bool Input::UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message)
 	{
+	case WM_SYSKEYDOWN:
 	case WM_KEYDOWN:
 	{
 		int keyCode = static_cast<int>(wParam);
@@ -96,6 +97,7 @@ bool Input::UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam)
 		detectMessage = true;
 	} break;
 
+	case WM_SYSKEYUP:
 	case WM_KEYUP:
 	{
 		int keyCode = static_cast<int>(wParam);

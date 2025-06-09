@@ -29,6 +29,10 @@ public:
     void SetPosition(const float inX, const float inY, const float inZ);
     void SetPosition(const physx::PxVec3T<float>& inPosition);
 
+    void SetPitch(float pitchRadians);
+    void SetYaw(float yawRadians);
+    void SetRoll(float rollRadians);
+
     void SetPositionX(const float inX);
     void SetPositionY(const float inY);
     void SetPositionZ(const float inZ);
