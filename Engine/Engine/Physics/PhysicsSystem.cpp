@@ -92,10 +92,18 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
     myScene = myPhysics->createScene(sceneDesc);
 
     myDefaultMaterial = myPhysics->createMaterial(0.5f, 0.5f, 0.2f);
+
+    if (!PxInitExtensions(*myPhysics, myPvd))
+    {
+        check(false && "Failed to init PhysX extensions.");
+    }
+    
+    myControllerManager = PxCreateControllerManager(*myScene);
 }
 
 PhysicsSystem::~PhysicsSystem()
 {
+    PhysXRelease(myControllerManager);
     del(myToleranceScale);
     PhysXRelease(myDefaultMaterial);
     PhysXRelease(myScene);
@@ -161,6 +169,16 @@ physx::PxMaterial* PhysicsSystem::GetDefaultMaterial() const
 physx::PxScene* PhysicsSystem::GetScene() const
 {
     return myScene;
+}
+
+physx::PxControllerManager* PhysicsSystem::GetControllerManager() const
+{
+    return myControllerManager;
+}
+
+PhysicsListener* PhysicsSystem::GetPhysicsListener() const
+{
+    return myListener;
 }
 
 

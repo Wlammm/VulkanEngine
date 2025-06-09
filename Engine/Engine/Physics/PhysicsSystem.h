@@ -8,6 +8,7 @@ class PhysicsListener;
 
 namespace physx
 {
+    class PxControllerManager;
     class PxErrorCallback;
     class PxTolerancesScale;
     class PxMaterial;
@@ -40,6 +41,10 @@ public:
     
     physx::PxMaterial* GetDefaultMaterial() const;
     physx::PxScene* GetScene() const;
+
+    physx::PxControllerManager* GetControllerManager() const;
+
+    PhysicsListener* GetPhysicsListener() const;
     
 private:
     List<Delegate<void(physx::PxPhysics* inPhysics, physx::PxScene* inScene)>> myPhysicsCommands{};
@@ -56,6 +61,8 @@ private:
     // It is not allowed to add, remove, or modify objects while the simulation is running. Use QueuePhysicsCommand if you want to make changes to these objects.
     physx::PxPhysics* myPhysics = nullptr;
     physx::PxScene* myScene = nullptr;
+    
+    physx::PxControllerManager* myControllerManager = nullptr;
 
     bool myHasActiveSimulation = false;
 };

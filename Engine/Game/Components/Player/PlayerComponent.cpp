@@ -1,19 +1,20 @@
 ﻿#include "GamePch.h"
-#include "PlayerControllerComponent.h"
+#include "PlayerComponent.h"
 
+#include "Engine/Components/CharacterControllerComponent.h"
 #include "Engine/Components/RigidbodyComponent.h"
 #include "Engine/Components/TransformComponent.h"
 #include "Engine/Core/Input.h"
 
-PlayerControllerComponent::PlayerControllerComponent()
+PlayerComponent::PlayerComponent()
 {
     
 }
 
-void PlayerControllerComponent::TickPhysics()
+void PlayerComponent::TickPhysics()
 {
     Component::TickPhysics();
-
+    
     glm::vec3 movement{};
 
     if (Input::IsKeyPressed(KeyCode::W))
@@ -36,8 +37,8 @@ void PlayerControllerComponent::TickPhysics()
     movement.y = 0;
     if (length(movement) != 0)
     {
-        RigidbodyComponent* rigidbody = GetComponent<RigidbodyComponent>();
-        if(!rigidbody)
+        CharacterControllerComponent* characterController = GetComponent<CharacterControllerComponent>();
+        if(!characterController)
             return;
 
         movement = glm::normalize(movement);
@@ -47,18 +48,15 @@ void PlayerControllerComponent::TickPhysics()
         else
             movement *= mySpeed;
         
-        movement.y = rigidbody->GetVelocity().y;
-
-        rigidbody->SetVelocity(movement);
+        characterController->Move(movement);
     }
 
     if (Input::IsKeyDown(KeyCode::Space))
     {
-        RigidbodyComponent* rigidbody = GetComponent<RigidbodyComponent>();
-        if(!rigidbody)
+        CharacterControllerComponent* characterController = GetComponent<CharacterControllerComponent>();
+        if(!characterController)
             return;
 
-        float mass = rigidbody->GetMass();
-        rigidbody->AddForce(glm::up() * myJumpForce * rigidbody->GetMass(), ForceMode::Impulse);
+        characterController->Jump(myJumpForce);
     }
 }
