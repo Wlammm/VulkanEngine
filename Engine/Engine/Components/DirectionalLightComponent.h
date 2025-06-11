@@ -4,6 +4,7 @@
 class VulkanImage;
 class DirectionalLightComponent : public Component
 {
+    COMP(DirectionalLightComponent);
 public:
     DirectionalLightComponent();
     ~DirectionalLightComponent();

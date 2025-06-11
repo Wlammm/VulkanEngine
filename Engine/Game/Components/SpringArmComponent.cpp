@@ -18,6 +18,11 @@ void SpringArmComponent::SetExclusionTags(const TagMask inTags)
     myExclusionTags = inTags;
 }
 
+float SpringArmComponent::GetLength() const
+{
+    return myLength;
+}
+
 void SpringArmComponent::SetOffset(const glm::vec3& inOffset)
 {
     myOffset = inOffset;

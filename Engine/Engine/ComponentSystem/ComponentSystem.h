@@ -24,6 +24,8 @@ public:
     GameObject* CreateGameObject(const std::string& inObjectName);
     void DestroyGameObject(GameObject* inGameObject);
 
+    const List<GameObject*>& GetAllGameObjects() const;
+    
     template<typename ComponentType>
     ComponentArray<ComponentType>& GetComponentArrayForType() const
     {

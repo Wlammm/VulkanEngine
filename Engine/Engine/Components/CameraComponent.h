@@ -3,6 +3,7 @@
 
 class CameraComponent : public Component
 {
+	COMP(CameraComponent);
 public:
     CameraComponent();
 

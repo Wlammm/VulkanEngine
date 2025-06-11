@@ -1,0 +1,11 @@
+../
+%{VULKAN_SDK}/Include/
+../External/
+../External/assimp/include/
+../External/aftermath/include/
+../ImGui/
+../External/tracy/
+../External/glm/
+../External/mimalloc/include/
+../External/PerlinNoise/
+%{PHYSX_INCLUDE_DIR}

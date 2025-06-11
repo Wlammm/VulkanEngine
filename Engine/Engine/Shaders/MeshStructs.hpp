@@ -24,7 +24,7 @@ struct MeshData
     ALIGNAS(16) vec4 myBoundingSphereModelSpace; // X, Y, Z are center position in model space. W is radius
     ALIGNAS(4) uint myVertexIndex; // The index into the global sparse vertex data buffer.
     ALIGNAS(4) uint myIndexDataIndex; // The index into the global sparse index data buffer.
-    ALIGNAS(4) uint myMaterialIndex;
+    ALIGNAS(4) uint myMaterialIndex; // TODO: Is this even used?
 };
 
 struct VertexBufferData

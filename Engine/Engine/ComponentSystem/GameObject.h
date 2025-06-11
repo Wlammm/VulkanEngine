@@ -24,6 +24,7 @@ public:
 
     void ResetRenderStateDirtyFlag();
 
+    void SetName(const std::string& inName);
     const std::string& GetName() const;
 
     List<Component*> GetComponents() const;

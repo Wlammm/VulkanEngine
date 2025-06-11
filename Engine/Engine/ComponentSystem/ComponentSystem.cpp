@@ -98,6 +98,11 @@ void ComponentSystem::DestroyGameObject(GameObject* inGameObject)
     myObjectsToDestory.Add(inGameObject);
 }
 
+const List<GameObject*>& ComponentSystem::GetAllGameObjects() const
+{
+    return myObjects;
+}
+
 const List<IComponentArray*>& ComponentSystem::GetAllComponentArrays() const
 {
     return myComponentArrays;

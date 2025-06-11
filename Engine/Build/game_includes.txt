@@ -1,0 +1,9 @@
+../
+%{VULKAN_SDK}/Include/
+../External/
+../External/assimp/include/
+../External/aftermath/include/
+../ImGui/
+../External/tracy/
+../External/glm/
+%{PHYSX_INCLUDE_DIR}

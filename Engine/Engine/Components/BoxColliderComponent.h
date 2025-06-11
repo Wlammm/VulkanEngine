@@ -4,6 +4,7 @@
 
 class BoxColliderComponent : public ColliderComponent
 {
+    COMP(BoxColliderComponent);
 public:
     void OnCreate() override;
 

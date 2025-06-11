@@ -30,6 +30,11 @@ void GameObject::ResetRenderStateDirtyFlag()
     myRenderStateDirty = false;
 }
 
+void GameObject::SetName(const std::string& inName)
+{
+    myName = inName;
+}
+
 const std::string& GameObject::GetName() const
 {
     return myName;

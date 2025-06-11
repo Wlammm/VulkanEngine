@@ -8,7 +8,27 @@ PHYSX_INCLUDE_DIR = "../../PhysX/physx/include/"
 PHYSX_LIB_DIR = "%{PHYSX_BIN_DIR}/%{cfg.runtime}" -- Default to release
 PHYSX_LIB_DIR_LIBSEARCH = "../../PhysX/physx/bin/win.x86_64.vc143.mt/debug/*.lib"
 
+function read_includes(file)
+	local includes = {}
+	local f = io.open(file, "r")
+	if f then
+		for line in f:lines() do
+			line = line:gsub("\r", ""):gsub("\n", ""):match("^%s*(.-)%s*$")  -- trim whitespace
+			if line ~= "" then
+				table.insert(includes, line)
+			end
+		end
+		f:close()
+	else
+		print("Warning: Cannot open include file: " .. file)
+	end
+	return includes
+end
 
+engine_includes = read_includes("engine_includes.txt")
+editor_includes = read_includes("editor_includes.txt")
+game_includes = read_includes("game_includes.txt")
+launcher_includes = read_includes("launcher_includes.txt")
 
 --filter { "configurations:*Debug*" }
 --    PHYSX_LIB_DIR = "%{PHYSX_BIN_DIR}/debug"
@@ -102,14 +122,7 @@ project "Launcher"
     kind "ConsoleApp"
 	location "../%{prj.name}"
 	targetdir  "../../Bin/"
-	includedirs
-	{
-		"%{VULKAN_SDK}/Include/",
-		"$(SolutionDir)",
-		"$(SolutionDir)External/",
-		"$(SolutionDir)ImGui/",
-		"%{PHYSX_INCLUDE_DIR}",
-	}
+	includedirs(launcher_includes)
 	libdirs
 	{
 		"%{PHYSX_LIB_DIR}",
@@ -156,21 +169,7 @@ project "Engine"
 	location "../%{prj.name}"
 	pchheader "EnginePch.h"
 	pchsource "../Engine/EnginePch.cpp"
-	includedirs
-	{
-		"$(SolutionDir)",
-		"%{VULKAN_SDK}/Include/",
-		"$(SolutionDir)External/",
-		"%{EXTERNAL}/",
-		"%{EXTERNAL}/assimp/include/",
-		"%{EXTERNAL}/aftermath/include/",
-		"$(SolutionDir)ImGui/",
-		"%{EXTERNAL}/tracy/",
-		"%{EXTERNAL}/glm/",
-		"%{EXTERNAL}/mimalloc/include/",
-		"%{EXTERNAL}/PerlinNoise/",
-		"%{PHYSX_INCLUDE_DIR}",
-	}
+	includedirs(engine_includes)
 	filter "files:../Engine/Tracy/TracyClient.cpp"
 		flags { "NoPCH" }
 
@@ -179,37 +178,14 @@ project "Editor"
 	location "../%{prj.name}"
 	pchheader "EditorPch.h"
 	pchsource "../Editor/EditorPch.cpp"
-	includedirs
-	{
-		"$(SolutionDir)",
-		"%{VULKAN_SDK}/Include/",
-		"%{EXTERNAL}/",
-		"$(SolutionDir)External/",
-		"%{EXTERNAL}/assimp/include/",
-		"%{EXTERNAL}/aftermath/include/",
-		"$(SolutionDir)ImGui/",
-		"%{EXTERNAL}/tracy/",
-		"%{EXTERNAL}/glm/",
-	}
+	includedirs(editor_includes)
 	
 project "Game"
 	kind "StaticLib"
 	location "../%{prj.name}"
 	pchheader "GamePch.h"
 	pchsource "../Game/GamePch.cpp"
-	includedirs
-	{
-		"$(SolutionDir)",
-		"%{VULKAN_SDK}/Include/",
-		"%{EXTERNAL}/",
-		"$(SolutionDir)External/",
-		"%{EXTERNAL}/assimp/include/",
-		"%{EXTERNAL}/aftermath/include/",
-		"$(SolutionDir)ImGui/",
-		"%{EXTERNAL}/tracy/",
-		"%{EXTERNAL}/glm/",
-		"%{PHYSX_INCLUDE_DIR}",
-	}
+	includedirs(game_includes)
 	
 project "ImGui"
     kind "StaticLib"

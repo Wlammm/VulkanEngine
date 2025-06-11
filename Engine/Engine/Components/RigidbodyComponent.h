@@ -19,6 +19,7 @@ enum class ForceMode
 // Interacting with most of this classes functions is required to be done in TickPhysics. Those functions has an assert if called outside.
 class RigidbodyComponent : public Component
 {
+    COMP(RigidbodyComponent);
 public:
     RigidbodyComponent() = default;
     

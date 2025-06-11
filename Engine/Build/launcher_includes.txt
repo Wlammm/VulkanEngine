@@ -1,0 +1,5 @@
+%{VULKAN_SDK}/Include/
+../
+../External/
+../ImGui/
+%{PHYSX_INCLUDE_DIR}

@@ -3,6 +3,7 @@
 
 class PointLightComponent : public Component
 {
+    COMP(PointLightComponent);
 public:
     PointLightComponent();
 

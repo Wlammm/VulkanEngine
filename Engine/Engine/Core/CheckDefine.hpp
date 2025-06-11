@@ -3,6 +3,7 @@
 #include <windows.h>
 #undef min
 #undef max
+
 #define check(x)\
 if(!(x))\
 {\

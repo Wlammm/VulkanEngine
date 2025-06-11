@@ -1,6 +1,8 @@
 #include "EditorPch.h"
 #include "Editor.h"
 #include "Windows/EditorWindow.h"
+#include "Windows/HierarchyWindow.h"
+#include "Windows/InspectorWindow.h"
 #include "Windows/Viewport.h"
 
 Editor::Editor()
@@ -9,6 +11,8 @@ Editor::Editor()
 	myInstance = this;
 
 	AddWindow<Viewport>();
+	AddWindow<HierarchyWindow>();
+	AddWindow<InspectorWindow>();
 }
 
 Editor::~Editor()

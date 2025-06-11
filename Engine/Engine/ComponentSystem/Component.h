@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "GameObject.h"
+#include "ComponentDefines.hpp"
 
 class TransformComponent;
 
@@ -8,6 +9,8 @@ class Component
 public:
     Component() = default;
     virtual ~Component() = default;
+
+    virtual const std::string& GetComponentName() const = 0;
     
     virtual void OnCreate() {}
     virtual void OnDestroy() {}

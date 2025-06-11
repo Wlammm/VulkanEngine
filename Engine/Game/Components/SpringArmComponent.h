@@ -4,11 +4,14 @@
 
 class SpringArmComponent : public Component
 {
+    COMP(SpringArmComponent);
 public:
     SpringArmComponent();
     
     void SetLength(const float inLength);
     void SetExclusionTags(const TagMask inTags);
+
+    float GetLength() const;
 
     void SetOffset(const glm::vec3& inOffset);
 
