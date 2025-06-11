@@ -17,6 +17,7 @@
 
 #include "Tracy/tracy/Tracy.hpp"
 #include "Core/AutoInitManager.h"
+#include "Reflection/ReflectionSystem.h"
 #include "Rendering/IndexBufferSystem.h"
 #include "Rendering/MeshSystem.h"
 #include "Rendering/RenderSystem.h"
@@ -188,6 +189,7 @@ void Engine::SetExternalTickFunction(const std::function<void()> inExternalTickF
 
 void Engine::CreateSystems()
 {
+	mySystemManager->AddSystem<ReflectionSystem>();
 	mySystemManager->AddSystem<StagingSystem>();
 	mySystemManager->AddSystem<RenderSystem>();
 	mySystemManager->AddSystem<TextureSystem>();

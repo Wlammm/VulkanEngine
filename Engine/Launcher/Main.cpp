@@ -7,6 +7,8 @@
 #include <Editor/Editor.h>
 #endif
 
+#include "GeneratedReflectionDAta.hpp"
+
 int main(int argc, char** argv)
 {
 	Console console{argc, argv};
@@ -17,7 +19,8 @@ int main(int argc, char** argv)
 		properties.AddStartupArguments(argc, argv);
 
 		Engine engine{ properties };
-
+		GeneratedReflectionData::RegisterReflectionData(engine);
+		
 		Game game{};
 		
 #if EDITOR
