@@ -9,6 +9,7 @@ extra_vars = {
 }
 
 includes_file_path = "../Build/engine_includes.txt"
+headers_root = Path("../Engine/")
 
 def read_includes(file_path):
     includes = []
@@ -42,13 +43,20 @@ def build_clang_args(include_paths):
     args += ['-include', str(Path("../Engine/EnginePch.h").resolve())]
     return args
 
-def generate_reflection(header_file):
+def find_all_headers():
+    headers = []
 
-    includes = collect_includes()
-    clang_args = build_clang_args(includes)
+    for path in headers_root.rglob("*.h"):
+        headers.append(path)
 
+    for path in headers_root.rglob("*.hpp"):
+        headers.append(path)
+
+    return headers
+
+def parse_file(header_path, clang_args):
     index = clang.cindex.Index.create()
-    tu = index.parse(header_file, clang_args)
+    tu = index.parse(header_path, clang_args)
 
     for node in tu.cursor.walk_preorder():
         if node.kind == clang.cindex.CursorKind.CLASS_DECL and node.is_definition():
@@ -59,4 +67,20 @@ def generate_reflection(header_file):
                     field_type = child.type.spelling
                     print(f"  Field: {field_name} ({field_type})")
 
-generate_reflection("C:/Users/William/Documents/GitHub/VulkanEngine/Engine/Engine/Components/TransformComponent.h")
+def build_unity_file(headers, output_file):
+    with open(output_file, "w") as f:
+        f.write('include "EnginePch.h"\n')
+        for header in headers:
+            f.write(f'#include "{header}"\n')
+
+def generate_reflection():
+
+    includes = collect_includes()
+    clang_args = build_clang_args(includes)
+
+    headers = find_all_headers()
+
+    build_unity_file(headers, "ReflectionUnityFile.cpp")
+    parse_file("ReflectionUnityFile.cpp", clang_args)
+    
+generate_reflection()

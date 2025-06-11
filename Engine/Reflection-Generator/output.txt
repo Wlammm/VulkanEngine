@@ -1,0 +1,2811 @@
+Class: _Lockit
+  Field: _Locktype (int)
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Cpo
+Class: _Advance_fn
+Class: _Distance_fn
+Class: _Ssize_fn
+Class: _Next_fn
+Class: _Prev_fn
+Class: _Fill_n_fn
+Class: _Mismatch_fn
+Class: _Find_fn
+Class: _Find_if_fn
+Class: _Find_if_not_fn
+Class: _Adjacent_find_fn
+Class: _Search_fn
+Class: _Max_element_fn
+Class: _Max_fn
+Class: _Min_element_fn
+Class: _Min_fn
+Class: _Istreambuf_proxy
+  Field: _Strbuf (streambuf_type *)
+  Field: _Keep (_Elem)
+Class: _Arrow_proxy
+Class: _Postfix_proxy
+Class: exception
+  Field: _Data (__std_exception_data)
+Class: bad_exception
+Class: bad_alloc
+Class: bad_array_new_length
+Class: exception_ptr
+  Field: _Data1 (void *)
+  Field: _Data2 (void *)
+Class: nested_exception
+  Field: _Exc (exception_ptr)
+Class: bad_variant_access
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: numeric_limits
+Class: tuple
+Class: memory_resource
+Class: logic_error
+Class: domain_error
+Class: invalid_argument
+Class: length_error
+Class: out_of_range
+Class: runtime_error
+Class: overflow_error
+Class: underflow_error
+Class: range_error
+Class: error_category
+  Field: _Addr (_Addr_storage)
+Class: error_code
+  Field: _Myval (int)
+  Field: _Mycat (const error_category *)
+Class: error_condition
+  Field: _Myval (int)
+  Field: _Mycat (const error_category *)
+Class: _System_error
+  Field: _Mycode (error_code)
+Class: system_error
+Class: _Generic_error_category
+Class: _Iostream_error_category2
+Class: _System_error_category
+Class: type_info
+  Field: _Data (__std_type_info_data)
+Class: bad_cast
+Class: bad_typeid
+Class: __non_rtti_object
+Class: _Uninitialized_copy_fn
+Class: _Uninitialized_copy_n_fn
+Class: _Uninitialized_move_fn
+Class: _Uninitialized_move_n_fn
+Class: _Uninitialized_fill_fn
+Class: _Uninitialized_fill_n_fn
+Class: _Construct_at_fn
+Class: _Destroy_at_fn
+Class: _Destroy_fn
+Class: _Destroy_n_fn
+Class: _Uninitialized_default_construct_fn
+Class: _Uninitialized_default_construct_n_fn
+Class: _Uninitialized_value_construct_fn
+Class: _Uninitialized_value_construct_n_fn
+Class: bad_weak_ptr
+Class: _Ref_count_base
+  Field: _Uses (_Atomic_counter_t)
+  Field: _Weaks (_Atomic_counter_t)
+Class: _Facet_base
+Class: _Timevec
+  Field: _Timeptr (void *)
+Class: _Locinfo
+  Field: _Lock (_Lockit)
+  Field: _Days (_Yarn<char>)
+  Field: _Months (_Yarn<char>)
+  Field: _W_Days (_Yarn<wchar_t>)
+  Field: _W_Months (_Yarn<wchar_t>)
+  Field: _Oldlocname (_Yarn<char>)
+  Field: _Newlocname (_Yarn<char>)
+Class: locale
+  Field: _Ptr (_Locimp *)
+Class: id
+  Field: _Id (size_t)
+Class: facet
+  Field: _Myrefs (_Atomic_counter_t)
+Class: _Locimp
+  Field: _Facetvec (facet **)
+  Field: _Facetcount (size_t)
+  Field: _Catmask (category)
+  Field: _Xparent (bool)
+  Field: _Name (_Yarn<char>)
+Class: codecvt_base
+Class: codecvt
+  Field: _Maxcode (unsigned long)
+  Field: _Mode (_Codecvt_mode)
+Class: codecvt
+  Field: _Maxcode (unsigned long)
+  Field: _Mode (_Codecvt_mode)
+Class: codecvt
+Class: codecvt
+Class: codecvt
+  Field: _Cvt (_Locinfo::_Cvtvec)
+Class: codecvt
+  Field: _Cvt (_Locinfo::_Cvtvec)
+Class: codecvt_byname
+Class: codecvt_byname
+Class: codecvt_byname
+Class: codecvt_byname
+Class: ctype
+  Field: _Ctype (_Locinfo::_Ctypevec)
+Class: ctype
+  Field: _Ctype (_Locinfo::_Ctypevec)
+  Field: _Cvt (_Locinfo::_Cvtvec)
+Class: ctype
+  Field: _Ctype (_Locinfo::_Ctypevec)
+  Field: _Cvt (_Locinfo::_Cvtvec)
+Class: ios_base
+  Field: _Stdstr (size_t)
+  Field: _Mystate (iostate)
+  Field: _Except (iostate)
+  Field: _Fmtfl (fmtflags)
+  Field: _Prec (streamsize)
+  Field: _Wide (streamsize)
+  Field: _Arr (_Iosarray *)
+  Field: _Calls (_Fnarray *)
+  Field: _Ploc (locale *)
+Class: failure
+Class: Init
+Class: _Sentry_base
+  Field: _Myostr (basic_ostream<_Elem, _Traits> &)
+Class: sentry
+  Field: _Ok (bool)
+Class: _Sentry_base
+  Field: _Myistr (basic_istream<_Elem, _Traits> &)
+Class: sentry
+  Field: _Ok (bool)
+Class: format_error
+Class: handle
+  Field: _Ptr (const void *)
+  Field: _Format (void (*)(basic_format_parse_context<_CharType> &, _Context &, const void *) __attribute__((cdecl)))
+Class: _Lazy_locale
+  Field: _Loc (const locale *)
+Class: _GB11_LeftHand_regex
+  Field: _State (_State_t)
+Class: _Fmt_codec_base
+  Field: _Cvt (_Cvtvec)
+Class: _Width_checker
+Class: _Precision_checker
+Class: _Fmt_fixed_buffer_traits
+  Field: _Count_ (ptrdiff_t)
+  Field: _Limit_ (ptrdiff_t)
+Class: _Measure_string_prefix_iterator_legacy
+  Field: _Codec (_Fmt_codec<char>)
+  Field: _First (const char *)
+  Field: _Last (const char *)
+  Field: _Units (int)
+Class: bad_optional_access
+Class: _For_each_fn
+Class: _For_each_n_fn
+Class: _Count_fn
+Class: _Count_if_fn
+Class: _Equal_fn
+Class: _Is_permutation_fn
+Class: _All_of_fn
+Class: _Any_of_fn
+Class: _None_of_fn
+Class: _Contains_fn
+Class: _Contains_subrange_fn
+Class: _Copy_n_fn
+Class: _Copy_backward_fn
+Class: _Copy_if_fn
+Class: _Move_fn
+Class: _Move_backward_fn
+Class: _Partition_copy_fn
+Class: _Is_partitioned_fn
+Class: _Partition_point_fn
+Class: _Search_n_fn
+Class: _Starts_with_fn
+Class: _Ends_with_fn
+Class: _Fold_left_with_iter_fn
+Class: _Fold_left_fn
+Class: _Fold_left_first_with_iter_fn
+Class: _Fold_left_first_fn
+Class: _Fold_right_fn
+Class: _Fold_right_last_fn
+Class: _Find_last_fn
+Class: _Find_end_fn
+Class: _Find_first_of_fn
+Class: _Swap_ranges_fn
+Class: _Transform_fn
+Class: _Replace_fn
+Class: _Replace_if_fn
+Class: _Replace_copy_fn
+Class: _Replace_copy_if_fn
+Class: _Fill_fn
+Class: _Generate_fn
+Class: _Generate_n_fn
+Class: _Remove_fn
+Class: _Remove_if_fn
+Class: _Remove_copy_fn
+Class: _Remove_copy_if_fn
+Class: _Unique_fn
+Class: _Unique_copy_fn
+Class: _Reverse_fn
+Class: _Reverse_copy_fn
+Class: _Rotate_fn
+Class: _Rotate_copy_fn
+Class: _Sample_fn
+Class: _Shuffle_fn
+Class: _Shift_left_fn
+Class: _Shift_right_fn
+Class: _Partition_fn
+Class: _Stable_partition_fn
+Class: _Push_heap_fn
+Class: _Pop_heap_fn
+Class: _Make_heap_fn
+Class: _Is_heap_fn
+Class: _Is_heap_until_fn
+Class: _Sort_heap_fn
+Class: _Lower_bound_fn
+Class: _Upper_bound_fn
+Class: _Equal_range_fn
+Class: _Binary_search_fn
+Class: _Merge_fn
+Class: _Inplace_merge_fn
+Class: _Sort_fn
+Class: _Stable_sort_fn
+Class: _Partial_sort_fn
+Class: _Partial_sort_copy_fn
+Class: _Nth_element_fn
+Class: _Includes_fn
+Class: _Set_union_fn
+Class: _Set_intersection_fn
+Class: _Set_difference_fn
+Class: _Set_symmetric_difference_fn
+Class: _Minmax_element_fn
+Class: _Minmax_fn
+Class: _Next_permutation_fn
+Class: _Prev_permutation_fn
+Class: _Is_sorted_fn
+Class: _Is_sorted_until_fn
+Class: _Clamp_fn
+Class: _Lexicographical_compare_fn
+Class: day
+  Field: _Day (unsigned char)
+Class: month
+  Field: _Month (unsigned char)
+Class: year
+  Field: _Year (short)
+Class: weekday
+  Field: _Weekday (unsigned char)
+Class: weekday_indexed
+  Field: _Weekday (::std::chrono::weekday)
+  Field: _Index (unsigned char)
+Class: weekday_last
+  Field: _Weekday (::std::chrono::weekday)
+Class: month_day
+  Field: _Month (::std::chrono::month)
+  Field: _Day (::std::chrono::day)
+Class: month_day_last
+  Field: _Month (::std::chrono::month)
+Class: month_weekday
+  Field: _Month (::std::chrono::month)
+  Field: _Weekday_index (::std::chrono::weekday_indexed)
+Class: month_weekday_last
+  Field: _Month (::std::chrono::month)
+  Field: _Weekday_last (::std::chrono::weekday_last)
+Class: year_month
+  Field: _Year (::std::chrono::year)
+  Field: _Month (::std::chrono::month)
+Class: year_month_day
+  Field: _Year (::std::chrono::year)
+  Field: _Month (::std::chrono::month)
+  Field: _Day (::std::chrono::day)
+Class: year_month_day_last
+  Field: _Year (::std::chrono::year)
+  Field: _Month_day_last (::std::chrono::month_day_last)
+Class: year_month_weekday
+  Field: _Year (::std::chrono::year)
+  Field: _Month (::std::chrono::month)
+  Field: _Weekday_index (::std::chrono::weekday_indexed)
+Class: year_month_weekday_last
+  Field: _Year (::std::chrono::year)
+  Field: _Month (::std::chrono::month)
+  Field: _Weekday_last (::std::chrono::weekday_last)
+Class: nonexistent_local_time
+Class: ambiguous_local_time
+Class: time_zone
+  Field: _Name (string)
+Class: leap_second
+  Field: _Date (sys_seconds)
+  Field: _Is_positive (bool)
+  Field: _Elapsed_offset (seconds)
+Class: time_zone_link
+  Field: _Name (string)
+  Field: _Target (string)
+Class: tzdb_list
+  Field: _Tzdb_list (_ListType)
+  Field: _Tzdb_mutex (_Smtx_t)
+Class: utc_clock
+Class: tai_clock
+Class: gps_clock
+Class: path
+  Field: _Text (string_type)
+Class: filesystem_error
+  Field: _Path1 (path)
+  Field: _Path2 (path)
+  Field: _What (string)
+Class: file_status
+  Field: _Myftype (file_type)
+  Field: _Myperms (perms)
+Class: directory_entry
+  Field: _Cached_data (__std_fs_stats)
+  Field: _Path (filesystem::path)
+Class: directory_iterator
+  Field: _Impl (shared_ptr<_Dir_enum_impl>)
+Class: recursive_directory_iterator
+  Field: _Impl (shared_ptr<_Recursive_dir_enum_impl>)
+Class: bad_function_call
+Class: _All_fn
+Class: _Stop_callback_base
+  Field: _Parent (_Stop_state *)
+  Field: _Next (_Stop_callback_base *)
+  Field: _Prev (_Stop_callback_base *)
+  Field: _Fn (_Callback_fn)
+Class: stop_token
+  Field: _State (_Stop_state *)
+Class: stop_source
+  Field: _State (_Stop_state *)
+Class: thread
+  Field: _Thr (_Thrd_t)
+Class: id
+  Field: _Id (_Thrd_id_t)
+Class: jthread
+  Field: _Impl (thread)
+  Field: _Ssource (stop_source)
+Class: _Mutex_base
+  Field: _Mtx_storage (_Mtx_internal_imp_t)
+Class: mutex
+Class: recursive_mutex
+Class: scoped_lock
+Class: condition_variable
+  Field: _Cnd_storage (_Cnd_internal_imp_t)
+Class: timed_mutex
+  Field: _My_mutex (mutex)
+  Field: _My_cond (condition_variable)
+  Field: _My_locked (unsigned int)
+Class: recursive_timed_mutex
+  Field: _My_mutex (mutex)
+  Field: _My_cond (condition_variable)
+  Field: _My_locked (unsigned int)
+  Field: _My_owner (thread::id)
+Class: condition_variable_any
+  Field: _Myptr (shared_ptr<mutex>)
+  Field: _Cnd_storage (_Cnd_internal_imp_t)
+Class: invalid_operation
+Class: task_canceled
+Class: _Interruption_exception
+Class: _Threadpool_task
+  Field: _M_chore (_Threadpool_chore)
+Class: _DefaultPPLTaskScheduler
+Class: _PPLTaskChore
+  Field: _M_Chore (_Threadpool_chore)
+  Field: _M_proc (TaskProc_t)
+  Field: _M_param (void *)
+Class: _RefCounter
+  Field: _M_refCount (volatile long)
+Class: _CancellationTokenRegistration
+  Field: _M_state (atomic_long)
+  Field: _M_CondVar (::std::condition_variable)
+  Field: _M_Mutex (::std::mutex)
+  Field: _M_signaled (bool)
+  Field: _M_pTokenState (_CancellationTokenState *)
+Class: CancellationTokenRegistration_TaskProc
+  Field: _M_proc (TaskProc_t)
+  Field: _M_pData (void *)
+Class: _CancellationTokenState
+  Field: _M_stateFlag (atomic_long)
+  Field: _M_listLock (::std::mutex)
+  Field: _M_registrations (TokenRegistrationContainer)
+Class: TokenRegistrationContainer
+  Field: _M_begin (Node *)
+  Field: _M_last (Node *)
+Class: cancellation_token_registration
+  Field: _M_pRegistration (details::_CancellationTokenRegistration *)
+Class: cancellation_token
+  Field: _M_Impl (_ImplType)
+Class: cancellation_token_source
+  Field: _M_Impl (_ImplType)
+Class: _TaskCollectionBaseImpl
+  Field: _M_StateChanged (::std::condition_variable)
+  Field: _M_Cs (::std::mutex)
+  Field: _M_pScheduler (::Concurrency::scheduler_ptr)
+  Field: _M_State (_TaskCollectionState)
+Class: _TaskCreationCallstack
+  Field: _M_SingleFrame (void *)
+  Field: _M_frames (::std::vector<void *>)
+Class: _ContextCallback
+  Field: _M_context (union (unnamed union at C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\ppltasks.h:640:9))
+Class: task_continuation_context
+  Field: _M_RunInline (bool)
+Class: task_options
+  Field: _M_Scheduler (scheduler_ptr)
+  Field: _M_CancellationToken (cancellation_token)
+  Field: _M_ContinuationContext (task_continuation_context)
+  Field: _M_InternalTaskOptions (details::_Internal_task_options)
+  Field: _M_HasCancellationToken (bool)
+  Field: _M_HasScheduler (bool)
+Class: task_completion_event
+  Field: _M_unitEvent (task_completion_event<details::_Unit_type>)
+Class: _ProgressReporterCtorArgType
+Class: _Continuation_func_transformer
+Class: _Init_func_transformer
+Class: task
+  Field: _M_unitTask (task<details::_Unit_type>)
+Class: future_error
+  Field: _Mycode (error_code)
+Class: _Future_error_category2
+Class: future
+Class: shared_future
+Class: promise
+  Field: _MyPromise (_Promise<int>)
+Class: bad_expected_access
+Class: DispatchLoaderBase
+  Field: vkHeaderVersion (size_t)
+  Field: m_valid (bool)
+Class: DispatchLoaderStatic
+Class: ErrorCategoryImpl
+Class: Error
+Class: LogicError
+Class: SystemError
+Class: OutOfHostMemoryError
+Class: OutOfDeviceMemoryError
+Class: InitializationFailedError
+Class: DeviceLostError
+Class: MemoryMapFailedError
+Class: LayerNotPresentError
+Class: ExtensionNotPresentError
+Class: FeatureNotPresentError
+Class: IncompatibleDriverError
+Class: TooManyObjectsError
+Class: FormatNotSupportedError
+Class: FragmentedPoolError
+Class: UnknownError
+Class: OutOfPoolMemoryError
+Class: InvalidExternalHandleError
+Class: FragmentationError
+Class: InvalidOpaqueCaptureAddressError
+Class: SurfaceLostKHRError
+Class: NativeWindowInUseKHRError
+Class: OutOfDateKHRError
+Class: IncompatibleDisplayKHRError
+Class: ValidationFailedEXTError
+Class: InvalidShaderNVError
+Class: ImageUsageNotSupportedKHRError
+Class: VideoPictureLayoutNotSupportedKHRError
+Class: VideoProfileOperationNotSupportedKHRError
+Class: VideoProfileFormatNotSupportedKHRError
+Class: VideoProfileCodecNotSupportedKHRError
+Class: VideoStdVersionNotSupportedKHRError
+Class: InvalidDrmFormatModifierPlaneLayoutEXTError
+Class: NotPermittedKHRError
+Class: FullScreenExclusiveModeLostEXTError
+Class: InvalidVideoStdParametersKHRError
+Class: CompressionExhaustedEXTError
+Class: SurfaceKHR
+  Field: m_surfaceKHR (VkSurfaceKHR)
+Class: DebugReportCallbackEXT
+  Field: m_debugReportCallbackEXT (VkDebugReportCallbackEXT)
+Class: DebugUtilsMessengerEXT
+  Field: m_debugUtilsMessengerEXT (VkDebugUtilsMessengerEXT)
+Class: DisplayKHR
+  Field: m_displayKHR (VkDisplayKHR)
+Class: SwapchainKHR
+  Field: m_swapchainKHR (VkSwapchainKHR)
+Class: Semaphore
+  Field: m_semaphore (VkSemaphore)
+Class: Fence
+  Field: m_fence (VkFence)
+Class: PerformanceConfigurationINTEL
+  Field: m_performanceConfigurationINTEL (VkPerformanceConfigurationINTEL)
+Class: QueryPool
+  Field: m_queryPool (VkQueryPool)
+Class: Buffer
+  Field: m_buffer (VkBuffer)
+Class: PipelineLayout
+  Field: m_pipelineLayout (VkPipelineLayout)
+Class: DescriptorSet
+  Field: m_descriptorSet (VkDescriptorSet)
+Class: ImageView
+  Field: m_imageView (VkImageView)
+Class: Pipeline
+  Field: m_pipeline (VkPipeline)
+Class: ShaderEXT
+  Field: m_shaderEXT (VkShaderEXT)
+Class: Image
+  Field: m_image (VkImage)
+Class: AccelerationStructureNV
+  Field: m_accelerationStructureNV (VkAccelerationStructureNV)
+Class: OpticalFlowSessionNV
+  Field: m_opticalFlowSessionNV (VkOpticalFlowSessionNV)
+Class: DescriptorUpdateTemplate
+  Field: m_descriptorUpdateTemplate (VkDescriptorUpdateTemplate)
+Class: Event
+  Field: m_event (VkEvent)
+Class: AccelerationStructureKHR
+  Field: m_accelerationStructureKHR (VkAccelerationStructureKHR)
+Class: MicromapEXT
+  Field: m_micromapEXT (VkMicromapEXT)
+Class: CommandBuffer
+  Field: m_commandBuffer (VkCommandBuffer)
+Class: DeviceMemory
+  Field: m_deviceMemory (VkDeviceMemory)
+Class: VideoSessionKHR
+  Field: m_videoSessionKHR (VkVideoSessionKHR)
+Class: DeferredOperationKHR
+  Field: m_deferredOperationKHR (VkDeferredOperationKHR)
+Class: BufferView
+  Field: m_bufferView (VkBufferView)
+Class: CommandPool
+  Field: m_commandPool (VkCommandPool)
+Class: PipelineCache
+  Field: m_pipelineCache (VkPipelineCache)
+Class: CuFunctionNVX
+  Field: m_cuFunctionNVX (VkCuFunctionNVX)
+Class: CuModuleNVX
+  Field: m_cuModuleNVX (VkCuModuleNVX)
+Class: DescriptorPool
+  Field: m_descriptorPool (VkDescriptorPool)
+Class: DescriptorSetLayout
+  Field: m_descriptorSetLayout (VkDescriptorSetLayout)
+Class: Framebuffer
+  Field: m_framebuffer (VkFramebuffer)
+Class: IndirectCommandsLayoutNV
+  Field: m_indirectCommandsLayoutNV (VkIndirectCommandsLayoutNV)
+Class: PrivateDataSlot
+  Field: m_privateDataSlot (VkPrivateDataSlot)
+Class: RenderPass
+  Field: m_renderPass (VkRenderPass)
+Class: Sampler
+  Field: m_sampler (VkSampler)
+Class: SamplerYcbcrConversion
+  Field: m_samplerYcbcrConversion (VkSamplerYcbcrConversion)
+Class: ShaderModule
+  Field: m_shaderModule (VkShaderModule)
+Class: ValidationCacheEXT
+  Field: m_validationCacheEXT (VkValidationCacheEXT)
+Class: VideoSessionParametersKHR
+  Field: m_videoSessionParametersKHR (VkVideoSessionParametersKHR)
+Class: Queue
+  Field: m_queue (VkQueue)
+Class: Device
+  Field: m_device (VkDevice)
+Class: DisplayModeKHR
+  Field: m_displayModeKHR (VkDisplayModeKHR)
+Class: PhysicalDevice
+  Field: m_physicalDevice (VkPhysicalDevice)
+Class: Instance
+  Field: m_instance (VkInstance)
+Class: DynamicLoader
+  Field: m_library (::HINSTANCE)
+Class: DispatchLoaderDynamic
+  Field: vkCreateInstance (PFN_vkCreateInstance)
+  Field: vkDestroyInstance (PFN_vkDestroyInstance)
+  Field: vkEnumeratePhysicalDevices (PFN_vkEnumeratePhysicalDevices)
+  Field: vkGetPhysicalDeviceFeatures (PFN_vkGetPhysicalDeviceFeatures)
+  Field: vkGetPhysicalDeviceFormatProperties (PFN_vkGetPhysicalDeviceFormatProperties)
+  Field: vkGetPhysicalDeviceImageFormatProperties (PFN_vkGetPhysicalDeviceImageFormatProperties)
+  Field: vkGetPhysicalDeviceProperties (PFN_vkGetPhysicalDeviceProperties)
+  Field: vkGetPhysicalDeviceQueueFamilyProperties (PFN_vkGetPhysicalDeviceQueueFamilyProperties)
+  Field: vkGetPhysicalDeviceMemoryProperties (PFN_vkGetPhysicalDeviceMemoryProperties)
+  Field: vkGetInstanceProcAddr (PFN_vkGetInstanceProcAddr)
+  Field: vkGetDeviceProcAddr (PFN_vkGetDeviceProcAddr)
+  Field: vkCreateDevice (PFN_vkCreateDevice)
+  Field: vkDestroyDevice (PFN_vkDestroyDevice)
+  Field: vkEnumerateInstanceExtensionProperties (PFN_vkEnumerateInstanceExtensionProperties)
+  Field: vkEnumerateDeviceExtensionProperties (PFN_vkEnumerateDeviceExtensionProperties)
+  Field: vkEnumerateInstanceLayerProperties (PFN_vkEnumerateInstanceLayerProperties)
+  Field: vkEnumerateDeviceLayerProperties (PFN_vkEnumerateDeviceLayerProperties)
+  Field: vkGetDeviceQueue (PFN_vkGetDeviceQueue)
+  Field: vkQueueSubmit (PFN_vkQueueSubmit)
+  Field: vkQueueWaitIdle (PFN_vkQueueWaitIdle)
+  Field: vkDeviceWaitIdle (PFN_vkDeviceWaitIdle)
+  Field: vkAllocateMemory (PFN_vkAllocateMemory)
+  Field: vkFreeMemory (PFN_vkFreeMemory)
+  Field: vkMapMemory (PFN_vkMapMemory)
+  Field: vkUnmapMemory (PFN_vkUnmapMemory)
+  Field: vkFlushMappedMemoryRanges (PFN_vkFlushMappedMemoryRanges)
+  Field: vkInvalidateMappedMemoryRanges (PFN_vkInvalidateMappedMemoryRanges)
+  Field: vkGetDeviceMemoryCommitment (PFN_vkGetDeviceMemoryCommitment)
+  Field: vkBindBufferMemory (PFN_vkBindBufferMemory)
+  Field: vkBindImageMemory (PFN_vkBindImageMemory)
+  Field: vkGetBufferMemoryRequirements (PFN_vkGetBufferMemoryRequirements)
+  Field: vkGetImageMemoryRequirements (PFN_vkGetImageMemoryRequirements)
+  Field: vkGetImageSparseMemoryRequirements (PFN_vkGetImageSparseMemoryRequirements)
+  Field: vkGetPhysicalDeviceSparseImageFormatProperties (PFN_vkGetPhysicalDeviceSparseImageFormatProperties)
+  Field: vkQueueBindSparse (PFN_vkQueueBindSparse)
+  Field: vkCreateFence (PFN_vkCreateFence)
+  Field: vkDestroyFence (PFN_vkDestroyFence)
+  Field: vkResetFences (PFN_vkResetFences)
+  Field: vkGetFenceStatus (PFN_vkGetFenceStatus)
+  Field: vkWaitForFences (PFN_vkWaitForFences)
+  Field: vkCreateSemaphore (PFN_vkCreateSemaphore)
+  Field: vkDestroySemaphore (PFN_vkDestroySemaphore)
+  Field: vkCreateEvent (PFN_vkCreateEvent)
+  Field: vkDestroyEvent (PFN_vkDestroyEvent)
+  Field: vkGetEventStatus (PFN_vkGetEventStatus)
+  Field: vkSetEvent (PFN_vkSetEvent)
+  Field: vkResetEvent (PFN_vkResetEvent)
+  Field: vkCreateQueryPool (PFN_vkCreateQueryPool)
+  Field: vkDestroyQueryPool (PFN_vkDestroyQueryPool)
+  Field: vkGetQueryPoolResults (PFN_vkGetQueryPoolResults)
+  Field: vkCreateBuffer (PFN_vkCreateBuffer)
+  Field: vkDestroyBuffer (PFN_vkDestroyBuffer)
+  Field: vkCreateBufferView (PFN_vkCreateBufferView)
+  Field: vkDestroyBufferView (PFN_vkDestroyBufferView)
+  Field: vkCreateImage (PFN_vkCreateImage)
+  Field: vkDestroyImage (PFN_vkDestroyImage)
+  Field: vkGetImageSubresourceLayout (PFN_vkGetImageSubresourceLayout)
+  Field: vkCreateImageView (PFN_vkCreateImageView)
+  Field: vkDestroyImageView (PFN_vkDestroyImageView)
+  Field: vkCreateShaderModule (PFN_vkCreateShaderModule)
+  Field: vkDestroyShaderModule (PFN_vkDestroyShaderModule)
+  Field: vkCreatePipelineCache (PFN_vkCreatePipelineCache)
+  Field: vkDestroyPipelineCache (PFN_vkDestroyPipelineCache)
+  Field: vkGetPipelineCacheData (PFN_vkGetPipelineCacheData)
+  Field: vkMergePipelineCaches (PFN_vkMergePipelineCaches)
+  Field: vkCreateGraphicsPipelines (PFN_vkCreateGraphicsPipelines)
+  Field: vkCreateComputePipelines (PFN_vkCreateComputePipelines)
+  Field: vkDestroyPipeline (PFN_vkDestroyPipeline)
+  Field: vkCreatePipelineLayout (PFN_vkCreatePipelineLayout)
+  Field: vkDestroyPipelineLayout (PFN_vkDestroyPipelineLayout)
+  Field: vkCreateSampler (PFN_vkCreateSampler)
+  Field: vkDestroySampler (PFN_vkDestroySampler)
+  Field: vkCreateDescriptorSetLayout (PFN_vkCreateDescriptorSetLayout)
+  Field: vkDestroyDescriptorSetLayout (PFN_vkDestroyDescriptorSetLayout)
+  Field: vkCreateDescriptorPool (PFN_vkCreateDescriptorPool)
+  Field: vkDestroyDescriptorPool (PFN_vkDestroyDescriptorPool)
+  Field: vkResetDescriptorPool (PFN_vkResetDescriptorPool)
+  Field: vkAllocateDescriptorSets (PFN_vkAllocateDescriptorSets)
+  Field: vkFreeDescriptorSets (PFN_vkFreeDescriptorSets)
+  Field: vkUpdateDescriptorSets (PFN_vkUpdateDescriptorSets)
+  Field: vkCreateFramebuffer (PFN_vkCreateFramebuffer)
+  Field: vkDestroyFramebuffer (PFN_vkDestroyFramebuffer)
+  Field: vkCreateRenderPass (PFN_vkCreateRenderPass)
+  Field: vkDestroyRenderPass (PFN_vkDestroyRenderPass)
+  Field: vkGetRenderAreaGranularity (PFN_vkGetRenderAreaGranularity)
+  Field: vkCreateCommandPool (PFN_vkCreateCommandPool)
+  Field: vkDestroyCommandPool (PFN_vkDestroyCommandPool)
+  Field: vkResetCommandPool (PFN_vkResetCommandPool)
+  Field: vkAllocateCommandBuffers (PFN_vkAllocateCommandBuffers)
+  Field: vkFreeCommandBuffers (PFN_vkFreeCommandBuffers)
+  Field: vkBeginCommandBuffer (PFN_vkBeginCommandBuffer)
+  Field: vkEndCommandBuffer (PFN_vkEndCommandBuffer)
+  Field: vkResetCommandBuffer (PFN_vkResetCommandBuffer)
+  Field: vkCmdBindPipeline (PFN_vkCmdBindPipeline)
+  Field: vkCmdSetViewport (PFN_vkCmdSetViewport)
+  Field: vkCmdSetScissor (PFN_vkCmdSetScissor)
+  Field: vkCmdSetLineWidth (PFN_vkCmdSetLineWidth)
+  Field: vkCmdSetDepthBias (PFN_vkCmdSetDepthBias)
+  Field: vkCmdSetBlendConstants (PFN_vkCmdSetBlendConstants)
+  Field: vkCmdSetDepthBounds (PFN_vkCmdSetDepthBounds)
+  Field: vkCmdSetStencilCompareMask (PFN_vkCmdSetStencilCompareMask)
+  Field: vkCmdSetStencilWriteMask (PFN_vkCmdSetStencilWriteMask)
+  Field: vkCmdSetStencilReference (PFN_vkCmdSetStencilReference)
+  Field: vkCmdBindDescriptorSets (PFN_vkCmdBindDescriptorSets)
+  Field: vkCmdBindIndexBuffer (PFN_vkCmdBindIndexBuffer)
+  Field: vkCmdBindVertexBuffers (PFN_vkCmdBindVertexBuffers)
+  Field: vkCmdDraw (PFN_vkCmdDraw)
+  Field: vkCmdDrawIndexed (PFN_vkCmdDrawIndexed)
+  Field: vkCmdDrawIndirect (PFN_vkCmdDrawIndirect)
+  Field: vkCmdDrawIndexedIndirect (PFN_vkCmdDrawIndexedIndirect)
+  Field: vkCmdDispatch (PFN_vkCmdDispatch)
+  Field: vkCmdDispatchIndirect (PFN_vkCmdDispatchIndirect)
+  Field: vkCmdCopyBuffer (PFN_vkCmdCopyBuffer)
+  Field: vkCmdCopyImage (PFN_vkCmdCopyImage)
+  Field: vkCmdBlitImage (PFN_vkCmdBlitImage)
+  Field: vkCmdCopyBufferToImage (PFN_vkCmdCopyBufferToImage)
+  Field: vkCmdCopyImageToBuffer (PFN_vkCmdCopyImageToBuffer)
+  Field: vkCmdUpdateBuffer (PFN_vkCmdUpdateBuffer)
+  Field: vkCmdFillBuffer (PFN_vkCmdFillBuffer)
+  Field: vkCmdClearColorImage (PFN_vkCmdClearColorImage)
+  Field: vkCmdClearDepthStencilImage (PFN_vkCmdClearDepthStencilImage)
+  Field: vkCmdClearAttachments (PFN_vkCmdClearAttachments)
+  Field: vkCmdResolveImage (PFN_vkCmdResolveImage)
+  Field: vkCmdSetEvent (PFN_vkCmdSetEvent)
+  Field: vkCmdResetEvent (PFN_vkCmdResetEvent)
+  Field: vkCmdWaitEvents (PFN_vkCmdWaitEvents)
+  Field: vkCmdPipelineBarrier (PFN_vkCmdPipelineBarrier)
+  Field: vkCmdBeginQuery (PFN_vkCmdBeginQuery)
+  Field: vkCmdEndQuery (PFN_vkCmdEndQuery)
+  Field: vkCmdResetQueryPool (PFN_vkCmdResetQueryPool)
+  Field: vkCmdWriteTimestamp (PFN_vkCmdWriteTimestamp)
+  Field: vkCmdCopyQueryPoolResults (PFN_vkCmdCopyQueryPoolResults)
+  Field: vkCmdPushConstants (PFN_vkCmdPushConstants)
+  Field: vkCmdBeginRenderPass (PFN_vkCmdBeginRenderPass)
+  Field: vkCmdNextSubpass (PFN_vkCmdNextSubpass)
+  Field: vkCmdEndRenderPass (PFN_vkCmdEndRenderPass)
+  Field: vkCmdExecuteCommands (PFN_vkCmdExecuteCommands)
+  Field: vkEnumerateInstanceVersion (PFN_vkEnumerateInstanceVersion)
+  Field: vkBindBufferMemory2 (PFN_vkBindBufferMemory2)
+  Field: vkBindImageMemory2 (PFN_vkBindImageMemory2)
+  Field: vkGetDeviceGroupPeerMemoryFeatures (PFN_vkGetDeviceGroupPeerMemoryFeatures)
+  Field: vkCmdSetDeviceMask (PFN_vkCmdSetDeviceMask)
+  Field: vkCmdDispatchBase (PFN_vkCmdDispatchBase)
+  Field: vkEnumeratePhysicalDeviceGroups (PFN_vkEnumeratePhysicalDeviceGroups)
+  Field: vkGetImageMemoryRequirements2 (PFN_vkGetImageMemoryRequirements2)
+  Field: vkGetBufferMemoryRequirements2 (PFN_vkGetBufferMemoryRequirements2)
+  Field: vkGetImageSparseMemoryRequirements2 (PFN_vkGetImageSparseMemoryRequirements2)
+  Field: vkGetPhysicalDeviceFeatures2 (PFN_vkGetPhysicalDeviceFeatures2)
+  Field: vkGetPhysicalDeviceProperties2 (PFN_vkGetPhysicalDeviceProperties2)
+  Field: vkGetPhysicalDeviceFormatProperties2 (PFN_vkGetPhysicalDeviceFormatProperties2)
+  Field: vkGetPhysicalDeviceImageFormatProperties2 (PFN_vkGetPhysicalDeviceImageFormatProperties2)
+  Field: vkGetPhysicalDeviceQueueFamilyProperties2 (PFN_vkGetPhysicalDeviceQueueFamilyProperties2)
+  Field: vkGetPhysicalDeviceMemoryProperties2 (PFN_vkGetPhysicalDeviceMemoryProperties2)
+  Field: vkGetPhysicalDeviceSparseImageFormatProperties2 (PFN_vkGetPhysicalDeviceSparseImageFormatProperties2)
+  Field: vkTrimCommandPool (PFN_vkTrimCommandPool)
+  Field: vkGetDeviceQueue2 (PFN_vkGetDeviceQueue2)
+  Field: vkCreateSamplerYcbcrConversion (PFN_vkCreateSamplerYcbcrConversion)
+  Field: vkDestroySamplerYcbcrConversion (PFN_vkDestroySamplerYcbcrConversion)
+  Field: vkCreateDescriptorUpdateTemplate (PFN_vkCreateDescriptorUpdateTemplate)
+  Field: vkDestroyDescriptorUpdateTemplate (PFN_vkDestroyDescriptorUpdateTemplate)
+  Field: vkUpdateDescriptorSetWithTemplate (PFN_vkUpdateDescriptorSetWithTemplate)
+  Field: vkGetPhysicalDeviceExternalBufferProperties (PFN_vkGetPhysicalDeviceExternalBufferProperties)
+  Field: vkGetPhysicalDeviceExternalFenceProperties (PFN_vkGetPhysicalDeviceExternalFenceProperties)
+  Field: vkGetPhysicalDeviceExternalSemaphoreProperties (PFN_vkGetPhysicalDeviceExternalSemaphoreProperties)
+  Field: vkGetDescriptorSetLayoutSupport (PFN_vkGetDescriptorSetLayoutSupport)
+  Field: vkCmdDrawIndirectCount (PFN_vkCmdDrawIndirectCount)
+  Field: vkCmdDrawIndexedIndirectCount (PFN_vkCmdDrawIndexedIndirectCount)
+  Field: vkCreateRenderPass2 (PFN_vkCreateRenderPass2)
+  Field: vkCmdBeginRenderPass2 (PFN_vkCmdBeginRenderPass2)
+  Field: vkCmdNextSubpass2 (PFN_vkCmdNextSubpass2)
+  Field: vkCmdEndRenderPass2 (PFN_vkCmdEndRenderPass2)
+  Field: vkResetQueryPool (PFN_vkResetQueryPool)
+  Field: vkGetSemaphoreCounterValue (PFN_vkGetSemaphoreCounterValue)
+  Field: vkWaitSemaphores (PFN_vkWaitSemaphores)
+  Field: vkSignalSemaphore (PFN_vkSignalSemaphore)
+  Field: vkGetBufferDeviceAddress (PFN_vkGetBufferDeviceAddress)
+  Field: vkGetBufferOpaqueCaptureAddress (PFN_vkGetBufferOpaqueCaptureAddress)
+  Field: vkGetDeviceMemoryOpaqueCaptureAddress (PFN_vkGetDeviceMemoryOpaqueCaptureAddress)
+  Field: vkGetPhysicalDeviceToolProperties (PFN_vkGetPhysicalDeviceToolProperties)
+  Field: vkCreatePrivateDataSlot (PFN_vkCreatePrivateDataSlot)
+  Field: vkDestroyPrivateDataSlot (PFN_vkDestroyPrivateDataSlot)
+  Field: vkSetPrivateData (PFN_vkSetPrivateData)
+  Field: vkGetPrivateData (PFN_vkGetPrivateData)
+  Field: vkCmdSetEvent2 (PFN_vkCmdSetEvent2)
+  Field: vkCmdResetEvent2 (PFN_vkCmdResetEvent2)
+  Field: vkCmdWaitEvents2 (PFN_vkCmdWaitEvents2)
+  Field: vkCmdPipelineBarrier2 (PFN_vkCmdPipelineBarrier2)
+  Field: vkCmdWriteTimestamp2 (PFN_vkCmdWriteTimestamp2)
+  Field: vkQueueSubmit2 (PFN_vkQueueSubmit2)
+  Field: vkCmdCopyBuffer2 (PFN_vkCmdCopyBuffer2)
+  Field: vkCmdCopyImage2 (PFN_vkCmdCopyImage2)
+  Field: vkCmdCopyBufferToImage2 (PFN_vkCmdCopyBufferToImage2)
+  Field: vkCmdCopyImageToBuffer2 (PFN_vkCmdCopyImageToBuffer2)
+  Field: vkCmdBlitImage2 (PFN_vkCmdBlitImage2)
+  Field: vkCmdResolveImage2 (PFN_vkCmdResolveImage2)
+  Field: vkCmdBeginRendering (PFN_vkCmdBeginRendering)
+  Field: vkCmdEndRendering (PFN_vkCmdEndRendering)
+  Field: vkCmdSetCullMode (PFN_vkCmdSetCullMode)
+  Field: vkCmdSetFrontFace (PFN_vkCmdSetFrontFace)
+  Field: vkCmdSetPrimitiveTopology (PFN_vkCmdSetPrimitiveTopology)
+  Field: vkCmdSetViewportWithCount (PFN_vkCmdSetViewportWithCount)
+  Field: vkCmdSetScissorWithCount (PFN_vkCmdSetScissorWithCount)
+  Field: vkCmdBindVertexBuffers2 (PFN_vkCmdBindVertexBuffers2)
+  Field: vkCmdSetDepthTestEnable (PFN_vkCmdSetDepthTestEnable)
+  Field: vkCmdSetDepthWriteEnable (PFN_vkCmdSetDepthWriteEnable)
+  Field: vkCmdSetDepthCompareOp (PFN_vkCmdSetDepthCompareOp)
+  Field: vkCmdSetDepthBoundsTestEnable (PFN_vkCmdSetDepthBoundsTestEnable)
+  Field: vkCmdSetStencilTestEnable (PFN_vkCmdSetStencilTestEnable)
+  Field: vkCmdSetStencilOp (PFN_vkCmdSetStencilOp)
+  Field: vkCmdSetRasterizerDiscardEnable (PFN_vkCmdSetRasterizerDiscardEnable)
+  Field: vkCmdSetDepthBiasEnable (PFN_vkCmdSetDepthBiasEnable)
+  Field: vkCmdSetPrimitiveRestartEnable (PFN_vkCmdSetPrimitiveRestartEnable)
+  Field: vkGetDeviceBufferMemoryRequirements (PFN_vkGetDeviceBufferMemoryRequirements)
+  Field: vkGetDeviceImageMemoryRequirements (PFN_vkGetDeviceImageMemoryRequirements)
+  Field: vkGetDeviceImageSparseMemoryRequirements (PFN_vkGetDeviceImageSparseMemoryRequirements)
+  Field: vkDestroySurfaceKHR (PFN_vkDestroySurfaceKHR)
+  Field: vkGetPhysicalDeviceSurfaceSupportKHR (PFN_vkGetPhysicalDeviceSurfaceSupportKHR)
+  Field: vkGetPhysicalDeviceSurfaceCapabilitiesKHR (PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR)
+  Field: vkGetPhysicalDeviceSurfaceFormatsKHR (PFN_vkGetPhysicalDeviceSurfaceFormatsKHR)
+  Field: vkGetPhysicalDeviceSurfacePresentModesKHR (PFN_vkGetPhysicalDeviceSurfacePresentModesKHR)
+  Field: vkCreateSwapchainKHR (PFN_vkCreateSwapchainKHR)
+  Field: vkDestroySwapchainKHR (PFN_vkDestroySwapchainKHR)
+  Field: vkGetSwapchainImagesKHR (PFN_vkGetSwapchainImagesKHR)
+  Field: vkAcquireNextImageKHR (PFN_vkAcquireNextImageKHR)
+  Field: vkQueuePresentKHR (PFN_vkQueuePresentKHR)
+  Field: vkGetDeviceGroupPresentCapabilitiesKHR (PFN_vkGetDeviceGroupPresentCapabilitiesKHR)
+  Field: vkGetDeviceGroupSurfacePresentModesKHR (PFN_vkGetDeviceGroupSurfacePresentModesKHR)
+  Field: vkGetPhysicalDevicePresentRectanglesKHR (PFN_vkGetPhysicalDevicePresentRectanglesKHR)
+  Field: vkAcquireNextImage2KHR (PFN_vkAcquireNextImage2KHR)
+  Field: vkGetPhysicalDeviceDisplayPropertiesKHR (PFN_vkGetPhysicalDeviceDisplayPropertiesKHR)
+  Field: vkGetPhysicalDeviceDisplayPlanePropertiesKHR (PFN_vkGetPhysicalDeviceDisplayPlanePropertiesKHR)
+  Field: vkGetDisplayPlaneSupportedDisplaysKHR (PFN_vkGetDisplayPlaneSupportedDisplaysKHR)
+  Field: vkGetDisplayModePropertiesKHR (PFN_vkGetDisplayModePropertiesKHR)
+  Field: vkCreateDisplayModeKHR (PFN_vkCreateDisplayModeKHR)
+  Field: vkGetDisplayPlaneCapabilitiesKHR (PFN_vkGetDisplayPlaneCapabilitiesKHR)
+  Field: vkCreateDisplayPlaneSurfaceKHR (PFN_vkCreateDisplayPlaneSurfaceKHR)
+  Field: vkCreateSharedSwapchainsKHR (PFN_vkCreateSharedSwapchainsKHR)
+  Field: vkCreateXlibSurfaceKHR_placeholder (PFN_dummy)
+  Field: vkGetPhysicalDeviceXlibPresentationSupportKHR_placeholder (PFN_dummy)
+  Field: vkCreateXcbSurfaceKHR_placeholder (PFN_dummy)
+  Field: vkGetPhysicalDeviceXcbPresentationSupportKHR_placeholder (PFN_dummy)
+  Field: vkCreateWaylandSurfaceKHR_placeholder (PFN_dummy)
+  Field: vkGetPhysicalDeviceWaylandPresentationSupportKHR_placeholder (PFN_dummy)
+  Field: vkCreateAndroidSurfaceKHR_placeholder (PFN_dummy)
+  Field: vkCreateWin32SurfaceKHR (PFN_vkCreateWin32SurfaceKHR)
+  Field: vkGetPhysicalDeviceWin32PresentationSupportKHR (PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)
+  Field: vkCreateDebugReportCallbackEXT (PFN_vkCreateDebugReportCallbackEXT)
+  Field: vkDestroyDebugReportCallbackEXT (PFN_vkDestroyDebugReportCallbackEXT)
+  Field: vkDebugReportMessageEXT (PFN_vkDebugReportMessageEXT)
+  Field: vkDebugMarkerSetObjectTagEXT (PFN_vkDebugMarkerSetObjectTagEXT)
+  Field: vkDebugMarkerSetObjectNameEXT (PFN_vkDebugMarkerSetObjectNameEXT)
+  Field: vkCmdDebugMarkerBeginEXT (PFN_vkCmdDebugMarkerBeginEXT)
+  Field: vkCmdDebugMarkerEndEXT (PFN_vkCmdDebugMarkerEndEXT)
+  Field: vkCmdDebugMarkerInsertEXT (PFN_vkCmdDebugMarkerInsertEXT)
+  Field: vkGetPhysicalDeviceVideoCapabilitiesKHR (PFN_vkGetPhysicalDeviceVideoCapabilitiesKHR)
+  Field: vkGetPhysicalDeviceVideoFormatPropertiesKHR (PFN_vkGetPhysicalDeviceVideoFormatPropertiesKHR)
+  Field: vkCreateVideoSessionKHR (PFN_vkCreateVideoSessionKHR)
+  Field: vkDestroyVideoSessionKHR (PFN_vkDestroyVideoSessionKHR)
+  Field: vkGetVideoSessionMemoryRequirementsKHR (PFN_vkGetVideoSessionMemoryRequirementsKHR)
+  Field: vkBindVideoSessionMemoryKHR (PFN_vkBindVideoSessionMemoryKHR)
+  Field: vkCreateVideoSessionParametersKHR (PFN_vkCreateVideoSessionParametersKHR)
+  Field: vkUpdateVideoSessionParametersKHR (PFN_vkUpdateVideoSessionParametersKHR)
+  Field: vkDestroyVideoSessionParametersKHR (PFN_vkDestroyVideoSessionParametersKHR)
+  Field: vkCmdBeginVideoCodingKHR (PFN_vkCmdBeginVideoCodingKHR)
+  Field: vkCmdEndVideoCodingKHR (PFN_vkCmdEndVideoCodingKHR)
+  Field: vkCmdControlVideoCodingKHR (PFN_vkCmdControlVideoCodingKHR)
+  Field: vkCmdDecodeVideoKHR (PFN_vkCmdDecodeVideoKHR)
+  Field: vkCmdBindTransformFeedbackBuffersEXT (PFN_vkCmdBindTransformFeedbackBuffersEXT)
+  Field: vkCmdBeginTransformFeedbackEXT (PFN_vkCmdBeginTransformFeedbackEXT)
+  Field: vkCmdEndTransformFeedbackEXT (PFN_vkCmdEndTransformFeedbackEXT)
+  Field: vkCmdBeginQueryIndexedEXT (PFN_vkCmdBeginQueryIndexedEXT)
+  Field: vkCmdEndQueryIndexedEXT (PFN_vkCmdEndQueryIndexedEXT)
+  Field: vkCmdDrawIndirectByteCountEXT (PFN_vkCmdDrawIndirectByteCountEXT)
+  Field: vkCreateCuModuleNVX (PFN_vkCreateCuModuleNVX)
+  Field: vkCreateCuFunctionNVX (PFN_vkCreateCuFunctionNVX)
+  Field: vkDestroyCuModuleNVX (PFN_vkDestroyCuModuleNVX)
+  Field: vkDestroyCuFunctionNVX (PFN_vkDestroyCuFunctionNVX)
+  Field: vkCmdCuLaunchKernelNVX (PFN_vkCmdCuLaunchKernelNVX)
+  Field: vkGetImageViewHandleNVX (PFN_vkGetImageViewHandleNVX)
+  Field: vkGetImageViewAddressNVX (PFN_vkGetImageViewAddressNVX)
+  Field: vkCmdDrawIndirectCountAMD (PFN_vkCmdDrawIndirectCountAMD)
+  Field: vkCmdDrawIndexedIndirectCountAMD (PFN_vkCmdDrawIndexedIndirectCountAMD)
+  Field: vkGetShaderInfoAMD (PFN_vkGetShaderInfoAMD)
+  Field: vkCmdBeginRenderingKHR (PFN_vkCmdBeginRenderingKHR)
+  Field: vkCmdEndRenderingKHR (PFN_vkCmdEndRenderingKHR)
+  Field: vkCreateStreamDescriptorSurfaceGGP_placeholder (PFN_dummy)
+  Field: vkGetPhysicalDeviceExternalImageFormatPropertiesNV (PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV)
+  Field: vkGetMemoryWin32HandleNV (PFN_vkGetMemoryWin32HandleNV)
+  Field: vkGetPhysicalDeviceFeatures2KHR (PFN_vkGetPhysicalDeviceFeatures2KHR)
+  Field: vkGetPhysicalDeviceProperties2KHR (PFN_vkGetPhysicalDeviceProperties2KHR)
+  Field: vkGetPhysicalDeviceFormatProperties2KHR (PFN_vkGetPhysicalDeviceFormatProperties2KHR)
+  Field: vkGetPhysicalDeviceImageFormatProperties2KHR (PFN_vkGetPhysicalDeviceImageFormatProperties2KHR)
+  Field: vkGetPhysicalDeviceQueueFamilyProperties2KHR (PFN_vkGetPhysicalDeviceQueueFamilyProperties2KHR)
+  Field: vkGetPhysicalDeviceMemoryProperties2KHR (PFN_vkGetPhysicalDeviceMemoryProperties2KHR)
+  Field: vkGetPhysicalDeviceSparseImageFormatProperties2KHR (PFN_vkGetPhysicalDeviceSparseImageFormatProperties2KHR)
+  Field: vkGetDeviceGroupPeerMemoryFeaturesKHR (PFN_vkGetDeviceGroupPeerMemoryFeaturesKHR)
+  Field: vkCmdSetDeviceMaskKHR (PFN_vkCmdSetDeviceMaskKHR)
+  Field: vkCmdDispatchBaseKHR (PFN_vkCmdDispatchBaseKHR)
+  Field: vkCreateViSurfaceNN_placeholder (PFN_dummy)
+  Field: vkTrimCommandPoolKHR (PFN_vkTrimCommandPoolKHR)
+  Field: vkEnumeratePhysicalDeviceGroupsKHR (PFN_vkEnumeratePhysicalDeviceGroupsKHR)
+  Field: vkGetPhysicalDeviceExternalBufferPropertiesKHR (PFN_vkGetPhysicalDeviceExternalBufferPropertiesKHR)
+  Field: vkGetMemoryWin32HandleKHR (PFN_vkGetMemoryWin32HandleKHR)
+  Field: vkGetMemoryWin32HandlePropertiesKHR (PFN_vkGetMemoryWin32HandlePropertiesKHR)
+  Field: vkGetMemoryFdKHR (PFN_vkGetMemoryFdKHR)
+  Field: vkGetMemoryFdPropertiesKHR (PFN_vkGetMemoryFdPropertiesKHR)
+  Field: vkGetPhysicalDeviceExternalSemaphorePropertiesKHR (PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR)
+  Field: vkImportSemaphoreWin32HandleKHR (PFN_vkImportSemaphoreWin32HandleKHR)
+  Field: vkGetSemaphoreWin32HandleKHR (PFN_vkGetSemaphoreWin32HandleKHR)
+  Field: vkImportSemaphoreFdKHR (PFN_vkImportSemaphoreFdKHR)
+  Field: vkGetSemaphoreFdKHR (PFN_vkGetSemaphoreFdKHR)
+  Field: vkCmdPushDescriptorSetKHR (PFN_vkCmdPushDescriptorSetKHR)
+  Field: vkCmdPushDescriptorSetWithTemplateKHR (PFN_vkCmdPushDescriptorSetWithTemplateKHR)
+  Field: vkCmdBeginConditionalRenderingEXT (PFN_vkCmdBeginConditionalRenderingEXT)
+  Field: vkCmdEndConditionalRenderingEXT (PFN_vkCmdEndConditionalRenderingEXT)
+  Field: vkCreateDescriptorUpdateTemplateKHR (PFN_vkCreateDescriptorUpdateTemplateKHR)
+  Field: vkDestroyDescriptorUpdateTemplateKHR (PFN_vkDestroyDescriptorUpdateTemplateKHR)
+  Field: vkUpdateDescriptorSetWithTemplateKHR (PFN_vkUpdateDescriptorSetWithTemplateKHR)
+  Field: vkCmdSetViewportWScalingNV (PFN_vkCmdSetViewportWScalingNV)
+  Field: vkReleaseDisplayEXT (PFN_vkReleaseDisplayEXT)
+  Field: vkAcquireXlibDisplayEXT_placeholder (PFN_dummy)
+  Field: vkGetRandROutputDisplayEXT_placeholder (PFN_dummy)
+  Field: vkGetPhysicalDeviceSurfaceCapabilities2EXT (PFN_vkGetPhysicalDeviceSurfaceCapabilities2EXT)
+  Field: vkDisplayPowerControlEXT (PFN_vkDisplayPowerControlEXT)
+  Field: vkRegisterDeviceEventEXT (PFN_vkRegisterDeviceEventEXT)
+  Field: vkRegisterDisplayEventEXT (PFN_vkRegisterDisplayEventEXT)
+  Field: vkGetSwapchainCounterEXT (PFN_vkGetSwapchainCounterEXT)
+  Field: vkGetRefreshCycleDurationGOOGLE (PFN_vkGetRefreshCycleDurationGOOGLE)
+  Field: vkGetPastPresentationTimingGOOGLE (PFN_vkGetPastPresentationTimingGOOGLE)
+  Field: vkCmdSetDiscardRectangleEXT (PFN_vkCmdSetDiscardRectangleEXT)
+  Field: vkCmdSetDiscardRectangleEnableEXT (PFN_vkCmdSetDiscardRectangleEnableEXT)
+  Field: vkCmdSetDiscardRectangleModeEXT (PFN_vkCmdSetDiscardRectangleModeEXT)
+  Field: vkSetHdrMetadataEXT (PFN_vkSetHdrMetadataEXT)
+  Field: vkCreateRenderPass2KHR (PFN_vkCreateRenderPass2KHR)
+  Field: vkCmdBeginRenderPass2KHR (PFN_vkCmdBeginRenderPass2KHR)
+  Field: vkCmdNextSubpass2KHR (PFN_vkCmdNextSubpass2KHR)
+  Field: vkCmdEndRenderPass2KHR (PFN_vkCmdEndRenderPass2KHR)
+  Field: vkGetSwapchainStatusKHR (PFN_vkGetSwapchainStatusKHR)
+  Field: vkGetPhysicalDeviceExternalFencePropertiesKHR (PFN_vkGetPhysicalDeviceExternalFencePropertiesKHR)
+  Field: vkImportFenceWin32HandleKHR (PFN_vkImportFenceWin32HandleKHR)
+  Field: vkGetFenceWin32HandleKHR (PFN_vkGetFenceWin32HandleKHR)
+  Field: vkImportFenceFdKHR (PFN_vkImportFenceFdKHR)
+  Field: vkGetFenceFdKHR (PFN_vkGetFenceFdKHR)
+  Field: vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR (PFN_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR)
+  Field: vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR (PFN_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR)
+  Field: vkAcquireProfilingLockKHR (PFN_vkAcquireProfilingLockKHR)
+  Field: vkReleaseProfilingLockKHR (PFN_vkReleaseProfilingLockKHR)
+  Field: vkGetPhysicalDeviceSurfaceCapabilities2KHR (PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR)
+  Field: vkGetPhysicalDeviceSurfaceFormats2KHR (PFN_vkGetPhysicalDeviceSurfaceFormats2KHR)
+  Field: vkGetPhysicalDeviceDisplayProperties2KHR (PFN_vkGetPhysicalDeviceDisplayProperties2KHR)
+  Field: vkGetPhysicalDeviceDisplayPlaneProperties2KHR (PFN_vkGetPhysicalDeviceDisplayPlaneProperties2KHR)
+  Field: vkGetDisplayModeProperties2KHR (PFN_vkGetDisplayModeProperties2KHR)
+  Field: vkGetDisplayPlaneCapabilities2KHR (PFN_vkGetDisplayPlaneCapabilities2KHR)
+  Field: vkCreateIOSSurfaceMVK_placeholder (PFN_dummy)
+  Field: vkCreateMacOSSurfaceMVK_placeholder (PFN_dummy)
+  Field: vkSetDebugUtilsObjectNameEXT (PFN_vkSetDebugUtilsObjectNameEXT)
+  Field: vkSetDebugUtilsObjectTagEXT (PFN_vkSetDebugUtilsObjectTagEXT)
+  Field: vkQueueBeginDebugUtilsLabelEXT (PFN_vkQueueBeginDebugUtilsLabelEXT)
+  Field: vkQueueEndDebugUtilsLabelEXT (PFN_vkQueueEndDebugUtilsLabelEXT)
+  Field: vkQueueInsertDebugUtilsLabelEXT (PFN_vkQueueInsertDebugUtilsLabelEXT)
+  Field: vkCmdBeginDebugUtilsLabelEXT (PFN_vkCmdBeginDebugUtilsLabelEXT)
+  Field: vkCmdEndDebugUtilsLabelEXT (PFN_vkCmdEndDebugUtilsLabelEXT)
+  Field: vkCmdInsertDebugUtilsLabelEXT (PFN_vkCmdInsertDebugUtilsLabelEXT)
+  Field: vkCreateDebugUtilsMessengerEXT (PFN_vkCreateDebugUtilsMessengerEXT)
+  Field: vkDestroyDebugUtilsMessengerEXT (PFN_vkDestroyDebugUtilsMessengerEXT)
+  Field: vkSubmitDebugUtilsMessageEXT (PFN_vkSubmitDebugUtilsMessageEXT)
+  Field: vkGetAndroidHardwareBufferPropertiesANDROID_placeholder (PFN_dummy)
+  Field: vkGetMemoryAndroidHardwareBufferANDROID_placeholder (PFN_dummy)
+  Field: vkCreateExecutionGraphPipelinesAMDX_placeholder (PFN_dummy)
+  Field: vkGetExecutionGraphPipelineScratchSizeAMDX_placeholder (PFN_dummy)
+  Field: vkGetExecutionGraphPipelineNodeIndexAMDX_placeholder (PFN_dummy)
+  Field: vkCmdInitializeGraphScratchMemoryAMDX_placeholder (PFN_dummy)
+  Field: vkCmdDispatchGraphAMDX_placeholder (PFN_dummy)
+  Field: vkCmdDispatchGraphIndirectAMDX_placeholder (PFN_dummy)
+  Field: vkCmdDispatchGraphIndirectCountAMDX_placeholder (PFN_dummy)
+  Field: vkCmdSetSampleLocationsEXT (PFN_vkCmdSetSampleLocationsEXT)
+  Field: vkGetPhysicalDeviceMultisamplePropertiesEXT (PFN_vkGetPhysicalDeviceMultisamplePropertiesEXT)
+  Field: vkGetImageMemoryRequirements2KHR (PFN_vkGetImageMemoryRequirements2KHR)
+  Field: vkGetBufferMemoryRequirements2KHR (PFN_vkGetBufferMemoryRequirements2KHR)
+  Field: vkGetImageSparseMemoryRequirements2KHR (PFN_vkGetImageSparseMemoryRequirements2KHR)
+  Field: vkCreateAccelerationStructureKHR (PFN_vkCreateAccelerationStructureKHR)
+  Field: vkDestroyAccelerationStructureKHR (PFN_vkDestroyAccelerationStructureKHR)
+  Field: vkCmdBuildAccelerationStructuresKHR (PFN_vkCmdBuildAccelerationStructuresKHR)
+  Field: vkCmdBuildAccelerationStructuresIndirectKHR (PFN_vkCmdBuildAccelerationStructuresIndirectKHR)
+  Field: vkBuildAccelerationStructuresKHR (PFN_vkBuildAccelerationStructuresKHR)
+  Field: vkCopyAccelerationStructureKHR (PFN_vkCopyAccelerationStructureKHR)
+  Field: vkCopyAccelerationStructureToMemoryKHR (PFN_vkCopyAccelerationStructureToMemoryKHR)
+  Field: vkCopyMemoryToAccelerationStructureKHR (PFN_vkCopyMemoryToAccelerationStructureKHR)
+  Field: vkWriteAccelerationStructuresPropertiesKHR (PFN_vkWriteAccelerationStructuresPropertiesKHR)
+  Field: vkCmdCopyAccelerationStructureKHR (PFN_vkCmdCopyAccelerationStructureKHR)
+  Field: vkCmdCopyAccelerationStructureToMemoryKHR (PFN_vkCmdCopyAccelerationStructureToMemoryKHR)
+  Field: vkCmdCopyMemoryToAccelerationStructureKHR (PFN_vkCmdCopyMemoryToAccelerationStructureKHR)
+  Field: vkGetAccelerationStructureDeviceAddressKHR (PFN_vkGetAccelerationStructureDeviceAddressKHR)
+  Field: vkCmdWriteAccelerationStructuresPropertiesKHR (PFN_vkCmdWriteAccelerationStructuresPropertiesKHR)
+  Field: vkGetDeviceAccelerationStructureCompatibilityKHR (PFN_vkGetDeviceAccelerationStructureCompatibilityKHR)
+  Field: vkGetAccelerationStructureBuildSizesKHR (PFN_vkGetAccelerationStructureBuildSizesKHR)
+  Field: vkCmdTraceRaysKHR (PFN_vkCmdTraceRaysKHR)
+  Field: vkCreateRayTracingPipelinesKHR (PFN_vkCreateRayTracingPipelinesKHR)
+  Field: vkGetRayTracingShaderGroupHandlesKHR (PFN_vkGetRayTracingShaderGroupHandlesKHR)
+  Field: vkGetRayTracingCaptureReplayShaderGroupHandlesKHR (PFN_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR)
+  Field: vkCmdTraceRaysIndirectKHR (PFN_vkCmdTraceRaysIndirectKHR)
+  Field: vkGetRayTracingShaderGroupStackSizeKHR (PFN_vkGetRayTracingShaderGroupStackSizeKHR)
+  Field: vkCmdSetRayTracingPipelineStackSizeKHR (PFN_vkCmdSetRayTracingPipelineStackSizeKHR)
+  Field: vkCreateSamplerYcbcrConversionKHR (PFN_vkCreateSamplerYcbcrConversionKHR)
+  Field: vkDestroySamplerYcbcrConversionKHR (PFN_vkDestroySamplerYcbcrConversionKHR)
+  Field: vkBindBufferMemory2KHR (PFN_vkBindBufferMemory2KHR)
+  Field: vkBindImageMemory2KHR (PFN_vkBindImageMemory2KHR)
+  Field: vkGetImageDrmFormatModifierPropertiesEXT (PFN_vkGetImageDrmFormatModifierPropertiesEXT)
+  Field: vkCreateValidationCacheEXT (PFN_vkCreateValidationCacheEXT)
+  Field: vkDestroyValidationCacheEXT (PFN_vkDestroyValidationCacheEXT)
+  Field: vkMergeValidationCachesEXT (PFN_vkMergeValidationCachesEXT)
+  Field: vkGetValidationCacheDataEXT (PFN_vkGetValidationCacheDataEXT)
+  Field: vkCmdBindShadingRateImageNV (PFN_vkCmdBindShadingRateImageNV)
+  Field: vkCmdSetViewportShadingRatePaletteNV (PFN_vkCmdSetViewportShadingRatePaletteNV)
+  Field: vkCmdSetCoarseSampleOrderNV (PFN_vkCmdSetCoarseSampleOrderNV)
+  Field: vkCreateAccelerationStructureNV (PFN_vkCreateAccelerationStructureNV)
+  Field: vkDestroyAccelerationStructureNV (PFN_vkDestroyAccelerationStructureNV)
+  Field: vkGetAccelerationStructureMemoryRequirementsNV (PFN_vkGetAccelerationStructureMemoryRequirementsNV)
+  Field: vkBindAccelerationStructureMemoryNV (PFN_vkBindAccelerationStructureMemoryNV)
+  Field: vkCmdBuildAccelerationStructureNV (PFN_vkCmdBuildAccelerationStructureNV)
+  Field: vkCmdCopyAccelerationStructureNV (PFN_vkCmdCopyAccelerationStructureNV)
+  Field: vkCmdTraceRaysNV (PFN_vkCmdTraceRaysNV)
+  Field: vkCreateRayTracingPipelinesNV (PFN_vkCreateRayTracingPipelinesNV)
+  Field: vkGetRayTracingShaderGroupHandlesNV (PFN_vkGetRayTracingShaderGroupHandlesNV)
+  Field: vkGetAccelerationStructureHandleNV (PFN_vkGetAccelerationStructureHandleNV)
+  Field: vkCmdWriteAccelerationStructuresPropertiesNV (PFN_vkCmdWriteAccelerationStructuresPropertiesNV)
+  Field: vkCompileDeferredNV (PFN_vkCompileDeferredNV)
+  Field: vkGetDescriptorSetLayoutSupportKHR (PFN_vkGetDescriptorSetLayoutSupportKHR)
+  Field: vkCmdDrawIndirectCountKHR (PFN_vkCmdDrawIndirectCountKHR)
+  Field: vkCmdDrawIndexedIndirectCountKHR (PFN_vkCmdDrawIndexedIndirectCountKHR)
+  Field: vkGetMemoryHostPointerPropertiesEXT (PFN_vkGetMemoryHostPointerPropertiesEXT)
+  Field: vkCmdWriteBufferMarkerAMD (PFN_vkCmdWriteBufferMarkerAMD)
+  Field: vkGetPhysicalDeviceCalibrateableTimeDomainsEXT (PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT)
+  Field: vkGetCalibratedTimestampsEXT (PFN_vkGetCalibratedTimestampsEXT)
+  Field: vkCmdDrawMeshTasksNV (PFN_vkCmdDrawMeshTasksNV)
+  Field: vkCmdDrawMeshTasksIndirectNV (PFN_vkCmdDrawMeshTasksIndirectNV)
+  Field: vkCmdDrawMeshTasksIndirectCountNV (PFN_vkCmdDrawMeshTasksIndirectCountNV)
+  Field: vkCmdSetExclusiveScissorEnableNV (PFN_vkCmdSetExclusiveScissorEnableNV)
+  Field: vkCmdSetExclusiveScissorNV (PFN_vkCmdSetExclusiveScissorNV)
+  Field: vkCmdSetCheckpointNV (PFN_vkCmdSetCheckpointNV)
+  Field: vkGetQueueCheckpointDataNV (PFN_vkGetQueueCheckpointDataNV)
+  Field: vkGetSemaphoreCounterValueKHR (PFN_vkGetSemaphoreCounterValueKHR)
+  Field: vkWaitSemaphoresKHR (PFN_vkWaitSemaphoresKHR)
+  Field: vkSignalSemaphoreKHR (PFN_vkSignalSemaphoreKHR)
+  Field: vkInitializePerformanceApiINTEL (PFN_vkInitializePerformanceApiINTEL)
+  Field: vkUninitializePerformanceApiINTEL (PFN_vkUninitializePerformanceApiINTEL)
+  Field: vkCmdSetPerformanceMarkerINTEL (PFN_vkCmdSetPerformanceMarkerINTEL)
+  Field: vkCmdSetPerformanceStreamMarkerINTEL (PFN_vkCmdSetPerformanceStreamMarkerINTEL)
+  Field: vkCmdSetPerformanceOverrideINTEL (PFN_vkCmdSetPerformanceOverrideINTEL)
+  Field: vkAcquirePerformanceConfigurationINTEL (PFN_vkAcquirePerformanceConfigurationINTEL)
+  Field: vkReleasePerformanceConfigurationINTEL (PFN_vkReleasePerformanceConfigurationINTEL)
+  Field: vkQueueSetPerformanceConfigurationINTEL (PFN_vkQueueSetPerformanceConfigurationINTEL)
+  Field: vkGetPerformanceParameterINTEL (PFN_vkGetPerformanceParameterINTEL)
+  Field: vkSetLocalDimmingAMD (PFN_vkSetLocalDimmingAMD)
+  Field: vkCreateImagePipeSurfaceFUCHSIA_placeholder (PFN_dummy)
+  Field: vkCreateMetalSurfaceEXT_placeholder (PFN_dummy)
+  Field: vkGetPhysicalDeviceFragmentShadingRatesKHR (PFN_vkGetPhysicalDeviceFragmentShadingRatesKHR)
+  Field: vkCmdSetFragmentShadingRateKHR (PFN_vkCmdSetFragmentShadingRateKHR)
+  Field: vkCmdSetRenderingAttachmentLocationsKHR (PFN_vkCmdSetRenderingAttachmentLocationsKHR)
+  Field: vkCmdSetRenderingInputAttachmentIndicesKHR (PFN_vkCmdSetRenderingInputAttachmentIndicesKHR)
+  Field: vkGetBufferDeviceAddressEXT (PFN_vkGetBufferDeviceAddressEXT)
+  Field: vkGetPhysicalDeviceToolPropertiesEXT (PFN_vkGetPhysicalDeviceToolPropertiesEXT)
+  Field: vkWaitForPresentKHR (PFN_vkWaitForPresentKHR)
+  Field: vkGetPhysicalDeviceCooperativeMatrixPropertiesNV (PFN_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV)
+  Field: vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV (PFN_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV)
+  Field: vkGetPhysicalDeviceSurfacePresentModes2EXT (PFN_vkGetPhysicalDeviceSurfacePresentModes2EXT)
+  Field: vkAcquireFullScreenExclusiveModeEXT (PFN_vkAcquireFullScreenExclusiveModeEXT)
+  Field: vkReleaseFullScreenExclusiveModeEXT (PFN_vkReleaseFullScreenExclusiveModeEXT)
+  Field: vkGetDeviceGroupSurfacePresentModes2EXT (PFN_vkGetDeviceGroupSurfacePresentModes2EXT)
+  Field: vkCreateHeadlessSurfaceEXT (PFN_vkCreateHeadlessSurfaceEXT)
+  Field: vkGetBufferDeviceAddressKHR (PFN_vkGetBufferDeviceAddressKHR)
+  Field: vkGetBufferOpaqueCaptureAddressKHR (PFN_vkGetBufferOpaqueCaptureAddressKHR)
+  Field: vkGetDeviceMemoryOpaqueCaptureAddressKHR (PFN_vkGetDeviceMemoryOpaqueCaptureAddressKHR)
+  Field: vkCmdSetLineStippleEXT (PFN_vkCmdSetLineStippleEXT)
+  Field: vkResetQueryPoolEXT (PFN_vkResetQueryPoolEXT)
+  Field: vkCmdSetCullModeEXT (PFN_vkCmdSetCullModeEXT)
+  Field: vkCmdSetFrontFaceEXT (PFN_vkCmdSetFrontFaceEXT)
+  Field: vkCmdSetPrimitiveTopologyEXT (PFN_vkCmdSetPrimitiveTopologyEXT)
+  Field: vkCmdSetViewportWithCountEXT (PFN_vkCmdSetViewportWithCountEXT)
+  Field: vkCmdSetScissorWithCountEXT (PFN_vkCmdSetScissorWithCountEXT)
+  Field: vkCmdBindVertexBuffers2EXT (PFN_vkCmdBindVertexBuffers2EXT)
+  Field: vkCmdSetDepthTestEnableEXT (PFN_vkCmdSetDepthTestEnableEXT)
+  Field: vkCmdSetDepthWriteEnableEXT (PFN_vkCmdSetDepthWriteEnableEXT)
+  Field: vkCmdSetDepthCompareOpEXT (PFN_vkCmdSetDepthCompareOpEXT)
+  Field: vkCmdSetDepthBoundsTestEnableEXT (PFN_vkCmdSetDepthBoundsTestEnableEXT)
+  Field: vkCmdSetStencilTestEnableEXT (PFN_vkCmdSetStencilTestEnableEXT)
+  Field: vkCmdSetStencilOpEXT (PFN_vkCmdSetStencilOpEXT)
+  Field: vkCreateDeferredOperationKHR (PFN_vkCreateDeferredOperationKHR)
+  Field: vkDestroyDeferredOperationKHR (PFN_vkDestroyDeferredOperationKHR)
+  Field: vkGetDeferredOperationMaxConcurrencyKHR (PFN_vkGetDeferredOperationMaxConcurrencyKHR)
+  Field: vkGetDeferredOperationResultKHR (PFN_vkGetDeferredOperationResultKHR)
+  Field: vkDeferredOperationJoinKHR (PFN_vkDeferredOperationJoinKHR)
+  Field: vkGetPipelineExecutablePropertiesKHR (PFN_vkGetPipelineExecutablePropertiesKHR)
+  Field: vkGetPipelineExecutableStatisticsKHR (PFN_vkGetPipelineExecutableStatisticsKHR)
+  Field: vkGetPipelineExecutableInternalRepresentationsKHR (PFN_vkGetPipelineExecutableInternalRepresentationsKHR)
+  Field: vkCopyMemoryToImageEXT (PFN_vkCopyMemoryToImageEXT)
+  Field: vkCopyImageToMemoryEXT (PFN_vkCopyImageToMemoryEXT)
+  Field: vkCopyImageToImageEXT (PFN_vkCopyImageToImageEXT)
+  Field: vkTransitionImageLayoutEXT (PFN_vkTransitionImageLayoutEXT)
+  Field: vkGetImageSubresourceLayout2EXT (PFN_vkGetImageSubresourceLayout2EXT)
+  Field: vkMapMemory2KHR (PFN_vkMapMemory2KHR)
+  Field: vkUnmapMemory2KHR (PFN_vkUnmapMemory2KHR)
+  Field: vkReleaseSwapchainImagesEXT (PFN_vkReleaseSwapchainImagesEXT)
+  Field: vkGetGeneratedCommandsMemoryRequirementsNV (PFN_vkGetGeneratedCommandsMemoryRequirementsNV)
+  Field: vkCmdPreprocessGeneratedCommandsNV (PFN_vkCmdPreprocessGeneratedCommandsNV)
+  Field: vkCmdExecuteGeneratedCommandsNV (PFN_vkCmdExecuteGeneratedCommandsNV)
+  Field: vkCmdBindPipelineShaderGroupNV (PFN_vkCmdBindPipelineShaderGroupNV)
+  Field: vkCreateIndirectCommandsLayoutNV (PFN_vkCreateIndirectCommandsLayoutNV)
+  Field: vkDestroyIndirectCommandsLayoutNV (PFN_vkDestroyIndirectCommandsLayoutNV)
+  Field: vkCmdSetDepthBias2EXT (PFN_vkCmdSetDepthBias2EXT)
+  Field: vkAcquireDrmDisplayEXT (PFN_vkAcquireDrmDisplayEXT)
+  Field: vkGetDrmDisplayEXT (PFN_vkGetDrmDisplayEXT)
+  Field: vkCreatePrivateDataSlotEXT (PFN_vkCreatePrivateDataSlotEXT)
+  Field: vkDestroyPrivateDataSlotEXT (PFN_vkDestroyPrivateDataSlotEXT)
+  Field: vkSetPrivateDataEXT (PFN_vkSetPrivateDataEXT)
+  Field: vkGetPrivateDataEXT (PFN_vkGetPrivateDataEXT)
+  Field: vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR (PFN_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR)
+  Field: vkGetEncodedVideoSessionParametersKHR (PFN_vkGetEncodedVideoSessionParametersKHR)
+  Field: vkCmdEncodeVideoKHR (PFN_vkCmdEncodeVideoKHR)
+  Field: vkCreateCudaModuleNV_placeholder (PFN_dummy)
+  Field: vkGetCudaModuleCacheNV_placeholder (PFN_dummy)
+  Field: vkCreateCudaFunctionNV_placeholder (PFN_dummy)
+  Field: vkDestroyCudaModuleNV_placeholder (PFN_dummy)
+  Field: vkDestroyCudaFunctionNV_placeholder (PFN_dummy)
+  Field: vkCmdCudaLaunchKernelNV_placeholder (PFN_dummy)
+  Field: vkExportMetalObjectsEXT_placeholder (PFN_dummy)
+  Field: vkCmdSetEvent2KHR (PFN_vkCmdSetEvent2KHR)
+  Field: vkCmdResetEvent2KHR (PFN_vkCmdResetEvent2KHR)
+  Field: vkCmdWaitEvents2KHR (PFN_vkCmdWaitEvents2KHR)
+  Field: vkCmdPipelineBarrier2KHR (PFN_vkCmdPipelineBarrier2KHR)
+  Field: vkCmdWriteTimestamp2KHR (PFN_vkCmdWriteTimestamp2KHR)
+  Field: vkQueueSubmit2KHR (PFN_vkQueueSubmit2KHR)
+  Field: vkCmdWriteBufferMarker2AMD (PFN_vkCmdWriteBufferMarker2AMD)
+  Field: vkGetQueueCheckpointData2NV (PFN_vkGetQueueCheckpointData2NV)
+  Field: vkGetDescriptorSetLayoutSizeEXT (PFN_vkGetDescriptorSetLayoutSizeEXT)
+  Field: vkGetDescriptorSetLayoutBindingOffsetEXT (PFN_vkGetDescriptorSetLayoutBindingOffsetEXT)
+  Field: vkGetDescriptorEXT (PFN_vkGetDescriptorEXT)
+  Field: vkCmdBindDescriptorBuffersEXT (PFN_vkCmdBindDescriptorBuffersEXT)
+  Field: vkCmdSetDescriptorBufferOffsetsEXT (PFN_vkCmdSetDescriptorBufferOffsetsEXT)
+  Field: vkCmdBindDescriptorBufferEmbeddedSamplersEXT (PFN_vkCmdBindDescriptorBufferEmbeddedSamplersEXT)
+  Field: vkGetBufferOpaqueCaptureDescriptorDataEXT (PFN_vkGetBufferOpaqueCaptureDescriptorDataEXT)
+  Field: vkGetImageOpaqueCaptureDescriptorDataEXT (PFN_vkGetImageOpaqueCaptureDescriptorDataEXT)
+  Field: vkGetImageViewOpaqueCaptureDescriptorDataEXT (PFN_vkGetImageViewOpaqueCaptureDescriptorDataEXT)
+  Field: vkGetSamplerOpaqueCaptureDescriptorDataEXT (PFN_vkGetSamplerOpaqueCaptureDescriptorDataEXT)
+  Field: vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT (PFN_vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT)
+  Field: vkCmdSetFragmentShadingRateEnumNV (PFN_vkCmdSetFragmentShadingRateEnumNV)
+  Field: vkCmdDrawMeshTasksEXT (PFN_vkCmdDrawMeshTasksEXT)
+  Field: vkCmdDrawMeshTasksIndirectEXT (PFN_vkCmdDrawMeshTasksIndirectEXT)
+  Field: vkCmdDrawMeshTasksIndirectCountEXT (PFN_vkCmdDrawMeshTasksIndirectCountEXT)
+  Field: vkCmdCopyBuffer2KHR (PFN_vkCmdCopyBuffer2KHR)
+  Field: vkCmdCopyImage2KHR (PFN_vkCmdCopyImage2KHR)
+  Field: vkCmdCopyBufferToImage2KHR (PFN_vkCmdCopyBufferToImage2KHR)
+  Field: vkCmdCopyImageToBuffer2KHR (PFN_vkCmdCopyImageToBuffer2KHR)
+  Field: vkCmdBlitImage2KHR (PFN_vkCmdBlitImage2KHR)
+  Field: vkCmdResolveImage2KHR (PFN_vkCmdResolveImage2KHR)
+  Field: vkGetDeviceFaultInfoEXT (PFN_vkGetDeviceFaultInfoEXT)
+  Field: vkAcquireWinrtDisplayNV (PFN_vkAcquireWinrtDisplayNV)
+  Field: vkGetWinrtDisplayNV (PFN_vkGetWinrtDisplayNV)
+  Field: vkCreateDirectFBSurfaceEXT_placeholder (PFN_dummy)
+  Field: vkGetPhysicalDeviceDirectFBPresentationSupportEXT_placeholder (PFN_dummy)
+  Field: vkCmdSetVertexInputEXT (PFN_vkCmdSetVertexInputEXT)
+  Field: vkGetMemoryZirconHandleFUCHSIA_placeholder (PFN_dummy)
+  Field: vkGetMemoryZirconHandlePropertiesFUCHSIA_placeholder (PFN_dummy)
+  Field: vkImportSemaphoreZirconHandleFUCHSIA_placeholder (PFN_dummy)
+  Field: vkGetSemaphoreZirconHandleFUCHSIA_placeholder (PFN_dummy)
+  Field: vkCreateBufferCollectionFUCHSIA_placeholder (PFN_dummy)
+  Field: vkSetBufferCollectionImageConstraintsFUCHSIA_placeholder (PFN_dummy)
+  Field: vkSetBufferCollectionBufferConstraintsFUCHSIA_placeholder (PFN_dummy)
+  Field: vkDestroyBufferCollectionFUCHSIA_placeholder (PFN_dummy)
+  Field: vkGetBufferCollectionPropertiesFUCHSIA_placeholder (PFN_dummy)
+  Field: vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI (PFN_vkGetDeviceSubpassShadingMaxWorkgroupSizeHUAWEI)
+  Field: vkCmdSubpassShadingHUAWEI (PFN_vkCmdSubpassShadingHUAWEI)
+  Field: vkCmdBindInvocationMaskHUAWEI (PFN_vkCmdBindInvocationMaskHUAWEI)
+  Field: vkGetMemoryRemoteAddressNV (PFN_vkGetMemoryRemoteAddressNV)
+  Field: vkGetPipelinePropertiesEXT (PFN_vkGetPipelinePropertiesEXT)
+  Field: vkCmdSetPatchControlPointsEXT (PFN_vkCmdSetPatchControlPointsEXT)
+  Field: vkCmdSetRasterizerDiscardEnableEXT (PFN_vkCmdSetRasterizerDiscardEnableEXT)
+  Field: vkCmdSetDepthBiasEnableEXT (PFN_vkCmdSetDepthBiasEnableEXT)
+  Field: vkCmdSetLogicOpEXT (PFN_vkCmdSetLogicOpEXT)
+  Field: vkCmdSetPrimitiveRestartEnableEXT (PFN_vkCmdSetPrimitiveRestartEnableEXT)
+  Field: vkCreateScreenSurfaceQNX_placeholder (PFN_dummy)
+  Field: vkGetPhysicalDeviceScreenPresentationSupportQNX_placeholder (PFN_dummy)
+  Field: vkCmdSetColorWriteEnableEXT (PFN_vkCmdSetColorWriteEnableEXT)
+  Field: vkCmdTraceRaysIndirect2KHR (PFN_vkCmdTraceRaysIndirect2KHR)
+  Field: vkCmdDrawMultiEXT (PFN_vkCmdDrawMultiEXT)
+  Field: vkCmdDrawMultiIndexedEXT (PFN_vkCmdDrawMultiIndexedEXT)
+  Field: vkCreateMicromapEXT (PFN_vkCreateMicromapEXT)
+  Field: vkDestroyMicromapEXT (PFN_vkDestroyMicromapEXT)
+  Field: vkCmdBuildMicromapsEXT (PFN_vkCmdBuildMicromapsEXT)
+  Field: vkBuildMicromapsEXT (PFN_vkBuildMicromapsEXT)
+  Field: vkCopyMicromapEXT (PFN_vkCopyMicromapEXT)
+  Field: vkCopyMicromapToMemoryEXT (PFN_vkCopyMicromapToMemoryEXT)
+  Field: vkCopyMemoryToMicromapEXT (PFN_vkCopyMemoryToMicromapEXT)
+  Field: vkWriteMicromapsPropertiesEXT (PFN_vkWriteMicromapsPropertiesEXT)
+  Field: vkCmdCopyMicromapEXT (PFN_vkCmdCopyMicromapEXT)
+  Field: vkCmdCopyMicromapToMemoryEXT (PFN_vkCmdCopyMicromapToMemoryEXT)
+  Field: vkCmdCopyMemoryToMicromapEXT (PFN_vkCmdCopyMemoryToMicromapEXT)
+  Field: vkCmdWriteMicromapsPropertiesEXT (PFN_vkCmdWriteMicromapsPropertiesEXT)
+  Field: vkGetDeviceMicromapCompatibilityEXT (PFN_vkGetDeviceMicromapCompatibilityEXT)
+  Field: vkGetMicromapBuildSizesEXT (PFN_vkGetMicromapBuildSizesEXT)
+  Field: vkCmdDrawClusterHUAWEI (PFN_vkCmdDrawClusterHUAWEI)
+  Field: vkCmdDrawClusterIndirectHUAWEI (PFN_vkCmdDrawClusterIndirectHUAWEI)
+  Field: vkSetDeviceMemoryPriorityEXT (PFN_vkSetDeviceMemoryPriorityEXT)
+  Field: vkGetDeviceBufferMemoryRequirementsKHR (PFN_vkGetDeviceBufferMemoryRequirementsKHR)
+  Field: vkGetDeviceImageMemoryRequirementsKHR (PFN_vkGetDeviceImageMemoryRequirementsKHR)
+  Field: vkGetDeviceImageSparseMemoryRequirementsKHR (PFN_vkGetDeviceImageSparseMemoryRequirementsKHR)
+  Field: vkGetDescriptorSetLayoutHostMappingInfoVALVE (PFN_vkGetDescriptorSetLayoutHostMappingInfoVALVE)
+  Field: vkGetDescriptorSetHostMappingVALVE (PFN_vkGetDescriptorSetHostMappingVALVE)
+  Field: vkCmdCopyMemoryIndirectNV (PFN_vkCmdCopyMemoryIndirectNV)
+  Field: vkCmdCopyMemoryToImageIndirectNV (PFN_vkCmdCopyMemoryToImageIndirectNV)
+  Field: vkCmdDecompressMemoryNV (PFN_vkCmdDecompressMemoryNV)
+  Field: vkCmdDecompressMemoryIndirectCountNV (PFN_vkCmdDecompressMemoryIndirectCountNV)
+  Field: vkGetPipelineIndirectMemoryRequirementsNV (PFN_vkGetPipelineIndirectMemoryRequirementsNV)
+  Field: vkCmdUpdatePipelineIndirectBufferNV (PFN_vkCmdUpdatePipelineIndirectBufferNV)
+  Field: vkGetPipelineIndirectDeviceAddressNV (PFN_vkGetPipelineIndirectDeviceAddressNV)
+  Field: vkCmdSetDepthClampEnableEXT (PFN_vkCmdSetDepthClampEnableEXT)
+  Field: vkCmdSetPolygonModeEXT (PFN_vkCmdSetPolygonModeEXT)
+  Field: vkCmdSetRasterizationSamplesEXT (PFN_vkCmdSetRasterizationSamplesEXT)
+  Field: vkCmdSetSampleMaskEXT (PFN_vkCmdSetSampleMaskEXT)
+  Field: vkCmdSetAlphaToCoverageEnableEXT (PFN_vkCmdSetAlphaToCoverageEnableEXT)
+  Field: vkCmdSetAlphaToOneEnableEXT (PFN_vkCmdSetAlphaToOneEnableEXT)
+  Field: vkCmdSetLogicOpEnableEXT (PFN_vkCmdSetLogicOpEnableEXT)
+  Field: vkCmdSetColorBlendEnableEXT (PFN_vkCmdSetColorBlendEnableEXT)
+  Field: vkCmdSetColorBlendEquationEXT (PFN_vkCmdSetColorBlendEquationEXT)
+  Field: vkCmdSetColorWriteMaskEXT (PFN_vkCmdSetColorWriteMaskEXT)
+  Field: vkCmdSetTessellationDomainOriginEXT (PFN_vkCmdSetTessellationDomainOriginEXT)
+  Field: vkCmdSetRasterizationStreamEXT (PFN_vkCmdSetRasterizationStreamEXT)
+  Field: vkCmdSetConservativeRasterizationModeEXT (PFN_vkCmdSetConservativeRasterizationModeEXT)
+  Field: vkCmdSetExtraPrimitiveOverestimationSizeEXT (PFN_vkCmdSetExtraPrimitiveOverestimationSizeEXT)
+  Field: vkCmdSetDepthClipEnableEXT (PFN_vkCmdSetDepthClipEnableEXT)
+  Field: vkCmdSetSampleLocationsEnableEXT (PFN_vkCmdSetSampleLocationsEnableEXT)
+  Field: vkCmdSetColorBlendAdvancedEXT (PFN_vkCmdSetColorBlendAdvancedEXT)
+  Field: vkCmdSetProvokingVertexModeEXT (PFN_vkCmdSetProvokingVertexModeEXT)
+  Field: vkCmdSetLineRasterizationModeEXT (PFN_vkCmdSetLineRasterizationModeEXT)
+  Field: vkCmdSetLineStippleEnableEXT (PFN_vkCmdSetLineStippleEnableEXT)
+  Field: vkCmdSetDepthClipNegativeOneToOneEXT (PFN_vkCmdSetDepthClipNegativeOneToOneEXT)
+  Field: vkCmdSetViewportWScalingEnableNV (PFN_vkCmdSetViewportWScalingEnableNV)
+  Field: vkCmdSetViewportSwizzleNV (PFN_vkCmdSetViewportSwizzleNV)
+  Field: vkCmdSetCoverageToColorEnableNV (PFN_vkCmdSetCoverageToColorEnableNV)
+  Field: vkCmdSetCoverageToColorLocationNV (PFN_vkCmdSetCoverageToColorLocationNV)
+  Field: vkCmdSetCoverageModulationModeNV (PFN_vkCmdSetCoverageModulationModeNV)
+  Field: vkCmdSetCoverageModulationTableEnableNV (PFN_vkCmdSetCoverageModulationTableEnableNV)
+  Field: vkCmdSetCoverageModulationTableNV (PFN_vkCmdSetCoverageModulationTableNV)
+  Field: vkCmdSetShadingRateImageEnableNV (PFN_vkCmdSetShadingRateImageEnableNV)
+  Field: vkCmdSetRepresentativeFragmentTestEnableNV (PFN_vkCmdSetRepresentativeFragmentTestEnableNV)
+  Field: vkCmdSetCoverageReductionModeNV (PFN_vkCmdSetCoverageReductionModeNV)
+  Field: vkGetShaderModuleIdentifierEXT (PFN_vkGetShaderModuleIdentifierEXT)
+  Field: vkGetShaderModuleCreateInfoIdentifierEXT (PFN_vkGetShaderModuleCreateInfoIdentifierEXT)
+  Field: vkGetPhysicalDeviceOpticalFlowImageFormatsNV (PFN_vkGetPhysicalDeviceOpticalFlowImageFormatsNV)
+  Field: vkCreateOpticalFlowSessionNV (PFN_vkCreateOpticalFlowSessionNV)
+  Field: vkDestroyOpticalFlowSessionNV (PFN_vkDestroyOpticalFlowSessionNV)
+  Field: vkBindOpticalFlowSessionImageNV (PFN_vkBindOpticalFlowSessionImageNV)
+  Field: vkCmdOpticalFlowExecuteNV (PFN_vkCmdOpticalFlowExecuteNV)
+  Field: vkCmdBindIndexBuffer2KHR (PFN_vkCmdBindIndexBuffer2KHR)
+  Field: vkGetRenderingAreaGranularityKHR (PFN_vkGetRenderingAreaGranularityKHR)
+  Field: vkGetDeviceImageSubresourceLayoutKHR (PFN_vkGetDeviceImageSubresourceLayoutKHR)
+  Field: vkGetImageSubresourceLayout2KHR (PFN_vkGetImageSubresourceLayout2KHR)
+  Field: vkCreateShadersEXT (PFN_vkCreateShadersEXT)
+  Field: vkDestroyShaderEXT (PFN_vkDestroyShaderEXT)
+  Field: vkGetShaderBinaryDataEXT (PFN_vkGetShaderBinaryDataEXT)
+  Field: vkCmdBindShadersEXT (PFN_vkCmdBindShadersEXT)
+  Field: vkGetFramebufferTilePropertiesQCOM (PFN_vkGetFramebufferTilePropertiesQCOM)
+  Field: vkGetDynamicRenderingTilePropertiesQCOM (PFN_vkGetDynamicRenderingTilePropertiesQCOM)
+  Field: vkSetLatencySleepModeNV (PFN_vkSetLatencySleepModeNV)
+  Field: vkLatencySleepNV (PFN_vkLatencySleepNV)
+  Field: vkSetLatencyMarkerNV (PFN_vkSetLatencyMarkerNV)
+  Field: vkGetLatencyTimingsNV (PFN_vkGetLatencyTimingsNV)
+  Field: vkQueueNotifyOutOfBandNV (PFN_vkQueueNotifyOutOfBandNV)
+  Field: vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR (PFN_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR)
+  Field: vkCmdSetAttachmentFeedbackLoopEnableEXT (PFN_vkCmdSetAttachmentFeedbackLoopEnableEXT)
+  Field: vkGetScreenBufferPropertiesQNX_placeholder (PFN_dummy)
+  Field: vkCmdSetLineStippleKHR (PFN_vkCmdSetLineStippleKHR)
+  Field: vkGetPhysicalDeviceCalibrateableTimeDomainsKHR (PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR)
+  Field: vkGetCalibratedTimestampsKHR (PFN_vkGetCalibratedTimestampsKHR)
+  Field: vkCmdBindDescriptorSets2KHR (PFN_vkCmdBindDescriptorSets2KHR)
+  Field: vkCmdPushConstants2KHR (PFN_vkCmdPushConstants2KHR)
+  Field: vkCmdPushDescriptorSet2KHR (PFN_vkCmdPushDescriptorSet2KHR)
+  Field: vkCmdPushDescriptorSetWithTemplate2KHR (PFN_vkCmdPushDescriptorSetWithTemplate2KHR)
+  Field: vkCmdSetDescriptorBufferOffsets2EXT (PFN_vkCmdSetDescriptorBufferOffsets2EXT)
+  Field: vkCmdBindDescriptorBufferEmbeddedSamplers2EXT (PFN_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT)
+Class: connection
+  Field: disconnect (delegate<void (void *)>)
+  Field: signal (void *)
+Class: registry_context
+  Field: ctx (container_type)
+Class: service_handle
+  Field: value (std::shared_ptr<Service>)
+Class: value_compare
+  Field: comp (key_compare)
+Class: meta_ctx_arg_t
+Class: meta_ctx
+Class: meta_sequence_container
+  Field: ctx (const meta_ctx *)
+  Field: value_type_node (internal::meta_type_node (*)(const internal::meta_context &))
+  Field: size_fn (size_type (*)(const any &) noexcept)
+  Field: resize_fn (bool (*)(any &, size_type))
+  Field: iter_fn (iterator (*)(const meta_ctx &, any &, const bool))
+  Field: insert_or_erase_fn (iterator (*)(const meta_ctx &, any &, const any &, meta_any &))
+  Field: storage (any)
+Class: meta_associative_container
+  Field: ctx (const meta_ctx *)
+  Field: key_only_container (bool)
+  Field: key_type_node (internal::meta_type_node (*)(const internal::meta_context &))
+  Field: mapped_type_node (internal::meta_type_node (*)(const internal::meta_context &))
+  Field: value_type_node (internal::meta_type_node (*)(const internal::meta_context &))
+  Field: size_fn (size_type (*)(const any &) noexcept)
+  Field: clear_fn (bool (*)(any &))
+  Field: iter_fn (iterator (*)(const meta_ctx &, any &, const bool))
+  Field: insert_or_erase_fn (size_type (*)(any &, meta_any &, meta_any &))
+  Field: find_fn (iterator (*)(const meta_ctx &, any &, meta_any &))
+  Field: storage (any)
+Class: meta_any
+  Field: storage (any)
+  Field: ctx (const meta_ctx *)
+  Field: node (internal::meta_type_node)
+  Field: vtable (vtable_type *)
+Class: meta_type
+  Field: node (internal::meta_type_node)
+  Field: ctx (const meta_ctx *)
+Class: meta_iterator
+  Field: ctx (const meta_ctx *)
+  Field: vtable (vtable_type *)
+  Field: handle (any)
+Class: meta_iterator
+  Field: ctx (const meta_ctx *)
+  Field: vtable (vtable_type *)
+  Field: handle (any)
+Class: Color
+  Field: myR (uint8_t)
+  Field: myG (uint8_t)
+  Field: myB (uint8_t)
+  Field: myA (uint8_t)
+Class: LinearColor
+  Field: myR (float)
+  Field: myG (float)
+  Field: myB (float)
+  Field: myA (float)
+Class: Console
+  Field: myConsoleHandle (HANDLE)
+  Field: myLogToFileEnabled (bool)
+  Field: myLogToFileStream (std::ofstream)
+  Field: myCoutBuffer (std::streambuf *)
+Class: OnScopeExit
+  Field: myOnScopeExit (std::function<void ()>)
+Class: String
+Class: Engine
+  Field: myFrameIndex (uint)
+  Field: myIsRunning (bool)
+  Field: myEngineProperties (EngineProperties)
+  Field: mySystemManager (class SystemManager<System> *)
+  Field: myPostMaster (class EventHandler *)
+  Field: myThreadPool (class ThreadPool *)
+  Field: myFilewatcher (class Filewatcher *)
+  Field: myWindowHandler (class WindowHandler *)
+  Field: myVulkanContext (class VulkanContext *)
+  Field: myAssetRegistry (class AssetRegistry *)
+  Field: myWorld (class World *)
+  Field: myExternalTickFunction (std::function<void ()>)
+Class: Skeleton
+  Field: myJoints (List<Bone>)
+Class: PromiseReturnTypeImplementation
+  Field: myReturnValue (char)
+  Field: myHasReturnValue (bool)
+Class: Asset
+  Field: myPath (std::filesystem::path)
+  Field: myIsValid (bool)
+  Field: myAssetRegistry (AssetRegistry *)
+Class: IAssetContainer
+Class: ThreadPool
+  Field: myThreads (List<std::thread>)
+  Field: myLookingForTaskMutex (std::mutex)
+  Field: myWaitingForTaskCondition (std::condition_variable)
+  Field: myShouldExit (std::atomic_bool)
+  Field: myTasks (std::queue<std::function<void ()>>)
+Class: ThreadUtils
+Class: AssetRegistry
+  Field: myMutex (std::recursive_mutex)
+  Field: myContainers (List<IAssetContainer *>)
+Class: slice
+  Field: _Start (size_t)
+  Field: _Len (size_t)
+  Field: _Stride (size_t)
+Class: gslice
+  Field: _Start (size_t)
+  Field: _Len (_Sizarray)
+  Field: _Stride (_Sizarray)
+Class: exception
+  Field: id (const int)
+  Field: m (std::runtime_error)
+Class: parse_error
+  Field: byte (const std::size_t)
+Class: invalid_iterator
+Class: type_error
+Class: out_of_range
+Class: other_error
+Class: numeric_limits
+Class: numeric_limits
+Class: _Iterator
+  Field: _Value (const _Ty *)
+  Field: _Current (_Index_type)
+Class: _Iterator
+  Field: _Parent (basic_istream_view<_Ty, _Elem, _Traits> *)
+Class: _As_rvalue_fn
+Class: _Iterator
+  Field: _Current (iterator_t<_Vw>)
+  Field: _Parent (filter_view<_Vw, _Pr> *)
+Class: _Sentinel
+  Field: _Last (sentinel_t<_Vw>)
+Class: _Take_fn
+Class: _Drop_fn
+Class: _Join_fn
+Class: value_type
+  Field: _First (_Outer_iter<_Const>)
+Class: _Iterator
+  Field: _Parent (split_view<_Vw, _Pat> *)
+  Field: _Current (iterator_t<_Vw>)
+  Field: _Next (subrange<iterator_t<_Vw>>)
+  Field: _Trailing_empty (bool)
+Class: _Sentinel
+  Field: _Last (sentinel_t<_Vw>)
+Class: _Counted_fn
+Class: _Common_fn
+Class: _Reverse_fn
+Class: _As_const_fn
+Class: _Enumerate_fn
+Class: _Inner_iterator
+  Field: _Parent (chunk_view<_Vw> *)
+Class: _Outer_iterator
+  Field: _Parent (chunk_view<_Vw> *)
+Class: _Sentinel
+  Field: _Last (sentinel_t<_Vw>)
+Class: _Iterator
+  Field: _Parent (chunk_by_view<_Vw, _Pr> *)
+  Field: _Current (iterator_t<_Vw>)
+  Field: _Next (iterator_t<_Vw>)
+Class: _Cartesian_product_fn
+Class: _Iota_fn
+Class: file_input_adapter
+  Field: m_file (std::FILE *)
+Class: input_stream_adapter
+  Field: is (std::istream *)
+  Field: sb (std::streambuf *)
+Class: span_input_adapter
+  Field: ia (contiguous_bytes_input_adapter)
+Class: primitive_iterator_t
+  Field: m_it (difference_type)
+Class: bad_any_cast
+Class: any
+Class: JsonAsset
+  Field: myJson (nlohmann::json)
+Class: VulkanAllocator
+  Field: myAllocator (VmaAllocator)
+  Field: myBufferDeleteData (MutexList<DeleteData<VulkanBuffer>>)
+  Field: myResizableBufferDeleteData (MutexList<DeleteData<ResizableBuffer>>)
+  Field: myImageDeleteData (MutexList<DeleteData<VulkanImage>>)
+  Field: myDelegateDeletes (MutexList<DelegateDeleteData>)
+Class: VulkanBuffer
+  Field: myAllocation (VmaAllocation)
+  Field: myBuffer (vk::Buffer)
+  Field: myCreateInfo (vk::BufferCreateInfo)
+  Field: myMemoryUsage (VmaMemoryUsage)
+  Field: myIsMappingAllowed (bool)
+  Field: myPtr (void *)
+Class: EventObserver
+  Field: myEvents (std::map<EventType, std::function<void ()>>)
+Class: System
+Class: RenderSystem
+  Field: myIsUsingGPUDrivenRendering (bool)
+  Field: myCopyPipeline (class FullscreenPipeline *)
+  Field: myDebugPipeline (class DebugPipeline *)
+  Field: myGDRPipeline (class GDRPipeline *)
+  Field: mySkyboxPipeline (class SkyboxPipeline *)
+  Field: myRenderPass (vk::RenderPass)
+  Field: myCopyToSwapchainRenderPass (vk::RenderPass)
+  Field: myVkFrameBuffer (vk::Framebuffer)
+  Field: myCopyToSwapchainFrameBuffers (List<vk::Framebuffer>)
+  Field: myClearValues (vk::ClearValue[2])
+  Field: myDepthBuffer (class VulkanImage *)
+  Field: myRenderTexture (class VulkanImage *)
+  Field: myResolvedRenderTexture (class VulkanImage *)
+  Field: myDirectionalLightShadowMap (class VulkanImage *)
+Class: MathUtils
+Class: IVulkanDynamicBuffer
+  Field: OnBufferRecreated (MulticastDelegate<void ()>)
+Class: VulkanDescriptorSet
+  Field: myBuffers (List<BindingData<const VulkanBuffer *>>)
+  Field: myResizableBuffer (List<BindingData<const ResizableBuffer *>>)
+  Field: myImages (List<BindingData<const VulkanImage *>>)
+  Field: myUsesSharedLayout (bool)
+  Field: myLayout (vk::DescriptorSetLayout)
+  Field: mySet (vk::DescriptorSet)
+Class: Material
+  Field: myAlbedoTexture (Texture *)
+  Field: myNormalTexture (Texture *)
+  Field: myMaterialTexture (Texture *)
+Class: Model
+  Field: myMeshes (List<Mesh *>)
+Class: Filewatcher
+  Field: myThread (std::thread)
+  Field: myLock (std::mutex)
+  Field: myShouldRun (std::atomic_bool)
+  Field: myFilesToWatch (std::unordered_map<std::filesystem::path, FileData>)
+  Field: myModifiedPaths (std::set<FileData *>)
+Class: Shader
+  Field: OnShaderRecompiled (MulticastDelegate<void ()>)
+  Field: myShaderModule (vk::ShaderModule)
+  Field: myCallbackHandle (Filewatcher::CallbackHandle)
+  Field: myIncludeFiles (List<IncludeFileData>)
+Class: Texture
+  Field: myImage (VulkanImage *)
+  Field: myBindlessIndex (uint)
+Class: TextureCube
+  Field: myImage (VulkanImage *)
+  Field: myBindlessIndex (uint)
+Class: Iterator
+  Field: myList (SegmentedList<ElementType, ElementsPerSegment> &)
+  Field: myIndex (uint)
+Class: ConstIterator
+  Field: myList (const SegmentedList<ElementType, ElementsPerSegment> &)
+  Field: myIndex (uint)
+Class: IComponentArray
+Class: WorldSystem
+  Field: myWorld (World *)
+Class: ComponentSystem
+  Field: myObjects (List<GameObject *>)
+  Field: myObjectsToDestory (List<GameObject *>)
+  Field: myComponentArrays (List<IComponentArray *>)
+Class: GameObject
+  Field: OnComponentAdded (MulticastDelegate<void (Component *)>)
+  Field: OnComponentRemoved (MulticastDelegate<void (Component *)>)
+  Field: myComponentSystem (ComponentSystem *)
+  Field: myTransform (TransformComponent *)
+  Field: myRenderStateDirty (bool)
+  Field: myPhysicsStateDirty (bool)
+  Field: myTags (TagMask)
+Class: Component
+  Field: myGameObject (GameObject *)
+Class: RigidbodyComponent
+  Field: myActor (physx::PxRigidDynamic *)
+  Field: myFramesSinceStartSleep (int)
+  Field: myMass (float)
+Class: ColliderComponent
+  Field: myShape (physx::PxShape *)
+  Field: myActor (physx::PxRigidStatic *)
+  Field: myLocalShapePosition (glm::vec3)
+  Field: myLocalShapeRotation (glm::vec3)
+Class: BoxColliderComponent
+  Field: myHalfSize (glm::vec3)
+Class: CameraComponent
+  Field: myResolution (glm::vec2)
+  Field: myProjection (glm::mat4)
+  Field: myFov (float)
+  Field: myNearPlane (float)
+  Field: myFarPlane (float)
+  Field: myIsOrthographic (bool)
+Class: CapsuleColliderComponent
+  Field: myRadius (float)
+  Field: myHeight (float)
+Class: PxVec3Padded
+  Field: padding (PxU32)
+Class: PxInputStream
+Class: PxInputData
+Class: PxOutputStream
+Class: PxGeometry
+  Field: mType (PxGeometryType::Enum)
+  Field: mTypePadding (float)
+Class: PxObstacle
+  Field: mType (PxGeometryType::Enum)
+  Field: mUserData (void *)
+  Field: mPos (PxExtendedVec3)
+  Field: mRot (PxQuat)
+Class: PxBoxObstacle
+  Field: mHalfExtents (PxVec3)
+Class: PxCapsuleObstacle
+  Field: mHalfHeight (PxReal)
+  Field: mRadius (PxReal)
+Class: PxObstacleContext
+Class: PxSimulationFilterCallback
+Class: PxQueryFilterCallback
+Class: PxErrorCallback
+Class: PxUserControllerHitReport
+Class: PxControllerFilterCallback
+Class: PxControllerFilters
+  Field: mFilterData (const PxFilterData *)
+  Field: mFilterCallback (PxQueryFilterCallback *)
+  Field: mFilterFlags (PxQueryFlags)
+  Field: mCCTFilterCallback (PxControllerFilterCallback *)
+Class: PxControllerDesc
+  Field: position (PxExtendedVec3)
+  Field: upDirection (PxVec3)
+  Field: slopeLimit (PxF32)
+  Field: invisibleWallHeight (PxF32)
+  Field: maxJumpHeight (PxF32)
+  Field: contactOffset (PxF32)
+  Field: stepOffset (PxF32)
+  Field: density (PxF32)
+  Field: scaleCoeff (PxF32)
+  Field: volumeGrowth (PxF32)
+  Field: reportCallback (PxUserControllerHitReport *)
+  Field: behaviorCallback (PxControllerBehaviorCallback *)
+  Field: nonWalkableMode (PxControllerNonWalkableMode::Enum)
+  Field: material (PxMaterial *)
+  Field: registerDeletionListener (bool)
+  Field: clientID (PxClientID)
+  Field: userData (void *)
+  Field: mType (const PxControllerShapeType::Enum)
+Class: PxController
+Class: CharacterControllerComponent
+  Field: myController (physx::PxController *)
+  Field: myCollisionFlags (physx::PxControllerCollisionFlags)
+  Field: myFilter (physx::PxControllerFilters)
+  Field: myHeight (float)
+  Field: myRadius (float)
+  Field: mySlopeLimitDegrees (float)
+  Field: myMinDist (float)
+  Field: myStepOffset (float)
+  Field: myUseGravity (bool)
+  Field: myDownVelocity (float)
+  Field: myGravity (float)
+  Field: myTerminalVelocity (float)
+  Field: myDisplacement (glm::vec3)
+  Field: myPositionOffset (glm::vec3)
+Class: ConvexColliderComponent
+  Field: myModel (Model *)
+Class: DirectionalLightComponent
+  Field: myIsShadowsEnabled (bool)
+  Field: myColor (glm::vec4)
+  Field: myLightProjection (glm::mat4)
+Class: EditorCameraMovementComponent
+  Field: myResetMouseDelta (bool)
+  Field: myMouseDelta (glm::vec2)
+  Field: myYaw (float)
+  Field: myPitch (float)
+  Field: myMovementSpeed (float)
+  Field: myShiftMultiplier (float)
+  Field: myScrollMultiplier (float)
+Class: LandscapeColliderComponent
+Class: seed_seq
+  Field: _Myvec (int)
+Class: bernoulli_distribution
+  Field: _Par (param_type)
+Class: random_device
+Class: Heightfield
+  Field: mySeed (int)
+  Field: myPerlinNoise (siv::BasicPerlinNoise<float>)
+Class: GPUSceneSystem
+  Field: myFreeSparseIndices (int)
+  Field: myNextFreeSparseIndex (MeshInstanceIndex)
+  Field: mySparseBuffer (ResizableBuffer *)
+  Field: myNumGPUObjectUpdatesThisFrame (uint)
+  Field: myDenseBuffer (ResizableBuffer *)
+  Field: myDenseBufferCPURepresentation (List<uint, uint>)
+Class: LandscapeRenderComponent
+  Field: myHeightfield (Heightfield)
+  Field: myVertexBuffer (VertexBufferHandle *)
+  Field: myIndexBuffer (IndexBufferHandle *)
+  Field: myMesh (Mesh *)
+  Field: myMeshInstance (MeshInstanceIndex)
+  Field: myMaterial (Material *)
+Class: MeshColliderComponent
+  Field: myModel (Model *)
+Class: PointLightComponent
+  Field: myColor (glm::vec3)
+  Field: myIntensity (float)
+  Field: myRange (float)
+Class: SinWaveMovementComponent
+Class: SphereColliderComponent
+  Field: myRadius (float)
+Class: StaticMeshComponent
+  Field: myPath (std::filesystem::path)
+  Field: myMaterials (int)
+  Field: myModel (Model *)
+  Field: myMeshInstances (int)
+Class: TransformComponent
+  Field: OnPositionChanged (MulticastDelegate<void ()>)
+  Field: OnRotationChanged (MulticastDelegate<void ()>)
+  Field: OnScaleChanged (MulticastDelegate<void ()>)
+  Field: myPositionDirty (bool)
+  Field: myRotationDirty (bool)
+  Field: myScaleDirty (bool)
+  Field: myPosition (glm::vec3)
+  Field: myRotation (glm::quat)
+  Field: myScale (glm::vec3)
+  Field: mySkipPhysicsUpdate (bool)
+  Field: myParent (TransformComponent *)
+  Field: myChildren (int)
+Class: AutoInit
+Class: AutoInitManager
+Class: Input
+Class: Time
+Class: Awaitable
+Class: SwitchToThread
+  Field: myThreadType (ThreadType)
+Class: WaitForSeconds
+  Field: mySeconds (float)
+Class: CoroutineManager
+Class: EventHandler
+  Field: myObservers (int)
+Class: PhysicsErrorCallback
+Class: PxFoundation
+Class: PxProcessPxBaseCallback
+Class: PxSerializationContext
+Class: PxDeserializationContext
+  Field: mExtraDataAddress (PxU8 *)
+Class: PxSerializationRegistry
+Class: PxCollection
+Class: PxBase
+  Field: mConcreteType (PxType)
+  Field: mBaseFlags (PxBaseFlags)
+  Field: mBuiltInRefCount (PxU32)
+Class: PxRefCounted
+Class: PxConstraintVisualizer
+Class: PxConstraintConnector
+Class: PxNodeIndex
+  Field: ind (PxU64)
+Class: PxBaseMaterial
+  Field: userData (void *)
+Class: PxMaterial
+Class: PxFrictionAnchorStreamIterator
+  Field: mContactPatches (const PxContactPatch *)
+  Field: mFrictionPatches (const PxFrictionPatch *)
+  Field: mPatchCount (PxU32)
+  Field: mFrictionAnchorIndex (PxI32)
+  Field: mPatchIndex (PxI32)
+Class: PxSimulationEventCallback
+Class: PxControllerBehaviorCallback
+Class: PhysicsListener
+  Field: myDequeueCollisionsDelegate (MulticastDelegate<void ()>)
+  Field: myCollisionPairs (int)
+  Field: myTriggerPairs (int)
+Class: PhysicsSystem
+  Field: myPhysicsCommands (int)
+  Field: myDefaultErrorCallback (physx::PxErrorCallback *)
+  Field: myDefaultAllocator (physx::PxDefaultAllocator *)
+  Field: myToleranceScale (physx::PxTolerancesScale *)
+  Field: myFoundation (physx::PxFoundation *)
+  Field: myPvd (physx::PxPvd *)
+  Field: myPvdTransport (physx::PxPvdTransport *)
+  Field: myDefaultMaterial (physx::PxMaterial *)
+  Field: myListener (PhysicsListener *)
+  Field: myPhysics (physx::PxPhysics *)
+  Field: myScene (physx::PxScene *)
+  Field: myControllerManager (physx::PxControllerManager *)
+  Field: myHasActiveSimulation (bool)
+Class: PxAllocatorCallback
+Class: PxAllocator
+Class: PxRawAllocator
+Class: PxVirtualAllocatorCallback
+Class: PxVirtualAllocator
+  Field: mCallback (PxVirtualAllocatorCallback *)
+  Field: mGroup (const int)
+Class: PxUserAllocated
+Class: PxTempAllocator
+Class: Iterator
+  Field: mBlock (PxU32)
+  Field: mIndex (PxU32)
+  Field: mBitMap (const PxBitMapBase<PxAllocator> &)
+Class: PxLoopIterator
+  Field: mMap (const PxU32 *const)
+  Field: mBlock (PxU32)
+  Field: mIndex (PxI32)
+  Field: mWordCount (PxI32)
+Class: PxCircularIterator
+  Field: mBlock (PxU32)
+  Field: mIndex (PxU32)
+  Field: mStartIndex (PxU32)
+  Field: mBitMap (const PxBitMapBase<PxAllocator> &)
+Class: PxBounds3
+  Field: minimum (PxVec3)
+  Field: maximum (PxVec3)
+Class: PxAllocationListener
+Class: PxBroadcastingAllocator
+  Field: mAllocator (PxAllocatorCallback &)
+  Field: mError (PxErrorCallback &)
+Class: PxBroadcastingErrorCallback
+Class: PxFPUGuard
+  Field: mControlWords (PxU32[8])
+Class: PxSIMDGuard
+  Field: mControlWord (PxU32)
+  Field: mEnabled (bool)
+Class: Iter
+  Field: mBucket (uint32_t)
+  Field: mEntry (uint32_t)
+  Field: mTimestamp (uint32_t)
+  Field: mBase (PxHashBase<Entry, Key, HashFn, GetKey, PxAllocator, compacting> &)
+Class: PxEraseIterator
+  Field: mCurrentEntryIndexPtr (uint32_t *)
+  Field: mCurrentHashIndex (uint32_t)
+  Field: mBase (PxHashBase<Entry, Key, HashFn, GetKey, PxAllocator, compacting> &)
+Class: PxPlane
+  Field: n (PxVec3)
+  Field: d (float)
+Class: PxMutexImpl
+Class: ScopedLock
+  Field: mMutex (PxMutexT<Alloc> &)
+Class: PxReadWriteLock
+  Field: mImpl (class ReadWriteLockImpl *)
+Class: PxProfilerCallback
+Class: PxProfileScoped
+  Field: mCallback (PxProfilerCallback *)
+  Field: mEventName (const char *)
+  Field: mProfilerData (void *)
+  Field: mContextId (uint64_t)
+  Field: mDetached (bool)
+Class: PxSListEntry
+  Field: mNext (PxSListEntry *)
+Class: PxSocket
+  Field: mImpl (class SocketImpl *)
+Class: PxSyncImpl
+Class: PxRunnable
+Class: PxThreadImpl
+Class: PxTime
+  Field: mTickCount (PxI64)
+Class: PxTransformV
+  Field: q (QuatV)
+  Field: p (Vec3V)
+Class: PxMatTransformV
+  Field: rot (Mat33V)
+  Field: p (Vec3V)
+Class: PxRenderBuffer
+Class: PxTolerancesScale
+  Field: length (PxReal)
+  Field: speed (PxReal)
+Class: PxStringTable
+Class: PxSerializer
+Class: PxInsertionCallback
+Class: PxTaskManager
+Class: PxCpuDispatcher
+Class: PxBaseTask
+  Field: mContextID (PxU64)
+  Field: mTm (PxTaskManager *)
+Class: PxTask
+  Field: mTaskID (PxTaskID)
+Class: PxLightCpuTask
+  Field: mCont (PxBaseTask *)
+  Field: mRefCount (volatile int32_t)
+Class: PxDeviceAllocatorCallback
+Class: PxCudaContextManagerDesc
+  Field: ctx (CUcontext *)
+  Field: graphicsDevice (void *)
+  Field: deviceOrdinal (PxI32)
+  Field: appGUID (const char *)
+  Field: deviceAllocator (PxDeviceAllocatorCallback *)
+Class: PxCudaContextManager
+Class: PxScopedCudaLock
+  Field: mCtx (PxCudaContextManager *)
+Class: PxGpuLoadHook
+Class: PxBoxGeometry
+  Field: halfExtents (PxVec3)
+Class: PxBVH
+Class: PxCapsuleGeometry
+  Field: radius (PxReal)
+  Field: halfHeight (PxReal)
+Class: PxConvexMesh
+Class: PxMeshScale
+  Field: scale (PxVec3)
+  Field: rotation (PxQuat)
+Class: PxConvexMeshGeometry
+  Field: scale (PxMeshScale)
+  Field: convexMesh (PxConvexMesh *)
+  Field: meshFlags (PxConvexMeshGeometryFlags)
+  Field: paddingFromFlags (PxPadding<3>)
+Class: PxSphereGeometry
+  Field: radius (PxReal)
+Class: PxPlaneGeometry
+Class: PxTriangleMeshGeometry
+  Field: scale (PxMeshScale)
+  Field: meshFlags (PxMeshGeometryFlags)
+  Field: paddingFromFlags (PxPadding<3>)
+  Field: triangleMesh (PxTriangleMesh *)
+Class: PxHeightFieldGeometry
+  Field: heightField (PxHeightField *)
+  Field: heightScale (PxReal)
+  Field: rowScale (PxReal)
+  Field: columnScale (PxReal)
+  Field: heightFieldFlags (PxMeshGeometryFlags)
+  Field: paddingFromFlags (PxPadding<3>)
+Class: PxActor
+  Field: userData (void *)
+Class: PxParticleSystemCallback
+Class: PxMultiCallback
+  Field: mCallbacks (int)
+Class: PxPBDParticleSystem
+Class: PxParticleSystemGeometry
+  Field: mSolverType (PxParticleSolverType::Enum)
+Class: PxTetrahedronMeshGeometry
+  Field: tetrahedronMesh (PxTetrahedronMesh *)
+Class: PxCustomGeometry
+  Field: callbacks (Callbacks *)
+Class: PxConvexCore
+Class: PxConvexCoreGeometry
+  Field: mCoreType (PxConvexCore::Type)
+  Field: mCore (PxU8[24])
+  Field: mMargin (PxReal)
+Class: PxGeometryHolder
+  Field: bytes (union (unnamed union at C:\Users\William\Documents\GitHub\VulkanEngine\PhysX\physx\include\geometry\PxGeometryHelpers.h:166:2))
+Class: PxInvalidGeometry
+Class: PxGeometryQuery
+Class: PxHeightField
+Class: PxHeightFieldDesc
+  Field: nbRows (PxU32)
+  Field: nbColumns (PxU32)
+  Field: format (PxHeightFieldFormat::Enum)
+  Field: samples (PxStridedData)
+  Field: convexEdgeThreshold (PxReal)
+  Field: flags (PxHeightFieldFlags)
+Class: PxMeshQuery
+Class: PxSimpleTriangleMesh
+  Field: points (PxBoundedData)
+  Field: triangles (PxBoundedData)
+  Field: flags (PxMeshFlags)
+Class: PxTriangle
+  Field: verts (PxVec3[3])
+Class: PxTrianglePadded
+  Field: padding (PxU32)
+Class: PxTriangleMesh
+Class: PxBVH33TriangleMesh
+Class: PxBVH34TriangleMesh
+Class: PxTetrahedron
+  Field: verts (PxVec3[4])
+Class: PxDeformableVolumeAuxData
+Class: PxTetrahedronMesh
+Class: PxDeformableVolumeMesh
+Class: PxCollisionMeshMappingData
+Class: PxDeformableVolumeCollisionData
+Class: PxTetrahedronMeshData
+Class: PxDeformableVolumeSimulationData
+Class: PxCollisionTetrahedronMeshData
+Class: PxSimulationTetrahedronMeshData
+Class: PxAggregate
+  Field: userData (void *)
+Class: PxConstraintAllocator
+Class: PxArticulationGpuDataType
+Class: PxArticulationCacheFlag
+Class: PxArticulationTendonLimit
+  Field: lowLimit (PxReal)
+  Field: highLimit (PxReal)
+Class: PxArticulationAttachment
+  Field: userData (void *)
+Class: PxArticulationTendonJoint
+  Field: userData (void *)
+Class: PxArticulationTendon
+  Field: userData (void *)
+Class: PxArticulationSpatialTendon
+Class: PxArticulationFixedTendon
+Class: PxArticulationMimicJoint
+  Field: userData (void *)
+Class: PxArticulationCache
+  Field: externalForces (PxSpatialForce *)
+  Field: denseJacobian (PxReal *)
+  Field: massMatrix (PxReal *)
+  Field: coriolisForce (PxReal *)
+  Field: gravityCompensationForce (PxReal *)
+  Field: centroidalMomentumMatrix (PxReal *)
+  Field: centroidalMomentumBias (PxReal *)
+  Field: jointVelocity (PxReal *)
+  Field: jointAcceleration (PxReal *)
+  Field: jointPosition (PxReal *)
+  Field: jointForce (PxReal *)
+  Field: jointTargetPositions (PxReal *)
+  Field: jointTargetVelocities (PxReal *)
+  Field: linkVelocity (PxSpatialVelocity *)
+  Field: linkAcceleration (PxSpatialVelocity *)
+  Field: linkIncomingJointForce (PxSpatialForce *)
+  Field: linkForce (PxVec3 *)
+  Field: linkTorque (PxVec3 *)
+  Field: rootLinkData (PxArticulationRootLinkData *)
+  Field: coefficientMatrix (PxReal *)
+  Field: lambda (PxReal *)
+  Field: scratchMemory (void *)
+  Field: scratchAllocator (void *)
+  Field: version (PxU32)
+Class: PxArticulationReducedCoordinate
+  Field: userData (void *)
+Class: PxArticulationJointReducedCoordinate
+  Field: userData (void *)
+Class: PxShape
+  Field: userData (void *)
+Class: PxRigidActor
+Class: PxRigidBody
+Class: PxArticulationLink
+Class: PxConstraint
+  Field: userData (void *)
+Class: PxContactSet
+  Field: mCount (PxU32)
+  Field: mContacts (PxModifiableContact *)
+Class: PxContactModifyPair
+  Field: actor (const PxRigidActor *[2])
+  Field: shape (const PxShape *[2])
+  Field: transform (PxTransform[2])
+  Field: contacts (PxContactSet)
+Class: PxContactModifyCallback
+Class: PxCCDContactModifyCallback
+Class: PxDeformableBody
+Class: PxDeformableSurface
+Class: PxDeformableMaterial
+Class: PxDeformableSurfaceMaterial
+Class: PxDeformableVolume
+Class: PxDeformableVolumeMaterial
+Class: PxDeletionListener
+Class: PxLockedData
+Class: PxParticleBuffer
+  Field: bufferUniqueId (PxU32)
+  Field: userData (void *)
+Class: PxDiffuseParticleParams
+  Field: threshold (PxReal)
+  Field: lifetime (PxReal)
+  Field: airDrag (PxReal)
+  Field: bubbleDrag (PxReal)
+  Field: buoyancy (PxReal)
+  Field: kineticEnergyWeight (PxReal)
+  Field: pressureWeight (PxReal)
+  Field: divergenceWeight (PxReal)
+  Field: collisionDecay (PxReal)
+  Field: useAccurateVelocity (bool)
+Class: PxParticleAndDiffuseBuffer
+Class: PxParticleClothBuffer
+Class: PxParticleRigidBuffer
+Class: PxParticleClothPreProcessor
+Class: PxPBDMaterial
+Class: PxDeformableAttachment
+  Field: userData (void *)
+Class: PxDeformableElementFilter
+  Field: userData (void *)
+Class: PxPhysics
+Class: PxRigidDynamic
+Class: PxRigidStatic
+Class: PxRigidDynamicGPUAPIReadType
+Class: PxRigidDynamicGPUAPIWriteType
+Class: PxArticulationGPUAPIReadType
+Class: PxArticulationGPUAPIWriteType
+Class: PxArticulationGPUAPIComputeType
+Class: PxDirectGPUAPI
+Class: PxSceneQueryDesc
+  Field: staticStructure (PxPruningStructureType::Enum)
+  Field: dynamicStructure (PxPruningStructureType::Enum)
+  Field: dynamicTreeRebuildRateHint (PxU32)
+  Field: dynamicTreeSecondaryPruner (PxDynamicTreeSecondaryPruner::Enum)
+  Field: staticBVHBuildStrategy (PxBVHBuildStrategy::Enum)
+  Field: dynamicBVHBuildStrategy (PxBVHBuildStrategy::Enum)
+  Field: staticNbObjectsPerNode (PxU32)
+  Field: dynamicNbObjectsPerNode (PxU32)
+  Field: sceneQueryUpdateMode (PxSceneQueryUpdateMode::Enum)
+Class: PxSceneQuerySystemBase
+Class: PxSceneSQSystem
+Class: PxSceneQuerySystem
+Class: PxBroadPhaseDesc
+  Field: mType (PxBroadPhaseType::Enum)
+  Field: mContextID (PxU64)
+  Field: mContextManager (PxCudaContextManager *)
+  Field: mFoundLostPairsCapacity (PxU32)
+  Field: mDiscardStaticVsKinematic (bool)
+  Field: mDiscardKinematicVsKinematic (bool)
+Class: PxBroadPhaseUpdateData
+  Field: mCreated (const PxBpIndex *)
+  Field: mNbCreated (const PxU32)
+  Field: mUpdated (const PxBpIndex *)
+  Field: mNbUpdated (const PxU32)
+  Field: mRemoved (const PxBpIndex *)
+  Field: mNbRemoved (const PxU32)
+  Field: mBounds (const PxBounds3 *)
+  Field: mGroups (const PxBpFilterGroup *)
+  Field: mDistances (const float *)
+  Field: mCapacity (const PxU32)
+Class: PxBroadPhaseRegions
+Class: PxBroadPhase
+Class: PxAABBManager
+Class: PxSceneLimits
+  Field: maxNbActors (PxU32)
+  Field: maxNbBodies (PxU32)
+  Field: maxNbStaticShapes (PxU32)
+  Field: maxNbDynamicShapes (PxU32)
+  Field: maxNbAggregates (PxU32)
+  Field: maxNbConstraints (PxU32)
+  Field: maxNbRegions (PxU32)
+  Field: maxNbBroadPhaseOverlaps (PxU32)
+Class: PxSceneDesc
+  Field: gravity (PxVec3)
+  Field: simulationEventCallback (PxSimulationEventCallback *)
+  Field: contactModifyCallback (PxContactModifyCallback *)
+  Field: ccdContactModifyCallback (PxCCDContactModifyCallback *)
+  Field: deformableSurfacePostSolveCallback (PxPostSolveCallback *)
+  Field: deformableVolumePostSolveCallback (PxPostSolveCallback *)
+  Field: filterShaderData (const void *)
+  Field: filterShaderDataSize (PxU32)
+  Field: filterShader (PxSimulationFilterShader)
+  Field: filterCallback (PxSimulationFilterCallback *)
+  Field: kineKineFilteringMode (PxPairFilteringMode::Enum)
+  Field: staticKineFilteringMode (PxPairFilteringMode::Enum)
+  Field: broadPhaseType (PxBroadPhaseType::Enum)
+  Field: broadPhaseCallback (PxBroadPhaseCallback *)
+  Field: limits (PxSceneLimits)
+  Field: frictionType (PxFrictionType::Enum)
+  Field: solverType (PxSolverType::Enum)
+  Field: bounceThresholdVelocity (PxReal)
+  Field: frictionOffsetThreshold (PxReal)
+  Field: frictionCorrelationDistance (PxReal)
+  Field: flags (PxSceneFlags)
+  Field: cpuDispatcher (PxCpuDispatcher *)
+  Field: cudaContextManager (PxCudaContextManager *)
+  Field: userData (void *)
+  Field: solverBatchSize (PxU32)
+  Field: solverArticulationBatchSize (PxU32)
+  Field: nbContactDataBlocks (PxU32)
+  Field: maxNbContactDataBlocks (PxU32)
+  Field: maxBiasCoefficient (PxReal)
+  Field: contactReportStreamBufferSize (PxU32)
+  Field: ccdMaxPasses (PxU32)
+  Field: ccdThreshold (PxReal)
+  Field: ccdMaxSeparation (PxReal)
+  Field: wakeCounterResetValue (PxReal)
+  Field: sanityBounds (PxBounds3)
+  Field: gpuDynamicsConfig (PxGpuDynamicsMemoryConfig)
+  Field: gpuMaxNumPartitions (PxU32)
+  Field: gpuMaxNumStaticPartitions (PxU32)
+  Field: gpuComputeVersion (PxU32)
+  Field: contactPairSlabSize (PxU32)
+  Field: sceneQuerySystem (PxSceneQuerySystem *)
+  Field: tolerancesScale (PxTolerancesScale)
+Class: PxSimulationStatistics
+  Field: nbActiveConstraints (PxU32)
+  Field: nbActiveDynamicBodies (PxU32)
+  Field: nbActiveKinematicBodies (PxU32)
+  Field: nbStaticBodies (PxU32)
+  Field: nbDynamicBodies (PxU32)
+  Field: nbKinematicBodies (PxU32)
+  Field: nbShapes (PxU32[11])
+  Field: nbAggregates (PxU32)
+  Field: nbArticulations (PxU32)
+  Field: nbAxisSolverConstraints (PxU32)
+  Field: compressedContactSize (PxU32)
+  Field: requiredContactConstraintMemory (PxU32)
+  Field: peakConstraintMemory (PxU32)
+  Field: nbDiscreteContactPairsTotal (PxU32)
+  Field: nbDiscreteContactPairsWithCacheHits (PxU32)
+  Field: nbDiscreteContactPairsWithContacts (PxU32)
+  Field: nbNewPairs (PxU32)
+  Field: nbLostPairs (PxU32)
+  Field: nbNewTouches (PxU32)
+  Field: nbLostTouches (PxU32)
+  Field: nbPartitions (PxU32)
+  Field: gpuMemParticles (PxU64)
+  Field: gpuMemDeformableSurfaces (PxU64)
+  Field: gpuMemDeformableVolumes (PxU64)
+  Field: gpuMemSoftBodies (PxU64)
+  Field: gpuMemHeap (PxU64)
+  Field: gpuMemHeapBroadPhase (PxU64)
+  Field: gpuMemHeapNarrowPhase (PxU64)
+  Field: gpuMemHeapSolver (PxU64)
+  Field: gpuMemHeapArticulation (PxU64)
+  Field: gpuMemHeapSimulation (PxU64)
+  Field: gpuMemHeapSimulationArticulation (PxU64)
+  Field: gpuMemHeapSimulationParticles (PxU64)
+  Field: gpuMemHeapSimulationDeformableSurface (PxU64)
+  Field: gpuMemHeapSimulationDeformableVolume (PxU64)
+  Field: gpuMemHeapSimulationSoftBody (PxU64)
+  Field: gpuMemHeapParticles (PxU64)
+  Field: gpuMemHeapDeformableSurfaces (PxU64)
+  Field: gpuMemHeapDeformableVolumes (PxU64)
+  Field: gpuMemHeapSoftBodies (PxU64)
+  Field: gpuMemHeapOther (PxU64)
+  Field: gpuDynamicsMemoryConfigStatistics (PxGpuDynamicsMemoryConfigStatistics)
+  Field: nbBroadPhaseAdds (PxU32)
+  Field: nbBroadPhaseRemoves (PxU32)
+  Field: nbDiscreteContactPairs (PxU32[11][11])
+  Field: nbCCDPairs (PxU32[11][11])
+  Field: nbModifiedContactPairs (PxU32[11][11])
+  Field: nbTriggerPairs (PxU32[11][11])
+Class: PxSoftBodyGpuDataFlag
+Class: PxPvdSceneClient
+Class: PxBroadPhaseCallback
+Class: PxPostSolveCallback
+Class: PxScene
+  Field: userData (void *)
+Class: PxSceneReadLock
+  Field: mScene (PxScene &)
+Class: PxSceneWriteLock
+  Field: mScene (PxScene &)
+Class: PxPruningStructure
+Class: PxBoxControllerDesc
+  Field: halfHeight (PxF32)
+  Field: halfSideExtent (PxF32)
+  Field: halfForwardExtent (PxF32)
+Class: PxBoxController
+Class: PxCapsuleControllerDesc
+  Field: radius (PxF32)
+  Field: height (PxF32)
+  Field: climbingMode (PxCapsuleClimbingMode::Enum)
+Class: PxCapsuleController
+Class: PxControllerManager
+Class: PxSdfBitsPerSubgridPixel
+Class: PxSDFDesc
+  Field: sdf (PxBoundedData)
+  Field: dims (PxDim3)
+  Field: meshLower (PxVec3)
+  Field: spacing (PxReal)
+  Field: subgridSize (PxU32)
+  Field: bitsPerSubgridPixel (PxSdfBitsPerSubgridPixel::Enum)
+  Field: sdfSubgrids3DTexBlockDim (PxDim3)
+  Field: sdfSubgrids (PxBoundedData)
+  Field: sdfStartSlots (PxBoundedData)
+  Field: subgridsMinSdfValue (PxReal)
+  Field: subgridsMaxSdfValue (PxReal)
+  Field: sdfBounds (PxBounds3)
+  Field: narrowBandThicknessRelativeToSdfBoundsDiagonal (PxReal)
+  Field: numThreadsForSdfConstruction (PxU32)
+  Field: baseMesh (PxSimpleTriangleMesh)
+  Field: sdfBuilder (PxSDFBuilder *)
+Class: PxConvexMeshDesc
+  Field: points (PxBoundedData)
+  Field: polygons (PxBoundedData)
+  Field: indices (PxBoundedData)
+  Field: flags (PxConvexFlags)
+  Field: vertexLimit (PxU16)
+  Field: polygonLimit (PxU16)
+  Field: quantizedCount (PxU16)
+  Field: sdfDesc (PxSDFDesc *)
+Class: PxTriangleMeshDesc
+  Field: materialIndices (PxTypedStridedData<const PxMaterialTableIndex>)
+  Field: sdfDesc (PxSDFDesc *)
+Class: PxTetrahedronMeshDesc
+  Field: materialIndices (PxTypedStridedData<PxDeformableMaterialTableIndex>)
+  Field: points (PxBoundedData)
+  Field: tetrahedrons (PxBoundedData)
+  Field: flags (PxMeshFlags)
+  Field: tetsPerElement (PxU16)
+Class: PxDeformableVolumeSimulationDataDesc
+  Field: vertexToTet (PxBoundedData)
+Class: PxMidphaseDesc
+  Field: mType (PxMeshMidPhase::Enum)
+Class: PxBVHDesc
+  Field: bounds (PxBoundedData)
+  Field: enlargement (float)
+  Field: numPrimsPerLeaf (PxU32)
+  Field: buildStrategy (PxBVHBuildStrategy::Enum)
+Class: PxDefaultMemoryOutputStream
+  Field: mAllocator (PxAllocatorCallback &)
+  Field: mData (PxU8 *)
+  Field: mSize (PxU32)
+  Field: mCapacity (PxU32)
+Class: PxDefaultMemoryInputData
+  Field: mSize (PxU32)
+  Field: mData (const PxU8 *)
+  Field: mPos (PxU32)
+Class: PxDefaultFileOutputStream
+  Field: mFile (PxFileHandle)
+Class: PxDefaultFileInputData
+  Field: mFile (PxFileHandle)
+  Field: mLength (PxU32)
+Class: PxDefaultAllocator
+Class: PxJoint
+  Field: userData (void *)
+Class: PxSpring
+  Field: stiffness (PxReal)
+  Field: damping (PxReal)
+Class: PxDistanceJoint
+Class: PxContactJoint
+Class: PxFixedJoint
+Class: PxJointLimitParameters
+  Field: restitution (PxReal)
+  Field: bounceThreshold (PxReal)
+  Field: stiffness (PxReal)
+  Field: damping (PxReal)
+Class: PxJointLinearLimit
+  Field: value (PxReal)
+Class: PxJointLinearLimitPair
+  Field: upper (PxReal)
+  Field: lower (PxReal)
+Class: PxJointAngularLimitPair
+  Field: upper (PxReal)
+  Field: lower (PxReal)
+Class: PxJointLimitCone
+  Field: yAngle (PxReal)
+  Field: zAngle (PxReal)
+Class: PxJointLimitPyramid
+  Field: yAngleMin (PxReal)
+  Field: yAngleMax (PxReal)
+  Field: zAngleMin (PxReal)
+  Field: zAngleMax (PxReal)
+Class: PxPrismaticJoint
+Class: PxRevoluteJoint
+Class: PxSphericalJoint
+Class: PxD6JointDrive
+  Field: forceLimit (PxReal)
+  Field: flags (PxD6JointDriveFlags)
+Class: PxD6Joint
+Class: PxGearJoint
+Class: PxRackAndPinionJoint
+Class: PxGroupsMask
+  Field: bits0 (PxU16)
+  Field: bits1 (PxU16)
+  Field: bits2 (PxU16)
+  Field: bits3 (PxU16)
+Class: PxDefaultErrorCallback
+Class: PxRigidActorExt
+Class: PxConvexCoreExt
+Class: PxMassProperties
+  Field: inertiaTensor (PxMat33)
+  Field: centerOfMass (PxVec3)
+  Field: mass (PxReal)
+Class: PxRigidBodyExt
+Class: PxShapeExt
+Class: PxMeshOverlapUtil
+  Field: mResultsMemory (PxU32 *)
+  Field: mResults (PxU32[256])
+  Field: mNbResults (PxU32)
+  Field: mMaxNbResults (PxU32)
+Class: PxSerialization
+Class: PxDefaultCpuDispatcher
+Class: PxStringTableExt
+Class: PxBroadPhaseExt
+Class: PxSceneQueryExt
+Class: PxBatchQueryExt
+Class: PxCustomSceneQuerySystem
+Class: PxCustomSceneQuerySystemAdapter
+Class: PxSamplingExt
+Class: PxPoissonSampler
+Class: PxTriangleMeshPoissonSampler
+Class: PxTetrahedronMeshExt
+Class: PxGjkQuery
+Class: PxCustomGeometryExt
+Class: PxDeformableSurfaceExt
+Class: PxBinaryConverter
+Class: PxRepXSerializer
+Class: PxVehicleComponent
+Class: PxVehicleVectorN
+  Field: mValues (PxReal[23])
+  Field: mSize (PxU32)
+Class: PxVehicleMatrixNN
+  Field: mValues (PxReal[23][23])
+  Field: mSize (PxU32)
+Class: PxVehicleMatrixNNLUSolver
+  Field: mLU (PxVehicleMatrixNN)
+  Field: mP (PxU32[22])
+  Field: mQ (PxU32[22])
+  Field: mDetM (PxReal)
+Class: PxVehicleMatrixNGaussSeidelSolver
+Class: PxVehicleMatrix33Solver
+Class: PxVehicleCommandNonLinearResponseParams
+  Field: speedResponses (PxReal[128])
+  Field: nbSpeedResponses (PxU16)
+  Field: speedResponsesPerCommandValue (PxU16[8])
+  Field: nbSpeedResponsesPerCommandValue (PxU16[8])
+  Field: commandValues (PxReal[8])
+  Field: nbCommandValues (PxU16)
+Class: PxVehicleDirectDriveCommandResponseComponent
+Class: PxVehicleDirectDriveActuationStateComponent
+Class: PxVehicleDirectDrivetrainComponent
+Class: PxVehicleEngineDriveCommandResponseComponent
+Class: PxVehicleMultiWheelDriveDifferentialStateComponent
+Class: PxVehicleFourWheelDriveDifferentialStateComponent
+Class: PxVehicleTankDriveDifferentialStateComponent
+Class: PxVehicleLegacyFourWheelDriveDifferentialStateComponent
+Class: PxVehicleEngineDriveActuationStateComponent
+Class: PxVehicleEngineDrivetrainComponent
+Class: PxVehiclePhysXRigidActorParams
+  Field: rigidBodyParams (const PxVehicleRigidBodyParams &)
+  Field: physxActorName (const char *)
+Class: PxVehiclePhysXRigidActorShapeParams
+  Field: geometry (const PxGeometry &)
+  Field: localPose (const PxTransform &)
+  Field: material (const PxMaterial &)
+  Field: flags (PxShapeFlags)
+  Field: simulationFilterData (PxFilterData)
+  Field: queryFilterData (PxFilterData)
+Class: PxVehiclePhysXWheelParams
+  Field: axleDescription (const PxVehicleAxleDescription &)
+  Field: wheelParams (const PxVehicleWheelParams *)
+Class: PxVehiclePhysXWheelShapeParams
+  Field: material (const PxMaterial &)
+  Field: flags (PxShapeFlags)
+  Field: simulationFilterData (PxFilterData)
+  Field: queryFilterData (PxFilterData)
+Class: PxVehiclePhysXActorBeginComponent
+Class: PxVehiclePhysXActorEndComponent
+Class: PxVehicleConstraintConnector
+  Field: mVehicleConstraintState (PxVehiclePhysXConstraintState *)
+Class: PxVehiclePhysXConstraintComponent
+Class: PxVehiclePhysXRoadGeometrySceneQueryComponent
+Class: PxVehiclePVDComponent
+  Field: firstTime (bool)
+Class: PxVehicleRigidBodyComponent
+Class: PxVehicleSuspensionComponent
+Class: PxVehicleLegacySuspensionComponent
+Class: PxVehicleTireComponent
+Class: PxVehicleLegacyTireComponent
+Class: PxVehicleWheelComponent
+Class: PxVehicleContext
+  Field: upAxis (PxVec3)
+  Field: forwardAxis (PxVec3)
+  Field: sideAxis (PxVec3)
+  Field: updateMode (PxVehicleUpdateMode::Enum)
+  Field: pointRejectAngleThresholdCosine (PxF32)
+  Field: normalRejectAngleThresholdCosine (PxF32)
+  Field: maxHitActorAcceleration (PxF32)
+Class: PxVehicleChassisData
+  Field: mMOI (PxVec3)
+  Field: mMass (PxReal)
+  Field: mCMOffset (PxVec3)
+  Field: pad (PxReal)
+Class: PxVehicleEngineData
+  Field: mTorqueCurve (PxFixedSizeLookupTable<eMAX_NB_ENGINE_TORQUE_CURVE_ENTRIES>)
+  Field: mMOI (PxReal)
+  Field: mPeakTorque (PxReal)
+  Field: mMaxOmega (PxReal)
+  Field: mDampingRateFullThrottle (PxReal)
+  Field: mDampingRateZeroThrottleClutchEngaged (PxReal)
+  Field: mDampingRateZeroThrottleClutchDisengaged (PxReal)
+  Field: mRecipMOI (PxReal)
+  Field: mRecipMaxOmega (PxReal)
+Class: PxVehicleGearsData
+  Field: mRatios (PxReal[32])
+  Field: mFinalRatio (PxReal)
+  Field: mNbRatios (PxU32)
+  Field: mSwitchTime (PxReal)
+  Field: mPad (PxReal)
+Class: PxVehicleAutoBoxData
+  Field: mUpRatios (PxReal[32])
+  Field: mDownRatios (PxReal[32])
+Class: PxVehicleDifferential4WData
+  Field: mFrontRearSplit (PxReal)
+  Field: mFrontLeftRightSplit (PxReal)
+  Field: mRearLeftRightSplit (PxReal)
+  Field: mCentreBias (PxReal)
+  Field: mFrontBias (PxReal)
+  Field: mRearBias (PxReal)
+  Field: mType (PxVehicleDifferential4WData::Enum)
+  Field: mPad (PxReal[1])
+Class: PxVehicleDifferentialNWData
+  Field: mBitmapBuffer (PxU32[1])
+  Field: mNbDrivenWheels (PxU32)
+  Field: mInvNbDrivenWheels (PxReal)
+  Field: mPad (PxU32)
+Class: PxVehicleAckermannGeometryData
+  Field: mAccuracy (PxReal)
+  Field: mFrontWidth (PxReal)
+  Field: mRearWidth (PxReal)
+  Field: mAxleSeparation (PxReal)
+Class: PxVehicleClutchData
+  Field: mStrength (PxReal)
+  Field: mAccuracyMode (PxVehicleClutchAccuracyMode::Enum)
+  Field: mEstimateIterations (PxU32)
+  Field: mPad (PxU8[4])
+Class: PxVehicleTireLoadFilterData
+  Field: mMinNormalisedLoad (PxReal)
+  Field: mMinFilteredNormalisedLoad (PxReal)
+  Field: mMaxNormalisedLoad (PxReal)
+  Field: mMaxFilteredNormalisedLoad (PxReal)
+  Field: mDenominator (PxReal)
+  Field: mPad (PxU32[3])
+Class: PxVehicleWheelData
+  Field: mRadius (PxReal)
+  Field: mWidth (PxReal)
+  Field: mMass (PxReal)
+  Field: mMOI (PxReal)
+  Field: mDampingRate (PxReal)
+  Field: mMaxBrakeTorque (PxReal)
+  Field: mMaxHandBrakeTorque (PxReal)
+  Field: mMaxSteer (PxReal)
+  Field: mToeAngle (PxReal)
+  Field: mRecipRadius (PxReal)
+  Field: mRecipMOI (PxReal)
+  Field: mPad (PxReal[1])
+Class: PxVehicleSuspensionData
+  Field: mSpringStrength (PxReal)
+  Field: mSpringDamperRate (PxReal)
+  Field: mMaxCompression (PxReal)
+  Field: mMaxDroop (PxReal)
+  Field: mSprungMass (PxReal)
+  Field: mCamberAtRest (PxReal)
+  Field: mCamberAtMaxCompression (PxReal)
+  Field: mCamberAtMaxDroop (PxReal)
+  Field: mRecipMaxCompression (PxReal)
+  Field: mRecipMaxDroop (PxReal)
+  Field: mPad (PxReal[2])
+Class: PxVehicleAntiRollBarData
+  Field: mWheel0 (PxU32)
+  Field: mWheel1 (PxU32)
+  Field: mStiffness (PxF32)
+  Field: mPad (PxF32[1])
+Class: PxVehicleTireData
+  Field: mLatStiffX (PxReal)
+  Field: mLatStiffY (PxReal)
+  Field: mLongitudinalStiffnessPerUnitGravity (PxReal)
+  Field: mCamberStiffnessPerUnitGravity (PxReal)
+  Field: mFrictionVsSlipGraph (PxReal[3][2])
+  Field: mType (PxU32)
+  Field: mRecipLongitudinalStiffnessPerUnitGravity (PxReal)
+  Field: mFrictionVsSlipGraphRecipx1Minusx0 (PxReal)
+  Field: mFrictionVsSlipGraphRecipx2Minusx1 (PxReal)
+  Field: mPad (PxReal[2])
+Class: PxVehicleWheelsSimData
+  Field: mNormalisedLoadFilter (PxVehicleTireLoadFilterData)
+  Field: mWheels4SimData (PxVehicleWheels4SimData *)
+  Field: mNbWheels4 (PxU32)
+  Field: mNbActiveWheels (PxU32)
+  Field: mAntiRollBars (PxVehicleAntiRollBarData *)
+  Field: mNbAntiRollBars4 (PxU32)
+  Field: mNbActiveAntiRollBars (PxU32)
+  Field: mActiveWheelsBitmapBuffer (PxU32[1])
+  Field: mThresholdLongitudinalSpeed (PxF32)
+  Field: mLowForwardSpeedSubStepCount (PxU32)
+  Field: mHighForwardSpeedSubStepCount (PxU32)
+  Field: mMinLongSlipDenominator (PxF32)
+  Field: mFlags (PxU32)
+  Field: mPad (PxU32[1])
+Class: PxVehicleWheelsDynData
+  Field: mWheels4DynData (PxVehicleWheels4DynData *)
+  Field: mTireForceCalculators (PxVehicleTireForceCalculator *)
+  Field: mUserDatas (void **)
+  Field: mNbWheels4 (PxU32)
+  Field: mNbActiveWheels (PxU32)
+  Field: mPad (PxU32[3])
+Class: PxVehicleWheels
+  Field: mWheelsSimData (PxVehicleWheelsSimData)
+  Field: mWheelsDynData (PxVehicleWheelsDynData)
+  Field: mActor (PxRigidDynamic *)
+  Field: mNbNonDrivenWheels (PxU32)
+  Field: mOnConstraintReleaseCounter (PxU8)
+  Field: mType (PxU8)
+  Field: mPad0 (PxU8[14])
+Class: PxVehicleDriveSimData
+  Field: mEngine (PxVehicleEngineData)
+  Field: mGears (PxVehicleGearsData)
+  Field: mClutch (PxVehicleClutchData)
+  Field: mAutoBox (PxVehicleAutoBoxData)
+Class: PxVehicleDriveDynData
+  Field: mControlAnalogVals (PxReal[16])
+  Field: mUseAutoGears (bool)
+  Field: mGearUpPressed (bool)
+  Field: mGearDownPressed (bool)
+  Field: mCurrentGear (PxU32)
+  Field: mTargetGear (PxU32)
+  Field: mEnginespeed (PxReal)
+  Field: mGearSwitchTime (PxReal)
+  Field: mAutoBoxSwitchTime (PxReal)
+  Field: mPad (PxU32[2])
+Class: PxVehicleDrive
+  Field: mDriveDynData (PxVehicleDriveDynData)
+Class: PxVehicleDriveSimData4W
+  Field: mDiff (PxVehicleDifferential4WData)
+  Field: mAckermannGeometry (PxVehicleAckermannGeometryData)
+Class: PxVehicleDrive4W
+  Field: mDriveSimData (PxVehicleDriveSimData4W)
+Class: PxVehicleDriveTank
+  Field: mDriveSimData (PxVehicleDriveSimData)
+  Field: mDriveModel (PxVehicleDriveTankControlModel::Enum)
+  Field: mPad (PxU32[3])
+Class: PxVehicleDrivableSurfaceToTireFrictionPairs
+  Field: mPairs (PxReal *)
+  Field: mDrivableSurfaceMaterials (const PxMaterial **)
+  Field: mDrivableSurfaceTypes (PxVehicleDrivableSurfaceType *)
+  Field: mMaterialSerialIds (PxSerialObjectId *)
+  Field: mNbSurfaceTypes (PxU32)
+  Field: mMaxNbSurfaceTypes (PxU32)
+  Field: mNbTireTypes (PxU32)
+  Field: mMaxNbTireTypes (PxU32)
+Class: PxVehicleDriveSimDataNW
+  Field: mDiff (PxVehicleDifferentialNWData)
+Class: PxVehicleDriveNW
+  Field: mDriveSimData (PxVehicleDriveSimDataNW)
+Class: PxVehicleDrive4WRawInputData
+  Field: mRawDigitalInputs (bool[5])
+  Field: mRawAnalogInputs (PxReal[5])
+  Field: mGearUp (bool)
+  Field: mGearDown (bool)
+Class: PxVehicleDriveNWRawInputData
+Class: PxVehicleDriveTankRawInputData
+  Field: mMode (PxVehicleDriveTankControlModel::Enum)
+  Field: mRawAnalogInputs (PxReal[5])
+  Field: mRawDigitalInputs (bool[5])
+  Field: mGearUp (bool)
+  Field: mGearDown (bool)
+Class: PxVehicleCopyDynamicsMap
+  Field: sourceWheelIds (PxU8[20])
+  Field: targetWheelIds (PxU8[20])
+Class: PxVehicleGraphDesc
+  Field: mPosX (PxReal)
+  Field: mPosY (PxReal)
+  Field: mSizeX (PxReal)
+  Field: mSizeY (PxReal)
+  Field: mBackgroundColor (PxVec3)
+  Field: mAlpha (PxReal)
+Class: PxVehicleGraph
+  Field: mChannelMinY (PxReal[12])
+  Field: mChannelMaxY (PxReal[12])
+  Field: mChannelMidY (PxReal[12])
+  Field: mChannelColorLow (PxVec3[12])
+  Field: mChannelColorHigh (PxVec3[12])
+  Field: mChannelTitle (char[12][256])
+  Field: mChannelSamples (PxReal[12][256])
+  Field: mBackgroundColor (PxVec3)
+  Field: mBackgroundAlpha (PxReal)
+  Field: mBackgroundMinX (PxReal)
+  Field: mBackgroundMaxX (PxReal)
+  Field: mBackgroundMinY (PxReal)
+  Field: mBackgroundMaxY (PxReal)
+  Field: mSampleTide (PxU32)
+  Field: mNbChannels (PxU32)
+  Field: mPad (PxU32[2])
+Class: PxVehicleTelemetryData
+  Field: mEngineGraph (PxVehicleGraph *)
+  Field: mWheelGraphs (PxVehicleGraph *)
+  Field: mTireforceAppPoints (PxVec3 *)
+  Field: mSuspforceAppPoints (PxVec3 *)
+  Field: mNbActiveWheels (PxU32)
+  Field: mPad (PxU32[3])
+Class: PxVehicleNoDrive
+  Field: mSteerAngles (PxReal *)
+  Field: mDriveTorques (PxReal *)
+  Field: mBrakeTorques (PxReal *)
+  Field: mPad (PxU32[2])
+Class: PxPvd
+Class: PxPvdTransport
+Class: DebugPipeline
+  Field: myVertexShader (Shader *)
+  Field: myFragmentShader (Shader *)
+  Field: myPipeline (vk::Pipeline)
+  Field: myPipelineLayout (vk::PipelineLayout)
+  Field: myFrameDescriptorSet (VulkanDescriptorSet)
+  Field: myFrameDataBuffer (VulkanBuffer *)
+Class: FullscreenPipeline
+  Field: myVertexShader (Shader *)
+  Field: myFragmentShader (Shader *)
+  Field: myPipeline (vk::Pipeline)
+  Field: myPipelineLayout (vk::PipelineLayout)
+  Field: myRenderPass (vk::RenderPass)
+  Field: myDescriptorSet (VulkanDescriptorSet)
+Class: GDRPipeline
+  Field: myPrePassShader (Shader *)
+  Field: myCullShader (Shader *)
+  Field: myCubemap (TextureCube *)
+  Field: myPrePass (ComputePassResources)
+  Field: myCullPass (ComputePassResources)
+  Field: myIndirectCommandsBuffer (ResizableBuffer *)
+  Field: myCountBuffer (VulkanBuffer *)
+  Field: myPerDrawDataBuffer (ResizableBuffer *)
+  Field: myFrameDescriptorSet (VulkanDescriptorSet)
+  Field: myPipelineLayout (vk::PipelineLayout)
+  Field: myPipeline (vk::Pipeline)
+  Field: myVertexShader (Shader *)
+  Field: myFragmentShader (Shader *)
+  Field: myFrameDataBuffer (VulkanBuffer *)
+  Field: myDirectionalLightBuffer (VulkanBuffer *)
+  Field: myDirtyTransforms (int)
+Class: IndexBufferHandle
+  Field: myIndex (uint)
+Class: IndexBufferSystem
+  Field: myUsedBufferSize (uint)
+  Field: myCurrentIndexOffset (uint)
+  Field: myIndexBuffers (int)
+  Field: myBuffer (ResizableBuffer *)
+  Field: mySparseIndexDataBuffer (ResizableBuffer *)
+  Field: mySparseIndexData_CPURepresentation (int)
+  Field: myFreeSparseIndices (int)
+Class: Mesh
+  Field: myVertexBuffer (VertexBufferHandle *)
+  Field: myIndexBuffer (IndexBufferHandle *)
+  Field: mySphereBounds (glm::vec4)
+  Field: myHandle (uint)
+  Field: myAlbedoPath (std::string)
+  Field: myNormalPath (std::string)
+  Field: myMaterialPath (std::string)
+Class: MeshSystem
+  Field: myMeshes (int)
+  Field: myBuffer (ResizableBuffer *)
+  Field: myNumObjects (uint)
+Class: MeshUtils
+Class: SkyboxPipeline
+  Field: myVertexShader (Shader *)
+  Field: myFragmentShader (Shader *)
+  Field: myFrameDescriptorSet (VulkanDescriptorSet)
+  Field: myPipelineLayout (vk::PipelineLayout)
+  Field: myPipeline (vk::Pipeline)
+  Field: myFrameDataBuffer (VulkanBuffer *)
+  Field: mySkyboxModel (Model *)
+  Field: mySkybox (Texture *)
+Class: TextureSystem
+  Field: myDescriptorPool (vk::DescriptorPool)
+Class: VertexBufferHandle
+  Field: myIndex (uint)
+Class: ResizableBuffer
+  Field: OnBufferResized (MulticastDelegate<void ()>)
+  Field: myHasActiveUpload (bool)
+  Field: myHasRegisteredForTick (bool)
+  Field: myBuffer (VulkanBuffer *)
+Class: VertexBufferSystem
+  Field: myUsedBufferSize (uint)
+  Field: myCurrentVertexOffset (uint)
+  Field: myVertexBuffers (int)
+  Field: myBuffer (ResizableBuffer *)
+  Field: mySparseVertexDataBuffer (ResizableBuffer *)
+  Field: mySparseVertexData_CPURepresentation (int)
+  Field: myFreeSparseIndices (int)
+Class: BinaryReader
+  Field: myBuffer (int)
+  Field: myReadOffset (size_t)
+Class: BinaryWriter
+  Field: myStream (std::ofstream)
+Class: (unnamed class at ./../Engine/System/SystemManager.h:5:7)
+Class: LandscapeSystem
+Class: PointLightSystem
+  Field: myBuffer (ResizableBuffer *)
+  Field: myNumPointLights (uint)
+Class: Debug
+Class: ShaderDatabase
+  Field: m_shaderBinaries (int)
+  Field: m_shaderBinariesWithDebugInfo (int)
+Class: NvidiaAftermathTracker
+  Field: m_initialized (bool)
+  Field: m_mutex (std::mutex)
+  Field: m_shaderDebugInfo (int)
+  Field: m_shaderDatabase (ShaderDatabase)
+  Field: m_markerMap (const MarkerMap &)
+  Field: m_AftermathFlags (const uint32_t)
+Class: VulkanContext
+  Field: myVulkanInstance (vk::Instance)
+  Field: myDebugMessenger (vk::DebugUtilsMessengerEXT)
+  Field: myPipelineCache (vk::PipelineCache)
+  Field: myPhysicalDevice (class VulkanPhysicalDevice *)
+  Field: myDevice (class VulkanDevice *)
+  Field: myAllocator (class VulkanAllocator *)
+  Field: mySwapChain (class VulkanSwapChain *)
+  Field: markerMap (NvidiaAftermathTracker::MarkerMap)
+  Field: myNvidiaAftermathDebugger (class NvidiaAftermathTracker *)
+  Field: myDescriptorPool (vk::DescriptorPool)
+  Field: myExtensions (const int)
+  Field: myLayers (const int)
+Class: VulkanDevice
+  Field: myPhysicalDevice (const VulkanPhysicalDevice &)
+  Field: myDevice (vk::Device)
+  Field: myGraphicsQueue (vk::Queue)
+  Field: myComputeQueue (vk::Queue)
+  Field: myTransferQueue (vk::Queue)
+  Field: myCommandPoolsMutex (std::recursive_mutex)
+  Field: myCommandPools (int)
+  Field: myComputeCommandPools (int)
+Class: VulkanUtils
+Class: VulkanImage
+  Field: myAllocation (VmaAllocation)
+  Field: myImage (vk::Image)
+  Field: myView (vk::ImageView)
+  Field: myFormat (vk::Format)
+  Field: mySize (glm::vec2)
+  Field: myNumMipLevels (uint)
+  Field: myNumMSAASamples (vk::SampleCountFlagBits)
+Class: VulkanImGui
+Class: VulkanPhysicalDevice
+  Field: myDevice (vk::PhysicalDevice)
+  Field: myFeatures (vk::PhysicalDeviceFeatures2)
+  Field: myMemoryProperties (vk::PhysicalDeviceMemoryProperties)
+  Field: myQueueFamilyProperties (int)
+  Field: myMSAASampleCount (vk::SampleCountFlagBits)
+  Field: myGraphicsQueueIndex (int)
+  Field: myComputeQueueIndex (int)
+  Field: myTransferQueueIndex (int)
+  Field: myPresentQueueIndex (int)
+  Field: myDeviceExtensions (int)
+Class: CompileOptions
+  Field: options_ (shaderc_compile_options_t)
+  Field: includer_ (int)
+Class: IncluderInterface
+Class: Compiler
+  Field: compiler_ (shaderc_compiler_t)
+Class: VulkanShaderIncluder
+  Field: myActiveIncludes (int)
+Class: VulkanSwapChain
+  Field: myDevice (const VulkanDevice &)
+  Field: myWindowSurface (vk::SurfaceKHR)
+  Field: myFormat (vk::Format)
+  Field: myFences (int)
+  Field: myImageAcquiredSemaphores (int)
+  Field: myDrawCompleteSemaphores (int)
+  Field: myFrameIndex (uint)
+  Field: mySyncIndex (uint)
+  Field: mySwapChain (vk::SwapchainKHR)
+  Field: mySwapChainWidth (uint)
+  Field: mySwapChainHeight (uint)
+  Field: myMinImageCount (uint)
+  Field: myImages (int)
+  Field: myImageViews (int)
+  Field: myCommandPool (vk::CommandPool)
+  Field: myCommandBuffers (int)
+Class: WindowHandler
+  Field: myHWND (HWND)
+  Field: myHInstance (HINSTANCE)
+Class: World
+  Field: myAssetRegistry (class AssetRegistry *)
+  Field: mySystemManager (SystemManager<WorldSystem> *)
+  Field: myCactus (class GameObject *)
+Class: StagingBuffer
+  Field: myUnderlyingBuffer (VulkanBuffer *)
+  Field: mySize (uint)
+  Field: myOffset (uint)
+Class: StagingSystem
+  Field: myLastFrameIndex (uint)
+  Field: myCurrentStageData (BufferData *)
+  Field: myStagingBuffers (std::array<BufferData, VulkanContext::FrameLag>)
+Class: BinaryUtils
