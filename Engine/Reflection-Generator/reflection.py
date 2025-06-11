@@ -35,15 +35,17 @@ def collect_includes():
     resolved_includes = [str(Path(path).resolve()) for path in resolved_includes]
     return resolved_includes
 
+def build_clang_args(include_paths):
+    args = []
+    args = sum([['-I', inc] for inc in include_paths], [])
+    args += ['-x', 'c++', '--std=c++23']
+    args += ['-include', str(Path("../Engine/EnginePch.h").resolve())]
+    return args
+
 def generate_reflection(header_file):
 
     includes = collect_includes()
-
-    print(includes)
-
-    clang_args = sum([['-I', inc] for inc in includes], [])
-    clang_args += ['-x', 'c++', '--std=c++23']
-    clang_args += ['-include', str(Path("../Engine/EnginePch.h").resolve())]
+    clang_args = build_clang_args(includes)
 
     index = clang.cindex.Index.create()
     tu = index.parse(header_file, clang_args)
