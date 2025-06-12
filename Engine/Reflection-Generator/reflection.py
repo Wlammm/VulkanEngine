@@ -157,7 +157,6 @@ def process_class(node, reflection_database, all_header_files):
             process_class(child, reflection_database, all_header_files)
 
 def generate_reflection_database(unity_file_path, clang_args, all_header_files):
-    
     start_time = time.time()
     index = clang.cindex.Index.create()
     print(f"Database generation args: {clang_args}")
@@ -166,7 +165,7 @@ def generate_reflection_database(unity_file_path, clang_args, all_header_files):
     print(f"Parsed cindex in {elapsed:.2f} seconds")
 
     # Convert to set for faster look up.
-    #all_header_files = {str(Path(f).resolve()) for f in all_header_files}
+    all_header_files = {str(Path(f).resolve()) for f in all_header_files}
 
     reflection_database = {}
     start_time = time.time()
