@@ -73,7 +73,7 @@ def get_fully_qualified_name(node):
         if node.kind in (
             clang.cindex.CursorKind.NAMESPACE,
             clang.cindex.CursorKind.CLASS_DECL,
-            clang.cindex.CursorKind.STRUCT_DECL,
+            clang.cindex.CursorKind.STRUCT_DECL
         ):
             if node.spelling:  # Only add if name exists (ignore anonymous)
                 names.insert(0, node.spelling)
@@ -85,12 +85,16 @@ def get_fully_qualified_name(node):
 def get_fully_qualified_type_name(node):
     original_node = node
     type_name = node.type.spelling
-    print(f"abc123 {type_name}")
+
+    # Special edge case for template types. They just come back as FIELD_DECL or CLASS_DECL so no other way of knowing that I know of.
+    if '<' in type_name or '>' in type_name:
+        return type_name
+
     node = node.type.get_declaration()
 
     names = []
     while node is not None and node.kind != clang.cindex.CursorKind.TRANSLATION_UNIT:
-        print(node.kind)
+        print(f"{node.kind} : Spelling: {node.spelling}")
         if node.kind is clang.cindex.CursorKind.NO_DECL_FOUND:
             return type_name
         
@@ -100,7 +104,8 @@ def get_fully_qualified_type_name(node):
             clang.cindex.CursorKind.NAMESPACE, 
             clang.cindex.CursorKind.TYPE_ALIAS_DECL, 
             clang.cindex.CursorKind.TYPEDEF_DECL, 
-            clang.cindex.CursorKind.ENUM_DECL):
+            clang.cindex.CursorKind.ENUM_DECL,
+            clang.cindex.CursorKind.CLASS_TEMPLATE):
             names.insert(0, node.spelling)
 
         node = node.semantic_parent

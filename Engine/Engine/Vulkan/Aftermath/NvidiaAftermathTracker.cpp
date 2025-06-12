@@ -32,7 +32,7 @@
 // GpuCrashTracker implementation
 //*********************************************************
 
-NvidiaAftermathTracker::NvidiaAftermathTracker(const MarkerMap& markerMap)
+NvidiaAftermathTracker::NvidiaAftermathTracker(const AfterMathMarkerMap& markerMap)
     : m_initialized(false)
     , m_mutex()
     , m_shaderDebugInfo()

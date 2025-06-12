@@ -301,7 +301,7 @@ public:
 			}
 			{
 				Class* currentClass = reflectionSystem.GetMutableClass<OnScopeExit>();
-				currentClass->AddField(Field("myOnScopeExit", offsetof(OnScopeExit, myOnScopeExit), reflectionSystem.GetClass<std::function>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myOnScopeExit", offsetof(OnScopeExit, myOnScopeExit), reflectionSystem.GetClass<std::function<void ()>>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{
@@ -453,7 +453,7 @@ public:
 			{
 				Class* currentClass = reflectionSystem.GetMutableClass<VulkanAllocator::DelegateDeleteData>();
 				currentClass->AddField(Field("myFramesUntilDelete", offsetof(VulkanAllocator::DelegateDeleteData, myFramesUntilDelete), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myDelegate", offsetof(VulkanAllocator::DelegateDeleteData, myDelegate), reflectionSystem.GetClass<Delegate>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myDelegate", offsetof(VulkanAllocator::DelegateDeleteData, myDelegate), reflectionSystem.GetClass<Delegate<void ()>>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{
@@ -532,7 +532,7 @@ public:
 			}
 			{
 				Class* currentClass = reflectionSystem.GetMutableClass<IVulkanDynamicBuffer>();
-				currentClass->AddField(Field("OnBufferRecreated", offsetof(IVulkanDynamicBuffer, OnBufferRecreated), reflectionSystem.GetClass<MulticastDelegate>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("OnBufferRecreated", offsetof(IVulkanDynamicBuffer, OnBufferRecreated), reflectionSystem.GetClass<MulticastDelegate<void ()>>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{
@@ -733,7 +733,7 @@ public:
 				currentClass->AddField(Field("mySparseBuffer", offsetof(GPUSceneSystem, mySparseBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myNumGPUObjectUpdatesThisFrame", offsetof(GPUSceneSystem, myNumGPUObjectUpdatesThisFrame), reflectionSystem.GetClass<uint>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myDenseBuffer", offsetof(GPUSceneSystem, myDenseBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myDenseBufferCPURepresentation", offsetof(GPUSceneSystem, myDenseBufferCPURepresentation), reflectionSystem.GetClass<List>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myDenseBufferCPURepresentation", offsetof(GPUSceneSystem, myDenseBufferCPURepresentation), reflectionSystem.GetClass<List<uint, uint>>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{
@@ -835,7 +835,7 @@ public:
 			}
 			{
 				Class* currentClass = reflectionSystem.GetMutableClass<PhysicsListener>();
-				currentClass->AddField(Field("myDequeueCollisionsDelegate", offsetof(PhysicsListener, myDequeueCollisionsDelegate), reflectionSystem.GetClass<MulticastDelegate>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myDequeueCollisionsDelegate", offsetof(PhysicsListener, myDequeueCollisionsDelegate), reflectionSystem.GetClass<MulticastDelegate<void ()>>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myCollisionPairs", offsetof(PhysicsListener, myCollisionPairs), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myTriggerPairs", offsetof(PhysicsListener, myTriggerPairs), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
@@ -1079,7 +1079,7 @@ public:
 				currentClass->AddField(Field("m_mutex", offsetof(NvidiaAftermathTracker, m_mutex), reflectionSystem.GetClass<std::mutex>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("m_shaderDebugInfo", offsetof(NvidiaAftermathTracker, m_shaderDebugInfo), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("m_shaderDatabase", offsetof(NvidiaAftermathTracker, m_shaderDatabase), reflectionSystem.GetClass<ShaderDatabase>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("m_markerMap", offsetof(NvidiaAftermathTracker, m_markerMap), reflectionSystem.GetClass<const MarkerMap &>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("m_markerMap", offsetof(NvidiaAftermathTracker, m_markerMap), reflectionSystem.GetClass<const AfterMathMarkerMap &>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("m_AftermathFlags", offsetof(NvidiaAftermathTracker, m_AftermathFlags), reflectionSystem.GetClass<uint32_t>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
@@ -1131,7 +1131,7 @@ public:
 				Class* currentClass = reflectionSystem.GetMutableClass<StagingSystem>();
 				currentClass->AddField(Field("myLastFrameIndex", offsetof(StagingSystem, myLastFrameIndex), reflectionSystem.GetClass<uint>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myCurrentStageData", offsetof(StagingSystem, myCurrentStageData), reflectionSystem.GetClass<BufferData *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myStagingBuffers", offsetof(StagingSystem, myStagingBuffers), reflectionSystem.GetClass<std::array>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myStagingBuffers", offsetof(StagingSystem, myStagingBuffers), reflectionSystem.GetClass<std::array<BufferData, VulkanContext::FrameLag>>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{

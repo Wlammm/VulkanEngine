@@ -30,6 +30,10 @@
 #include <aftermath/NsightAftermathHelpers.h>
 #include "ShaderDatabase.h"
 
+
+const static unsigned int c_markerFrameHistory = 4;
+typedef std::array<std::map<uint64_t, std::string>, c_markerFrameHistory> AfterMathMarkerMap;
+
 //*********************************************************
 // Implements GPU crash dump tracking using the Nsight
 // Aftermath API.
@@ -38,10 +42,8 @@ class NvidiaAftermathTracker
 {
 public:
     // keep four frames worth of marker history
-    const static unsigned int c_markerFrameHistory = 4;
-    typedef std::array<std::map<uint64_t, std::string>, c_markerFrameHistory> MarkerMap;
 
-    NvidiaAftermathTracker(const MarkerMap& markerMap);
+    NvidiaAftermathTracker(const AfterMathMarkerMap& markerMap);
     ~NvidiaAftermathTracker();
 
     // Initialize the GPU crash dump tracker.
@@ -164,7 +166,7 @@ private:
     ShaderDatabase m_shaderDatabase;
 
     // App-managed marker tracking
-    const MarkerMap& m_markerMap;
+    const AfterMathMarkerMap& m_markerMap;
 
     const uint32_t m_AftermathFlags =
         VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_AUTOMATIC_CHECKPOINTS_BIT_NV |  // Enable automatic call stack checkpoints.

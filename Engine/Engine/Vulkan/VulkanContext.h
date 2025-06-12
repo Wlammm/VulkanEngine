@@ -53,7 +53,7 @@ private:
 	class VulkanAllocator* myAllocator = nullptr;
 	class VulkanSwapChain* mySwapChain = nullptr;
 	
-	NvidiaAftermathTracker::MarkerMap markerMap;
+	AfterMathMarkerMap markerMap;
 	class NvidiaAftermathTracker* myNvidiaAftermathDebugger = nullptr;
 
 	vk::DescriptorPool myDescriptorPool;
