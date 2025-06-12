@@ -43,6 +43,7 @@ else
 	print("PhysX already compiled. Skipping")
 end
 
+local ReflectionGeneratorScriptPath = path.join(path.getabsolute("../Reflection-Generator"), "reflection.py")
 
 workspace "Engine"
     configurations 
@@ -123,6 +124,10 @@ project "Launcher"
 	location "../%{prj.name}"
 	targetdir  "../../Bin/"
 	includedirs(launcher_includes)
+	prebuildcommands 
+	{
+		"python \"" .. ReflectionGeneratorScriptPath .. "\""
+	}
 	libdirs
 	{
 		"%{PHYSX_LIB_DIR}",

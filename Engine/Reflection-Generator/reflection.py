@@ -2,6 +2,7 @@ import ctypes
 import clang.cindex
 import re
 import os
+import time
 from pathlib import Path
 
 extra_vars = {
@@ -141,7 +142,6 @@ def process_class(node, reflection_database, all_header_files):
     if file_path not in all_header_files:
         return
 
-    print(f"Class: {class_name}")
     reflection_database[class_name] = []
 
     for child in node.get_children():
@@ -236,7 +236,8 @@ def build_unity_file(headers, output_file):
             f.write(f'#include "{header}"\n')
 
 def generate_reflection():
-
+    print("Generating reflection data")
+    start_time = time.time()
     includes = collect_include_paths()
     clang_args = build_clang_args(includes)
 
@@ -245,5 +246,7 @@ def generate_reflection():
     build_unity_file(headers, "ReflectionUnityFile.cpp")
     reflection_database = generate_reflection_database("ReflectionUnityFile.cpp", clang_args, headers)
     generate_reflection_file_from_database( "../Launcher/GeneratedReflectionData.hpp", reflection_database, "ReflectionUnityFile.cpp")
+    elapsed = time.time() - start_time
+    print(f"Finished generating reflection data in {elapsed:.2f} seconds")
 
 generate_reflection()
