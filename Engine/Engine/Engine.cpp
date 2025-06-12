@@ -137,6 +137,11 @@ void Engine::SetIsRunning(const bool inIsRunning)
 	myInstance->myIsRunning = inIsRunning;
 }
 
+ReflectionSystem& Engine::GetReflectionSystem()
+{
+	return mySystemManager->GetSystem<ReflectionSystem>();
+}
+
 const EngineProperties& Engine::GetEngineProperties()
 {
 	return myInstance->myEngineProperties;

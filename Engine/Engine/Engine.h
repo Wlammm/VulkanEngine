@@ -4,6 +4,8 @@
 #include "Engine/EngineProperties.hpp"
 #include "System/SystemManager.hpp"
 
+class ReflectionSystem;
+
 class Engine
 {
 public:
@@ -18,6 +20,8 @@ public:
 	
 	static void SetIsRunning(const bool inIsRunning);
 
+	ReflectionSystem& GetReflectionSystem();
+	
 	static const EngineProperties& GetEngineProperties();
 	static const class WindowHandler& GetWindowHandler();
 	static class EventHandler& GetEventHandler();
@@ -32,6 +36,9 @@ public:
 	static SystemType& GetEngineSystem()
 	{
 		ZoneScoped;
+		check(myInstance);
+		check(myInstance->mySystemManager);
+		
 		return myInstance->mySystemManager->GetSystem<SystemType>();
 	}
 

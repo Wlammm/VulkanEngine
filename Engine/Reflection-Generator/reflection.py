@@ -92,6 +92,10 @@ def get_fully_qualified_type_name(node):
 
     node = node.type.get_declaration()
 
+    # cindex struggles with finding declarations for nested classes. In those cases we'll need to just hope the type spelling works.
+    if node.kind == clang.cindex.CursorKind.NO_DECL_FOUND:
+        return type_name
+
     names = []
     while node is not None and node.kind != clang.cindex.CursorKind.TRANSLATION_UNIT:
         print(f"{node.kind} : Spelling: {node.spelling}")
@@ -182,7 +186,7 @@ def generate_reflection_file_from_database(output_file, reflection_database, uni
             'public:\n' \
             '\tstatic void RegisterReflectionData(Engine& inEngine)\n' \
             '\t{\n' \
-            '\t\tReflectionSystem& reflectionSystem = inEngine.GetEngineSystem<ReflectionSystem>(); \n' \
+            '\t\tReflectionSystem& reflectionSystem = inEngine.GetReflectionSystem(); \n' \
             '\n\n' \
             '\t\t// Create all classes.\n' \
             '\t\t{\n')

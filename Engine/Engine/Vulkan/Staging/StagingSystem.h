@@ -27,7 +27,7 @@ private:
     };
 
     uint myLastFrameIndex = (uint)-1;
-    BufferData* myCurrentStageData = nullptr;
+    StagingSystem::BufferData* myCurrentStageData = nullptr;
     
-    std::array<BufferData, VulkanContext::FrameLag> myStagingBuffers;
+    std::array<StagingSystem::BufferData, VulkanContext::FrameLag> myStagingBuffers;
 };

@@ -139,7 +139,7 @@ class GeneratedReflectionData
 public:
 	static void RegisterReflectionData(Engine& inEngine)
 	{
-		ReflectionSystem& reflectionSystem = inEngine.GetEngineSystem<ReflectionSystem>(); 
+		ReflectionSystem& reflectionSystem = inEngine.GetReflectionSystem(); 
 
 
 		// Create all classes.
@@ -1130,8 +1130,8 @@ public:
 			{
 				Class* currentClass = reflectionSystem.GetMutableClass<StagingSystem>();
 				currentClass->AddField(Field("myLastFrameIndex", offsetof(StagingSystem, myLastFrameIndex), reflectionSystem.GetClass<uint>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myCurrentStageData", offsetof(StagingSystem, myCurrentStageData), reflectionSystem.GetClass<BufferData *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myStagingBuffers", offsetof(StagingSystem, myStagingBuffers), reflectionSystem.GetClass<std::array<BufferData, VulkanContext::FrameLag>>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myCurrentStageData", offsetof(StagingSystem, myCurrentStageData), reflectionSystem.GetClass<StagingSystem::BufferData *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myStagingBuffers", offsetof(StagingSystem, myStagingBuffers), reflectionSystem.GetClass<std::array<StagingSystem::BufferData, VulkanContext::FrameLag>>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{
