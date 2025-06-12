@@ -10,7 +10,9 @@ extra_vars = {
 }
 
 includes_file_path = "../Build/engine_includes.txt"
-headers_root = Path("../Engine/")
+engine_root = Path("../Engine/")
+editor_root = Path("../Editor/")
+game_root = Path("../Game/")
 
 def read_includes(file_path):
     includes = []
@@ -31,8 +33,10 @@ def resolve_vars(path, extra_vars={}):
     return re.sub(r"%\{(.+?)\}", replacer, path)
 
 
-def collect_includes():
+def collect_include_paths():
     includes = read_includes("../Build/engine_includes.txt")
+    includes.extend(read_includes("../Build/editor_includes.txt"))
+    includes.extend(read_includes("../Build/game_includes.txt"))
     resolved_includes = [resolve_vars(path, extra_vars) for path in includes]
     resolved_includes = [str(Path(path).resolve()) for path in resolved_includes]
     return resolved_includes
@@ -47,10 +51,22 @@ def build_clang_args(include_paths):
 def find_all_headers():
     headers = []
 
-    for path in headers_root.rglob("*.h"):
+    for path in engine_root.rglob("*.h"):
         headers.append(path.resolve())
 
-    for path in headers_root.rglob("*.hpp"):
+    for path in engine_root.rglob("*.hpp"):
+        headers.append(path.resolve())
+
+    for path in editor_root.rglob("*.h"):
+        headers.append(path.resolve())
+
+    for path in editor_root.rglob("*.hpp"):
+        headers.append(path.resolve())
+
+    for path in game_root.rglob("*.h"):
+        headers.append(path.resolve())
+
+    for path in game_root.rglob("*.hpp"):
         headers.append(path.resolve())
 
     return headers
@@ -98,7 +114,6 @@ def get_fully_qualified_type_name(node):
 
     names = []
     while node is not None and node.kind != clang.cindex.CursorKind.TRANSLATION_UNIT:
-        print(f"{node.kind} : Spelling: {node.spelling}")
         if node.kind is clang.cindex.CursorKind.NO_DECL_FOUND:
             return type_name
         
@@ -137,8 +152,6 @@ def process_class(node, reflection_database, all_header_files):
 
             reflection_database[class_name].append((field_name, field_type))
         elif (node.kind == clang.cindex.CursorKind.CLASS_DECL or node.kind == clang.cindex.CursorKind.STRUCT_DECL) and node.is_definition():
-            # Recursively process nested class
-            print(f"Found nested class {child.spelling}")
             process_class(child, reflection_database, all_header_files)
 
 def generate_reflection_database(unity_file_path, clang_args, all_header_files):
@@ -224,13 +237,12 @@ def build_unity_file(headers, output_file):
 
 def generate_reflection():
 
-    includes = collect_includes()
+    includes = collect_include_paths()
     clang_args = build_clang_args(includes)
 
     headers = find_all_headers()
 
     build_unity_file(headers, "ReflectionUnityFile.cpp")
-    print(headers)
     reflection_database = generate_reflection_database("ReflectionUnityFile.cpp", clang_args, headers)
     generate_reflection_file_from_database( "../Launcher/GeneratedReflectionData.hpp", reflection_database, "ReflectionUnityFile.cpp")
 

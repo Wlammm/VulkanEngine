@@ -132,6 +132,19 @@
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Delegates\Internal\FuncCtor.hpp"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Delegates\Internal\LambdaFuncCtor.hpp"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Delegates\Internal\MemberFuncCtor.hpp"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Editor\Editor.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Editor\EditorPch.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Editor\Windows\EditorWindow.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Editor\Windows\HierarchyWindow.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Editor\Windows\InspectorWindow.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Editor\Windows\SelectionSystem.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Editor\Windows\Viewport.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Game\Game.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Game\GamePch.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Game\GameTags.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Game\Components\SpringArmComponent.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Game\Components\Player\PlayerCameraControllerComponent.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Game\Components\Player\PlayerComponent.h"
 // END INCLUDES FOR REFLECTED TYPES
 
 class GeneratedReflectionData
@@ -270,6 +283,16 @@ public:
 			reflectionSystem.AddClass("StagingSystem", typeid(StagingSystem).name());
 			reflectionSystem.AddClass("StagingSystem::BufferData", typeid(StagingSystem::BufferData).name());
 			reflectionSystem.AddClass("BinaryUtils", typeid(BinaryUtils).name());
+			reflectionSystem.AddClass("Editor", typeid(Editor).name());
+			reflectionSystem.AddClass("EditorWindow", typeid(EditorWindow).name());
+			reflectionSystem.AddClass("HierarchyWindow", typeid(HierarchyWindow).name());
+			reflectionSystem.AddClass("InspectorWindow", typeid(InspectorWindow).name());
+			reflectionSystem.AddClass("SelectionSystem", typeid(SelectionSystem).name());
+			reflectionSystem.AddClass("Viewport", typeid(Viewport).name());
+			reflectionSystem.AddClass("Game", typeid(Game).name());
+			reflectionSystem.AddClass("SpringArmComponent", typeid(SpringArmComponent).name());
+			reflectionSystem.AddClass("PlayerCameraControllerComponent", typeid(PlayerCameraControllerComponent).name());
+			reflectionSystem.AddClass("PlayerComponent", typeid(PlayerComponent).name());
 		}
 
 
@@ -1142,6 +1165,68 @@ public:
 			}
 			{
 				Class* currentClass = reflectionSystem.GetMutableClass<BinaryUtils>();
+				// Base classes are not implemented yet.
+			}
+			{
+				Class* currentClass = reflectionSystem.GetMutableClass<Editor>();
+				// Base classes are not implemented yet.
+			}
+			{
+				Class* currentClass = reflectionSystem.GetMutableClass<EditorWindow>();
+				currentClass->AddField(Field("myID", offsetof(EditorWindow, myID), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				// Base classes are not implemented yet.
+			}
+			{
+				Class* currentClass = reflectionSystem.GetMutableClass<HierarchyWindow>();
+				// Base classes are not implemented yet.
+			}
+			{
+				Class* currentClass = reflectionSystem.GetMutableClass<InspectorWindow>();
+				// Base classes are not implemented yet.
+			}
+			{
+				Class* currentClass = reflectionSystem.GetMutableClass<SelectionSystem>();
+				// Base classes are not implemented yet.
+			}
+			{
+				Class* currentClass = reflectionSystem.GetMutableClass<Viewport>();
+				currentClass->AddField(Field("myEditorCamera", offsetof(Viewport, myEditorCamera), reflectionSystem.GetClass<EditorCameraMovementComponent *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myDescriptorSets", offsetof(Viewport, myDescriptorSets), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("mySampler", offsetof(Viewport, mySampler), reflectionSystem.GetClass<vk::Sampler>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myP0", offsetof(Viewport, myP0), reflectionSystem.GetClass<ImVec2>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myP1", offsetof(Viewport, myP1), reflectionSystem.GetClass<ImVec2>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				// Base classes are not implemented yet.
+			}
+			{
+				Class* currentClass = reflectionSystem.GetMutableClass<Game>();
+				// Base classes are not implemented yet.
+			}
+			{
+				Class* currentClass = reflectionSystem.GetMutableClass<SpringArmComponent>();
+				currentClass->AddField(Field("myLength", offsetof(SpringArmComponent, myLength), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myOffset", offsetof(SpringArmComponent, myOffset), reflectionSystem.GetClass<glm::vec3>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myExclusionTags", offsetof(SpringArmComponent, myExclusionTags), reflectionSystem.GetClass<TagMask>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myHitOffset", offsetof(SpringArmComponent, myHitOffset), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				// Base classes are not implemented yet.
+			}
+			{
+				Class* currentClass = reflectionSystem.GetMutableClass<PlayerCameraControllerComponent>();
+				currentClass->AddField(Field("myMouseSensitivity", offsetof(PlayerCameraControllerComponent, myMouseSensitivity), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("mySpringArmChangeAmount", offsetof(PlayerCameraControllerComponent, mySpringArmChangeAmount), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myMinSpringArmLength", offsetof(PlayerCameraControllerComponent, myMinSpringArmLength), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myMaxSpringArmLength", offsetof(PlayerCameraControllerComponent, myMaxSpringArmLength), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myPitch", offsetof(PlayerCameraControllerComponent, myPitch), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myYaw", offsetof(PlayerCameraControllerComponent, myYaw), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myStoredPitch", offsetof(PlayerCameraControllerComponent, myStoredPitch), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myStoredYaw", offsetof(PlayerCameraControllerComponent, myStoredYaw), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myStoredSpringArmLength", offsetof(PlayerCameraControllerComponent, myStoredSpringArmLength), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				// Base classes are not implemented yet.
+			}
+			{
+				Class* currentClass = reflectionSystem.GetMutableClass<PlayerComponent>();
+				currentClass->AddField(Field("mySpeed", offsetof(PlayerComponent, mySpeed), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("mySprintSpeed", offsetof(PlayerComponent, mySprintSpeed), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myJumpForce", offsetof(PlayerComponent, myJumpForce), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 		}
