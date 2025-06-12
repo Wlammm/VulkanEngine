@@ -69,6 +69,7 @@ def is_specialization(cursor):
 def get_fully_qualified_name(node):
     names = []
     while node is not None and node.kind != clang.cindex.CursorKind.TRANSLATION_UNIT:
+
         if node.kind in (
             clang.cindex.CursorKind.NAMESPACE,
             clang.cindex.CursorKind.CLASS_DECL,
@@ -81,35 +82,69 @@ def get_fully_qualified_name(node):
         node = node.semantic_parent
     return "::".join(names)
 
+def get_fully_qualified_type_name(node):
+    original_node = node
+    type_name = node.type.spelling
+    print(f"abc123 {type_name}")
+    node = node.type.get_declaration()
+
+    names = []
+    while node is not None and node.kind != clang.cindex.CursorKind.TRANSLATION_UNIT:
+        print(node.kind)
+        if node.kind is clang.cindex.CursorKind.NO_DECL_FOUND:
+            return type_name
+        
+        if node.kind in (
+            clang.cindex.CursorKind.CLASS_DECL, 
+            clang.cindex.CursorKind.STRUCT_DECL, 
+            clang.cindex.CursorKind.NAMESPACE, 
+            clang.cindex.CursorKind.TYPE_ALIAS_DECL, 
+            clang.cindex.CursorKind.TYPEDEF_DECL, 
+            clang.cindex.CursorKind.ENUM_DECL):
+            names.insert(0, node.spelling)
+
+        node = node.semantic_parent
+    
+    type_name = "::".join(names)
+    return type_name
+
+def process_class(node, reflection_database, all_header_files):
+    class_name = get_fully_qualified_name(node)
+    if class_name.startswith("(unnamed") or class_name.startswith("(anonymous") or class_name == "":
+        return
+
+    file_path = Path(node.location.file.name).resolve()
+    if file_path not in all_header_files:
+        return
+
+    print(f"Class: {class_name}")
+    reflection_database[class_name] = []
+
+    for child in node.get_children():
+        if child.kind == clang.cindex.CursorKind.FIELD_DECL:
+            field_name = child.spelling
+            
+            field_type = get_fully_qualified_type_name(child)
+
+            reflection_database[class_name].append((field_name, field_type))
+        elif (node.kind == clang.cindex.CursorKind.CLASS_DECL or node.kind == clang.cindex.CursorKind.STRUCT_DECL) and node.is_definition():
+            # Recursively process nested class
+            print(f"Found nested class {child.spelling}")
+            process_class(child, reflection_database, all_header_files)
+
 def generate_reflection_database(unity_file_path, clang_args, all_header_files):
     index = clang.cindex.Index.create()
     tu = index.parse(unity_file_path, clang_args)
 
-    # Class, (field_name, field_type)
     reflection_database = {}
 
     for node in tu.cursor.walk_preorder():
-        if node.kind == clang.cindex.CursorKind.CLASS_DECL and node.is_definition():
-
+        if (node.kind == clang.cindex.CursorKind.CLASS_DECL or node.kind == clang.cindex.CursorKind.STRUCT_DECL) and node.is_definition():
             if is_specialization(node):
                 continue
 
-            file_path = Path(node.location.file.name).resolve()
-            if file_path not in all_header_files:
-                continue
+            process_class(node, reflection_database, all_header_files)
 
-            class_name = get_fully_qualified_name(node)
-            if class_name.startswith("(unnamed") or class_name.startswith("(anonymous") or class_name == "":
-                continue
-
-            print(f"Class: {class_name}")
-            reflection_database[class_name] = []
-            
-            for child in node.get_children():
-                if child.kind == clang.cindex.CursorKind.FIELD_DECL:
-                    field_name = child.spelling
-                    field_type = child.type.spelling
-                    reflection_database[class_name].append((field_name, field_type))
     return reflection_database
 
 def extract_includes_from_unity_file(unity_file):
