@@ -1,5 +1,7 @@
 %{VULKAN_SDK}/Include/
 ../
 ../External/
+../External/PerlinNoise/
+../External/aftermath/include/
 ../ImGui/
 %{PHYSX_INCLUDE_DIR}

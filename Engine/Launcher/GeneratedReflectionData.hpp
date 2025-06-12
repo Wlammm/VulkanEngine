@@ -1,4 +1,5 @@
 #pragma once
+#include "Engine/Utils/StdIncludes.hpp"
 #include "Engine/Reflection/Class.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 
@@ -80,7 +81,6 @@
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Serialization\BinaryReader.h"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Serialization\BinaryWriter.h"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\System\System.h"
-#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\System\SystemManager.h"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\System\WorldSystem.h"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Systems\LandscapeSystem.h"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Systems\PointLightSystem.h"
@@ -122,6 +122,7 @@
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Utils\BinaryUtils.hpp"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Utils\HashUtils.hpp"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Utils\MathUtils.hpp"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Utils\StdIncludes.hpp"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Utils\String.hpp"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Utils\ThreadUtils.hpp"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Vulkan\VulkanDynamicBuffer.hpp"
@@ -150,7 +151,6 @@ public:
 			reflectionSystem.AddClass("String", typeid(String).name());
 			reflectionSystem.AddClass("Engine", typeid(Engine).name());
 			reflectionSystem.AddClass("Skeleton", typeid(Skeleton).name());
-			reflectionSystem.AddClass("PromiseReturnTypeImplementation", typeid(PromiseReturnTypeImplementation).name());
 			reflectionSystem.AddClass("Asset", typeid(Asset).name());
 			reflectionSystem.AddClass("IAssetContainer", typeid(IAssetContainer).name());
 			reflectionSystem.AddClass("ThreadPool", typeid(ThreadPool).name());
@@ -171,8 +171,6 @@ public:
 			reflectionSystem.AddClass("Shader", typeid(Shader).name());
 			reflectionSystem.AddClass("Texture", typeid(Texture).name());
 			reflectionSystem.AddClass("TextureCube", typeid(TextureCube).name());
-			reflectionSystem.AddClass("Iterator", typeid(Iterator).name());
-			reflectionSystem.AddClass("ConstIterator", typeid(ConstIterator).name());
 			reflectionSystem.AddClass("IComponentArray", typeid(IComponentArray).name());
 			reflectionSystem.AddClass("WorldSystem", typeid(WorldSystem).name());
 			reflectionSystem.AddClass("ComponentSystem", typeid(ComponentSystem).name());
@@ -202,8 +200,8 @@ public:
 			reflectionSystem.AddClass("Input", typeid(Input).name());
 			reflectionSystem.AddClass("Time", typeid(Time).name());
 			reflectionSystem.AddClass("Awaitable", typeid(Awaitable).name());
-			reflectionSystem.AddClass("SwitchToThread", typeid(SwitchToThread).name());
-			reflectionSystem.AddClass("WaitForSeconds", typeid(WaitForSeconds).name());
+			reflectionSystem.AddClass("Awaitables::SwitchToThread", typeid(Awaitables::SwitchToThread).name());
+			reflectionSystem.AddClass("Awaitables::WaitForSeconds", typeid(Awaitables::WaitForSeconds).name());
 			reflectionSystem.AddClass("CoroutineManager", typeid(CoroutineManager).name());
 			reflectionSystem.AddClass("EventHandler", typeid(EventHandler).name());
 			reflectionSystem.AddClass("PhysicsErrorCallback", typeid(PhysicsErrorCallback).name());
@@ -302,12 +300,6 @@ public:
 			{
 				Class* currentClass = reflectionSystem.GetMutableClass<Skeleton>();
 				currentClass->AddField(Field("myJoints", offsetof(Skeleton, myJoints), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				// Base classes are not implemented yet.
-			}
-			{
-				Class* currentClass = reflectionSystem.GetMutableClass<PromiseReturnTypeImplementation>();
-				currentClass->AddField(Field("myReturnValue", offsetof(PromiseReturnTypeImplementation, myReturnValue), reflectionSystem.GetClass<char>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myHasReturnValue", offsetof(PromiseReturnTypeImplementation, myHasReturnValue), reflectionSystem.GetClass<bool>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{
@@ -449,18 +441,6 @@ public:
 				Class* currentClass = reflectionSystem.GetMutableClass<TextureCube>();
 				currentClass->AddField(Field("myImage", offsetof(TextureCube, myImage), reflectionSystem.GetClass<VulkanImage *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myBindlessIndex", offsetof(TextureCube, myBindlessIndex), reflectionSystem.GetClass<uint>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				// Base classes are not implemented yet.
-			}
-			{
-				Class* currentClass = reflectionSystem.GetMutableClass<Iterator>();
-				currentClass->AddField(Field("myList", offsetof(Iterator, myList), reflectionSystem.GetClass<SegmentedList<ElementType, ElementsPerSegment> &>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myIndex", offsetof(Iterator, myIndex), reflectionSystem.GetClass<uint>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				// Base classes are not implemented yet.
-			}
-			{
-				Class* currentClass = reflectionSystem.GetMutableClass<ConstIterator>();
-				currentClass->AddField(Field("myList", offsetof(ConstIterator, myList), reflectionSystem.GetClass<const SegmentedList<ElementType, ElementsPerSegment> &>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myIndex", offsetof(ConstIterator, myIndex), reflectionSystem.GetClass<uint>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{
@@ -668,13 +648,13 @@ public:
 				// Base classes are not implemented yet.
 			}
 			{
-				Class* currentClass = reflectionSystem.GetMutableClass<SwitchToThread>();
-				currentClass->AddField(Field("myThreadType", offsetof(SwitchToThread, myThreadType), reflectionSystem.GetClass<ThreadType>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				Class* currentClass = reflectionSystem.GetMutableClass<Awaitables::SwitchToThread>();
+				currentClass->AddField(Field("myThreadType", offsetof(Awaitables::SwitchToThread, myThreadType), reflectionSystem.GetClass<ThreadType>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{
-				Class* currentClass = reflectionSystem.GetMutableClass<WaitForSeconds>();
-				currentClass->AddField(Field("mySeconds", offsetof(WaitForSeconds, mySeconds), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				Class* currentClass = reflectionSystem.GetMutableClass<Awaitables::WaitForSeconds>();
+				currentClass->AddField(Field("mySeconds", offsetof(Awaitables::WaitForSeconds, mySeconds), reflectionSystem.GetClass<float>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{

@@ -1,3 +1,4 @@
+import ctypes
 import clang.cindex
 import re
 import os
@@ -54,17 +55,31 @@ def find_all_headers():
 
     return headers
 
-def fully_qualified(c):
-    if c is None:
-        return ''
-    elif c.kind == clang.cindex.CursorKind.TRANSLATION_UNIT:
-        return ''
-    else:
-        res = fully_qualified(c.semantic_parent)
-        if res != '': 
-            if res.startswith("myWord"):
-                return res+"::"+c.spelling
-        return c.spelling 
+# Load libclang (you may need to adjust the path)
+libclang = ctypes.cdll.LoadLibrary(clang.cindex.Config().get_filename())
+
+# Define argument/return types for clang_getSpecializedCursorTemplate
+libclang.clang_getSpecializedCursorTemplate.argtypes = [clang.cindex.Cursor]
+libclang.clang_getSpecializedCursorTemplate.restype = clang.cindex.Cursor
+
+def is_specialization(cursor):
+    specialized = libclang.clang_getSpecializedCursorTemplate(cursor)
+    return specialized is not None and specialized.kind != clang.cindex.CursorKind.INVALID_FILE
+
+def get_fully_qualified_name(node):
+    names = []
+    while node is not None and node.kind != clang.cindex.CursorKind.TRANSLATION_UNIT:
+        if node.kind in (
+            clang.cindex.CursorKind.NAMESPACE,
+            clang.cindex.CursorKind.CLASS_DECL,
+            clang.cindex.CursorKind.STRUCT_DECL,
+        ):
+            if node.spelling:  # Only add if name exists (ignore anonymous)
+                names.insert(0, node.spelling)
+        if node.kind is clang.cindex.CursorKind.CLASS_TEMPLATE:
+            return ""
+        node = node.semantic_parent
+    return "::".join(names)
 
 def generate_reflection_database(unity_file_path, clang_args, all_header_files):
     index = clang.cindex.Index.create()
@@ -76,18 +91,17 @@ def generate_reflection_database(unity_file_path, clang_args, all_header_files):
     for node in tu.cursor.walk_preorder():
         if node.kind == clang.cindex.CursorKind.CLASS_DECL and node.is_definition():
 
+            if is_specialization(node):
+                continue
+
             file_path = Path(node.location.file.name).resolve()
             if file_path not in all_header_files:
                 continue
 
-            class_test = node.type.get_named_type()
-            print(class_test)
-
-            class_name = fully_qualified(node)
-            if class_name.startswith("(unnamed") or class_name.startswith("(anonymous"):
+            class_name = get_fully_qualified_name(node)
+            if class_name.startswith("(unnamed") or class_name.startswith("(anonymous") or class_name == "":
                 continue
 
-            class_name = node.spelling
             print(f"Class: {class_name}")
             reflection_database[class_name] = []
             
@@ -107,6 +121,7 @@ def generate_reflection_file_from_database(output_file, reflection_database, uni
     with open(output_file, "w") as f:
         f.write(
             '#pragma once\n' \
+            '#include "Engine/Utils/StdIncludes.hpp"\n' \
             '#include "Engine/Reflection/Class.h"\n' \
             '#include "Engine/Reflection/ReflectionSystem.h"\n' \
             '\n\n' \

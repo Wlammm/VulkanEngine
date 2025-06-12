@@ -1,24 +1,8 @@
 #pragma once
 
-
-#include <Windows.h>
-#undef max
-#undef min
-
 //#define TRACY_FIBERS
 
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <unordered_set>
-#include <fstream>
-#include <filesystem>
-#include <functional>
-#include <queue>
-#include <future>
-#include <processthreadsapi.h>
-#include <source_location>
+#include "Engine/Utils/StdIncludes.hpp"
 
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>
