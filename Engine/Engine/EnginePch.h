@@ -4,9 +4,11 @@
 
 #include "Engine/Utils/StdIncludes.hpp"
 
+#if !IGNORED_BY_REFLECTION
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>
 #include <vma/vk_mem_alloc.h>
+#endif
 
 #define USED_VULKAN_VERSION VK_API_VERSION_1_3
 
@@ -18,12 +20,14 @@
 #include <glm/ext.hpp>
 #include "Math/GlmUtils.hpp"
 
+#if !IGNORED_BY_REFLECTION
 #include <entt/entt.hpp>
 
 #include <imgui.h>
 #include <imgui_stdlib.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_vulkan.h>
+#endif
 
 #include "Engine/Core/EngineDefines.hpp"
 #include "Engine/Utils/HashUtils.hpp"

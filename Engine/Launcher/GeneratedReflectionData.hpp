@@ -316,7 +316,7 @@ public:
 			}
 			{
 				Class* currentClass = reflectionSystem.GetMutableClass<Console>();
-				currentClass->AddField(Field("myConsoleHandle", offsetof(Console, myConsoleHandle), reflectionSystem.GetClass<HANDLE>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myConsoleHandle", offsetof(Console, myConsoleHandle), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myLogToFileEnabled", offsetof(Console, myLogToFileEnabled), reflectionSystem.GetClass<bool>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myLogToFileStream", offsetof(Console, myLogToFileStream), reflectionSystem.GetClass<std::ofstream>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myCoutBuffer", offsetof(Console, myCoutBuffer), reflectionSystem.GetClass<std::streambuf *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
@@ -412,7 +412,7 @@ public:
 			}
 			{
 				Class* currentClass = reflectionSystem.GetMutableClass<VulkanAllocator>();
-				currentClass->AddField(Field("myAllocator", offsetof(VulkanAllocator, myAllocator), reflectionSystem.GetClass<VmaAllocator>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myAllocator", offsetof(VulkanAllocator, myAllocator), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myBufferDeleteData", offsetof(VulkanAllocator, myBufferDeleteData), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myResizableBufferDeleteData", offsetof(VulkanAllocator, myResizableBufferDeleteData), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myImageDeleteData", offsetof(VulkanAllocator, myImageDeleteData), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
@@ -447,10 +447,10 @@ public:
 			}
 			{
 				Class* currentClass = reflectionSystem.GetMutableClass<VulkanBuffer>();
-				currentClass->AddField(Field("myAllocation", offsetof(VulkanBuffer, myAllocation), reflectionSystem.GetClass<VmaAllocation>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myBuffer", offsetof(VulkanBuffer, myBuffer), reflectionSystem.GetClass<vk::Buffer>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myCreateInfo", offsetof(VulkanBuffer, myCreateInfo), reflectionSystem.GetClass<vk::BufferCreateInfo>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myMemoryUsage", offsetof(VulkanBuffer, myMemoryUsage), reflectionSystem.GetClass<VmaMemoryUsage>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myAllocation", offsetof(VulkanBuffer, myAllocation), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myBuffer", offsetof(VulkanBuffer, myBuffer), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myCreateInfo", offsetof(VulkanBuffer, myCreateInfo), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myMemoryUsage", offsetof(VulkanBuffer, myMemoryUsage), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myIsMappingAllowed", offsetof(VulkanBuffer, myIsMappingAllowed), reflectionSystem.GetClass<bool>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myPtr", offsetof(VulkanBuffer, myPtr), reflectionSystem.GetClass<void *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
@@ -464,7 +464,7 @@ public:
 			}
 			{
 				Class* currentClass = reflectionSystem.GetMutableClass<VulkanImage>();
-				currentClass->AddField(Field("myAllocation", offsetof(VulkanImage, myAllocation), reflectionSystem.GetClass<VmaAllocation>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myAllocation", offsetof(VulkanImage, myAllocation), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myImage", offsetof(VulkanImage, myImage), reflectionSystem.GetClass<vk::Image>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myView", offsetof(VulkanImage, myView), reflectionSystem.GetClass<vk::ImageView>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myFormat", offsetof(VulkanImage, myFormat), reflectionSystem.GetClass<vk::Format>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
@@ -508,8 +508,8 @@ public:
 				currentClass->AddField(Field("myCountBuffer", offsetof(GDRPipeline, myCountBuffer), reflectionSystem.GetClass<VulkanBuffer *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myPerDrawDataBuffer", offsetof(GDRPipeline, myPerDrawDataBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myFrameDescriptorSet", offsetof(GDRPipeline, myFrameDescriptorSet), reflectionSystem.GetClass<VulkanDescriptorSet>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myPipelineLayout", offsetof(GDRPipeline, myPipelineLayout), reflectionSystem.GetClass<vk::PipelineLayout>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myPipeline", offsetof(GDRPipeline, myPipeline), reflectionSystem.GetClass<vk::Pipeline>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myPipelineLayout", offsetof(GDRPipeline, myPipelineLayout), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myPipeline", offsetof(GDRPipeline, myPipeline), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myVertexShader", offsetof(GDRPipeline, myVertexShader), reflectionSystem.GetClass<Shader *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myFragmentShader", offsetof(GDRPipeline, myFragmentShader), reflectionSystem.GetClass<Shader *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myFrameDataBuffer", offsetof(GDRPipeline, myFrameDataBuffer), reflectionSystem.GetClass<VulkanBuffer *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
@@ -521,9 +521,9 @@ public:
 				Class* currentClass = reflectionSystem.GetMutableClass<FullscreenPipeline>();
 				currentClass->AddField(Field("myVertexShader", offsetof(FullscreenPipeline, myVertexShader), reflectionSystem.GetClass<Shader *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myFragmentShader", offsetof(FullscreenPipeline, myFragmentShader), reflectionSystem.GetClass<Shader *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myPipeline", offsetof(FullscreenPipeline, myPipeline), reflectionSystem.GetClass<vk::Pipeline>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myPipelineLayout", offsetof(FullscreenPipeline, myPipelineLayout), reflectionSystem.GetClass<vk::PipelineLayout>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myRenderPass", offsetof(FullscreenPipeline, myRenderPass), reflectionSystem.GetClass<vk::RenderPass>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myPipeline", offsetof(FullscreenPipeline, myPipeline), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myPipelineLayout", offsetof(FullscreenPipeline, myPipelineLayout), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myRenderPass", offsetof(FullscreenPipeline, myRenderPass), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myDescriptorSet", offsetof(FullscreenPipeline, myDescriptorSet), reflectionSystem.GetClass<VulkanDescriptorSet>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
@@ -531,8 +531,8 @@ public:
 				Class* currentClass = reflectionSystem.GetMutableClass<DebugPipeline>();
 				currentClass->AddField(Field("myVertexShader", offsetof(DebugPipeline, myVertexShader), reflectionSystem.GetClass<Shader *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myFragmentShader", offsetof(DebugPipeline, myFragmentShader), reflectionSystem.GetClass<Shader *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myPipeline", offsetof(DebugPipeline, myPipeline), reflectionSystem.GetClass<vk::Pipeline>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myPipelineLayout", offsetof(DebugPipeline, myPipelineLayout), reflectionSystem.GetClass<vk::PipelineLayout>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myPipeline", offsetof(DebugPipeline, myPipeline), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myPipelineLayout", offsetof(DebugPipeline, myPipelineLayout), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myFrameDescriptorSet", offsetof(DebugPipeline, myFrameDescriptorSet), reflectionSystem.GetClass<VulkanDescriptorSet>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myFrameDataBuffer", offsetof(DebugPipeline, myFrameDataBuffer), reflectionSystem.GetClass<VulkanBuffer *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
@@ -542,8 +542,8 @@ public:
 				currentClass->AddField(Field("myVertexShader", offsetof(SkyboxPipeline, myVertexShader), reflectionSystem.GetClass<Shader *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myFragmentShader", offsetof(SkyboxPipeline, myFragmentShader), reflectionSystem.GetClass<Shader *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myFrameDescriptorSet", offsetof(SkyboxPipeline, myFrameDescriptorSet), reflectionSystem.GetClass<VulkanDescriptorSet>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myPipelineLayout", offsetof(SkyboxPipeline, myPipelineLayout), reflectionSystem.GetClass<vk::PipelineLayout>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myPipeline", offsetof(SkyboxPipeline, myPipeline), reflectionSystem.GetClass<vk::Pipeline>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myPipelineLayout", offsetof(SkyboxPipeline, myPipelineLayout), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myPipeline", offsetof(SkyboxPipeline, myPipeline), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myFrameDataBuffer", offsetof(SkyboxPipeline, myFrameDataBuffer), reflectionSystem.GetClass<VulkanBuffer *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("mySkyboxModel", offsetof(SkyboxPipeline, mySkyboxModel), reflectionSystem.GetClass<Model *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("mySkybox", offsetof(SkyboxPipeline, mySkybox), reflectionSystem.GetClass<Texture *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
@@ -564,8 +564,8 @@ public:
 				currentClass->AddField(Field("myResizableBuffer", offsetof(VulkanDescriptorSet, myResizableBuffer), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myImages", offsetof(VulkanDescriptorSet, myImages), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myUsesSharedLayout", offsetof(VulkanDescriptorSet, myUsesSharedLayout), reflectionSystem.GetClass<bool>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myLayout", offsetof(VulkanDescriptorSet, myLayout), reflectionSystem.GetClass<vk::DescriptorSetLayout>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("mySet", offsetof(VulkanDescriptorSet, mySet), reflectionSystem.GetClass<vk::DescriptorSet>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myLayout", offsetof(VulkanDescriptorSet, myLayout), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("mySet", offsetof(VulkanDescriptorSet, mySet), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{
@@ -600,12 +600,12 @@ public:
 				Class* currentClass = reflectionSystem.GetMutableClass<Filewatcher::FileData>();
 				currentClass->AddField(Field("myCallbackIDIndexList", offsetof(Filewatcher::FileData, myCallbackIDIndexList), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myCallbacks", offsetof(Filewatcher::FileData, myCallbacks), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myLastModifiedTime", offsetof(Filewatcher::FileData, myLastModifiedTime), reflectionSystem.GetClass<std::filesystem::file_time_type>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myLastModifiedTime", offsetof(Filewatcher::FileData, myLastModifiedTime), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{
 				Class* currentClass = reflectionSystem.GetMutableClass<Shader>();
-				currentClass->AddField(Field("myShaderModule", offsetof(Shader, myShaderModule), reflectionSystem.GetClass<vk::ShaderModule>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myShaderModule", offsetof(Shader, myShaderModule), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myCallbackHandle", offsetof(Shader, myCallbackHandle), reflectionSystem.GetClass<Filewatcher::CallbackHandle>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myIncludeFiles", offsetof(Shader, myIncludeFiles), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
@@ -1193,8 +1193,8 @@ public:
 				currentClass->AddField(Field("myEditorCamera", offsetof(Viewport, myEditorCamera), reflectionSystem.GetClass<EditorCameraMovementComponent *>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("myDescriptorSets", offsetof(Viewport, myDescriptorSets), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				currentClass->AddField(Field("mySampler", offsetof(Viewport, mySampler), reflectionSystem.GetClass<vk::Sampler>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myP0", offsetof(Viewport, myP0), reflectionSystem.GetClass<ImVec2>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
-				currentClass->AddField(Field("myP1", offsetof(Viewport, myP1), reflectionSystem.GetClass<ImVec2>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myP0", offsetof(Viewport, myP0), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
+				currentClass->AddField(Field("myP1", offsetof(Viewport, myP1), reflectionSystem.GetClass<int>(), false, false /* THESE 2 ARE TO BE IMPLEMENTED LATER*/));
 				// Base classes are not implemented yet.
 			}
 			{

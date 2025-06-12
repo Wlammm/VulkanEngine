@@ -3,6 +3,7 @@ import clang.cindex
 import re
 import os
 import time
+import subprocess
 from pathlib import Path
 
 extra_vars = {
@@ -40,13 +41,14 @@ def collect_include_paths():
     includes.extend(read_includes("../Build/game_includes.txt"))
     resolved_includes = [resolve_vars(path, extra_vars) for path in includes]
     resolved_includes = [str(Path(path).resolve()) for path in resolved_includes]
+
+    resolved_includes = list(dict.fromkeys(resolved_includes))
     return resolved_includes
 
 def build_clang_args(include_paths):
     args = []
-    args = sum([['-I', inc] for inc in include_paths], [])
-    args += ['-x', 'c++', '--std=c++23']
-    args += ['-include', str(Path("../Engine/EnginePch.h").resolve())]
+    args += ['-x', 'c++', '-std=c++23', '-nostdinc++', '-DIGNORED_BY_REFLECTION=1']
+    args += sum([['-I', inc] for inc in include_paths], [])
     return args
 
 def find_all_headers():
@@ -155,18 +157,27 @@ def process_class(node, reflection_database, all_header_files):
             process_class(child, reflection_database, all_header_files)
 
 def generate_reflection_database(unity_file_path, clang_args, all_header_files):
+    
+    start_time = time.time()
     index = clang.cindex.Index.create()
-    tu = index.parse(unity_file_path, clang_args)
+    print(f"Database generation args: {clang_args}")
+    tu = index.parse(unity_file_path, clang_args, options=clang.cindex.TranslationUnit.PARSE_SKIP_FUNCTION_BODIES | clang.cindex.TranslationUnit.PARSE_PRECOMPILED_PREAMBLE)
+    elapsed = time.time() - start_time
+    print(f"Parsed cindex in {elapsed:.2f} seconds")
+
+    # Convert to set for faster look up.
+    #all_header_files = {str(Path(f).resolve()) for f in all_header_files}
 
     reflection_database = {}
-
+    start_time = time.time()
     for node in tu.cursor.walk_preorder():
         if (node.kind == clang.cindex.CursorKind.CLASS_DECL or node.kind == clang.cindex.CursorKind.STRUCT_DECL) and node.is_definition():
             if is_specialization(node):
                 continue
 
             process_class(node, reflection_database, all_header_files)
-
+    elapsed = time.time() - start_time
+    print(f"Built database in {elapsed:.2f} seconds")
     return reflection_database
 
 def extract_includes_from_unity_file(unity_file):
@@ -235,16 +246,36 @@ def build_unity_file(headers, output_file):
         for header in headers:
             f.write(f'#include "{header}"\n')
 
+def generate_pch_if_needed(pch_file, header_file, clang_args):
+    #if os.path.exists(pch_file):
+    #    return  # Already exists, skip for now (add hash-based check later)
+
+    print("Generating precompiled header...")
+    # Remove any -include-pch from clang_args if exists
+    clean_args = [arg for arg in clang_args if arg != '-include-pch' and not arg.endswith('.pch')]
+
+    args = ['clang++', '-x', 'c++-header', '-std=c++23', '-c'] + clean_args + ['-o', pch_file, header_file]
+    print(f"Pch args: {args}")
+
+    subprocess.run(args, check=True)
+
 def generate_reflection():
     print("Generating reflection data")
+    
     start_time = time.time()
     includes = collect_include_paths()
     clang_args = build_clang_args(includes)
 
+    clang_args_for_pch = [arg for arg in clang_args if arg != '-include-pch' and not arg.endswith('.pch')]
+    #generate_pch_if_needed("../Engine/EnginePch.pch", "../Engine/EnginePch.h", clang_args_for_pch)
+
     headers = find_all_headers()
 
     build_unity_file(headers, "ReflectionUnityFile.cpp")
+    
+    clang_args = build_clang_args(includes)
     reflection_database = generate_reflection_database("ReflectionUnityFile.cpp", clang_args, headers)
+    elapsed = time.time() - start_time
     generate_reflection_file_from_database( "../Launcher/GeneratedReflectionData.hpp", reflection_database, "ReflectionUnityFile.cpp")
     elapsed = time.time() - start_time
     print(f"Finished generating reflection data in {elapsed:.2f} seconds")
