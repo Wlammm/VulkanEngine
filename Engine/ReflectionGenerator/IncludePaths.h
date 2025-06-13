@@ -18,5 +18,3 @@ private:
 private:
     std::vector<std::string> myIncludeArguments;
 };
-
-IncludePaths operator+(const IncludePaths& inFirst, const IncludePaths& inSecond);

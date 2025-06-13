@@ -128,6 +128,7 @@ project "Launcher"
 	includedirs(launcher_includes)
 	prebuildcommands 
 	{
+		"cd ../Build/ && ReflectionGenerator.exe"
 	}
 	libdirs
 	{

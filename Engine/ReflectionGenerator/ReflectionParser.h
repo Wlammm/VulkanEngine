@@ -6,7 +6,7 @@
 #include <vector>
 #include <clang-c/Index.h>
 
-#include "Class.h"
+#include "ReflectedClass.h"
 #include "IncludePaths.h"
 
 class ReflectionParser
@@ -18,7 +18,7 @@ public:
 
     bool Failed() const;
 
-    const std::list<Class>& GetClasses() const;
+    const std::unordered_map<std::string, std::list<ReflectedClass>> & GetClassData() const;
 
     const std::string& GetFile() const;
     const std::vector<std::string>& GetErrorMessages() const;
@@ -29,27 +29,30 @@ private:
     struct ClientData
     {
         ReflectionParser* self = nullptr;
-        std::vector<Class*> classStack;
+        std::vector<ReflectedClass*> classStack;
     } clientData;
     
     static CXChildVisitResult TraverseAST(CXCursor inCurrentCursor, CXCursor inParentCursor, CXClientData inClientData);
 
-    void BuildCommandLineArgs(std::vector<const char*>& outCommandLineArgs);
-    static std::string GetSpelling(CXCursor inCursor);
-    static std::string GetSpelling(CXType inType);
-    static std::string GetSpelling(CXCursorKind inCursorKind);
+    void BuildCommandLineArgs(std::vector<const char*>& outCommandLineArgs) const;
+    static std::string GetSpelling(const CXCursor& inCursor);
+    static std::string GetSpelling(const CXType& inType);
+    static std::string GetSpelling(const CXCursorKind inCursorKind);
 
-    static std::string GetDisplayName(CXCursor inCursor);
+    static std::string GetDisplayName(const CXCursor& inCursor);
+    static std::string GetFileName(const CXSourceLocation& inLocation);
 
-    static std::string BuildClassNameFromStack(const std::vector<Class*>& inClassStack, const std::string& inNewClassName);
+    static std::string BuildClassNameFromStack(const std::vector<ReflectedClass*>& inClassStack, const std::string& inNewClassName);
 
+    ReflectedClass& AddClass(const std::string& inFile, const ReflectedClass& inClass);
+    
 private:
     std::string myFileToReflect;
     IncludePaths myIncludePaths;
 
     bool myFailed = false;
 
-    std::list<Class> myClasses;
+    std::unordered_map<std::string, std::list<ReflectedClass>> myClassesInFiles;
 
     std::vector<std::string> myErrorMessages;
 };

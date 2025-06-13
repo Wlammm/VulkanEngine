@@ -3,20 +3,20 @@
 #include <regex>
 #include <sstream>
 
-#include "ReflectionJobScheduler.h"
+#include "ReflectionCache.h"
 
-ReflectionFileBuilder::ReflectionFileBuilder(const ReflectionParser* inReflectionParser, const ReflectionJobScheduler& inScheduler)
+ReflectionFileBuilder::ReflectionFileBuilder(const ReflectionCache& inCache)
 {
     std::ofstream file("../Launcher/GeneratedReflectionData.hpp");
 
     std::string includes;
-    BuildClassIncludes(inScheduler, includes);
+    BuildClassIncludes(inCache, includes);
 
     std::string classDeclarations;
-    BuildClassDeclarations(inReflectionParser, classDeclarations);
+    BuildClassDeclarations(inCache, classDeclarations);
 
     std::string classContentDeclarations;
-    BuildClassContentDeclarations(inReflectionParser, classContentDeclarations);
+    BuildClassContentDeclarations(inCache, classContentDeclarations);
 
     std::string fileContent;
     CreateFileContent(includes, classDeclarations, classContentDeclarations, fileContent);
@@ -27,37 +27,43 @@ ReflectionFileBuilder::ReflectionFileBuilder(const ReflectionParser* inReflectio
     file.close();
 }
 
-void ReflectionFileBuilder::BuildClassIncludes(const ReflectionJobScheduler& inScheduler, std::string& outString)
+void ReflectionFileBuilder::BuildClassIncludes(const ReflectionCache& inCache, std::string& outString)
 {
-    for (const std::string& path : inScheduler.GetHeaders())
+    for (const std::string& filePath : inCache.GetCachedFiles() | std::views::keys)
     {
-        outString += "#include \"" + path + "\"\n";
+        outString += "#include \"" + filePath + "\"\n";
     }
 }
 
-void ReflectionFileBuilder::BuildClassDeclarations(const ReflectionParser* inParser, std::string& outString)
+void ReflectionFileBuilder::BuildClassDeclarations(const ReflectionCache& inCache, std::string& outString)
 {
-    for (const Class& reflectedClass : inParser->GetClasses())
+    for (const CachedFileData& entry : inCache.GetCachedFiles() | std::views::values)
     {
-        outString += "reflectionSystem.AddClass(\"" + reflectedClass.GetClassName() + "\", typeid(" + reflectedClass.GetClassName() + ").name());\n";
-    }
-}
-
-void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionParser* inParser, std::string& outString)
-{
-    for (const Class& reflectedClass : inParser->GetClasses())
-    {
-        outString += "{ \n";
-        outString += "\tClass* currentClass = reflectionSystem.GetMutableClass<" + reflectedClass.GetClassName() + ">();\n";
-
-        for (const ReflectedField& field : reflectedClass.GetFields())
+        for (const ReflectedClass& reflectedClass : entry.myClasses)
         {
-            // TODO: Implement pointer and reference bools here.
-            outString += "\tcurrentClass->AddField(Field(\"" + field.GetFieldName() + "\", offsetof(" + reflectedClass.GetClassName() + ", " + field.GetFieldName() + "), reflectionSystem.GetClass<" + field.GetFieldType() + ">(), false, false /* Implement this*/));\n";
+            outString += "reflectionSystem.AddClass(\"" + reflectedClass.GetClassName() + "\", typeid(" + reflectedClass.GetClassName() + ").name());\n";
         }
-        // TODO: Implement base class detection and add it here.
-        outString += "\t// Base classes are not implemented yet\n";
-        outString += "}\n";
+    }
+}
+
+void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache& inCache, std::string& outString)
+{
+    for (const CachedFileData& entry : inCache.GetCachedFiles() | std::views::values)
+    {
+        for (const ReflectedClass& reflectedClass : entry.myClasses)
+        {
+            outString += "{ \n";
+            outString += "\tClass* currentClass = reflectionSystem.GetMutableClass<" + reflectedClass.GetClassName() + ">();\n";
+
+            for (const ReflectedField& field : reflectedClass.GetFields())
+            {
+                // TODO: Implement pointer and reference bools here.
+                outString += "\tcurrentClass->AddField(Field(\"" + field.GetFieldName() + "\", offsetof(" + reflectedClass.GetClassName() + ", " + field.GetFieldName() + "), reflectionSystem.GetClass<" + field.GetFieldType() + ">(), false, false /* Implement this*/));\n";
+            }
+            // TODO: Implement base class detection and add it here.
+            outString += "\t// Base classes are not implemented yet\n";
+            outString += "}\n";
+        }
     }
 }
 

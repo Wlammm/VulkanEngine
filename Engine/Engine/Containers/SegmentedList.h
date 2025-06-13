@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Engine/EnginePch.h"
 
 template<typename ElementType, uint ElementsPerSegment>
 class SegmentedList

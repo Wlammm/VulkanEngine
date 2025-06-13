@@ -1,37 +1,42 @@
 ﻿#pragma once
 #include <iostream>
 #include <chrono>
+#include <thread>
 
 #include "IncludePaths.h"
+#include "ReflectionCache.h"
 #include "ReflectionFileBuilder.h"
-#include "ReflectionJobScheduler.h"
+#include "UnityFileBuilder.h"
 #include "ReflectionParser.h"
 
-void PrintResult(const ReflectionParser& inFile)
+void PrintResult(const ReflectionParser& inParser)
 {
-    if (inFile.Failed())
+    if (inParser.Failed())
     {
-        std::cout << "File failed: " << inFile.GetFile() << std::endl;
+        std::cout << "File failed: " << inParser.GetFile() << std::endl;
 
-        for (const std::string& errorMessage : inFile.GetErrorMessages())
+        for (const std::string& errorMessage : inParser.GetErrorMessages())
         {
             std::cout << errorMessage << std::endl;
         }
         return;
     }
 
-    std::cout << "File succeeded: " << inFile.GetFile() << std::endl;
-    for (const Class& foundClass : inFile.GetClasses())
+    std::cout << "File succeeded: " << inParser.GetFile() << std::endl;
+    for (const std::list<ReflectedClass>& classList : inParser.GetClassData() | std::views::values)
     {
-        std::cout << "Class: " << foundClass.GetClassName() << std::endl;
-
-        for (const ReflectedField& field : foundClass.GetFields())
+        for (const ReflectedClass& foundClass : classList)
         {
-            std::cout << " - Field: " << field.GetFieldType() << " " << field.GetFieldName() << std::endl;
+            std::cout << "Class: " << foundClass.GetClassName() << std::endl;
+
+            for (const ReflectedField& field : foundClass.GetFields())
+            {
+                std::cout << " - Field: " << field.GetFieldType() << " " << field.GetFieldName() << std::endl;
+            }
         }
     }
 
-    for (const std::string& errorMessage : inFile.GetErrorMessages())
+    for (const std::string& errorMessage : inParser.GetErrorMessages())
     {
         std::cout << errorMessage << std::endl;
     }
@@ -41,15 +46,24 @@ void PrintResult(const ReflectionParser& inFile)
 int main()
 {
     auto startTime = std::chrono::high_resolution_clock::now();
+
+    ReflectionCache reflectionCache("ReflectionCache.json");
     
-    const IncludePaths engineIncludes = IncludePaths("engine_includes.txt");
-    const IncludePaths editorIncludes = IncludePaths("editor_includes.txt");
-    const IncludePaths gameIncludes = IncludePaths("game_includes.txt");
+    IncludePaths includes = IncludePaths("engine_includes.txt") + IncludePaths("editor_includes.txt") + IncludePaths("game_includes.txt");
 
-    ReflectionJobScheduler scheduler = ReflectionJobScheduler(engineIncludes, editorIncludes, gameIncludes);
-    scheduler.ExecuteParser();
+    UnityFileBuilder unityFile = UnityFileBuilder(reflectionCache);
 
-    ReflectionFileBuilder(scheduler.GetParser(), scheduler);
+    if (unityFile.HasFilesToCompile())
+    {
+        ReflectionParser parser = ReflectionParser(unityFile.GetPath(), includes);
+    
+        reflectionCache.UpdateCacheFromParser(parser);
+        reflectionCache.UpdateCacheFromUnityFile(unityFile);
+        reflectionCache.SaveCache();
+    
+        ReflectionFileBuilder fileBuilder(reflectionCache);
+    }
+    
     
     auto endTime = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
