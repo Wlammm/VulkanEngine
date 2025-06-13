@@ -8,4 +8,4 @@
 ../External/glm/
 ../External/mimalloc/include/
 ../External/PerlinNoise/
-%{PHYSX_INCLUDE_DIR}
+../../PhysX/physx/include/

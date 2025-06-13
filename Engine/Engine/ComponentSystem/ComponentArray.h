@@ -2,6 +2,7 @@
 #include <unordered_map>
 
 #include "Engine/Containers/SegmentedList.h"
+#include "Component.h"
 #include "plf/Colony.hpp"
 
 class GameObject;

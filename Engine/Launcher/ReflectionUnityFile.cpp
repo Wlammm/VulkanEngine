@@ -53,7 +53,7 @@
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Physics\PhysicsQueryStructs.h"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Physics\PhysicsSystem.h"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Physics\PhysXInclude.h"
-#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Reflection\Class.h"
+#include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Reflection\ReflectedClass.h"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Reflection\Field.h"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Reflection\ReflectionSystem.h"
 #include "C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Rendering\DebugPipeline.h"

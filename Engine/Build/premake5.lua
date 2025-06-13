@@ -7,6 +7,8 @@ PHYSX_BIN_DIR = "../../PhysX/physx/bin/win.x86_64.vc143.mt/"
 PHYSX_INCLUDE_DIR = "../../PhysX/physx/include/"
 PHYSX_LIB_DIR = "%{PHYSX_BIN_DIR}/%{cfg.runtime}" -- Default to release
 PHYSX_LIB_DIR_LIBSEARCH = "../../PhysX/physx/bin/win.x86_64.vc143.mt/debug/*.lib"
+CLANG_INCLUDE_DIR = "C:/Program Files/LLVM/include"
+CLANG_LIB_DIR = "C:/Program Files/LLVM/lib"
 
 function read_includes(file)
 	local includes = {}
@@ -224,3 +226,20 @@ project "Unit Test"
 		"Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn:1.8.1.7"
 	}
 	
+project "ReflectionGenerator"
+    kind "ConsoleApp"
+	location "../%{prj.name}"
+	staticruntime "off"
+	targetdir  "$(SolutionDir)/Build/"
+	links
+	{
+		"libclang"
+	}
+	includedirs
+	{
+		"%{CLANG_INCLUDE_DIR}",
+	}
+	libdirs
+	{
+		"%{CLANG_LIB_DIR}",
+	}

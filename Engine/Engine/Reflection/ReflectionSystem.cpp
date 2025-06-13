@@ -3,5 +3,5 @@
 
 void ReflectionSystem::AddClass(const std::string& inClassName, const std::string& inFullName)
 {
-    myClasses.Add(Class(inClassName, inFullName));
+    myClasses.Add(ReflectedClass(inClassName, inFullName));
 }

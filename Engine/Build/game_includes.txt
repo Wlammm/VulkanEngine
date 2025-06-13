@@ -6,4 +6,4 @@
 ../ImGui/
 ../External/tracy/
 ../External/glm/
-%{PHYSX_INCLUDE_DIR}
+../../PhysX/physx/include/

@@ -4,4 +4,4 @@
 ../External/PerlinNoise/
 ../External/aftermath/include/
 ../ImGui/
-%{PHYSX_INCLUDE_DIR}
+../../PhysX/physx/include/
