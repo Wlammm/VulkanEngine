@@ -14,11 +14,9 @@ public:
 private:
     friend class GeneratedReflectionData;
     Field() = delete;
-    Field(const std::string& inName, const uint32_t inOffset, const Class* inType, const bool inIsPointer, const bool inIsReference);
+    Field(const std::string& inName, const uint32_t inOffset, const Class* inType);
     
     std::string myName = "";
     uint32_t myOffset = 0;
     const Class* myType = nullptr;
-    bool myIsPointer = false;
-    bool myIsReference = false;
 };

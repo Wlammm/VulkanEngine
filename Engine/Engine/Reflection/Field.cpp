@@ -16,11 +16,9 @@ const Class* Field::GetType() const
     return myType;
 }
 
-Field::Field(const std::string& inName, const uint inOffset, const Class* inType, const bool inIsPointer, const bool inIsReference)
+Field::Field(const std::string& inName, const uint inOffset, const Class* inType)
 {
     myName = inName;
     myOffset = inOffset;
     myType = inType;
-    myIsPointer = inIsPointer;
-    myIsReference = inIsReference;
 }
