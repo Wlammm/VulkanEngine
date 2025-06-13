@@ -13,7 +13,7 @@ ReflectionParser::ReflectionParser(const std::string& inFileToReflect, const Inc
     myFileToReflect = inFileToReflect;
 }
 
-void ReflectionParser::ParseInParallel()
+void ReflectionParser::Parse()
 {
     clientData = {this, {}};
     CXIndex index = clang_createIndex(0, 0);
@@ -23,15 +23,15 @@ void ReflectionParser::ParseInParallel()
     
     CXTranslationUnit unit = clang_parseTranslationUnit(index, myFileToReflect.c_str(), commandLineArgs.data(), static_cast<int>(commandLineArgs.size()), nullptr, 0, CXTranslationUnit_SkipFunctionBodies);
 
-    //unsigned numDiagnostics = clang_getNumDiagnostics(unit);
-    //for (unsigned i = 0; i < numDiagnostics; ++i)
-    //{
-    //    CXDiagnostic diag = clang_getDiagnostic(unit, i);
-    //    CXString diagSpelling = clang_formatDiagnostic(diag, clang_defaultDiagnosticDisplayOptions());
-    //    std::cout << clang_getCString(diagSpelling) << std::endl;
-    //    clang_disposeString(diagSpelling);
-    //    clang_disposeDiagnostic(diag);
-    //}
+    unsigned numDiagnostics = clang_getNumDiagnostics(unit);
+    for (unsigned i = 0; i < numDiagnostics; ++i)
+    {
+        CXDiagnostic diag = clang_getDiagnostic(unit, i);
+        CXString diagSpelling = clang_formatDiagnostic(diag, clang_defaultDiagnosticDisplayOptions());
+        std::cout << clang_getCString(diagSpelling) << std::endl;
+        clang_disposeString(diagSpelling);
+        clang_disposeDiagnostic(diag);
+    }
 
     if (unit == nullptr)
     {
@@ -64,6 +64,11 @@ const std::vector<std::string>& ReflectionParser::GetErrorMessages() const
     return myErrorMessages;
 }
 
+const IncludePaths& ReflectionParser::GetIncludePaths() const
+{
+    return myIncludePaths;
+}
+
 CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCursor inParentCursor, CXClientData inClientData)
 {
     ClientData& clientData = *static_cast<ClientData*>(inClientData);
@@ -75,7 +80,7 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
 
         // If the class is declared in another file and not the one we're searching we can just skip it.
         CXSourceLocation location = clang_getCursorLocation(inCurrentCursor);
-        if (!clang_Location_isFromMainFile(location))
+        if (clang_Location_isInSystemHeader(location))
             return CXChildVisit_Continue;
 
         if (!clang_isCursorDefinition(inCurrentCursor))
@@ -120,11 +125,10 @@ void ReflectionParser::BuildCommandLineArgs(std::vector<const char*>& outCommand
     outCommandLineArgs.push_back("-D_MSC_VER=1929");
     outCommandLineArgs.push_back("-D_WIN32");
     outCommandLineArgs.push_back("-D_WINDOWS");
-    
-    outCommandLineArgs.push_back("-DIGNORED_BY_REFLECTION=1");
+    outCommandLineArgs.push_back("-Wno-everything");
+    // outCommandLineArgs.push_back("-DIGNORED_BY_REFLECTION=1");
     outCommandLineArgs.push_back("-D_CRT_USE_BUILTIN_OFFSETOF=1");
     outCommandLineArgs.push_back("-DNDEBUG=1");
-    outCommandLineArgs.push_back("-include../Engine/EnginePch.h");
 
     for (const std::string& includeArg : myIncludePaths.GetIncludeArguments())
     {

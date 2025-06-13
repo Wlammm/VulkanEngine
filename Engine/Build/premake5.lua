@@ -128,7 +128,6 @@ project "Launcher"
 	includedirs(launcher_includes)
 	prebuildcommands 
 	{
-		"python \"" .. ReflectionGeneratorScriptPath .. "\""
 	}
 	libdirs
 	{

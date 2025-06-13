@@ -159,73 +159,88 @@ public:
 
 		// Create all classes.
 		{
-		    reflectionSystem.AddClass("Skeleton", typeid(Skeleton).name());
+		    reflectionSystem.AddClass("Color", typeid(Color).name());
+reflectionSystem.AddClass("LinearColor", typeid(LinearColor).name());
+reflectionSystem.AddClass("Console", typeid(Console).name());
+reflectionSystem.AddClass("IsCopyable<int>", typeid(IsCopyable<int>).name());
+reflectionSystem.AddClass("OnScopeExit", typeid(OnScopeExit).name());
+reflectionSystem.AddClass("Skeleton", typeid(Skeleton).name());
 reflectionSystem.AddClass("Skeleton::Bone", typeid(Skeleton::Bone).name());
+reflectionSystem.AddClass("String", typeid(String).name());
+reflectionSystem.AddClass("EngineProperties", typeid(EngineProperties).name());
+reflectionSystem.AddClass("Engine", typeid(Engine).name());
+reflectionSystem.AddClass("PromiseReturnTypeImplementation<void>", typeid(PromiseReturnTypeImplementation<void>).name());
 reflectionSystem.AddClass("Asset", typeid(Asset).name());
 reflectionSystem.AddClass("IAssetContainer", typeid(IAssetContainer).name());
+reflectionSystem.AddClass("ThreadPool", typeid(ThreadPool).name());
+reflectionSystem.AddClass("ThreadUtils", typeid(ThreadUtils).name());
 reflectionSystem.AddClass("AssetRegistry", typeid(AssetRegistry).name());
 reflectionSystem.AddClass("JsonAsset", typeid(JsonAsset).name());
+reflectionSystem.AddClass("VulkanAllocator", typeid(VulkanAllocator).name());
+reflectionSystem.AddClass("VulkanAllocator::DelegateDeleteData", typeid(VulkanAllocator::DelegateDeleteData).name());
+reflectionSystem.AddClass("Vertex", typeid(Vertex).name());
+reflectionSystem.AddClass("VulkanBuffer", typeid(VulkanBuffer).name());
+reflectionSystem.AddClass("EventType", typeid(EventType).name());
+reflectionSystem.AddClass("EventObserver", typeid(EventObserver).name());
+reflectionSystem.AddClass("System", typeid(System).name());
+reflectionSystem.AddClass("RenderSystem", typeid(RenderSystem).name());
+reflectionSystem.AddClass("MathUtils", typeid(MathUtils).name());
+reflectionSystem.AddClass("IVulkanDynamicBuffer", typeid(IVulkanDynamicBuffer).name());
+reflectionSystem.AddClass("VulkanDescriptorSet", typeid(VulkanDescriptorSet).name());
 reflectionSystem.AddClass("Material", typeid(Material).name());
 reflectionSystem.AddClass("SerializationMeshData", typeid(SerializationMeshData).name());
 reflectionSystem.AddClass("Model", typeid(Model).name());
+reflectionSystem.AddClass("Filewatcher", typeid(Filewatcher).name());
+reflectionSystem.AddClass("Filewatcher::CallbackHandle", typeid(Filewatcher::CallbackHandle).name());
+reflectionSystem.AddClass("Filewatcher::FileData", typeid(Filewatcher::FileData).name());
 reflectionSystem.AddClass("Shader", typeid(Shader).name());
 reflectionSystem.AddClass("Shader::IncludeFileData", typeid(Shader::IncludeFileData).name());
 reflectionSystem.AddClass("ImageData", typeid(ImageData).name());
 reflectionSystem.AddClass("Texture", typeid(Texture).name());
 reflectionSystem.AddClass("TextureCube", typeid(TextureCube).name());
+reflectionSystem.AddClass("IComponentArray", typeid(IComponentArray).name());
+reflectionSystem.AddClass("WorldSystem", typeid(WorldSystem).name());
+reflectionSystem.AddClass("ComponentSystem", typeid(ComponentSystem).name());
+reflectionSystem.AddClass("GameObject", typeid(GameObject).name());
+reflectionSystem.AddClass("Component", typeid(Component).name());
+reflectionSystem.AddClass("ForceMode", typeid(ForceMode).name());
+reflectionSystem.AddClass("RigidbodyComponent", typeid(RigidbodyComponent).name());
+reflectionSystem.AddClass("ColliderComponent", typeid(ColliderComponent).name());
 reflectionSystem.AddClass("BoxColliderComponent", typeid(BoxColliderComponent).name());
 reflectionSystem.AddClass("CameraComponent", typeid(CameraComponent).name());
 reflectionSystem.AddClass("CapsuleColliderComponent", typeid(CapsuleColliderComponent).name());
 reflectionSystem.AddClass("CharacterControllerComponent", typeid(CharacterControllerComponent).name());
-reflectionSystem.AddClass("ColliderComponent", typeid(ColliderComponent).name());
 reflectionSystem.AddClass("ConvexColliderComponent", typeid(ConvexColliderComponent).name());
 reflectionSystem.AddClass("DirectionalLightComponent", typeid(DirectionalLightComponent).name());
 reflectionSystem.AddClass("EditorCameraMovementComponent", typeid(EditorCameraMovementComponent).name());
 reflectionSystem.AddClass("LandscapeColliderComponent", typeid(LandscapeColliderComponent).name());
+reflectionSystem.AddClass("Heightfield", typeid(Heightfield).name());
+reflectionSystem.AddClass("GPUSceneSystem", typeid(GPUSceneSystem).name());
 reflectionSystem.AddClass("LandscapeRenderComponent", typeid(LandscapeRenderComponent).name());
 reflectionSystem.AddClass("MeshColliderComponent", typeid(MeshColliderComponent).name());
 reflectionSystem.AddClass("PointLightComponent", typeid(PointLightComponent).name());
-reflectionSystem.AddClass("ForceMode", typeid(ForceMode).name());
-reflectionSystem.AddClass("RigidbodyComponent", typeid(RigidbodyComponent).name());
 reflectionSystem.AddClass("SinWaveMovementComponent", typeid(SinWaveMovementComponent).name());
 reflectionSystem.AddClass("SphereColliderComponent", typeid(SphereColliderComponent).name());
 reflectionSystem.AddClass("StaticMeshComponent", typeid(StaticMeshComponent).name());
 reflectionSystem.AddClass("TransformComponent", typeid(TransformComponent).name());
-reflectionSystem.AddClass("Component", typeid(Component).name());
-reflectionSystem.AddClass("IComponentArray", typeid(IComponentArray).name());
-reflectionSystem.AddClass("ComponentSystem", typeid(ComponentSystem).name());
-reflectionSystem.AddClass("GameObject", typeid(GameObject).name());
 reflectionSystem.AddClass("AutoInit", typeid(AutoInit).name());
 reflectionSystem.AddClass("AutoInitManager", typeid(AutoInitManager).name());
-reflectionSystem.AddClass("(unnamed class at ../Engine/Core/Console.h:7:7)", typeid((unnamed class at ../Engine/Core/Console.h:7:7)).name());
-reflectionSystem.AddClass("Filewatcher", typeid(Filewatcher).name());
-reflectionSystem.AddClass("Filewatcher::CallbackHandle", typeid(Filewatcher::CallbackHandle).name());
-reflectionSystem.AddClass("Filewatcher::FileData", typeid(Filewatcher::FileData).name());
 reflectionSystem.AddClass("Input", typeid(Input).name());
 reflectionSystem.AddClass("Input::KeyCode", typeid(Input::KeyCode).name());
 reflectionSystem.AddClass("Input::MouseButton", typeid(Input::MouseButton).name());
 reflectionSystem.AddClass("Input::KeyState", typeid(Input::KeyState).name());
-reflectionSystem.AddClass("ThreadPool", typeid(ThreadPool).name());
 reflectionSystem.AddClass("Time", typeid(Time).name());
 reflectionSystem.AddClass("Awaitable", typeid(Awaitable).name());
 reflectionSystem.AddClass("ThreadType", typeid(ThreadType).name());
-reflectionSystem.AddClass("PromiseReturnTypeImplementation<void>", typeid(PromiseReturnTypeImplementation<void>).name());
 reflectionSystem.AddClass("CoroutineManager", typeid(CoroutineManager).name());
-reflectionSystem.AddClass("Engine", typeid(Engine).name());
-reflectionSystem.AddClass("EngineProperties", typeid(EngineProperties).name());
 reflectionSystem.AddClass("EventHandler", typeid(EventHandler).name());
-reflectionSystem.AddClass("EventObserver", typeid(EventObserver).name());
-reflectionSystem.AddClass("EventType", typeid(EventType).name());
-reflectionSystem.AddClass("(unnamed class at ../Engine/Math/Color.h:5:7)", typeid((unnamed class at ../Engine/Math/Color.h:5:7)).name());
-reflectionSystem.AddClass("Heightfield", typeid(Heightfield).name());
-reflectionSystem.AddClass("(unnamed class at ../Engine/Math/LinearColor.h:5:7)", typeid((unnamed class at ../Engine/Math/LinearColor.h:5:7)).name());
 reflectionSystem.AddClass("PhysicsErrorCallback", typeid(PhysicsErrorCallback).name());
 reflectionSystem.AddClass("PhysicsListener", typeid(PhysicsListener).name());
 reflectionSystem.AddClass("PhysicsListener::ContactPair", typeid(PhysicsListener::ContactPair).name());
 reflectionSystem.AddClass("RaycastHit", typeid(RaycastHit).name());
 reflectionSystem.AddClass("PhysicsSystem", typeid(PhysicsSystem).name());
-reflectionSystem.AddClass("Class", typeid(Class).name());
 reflectionSystem.AddClass("Field", typeid(Field).name());
+reflectionSystem.AddClass("Class", typeid(Class).name());
 reflectionSystem.AddClass("ReflectionSystem", typeid(ReflectionSystem).name());
 reflectionSystem.AddClass("DebugPipeline", typeid(DebugPipeline).name());
 reflectionSystem.AddClass("DebugPipeline::FrameData", typeid(DebugPipeline::FrameData).name());
@@ -236,58 +251,44 @@ reflectionSystem.AddClass("GDRPipeline::ComputePassResources", typeid(GDRPipelin
 reflectionSystem.AddClass("GDRPipeline::FrameData", typeid(GDRPipeline::FrameData).name());
 reflectionSystem.AddClass("GDRPipeline::DirectionalLightBuffer", typeid(GDRPipeline::DirectionalLightBuffer).name());
 reflectionSystem.AddClass("IndexBufferHandle", typeid(IndexBufferHandle).name());
-reflectionSystem.AddClass("IndexBufferSystem", typeid(IndexBufferSystem).name());
-reflectionSystem.AddClass("Mesh", typeid(Mesh).name());
-reflectionSystem.AddClass("MeshSystem", typeid(MeshSystem).name());
-reflectionSystem.AddClass("MeshUtils", typeid(MeshUtils).name());
-reflectionSystem.AddClass("RenderSystem", typeid(RenderSystem).name());
-reflectionSystem.AddClass("SkyboxPipeline", typeid(SkyboxPipeline).name());
-reflectionSystem.AddClass("SkyboxPipeline::FrameData", typeid(SkyboxPipeline::FrameData).name());
-reflectionSystem.AddClass("TextureSystem", typeid(TextureSystem).name());
-reflectionSystem.AddClass("Vertex", typeid(Vertex).name());
-reflectionSystem.AddClass("VertexBufferHandle", typeid(VertexBufferHandle).name());
-reflectionSystem.AddClass("VertexBufferSystem", typeid(VertexBufferSystem).name());
-reflectionSystem.AddClass("BinaryReader", typeid(BinaryReader).name());
-reflectionSystem.AddClass("BinaryWriter", typeid(BinaryWriter).name());
 reflectionSystem.AddClass("MeshData", typeid(MeshData).name());
 reflectionSystem.AddClass("VertexBufferData", typeid(VertexBufferData).name());
 reflectionSystem.AddClass("IndexBufferData", typeid(IndexBufferData).name());
 reflectionSystem.AddClass("MeshInstanceData", typeid(MeshInstanceData).name());
 reflectionSystem.AddClass("PerDrawData", typeid(PerDrawData).name());
 reflectionSystem.AddClass("PointLightData", typeid(PointLightData).name());
-reflectionSystem.AddClass("System", typeid(System).name());
-reflectionSystem.AddClass("WorldSystem", typeid(WorldSystem).name());
+reflectionSystem.AddClass("IndexBufferSystem", typeid(IndexBufferSystem).name());
+reflectionSystem.AddClass("Mesh", typeid(Mesh).name());
+reflectionSystem.AddClass("MeshSystem", typeid(MeshSystem).name());
+reflectionSystem.AddClass("MeshUtils", typeid(MeshUtils).name());
+reflectionSystem.AddClass("SkyboxPipeline", typeid(SkyboxPipeline).name());
+reflectionSystem.AddClass("SkyboxPipeline::FrameData", typeid(SkyboxPipeline::FrameData).name());
+reflectionSystem.AddClass("TextureSystem", typeid(TextureSystem).name());
+reflectionSystem.AddClass("VertexBufferHandle", typeid(VertexBufferHandle).name());
+reflectionSystem.AddClass("ResizableBuffer", typeid(ResizableBuffer).name());
+reflectionSystem.AddClass("VertexBufferSystem", typeid(VertexBufferSystem).name());
+reflectionSystem.AddClass("BinaryReader", typeid(BinaryReader).name());
+reflectionSystem.AddClass("BinaryWriter", typeid(BinaryWriter).name());
 reflectionSystem.AddClass("LandscapeSystem", typeid(LandscapeSystem).name());
 reflectionSystem.AddClass("PointLightSystem", typeid(PointLightSystem).name());
 reflectionSystem.AddClass("BinaryUtils", typeid(BinaryUtils).name());
 reflectionSystem.AddClass("Debug", typeid(Debug).name());
 reflectionSystem.AddClass("Debug::DrawLineInfos", typeid(Debug::DrawLineInfos).name());
-reflectionSystem.AddClass("MathUtils", typeid(MathUtils).name());
-reflectionSystem.AddClass("(unnamed class at ../Engine/Utils/OnScopeExit.h:3:7)", typeid((unnamed class at ../Engine/Utils/OnScopeExit.h:3:7)).name());
-reflectionSystem.AddClass("String", typeid(String).name());
-reflectionSystem.AddClass("ThreadUtils", typeid(ThreadUtils).name());
-reflectionSystem.AddClass("NvidiaAftermathTracker", typeid(NvidiaAftermathTracker).name());
 reflectionSystem.AddClass("ShaderDatabase", typeid(ShaderDatabase).name());
-reflectionSystem.AddClass("GPUSceneSystem", typeid(GPUSceneSystem).name());
-reflectionSystem.AddClass("ResizableBuffer", typeid(ResizableBuffer).name());
+reflectionSystem.AddClass("NvidiaAftermathTracker", typeid(NvidiaAftermathTracker).name());
 reflectionSystem.AddClass("StagingBuffer", typeid(StagingBuffer).name());
+reflectionSystem.AddClass("VulkanContext", typeid(VulkanContext).name());
 reflectionSystem.AddClass("StagingSystem", typeid(StagingSystem).name());
 reflectionSystem.AddClass("StagingSystem::BufferData", typeid(StagingSystem::BufferData).name());
-reflectionSystem.AddClass("VulkanAllocator", typeid(VulkanAllocator).name());
-reflectionSystem.AddClass("VulkanAllocator::DelegateDeleteData", typeid(VulkanAllocator::DelegateDeleteData).name());
-reflectionSystem.AddClass("VulkanBuffer", typeid(VulkanBuffer).name());
-reflectionSystem.AddClass("VulkanContext", typeid(VulkanContext).name());
-reflectionSystem.AddClass("VulkanDescriptorSet", typeid(VulkanDescriptorSet).name());
 reflectionSystem.AddClass("VulkanDevice", typeid(VulkanDevice).name());
-reflectionSystem.AddClass("IVulkanDynamicBuffer", typeid(IVulkanDynamicBuffer).name());
+reflectionSystem.AddClass("SamplerMode", typeid(SamplerMode).name());
+reflectionSystem.AddClass("VulkanUtils", typeid(VulkanUtils).name());
 reflectionSystem.AddClass("VulkanImage", typeid(VulkanImage).name());
 reflectionSystem.AddClass("VulkanImGui", typeid(VulkanImGui).name());
 reflectionSystem.AddClass("VulkanPhysicalDevice", typeid(VulkanPhysicalDevice).name());
 reflectionSystem.AddClass("VulkanShaderIncluder", typeid(VulkanShaderIncluder).name());
 reflectionSystem.AddClass("VulkanShaderIncluder::IncludeData", typeid(VulkanShaderIncluder::IncludeData).name());
 reflectionSystem.AddClass("VulkanSwapChain", typeid(VulkanSwapChain).name());
-reflectionSystem.AddClass("SamplerMode", typeid(SamplerMode).name());
-reflectionSystem.AddClass("VulkanUtils", typeid(VulkanUtils).name());
 reflectionSystem.AddClass("WindowHandler", typeid(WindowHandler).name());
 reflectionSystem.AddClass("World", typeid(World).name());
 reflectionSystem.AddClass("Editor", typeid(Editor).name());
@@ -306,6 +307,39 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
         // Add all fields & add base classes.
         {
             { 
+	Class* currentClass = reflectionSystem.GetMutableClass<Color>();
+	currentClass->AddField(Field("myR", offsetof(Color, myR), reflectionSystem.GetClass<unsigned char>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myG", offsetof(Color, myG), reflectionSystem.GetClass<unsigned char>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myB", offsetof(Color, myB), reflectionSystem.GetClass<unsigned char>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myA", offsetof(Color, myA), reflectionSystem.GetClass<unsigned char>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<LinearColor>();
+	currentClass->AddField(Field("myR", offsetof(LinearColor, myR), reflectionSystem.GetClass<float>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myG", offsetof(LinearColor, myG), reflectionSystem.GetClass<float>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myB", offsetof(LinearColor, myB), reflectionSystem.GetClass<float>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myA", offsetof(LinearColor, myA), reflectionSystem.GetClass<float>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<Console>();
+	currentClass->AddField(Field("myConsoleHandle", offsetof(Console, myConsoleHandle), reflectionSystem.GetClass<void *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myLogToFileEnabled", offsetof(Console, myLogToFileEnabled), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myLogToFileStream", offsetof(Console, myLogToFileStream), reflectionSystem.GetClass<std::basic_ofstream<char>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myCoutBuffer", offsetof(Console, myCoutBuffer), reflectionSystem.GetClass<std::basic_streambuf<char> *>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<IsCopyable<int>>();
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<OnScopeExit>();
+	currentClass->AddField(Field("myOnScopeExit", offsetof(OnScopeExit, myOnScopeExit), reflectionSystem.GetClass<std::function<void ()>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<Skeleton>();
 	currentClass->AddField(Field("myJoints", offsetof(Skeleton, myJoints), reflectionSystem.GetClass<List<Skeleton::Bone>>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
@@ -316,6 +350,42 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	currentClass->AddField(Field("myBindRotation", offsetof(Skeleton::Bone, myBindRotation), reflectionSystem.GetClass<glm::qua<float>>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myBindScale", offsetof(Skeleton::Bone, myBindScale), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myIndexToParent", offsetof(Skeleton::Bone, myIndexToParent), reflectionSystem.GetClass<int>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<String>();
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<EngineProperties>();
+	currentClass->AddField(Field("Title", offsetof(EngineProperties, Title), reflectionSystem.GetClass<std::basic_string<wchar_t>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("WindowWidth", offsetof(EngineProperties, WindowWidth), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("WindowHeight", offsetof(EngineProperties, WindowHeight), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("WindowX", offsetof(EngineProperties, WindowX), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("WindowY", offsetof(EngineProperties, WindowY), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("StartupArguments", offsetof(EngineProperties, StartupArguments), reflectionSystem.GetClass<std::unordered_set<std::basic_string<char>>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<Engine>();
+	currentClass->AddField(Field("myFrameIndex", offsetof(Engine, myFrameIndex), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myIsRunning", offsetof(Engine, myIsRunning), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myEngineProperties", offsetof(Engine, myEngineProperties), reflectionSystem.GetClass<EngineProperties>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("mySystemManager", offsetof(Engine, mySystemManager), reflectionSystem.GetClass<SystemManager<System> *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myPostMaster", offsetof(Engine, myPostMaster), reflectionSystem.GetClass<EventHandler *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myThreadPool", offsetof(Engine, myThreadPool), reflectionSystem.GetClass<ThreadPool *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myFilewatcher", offsetof(Engine, myFilewatcher), reflectionSystem.GetClass<Filewatcher *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myWindowHandler", offsetof(Engine, myWindowHandler), reflectionSystem.GetClass<WindowHandler *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myVulkanContext", offsetof(Engine, myVulkanContext), reflectionSystem.GetClass<VulkanContext *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myAssetRegistry", offsetof(Engine, myAssetRegistry), reflectionSystem.GetClass<AssetRegistry *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myWorld", offsetof(Engine, myWorld), reflectionSystem.GetClass<World *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myExternalTickFunction", offsetof(Engine, myExternalTickFunction), reflectionSystem.GetClass<std::function<void ()>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<PromiseReturnTypeImplementation<void>>();
+	currentClass->AddField(Field("myReturnValue", offsetof(PromiseReturnTypeImplementation<void>, myReturnValue), reflectionSystem.GetClass<char>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myHasReturnValue", offsetof(PromiseReturnTypeImplementation<void>, myHasReturnValue), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
@@ -330,6 +400,19 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
+	Class* currentClass = reflectionSystem.GetMutableClass<ThreadPool>();
+	currentClass->AddField(Field("myThreads", offsetof(ThreadPool, myThreads), reflectionSystem.GetClass<List<std::thread>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myLookingForTaskMutex", offsetof(ThreadPool, myLookingForTaskMutex), reflectionSystem.GetClass<std::mutex>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myWaitingForTaskCondition", offsetof(ThreadPool, myWaitingForTaskCondition), reflectionSystem.GetClass<std::condition_variable>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myShouldExit", offsetof(ThreadPool, myShouldExit), reflectionSystem.GetClass<std::atomic<bool>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myTasks", offsetof(ThreadPool, myTasks), reflectionSystem.GetClass<std::queue<std::function<void ()>>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<ThreadUtils>();
+	// Base classes are not implemented yet
+}
+{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<AssetRegistry>();
 	currentClass->AddField(Field("myMutex", offsetof(AssetRegistry, myMutex), reflectionSystem.GetClass<std::recursive_mutex>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myContainers", offsetof(AssetRegistry, myContainers), reflectionSystem.GetClass<List<IAssetContainer *>>(), false, false /* Implement this*/));
@@ -338,6 +421,91 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<JsonAsset>();
 	currentClass->AddField(Field("myJson", offsetof(JsonAsset, myJson), reflectionSystem.GetClass<nlohmann::basic_json<>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<VulkanAllocator>();
+	currentClass->AddField(Field("myAllocator", offsetof(VulkanAllocator, myAllocator), reflectionSystem.GetClass<VmaAllocator_T *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myBufferDeleteData", offsetof(VulkanAllocator, myBufferDeleteData), reflectionSystem.GetClass<MutexList<VulkanAllocator::DeleteData<VulkanBuffer>>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myResizableBufferDeleteData", offsetof(VulkanAllocator, myResizableBufferDeleteData), reflectionSystem.GetClass<MutexList<VulkanAllocator::DeleteData<ResizableBuffer>>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myImageDeleteData", offsetof(VulkanAllocator, myImageDeleteData), reflectionSystem.GetClass<MutexList<VulkanAllocator::DeleteData<VulkanImage>>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myDelegateDeletes", offsetof(VulkanAllocator, myDelegateDeletes), reflectionSystem.GetClass<MutexList<VulkanAllocator::DelegateDeleteData>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<VulkanAllocator::DelegateDeleteData>();
+	currentClass->AddField(Field("myFramesUntilDelete", offsetof(VulkanAllocator::DelegateDeleteData, myFramesUntilDelete), reflectionSystem.GetClass<int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myDelegate", offsetof(VulkanAllocator::DelegateDeleteData, myDelegate), reflectionSystem.GetClass<Delegate<void ()>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<Vertex>();
+	currentClass->AddField(Field("myPosition", offsetof(Vertex, myPosition), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myColor", offsetof(Vertex, myColor), reflectionSystem.GetClass<int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myNormal", offsetof(Vertex, myNormal), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myTangents", offsetof(Vertex, myTangents), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myBinormals", offsetof(Vertex, myBinormals), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myTexCoords", offsetof(Vertex, myTexCoords), reflectionSystem.GetClass<glm::vec<2, float>[2]>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<VulkanBuffer>();
+	currentClass->AddField(Field("myAllocation", offsetof(VulkanBuffer, myAllocation), reflectionSystem.GetClass<VmaAllocation_T *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myBuffer", offsetof(VulkanBuffer, myBuffer), reflectionSystem.GetClass<vk::Buffer>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myCreateInfo", offsetof(VulkanBuffer, myCreateInfo), reflectionSystem.GetClass<vk::BufferCreateInfo>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myMemoryUsage", offsetof(VulkanBuffer, myMemoryUsage), reflectionSystem.GetClass<VmaMemoryUsage>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myIsMappingAllowed", offsetof(VulkanBuffer, myIsMappingAllowed), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myPtr", offsetof(VulkanBuffer, myPtr), reflectionSystem.GetClass<void *>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<EventType>();
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<EventObserver>();
+	currentClass->AddField(Field("myEvents", offsetof(EventObserver, myEvents), reflectionSystem.GetClass<std::map<EventType, std::function<void ()>>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<System>();
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<RenderSystem>();
+	currentClass->AddField(Field("myIsUsingGPUDrivenRendering", offsetof(RenderSystem, myIsUsingGPUDrivenRendering), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myCopyPipeline", offsetof(RenderSystem, myCopyPipeline), reflectionSystem.GetClass<FullscreenPipeline *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myDebugPipeline", offsetof(RenderSystem, myDebugPipeline), reflectionSystem.GetClass<DebugPipeline *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myGDRPipeline", offsetof(RenderSystem, myGDRPipeline), reflectionSystem.GetClass<GDRPipeline *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("mySkyboxPipeline", offsetof(RenderSystem, mySkyboxPipeline), reflectionSystem.GetClass<SkyboxPipeline *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myRenderPass", offsetof(RenderSystem, myRenderPass), reflectionSystem.GetClass<vk::RenderPass>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myCopyToSwapchainRenderPass", offsetof(RenderSystem, myCopyToSwapchainRenderPass), reflectionSystem.GetClass<vk::RenderPass>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myVkFrameBuffer", offsetof(RenderSystem, myVkFrameBuffer), reflectionSystem.GetClass<vk::Framebuffer>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myCopyToSwapchainFrameBuffers", offsetof(RenderSystem, myCopyToSwapchainFrameBuffers), reflectionSystem.GetClass<List<vk::Framebuffer>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myClearValues", offsetof(RenderSystem, myClearValues), reflectionSystem.GetClass<vk::ClearValue[2]>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myDepthBuffer", offsetof(RenderSystem, myDepthBuffer), reflectionSystem.GetClass<VulkanImage *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myRenderTexture", offsetof(RenderSystem, myRenderTexture), reflectionSystem.GetClass<VulkanImage *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myResolvedRenderTexture", offsetof(RenderSystem, myResolvedRenderTexture), reflectionSystem.GetClass<VulkanImage *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myDirectionalLightShadowMap", offsetof(RenderSystem, myDirectionalLightShadowMap), reflectionSystem.GetClass<VulkanImage *>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<MathUtils>();
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<IVulkanDynamicBuffer>();
+	currentClass->AddField(Field("OnBufferRecreated", offsetof(IVulkanDynamicBuffer, OnBufferRecreated), reflectionSystem.GetClass<MulticastDelegate<void ()>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<VulkanDescriptorSet>();
+	currentClass->AddField(Field("myBuffers", offsetof(VulkanDescriptorSet, myBuffers), reflectionSystem.GetClass<List<VulkanDescriptorSet::BindingData<const VulkanBuffer *>>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myResizableBuffer", offsetof(VulkanDescriptorSet, myResizableBuffer), reflectionSystem.GetClass<List<VulkanDescriptorSet::BindingData<const ResizableBuffer *>>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myImages", offsetof(VulkanDescriptorSet, myImages), reflectionSystem.GetClass<List<VulkanDescriptorSet::BindingData<const VulkanImage *>>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myUsesSharedLayout", offsetof(VulkanDescriptorSet, myUsesSharedLayout), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myLayout", offsetof(VulkanDescriptorSet, myLayout), reflectionSystem.GetClass<vk::DescriptorSetLayout>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("mySet", offsetof(VulkanDescriptorSet, mySet), reflectionSystem.GetClass<vk::DescriptorSet>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
@@ -362,6 +530,27 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Model>();
 	currentClass->AddField(Field("myMeshes", offsetof(Model, myMeshes), reflectionSystem.GetClass<List<Mesh *>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<Filewatcher>();
+	currentClass->AddField(Field("myThread", offsetof(Filewatcher, myThread), reflectionSystem.GetClass<std::thread>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myLock", offsetof(Filewatcher, myLock), reflectionSystem.GetClass<std::mutex>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myShouldRun", offsetof(Filewatcher, myShouldRun), reflectionSystem.GetClass<std::atomic<bool>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myFilesToWatch", offsetof(Filewatcher, myFilesToWatch), reflectionSystem.GetClass<std::unordered_map<std::filesystem::path, Filewatcher::FileData>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myModifiedPaths", offsetof(Filewatcher, myModifiedPaths), reflectionSystem.GetClass<std::set<Filewatcher::FileData *>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<Filewatcher::CallbackHandle>();
+	currentClass->AddField(Field("myID", offsetof(Filewatcher::CallbackHandle, myID), reflectionSystem.GetClass<int>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<Filewatcher::FileData>();
+	currentClass->AddField(Field("myCallbackIDIndexList", offsetof(Filewatcher::FileData, myCallbackIDIndexList), reflectionSystem.GetClass<List<Filewatcher::CallbackHandle>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myCallbacks", offsetof(Filewatcher::FileData, myCallbacks), reflectionSystem.GetClass<List<std::function<void ()>>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myLastModifiedTime", offsetof(Filewatcher::FileData, myLastModifiedTime), reflectionSystem.GetClass<std::chrono::time_point<std::filesystem::_File_time_clock>>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
@@ -398,6 +587,57 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	Class* currentClass = reflectionSystem.GetMutableClass<TextureCube>();
 	currentClass->AddField(Field("myImage", offsetof(TextureCube, myImage), reflectionSystem.GetClass<VulkanImage *>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myBindlessIndex", offsetof(TextureCube, myBindlessIndex), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<IComponentArray>();
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<WorldSystem>();
+	currentClass->AddField(Field("myWorld", offsetof(WorldSystem, myWorld), reflectionSystem.GetClass<World *>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<ComponentSystem>();
+	currentClass->AddField(Field("myObjects", offsetof(ComponentSystem, myObjects), reflectionSystem.GetClass<List<GameObject *>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myObjectsToDestory", offsetof(ComponentSystem, myObjectsToDestory), reflectionSystem.GetClass<List<GameObject *>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myComponentArrays", offsetof(ComponentSystem, myComponentArrays), reflectionSystem.GetClass<List<IComponentArray *>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<GameObject>();
+	currentClass->AddField(Field("OnComponentAdded", offsetof(GameObject, OnComponentAdded), reflectionSystem.GetClass<MulticastDelegate<void (Component *)>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("OnComponentRemoved", offsetof(GameObject, OnComponentRemoved), reflectionSystem.GetClass<MulticastDelegate<void (Component *)>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myComponentSystem", offsetof(GameObject, myComponentSystem), reflectionSystem.GetClass<ComponentSystem *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myTransform", offsetof(GameObject, myTransform), reflectionSystem.GetClass<TransformComponent *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myRenderStateDirty", offsetof(GameObject, myRenderStateDirty), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myPhysicsStateDirty", offsetof(GameObject, myPhysicsStateDirty), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myTags", offsetof(GameObject, myTags), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<Component>();
+	currentClass->AddField(Field("myGameObject", offsetof(Component, myGameObject), reflectionSystem.GetClass<GameObject *>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<ForceMode>();
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<RigidbodyComponent>();
+	currentClass->AddField(Field("myActor", offsetof(RigidbodyComponent, myActor), reflectionSystem.GetClass<physx::PxRigidDynamic *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myFramesSinceStartSleep", offsetof(RigidbodyComponent, myFramesSinceStartSleep), reflectionSystem.GetClass<int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myMass", offsetof(RigidbodyComponent, myMass), reflectionSystem.GetClass<float>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<ColliderComponent>();
+	currentClass->AddField(Field("myShape", offsetof(ColliderComponent, myShape), reflectionSystem.GetClass<physx::PxShape *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myActor", offsetof(ColliderComponent, myActor), reflectionSystem.GetClass<physx::PxRigidStatic *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myLocalShapePosition", offsetof(ColliderComponent, myLocalShapePosition), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myLocalShapeRotation", offsetof(ColliderComponent, myLocalShapeRotation), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
@@ -440,14 +680,6 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<ColliderComponent>();
-	currentClass->AddField(Field("myShape", offsetof(ColliderComponent, myShape), reflectionSystem.GetClass<physx::PxShape *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myActor", offsetof(ColliderComponent, myActor), reflectionSystem.GetClass<physx::PxRigidStatic *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myLocalShapePosition", offsetof(ColliderComponent, myLocalShapePosition), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myLocalShapeRotation", offsetof(ColliderComponent, myLocalShapeRotation), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<ConvexColliderComponent>();
 	currentClass->AddField(Field("myModel", offsetof(ConvexColliderComponent, myModel), reflectionSystem.GetClass<Model *>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
@@ -475,6 +707,22 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
+	Class* currentClass = reflectionSystem.GetMutableClass<Heightfield>();
+	currentClass->AddField(Field("mySeed", offsetof(Heightfield, mySeed), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myPerlinNoise", offsetof(Heightfield, myPerlinNoise), reflectionSystem.GetClass<siv::BasicPerlinNoise<float>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<GPUSceneSystem>();
+	currentClass->AddField(Field("myFreeSparseIndices", offsetof(GPUSceneSystem, myFreeSparseIndices), reflectionSystem.GetClass<List<unsigned int>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myNextFreeSparseIndex", offsetof(GPUSceneSystem, myNextFreeSparseIndex), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("mySparseBuffer", offsetof(GPUSceneSystem, mySparseBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myNumGPUObjectUpdatesThisFrame", offsetof(GPUSceneSystem, myNumGPUObjectUpdatesThisFrame), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myDenseBuffer", offsetof(GPUSceneSystem, myDenseBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myDenseBufferCPURepresentation", offsetof(GPUSceneSystem, myDenseBufferCPURepresentation), reflectionSystem.GetClass<List<unsigned int, unsigned int>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<LandscapeRenderComponent>();
 	currentClass->AddField(Field("myHeightfield", offsetof(LandscapeRenderComponent, myHeightfield), reflectionSystem.GetClass<Heightfield>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myVertexBuffer", offsetof(LandscapeRenderComponent, myVertexBuffer), reflectionSystem.GetClass<VertexBufferHandle *>(), false, false /* Implement this*/));
@@ -494,17 +742,6 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	currentClass->AddField(Field("myColor", offsetof(PointLightComponent, myColor), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myIntensity", offsetof(PointLightComponent, myIntensity), reflectionSystem.GetClass<float>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myRange", offsetof(PointLightComponent, myRange), reflectionSystem.GetClass<float>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<ForceMode>();
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<RigidbodyComponent>();
-	currentClass->AddField(Field("myActor", offsetof(RigidbodyComponent, myActor), reflectionSystem.GetClass<physx::PxRigidDynamic *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myFramesSinceStartSleep", offsetof(RigidbodyComponent, myFramesSinceStartSleep), reflectionSystem.GetClass<int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myMass", offsetof(RigidbodyComponent, myMass), reflectionSystem.GetClass<float>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
@@ -541,63 +778,11 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<Component>();
-	currentClass->AddField(Field("myGameObject", offsetof(Component, myGameObject), reflectionSystem.GetClass<GameObject *>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<IComponentArray>();
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<ComponentSystem>();
-	currentClass->AddField(Field("myObjects", offsetof(ComponentSystem, myObjects), reflectionSystem.GetClass<List<GameObject *>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myObjectsToDestory", offsetof(ComponentSystem, myObjectsToDestory), reflectionSystem.GetClass<List<GameObject *>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myComponentArrays", offsetof(ComponentSystem, myComponentArrays), reflectionSystem.GetClass<List<IComponentArray *>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<GameObject>();
-	currentClass->AddField(Field("OnComponentAdded", offsetof(GameObject, OnComponentAdded), reflectionSystem.GetClass<MulticastDelegate<void (Component *)>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("OnComponentRemoved", offsetof(GameObject, OnComponentRemoved), reflectionSystem.GetClass<MulticastDelegate<void (Component *)>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myComponentSystem", offsetof(GameObject, myComponentSystem), reflectionSystem.GetClass<ComponentSystem *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myTransform", offsetof(GameObject, myTransform), reflectionSystem.GetClass<TransformComponent *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myRenderStateDirty", offsetof(GameObject, myRenderStateDirty), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myPhysicsStateDirty", offsetof(GameObject, myPhysicsStateDirty), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myTags", offsetof(GameObject, myTags), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<AutoInit>();
 	// Base classes are not implemented yet
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<AutoInitManager>();
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<(unnamed class at ../Engine/Core/Console.h:7:7)>();
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<Filewatcher>();
-	currentClass->AddField(Field("myThread", offsetof(Filewatcher, myThread), reflectionSystem.GetClass<std::thread>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myLock", offsetof(Filewatcher, myLock), reflectionSystem.GetClass<std::mutex>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myShouldRun", offsetof(Filewatcher, myShouldRun), reflectionSystem.GetClass<std::atomic<bool>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myFilesToWatch", offsetof(Filewatcher, myFilesToWatch), reflectionSystem.GetClass<std::unordered_map<std::filesystem::path, Filewatcher::FileData>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myModifiedPaths", offsetof(Filewatcher, myModifiedPaths), reflectionSystem.GetClass<int>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<Filewatcher::CallbackHandle>();
-	currentClass->AddField(Field("myID", offsetof(Filewatcher::CallbackHandle, myID), reflectionSystem.GetClass<int>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<Filewatcher::FileData>();
-	currentClass->AddField(Field("myCallbackIDIndexList", offsetof(Filewatcher::FileData, myCallbackIDIndexList), reflectionSystem.GetClass<List<Filewatcher::CallbackHandle>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myCallbacks", offsetof(Filewatcher::FileData, myCallbacks), reflectionSystem.GetClass<List<std::function<void ()>>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myLastModifiedTime", offsetof(Filewatcher::FileData, myLastModifiedTime), reflectionSystem.GetClass<std::chrono::time_point<std::filesystem::_File_time_clock>>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
@@ -620,15 +805,6 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<ThreadPool>();
-	currentClass->AddField(Field("myThreads", offsetof(ThreadPool, myThreads), reflectionSystem.GetClass<List<std::thread>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myLookingForTaskMutex", offsetof(ThreadPool, myLookingForTaskMutex), reflectionSystem.GetClass<std::mutex>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myWaitingForTaskCondition", offsetof(ThreadPool, myWaitingForTaskCondition), reflectionSystem.GetClass<std::condition_variable>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myShouldExit", offsetof(ThreadPool, myShouldExit), reflectionSystem.GetClass<std::atomic<bool>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myTasks", offsetof(ThreadPool, myTasks), reflectionSystem.GetClass<std::queue<std::function<void ()>>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<Time>();
 	// Base classes are not implemented yet
 }
@@ -641,67 +817,12 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<PromiseReturnTypeImplementation<void>>();
-	currentClass->AddField(Field("myReturnValue", offsetof(PromiseReturnTypeImplementation<void>, myReturnValue), reflectionSystem.GetClass<char>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myHasReturnValue", offsetof(PromiseReturnTypeImplementation<void>, myHasReturnValue), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<CoroutineManager>();
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<Engine>();
-	currentClass->AddField(Field("myFrameIndex", offsetof(Engine, myFrameIndex), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myIsRunning", offsetof(Engine, myIsRunning), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myEngineProperties", offsetof(Engine, myEngineProperties), reflectionSystem.GetClass<EngineProperties>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("mySystemManager", offsetof(Engine, mySystemManager), reflectionSystem.GetClass<SystemManager<System> *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myPostMaster", offsetof(Engine, myPostMaster), reflectionSystem.GetClass<EventHandler *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myThreadPool", offsetof(Engine, myThreadPool), reflectionSystem.GetClass<ThreadPool *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myFilewatcher", offsetof(Engine, myFilewatcher), reflectionSystem.GetClass<Filewatcher *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myWindowHandler", offsetof(Engine, myWindowHandler), reflectionSystem.GetClass<WindowHandler *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myVulkanContext", offsetof(Engine, myVulkanContext), reflectionSystem.GetClass<VulkanContext *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myAssetRegistry", offsetof(Engine, myAssetRegistry), reflectionSystem.GetClass<AssetRegistry *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myWorld", offsetof(Engine, myWorld), reflectionSystem.GetClass<World *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myExternalTickFunction", offsetof(Engine, myExternalTickFunction), reflectionSystem.GetClass<std::function<void ()>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<EngineProperties>();
-	currentClass->AddField(Field("Title", offsetof(EngineProperties, Title), reflectionSystem.GetClass<std::basic_string<wchar_t>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("WindowWidth", offsetof(EngineProperties, WindowWidth), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("WindowHeight", offsetof(EngineProperties, WindowHeight), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("WindowX", offsetof(EngineProperties, WindowX), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("WindowY", offsetof(EngineProperties, WindowY), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("StartupArguments", offsetof(EngineProperties, StartupArguments), reflectionSystem.GetClass<std::unordered_set<std::basic_string<char>>>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<EventHandler>();
 	currentClass->AddField(Field("myObservers", offsetof(EventHandler, myObservers), reflectionSystem.GetClass<List<EventObserver *>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<EventObserver>();
-	currentClass->AddField(Field("myEvents", offsetof(EventObserver, myEvents), reflectionSystem.GetClass<std::map<EventType, std::function<void ()>>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<EventType>();
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<(unnamed class at ../Engine/Math/Color.h:5:7)>();
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<Heightfield>();
-	currentClass->AddField(Field("mySeed", offsetof(Heightfield, mySeed), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myPerlinNoise", offsetof(Heightfield, myPerlinNoise), reflectionSystem.GetClass<siv::BasicPerlinNoise<float>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<(unnamed class at ../Engine/Math/LinearColor.h:5:7)>();
 	// Base classes are not implemented yet
 }
 { 
@@ -747,21 +868,21 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<Class>();
-	currentClass->AddField(Field("myFullName", offsetof(Class, myFullName), reflectionSystem.GetClass<std::basic_string<char>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myClassName", offsetof(Class, myClassName), reflectionSystem.GetClass<std::basic_string<char>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myBaseClasses", offsetof(Class, myBaseClasses), reflectionSystem.GetClass<List<const Class *>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myDerivedClasses", offsetof(Class, myDerivedClasses), reflectionSystem.GetClass<List<const Class *>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myFields", offsetof(Class, myFields), reflectionSystem.GetClass<List<Field>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<Field>();
 	currentClass->AddField(Field("myName", offsetof(Field, myName), reflectionSystem.GetClass<std::basic_string<char>>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myOffset", offsetof(Field, myOffset), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myType", offsetof(Field, myType), reflectionSystem.GetClass<const Class *>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myIsPointer", offsetof(Field, myIsPointer), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myIsReference", offsetof(Field, myIsReference), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<Class>();
+	currentClass->AddField(Field("myFullName", offsetof(Class, myFullName), reflectionSystem.GetClass<std::basic_string<char>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myClassName", offsetof(Class, myClassName), reflectionSystem.GetClass<std::basic_string<char>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myBaseClasses", offsetof(Class, myBaseClasses), reflectionSystem.GetClass<List<const Class *>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myDerivedClasses", offsetof(Class, myDerivedClasses), reflectionSystem.GetClass<List<const Class *>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myFields", offsetof(Class, myFields), reflectionSystem.GetClass<List<Field>>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
@@ -853,119 +974,6 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<IndexBufferSystem>();
-	currentClass->AddField(Field("myUsedBufferSize", offsetof(IndexBufferSystem, myUsedBufferSize), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myCurrentIndexOffset", offsetof(IndexBufferSystem, myCurrentIndexOffset), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myIndexBuffers", offsetof(IndexBufferSystem, myIndexBuffers), reflectionSystem.GetClass<List<IndexBufferHandle *>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myBuffer", offsetof(IndexBufferSystem, myBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("mySparseIndexDataBuffer", offsetof(IndexBufferSystem, mySparseIndexDataBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("mySparseIndexData_CPURepresentation", offsetof(IndexBufferSystem, mySparseIndexData_CPURepresentation), reflectionSystem.GetClass<List<IndexBufferData>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myFreeSparseIndices", offsetof(IndexBufferSystem, myFreeSparseIndices), reflectionSystem.GetClass<List<unsigned int>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<Mesh>();
-	currentClass->AddField(Field("myVertexBuffer", offsetof(Mesh, myVertexBuffer), reflectionSystem.GetClass<VertexBufferHandle *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myIndexBuffer", offsetof(Mesh, myIndexBuffer), reflectionSystem.GetClass<IndexBufferHandle *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("mySphereBounds", offsetof(Mesh, mySphereBounds), reflectionSystem.GetClass<glm::vec<4, float>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myHandle", offsetof(Mesh, myHandle), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myAlbedoPath", offsetof(Mesh, myAlbedoPath), reflectionSystem.GetClass<std::basic_string<char>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myNormalPath", offsetof(Mesh, myNormalPath), reflectionSystem.GetClass<std::basic_string<char>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myMaterialPath", offsetof(Mesh, myMaterialPath), reflectionSystem.GetClass<std::basic_string<char>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<MeshSystem>();
-	currentClass->AddField(Field("myMeshes", offsetof(MeshSystem, myMeshes), reflectionSystem.GetClass<List<Mesh *>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myBuffer", offsetof(MeshSystem, myBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myNumObjects", offsetof(MeshSystem, myNumObjects), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<MeshUtils>();
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<RenderSystem>();
-	currentClass->AddField(Field("myIsUsingGPUDrivenRendering", offsetof(RenderSystem, myIsUsingGPUDrivenRendering), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myCopyPipeline", offsetof(RenderSystem, myCopyPipeline), reflectionSystem.GetClass<FullscreenPipeline *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myDebugPipeline", offsetof(RenderSystem, myDebugPipeline), reflectionSystem.GetClass<DebugPipeline *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myGDRPipeline", offsetof(RenderSystem, myGDRPipeline), reflectionSystem.GetClass<GDRPipeline *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("mySkyboxPipeline", offsetof(RenderSystem, mySkyboxPipeline), reflectionSystem.GetClass<SkyboxPipeline *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myRenderPass", offsetof(RenderSystem, myRenderPass), reflectionSystem.GetClass<vk::RenderPass>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myCopyToSwapchainRenderPass", offsetof(RenderSystem, myCopyToSwapchainRenderPass), reflectionSystem.GetClass<vk::RenderPass>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myVkFrameBuffer", offsetof(RenderSystem, myVkFrameBuffer), reflectionSystem.GetClass<vk::Framebuffer>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myCopyToSwapchainFrameBuffers", offsetof(RenderSystem, myCopyToSwapchainFrameBuffers), reflectionSystem.GetClass<List<vk::Framebuffer>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myClearValues", offsetof(RenderSystem, myClearValues), reflectionSystem.GetClass<vk::ClearValue[2]>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myDepthBuffer", offsetof(RenderSystem, myDepthBuffer), reflectionSystem.GetClass<VulkanImage *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myRenderTexture", offsetof(RenderSystem, myRenderTexture), reflectionSystem.GetClass<VulkanImage *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myResolvedRenderTexture", offsetof(RenderSystem, myResolvedRenderTexture), reflectionSystem.GetClass<VulkanImage *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myDirectionalLightShadowMap", offsetof(RenderSystem, myDirectionalLightShadowMap), reflectionSystem.GetClass<VulkanImage *>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<SkyboxPipeline>();
-	currentClass->AddField(Field("myVertexShader", offsetof(SkyboxPipeline, myVertexShader), reflectionSystem.GetClass<Shader *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myFragmentShader", offsetof(SkyboxPipeline, myFragmentShader), reflectionSystem.GetClass<Shader *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myFrameDescriptorSet", offsetof(SkyboxPipeline, myFrameDescriptorSet), reflectionSystem.GetClass<VulkanDescriptorSet>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myPipelineLayout", offsetof(SkyboxPipeline, myPipelineLayout), reflectionSystem.GetClass<vk::PipelineLayout>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myPipeline", offsetof(SkyboxPipeline, myPipeline), reflectionSystem.GetClass<vk::Pipeline>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myFrameDataBuffer", offsetof(SkyboxPipeline, myFrameDataBuffer), reflectionSystem.GetClass<VulkanBuffer *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("mySkyboxModel", offsetof(SkyboxPipeline, mySkyboxModel), reflectionSystem.GetClass<Model *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("mySkybox", offsetof(SkyboxPipeline, mySkybox), reflectionSystem.GetClass<Texture *>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<SkyboxPipeline::FrameData>();
-	currentClass->AddField(Field("myToView", offsetof(SkyboxPipeline::FrameData, myToView), reflectionSystem.GetClass<glm::mat<4, 4, float>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myProjection", offsetof(SkyboxPipeline::FrameData, myProjection), reflectionSystem.GetClass<glm::mat<4, 4, float>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myCameraPosition", offsetof(SkyboxPipeline::FrameData, myCameraPosition), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myCubemapIndex", offsetof(SkyboxPipeline::FrameData, myCubemapIndex), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<TextureSystem>();
-	currentClass->AddField(Field("myDescriptorPool", offsetof(TextureSystem, myDescriptorPool), reflectionSystem.GetClass<vk::DescriptorPool>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<Vertex>();
-	currentClass->AddField(Field("myPosition", offsetof(Vertex, myPosition), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myColor", offsetof(Vertex, myColor), reflectionSystem.GetClass<int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myNormal", offsetof(Vertex, myNormal), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myTangents", offsetof(Vertex, myTangents), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myBinormals", offsetof(Vertex, myBinormals), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myTexCoords", offsetof(Vertex, myTexCoords), reflectionSystem.GetClass<glm::vec<2, float>[2]>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<VertexBufferHandle>();
-	currentClass->AddField(Field("myIndex", offsetof(VertexBufferHandle, myIndex), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<VertexBufferSystem>();
-	currentClass->AddField(Field("myUsedBufferSize", offsetof(VertexBufferSystem, myUsedBufferSize), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myCurrentVertexOffset", offsetof(VertexBufferSystem, myCurrentVertexOffset), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myVertexBuffers", offsetof(VertexBufferSystem, myVertexBuffers), reflectionSystem.GetClass<List<VertexBufferHandle *>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myBuffer", offsetof(VertexBufferSystem, myBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("mySparseVertexDataBuffer", offsetof(VertexBufferSystem, mySparseVertexDataBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("mySparseVertexData_CPURepresentation", offsetof(VertexBufferSystem, mySparseVertexData_CPURepresentation), reflectionSystem.GetClass<List<VertexBufferData>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myFreeSparseIndices", offsetof(VertexBufferSystem, myFreeSparseIndices), reflectionSystem.GetClass<List<unsigned int>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<BinaryReader>();
-	currentClass->AddField(Field("myBuffer", offsetof(BinaryReader, myBuffer), reflectionSystem.GetClass<List<unsigned char>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myReadOffset", offsetof(BinaryReader, myReadOffset), reflectionSystem.GetClass<unsigned long long>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<BinaryWriter>();
-	currentClass->AddField(Field("myStream", offsetof(BinaryWriter, myStream), reflectionSystem.GetClass<std::basic_ofstream<char>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<MeshData>();
 	currentClass->AddField(Field("myBoundingSphereModelSpace", offsetof(MeshData, myBoundingSphereModelSpace), reflectionSystem.GetClass<glm::vec<4, float>>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myVertexIndex", offsetof(MeshData, myVertexIndex), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
@@ -1011,12 +1019,96 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<System>();
+	Class* currentClass = reflectionSystem.GetMutableClass<IndexBufferSystem>();
+	currentClass->AddField(Field("myUsedBufferSize", offsetof(IndexBufferSystem, myUsedBufferSize), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myCurrentIndexOffset", offsetof(IndexBufferSystem, myCurrentIndexOffset), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myIndexBuffers", offsetof(IndexBufferSystem, myIndexBuffers), reflectionSystem.GetClass<List<IndexBufferHandle *>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myBuffer", offsetof(IndexBufferSystem, myBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("mySparseIndexDataBuffer", offsetof(IndexBufferSystem, mySparseIndexDataBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("mySparseIndexData_CPURepresentation", offsetof(IndexBufferSystem, mySparseIndexData_CPURepresentation), reflectionSystem.GetClass<List<IndexBufferData>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myFreeSparseIndices", offsetof(IndexBufferSystem, myFreeSparseIndices), reflectionSystem.GetClass<List<unsigned int>>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<WorldSystem>();
-	currentClass->AddField(Field("myWorld", offsetof(WorldSystem, myWorld), reflectionSystem.GetClass<World *>(), false, false /* Implement this*/));
+	Class* currentClass = reflectionSystem.GetMutableClass<Mesh>();
+	currentClass->AddField(Field("myVertexBuffer", offsetof(Mesh, myVertexBuffer), reflectionSystem.GetClass<VertexBufferHandle *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myIndexBuffer", offsetof(Mesh, myIndexBuffer), reflectionSystem.GetClass<IndexBufferHandle *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("mySphereBounds", offsetof(Mesh, mySphereBounds), reflectionSystem.GetClass<glm::vec<4, float>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myHandle", offsetof(Mesh, myHandle), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myAlbedoPath", offsetof(Mesh, myAlbedoPath), reflectionSystem.GetClass<std::basic_string<char>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myNormalPath", offsetof(Mesh, myNormalPath), reflectionSystem.GetClass<std::basic_string<char>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myMaterialPath", offsetof(Mesh, myMaterialPath), reflectionSystem.GetClass<std::basic_string<char>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<MeshSystem>();
+	currentClass->AddField(Field("myMeshes", offsetof(MeshSystem, myMeshes), reflectionSystem.GetClass<List<Mesh *>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myBuffer", offsetof(MeshSystem, myBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myNumObjects", offsetof(MeshSystem, myNumObjects), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<MeshUtils>();
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<SkyboxPipeline>();
+	currentClass->AddField(Field("myVertexShader", offsetof(SkyboxPipeline, myVertexShader), reflectionSystem.GetClass<Shader *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myFragmentShader", offsetof(SkyboxPipeline, myFragmentShader), reflectionSystem.GetClass<Shader *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myFrameDescriptorSet", offsetof(SkyboxPipeline, myFrameDescriptorSet), reflectionSystem.GetClass<VulkanDescriptorSet>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myPipelineLayout", offsetof(SkyboxPipeline, myPipelineLayout), reflectionSystem.GetClass<vk::PipelineLayout>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myPipeline", offsetof(SkyboxPipeline, myPipeline), reflectionSystem.GetClass<vk::Pipeline>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myFrameDataBuffer", offsetof(SkyboxPipeline, myFrameDataBuffer), reflectionSystem.GetClass<VulkanBuffer *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("mySkyboxModel", offsetof(SkyboxPipeline, mySkyboxModel), reflectionSystem.GetClass<Model *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("mySkybox", offsetof(SkyboxPipeline, mySkybox), reflectionSystem.GetClass<Texture *>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<SkyboxPipeline::FrameData>();
+	currentClass->AddField(Field("myToView", offsetof(SkyboxPipeline::FrameData, myToView), reflectionSystem.GetClass<glm::mat<4, 4, float>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myProjection", offsetof(SkyboxPipeline::FrameData, myProjection), reflectionSystem.GetClass<glm::mat<4, 4, float>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myCameraPosition", offsetof(SkyboxPipeline::FrameData, myCameraPosition), reflectionSystem.GetClass<glm::vec<3, float>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myCubemapIndex", offsetof(SkyboxPipeline::FrameData, myCubemapIndex), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<TextureSystem>();
+	currentClass->AddField(Field("myDescriptorPool", offsetof(TextureSystem, myDescriptorPool), reflectionSystem.GetClass<vk::DescriptorPool>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<VertexBufferHandle>();
+	currentClass->AddField(Field("myIndex", offsetof(VertexBufferHandle, myIndex), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<ResizableBuffer>();
+	currentClass->AddField(Field("OnBufferResized", offsetof(ResizableBuffer, OnBufferResized), reflectionSystem.GetClass<MulticastDelegate<void ()>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myHasActiveUpload", offsetof(ResizableBuffer, myHasActiveUpload), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myHasRegisteredForTick", offsetof(ResizableBuffer, myHasRegisteredForTick), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myBuffer", offsetof(ResizableBuffer, myBuffer), reflectionSystem.GetClass<VulkanBuffer *>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<VertexBufferSystem>();
+	currentClass->AddField(Field("myUsedBufferSize", offsetof(VertexBufferSystem, myUsedBufferSize), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myCurrentVertexOffset", offsetof(VertexBufferSystem, myCurrentVertexOffset), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myVertexBuffers", offsetof(VertexBufferSystem, myVertexBuffers), reflectionSystem.GetClass<List<VertexBufferHandle *>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myBuffer", offsetof(VertexBufferSystem, myBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("mySparseVertexDataBuffer", offsetof(VertexBufferSystem, mySparseVertexDataBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("mySparseVertexData_CPURepresentation", offsetof(VertexBufferSystem, mySparseVertexData_CPURepresentation), reflectionSystem.GetClass<List<VertexBufferData>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myFreeSparseIndices", offsetof(VertexBufferSystem, myFreeSparseIndices), reflectionSystem.GetClass<List<unsigned int>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<BinaryReader>();
+	currentClass->AddField(Field("myBuffer", offsetof(BinaryReader, myBuffer), reflectionSystem.GetClass<List<unsigned char>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myReadOffset", offsetof(BinaryReader, myReadOffset), reflectionSystem.GetClass<unsigned long long>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<BinaryWriter>();
+	currentClass->AddField(Field("myStream", offsetof(BinaryWriter, myStream), reflectionSystem.GetClass<std::basic_ofstream<char>>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
@@ -1045,19 +1137,9 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<MathUtils>();
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<(unnamed class at ../Engine/Utils/OnScopeExit.h:3:7)>();
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<String>();
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<ThreadUtils>();
+	Class* currentClass = reflectionSystem.GetMutableClass<ShaderDatabase>();
+	currentClass->AddField(Field("m_shaderBinaries", offsetof(ShaderDatabase, m_shaderBinaries), reflectionSystem.GetClass<std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("m_shaderBinariesWithDebugInfo", offsetof(ShaderDatabase, m_shaderBinariesWithDebugInfo), reflectionSystem.GetClass<std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
@@ -1071,72 +1153,10 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<ShaderDatabase>();
-	currentClass->AddField(Field("m_shaderBinaries", offsetof(ShaderDatabase, m_shaderBinaries), reflectionSystem.GetClass<std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("m_shaderBinariesWithDebugInfo", offsetof(ShaderDatabase, m_shaderBinariesWithDebugInfo), reflectionSystem.GetClass<std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<GPUSceneSystem>();
-	currentClass->AddField(Field("myFreeSparseIndices", offsetof(GPUSceneSystem, myFreeSparseIndices), reflectionSystem.GetClass<List<unsigned int>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myNextFreeSparseIndex", offsetof(GPUSceneSystem, myNextFreeSparseIndex), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("mySparseBuffer", offsetof(GPUSceneSystem, mySparseBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myNumGPUObjectUpdatesThisFrame", offsetof(GPUSceneSystem, myNumGPUObjectUpdatesThisFrame), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myDenseBuffer", offsetof(GPUSceneSystem, myDenseBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myDenseBufferCPURepresentation", offsetof(GPUSceneSystem, myDenseBufferCPURepresentation), reflectionSystem.GetClass<List<unsigned int, unsigned int>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<ResizableBuffer>();
-	currentClass->AddField(Field("OnBufferResized", offsetof(ResizableBuffer, OnBufferResized), reflectionSystem.GetClass<MulticastDelegate<void ()>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myHasActiveUpload", offsetof(ResizableBuffer, myHasActiveUpload), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myHasRegisteredForTick", offsetof(ResizableBuffer, myHasRegisteredForTick), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myBuffer", offsetof(ResizableBuffer, myBuffer), reflectionSystem.GetClass<VulkanBuffer *>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<StagingBuffer>();
 	currentClass->AddField(Field("myUnderlyingBuffer", offsetof(StagingBuffer, myUnderlyingBuffer), reflectionSystem.GetClass<VulkanBuffer *>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("mySize", offsetof(StagingBuffer, mySize), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myOffset", offsetof(StagingBuffer, myOffset), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<StagingSystem>();
-	currentClass->AddField(Field("myLastFrameIndex", offsetof(StagingSystem, myLastFrameIndex), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myCurrentStageData", offsetof(StagingSystem, myCurrentStageData), reflectionSystem.GetClass<StagingSystem::BufferData *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myStagingBuffers", offsetof(StagingSystem, myStagingBuffers), reflectionSystem.GetClass<std::array<StagingSystem::BufferData, 3>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<StagingSystem::BufferData>();
-	currentClass->AddField(Field("myBuffer", offsetof(StagingSystem::BufferData, myBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myOffset", offsetof(StagingSystem::BufferData, myOffset), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<VulkanAllocator>();
-	currentClass->AddField(Field("myAllocator", offsetof(VulkanAllocator, myAllocator), reflectionSystem.GetClass<VmaAllocator_T *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myBufferDeleteData", offsetof(VulkanAllocator, myBufferDeleteData), reflectionSystem.GetClass<MutexList<VulkanAllocator::DeleteData<VulkanBuffer>>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myResizableBufferDeleteData", offsetof(VulkanAllocator, myResizableBufferDeleteData), reflectionSystem.GetClass<MutexList<VulkanAllocator::DeleteData<ResizableBuffer>>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myImageDeleteData", offsetof(VulkanAllocator, myImageDeleteData), reflectionSystem.GetClass<MutexList<VulkanAllocator::DeleteData<VulkanImage>>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myDelegateDeletes", offsetof(VulkanAllocator, myDelegateDeletes), reflectionSystem.GetClass<MutexList<VulkanAllocator::DelegateDeleteData>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<VulkanAllocator::DelegateDeleteData>();
-	currentClass->AddField(Field("myFramesUntilDelete", offsetof(VulkanAllocator::DelegateDeleteData, myFramesUntilDelete), reflectionSystem.GetClass<int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myDelegate", offsetof(VulkanAllocator::DelegateDeleteData, myDelegate), reflectionSystem.GetClass<Delegate<void ()>>(), false, false /* Implement this*/));
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<VulkanBuffer>();
-	currentClass->AddField(Field("myAllocation", offsetof(VulkanBuffer, myAllocation), reflectionSystem.GetClass<VmaAllocation_T *>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myBuffer", offsetof(VulkanBuffer, myBuffer), reflectionSystem.GetClass<vk::Buffer>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myCreateInfo", offsetof(VulkanBuffer, myCreateInfo), reflectionSystem.GetClass<vk::BufferCreateInfo>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myMemoryUsage", offsetof(VulkanBuffer, myMemoryUsage), reflectionSystem.GetClass<VmaMemoryUsage>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myIsMappingAllowed", offsetof(VulkanBuffer, myIsMappingAllowed), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myPtr", offsetof(VulkanBuffer, myPtr), reflectionSystem.GetClass<void *>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
@@ -1156,13 +1176,16 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<VulkanDescriptorSet>();
-	currentClass->AddField(Field("myBuffers", offsetof(VulkanDescriptorSet, myBuffers), reflectionSystem.GetClass<List<VulkanDescriptorSet::BindingData<const VulkanBuffer *>>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myResizableBuffer", offsetof(VulkanDescriptorSet, myResizableBuffer), reflectionSystem.GetClass<List<VulkanDescriptorSet::BindingData<const ResizableBuffer *>>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myImages", offsetof(VulkanDescriptorSet, myImages), reflectionSystem.GetClass<List<VulkanDescriptorSet::BindingData<const VulkanImage *>>>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myUsesSharedLayout", offsetof(VulkanDescriptorSet, myUsesSharedLayout), reflectionSystem.GetClass<bool>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myLayout", offsetof(VulkanDescriptorSet, myLayout), reflectionSystem.GetClass<vk::DescriptorSetLayout>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("mySet", offsetof(VulkanDescriptorSet, mySet), reflectionSystem.GetClass<vk::DescriptorSet>(), false, false /* Implement this*/));
+	Class* currentClass = reflectionSystem.GetMutableClass<StagingSystem>();
+	currentClass->AddField(Field("myLastFrameIndex", offsetof(StagingSystem, myLastFrameIndex), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myCurrentStageData", offsetof(StagingSystem, myCurrentStageData), reflectionSystem.GetClass<StagingSystem::BufferData *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myStagingBuffers", offsetof(StagingSystem, myStagingBuffers), reflectionSystem.GetClass<std::array<StagingSystem::BufferData, 3>>(), false, false /* Implement this*/));
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<StagingSystem::BufferData>();
+	currentClass->AddField(Field("myBuffer", offsetof(StagingSystem::BufferData, myBuffer), reflectionSystem.GetClass<ResizableBuffer *>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myOffset", offsetof(StagingSystem::BufferData, myOffset), reflectionSystem.GetClass<unsigned int>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 
@@ -1178,8 +1201,11 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<IVulkanDynamicBuffer>();
-	currentClass->AddField(Field("OnBufferRecreated", offsetof(IVulkanDynamicBuffer, OnBufferRecreated), reflectionSystem.GetClass<MulticastDelegate<void ()>>(), false, false /* Implement this*/));
+	Class* currentClass = reflectionSystem.GetMutableClass<SamplerMode>();
+	// Base classes are not implemented yet
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<VulkanUtils>();
 	// Base classes are not implemented yet
 }
 { 
@@ -1244,14 +1270,6 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	// Base classes are not implemented yet
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<SamplerMode>();
-	// Base classes are not implemented yet
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<VulkanUtils>();
-	// Base classes are not implemented yet
-}
-{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<WindowHandler>();
 	currentClass->AddField(Field("myHWND", offsetof(WindowHandler, myHWND), reflectionSystem.GetClass<HWND__ *>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myHInstance", offsetof(WindowHandler, myHInstance), reflectionSystem.GetClass<HINSTANCE__ *>(), false, false /* Implement this*/));
@@ -1295,8 +1313,8 @@ reflectionSystem.AddClass("Game", typeid(Game).name());
 	currentClass->AddField(Field("myEditorCamera", offsetof(Viewport, myEditorCamera), reflectionSystem.GetClass<EditorCameraMovementComponent *>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("myDescriptorSets", offsetof(Viewport, myDescriptorSets), reflectionSystem.GetClass<List<vk::DescriptorSet>>(), false, false /* Implement this*/));
 	currentClass->AddField(Field("mySampler", offsetof(Viewport, mySampler), reflectionSystem.GetClass<vk::Sampler>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myP0", offsetof(Viewport, myP0), reflectionSystem.GetClass<int>(), false, false /* Implement this*/));
-	currentClass->AddField(Field("myP1", offsetof(Viewport, myP1), reflectionSystem.GetClass<int>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myP0", offsetof(Viewport, myP0), reflectionSystem.GetClass<ImVec2>(), false, false /* Implement this*/));
+	currentClass->AddField(Field("myP1", offsetof(Viewport, myP1), reflectionSystem.GetClass<ImVec2>(), false, false /* Implement this*/));
 	// Base classes are not implemented yet
 }
 { 

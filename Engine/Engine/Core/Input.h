@@ -192,6 +192,7 @@ private:
 private:
 	struct KeyState
 	{
+		KeyState() noexcept {};
 		bool myIsDown = false;
 		bool myIsPressed = false;
 		bool myIsUp = false;

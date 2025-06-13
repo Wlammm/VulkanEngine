@@ -7,15 +7,14 @@
 #include <clang-c/Index.h>
 
 #include "Class.h"
-
-class IncludePaths;
+#include "IncludePaths.h"
 
 class ReflectionParser
 {
 public:
     ReflectionParser(const std::string& inFileToReflect, const IncludePaths& inIncludePaths);
     
-    void ParseInParallel();
+    void Parse();
 
     bool Failed() const;
 
@@ -23,6 +22,8 @@ public:
 
     const std::string& GetFile() const;
     const std::vector<std::string>& GetErrorMessages() const;
+
+    const IncludePaths& GetIncludePaths() const;
 
 private:
     struct ClientData
@@ -44,7 +45,7 @@ private:
 
 private:
     std::string myFileToReflect;
-    const IncludePaths& myIncludePaths;
+    IncludePaths myIncludePaths;
 
     bool myFailed = false;
 

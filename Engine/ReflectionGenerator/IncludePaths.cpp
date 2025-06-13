@@ -11,7 +11,21 @@ IncludePaths::IncludePaths(const std::string& inBuildProjectIncludeFilePath)
 
 const std::vector<std::string>& IncludePaths::GetIncludeArguments() const
 {
-    return myIncludePaths;
+    return myIncludeArguments;
+}
+
+IncludePaths operator+(const IncludePaths& inFirst, const IncludePaths& inSecond)
+{
+    IncludePaths newIncludePath(inFirst);
+
+    for (const std::string& path : inSecond.myIncludeArguments)
+    {
+        if (std::find(newIncludePath.myIncludeArguments.begin(), newIncludePath.myIncludeArguments.end(), path) != newIncludePath.myIncludeArguments.end())
+            continue;
+        
+        newIncludePath.myIncludeArguments.emplace_back(path);
+    }
+    return newIncludePath;
 }
 
 void IncludePaths::LoadFromFile(const std::string& inBuildProjectIncludeFilePath)
@@ -22,8 +36,20 @@ void IncludePaths::LoadFromFile(const std::string& inBuildProjectIncludeFilePath
     while (std::getline(fileStream, line))
     {
         line = ExpandEnvironmentVariables(line);
-        std::string includeArg = "-I" + line;
-        myIncludePaths.emplace_back(includeArg);
+
+        // TODO: This could be cleaned up.
+        const bool isSystemPath = line.contains("External") || line.contains("ImGui") || line.contains("Vulkan") || line.contains("PhysX");
+
+        std::string includeArg;
+        if (isSystemPath)
+        {
+            includeArg = "-isystem" + line;   
+        }
+        else
+        {
+            includeArg = "-I" + line;
+        }
+        myIncludeArguments.emplace_back(includeArg);
     }
 
     fileStream.close();

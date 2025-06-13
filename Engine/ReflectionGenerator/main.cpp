@@ -3,7 +3,7 @@
 #include <chrono>
 
 #include "IncludePaths.h"
-#include "ReflectionFileGenerator.h"
+#include "ReflectionFileBuilder.h"
 #include "ReflectionJobScheduler.h"
 #include "ReflectionParser.h"
 
@@ -47,9 +47,9 @@ int main()
     const IncludePaths gameIncludes = IncludePaths("game_includes.txt");
 
     ReflectionJobScheduler scheduler = ReflectionJobScheduler(engineIncludes, editorIncludes, gameIncludes);
-    scheduler.ExecuteParsers();
+    scheduler.ExecuteParser();
 
-    ReflectionFileGenerator(scheduler.GetParsers());
+    ReflectionFileBuilder(scheduler.GetParser(), scheduler);
     
     auto endTime = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);

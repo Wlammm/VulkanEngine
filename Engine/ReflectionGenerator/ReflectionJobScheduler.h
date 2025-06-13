@@ -8,16 +8,22 @@ class ReflectionJobScheduler
 {
 public:
     ReflectionJobScheduler(const IncludePaths& inEngineIncludes, const IncludePaths& inEditorIncludes, const IncludePaths& inGameIncludes);
+    ~ReflectionJobScheduler();
+    ReflectionJobScheduler(const ReflectionJobScheduler&) = delete;
+    ReflectionJobScheduler& operator=(const ReflectionJobScheduler&) = delete;
 
-    void ExecuteParsers();
+    void ExecuteParser();
 
-    const std::vector<ReflectionParser>& GetParsers() const;
+    const ReflectionParser* GetParser() const;
+
+    const std::vector<std::string>& GetHeaders() const;
     
 private:
     void FindAllHeadersInDirectory(const std::string& inDirectory, std::vector<std::string>& outHeaders);
     
-    void GenerateParsersForProject(const std::string& inProjectRoot, const IncludePaths& inIncludePaths);
-    
+    void GenerateUnityFile(const IncludePaths& inEngineIncludes, const IncludePaths& inEditorIncludes, const IncludePaths& inGameIncludes);
+
 private:
-    std::vector<ReflectionParser> myParsers{};
+    ReflectionParser* myParser = nullptr;
+    std::vector<std::string> myHeaders{};
 };

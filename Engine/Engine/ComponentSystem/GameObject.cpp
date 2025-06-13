@@ -32,12 +32,19 @@ void GameObject::ResetRenderStateDirtyFlag()
 
 void GameObject::SetName(const std::string& inName)
 {
+#if DEBUG_GAMEOBJECT_NAMES
     myName = inName;
+#endif
 }
 
 const std::string& GameObject::GetName() const
 {
+#if DEBUG_GAMEOBJECT_NAMES
     return myName;
+#else
+    static std::string empty;
+    return empty;
+#endif
 }
 
 List<Component*> GameObject::GetComponents() const

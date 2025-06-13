@@ -2,6 +2,7 @@
 
 #include <execution>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 
 ReflectionJobScheduler::ReflectionJobScheduler(const IncludePaths& inEngineIncludes, const IncludePaths& inEditorIncludes, const IncludePaths& inGameIncludes)
@@ -10,24 +11,28 @@ ReflectionJobScheduler::ReflectionJobScheduler(const IncludePaths& inEngineInclu
     const std::string editorProjectPath = "../Editor/";
     const std::string gameProjectPath = "../Game/";
 
-    
-    
-    GenerateParsersForProject(engineProjectPath, inEngineIncludes);
-    GenerateParsersForProject(editorProjectPath, inEditorIncludes);
-    GenerateParsersForProject(gameProjectPath, inGameIncludes);
+    GenerateUnityFile(inEngineIncludes, inEditorIncludes, inGameIncludes);
 }
 
-void ReflectionJobScheduler::ExecuteParsers()
+ReflectionJobScheduler::~ReflectionJobScheduler()
 {
-    std::for_each(std::execution::par, myParsers.begin(), myParsers.end(), [](auto&& inParser)
-    {
-        inParser.ParseInParallel();
-    });
+    delete myParser;
+    myParser = nullptr;
 }
 
-const std::vector<ReflectionParser>& ReflectionJobScheduler::GetParsers() const
+void ReflectionJobScheduler::ExecuteParser()
 {
-    return myParsers;
+    myParser->Parse();
+}
+
+const ReflectionParser* ReflectionJobScheduler::GetParser() const
+{
+    return myParser;
+}
+
+const std::vector<std::string>& ReflectionJobScheduler::GetHeaders() const
+{
+    return myHeaders;
 }
 
 void ReflectionJobScheduler::FindAllHeadersInDirectory(const std::string& inDirectory, std::vector<std::string>& outHeaders)
@@ -45,12 +50,29 @@ void ReflectionJobScheduler::FindAllHeadersInDirectory(const std::string& inDire
     }
 }
 
-void ReflectionJobScheduler::GenerateParsersForProject(const std::string& inProjectRoot, const IncludePaths& inIncludePaths)
+void ReflectionJobScheduler::GenerateUnityFile(const IncludePaths& inEngineIncludes, const IncludePaths& inEditorIncludes, const IncludePaths& inGameIncludes)
 {
-    std::vector<std::string> filesToParse{};
-    FindAllHeadersInDirectory(inProjectRoot, filesToParse);
-    for (const std::string& header : filesToParse)
+    const std::string engineProjectPath = "../Engine/";
+    const std::string editorProjectPath = "../Editor/";
+    const std::string gameProjectPath = "../Game/";
+    
+    IncludePaths combinedPaths = inEngineIncludes + inEditorIncludes;
+    combinedPaths = combinedPaths + inGameIncludes;
+
+    FindAllHeadersInDirectory(engineProjectPath, myHeaders);
+    FindAllHeadersInDirectory(editorProjectPath, myHeaders);
+    FindAllHeadersInDirectory(gameProjectPath, myHeaders);
+
+    std::ofstream file("ReflectionUnityFile.hpp");
+
+    file << "#include \"../Engine/EnginePch.h\"\n";
+    
+    for (const std::string& path : myHeaders)
     {
-        myParsers.emplace_back(header, inIncludePaths);
+        file << "#include \"" << path << "\"\n";
     }
+
+    file.close();
+
+    myParser = new ReflectionParser("ReflectionUnityFile.hpp", combinedPaths);
 }
