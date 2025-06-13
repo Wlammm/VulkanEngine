@@ -60,8 +60,11 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
                 // TODO: Implement pointer and reference bools here.
                 outString += "\tcurrentClass->AddField(Field(\"" + field.GetFieldName() + "\", offsetof(" + reflectedClass.GetClassName() + ", " + field.GetFieldName() + "), reflectionSystem.GetClass<" + field.GetFieldType() + ">(), false, false /* Implement this*/));\n";
             }
-            // TODO: Implement base class detection and add it here.
-            outString += "\t// Base classes are not implemented yet\n";
+
+            for (const std::string& baseClassTypeName : reflectedClass.GetBaseTypeNames())
+            {
+                outString += "\tcurrentClass->AddBaseClass(reflectionSystem.GetMutableClass<" + baseClassTypeName + ">());\n";
+            }
             outString += "}\n";
         }
     }

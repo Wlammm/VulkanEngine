@@ -1,2 +1,2 @@
 #include "../Engine/EnginePch.h"
-#include "../Engine/Components\TransformComponent.h"
+#include "../Engine/Reflection\Class.h"

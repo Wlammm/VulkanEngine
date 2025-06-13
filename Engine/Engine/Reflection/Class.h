@@ -23,6 +23,9 @@ private:
 
     void AddBaseClass(Class* inBaseClass)
     {
+        if (!inBaseClass)
+            return;
+        
         myBaseClasses.Add(inBaseClass);
         inBaseClass->myDerivedClasses.Add(this);
     }

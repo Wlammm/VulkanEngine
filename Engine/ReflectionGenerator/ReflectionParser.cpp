@@ -100,6 +100,13 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         return CXChildVisit_Continue;
     }
 
+    if (kind == CXCursor_CXXBaseSpecifier)
+    {
+        CXType baseType = clang_getCanonicalType(clang_getCursorType(inCurrentCursor));
+        std::string baseClassName = GetSpelling(baseType);
+        clientData.classStack.back()->AddBaseClass(baseClassName);
+    }
+
     if (kind == CXCursor_FieldDecl)
     {
         const std::string fieldName = GetSpelling(inCurrentCursor);

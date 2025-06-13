@@ -22,6 +22,16 @@ const std::vector<ReflectedField>& ReflectedClass::GetFields() const
     return myFields;
 }
 
+const std::vector<std::string>& ReflectedClass::GetBaseTypeNames() const
+{
+    return myBaseTypeNames;
+}
+
+void ReflectedClass::AddBaseClass(const std::string& inBaseTypeName)
+{
+    myBaseTypeNames.push_back(inBaseTypeName);
+}
+
 nlohmann::json ReflectedClass::Save() const
 {
     nlohmann::json json;
@@ -30,6 +40,11 @@ nlohmann::json ReflectedClass::Save() const
     for (const ReflectedField& field : myFields)
     {
         json["fields"].push_back(field.Save());
+    }
+
+    for (const std::string& baseTypeName : myBaseTypeNames)
+    {
+        json["baseTypeNames"].push_back(baseTypeName);
     }
     return json;
 }
@@ -45,6 +60,11 @@ void ReflectedClass::Load(const nlohmann::json& inJson)
             myFields.emplace_back();
             myFields.back().Load(field);
         }
+    }
+
+    if (inJson.contains("baseTypeNames"))
+    {
+        myBaseTypeNames = inJson["baseTypeNames"].get<std::vector<std::string>>();
     }
 }
 
