@@ -6,12 +6,12 @@
 class ReflectionFileGenerator
 {
 public:
-    ReflectionFileGenerator(const std::vector<std::unique_ptr<ReflectionParser>>& inReflectionParsers);
+    ReflectionFileGenerator(const std::vector<ReflectionParser>& inReflectionParsers);
 
 private:
-    void BuildClassIncludes(const std::vector<std::unique_ptr<ReflectionParser>>& inReflectionParsers, std::string& outString);
-    void BuildClassDeclarations(const std::vector<std::unique_ptr<ReflectionParser>>& inReflectionParsers, std::string& outString);
-    void BuildClassContentDeclarations(const std::vector<std::unique_ptr<ReflectionParser>>& inReflectionParsers, std::string& outString);
+    void BuildClassIncludes(const std::vector<ReflectionParser>& inReflectionParsers, std::string& outString);
+    void BuildClassDeclarations(const std::vector<ReflectionParser>& inReflectionParsers, std::string& outString);
+    void BuildClassContentDeclarations(const std::vector<ReflectionParser>& inReflectionParsers, std::string& outString);
     
     void CreateFileContent(const std::string& inIncludes, const std::string& inClassDeclarations, const std::string& inClassContentDeclarations, std::string& outContent);
 };

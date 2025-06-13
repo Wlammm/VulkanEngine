@@ -1,8 +1,10 @@
 ﻿#pragma once
 #include <iostream>
+#include <chrono>
 
 #include "IncludePaths.h"
 #include "ReflectionFileGenerator.h"
+#include "ReflectionJobScheduler.h"
 #include "ReflectionParser.h"
 
 void PrintResult(const ReflectionParser& inFile)
@@ -38,14 +40,20 @@ void PrintResult(const ReflectionParser& inFile)
 // Project is working from the Build directory.
 int main()
 {
-    const IncludePaths engineIncludePaths = IncludePaths("engine_includes.txt");
+    auto startTime = std::chrono::high_resolution_clock::now();
+    
+    const IncludePaths engineIncludes = IncludePaths("engine_includes.txt");
     const IncludePaths editorIncludes = IncludePaths("editor_includes.txt");
     const IncludePaths gameIncludes = IncludePaths("game_includes.txt");
 
-    std::vector<std::unique_ptr<ReflectionParser>> parsers{};
-    parsers.emplace_back(std::make_unique<ReflectionParser>(R"(C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Rendering\GDRPipeline.h)", engineIncludePaths));
-    parsers.back()->Start();
-    PrintResult(*parsers.back().get());
+    ReflectionJobScheduler scheduler = ReflectionJobScheduler(engineIncludes, editorIncludes, gameIncludes);
+    scheduler.ExecuteParsers();
 
-    ReflectionFileGenerator fileGenerator(parsers);
+    ReflectionFileGenerator(scheduler.GetParsers());
+    
+    auto endTime = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+    std::cout << "Generated reflection data in " << duration.count() << " ms." << std::endl;
+
+    return 0;
 }

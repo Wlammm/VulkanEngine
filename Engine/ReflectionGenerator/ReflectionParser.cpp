@@ -11,12 +11,11 @@ ReflectionParser::ReflectionParser(const std::string& inFileToReflect, const Inc
     : myIncludePaths(inIncludePaths)
 {
     myFileToReflect = inFileToReflect;
-
-    clientData = {this, {}};
 }
 
-void ReflectionParser::Start()
+void ReflectionParser::ParseInParallel()
 {
+    clientData = {this, {}};
     CXIndex index = clang_createIndex(0, 0);
 
     std::vector<const char*> commandLineArgs;
@@ -24,38 +23,30 @@ void ReflectionParser::Start()
     
     CXTranslationUnit unit = clang_parseTranslationUnit(index, myFileToReflect.c_str(), commandLineArgs.data(), static_cast<int>(commandLineArgs.size()), nullptr, 0, CXTranslationUnit_SkipFunctionBodies);
 
-    unsigned numDiagnostics = clang_getNumDiagnostics(unit);
-    for (unsigned i = 0; i < numDiagnostics; ++i)
-    {
-        CXDiagnostic diag = clang_getDiagnostic(unit, i);
-        CXString diagSpelling = clang_formatDiagnostic(diag, clang_defaultDiagnosticDisplayOptions());
-        std::cout << clang_getCString(diagSpelling) << std::endl;
-        clang_disposeString(diagSpelling);
-        clang_disposeDiagnostic(diag);
-    }
-    
+    //unsigned numDiagnostics = clang_getNumDiagnostics(unit);
+    //for (unsigned i = 0; i < numDiagnostics; ++i)
+    //{
+    //    CXDiagnostic diag = clang_getDiagnostic(unit, i);
+    //    CXString diagSpelling = clang_formatDiagnostic(diag, clang_defaultDiagnosticDisplayOptions());
+    //    std::cout << clang_getCString(diagSpelling) << std::endl;
+    //    clang_disposeString(diagSpelling);
+    //    clang_disposeDiagnostic(diag);
+    //}
 
     if (unit == nullptr)
     {
         myFailed = true;
         myErrorMessages.push_back("Clang failed to parse translation unit.");
-        myIsComplete = true;
         return;
     }
 
     CXCursor cursor = clang_getTranslationUnitCursor(unit);
     clang_visitChildren(cursor, &ReflectionParser::TraverseAST, &clientData);
-    
 }
 
 bool ReflectionParser::Failed() const
 {
     return myFailed;
-}
-
-const std::atomic_bool& ReflectionParser::IsComplete() const
-{
-    return myIsComplete;
 }
 
 const std::list<Class>& ReflectionParser::GetClasses() const

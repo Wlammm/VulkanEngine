@@ -3,7 +3,7 @@
 #include <regex>
 #include <sstream>
 
-ReflectionFileGenerator::ReflectionFileGenerator(const std::vector<std::unique_ptr<ReflectionParser>>& inReflectionParsers)
+ReflectionFileGenerator::ReflectionFileGenerator(const std::vector<ReflectionParser>& inReflectionParsers)
 {
     std::ofstream file("../Launcher/GeneratedReflectionData.hpp");
 
@@ -25,31 +25,31 @@ ReflectionFileGenerator::ReflectionFileGenerator(const std::vector<std::unique_p
     file.close();
 }
 
-void ReflectionFileGenerator::BuildClassIncludes(const std::vector<std::unique_ptr<ReflectionParser>>& inReflectionParsers,
+void ReflectionFileGenerator::BuildClassIncludes(const std::vector<ReflectionParser>& inReflectionParsers,
                                                  std::string& outString)
 {
-    for (const std::unique_ptr<ReflectionParser>& parser : inReflectionParsers)
+    for (const ReflectionParser& parser : inReflectionParsers)
     {
-        outString += "#include \"" + parser->GetFile() + "\"\n";
+        outString += "#include \"" + parser.GetFile() + "\"\n";
     }
 }
 
-void ReflectionFileGenerator::BuildClassDeclarations(const std::vector<std::unique_ptr<ReflectionParser>>& inReflectionParsers, std::string& outString)
+void ReflectionFileGenerator::BuildClassDeclarations(const std::vector<ReflectionParser>& inReflectionParsers, std::string& outString)
 {
-    for (const std::unique_ptr<ReflectionParser>& parser : inReflectionParsers)
+    for (const ReflectionParser& parser : inReflectionParsers)
     {
-        for (const Class& reflectedClass : parser->GetClasses())
+        for (const Class& reflectedClass : parser.GetClasses())
         {
             outString += "reflectionSystem.AddClass(\"" + reflectedClass.GetClassName() + "\", typeid(" + reflectedClass.GetClassName() + ").name());\n";
         }
     }
 }
 
-void ReflectionFileGenerator::BuildClassContentDeclarations(const std::vector<std::unique_ptr<ReflectionParser>>& inReflectionParsers, std::string& outString)
+void ReflectionFileGenerator::BuildClassContentDeclarations(const std::vector<ReflectionParser>& inReflectionParsers, std::string& outString)
 {
-    for (const std::unique_ptr<ReflectionParser>& parser : inReflectionParsers)
+    for (const ReflectionParser& parser : inReflectionParsers)
     {
-        for (const Class& reflectedClass : parser->GetClasses())
+        for (const Class& reflectedClass : parser.GetClasses())
         {
             outString += "{ \n";
             outString += "\tClass* currentClass = reflectionSystem.GetMutableClass<" + reflectedClass.GetClassName() + ">();\n";

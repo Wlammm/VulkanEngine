@@ -15,11 +15,9 @@ class ReflectionParser
 public:
     ReflectionParser(const std::string& inFileToReflect, const IncludePaths& inIncludePaths);
     
-    void Start();
+    void ParseInParallel();
 
     bool Failed() const;
-
-    const std::atomic_bool& IsComplete() const;
 
     const std::list<Class>& GetClasses() const;
 
@@ -47,8 +45,6 @@ private:
 private:
     std::string myFileToReflect;
     const IncludePaths& myIncludePaths;
-
-    std::atomic_bool myIsComplete = false;
 
     bool myFailed = false;
 
