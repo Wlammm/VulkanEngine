@@ -11,6 +11,8 @@ public:
 
 private:
     void LoadFromFile(const std::string& inBuildProjectIncludeFilePath);
+
+    std::string ExpandEnvironmentVariables(const std::string& inInput);
     
 private:
     std::vector<std::string> myIncludePaths;

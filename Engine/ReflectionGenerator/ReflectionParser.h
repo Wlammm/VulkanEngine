@@ -1,25 +1,27 @@
 ﻿#pragma once
 #include <atomic>
-#include <stack>
+#include <list>
+#include <memory>
 #include <string>
+#include <vector>
 #include <clang-c/Index.h>
 
-#include "ReflectedClass.h"
+#include "Class.h"
 
 class IncludePaths;
 
-class ReflectFile
+class ReflectionParser
 {
 public:
-    ReflectFile(const std::string& inFileToReflect, const IncludePaths& inIncludePaths);
-
+    ReflectionParser(const std::string& inFileToReflect, const IncludePaths& inIncludePaths);
+    
     void Start();
 
     bool Failed() const;
 
     const std::atomic_bool& IsComplete() const;
 
-    const std::vector<ReflectedClass>& GetClasses() const;
+    const std::list<Class>& GetClasses() const;
 
     const std::string& GetFile() const;
     const std::vector<std::string>& GetErrorMessages() const;
@@ -27,8 +29,8 @@ public:
 private:
     struct ClientData
     {
-        ReflectFile* self = nullptr;
-        std::stack<ReflectedClass*> classStack;
+        ReflectionParser* self = nullptr;
+        std::vector<Class*> classStack;
     } clientData;
     
     static CXChildVisitResult TraverseAST(CXCursor inCurrentCursor, CXCursor inParentCursor, CXClientData inClientData);
@@ -38,6 +40,10 @@ private:
     static std::string GetSpelling(CXType inType);
     static std::string GetSpelling(CXCursorKind inCursorKind);
 
+    static std::string GetDisplayName(CXCursor inCursor);
+
+    static std::string BuildClassNameFromStack(const std::vector<Class*>& inClassStack, const std::string& inNewClassName);
+
 private:
     std::string myFileToReflect;
     const IncludePaths& myIncludePaths;
@@ -46,7 +52,7 @@ private:
 
     bool myFailed = false;
 
-    std::vector<ReflectedClass> myClasses;
+    std::list<Class> myClasses;
 
     std::vector<std::string> myErrorMessages;
 };

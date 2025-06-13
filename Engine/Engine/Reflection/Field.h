@@ -2,23 +2,23 @@
 
 #include <string>
 
-class ReflectedClass;
+class Class;
 
 class Field
 {
 public:
     const std::string& GetName() const;
     uint32_t GetOffset() const;
-    const ReflectedClass* GetType() const;
+    const Class* GetType() const;
 
 private:
     friend class GeneratedReflectionData;
     Field() = delete;
-    Field(const std::string& inName, const uint32_t inOffset, const ReflectedClass* inType, const bool inIsPointer, const bool inIsReference);
+    Field(const std::string& inName, const uint32_t inOffset, const Class* inType, const bool inIsPointer, const bool inIsReference);
     
     std::string myName = "";
     uint32_t myOffset = 0;
-    const ReflectedClass* myType = nullptr;
+    const Class* myType = nullptr;
     bool myIsPointer = false;
     bool myIsReference = false;
 };

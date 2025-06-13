@@ -5,10 +5,10 @@
 #include "ReflectedField.h"
 
 
-class ReflectedClass
+class Class
 {
 public:
-    ReflectedClass(const std::string& inClassName);
+    Class(const std::string& inClassName);
 
     const std::string& GetClassName() const;
 

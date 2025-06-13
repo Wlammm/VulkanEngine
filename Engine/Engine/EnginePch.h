@@ -4,11 +4,11 @@
 
 #include "Engine/Utils/StdIncludes.hpp"
 
-#if !IGNORED_BY_REFLECTION
+// #if !IGNORED_BY_REFLECTION
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>
 #include <vma/vk_mem_alloc.h>
-#endif
+// #endif
 
 #define USED_VULKAN_VERSION VK_API_VERSION_1_3
 

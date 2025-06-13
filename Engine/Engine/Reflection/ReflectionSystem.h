@@ -1,16 +1,16 @@
 ﻿#pragma once
-#include "ReflectedClass.h"
+#include "Class.h"
 #include "Engine/System/System.h"
 
 class ReflectionSystem : public System
 {
 public:
     template<typename ClassType>
-    const ReflectedClass* GetClass() const
+    const Class* GetClass() const
     {
         const std::string typeName = typeid(ClassType).name();
 
-        for (const ReflectedClass& entry : myClasses)
+        for (const Class& entry : myClasses)
         {
             if (entry.GetFullName() == typeName)
                 return &entry;
@@ -24,10 +24,10 @@ private:
     void AddClass(const std::string& inClassName, const std::string& inFullName);
 
     template<typename ClassType>
-    ReflectedClass* GetMutableClass() const
+    Class* GetMutableClass() const
     {
         const std::string typeName = typeid(ClassType).name();
-        for (ReflectedClass& entry : myClasses)
+        for (Class& entry : myClasses)
         {
             if (entry.GetFullName() == typeName)
                 return &entry;
@@ -36,5 +36,5 @@ private:
         return nullptr;
     }
 
-    List<ReflectedClass> myClasses{};
+    List<Class> myClasses{};
 };

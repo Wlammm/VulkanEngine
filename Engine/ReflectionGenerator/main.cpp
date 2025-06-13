@@ -2,9 +2,10 @@
 #include <iostream>
 
 #include "IncludePaths.h"
-#include "ReflectFile.h"
+#include "ReflectionFileGenerator.h"
+#include "ReflectionParser.h"
 
-void PrintResult(const ReflectFile& inFile)
+void PrintResult(const ReflectionParser& inFile)
 {
     if (inFile.Failed())
     {
@@ -18,7 +19,7 @@ void PrintResult(const ReflectFile& inFile)
     }
 
     std::cout << "File succeeded: " << inFile.GetFile() << std::endl;
-    for (const ReflectedClass& foundClass : inFile.GetClasses())
+    for (const Class& foundClass : inFile.GetClasses())
     {
         std::cout << "Class: " << foundClass.GetClassName() << std::endl;
 
@@ -40,9 +41,11 @@ int main()
     const IncludePaths engineIncludePaths = IncludePaths("engine_includes.txt");
     const IncludePaths editorIncludes = IncludePaths("editor_includes.txt");
     const IncludePaths gameIncludes = IncludePaths("game_includes.txt");
-    
-    ReflectFile reflectFile("../Engine/Components/TransformComponent.h", engineIncludePaths);
-    reflectFile.Start();
-    PrintResult(reflectFile);
-    
+
+    std::vector<std::unique_ptr<ReflectionParser>> parsers{};
+    parsers.emplace_back(std::make_unique<ReflectionParser>(R"(C:\Users\William\Documents\GitHub\VulkanEngine\Engine\Engine\Rendering\GDRPipeline.h)", engineIncludePaths));
+    parsers.back()->Start();
+    PrintResult(*parsers.back().get());
+
+    ReflectionFileGenerator fileGenerator(parsers);
 }

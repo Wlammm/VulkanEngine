@@ -1,4 +1,4 @@
-﻿#include "ReflectFile.h"
+﻿#include "ReflectionParser.h"
 
 #include <iostream>
 #include <__msvc_ostream.hpp>
@@ -7,7 +7,7 @@
 #include "IncludePaths.h"
 #include "../ImGui/imgui_internal.h"
 
-ReflectFile::ReflectFile(const std::string& inFileToReflect, const IncludePaths& inIncludePaths)
+ReflectionParser::ReflectionParser(const std::string& inFileToReflect, const IncludePaths& inIncludePaths)
     : myIncludePaths(inIncludePaths)
 {
     myFileToReflect = inFileToReflect;
@@ -15,14 +15,14 @@ ReflectFile::ReflectFile(const std::string& inFileToReflect, const IncludePaths&
     clientData = {this, {}};
 }
 
-void ReflectFile::Start()
+void ReflectionParser::Start()
 {
     CXIndex index = clang_createIndex(0, 0);
 
     std::vector<const char*> commandLineArgs;
     BuildCommandLineArgs(commandLineArgs);
     
-    CXTranslationUnit unit = clang_parseTranslationUnit(index, myFileToReflect.c_str(), commandLineArgs.data(), static_cast<int>(commandLineArgs.size()), nullptr, 0, CXTranslationUnit_None);
+    CXTranslationUnit unit = clang_parseTranslationUnit(index, myFileToReflect.c_str(), commandLineArgs.data(), static_cast<int>(commandLineArgs.size()), nullptr, 0, CXTranslationUnit_SkipFunctionBodies);
 
     unsigned numDiagnostics = clang_getNumDiagnostics(unit);
     for (unsigned i = 0; i < numDiagnostics; ++i)
@@ -44,57 +44,58 @@ void ReflectFile::Start()
     }
 
     CXCursor cursor = clang_getTranslationUnitCursor(unit);
-    clang_visitChildren(cursor, &ReflectFile::TraverseAST, &clientData);
+    clang_visitChildren(cursor, &ReflectionParser::TraverseAST, &clientData);
     
 }
 
-bool ReflectFile::Failed() const
+bool ReflectionParser::Failed() const
 {
     return myFailed;
 }
 
-const std::atomic_bool& ReflectFile::IsComplete() const
+const std::atomic_bool& ReflectionParser::IsComplete() const
 {
     return myIsComplete;
 }
 
-const std::vector<ReflectedClass>& ReflectFile::GetClasses() const
+const std::list<Class>& ReflectionParser::GetClasses() const
 {
     return myClasses;
 }
 
-const std::string& ReflectFile::GetFile() const
+const std::string& ReflectionParser::GetFile() const
 {
     return myFileToReflect;
 }
 
-const std::vector<std::string>& ReflectFile::GetErrorMessages() const
+const std::vector<std::string>& ReflectionParser::GetErrorMessages() const
 {
     return myErrorMessages;
 }
 
-CXChildVisitResult ReflectFile::TraverseAST(CXCursor inCurrentCursor, CXCursor inParentCursor, CXClientData inClientData)
+CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCursor inParentCursor, CXClientData inClientData)
 {
     ClientData& clientData = *static_cast<ClientData*>(inClientData);
     
     CXCursorKind kind = clang_getCursorKind(inCurrentCursor);
     if (kind == CXCursor_StructDecl || kind == CXCursor_ClassDecl || kind == CXCursor_EnumDecl)
     {
-        CXString displayName = clang_getCursorDisplayName(inCurrentCursor);
-        std::string className = clang_getCString(displayName);
-        clang_disposeString(displayName);
+        std::string className = GetDisplayName(inCurrentCursor);
 
         // If the class is declared in another file and not the one we're searching we can just skip it.
         CXSourceLocation location = clang_getCursorLocation(inCurrentCursor);
         if (!clang_Location_isFromMainFile(location))
             return CXChildVisit_Continue;
+
+        if (!clang_isCursorDefinition(inCurrentCursor))
+            return CXChildVisit_Continue;
         
-        ReflectedClass& currentClass = clientData.self->myClasses.emplace_back(className);
-        clientData.classStack.emplace(&currentClass);
+        Class* currentClass = &clientData.self->myClasses.emplace_back(BuildClassNameFromStack(clientData.classStack, className));
+        clientData.classStack.emplace_back(currentClass);
 
-        clang_visitChildren(inCurrentCursor, &ReflectFile::TraverseAST, inClientData);
+        clang_visitChildren(inCurrentCursor, &ReflectionParser::TraverseAST, inClientData);
 
-        clientData.classStack.pop();
+        clientData.classStack.pop_back();
         
         return CXChildVisit_Continue;
     }
@@ -105,23 +106,32 @@ CXChildVisitResult ReflectFile::TraverseAST(CXCursor inCurrentCursor, CXCursor i
         CXType type = clang_getCanonicalType(clang_getCursorType(inCurrentCursor));
         if (type.kind == CXType_Invalid)
         {
-            clientData.self->myErrorMessages.push_back("Class: " + clientData.classStack.top()->GetClassName() + " found invalid type with name: " + fieldName);
+            clientData.self->myErrorMessages.push_back("Class: " + clientData.classStack.back()->GetClassName() + " found invalid type with name: " + fieldName);
         }
         
         std::string typeName = GetSpelling(type);
-        clientData.classStack.top()->AddField(ReflectedField(fieldName, typeName));
+        clientData.classStack.back()->AddField(ReflectedField(fieldName, typeName));
     }
     
     return CXChildVisit_Continue;
 }
 
-void ReflectFile::BuildCommandLineArgs(std::vector<const char*>& outCommandLineArgs)
+void ReflectionParser::BuildCommandLineArgs(std::vector<const char*>& outCommandLineArgs)
 {
     outCommandLineArgs.push_back("-x");
     outCommandLineArgs.push_back("c++");
     outCommandLineArgs.push_back("-std=c++23");
     outCommandLineArgs.push_back("-nostdinc++");
+    outCommandLineArgs.push_back("-fms-compatibility");
+    outCommandLineArgs.push_back("-fms-extensions");
+    outCommandLineArgs.push_back("-fmsc-version=1929"); 
+    outCommandLineArgs.push_back("-Wno-pragma-once-outside-header");
+    outCommandLineArgs.push_back("-D_MSC_VER=1929");
+    outCommandLineArgs.push_back("-D_WIN32");
+    outCommandLineArgs.push_back("-D_WINDOWS");
+    
     outCommandLineArgs.push_back("-DIGNORED_BY_REFLECTION=1");
+    outCommandLineArgs.push_back("-D_CRT_USE_BUILTIN_OFFSETOF=1");
     outCommandLineArgs.push_back("-DNDEBUG=1");
     outCommandLineArgs.push_back("-include../Engine/EnginePch.h");
 
@@ -131,7 +141,7 @@ void ReflectFile::BuildCommandLineArgs(std::vector<const char*>& outCommandLineA
     }
 }
 
-std::string ReflectFile::GetSpelling(CXCursor inCursor)
+std::string ReflectionParser::GetSpelling(CXCursor inCursor)
 {
     CXString clangSpelling = clang_getCursorSpelling(inCursor);
     std::string spelling = clang_getCString(clangSpelling);
@@ -139,7 +149,7 @@ std::string ReflectFile::GetSpelling(CXCursor inCursor)
     return spelling;
 }
 
-std::string ReflectFile::GetSpelling(CXType inType)
+std::string ReflectionParser::GetSpelling(CXType inType)
 {
     CXString clangSpelling = clang_getTypeSpelling(inType);
     std::string spelling = clang_getCString(clangSpelling);
@@ -147,10 +157,30 @@ std::string ReflectFile::GetSpelling(CXType inType)
     return spelling;
 }
 
-std::string ReflectFile::GetSpelling(CXCursorKind inCursorKind)
+std::string ReflectionParser::GetSpelling(CXCursorKind inCursorKind)
 {
     CXString clangSpelling = clang_getCursorKindSpelling(inCursorKind);
     std::string spelling = clang_getCString(clangSpelling);
     clang_disposeString(clangSpelling);
     return spelling;
+}
+
+std::string ReflectionParser::GetDisplayName(CXCursor inCursor)
+{
+    CXString clangDisplayName = clang_getCursorDisplayName(inCursor);
+    std::string displayName = clang_getCString(clangDisplayName);
+    clang_disposeString(clangDisplayName);
+    return displayName;
+}
+
+std::string ReflectionParser::BuildClassNameFromStack(const std::vector<Class*>& inClassStack, const std::string& inNewClassName)
+{
+    std::string className;
+    for (Class* currentClass : inClassStack)
+    {
+        className += currentClass->GetClassName();
+        className += "::";
+    }
+    className += inNewClassName;
+    return className;
 }

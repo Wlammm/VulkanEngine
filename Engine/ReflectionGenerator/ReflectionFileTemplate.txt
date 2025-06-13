@@ -1,0 +1,35 @@
+﻿#pragma once
+#include "Engine/Utils/StdIncludes.hpp"
+#include "Engine/Reflection/Class.h"
+#include "Engine/Reflection/Field.h"
+#include "Engine/Reflection/ReflectionSystem.h"
+
+#define private public
+#define protected public
+
+// BEGIN INCLUDES FOR REFLECTED TYPES
+
+$(FileIncludes)
+
+// END INCLUDES FOR REFLECTED TYPES
+
+class GeneratedReflectionData
+{
+public:
+	static void RegisterReflectionData(Engine& inEngine)
+	{
+		ReflectionSystem& reflectionSystem = inEngine.GetReflectionSystem(); 
+
+		// Create all classes.
+		{
+		    $(ClassDeclarations)
+        }
+        
+        // Add all fields & add base classes.
+        {
+            $(ClassContentDeclaration)
+        }
+    }
+};
+#undef private
+#undef protected
