@@ -210,10 +210,11 @@ public:
 		{
 			for (const ElementType& value : inList)
 			{
-				myPtr[mySize] = value;
+				new (myPtr + mySize) ElementType(value);
 				mySize++;
 			}
 		}
+
 	}
 #pragma endregion
 
@@ -355,6 +356,7 @@ private:
 		ElementType* oldPtr = myPtr;
 		myPtr = reinterpret_cast<ElementType*>(calloc(inNewCapacity, sizeof(ElementType)));
 		myCapacity = inNewCapacity;
+    
 		if (oldPtr)
 		{
 			if constexpr (CanCopy)
@@ -365,12 +367,13 @@ private:
 			{
 				for (SizeType i = 0; i < mySize; ++i)
 				{
+					// Use move constructor for non-trivial types
 					new (myPtr + i) ElementType(std::move(oldPtr[i]));
+					// Explicitly destroy the old element
+					oldPtr[i].~ElementType();
 				}
 			}
-
 			free(oldPtr);
-			oldPtr = nullptr;
 		}
 	}
 

@@ -706,13 +706,13 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ComponentSystem>();
 	{
-		Field& currentField = currentClass->AddField(Field("myObjects", 16, reflectionSystem.GetClass<List<GameObject *>>()));
+		Field& currentField = currentClass->AddField(Field("myObjects", 3452816845, reflectionSystem.GetClass<List<GameObject *>>()));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myObjectsToDestory", 40, reflectionSystem.GetClass<List<GameObject *>>()));
+		Field& currentField = currentClass->AddField(Field("myObjectsToDestory", 3452816845, reflectionSystem.GetClass<List<GameObject *>>()));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myComponentArrays", 64, reflectionSystem.GetClass<List<IComponentArray *>>()));
+		Field& currentField = currentClass->AddField(Field("myComponentArrays", 3452816845, reflectionSystem.GetClass<List<IComponentArray *>>()));
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<WorldSystem>());
 }
@@ -725,25 +725,25 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<GameObject>();
 	{
-		Field& currentField = currentClass->AddField(Field("OnComponentAdded", 0, reflectionSystem.GetClass<MulticastDelegate<void (Component *)>>()));
+		Field& currentField = currentClass->AddField(Field("OnComponentAdded", 3452816845, reflectionSystem.GetClass<MulticastDelegate<void (Component *)>>()));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("OnComponentRemoved", 104, reflectionSystem.GetClass<MulticastDelegate<void (Component *)>>()));
+		Field& currentField = currentClass->AddField(Field("OnComponentRemoved", 3452816845, reflectionSystem.GetClass<MulticastDelegate<void (Component *)>>()));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myComponentSystem", 208, reflectionSystem.GetClass<ComponentSystem *>()));
+		Field& currentField = currentClass->AddField(Field("myComponentSystem", 3452816845, reflectionSystem.GetClass<ComponentSystem *>()));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myTransform", 216, reflectionSystem.GetClass<TransformComponent *>()));
+		Field& currentField = currentClass->AddField(Field("myTransform", 3452816845, reflectionSystem.GetClass<TransformComponent *>()));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myRenderStateDirty", 224, reflectionSystem.GetClass<bool>()));
+		Field& currentField = currentClass->AddField(Field("myRenderStateDirty", 3452816845, reflectionSystem.GetClass<bool>()));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPhysicsStateDirty", 225, reflectionSystem.GetClass<bool>()));
+		Field& currentField = currentClass->AddField(Field("myPhysicsStateDirty", 3452816845, reflectionSystem.GetClass<bool>()));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myTags", 228, reflectionSystem.GetClass<unsigned int>()));
+		Field& currentField = currentClass->AddField(Field("myTags", 3452816845, reflectionSystem.GetClass<unsigned int>()));
 	}
 }
 { 
@@ -973,7 +973,7 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<WorldSystem>();
 	{
-		Field& currentField = currentClass->AddField(Field("myWorld", 8, reflectionSystem.GetClass<World *>()));
+		Field& currentField = currentClass->AddField(Field("myWorld", 3452816845, reflectionSystem.GetClass<World *>()));
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 }
@@ -1066,16 +1066,16 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Field>();
 	{
-		Field& currentField = currentClass->AddField(Field("myName", 0, reflectionSystem.GetClass<std::basic_string<char>>()));
+		Field& currentField = currentClass->AddField(Field("myName", 3452816845, reflectionSystem.GetClass<std::basic_string<char>>()));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myOffset", 32, reflectionSystem.GetClass<unsigned int>()));
+		Field& currentField = currentClass->AddField(Field("myOffset", 3452816845, reflectionSystem.GetClass<unsigned int>()));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myType", 40, reflectionSystem.GetClass<const Class *>()));
+		Field& currentField = currentClass->AddField(Field("myType", 3452816845, reflectionSystem.GetClass<const Class *>()));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMetadata", 48, reflectionSystem.GetClass<std::vector<std::basic_string<char>>>()));
+		Field& currentField = currentClass->AddField(Field("myMetadata", 3452816845, reflectionSystem.GetClass<List<std::basic_string<char>>>()));
 	}
 }
 { 
