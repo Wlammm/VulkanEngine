@@ -44,6 +44,8 @@ private:
 
     static std::string BuildClassNameFromStack(const std::vector<ReflectedClass*>& inClassStack, const std::string& inNewClassName);
 
+    static uint32_t GetByteOffsetOfField(const CXCursor& inCurrentCursor, const std::string& inFieldName);
+
     ReflectedClass& AddClass(const std::string& inFile, const ReflectedClass& inClass);
     
 private:

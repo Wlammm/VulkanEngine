@@ -3,7 +3,6 @@
 
 class PlayerCameraControllerComponent : public Component
 {
-    COMP(PlayerCameraControllerComponent);
 public:
     void Tick() override;
 

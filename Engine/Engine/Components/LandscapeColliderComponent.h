@@ -5,7 +5,6 @@
 // Depends on the render component to get heightfield from.
 class LandscapeColliderComponent : public ColliderComponent
 {
-    COMP(LandscapeColliderComponent);
 public:
     void OnCreate() override;
 

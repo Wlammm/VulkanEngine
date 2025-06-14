@@ -4,7 +4,6 @@
 
 class SpringArmComponent : public Component
 {
-    COMP(SpringArmComponent);
 public:
     SpringArmComponent();
     

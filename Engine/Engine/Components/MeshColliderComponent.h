@@ -5,7 +5,6 @@ class Model;
 
 class MeshColliderComponent : public ColliderComponent
 {
-    COMP(MeshColliderComponent);
 public:
     void OnCreate() override;
 

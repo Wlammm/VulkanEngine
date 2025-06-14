@@ -2,9 +2,12 @@
 #include "InspectorWindow.h"
 
 #include "SelectionSystem.h"
+#include "Engine/Engine.h"
 #include "Engine/Components/TransformComponent.h"
 #include "Engine/ComponentSystem/Component.h"
 #include "Engine/ComponentSystem/GameObject.h"
+#include "Engine/Reflection/Class.h"
+#include "Engine/Reflection/ReflectionSystem.h"
 
 InspectorWindow::InspectorWindow()
     : EditorWindow("Inspector", true)
@@ -54,10 +57,21 @@ void InspectorWindow::Tick()
 void InspectorWindow::DrawComponentProperties(Component* inComponent)
 {
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    bool isOpen = ImGui::CollapsingHeader(inComponent->GetComponentName().c_str());
+    const Class* componentClass = Engine::GetEngineSystem<ReflectionSystem>().GetClass(inComponent);
+    bool isOpen = ImGui::CollapsingHeader(componentClass->GetName().c_str());
 
     if (isOpen)
     {
-        
+        for (const Field& field : componentClass->GetFields())
+        {
+            ImGui::PushID(&field);
+
+            ImGui::Text(field.GetName().c_str());
+            ImGui::SameLine();
+            static float val = 0;
+            ImGui::DragFloat("##something", &val);
+
+            ImGui::PopID();
+        }
     }
 }

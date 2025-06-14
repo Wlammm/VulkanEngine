@@ -11,6 +11,10 @@
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/World/World.h"
 
+ColliderComponent::~ColliderComponent()
+{
+}
+
 void ColliderComponent::OnCreate()
 {
     Component::OnCreate();

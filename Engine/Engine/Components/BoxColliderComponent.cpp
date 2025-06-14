@@ -11,6 +11,11 @@
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/World/World.h"
 
+BoxColliderComponent::~BoxColliderComponent()
+{
+    
+}
+
 void BoxColliderComponent::OnCreate()
 {
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
@@ -25,7 +30,7 @@ void BoxColliderComponent::OnCreate()
         myShape = inPhysics->createShape(physx::PxBoxGeometry(myHalfSize.x * scale.x, myHalfSize.y * scale.y, myHalfSize.z * scale.z), *physicsSystem.GetDefaultMaterial());
     });
     
-    ColliderComponent::OnCreate();
+    ColliderComponent::OnCreate(); 
 }
 
 void BoxColliderComponent::SetHalfSize(const glm::vec3& inHalfSize)

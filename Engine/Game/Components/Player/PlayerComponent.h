@@ -5,7 +5,6 @@ class CharacterControllerComponent;
 
 class PlayerComponent : public Component
 {
-    COMP(PlayerComponent);
 public:
     PlayerComponent();
     

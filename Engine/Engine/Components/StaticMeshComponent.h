@@ -11,7 +11,6 @@ constexpr const char* GENERATED_MATERIAL_PREFIX = "GENERATED_STATICMESHMATERIAL_
 
 class StaticMeshComponent : public Component
 {
-    COMP(StaticMeshComponent);
 public:
     StaticMeshComponent();
     StaticMeshComponent(const std::filesystem::path& inPath);

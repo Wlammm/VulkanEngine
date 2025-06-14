@@ -6,8 +6,6 @@
 
 class TransformComponent : public Component
 {
-    COMP(TransformComponent);
-    
 public:
     TransformComponent();
     ~TransformComponent();

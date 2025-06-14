@@ -4,8 +4,9 @@
 
 class BoxColliderComponent : public ColliderComponent
 {
-    COMP(BoxColliderComponent);
 public:
+    ~BoxColliderComponent();
+    
     void OnCreate() override;
 
     void SetHalfSize(const glm::vec3& inHalfSize);

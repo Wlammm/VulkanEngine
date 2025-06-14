@@ -26,6 +26,6 @@ const List<Field>& Class::GetFields() const
     return myFields;
 }
 
-Class::Class(const std::string& inClassName, const std::string& inFullName)
+Class::Class(const std::string& inClassName, const std::string& inFullName, Delegate<void*()> inFactoryFunction)
     : myClassName(inClassName), myFullName(inFullName)
 { }

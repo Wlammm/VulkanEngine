@@ -5,7 +5,6 @@
 
 class CharacterControllerComponent : public Component
 {
-    COMP(CharacterControllerComponent);
 public:
     void OnCreate() override;
     void OnDestroy() override;

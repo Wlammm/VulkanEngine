@@ -9,7 +9,6 @@ class IndexBufferHandle;
 
 class LandscapeRenderComponent : public Component
 {
-    COMP(LandscapeRenderComponent);
 public:
     LandscapeRenderComponent();
     ~LandscapeRenderComponent();

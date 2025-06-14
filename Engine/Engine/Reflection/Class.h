@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Field.h"
 #include "Engine/Containers/List.hpp"
+#include "Engine/Delegates/Delegate.hpp"
 
 class Class 
 {
@@ -12,6 +13,30 @@ public:
     const List<const Class*>& GetDerivedClasses() const;
 
     const List<Field>& GetFields() const;
+
+    template<typename ClassType>
+    bool IsA() const
+    {
+        const std::string fullName = typeid(ClassType).name();
+        if (fullName == myFullName)
+            return true;
+
+        for (const Class* baseClass : myBaseClasses)
+        {
+            if (baseClass->GetFullName() == fullName)
+                return true;
+        }
+        return false;
+    }
+    
+    // TODO: Support sending constructor arguments here. This can be done but we need to parse the arguments via the reflection generator first.
+    template<typename ClassType>
+    void* CreateInstance()
+    {
+        check(IsA<ClassType>());
+        void* instance = myFactoryFunction();
+        return static_cast<ClassType*>(instance);
+    }
 
 private:
     friend class ReflectionSystem;
@@ -31,7 +56,7 @@ private:
     }
     
     Class() = delete;
-    Class(const std::string& inClassName, const std::string& inFullName);
+    Class(const std::string& inClassName, const std::string& inFullName, Delegate<void*()> inFactoryFunction);
     
     // This is the full name which matches what you get when using typeid(ClassType).name()
     std::string myFullName = "";
@@ -39,6 +64,9 @@ private:
     // This is a prettified class name. It'll return just the ClassName.
     std::string myClassName = "";
 
+    // This is a callback that creates an instance of this class type.
+    Delegate<void*()> myFactoryFunction;
+    
     List<const Class*> myBaseClasses{};
     List<const Class*> myDerivedClasses{};
     
