@@ -14,6 +14,8 @@ public:
 
     const List<Field>& GetFields() const;
 
+    List<Field> GetFieldsWithMetadata(const std::string& inMetadata) const;
+    
     template<typename ClassType>
     bool IsA() const
     {
@@ -41,9 +43,9 @@ public:
 private:
     friend class ReflectionSystem;
     friend class GeneratedReflectionData;
-    void AddField(const Field& inField)
+    Field& AddField(const Field& inField)
     {
-        myFields.Add(inField);
+        return myFields.Emplace(inField);
     }
 
     void AddBaseClass(Class* inBaseClass)

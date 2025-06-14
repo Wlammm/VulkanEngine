@@ -6,7 +6,6 @@
 #undef max
 #undef min
 
-//#if !IGNORED_BY_REFLECTION
 #include <vector>
 #include <fstream>
 #include <filesystem>
@@ -20,5 +19,4 @@
 #include <functional>
 #include <map>
 #include <set>
-// #endif
 #include <string>

@@ -16,9 +16,24 @@ const Class* Field::GetType() const
     return myType;
 }
 
+const List<std::string>& Field::GetMetadata() const
+{
+    return myMetadata;
+}
+
+bool Field::HasMetadata(const std::string& inMetadata) const
+{
+    return myMetadata.Contains(inMetadata);
+}
+
 Field::Field(const std::string& inName, const uint inOffset, const Class* inType)
 {
     myName = inName;
     myOffset = inOffset;
     myType = inType;
+}
+
+void Field::AddMetadata(const std::string& inMetadata)
+{
+    myMetadata.Add(inMetadata);
 }

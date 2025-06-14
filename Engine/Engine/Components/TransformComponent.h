@@ -91,8 +91,12 @@ private:
     bool myRotationDirty = false;
     bool myScaleDirty = false;
 
+    
+    META(ExposeToEditor)
     glm::vec3 myPosition { 0, 0, 0 };
+    META(ExposeToEditor, SomeOther)
     glm::quat myRotation = glm::identity<glm::quat>();
+    META(ExposeToEditor)
     glm::vec3 myScale { 1, 1, 1 };
 
     // This bool is set to true whenever we get an update from physics.

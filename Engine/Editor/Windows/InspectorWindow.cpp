@@ -62,7 +62,8 @@ void InspectorWindow::DrawComponentProperties(Component* inComponent)
 
     if (isOpen)
     {
-        for (const Field& field : componentClass->GetFields())
+        
+        for (const Field& field : componentClass->GetFieldsWithMetadata("ExposeToEditor"))
         {
             ImGui::PushID(&field);
 

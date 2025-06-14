@@ -293,56 +293,110 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
         {
             { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VulkanDescriptorSet>();
-	currentClass->AddField(Field("myUsesSharedLayout", 72, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myLayout", 80, reflectionSystem.GetClass<vk::DescriptorSetLayout>()));
-	currentClass->AddField(Field("mySet", 88, reflectionSystem.GetClass<vk::DescriptorSet>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myUsesSharedLayout", 72, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLayout", 80, reflectionSystem.GetClass<vk::DescriptorSetLayout>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySet", 88, reflectionSystem.GetClass<vk::DescriptorSet>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Color>();
-	currentClass->AddField(Field("myR", 0, reflectionSystem.GetClass<unsigned char>()));
-	currentClass->AddField(Field("myG", 1, reflectionSystem.GetClass<unsigned char>()));
-	currentClass->AddField(Field("myB", 2, reflectionSystem.GetClass<unsigned char>()));
-	currentClass->AddField(Field("myA", 3, reflectionSystem.GetClass<unsigned char>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myR", 0, reflectionSystem.GetClass<unsigned char>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myG", 1, reflectionSystem.GetClass<unsigned char>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myB", 2, reflectionSystem.GetClass<unsigned char>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myA", 3, reflectionSystem.GetClass<unsigned char>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ImageData>();
-	currentClass->AddField(Field("mySourceFile", 0, reflectionSystem.GetClass<std::filesystem::path>()));
-	currentClass->AddField(Field("myWidth", 32, reflectionSystem.GetClass<int>()));
-	currentClass->AddField(Field("myHeight", 36, reflectionSystem.GetClass<int>()));
-	currentClass->AddField(Field("myChannels", 40, reflectionSystem.GetClass<int>()));
-	currentClass->AddField(Field("myNumMipLevels", 44, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myPixelData", 48, reflectionSystem.GetClass<List<unsigned char>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("mySourceFile", 0, reflectionSystem.GetClass<std::filesystem::path>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myWidth", 32, reflectionSystem.GetClass<int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHeight", 36, reflectionSystem.GetClass<int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myChannels", 40, reflectionSystem.GetClass<int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNumMipLevels", 44, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPixelData", 48, reflectionSystem.GetClass<List<unsigned char>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Texture>();
-	currentClass->AddField(Field("myImage", 56, reflectionSystem.GetClass<VulkanImage *>()));
-	currentClass->AddField(Field("myBindlessIndex", 64, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myImage", 56, reflectionSystem.GetClass<VulkanImage *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBindlessIndex", 64, reflectionSystem.GetClass<unsigned int>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Asset>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<LinearColor>();
-	currentClass->AddField(Field("myR", 0, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myG", 4, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myB", 8, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myA", 12, reflectionSystem.GetClass<float>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myR", 0, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myG", 4, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myB", 8, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myA", 12, reflectionSystem.GetClass<float>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ComponentSystem>();
-	currentClass->AddField(Field("myObjects", 16, reflectionSystem.GetClass<List<GameObject *>>()));
-	currentClass->AddField(Field("myObjectsToDestory", 40, reflectionSystem.GetClass<List<GameObject *>>()));
-	currentClass->AddField(Field("myComponentArrays", 64, reflectionSystem.GetClass<List<IComponentArray *>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myObjects", 16, reflectionSystem.GetClass<List<GameObject *>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myObjectsToDestory", 40, reflectionSystem.GetClass<List<GameObject *>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myComponentArrays", 64, reflectionSystem.GetClass<List<IComponentArray *>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<WorldSystem>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Console>();
-	currentClass->AddField(Field("myConsoleHandle", 0, reflectionSystem.GetClass<void *>()));
-	currentClass->AddField(Field("myLogToFileEnabled", 8, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myLogToFileStream", 16, reflectionSystem.GetClass<std::basic_ofstream<char>>()));
-	currentClass->AddField(Field("myCoutBuffer", 280, reflectionSystem.GetClass<std::basic_streambuf<char> *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myConsoleHandle", 0, reflectionSystem.GetClass<void *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLogToFileEnabled", 8, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLogToFileStream", 16, reflectionSystem.GetClass<std::basic_ofstream<char>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCoutBuffer", 280, reflectionSystem.GetClass<std::basic_streambuf<char> *>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<SphereColliderComponent>();
-	currentClass->AddField(Field("myRadius", 56, reflectionSystem.GetClass<float>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myRadius", 56, reflectionSystem.GetClass<float>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ColliderComponent>());
 }
 { 
@@ -353,123 +407,251 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<EngineProperties>();
-	currentClass->AddField(Field("Title", 0, reflectionSystem.GetClass<std::basic_string<wchar_t>>()));
-	currentClass->AddField(Field("WindowWidth", 32, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("WindowHeight", 36, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("WindowX", 40, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("WindowY", 44, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("StartupArguments", 48, reflectionSystem.GetClass<std::unordered_set<std::basic_string<char>>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("Title", 0, reflectionSystem.GetClass<std::basic_string<wchar_t>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("WindowWidth", 32, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("WindowHeight", 36, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("WindowX", 40, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("WindowY", 44, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("StartupArguments", 48, reflectionSystem.GetClass<std::unordered_set<std::basic_string<char>>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<OnScopeExit>();
-	currentClass->AddField(Field("myOnScopeExit", 0, reflectionSystem.GetClass<std::function<void ()>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myOnScopeExit", 0, reflectionSystem.GetClass<std::function<void ()>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<BinaryWriter>();
-	currentClass->AddField(Field("myStream", 0, reflectionSystem.GetClass<std::basic_ofstream<char>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myStream", 0, reflectionSystem.GetClass<std::basic_ofstream<char>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Vertex>();
-	currentClass->AddField(Field("myPosition", 0, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myColor", 12, reflectionSystem.GetClass<int>()));
-	currentClass->AddField(Field("myNormal", 16, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myTangents", 28, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myBinormals", 40, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myTexCoords", 52, reflectionSystem.GetClass<glm::vec<2, float>[2]>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myPosition", 0, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myColor", 12, reflectionSystem.GetClass<int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormal", 16, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTangents", 28, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBinormals", 40, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTexCoords", 52, reflectionSystem.GetClass<glm::vec<2, float>[2]>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Skeleton>();
-	currentClass->AddField(Field("myJoints", 0, reflectionSystem.GetClass<List<Skeleton::Bone>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myJoints", 0, reflectionSystem.GetClass<List<Skeleton::Bone>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Skeleton::Bone>();
-	currentClass->AddField(Field("myBindPosition", 0, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myBindRotation", 12, reflectionSystem.GetClass<glm::qua<float>>()));
-	currentClass->AddField(Field("myBindScale", 28, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myIndexToParent", 40, reflectionSystem.GetClass<int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myBindPosition", 0, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBindRotation", 12, reflectionSystem.GetClass<glm::qua<float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBindScale", 28, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIndexToParent", 40, reflectionSystem.GetClass<int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Engine>();
-	currentClass->AddField(Field("myFrameIndex", 0, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myIsRunning", 4, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myEngineProperties", 8, reflectionSystem.GetClass<EngineProperties>()));
-	currentClass->AddField(Field("mySystemManager", 120, reflectionSystem.GetClass<SystemManager<System> *>()));
-	currentClass->AddField(Field("myPostMaster", 128, reflectionSystem.GetClass<EventHandler *>()));
-	currentClass->AddField(Field("myThreadPool", 136, reflectionSystem.GetClass<ThreadPool *>()));
-	currentClass->AddField(Field("myFilewatcher", 144, reflectionSystem.GetClass<Filewatcher *>()));
-	currentClass->AddField(Field("myWindowHandler", 152, reflectionSystem.GetClass<WindowHandler *>()));
-	currentClass->AddField(Field("myVulkanContext", 160, reflectionSystem.GetClass<VulkanContext *>()));
-	currentClass->AddField(Field("myAssetRegistry", 168, reflectionSystem.GetClass<AssetRegistry *>()));
-	currentClass->AddField(Field("myWorld", 176, reflectionSystem.GetClass<World *>()));
-	currentClass->AddField(Field("myExternalTickFunction", 184, reflectionSystem.GetClass<std::function<void ()>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myFrameIndex", 0, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsRunning", 4, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myEngineProperties", 8, reflectionSystem.GetClass<EngineProperties>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySystemManager", 120, reflectionSystem.GetClass<SystemManager<System> *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPostMaster", 128, reflectionSystem.GetClass<EventHandler *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myThreadPool", 136, reflectionSystem.GetClass<ThreadPool *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFilewatcher", 144, reflectionSystem.GetClass<Filewatcher *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myWindowHandler", 152, reflectionSystem.GetClass<WindowHandler *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVulkanContext", 160, reflectionSystem.GetClass<VulkanContext *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 168, reflectionSystem.GetClass<AssetRegistry *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myWorld", 176, reflectionSystem.GetClass<World *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myExternalTickFunction", 184, reflectionSystem.GetClass<std::function<void ()>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<PromiseReturnTypeImplementation<void>>();
-	currentClass->AddField(Field("myReturnValue", 0, reflectionSystem.GetClass<char>()));
-	currentClass->AddField(Field("myHasReturnValue", 1, reflectionSystem.GetClass<bool>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myReturnValue", 0, reflectionSystem.GetClass<char>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHasReturnValue", 1, reflectionSystem.GetClass<bool>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<PointLightComponent>();
-	currentClass->AddField(Field("myColor", 16, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myIntensity", 28, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myRange", 32, reflectionSystem.GetClass<float>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myColor", 16, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIntensity", 28, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRange", 32, reflectionSystem.GetClass<float>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Asset>();
-	currentClass->AddField(Field("myPath", 8, reflectionSystem.GetClass<std::filesystem::path>()));
-	currentClass->AddField(Field("myIsValid", 40, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myAssetRegistry", 48, reflectionSystem.GetClass<AssetRegistry *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myPath", 8, reflectionSystem.GetClass<std::filesystem::path>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsValid", 40, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 48, reflectionSystem.GetClass<AssetRegistry *>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Filewatcher>();
-	currentClass->AddField(Field("myThread", 0, reflectionSystem.GetClass<std::thread>()));
-	currentClass->AddField(Field("myLock", 16, reflectionSystem.GetClass<std::mutex>()));
-	currentClass->AddField(Field("myShouldRun", 96, reflectionSystem.GetClass<std::atomic<bool>>()));
-	currentClass->AddField(Field("myFilesToWatch", 104, reflectionSystem.GetClass<std::unordered_map<std::filesystem::path, Filewatcher::FileData>>()));
-	currentClass->AddField(Field("myModifiedPaths", 168, reflectionSystem.GetClass<std::set<Filewatcher::FileData *>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myThread", 0, reflectionSystem.GetClass<std::thread>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLock", 16, reflectionSystem.GetClass<std::mutex>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShouldRun", 96, reflectionSystem.GetClass<std::atomic<bool>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFilesToWatch", 104, reflectionSystem.GetClass<std::unordered_map<std::filesystem::path, Filewatcher::FileData>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myModifiedPaths", 168, reflectionSystem.GetClass<std::set<Filewatcher::FileData *>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Filewatcher::CallbackHandle>();
-	currentClass->AddField(Field("myID", 0, reflectionSystem.GetClass<int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myID", 0, reflectionSystem.GetClass<int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Filewatcher::FileData>();
-	currentClass->AddField(Field("myCallbackIDIndexList", 0, reflectionSystem.GetClass<List<Filewatcher::CallbackHandle>>()));
-	currentClass->AddField(Field("myCallbacks", 24, reflectionSystem.GetClass<List<std::function<void ()>>>()));
-	currentClass->AddField(Field("myLastModifiedTime", 48, reflectionSystem.GetClass<std::chrono::time_point<std::filesystem::_File_time_clock>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myCallbackIDIndexList", 0, reflectionSystem.GetClass<List<Filewatcher::CallbackHandle>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCallbacks", 24, reflectionSystem.GetClass<List<std::function<void ()>>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLastModifiedTime", 48, reflectionSystem.GetClass<std::chrono::time_point<std::filesystem::_File_time_clock>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<IAssetContainer>();
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<SerializationMeshData>();
-	currentClass->AddField(Field("myVertices", 0, reflectionSystem.GetClass<List<Vertex>>()));
-	currentClass->AddField(Field("myIndices", 24, reflectionSystem.GetClass<List<unsigned int>>()));
-	currentClass->AddField(Field("mySphereCenterBounds", 48, reflectionSystem.GetClass<glm::vec<4, float>>()));
-	currentClass->AddField(Field("myStagingVertexBuffer", 64, reflectionSystem.GetClass<VulkanBuffer *>()));
-	currentClass->AddField(Field("myStagingIndexBuffer", 72, reflectionSystem.GetClass<VulkanBuffer *>()));
-	currentClass->AddField(Field("myAlbedoPath", 80, reflectionSystem.GetClass<std::basic_string<char>>()));
-	currentClass->AddField(Field("myNormalPath", 112, reflectionSystem.GetClass<std::basic_string<char>>()));
-	currentClass->AddField(Field("myMaterialPath", 144, reflectionSystem.GetClass<std::basic_string<char>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myVertices", 0, reflectionSystem.GetClass<List<Vertex>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIndices", 24, reflectionSystem.GetClass<List<unsigned int>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySphereCenterBounds", 48, reflectionSystem.GetClass<glm::vec<4, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myStagingVertexBuffer", 64, reflectionSystem.GetClass<VulkanBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myStagingIndexBuffer", 72, reflectionSystem.GetClass<VulkanBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAlbedoPath", 80, reflectionSystem.GetClass<std::basic_string<char>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormalPath", 112, reflectionSystem.GetClass<std::basic_string<char>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialPath", 144, reflectionSystem.GetClass<std::basic_string<char>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Model>();
-	currentClass->AddField(Field("myMeshes", 56, reflectionSystem.GetClass<List<Mesh *>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myMeshes", 56, reflectionSystem.GetClass<List<Mesh *>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Asset>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ThreadPool>();
-	currentClass->AddField(Field("myThreads", 0, reflectionSystem.GetClass<List<std::thread>>()));
-	currentClass->AddField(Field("myLookingForTaskMutex", 24, reflectionSystem.GetClass<std::mutex>()));
-	currentClass->AddField(Field("myWaitingForTaskCondition", 104, reflectionSystem.GetClass<std::condition_variable>()));
-	currentClass->AddField(Field("myShouldExit", 176, reflectionSystem.GetClass<std::atomic<bool>>()));
-	currentClass->AddField(Field("myTasks", 184, reflectionSystem.GetClass<std::queue<std::function<void ()>>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myThreads", 0, reflectionSystem.GetClass<List<std::thread>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLookingForTaskMutex", 24, reflectionSystem.GetClass<std::mutex>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myWaitingForTaskCondition", 104, reflectionSystem.GetClass<std::condition_variable>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShouldExit", 176, reflectionSystem.GetClass<std::atomic<bool>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTasks", 184, reflectionSystem.GetClass<std::queue<std::function<void ()>>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<TextureCube>();
-	currentClass->AddField(Field("myImage", 56, reflectionSystem.GetClass<VulkanImage *>()));
-	currentClass->AddField(Field("myBindlessIndex", 64, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myImage", 56, reflectionSystem.GetClass<VulkanImage *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBindlessIndex", 64, reflectionSystem.GetClass<unsigned int>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Asset>());
 }
 { 
@@ -477,95 +659,183 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<AssetRegistry>();
-	currentClass->AddField(Field("myMutex", 0, reflectionSystem.GetClass<std::recursive_mutex>()));
-	currentClass->AddField(Field("myContainers", 80, reflectionSystem.GetClass<List<IAssetContainer *>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myMutex", 0, reflectionSystem.GetClass<std::recursive_mutex>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myContainers", 80, reflectionSystem.GetClass<List<IAssetContainer *>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<SkyboxPipeline>();
-	currentClass->AddField(Field("myVertexShader", 0, reflectionSystem.GetClass<Shader *>()));
-	currentClass->AddField(Field("myFragmentShader", 8, reflectionSystem.GetClass<Shader *>()));
-	currentClass->AddField(Field("myFrameDescriptorSet", 16, reflectionSystem.GetClass<VulkanDescriptorSet>()));
-	currentClass->AddField(Field("myPipelineLayout", 112, reflectionSystem.GetClass<vk::PipelineLayout>()));
-	currentClass->AddField(Field("myPipeline", 120, reflectionSystem.GetClass<vk::Pipeline>()));
-	currentClass->AddField(Field("myFrameDataBuffer", 128, reflectionSystem.GetClass<VulkanBuffer *>()));
-	currentClass->AddField(Field("mySkyboxModel", 136, reflectionSystem.GetClass<Model *>()));
-	currentClass->AddField(Field("mySkybox", 144, reflectionSystem.GetClass<Texture *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexShader", 0, reflectionSystem.GetClass<Shader *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFragmentShader", 8, reflectionSystem.GetClass<Shader *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", 16, reflectionSystem.GetClass<VulkanDescriptorSet>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 112, reflectionSystem.GetClass<vk::PipelineLayout>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipeline", 120, reflectionSystem.GetClass<vk::Pipeline>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", 128, reflectionSystem.GetClass<VulkanBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySkyboxModel", 136, reflectionSystem.GetClass<Model *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySkybox", 144, reflectionSystem.GetClass<Texture *>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ConvexColliderComponent>();
-	currentClass->AddField(Field("myModel", 56, reflectionSystem.GetClass<Model *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myModel", 56, reflectionSystem.GetClass<Model *>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ColliderComponent>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<JsonAsset>();
-	currentClass->AddField(Field("myJson", 56, reflectionSystem.GetClass<nlohmann::basic_json<>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myJson", 56, reflectionSystem.GetClass<nlohmann::basic_json<>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Asset>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VulkanAllocator>();
-	currentClass->AddField(Field("myAllocator", 0, reflectionSystem.GetClass<VmaAllocator_T *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myAllocator", 0, reflectionSystem.GetClass<VmaAllocator_T *>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<EventHandler>();
-	currentClass->AddField(Field("myObservers", 0, reflectionSystem.GetClass<List<EventObserver *>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myObservers", 0, reflectionSystem.GetClass<List<EventObserver *>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VulkanBuffer>();
-	currentClass->AddField(Field("myAllocation", 0, reflectionSystem.GetClass<VmaAllocation_T *>()));
-	currentClass->AddField(Field("myBuffer", 8, reflectionSystem.GetClass<vk::Buffer>()));
-	currentClass->AddField(Field("myCreateInfo", 16, reflectionSystem.GetClass<vk::BufferCreateInfo>()));
-	currentClass->AddField(Field("myMemoryUsage", 72, reflectionSystem.GetClass<VmaMemoryUsage>()));
-	currentClass->AddField(Field("myIsMappingAllowed", 76, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myPtr", 80, reflectionSystem.GetClass<void *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myAllocation", 0, reflectionSystem.GetClass<VmaAllocation_T *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffer", 8, reflectionSystem.GetClass<vk::Buffer>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCreateInfo", 16, reflectionSystem.GetClass<vk::BufferCreateInfo>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMemoryUsage", 72, reflectionSystem.GetClass<VmaMemoryUsage>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsMappingAllowed", 76, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPtr", 80, reflectionSystem.GetClass<void *>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<EventType>();
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<CapsuleColliderComponent>();
-	currentClass->AddField(Field("myRadius", 56, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myHeight", 60, reflectionSystem.GetClass<float>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myRadius", 56, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHeight", 60, reflectionSystem.GetClass<float>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ColliderComponent>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<EventObserver>();
-	currentClass->AddField(Field("myEvents", 8, reflectionSystem.GetClass<std::map<EventType, std::function<void ()>>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myEvents", 8, reflectionSystem.GetClass<std::map<EventType, std::function<void ()>>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<System>();
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<StaticMeshComponent>();
-	currentClass->AddField(Field("myPath", 16, reflectionSystem.GetClass<std::filesystem::path>()));
-	currentClass->AddField(Field("myMaterials", 48, reflectionSystem.GetClass<List<Material *>>()));
-	currentClass->AddField(Field("myModel", 72, reflectionSystem.GetClass<Model *>()));
-	currentClass->AddField(Field("myMeshInstances", 80, reflectionSystem.GetClass<List<unsigned int>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myPath", 16, reflectionSystem.GetClass<std::filesystem::path>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterials", 48, reflectionSystem.GetClass<List<Material *>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myModel", 72, reflectionSystem.GetClass<Model *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMeshInstances", 80, reflectionSystem.GetClass<List<unsigned int>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<RenderSystem>();
-	currentClass->AddField(Field("myIsUsingGPUDrivenRendering", 32, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myCopyPipeline", 40, reflectionSystem.GetClass<FullscreenPipeline *>()));
-	currentClass->AddField(Field("myDebugPipeline", 48, reflectionSystem.GetClass<DebugPipeline *>()));
-	currentClass->AddField(Field("myGDRPipeline", 56, reflectionSystem.GetClass<GDRPipeline *>()));
-	currentClass->AddField(Field("mySkyboxPipeline", 64, reflectionSystem.GetClass<SkyboxPipeline *>()));
-	currentClass->AddField(Field("myRenderPass", 72, reflectionSystem.GetClass<vk::RenderPass>()));
-	currentClass->AddField(Field("myCopyToSwapchainRenderPass", 80, reflectionSystem.GetClass<vk::RenderPass>()));
-	currentClass->AddField(Field("myVkFrameBuffer", 88, reflectionSystem.GetClass<vk::Framebuffer>()));
-	currentClass->AddField(Field("myCopyToSwapchainFrameBuffers", 96, reflectionSystem.GetClass<List<vk::Framebuffer>>()));
-	currentClass->AddField(Field("myClearValues", 120, reflectionSystem.GetClass<vk::ClearValue[2]>()));
-	currentClass->AddField(Field("myDepthBuffer", 152, reflectionSystem.GetClass<VulkanImage *>()));
-	currentClass->AddField(Field("myRenderTexture", 160, reflectionSystem.GetClass<VulkanImage *>()));
-	currentClass->AddField(Field("myResolvedRenderTexture", 168, reflectionSystem.GetClass<VulkanImage *>()));
-	currentClass->AddField(Field("myDirectionalLightShadowMap", 176, reflectionSystem.GetClass<VulkanImage *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myIsUsingGPUDrivenRendering", 32, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCopyPipeline", 40, reflectionSystem.GetClass<FullscreenPipeline *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDebugPipeline", 48, reflectionSystem.GetClass<DebugPipeline *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myGDRPipeline", 56, reflectionSystem.GetClass<GDRPipeline *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySkyboxPipeline", 64, reflectionSystem.GetClass<SkyboxPipeline *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenderPass", 72, reflectionSystem.GetClass<vk::RenderPass>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainRenderPass", 80, reflectionSystem.GetClass<vk::RenderPass>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVkFrameBuffer", 88, reflectionSystem.GetClass<vk::Framebuffer>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainFrameBuffers", 96, reflectionSystem.GetClass<List<vk::Framebuffer>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myClearValues", 120, reflectionSystem.GetClass<vk::ClearValue[2]>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDepthBuffer", 152, reflectionSystem.GetClass<VulkanImage *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenderTexture", 160, reflectionSystem.GetClass<VulkanImage *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myResolvedRenderTexture", 168, reflectionSystem.GetClass<VulkanImage *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirectionalLightShadowMap", 176, reflectionSystem.GetClass<VulkanImage *>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EventObserver>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<DirectionalLightComponent>();
-	currentClass->AddField(Field("myIsShadowsEnabled", 16, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myColor", 20, reflectionSystem.GetClass<glm::vec<4, float>>()));
-	currentClass->AddField(Field("myLightProjection", 36, reflectionSystem.GetClass<glm::mat<4, 4, float>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myIsShadowsEnabled", 16, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myColor", 20, reflectionSystem.GetClass<glm::vec<4, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLightProjection", 36, reflectionSystem.GetClass<glm::mat<4, 4, float>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 
@@ -573,30 +843,58 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<IVulkanDynamicBuffer>();
-	currentClass->AddField(Field("OnBufferRecreated", 8, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("OnBufferRecreated", 8, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<GameObject>();
-	currentClass->AddField(Field("OnComponentAdded", 0, reflectionSystem.GetClass<MulticastDelegate<void (Component *)>>()));
-	currentClass->AddField(Field("OnComponentRemoved", 104, reflectionSystem.GetClass<MulticastDelegate<void (Component *)>>()));
-	currentClass->AddField(Field("myComponentSystem", 208, reflectionSystem.GetClass<ComponentSystem *>()));
-	currentClass->AddField(Field("myTransform", 216, reflectionSystem.GetClass<TransformComponent *>()));
-	currentClass->AddField(Field("myRenderStateDirty", 224, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myPhysicsStateDirty", 225, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myTags", 228, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("OnComponentAdded", 0, reflectionSystem.GetClass<MulticastDelegate<void (Component *)>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("OnComponentRemoved", 104, reflectionSystem.GetClass<MulticastDelegate<void (Component *)>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myComponentSystem", 208, reflectionSystem.GetClass<ComponentSystem *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTransform", 216, reflectionSystem.GetClass<TransformComponent *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenderStateDirty", 224, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPhysicsStateDirty", 225, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTags", 228, reflectionSystem.GetClass<unsigned int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Material>();
-	currentClass->AddField(Field("myAlbedoTexture", 56, reflectionSystem.GetClass<Texture *>()));
-	currentClass->AddField(Field("myNormalTexture", 64, reflectionSystem.GetClass<Texture *>()));
-	currentClass->AddField(Field("myMaterialTexture", 72, reflectionSystem.GetClass<Texture *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myAlbedoTexture", 56, reflectionSystem.GetClass<Texture *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormalTexture", 64, reflectionSystem.GetClass<Texture *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialTexture", 72, reflectionSystem.GetClass<Texture *>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Asset>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Shader>();
-	currentClass->AddField(Field("OnShaderRecompiled", 56, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
-	currentClass->AddField(Field("myShaderModule", 160, reflectionSystem.GetClass<vk::ShaderModule>()));
-	currentClass->AddField(Field("myCallbackHandle", 168, reflectionSystem.GetClass<Filewatcher::CallbackHandle>()));
+	{
+		Field& currentField = currentClass->AddField(Field("OnShaderRecompiled", 56, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShaderModule", 160, reflectionSystem.GetClass<vk::ShaderModule>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCallbackHandle", 168, reflectionSystem.GetClass<Filewatcher::CallbackHandle>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Asset>());
 }
 { 
@@ -604,7 +902,9 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<MeshColliderComponent>();
-	currentClass->AddField(Field("myModel", 56, reflectionSystem.GetClass<Model *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myModel", 56, reflectionSystem.GetClass<Model *>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ColliderComponent>());
 }
 { 
@@ -612,7 +912,9 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<WorldSystem>();
-	currentClass->AddField(Field("myWorld", 8, reflectionSystem.GetClass<World *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myWorld", 8, reflectionSystem.GetClass<World *>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 }
 { 
@@ -621,22 +923,52 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Component>();
-	currentClass->AddField(Field("myGameObject", 8, reflectionSystem.GetClass<GameObject *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myGameObject", 8, reflectionSystem.GetClass<GameObject *>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<TransformComponent>();
-	currentClass->AddField(Field("OnPositionChanged", 16, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
-	currentClass->AddField(Field("OnRotationChanged", 120, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
-	currentClass->AddField(Field("OnScaleChanged", 224, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
-	currentClass->AddField(Field("myPositionDirty", 328, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myRotationDirty", 329, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myScaleDirty", 330, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myPosition", 332, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myRotation", 344, reflectionSystem.GetClass<glm::qua<float>>()));
-	currentClass->AddField(Field("myScale", 360, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("mySkipPhysicsUpdate", 372, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myParent", 376, reflectionSystem.GetClass<TransformComponent *>()));
-	currentClass->AddField(Field("myChildren", 384, reflectionSystem.GetClass<List<TransformComponent *>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("OnPositionChanged", 16, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("OnRotationChanged", 120, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("OnScaleChanged", 224, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPositionDirty", 328, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRotationDirty", 329, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myScaleDirty", 330, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPosition", 332, reflectionSystem.GetClass<glm::vec<3, float>>()));
+		currentField.AddMetadata("ExposeToEditor");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRotation", 344, reflectionSystem.GetClass<glm::qua<float>>()));
+		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata("SomeOther");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myScale", 360, reflectionSystem.GetClass<glm::vec<3, float>>()));
+		currentField.AddMetadata("ExposeToEditor");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySkipPhysicsUpdate", 372, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myParent", 376, reflectionSystem.GetClass<TransformComponent *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myChildren", 384, reflectionSystem.GetClass<List<TransformComponent *>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 
@@ -650,20 +982,48 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<CharacterControllerComponent>();
-	currentClass->AddField(Field("myController", 16, reflectionSystem.GetClass<physx::PxController *>()));
-	currentClass->AddField(Field("myCollisionFlags", 24, reflectionSystem.GetClass<physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>>()));
-	currentClass->AddField(Field("myFilter", 32, reflectionSystem.GetClass<physx::PxControllerFilters>()));
-	currentClass->AddField(Field("myHeight", 64, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myRadius", 68, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("mySlopeLimitDegrees", 72, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myMinDist", 76, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myStepOffset", 80, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myUseGravity", 84, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myDownVelocity", 88, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myGravity", 92, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myTerminalVelocity", 96, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myDisplacement", 100, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myPositionOffset", 112, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myController", 16, reflectionSystem.GetClass<physx::PxController *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCollisionFlags", 24, reflectionSystem.GetClass<physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFilter", 32, reflectionSystem.GetClass<physx::PxControllerFilters>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHeight", 64, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRadius", 68, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySlopeLimitDegrees", 72, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMinDist", 76, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myStepOffset", 80, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myUseGravity", 84, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDownVelocity", 88, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myGravity", 92, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTerminalVelocity", 96, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDisplacement", 100, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPositionOffset", 112, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 
@@ -671,42 +1031,82 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<RigidbodyComponent>();
-	currentClass->AddField(Field("myActor", 16, reflectionSystem.GetClass<physx::PxRigidDynamic *>()));
-	currentClass->AddField(Field("myFramesSinceStartSleep", 24, reflectionSystem.GetClass<int>()));
-	currentClass->AddField(Field("myMass", 28, reflectionSystem.GetClass<float>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myActor", 16, reflectionSystem.GetClass<physx::PxRigidDynamic *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFramesSinceStartSleep", 24, reflectionSystem.GetClass<int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMass", 28, reflectionSystem.GetClass<float>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<GPUSceneSystem>();
-	currentClass->AddField(Field("myFreeSparseIndices", 8, reflectionSystem.GetClass<List<unsigned int>>()));
-	currentClass->AddField(Field("myNextFreeSparseIndex", 32, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("mySparseBuffer", 40, reflectionSystem.GetClass<ResizableBuffer *>()));
-	currentClass->AddField(Field("myNumGPUObjectUpdatesThisFrame", 48, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myDenseBuffer", 56, reflectionSystem.GetClass<ResizableBuffer *>()));
-	currentClass->AddField(Field("myDenseBufferCPURepresentation", 64, reflectionSystem.GetClass<List<unsigned int, unsigned int>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myFreeSparseIndices", 8, reflectionSystem.GetClass<List<unsigned int>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNextFreeSparseIndex", 32, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySparseBuffer", 40, reflectionSystem.GetClass<ResizableBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNumGPUObjectUpdatesThisFrame", 48, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDenseBuffer", 56, reflectionSystem.GetClass<ResizableBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDenseBufferCPURepresentation", 64, reflectionSystem.GetClass<List<unsigned int, unsigned int>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ColliderComponent>();
-	currentClass->AddField(Field("myShape", 16, reflectionSystem.GetClass<physx::PxShape *>()));
-	currentClass->AddField(Field("myActor", 24, reflectionSystem.GetClass<physx::PxRigidStatic *>()));
-	currentClass->AddField(Field("myLocalShapePosition", 32, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myLocalShapeRotation", 44, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myShape", 16, reflectionSystem.GetClass<physx::PxShape *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myActor", 24, reflectionSystem.GetClass<physx::PxRigidStatic *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLocalShapePosition", 32, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLocalShapeRotation", 44, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<BoxColliderComponent>();
-	currentClass->AddField(Field("myHalfSize", 56, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myHalfSize", 56, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ColliderComponent>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<LandscapeRenderComponent>();
-	currentClass->AddField(Field("myHeightfield", 16, reflectionSystem.GetClass<Heightfield>()));
-	currentClass->AddField(Field("myVertexBuffer", 280, reflectionSystem.GetClass<VertexBufferHandle *>()));
-	currentClass->AddField(Field("myIndexBuffer", 288, reflectionSystem.GetClass<IndexBufferHandle *>()));
-	currentClass->AddField(Field("myMesh", 296, reflectionSystem.GetClass<Mesh *>()));
-	currentClass->AddField(Field("myMeshInstance", 304, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myMaterial", 312, reflectionSystem.GetClass<Material *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myHeightfield", 16, reflectionSystem.GetClass<Heightfield>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexBuffer", 280, reflectionSystem.GetClass<VertexBufferHandle *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIndexBuffer", 288, reflectionSystem.GetClass<IndexBufferHandle *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMesh", 296, reflectionSystem.GetClass<Mesh *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMeshInstance", 304, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterial", 312, reflectionSystem.GetClass<Material *>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 
@@ -714,46 +1114,102 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<CameraComponent>();
-	currentClass->AddField(Field("myResolution", 16, reflectionSystem.GetClass<glm::vec<2, float>>()));
-	currentClass->AddField(Field("myProjection", 24, reflectionSystem.GetClass<glm::mat<4, 4, float>>()));
-	currentClass->AddField(Field("myFov", 88, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myNearPlane", 92, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myFarPlane", 96, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myIsOrthographic", 100, reflectionSystem.GetClass<bool>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myResolution", 16, reflectionSystem.GetClass<glm::vec<2, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myProjection", 24, reflectionSystem.GetClass<glm::mat<4, 4, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFov", 88, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNearPlane", 92, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFarPlane", 96, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsOrthographic", 100, reflectionSystem.GetClass<bool>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<EditorCameraMovementComponent>();
-	currentClass->AddField(Field("myResetMouseDelta", 16, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myMouseDelta", 20, reflectionSystem.GetClass<glm::vec<2, float>>()));
-	currentClass->AddField(Field("myYaw", 28, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myPitch", 32, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myMovementSpeed", 36, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myShiftMultiplier", 40, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myScrollMultiplier", 44, reflectionSystem.GetClass<float>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myResetMouseDelta", 16, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMouseDelta", 20, reflectionSystem.GetClass<glm::vec<2, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myYaw", 28, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPitch", 32, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMovementSpeed", 36, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShiftMultiplier", 40, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myScrollMultiplier", 44, reflectionSystem.GetClass<float>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<PhysicsSystem>();
-	currentClass->AddField(Field("myPhysicsCommands", 16, reflectionSystem.GetClass<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>()));
-	currentClass->AddField(Field("myDefaultErrorCallback", 40, reflectionSystem.GetClass<physx::PxErrorCallback *>()));
-	currentClass->AddField(Field("myDefaultAllocator", 48, reflectionSystem.GetClass<physx::PxDefaultAllocator *>()));
-	currentClass->AddField(Field("myToleranceScale", 56, reflectionSystem.GetClass<physx::PxTolerancesScale *>()));
-	currentClass->AddField(Field("myFoundation", 64, reflectionSystem.GetClass<physx::PxFoundation *>()));
-	currentClass->AddField(Field("myPvd", 72, reflectionSystem.GetClass<physx::PxPvd *>()));
-	currentClass->AddField(Field("myPvdTransport", 80, reflectionSystem.GetClass<physx::PxPvdTransport *>()));
-	currentClass->AddField(Field("myDefaultMaterial", 88, reflectionSystem.GetClass<physx::PxMaterial *>()));
-	currentClass->AddField(Field("myListener", 96, reflectionSystem.GetClass<PhysicsListener *>()));
-	currentClass->AddField(Field("myPhysics", 104, reflectionSystem.GetClass<physx::PxPhysics *>()));
-	currentClass->AddField(Field("myScene", 112, reflectionSystem.GetClass<physx::PxScene *>()));
-	currentClass->AddField(Field("myControllerManager", 120, reflectionSystem.GetClass<physx::PxControllerManager *>()));
-	currentClass->AddField(Field("myHasActiveSimulation", 128, reflectionSystem.GetClass<bool>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myPhysicsCommands", 16, reflectionSystem.GetClass<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDefaultErrorCallback", 40, reflectionSystem.GetClass<physx::PxErrorCallback *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDefaultAllocator", 48, reflectionSystem.GetClass<physx::PxDefaultAllocator *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myToleranceScale", 56, reflectionSystem.GetClass<physx::PxTolerancesScale *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFoundation", 64, reflectionSystem.GetClass<physx::PxFoundation *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPvd", 72, reflectionSystem.GetClass<physx::PxPvd *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPvdTransport", 80, reflectionSystem.GetClass<physx::PxPvdTransport *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDefaultMaterial", 88, reflectionSystem.GetClass<physx::PxMaterial *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myListener", 96, reflectionSystem.GetClass<PhysicsListener *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPhysics", 104, reflectionSystem.GetClass<physx::PxPhysics *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myScene", 112, reflectionSystem.GetClass<physx::PxScene *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myControllerManager", 120, reflectionSystem.GetClass<physx::PxControllerManager *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHasActiveSimulation", 128, reflectionSystem.GetClass<bool>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<WorldSystem>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Heightfield>();
-	currentClass->AddField(Field("mySeed", 0, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myPerlinNoise", 4, reflectionSystem.GetClass<siv::BasicPerlinNoise<float>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("mySeed", 0, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPerlinNoise", 4, reflectionSystem.GetClass<siv::BasicPerlinNoise<float>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<SinWaveMovementComponent>();
@@ -780,7 +1236,9 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<PhysicsListener>();
-	currentClass->AddField(Field("myDequeueCollisionsDelegate", 32, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myDequeueCollisionsDelegate", 32, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<physx::PxSimulationEventCallback>());
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<physx::PxUserControllerHitReport>());
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<physx::PxControllerBehaviorCallback>());
@@ -788,135 +1246,296 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<RaycastHit>();
-	currentClass->AddField(Field("myHitPosition", 0, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myHitNormal", 12, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myHitDistance", 24, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myHitGameObject", 32, reflectionSystem.GetClass<GameObject *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myHitPosition", 0, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHitNormal", 12, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHitDistance", 24, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHitGameObject", 32, reflectionSystem.GetClass<GameObject *>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Field>();
-	currentClass->AddField(Field("myName", 0, reflectionSystem.GetClass<std::basic_string<char>>()));
-	currentClass->AddField(Field("myOffset", 32, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myType", 40, reflectionSystem.GetClass<const Class *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myName", 0, reflectionSystem.GetClass<std::basic_string<char>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", 32, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myType", 40, reflectionSystem.GetClass<const Class *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMetadata", 48, reflectionSystem.GetClass<List<std::basic_string<char>>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Class>();
-	currentClass->AddField(Field("myFullName", 0, reflectionSystem.GetClass<std::basic_string<char>>()));
-	currentClass->AddField(Field("myClassName", 32, reflectionSystem.GetClass<std::basic_string<char>>()));
-	currentClass->AddField(Field("myFactoryFunction", 64, reflectionSystem.GetClass<Delegate<void *()>>()));
-	currentClass->AddField(Field("myBaseClasses", 72, reflectionSystem.GetClass<List<const Class *>>()));
-	currentClass->AddField(Field("myDerivedClasses", 96, reflectionSystem.GetClass<List<const Class *>>()));
-	currentClass->AddField(Field("myFields", 120, reflectionSystem.GetClass<List<Field>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myFullName", 0, reflectionSystem.GetClass<std::basic_string<char>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myClassName", 32, reflectionSystem.GetClass<std::basic_string<char>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFactoryFunction", 64, reflectionSystem.GetClass<Delegate<void *()>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBaseClasses", 72, reflectionSystem.GetClass<List<const Class *>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDerivedClasses", 96, reflectionSystem.GetClass<List<const Class *>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFields", 120, reflectionSystem.GetClass<List<Field>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ReflectionSystem>();
-	currentClass->AddField(Field("myClasses", 8, reflectionSystem.GetClass<List<Class>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myClasses", 8, reflectionSystem.GetClass<List<Class>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<DebugPipeline>();
-	currentClass->AddField(Field("myVertexShader", 0, reflectionSystem.GetClass<Shader *>()));
-	currentClass->AddField(Field("myFragmentShader", 8, reflectionSystem.GetClass<Shader *>()));
-	currentClass->AddField(Field("myPipeline", 16, reflectionSystem.GetClass<vk::Pipeline>()));
-	currentClass->AddField(Field("myPipelineLayout", 24, reflectionSystem.GetClass<vk::PipelineLayout>()));
-	currentClass->AddField(Field("myFrameDescriptorSet", 32, reflectionSystem.GetClass<VulkanDescriptorSet>()));
-	currentClass->AddField(Field("myFrameDataBuffer", 128, reflectionSystem.GetClass<VulkanBuffer *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexShader", 0, reflectionSystem.GetClass<Shader *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFragmentShader", 8, reflectionSystem.GetClass<Shader *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipeline", 16, reflectionSystem.GetClass<vk::Pipeline>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 24, reflectionSystem.GetClass<vk::PipelineLayout>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", 32, reflectionSystem.GetClass<VulkanDescriptorSet>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", 128, reflectionSystem.GetClass<VulkanBuffer *>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<FullscreenPipeline>();
-	currentClass->AddField(Field("myVertexShader", 0, reflectionSystem.GetClass<Shader *>()));
-	currentClass->AddField(Field("myFragmentShader", 8, reflectionSystem.GetClass<Shader *>()));
-	currentClass->AddField(Field("myPipeline", 16, reflectionSystem.GetClass<vk::Pipeline>()));
-	currentClass->AddField(Field("myPipelineLayout", 24, reflectionSystem.GetClass<vk::PipelineLayout>()));
-	currentClass->AddField(Field("myRenderPass", 32, reflectionSystem.GetClass<vk::RenderPass>()));
-	currentClass->AddField(Field("myDescriptorSet", 40, reflectionSystem.GetClass<VulkanDescriptorSet>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexShader", 0, reflectionSystem.GetClass<Shader *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFragmentShader", 8, reflectionSystem.GetClass<Shader *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipeline", 16, reflectionSystem.GetClass<vk::Pipeline>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 24, reflectionSystem.GetClass<vk::PipelineLayout>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenderPass", 32, reflectionSystem.GetClass<vk::RenderPass>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDescriptorSet", 40, reflectionSystem.GetClass<VulkanDescriptorSet>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<GDRPipeline>();
-	currentClass->AddField(Field("myPrePassShader", 0, reflectionSystem.GetClass<Shader *>()));
-	currentClass->AddField(Field("myCullShader", 8, reflectionSystem.GetClass<Shader *>()));
-	currentClass->AddField(Field("myCubemap", 16, reflectionSystem.GetClass<TextureCube *>()));
-	currentClass->AddField(Field("myIndirectCommandsBuffer", 88, reflectionSystem.GetClass<ResizableBuffer *>()));
-	currentClass->AddField(Field("myCountBuffer", 96, reflectionSystem.GetClass<VulkanBuffer *>()));
-	currentClass->AddField(Field("myPerDrawDataBuffer", 104, reflectionSystem.GetClass<ResizableBuffer *>()));
-	currentClass->AddField(Field("myFrameDescriptorSet", 112, reflectionSystem.GetClass<VulkanDescriptorSet>()));
-	currentClass->AddField(Field("myPipelineLayout", 208, reflectionSystem.GetClass<vk::PipelineLayout>()));
-	currentClass->AddField(Field("myPipeline", 216, reflectionSystem.GetClass<vk::Pipeline>()));
-	currentClass->AddField(Field("myVertexShader", 224, reflectionSystem.GetClass<Shader *>()));
-	currentClass->AddField(Field("myFragmentShader", 232, reflectionSystem.GetClass<Shader *>()));
-	currentClass->AddField(Field("myFrameDataBuffer", 240, reflectionSystem.GetClass<VulkanBuffer *>()));
-	currentClass->AddField(Field("myDirectionalLightBuffer", 248, reflectionSystem.GetClass<VulkanBuffer *>()));
-	currentClass->AddField(Field("myDirtyTransforms", 256, reflectionSystem.GetClass<List<TransformComponent *>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myPrePassShader", 0, reflectionSystem.GetClass<Shader *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCullShader", 8, reflectionSystem.GetClass<Shader *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCubemap", 16, reflectionSystem.GetClass<TextureCube *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIndirectCommandsBuffer", 88, reflectionSystem.GetClass<ResizableBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCountBuffer", 96, reflectionSystem.GetClass<VulkanBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPerDrawDataBuffer", 104, reflectionSystem.GetClass<ResizableBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", 112, reflectionSystem.GetClass<VulkanDescriptorSet>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 208, reflectionSystem.GetClass<vk::PipelineLayout>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipeline", 216, reflectionSystem.GetClass<vk::Pipeline>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexShader", 224, reflectionSystem.GetClass<Shader *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFragmentShader", 232, reflectionSystem.GetClass<Shader *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", 240, reflectionSystem.GetClass<VulkanBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirectionalLightBuffer", 248, reflectionSystem.GetClass<VulkanBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirtyTransforms", 256, reflectionSystem.GetClass<List<TransformComponent *>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<IndexBufferHandle>();
-	currentClass->AddField(Field("myIndex", 0, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myIndex", 0, reflectionSystem.GetClass<unsigned int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<MeshData>();
-	currentClass->AddField(Field("myBoundingSphereModelSpace", 0, reflectionSystem.GetClass<glm::vec<4, float>>()));
-	currentClass->AddField(Field("myVertexIndex", 16, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myIndexDataIndex", 20, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myMaterialIndex", 24, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myBoundingSphereModelSpace", 0, reflectionSystem.GetClass<glm::vec<4, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexIndex", 16, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIndexDataIndex", 20, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 24, reflectionSystem.GetClass<unsigned int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VertexBufferData>();
-	currentClass->AddField(Field("myOffset", 0, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", 0, reflectionSystem.GetClass<unsigned int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<IndexBufferData>();
-	currentClass->AddField(Field("myOffset", 0, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myCount", 4, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", 0, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCount", 4, reflectionSystem.GetClass<unsigned int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<MeshInstanceData>();
-	currentClass->AddField(Field("myToWorld", 0, reflectionSystem.GetClass<glm::mat<4, 4, float>>()));
-	currentClass->AddField(Field("myMeshIndex", 64, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myAlbedoIndex", 68, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myNormalIndex", 72, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myMaterialIndex", 76, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myToWorld", 0, reflectionSystem.GetClass<glm::mat<4, 4, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMeshIndex", 64, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", 68, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormalIndex", 72, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 76, reflectionSystem.GetClass<unsigned int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<PerDrawData>();
-	currentClass->AddField(Field("myToWorld", 0, reflectionSystem.GetClass<glm::mat<4, 4, float>>()));
-	currentClass->AddField(Field("myAlbedoIndex", 64, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myNormalIndex", 68, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myMaterialIndex", 72, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("padding", 76, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myToWorld", 0, reflectionSystem.GetClass<glm::mat<4, 4, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", 64, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormalIndex", 68, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 72, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("padding", 76, reflectionSystem.GetClass<unsigned int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<PointLightData>();
-	currentClass->AddField(Field("myColor", 0, reflectionSystem.GetClass<glm::vec<4, float>>()));
-	currentClass->AddField(Field("myPosition", 16, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myRange", 28, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myIntensity", 32, reflectionSystem.GetClass<float>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myColor", 0, reflectionSystem.GetClass<glm::vec<4, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPosition", 16, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRange", 28, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIntensity", 32, reflectionSystem.GetClass<float>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<IndexBufferSystem>();
-	currentClass->AddField(Field("myUsedBufferSize", 8, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myCurrentIndexOffset", 12, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myIndexBuffers", 16, reflectionSystem.GetClass<List<IndexBufferHandle *>>()));
-	currentClass->AddField(Field("myBuffer", 40, reflectionSystem.GetClass<ResizableBuffer *>()));
-	currentClass->AddField(Field("mySparseIndexDataBuffer", 48, reflectionSystem.GetClass<ResizableBuffer *>()));
-	currentClass->AddField(Field("mySparseIndexData_CPURepresentation", 56, reflectionSystem.GetClass<List<IndexBufferData>>()));
-	currentClass->AddField(Field("myFreeSparseIndices", 80, reflectionSystem.GetClass<List<unsigned int>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myUsedBufferSize", 8, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCurrentIndexOffset", 12, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIndexBuffers", 16, reflectionSystem.GetClass<List<IndexBufferHandle *>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffer", 40, reflectionSystem.GetClass<ResizableBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySparseIndexDataBuffer", 48, reflectionSystem.GetClass<ResizableBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySparseIndexData_CPURepresentation", 56, reflectionSystem.GetClass<List<IndexBufferData>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFreeSparseIndices", 80, reflectionSystem.GetClass<List<unsigned int>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Mesh>();
-	currentClass->AddField(Field("myVertexBuffer", 0, reflectionSystem.GetClass<VertexBufferHandle *>()));
-	currentClass->AddField(Field("myIndexBuffer", 8, reflectionSystem.GetClass<IndexBufferHandle *>()));
-	currentClass->AddField(Field("mySphereBounds", 16, reflectionSystem.GetClass<glm::vec<4, float>>()));
-	currentClass->AddField(Field("myHandle", 32, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myAlbedoPath", 40, reflectionSystem.GetClass<std::basic_string<char>>()));
-	currentClass->AddField(Field("myNormalPath", 72, reflectionSystem.GetClass<std::basic_string<char>>()));
-	currentClass->AddField(Field("myMaterialPath", 104, reflectionSystem.GetClass<std::basic_string<char>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexBuffer", 0, reflectionSystem.GetClass<VertexBufferHandle *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIndexBuffer", 8, reflectionSystem.GetClass<IndexBufferHandle *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySphereBounds", 16, reflectionSystem.GetClass<glm::vec<4, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHandle", 32, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAlbedoPath", 40, reflectionSystem.GetClass<std::basic_string<char>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormalPath", 72, reflectionSystem.GetClass<std::basic_string<char>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialPath", 104, reflectionSystem.GetClass<std::basic_string<char>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<MeshSystem>();
-	currentClass->AddField(Field("myMeshes", 8, reflectionSystem.GetClass<List<Mesh *>>()));
-	currentClass->AddField(Field("myBuffer", 32, reflectionSystem.GetClass<ResizableBuffer *>()));
-	currentClass->AddField(Field("myNumObjects", 40, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myMeshes", 8, reflectionSystem.GetClass<List<Mesh *>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffer", 32, reflectionSystem.GetClass<ResizableBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNumObjects", 40, reflectionSystem.GetClass<unsigned int>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 }
 { 
@@ -924,35 +1543,65 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VertexBufferHandle>();
-	currentClass->AddField(Field("myIndex", 0, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myIndex", 0, reflectionSystem.GetClass<unsigned int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<TextureSystem>();
-	currentClass->AddField(Field("myDescriptorPool", 8, reflectionSystem.GetClass<vk::DescriptorPool>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myDescriptorPool", 8, reflectionSystem.GetClass<vk::DescriptorPool>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ResizableBuffer>();
-	currentClass->AddField(Field("OnBufferResized", 0, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
-	currentClass->AddField(Field("myHasActiveUpload", 104, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myHasRegisteredForTick", 105, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myBuffer", 112, reflectionSystem.GetClass<VulkanBuffer *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("OnBufferResized", 0, reflectionSystem.GetClass<MulticastDelegate<void ()>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHasActiveUpload", 104, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHasRegisteredForTick", 105, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffer", 112, reflectionSystem.GetClass<VulkanBuffer *>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VertexBufferSystem>();
-	currentClass->AddField(Field("myUsedBufferSize", 8, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myCurrentVertexOffset", 12, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myVertexBuffers", 16, reflectionSystem.GetClass<List<VertexBufferHandle *>>()));
-	currentClass->AddField(Field("myBuffer", 40, reflectionSystem.GetClass<ResizableBuffer *>()));
-	currentClass->AddField(Field("mySparseVertexDataBuffer", 48, reflectionSystem.GetClass<ResizableBuffer *>()));
-	currentClass->AddField(Field("mySparseVertexData_CPURepresentation", 56, reflectionSystem.GetClass<List<VertexBufferData>>()));
-	currentClass->AddField(Field("myFreeSparseIndices", 80, reflectionSystem.GetClass<List<unsigned int>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myUsedBufferSize", 8, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCurrentVertexOffset", 12, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexBuffers", 16, reflectionSystem.GetClass<List<VertexBufferHandle *>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffer", 40, reflectionSystem.GetClass<ResizableBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySparseVertexDataBuffer", 48, reflectionSystem.GetClass<ResizableBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySparseVertexData_CPURepresentation", 56, reflectionSystem.GetClass<List<VertexBufferData>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFreeSparseIndices", 80, reflectionSystem.GetClass<List<unsigned int>>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<BinaryReader>();
-	currentClass->AddField(Field("myBuffer", 0, reflectionSystem.GetClass<List<unsigned char>>()));
-	currentClass->AddField(Field("myReadOffset", 24, reflectionSystem.GetClass<unsigned long long>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffer", 0, reflectionSystem.GetClass<List<unsigned char>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myReadOffset", 24, reflectionSystem.GetClass<unsigned long long>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<LandscapeSystem>();
@@ -960,8 +1609,12 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<PointLightSystem>();
-	currentClass->AddField(Field("myBuffer", 8, reflectionSystem.GetClass<ResizableBuffer *>()));
-	currentClass->AddField(Field("myNumPointLights", 16, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffer", 8, reflectionSystem.GetClass<ResizableBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNumPointLights", 16, reflectionSystem.GetClass<unsigned int>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 }
 { 
@@ -978,86 +1631,190 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Debug::DrawLineInfos>();
-	currentClass->AddField(Field("myStart", 0, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myEnd", 12, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myColor", 24, reflectionSystem.GetClass<Color>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myStart", 0, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myEnd", 12, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myColor", 24, reflectionSystem.GetClass<Color>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ShaderDatabase>();
-	currentClass->AddField(Field("m_shaderBinaries", 0, reflectionSystem.GetClass<std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>>()));
-	currentClass->AddField(Field("m_shaderBinariesWithDebugInfo", 16, reflectionSystem.GetClass<std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("m_shaderBinaries", 0, reflectionSystem.GetClass<std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("m_shaderBinariesWithDebugInfo", 16, reflectionSystem.GetClass<std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<NvidiaAftermathTracker>();
-	currentClass->AddField(Field("m_initialized", 0, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("m_mutex", 8, reflectionSystem.GetClass<std::mutex>()));
-	currentClass->AddField(Field("m_shaderDebugInfo", 88, reflectionSystem.GetClass<std::map<GFSDK_Aftermath_ShaderDebugInfoIdentifier, std::vector<unsigned char>>>()));
-	currentClass->AddField(Field("m_shaderDatabase", 104, reflectionSystem.GetClass<ShaderDatabase>()));
-	currentClass->AddField(Field("m_markerMap", 136, reflectionSystem.GetClass<const std::array<std::map<unsigned long long, std::basic_string<char>>, 4> &>()));
-	currentClass->AddField(Field("m_AftermathFlags", 144, reflectionSystem.GetClass<const unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("m_initialized", 0, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("m_mutex", 8, reflectionSystem.GetClass<std::mutex>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("m_shaderDebugInfo", 88, reflectionSystem.GetClass<std::map<GFSDK_Aftermath_ShaderDebugInfoIdentifier, std::vector<unsigned char>>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("m_shaderDatabase", 104, reflectionSystem.GetClass<ShaderDatabase>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("m_markerMap", 136, reflectionSystem.GetClass<const std::array<std::map<unsigned long long, std::basic_string<char>>, 4> &>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("m_AftermathFlags", 144, reflectionSystem.GetClass<const unsigned int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<StagingBuffer>();
-	currentClass->AddField(Field("myUnderlyingBuffer", 0, reflectionSystem.GetClass<VulkanBuffer *>()));
-	currentClass->AddField(Field("mySize", 8, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myOffset", 12, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myUnderlyingBuffer", 0, reflectionSystem.GetClass<VulkanBuffer *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySize", 8, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", 12, reflectionSystem.GetClass<unsigned int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VulkanContext>();
-	currentClass->AddField(Field("myVulkanInstance", 0, reflectionSystem.GetClass<vk::Instance>()));
-	currentClass->AddField(Field("myDebugMessenger", 8, reflectionSystem.GetClass<vk::DebugUtilsMessengerEXT>()));
-	currentClass->AddField(Field("myPipelineCache", 16, reflectionSystem.GetClass<vk::PipelineCache>()));
-	currentClass->AddField(Field("myPhysicalDevice", 24, reflectionSystem.GetClass<VulkanPhysicalDevice *>()));
-	currentClass->AddField(Field("myDevice", 32, reflectionSystem.GetClass<VulkanDevice *>()));
-	currentClass->AddField(Field("myAllocator", 40, reflectionSystem.GetClass<VulkanAllocator *>()));
-	currentClass->AddField(Field("mySwapChain", 48, reflectionSystem.GetClass<VulkanSwapChain *>()));
-	currentClass->AddField(Field("markerMap", 56, reflectionSystem.GetClass<std::array<std::map<unsigned long long, std::basic_string<char>>, 4>>()));
-	currentClass->AddField(Field("myNvidiaAftermathDebugger", 120, reflectionSystem.GetClass<NvidiaAftermathTracker *>()));
-	currentClass->AddField(Field("myDescriptorPool", 128, reflectionSystem.GetClass<vk::DescriptorPool>()));
-	currentClass->AddField(Field("myExtensions", 136, reflectionSystem.GetClass<const List<const char *>>()));
-	currentClass->AddField(Field("myLayers", 160, reflectionSystem.GetClass<const List<const char *>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myVulkanInstance", 0, reflectionSystem.GetClass<vk::Instance>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDebugMessenger", 8, reflectionSystem.GetClass<vk::DebugUtilsMessengerEXT>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipelineCache", 16, reflectionSystem.GetClass<vk::PipelineCache>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPhysicalDevice", 24, reflectionSystem.GetClass<VulkanPhysicalDevice *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDevice", 32, reflectionSystem.GetClass<VulkanDevice *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAllocator", 40, reflectionSystem.GetClass<VulkanAllocator *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySwapChain", 48, reflectionSystem.GetClass<VulkanSwapChain *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("markerMap", 56, reflectionSystem.GetClass<std::array<std::map<unsigned long long, std::basic_string<char>>, 4>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNvidiaAftermathDebugger", 120, reflectionSystem.GetClass<NvidiaAftermathTracker *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDescriptorPool", 128, reflectionSystem.GetClass<vk::DescriptorPool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myExtensions", 136, reflectionSystem.GetClass<const List<const char *>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLayers", 160, reflectionSystem.GetClass<const List<const char *>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<StagingSystem>();
-	currentClass->AddField(Field("myLastFrameIndex", 8, reflectionSystem.GetClass<unsigned int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myLastFrameIndex", 8, reflectionSystem.GetClass<unsigned int>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VulkanDevice>();
-	currentClass->AddField(Field("myPhysicalDevice", 0, reflectionSystem.GetClass<const VulkanPhysicalDevice &>()));
-	currentClass->AddField(Field("myDevice", 8, reflectionSystem.GetClass<vk::Device>()));
-	currentClass->AddField(Field("myGraphicsQueue", 16, reflectionSystem.GetClass<vk::Queue>()));
-	currentClass->AddField(Field("myComputeQueue", 24, reflectionSystem.GetClass<vk::Queue>()));
-	currentClass->AddField(Field("myTransferQueue", 32, reflectionSystem.GetClass<vk::Queue>()));
-	currentClass->AddField(Field("myCommandPoolsMutex", 40, reflectionSystem.GetClass<std::recursive_mutex>()));
-	currentClass->AddField(Field("myCommandPools", 120, reflectionSystem.GetClass<std::map<std::thread::id, vk::CommandPool>>()));
-	currentClass->AddField(Field("myComputeCommandPools", 136, reflectionSystem.GetClass<std::map<std::thread::id, vk::CommandPool>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myPhysicalDevice", 0, reflectionSystem.GetClass<const VulkanPhysicalDevice &>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDevice", 8, reflectionSystem.GetClass<vk::Device>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myGraphicsQueue", 16, reflectionSystem.GetClass<vk::Queue>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myComputeQueue", 24, reflectionSystem.GetClass<vk::Queue>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTransferQueue", 32, reflectionSystem.GetClass<vk::Queue>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCommandPoolsMutex", 40, reflectionSystem.GetClass<std::recursive_mutex>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCommandPools", 120, reflectionSystem.GetClass<std::map<std::thread::id, vk::CommandPool>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myComputeCommandPools", 136, reflectionSystem.GetClass<std::map<std::thread::id, vk::CommandPool>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VulkanImage>();
-	currentClass->AddField(Field("myAllocation", 0, reflectionSystem.GetClass<VmaAllocation_T *>()));
-	currentClass->AddField(Field("myImage", 8, reflectionSystem.GetClass<vk::Image>()));
-	currentClass->AddField(Field("myView", 16, reflectionSystem.GetClass<vk::ImageView>()));
-	currentClass->AddField(Field("myFormat", 24, reflectionSystem.GetClass<vk::Format>()));
-	currentClass->AddField(Field("mySize", 28, reflectionSystem.GetClass<glm::vec<2, float>>()));
-	currentClass->AddField(Field("myNumMipLevels", 36, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myNumMSAASamples", 40, reflectionSystem.GetClass<vk::SampleCountFlagBits>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myAllocation", 0, reflectionSystem.GetClass<VmaAllocation_T *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myImage", 8, reflectionSystem.GetClass<vk::Image>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myView", 16, reflectionSystem.GetClass<vk::ImageView>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFormat", 24, reflectionSystem.GetClass<vk::Format>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySize", 28, reflectionSystem.GetClass<glm::vec<2, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNumMipLevels", 36, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNumMSAASamples", 40, reflectionSystem.GetClass<vk::SampleCountFlagBits>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VulkanImGui>();
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VulkanPhysicalDevice>();
-	currentClass->AddField(Field("myDevice", 0, reflectionSystem.GetClass<vk::PhysicalDevice>()));
-	currentClass->AddField(Field("myFeatures", 8, reflectionSystem.GetClass<vk::PhysicalDeviceFeatures2>()));
-	currentClass->AddField(Field("myMemoryProperties", 248, reflectionSystem.GetClass<vk::PhysicalDeviceMemoryProperties>()));
-	currentClass->AddField(Field("myQueueFamilyProperties", 768, reflectionSystem.GetClass<List<vk::QueueFamilyProperties>>()));
-	currentClass->AddField(Field("myMSAASampleCount", 792, reflectionSystem.GetClass<vk::SampleCountFlagBits>()));
-	currentClass->AddField(Field("myGraphicsQueueIndex", 796, reflectionSystem.GetClass<int>()));
-	currentClass->AddField(Field("myComputeQueueIndex", 800, reflectionSystem.GetClass<int>()));
-	currentClass->AddField(Field("myTransferQueueIndex", 804, reflectionSystem.GetClass<int>()));
-	currentClass->AddField(Field("myPresentQueueIndex", 808, reflectionSystem.GetClass<int>()));
-	currentClass->AddField(Field("myDeviceExtensions", 816, reflectionSystem.GetClass<List<const char *>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myDevice", 0, reflectionSystem.GetClass<vk::PhysicalDevice>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFeatures", 8, reflectionSystem.GetClass<vk::PhysicalDeviceFeatures2>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMemoryProperties", 248, reflectionSystem.GetClass<vk::PhysicalDeviceMemoryProperties>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myQueueFamilyProperties", 768, reflectionSystem.GetClass<List<vk::QueueFamilyProperties>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMSAASampleCount", 792, reflectionSystem.GetClass<vk::SampleCountFlagBits>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myGraphicsQueueIndex", 796, reflectionSystem.GetClass<int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myComputeQueueIndex", 800, reflectionSystem.GetClass<int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTransferQueueIndex", 804, reflectionSystem.GetClass<int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPresentQueueIndex", 808, reflectionSystem.GetClass<int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDeviceExtensions", 816, reflectionSystem.GetClass<List<const char *>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VulkanShaderIncluder>();
@@ -1065,46 +1822,100 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VulkanSwapChain>();
-	currentClass->AddField(Field("myDevice", 0, reflectionSystem.GetClass<const VulkanDevice &>()));
-	currentClass->AddField(Field("myWindowSurface", 8, reflectionSystem.GetClass<vk::SurfaceKHR>()));
-	currentClass->AddField(Field("myFormat", 16, reflectionSystem.GetClass<vk::Format>()));
-	currentClass->AddField(Field("myFences", 24, reflectionSystem.GetClass<List<vk::Fence>>()));
-	currentClass->AddField(Field("myImageAcquiredSemaphores", 48, reflectionSystem.GetClass<List<vk::Semaphore>>()));
-	currentClass->AddField(Field("myDrawCompleteSemaphores", 72, reflectionSystem.GetClass<List<vk::Semaphore>>()));
-	currentClass->AddField(Field("myFrameIndex", 96, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("mySyncIndex", 100, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("mySwapChain", 104, reflectionSystem.GetClass<vk::SwapchainKHR>()));
-	currentClass->AddField(Field("mySwapChainWidth", 112, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("mySwapChainHeight", 116, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myMinImageCount", 120, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myImages", 128, reflectionSystem.GetClass<List<vk::Image>>()));
-	currentClass->AddField(Field("myImageViews", 152, reflectionSystem.GetClass<List<vk::ImageView>>()));
-	currentClass->AddField(Field("myCommandPool", 176, reflectionSystem.GetClass<vk::CommandPool>()));
-	currentClass->AddField(Field("myCommandBuffers", 184, reflectionSystem.GetClass<List<vk::CommandBuffer>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myDevice", 0, reflectionSystem.GetClass<const VulkanDevice &>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myWindowSurface", 8, reflectionSystem.GetClass<vk::SurfaceKHR>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFormat", 16, reflectionSystem.GetClass<vk::Format>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFences", 24, reflectionSystem.GetClass<List<vk::Fence>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myImageAcquiredSemaphores", 48, reflectionSystem.GetClass<List<vk::Semaphore>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDrawCompleteSemaphores", 72, reflectionSystem.GetClass<List<vk::Semaphore>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFrameIndex", 96, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySyncIndex", 100, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySwapChain", 104, reflectionSystem.GetClass<vk::SwapchainKHR>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySwapChainWidth", 112, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySwapChainHeight", 116, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMinImageCount", 120, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myImages", 128, reflectionSystem.GetClass<List<vk::Image>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myImageViews", 152, reflectionSystem.GetClass<List<vk::ImageView>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCommandPool", 176, reflectionSystem.GetClass<vk::CommandPool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCommandBuffers", 184, reflectionSystem.GetClass<List<vk::CommandBuffer>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<WindowHandler>();
-	currentClass->AddField(Field("myHWND", 0, reflectionSystem.GetClass<HWND__ *>()));
-	currentClass->AddField(Field("myHInstance", 8, reflectionSystem.GetClass<HINSTANCE__ *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myHWND", 0, reflectionSystem.GetClass<HWND__ *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHInstance", 8, reflectionSystem.GetClass<HINSTANCE__ *>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<World>();
-	currentClass->AddField(Field("myAssetRegistry", 8, reflectionSystem.GetClass<AssetRegistry *>()));
-	currentClass->AddField(Field("mySystemManager", 16, reflectionSystem.GetClass<SystemManager<WorldSystem> *>()));
-	currentClass->AddField(Field("myCactus", 24, reflectionSystem.GetClass<GameObject *>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 8, reflectionSystem.GetClass<AssetRegistry *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySystemManager", 16, reflectionSystem.GetClass<SystemManager<WorldSystem> *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCactus", 24, reflectionSystem.GetClass<GameObject *>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<AutoInit>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Editor>();
-	currentClass->AddField(Field("myWindows", 0, reflectionSystem.GetClass<List<EditorWindow *>>()));
-	currentClass->AddField(Field("myNextID", 24, reflectionSystem.GetClass<int>()));
-	currentClass->AddField(Field("myGameTickFunction", 32, reflectionSystem.GetClass<Delegate<void ()>>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myWindows", 0, reflectionSystem.GetClass<List<EditorWindow *>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNextID", 24, reflectionSystem.GetClass<int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myGameTickFunction", 32, reflectionSystem.GetClass<Delegate<void ()>>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<EditorWindow>();
-	currentClass->AddField(Field("myWindowName", 8, reflectionSystem.GetClass<std::basic_string<char>>()));
-	currentClass->AddField(Field("myIsClosable", 40, reflectionSystem.GetClass<bool>()));
-	currentClass->AddField(Field("myID", 44, reflectionSystem.GetClass<int>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myWindowName", 8, reflectionSystem.GetClass<std::basic_string<char>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsClosable", 40, reflectionSystem.GetClass<bool>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myID", 44, reflectionSystem.GetClass<int>()));
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<HierarchyWindow>();
@@ -1116,40 +1927,82 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Viewport>();
-	currentClass->AddField(Field("myEditorCamera", 72, reflectionSystem.GetClass<EditorCameraMovementComponent *>()));
-	currentClass->AddField(Field("myDescriptorSets", 80, reflectionSystem.GetClass<List<vk::DescriptorSet>>()));
-	currentClass->AddField(Field("mySampler", 104, reflectionSystem.GetClass<vk::Sampler>()));
-	currentClass->AddField(Field("myP0", 112, reflectionSystem.GetClass<ImVec2>()));
-	currentClass->AddField(Field("myP1", 120, reflectionSystem.GetClass<ImVec2>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myEditorCamera", 72, reflectionSystem.GetClass<EditorCameraMovementComponent *>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDescriptorSets", 80, reflectionSystem.GetClass<List<vk::DescriptorSet>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySampler", 104, reflectionSystem.GetClass<vk::Sampler>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myP0", 112, reflectionSystem.GetClass<ImVec2>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myP1", 120, reflectionSystem.GetClass<ImVec2>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EditorWindow>());
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EventObserver>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<PlayerCameraControllerComponent>();
-	currentClass->AddField(Field("myMouseSensitivity", 16, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("mySpringArmChangeAmount", 20, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myMinSpringArmLength", 24, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myMaxSpringArmLength", 28, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myPitch", 32, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myYaw", 36, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myStoredPitch", 40, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myStoredYaw", 44, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myStoredSpringArmLength", 48, reflectionSystem.GetClass<float>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myMouseSensitivity", 16, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySpringArmChangeAmount", 20, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMinSpringArmLength", 24, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaxSpringArmLength", 28, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPitch", 32, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myYaw", 36, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myStoredPitch", 40, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myStoredYaw", 44, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myStoredSpringArmLength", 48, reflectionSystem.GetClass<float>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<PlayerComponent>();
-	currentClass->AddField(Field("mySpeed", 16, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("mySprintSpeed", 20, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myJumpForce", 24, reflectionSystem.GetClass<float>()));
+	{
+		Field& currentField = currentClass->AddField(Field("mySpeed", 16, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySprintSpeed", 20, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myJumpForce", 24, reflectionSystem.GetClass<float>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<SpringArmComponent>();
-	currentClass->AddField(Field("myLength", 16, reflectionSystem.GetClass<float>()));
-	currentClass->AddField(Field("myOffset", 20, reflectionSystem.GetClass<glm::vec<3, float>>()));
-	currentClass->AddField(Field("myExclusionTags", 32, reflectionSystem.GetClass<unsigned int>()));
-	currentClass->AddField(Field("myHitOffset", 36, reflectionSystem.GetClass<float>()));
+	{
+		Field& currentField = currentClass->AddField(Field("myLength", 16, reflectionSystem.GetClass<float>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", 20, reflectionSystem.GetClass<glm::vec<3, float>>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myExclusionTags", 32, reflectionSystem.GetClass<unsigned int>()));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHitOffset", 36, reflectionSystem.GetClass<float>()));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 }
 { 

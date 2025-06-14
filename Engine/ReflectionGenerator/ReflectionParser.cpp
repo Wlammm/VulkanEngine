@@ -24,26 +24,26 @@ void ReflectionParser::Parse()
     std::vector<const char*> commandLineArgs;
     BuildCommandLineArgs(commandLineArgs);
     
-    CXTranslationUnit unit = clang_parseTranslationUnit(index, myFileToReflect.c_str(), commandLineArgs.data(), static_cast<int>(commandLineArgs.size()), nullptr, 0, CXTranslationUnit_SkipFunctionBodies);
+    myTranslationUnit = clang_parseTranslationUnit(index, myFileToReflect.c_str(), commandLineArgs.data(), static_cast<int>(commandLineArgs.size()), nullptr, 0, CXTranslationUnit_SkipFunctionBodies);
 
-    unsigned numDiagnostics = clang_getNumDiagnostics(unit);
+    unsigned numDiagnostics = clang_getNumDiagnostics(myTranslationUnit);
     for (unsigned i = 0; i < numDiagnostics; ++i)
     {
-        CXDiagnostic diag = clang_getDiagnostic(unit, i);
+        CXDiagnostic diag = clang_getDiagnostic(myTranslationUnit, i);
         CXString diagSpelling = clang_formatDiagnostic(diag, clang_defaultDiagnosticDisplayOptions());
         std::cout << clang_getCString(diagSpelling) << std::endl;
         clang_disposeString(diagSpelling);
         clang_disposeDiagnostic(diag);
     }
 
-    if (unit == nullptr)
+    if (myTranslationUnit == nullptr)
     {
         myFailed = true;
         myErrorMessages.push_back("Clang failed to parse translation unit.");
         return;
     }
 
-    CXCursor cursor = clang_getTranslationUnitCursor(unit);
+    CXCursor cursor = clang_getTranslationUnitCursor(myTranslationUnit);
     clang_visitChildren(cursor, &ReflectionParser::TraverseAST, &clientData);
 }
 
@@ -112,6 +112,12 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         clientData.classStack.back()->AddBaseClass(baseClassName);
     }
 
+    if (kind == CXCursor_AnnotateAttr || kind == CXCursor_UnexposedAttr )
+    {
+        std::string name = GetSpelling(inCurrentCursor);
+        int a= 10;
+    }
+
     if (kind == CXCursor_FieldDecl)
     {
         const std::string fieldName = GetSpelling(inCurrentCursor);
@@ -125,9 +131,11 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
             return CXChildVisit_Continue;
         
         const uint32_t byteOffset = GetByteOffsetOfField(inCurrentCursor, fieldName);
+
+        const std::vector<std::string> fieldMetaData = GetFieldMetaData(inCurrentCursor);
         
         const std::string typeName = GetSpelling(type);
-        clientData.classStack.back()->AddField(ReflectedField(fieldName, typeName, byteOffset));
+        clientData.classStack.back()->AddField(ReflectedField(fieldName, typeName, byteOffset, fieldMetaData));
     }
     
     return CXChildVisit_Continue;
@@ -147,7 +155,7 @@ void ReflectionParser::BuildCommandLineArgs(std::vector<const char*>& outCommand
     outCommandLineArgs.push_back("-D_WIN32");
     outCommandLineArgs.push_back("-D_WINDOWS");
     outCommandLineArgs.push_back("-Wno-everything");
-    // outCommandLineArgs.push_back("-DIGNORED_BY_REFLECTION=1");
+    outCommandLineArgs.push_back("-DREFLECTION_GENERATION=1");
     outCommandLineArgs.push_back("-D_CRT_USE_BUILTIN_OFFSETOF=1");
     outCommandLineArgs.push_back("-DNDEBUG=1");
 
@@ -296,6 +304,58 @@ bool ReflectionParser::IsTypePublicRecursive(CXType type)
     }
 
     return true;
+}
+
+std::string GetSourceText(CXSourceRange range, CXTranslationUnit translationUnit)
+{
+    CXSourceLocation startLoc = clang_getRangeStart(range);
+    CXSourceLocation endLoc = clang_getRangeEnd(range);
+
+    CXFile file;
+    unsigned startOffset;
+    clang_getFileLocation(startLoc, &file, nullptr, nullptr, &startOffset);
+
+    unsigned endOffset;
+    clang_getFileLocation(endLoc, nullptr, nullptr, nullptr, &endOffset);
+
+    if (file == nullptr || endOffset < startOffset)
+        return "";
+
+    // Access the source file buffer from the translation unit
+    const char* fileContents = clang_getFileContents(translationUnit, file, nullptr);
+    if (!fileContents)
+        return "";
+
+    return std::string(fileContents + startOffset, endOffset - startOffset);
+}
+
+std::vector<std::string> ReflectionParser::GetFieldMetaData(const CXCursor& fieldCursor)
+{
+    std::vector<std::string> metaData;
+    
+    clang_visitChildren(fieldCursor,
+        [](CXCursor cursor, CXCursor /*parent*/, CXClientData clientData) -> CXChildVisitResult {
+            auto* metaVec = static_cast<std::vector<std::string>*>(clientData);
+            
+            if (clang_getCursorKind(cursor) == CXCursor_AnnotateAttr)
+            {
+                std::string annotation = GetSpelling(cursor);
+                std::istringstream iss(annotation);
+                std::string token;
+                while (std::getline(iss, token, ','))
+                {
+                    token.erase(0, token.find_first_not_of(" \t"));
+                    token.erase(token.find_last_not_of(" \t") + 1);
+                    if (!token.empty())
+                        metaVec->push_back(token);
+                }
+            }
+            return CXChildVisit_Recurse;
+        },
+        &metaData
+    );
+    
+    return metaData;
 }
 
 ReflectedClass& ReflectionParser::AddClass(const std::string& inFile, const ReflectedClass& inClass)

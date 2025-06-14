@@ -47,6 +47,7 @@ private:
     static uint32_t GetByteOffsetOfField(const CXCursor& inCurrentCursor, const std::string& inFieldName);
 
     static bool IsTypePublicRecursive(CXType inType);
+    static std::vector<std::string> GetFieldMetaData(const CXCursor& inCursor);
 
     ReflectedClass& AddClass(const std::string& inFile, const ReflectedClass& inClass);
     
@@ -54,6 +55,8 @@ private:
     std::string myFileToReflect;
     IncludePaths myIncludePaths;
 
+    inline static CXTranslationUnit myTranslationUnit;
+    
     bool myFailed = false;
 
     std::unordered_map<std::string, std::list<ReflectedClass>> myClassesInFiles;
