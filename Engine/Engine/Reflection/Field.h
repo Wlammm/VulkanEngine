@@ -12,7 +12,7 @@ public:
     uint32_t GetOffset() const;
     const Class* GetType() const;
 
-    const List<std::string>& GetMetadata() const;
+    const std::vector<std::string>& GetMetadata() const;
     bool HasMetadata(const std::string& inMetadata) const;
     
 private:
@@ -26,5 +26,6 @@ private:
     uint32_t myOffset = 0;
     const Class* myType = nullptr;
 
-    List<std::string> myMetadata;
+    // TODO: Replacing this vector with a list shows a bug in the list class when moving elements. I dont wanna fix it right now but should probably be done soon.
+    std::vector<std::string> myMetadata;
 };

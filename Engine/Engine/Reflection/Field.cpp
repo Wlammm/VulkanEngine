@@ -16,14 +16,14 @@ const Class* Field::GetType() const
     return myType;
 }
 
-const List<std::string>& Field::GetMetadata() const
+const std::vector<std::string>& Field::GetMetadata() const
 {
     return myMetadata;
 }
 
 bool Field::HasMetadata(const std::string& inMetadata) const
 {
-    return myMetadata.Contains(inMetadata);
+    return std::find(myMetadata.begin(), myMetadata.end(), inMetadata) != myMetadata.end();
 }
 
 Field::Field(const std::string& inName, const uint inOffset, const Class* inType)
@@ -35,5 +35,5 @@ Field::Field(const std::string& inName, const uint inOffset, const Class* inType
 
 void Field::AddMetadata(const std::string& inMetadata)
 {
-    myMetadata.Add(inMetadata);
+    myMetadata.push_back(inMetadata);
 }

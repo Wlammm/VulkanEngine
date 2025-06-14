@@ -1,7 +1,6 @@
 ﻿#include "ReflectionParser.h"
 
 #include <iostream>
-#include <__msvc_ostream.hpp>
 #include <clang-c/Index.h>
 
 #include "IncludePaths.h"

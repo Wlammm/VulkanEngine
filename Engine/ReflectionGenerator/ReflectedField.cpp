@@ -50,5 +50,6 @@ void ReflectedField::Load(const nlohmann::json& inJson)
 {
     myFieldName = inJson["fieldName"];
     myFieldType = inJson["fieldType"];
-    myMetadata = inJson["metadata"].get<std::vector<std::string>>();
+    if(inJson.contains("metadata"))
+        myMetadata = inJson["metadata"].get<std::vector<std::string>>();
 }
