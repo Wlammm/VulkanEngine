@@ -89,6 +89,11 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         if (!clang_isCursorDefinition(inCurrentCursor))
             return CXChildVisit_Continue;
 
+        // Dont iterate private classes as they wont work with our reflected file.
+        CX_CXXAccessSpecifier accessSpecifier = clang_getCXXAccessSpecifier(inCurrentCursor);
+        if (accessSpecifier != CX_CXXPublic && accessSpecifier != CX_CXXInvalidAccessSpecifier)
+            return CXChildVisit_Continue;
+
         const std::string fileName = GetFileName(location);
         ReflectedClass& currentClass = clientData.self->AddClass(fileName, ReflectedClass(BuildClassNameFromStack(clientData.classStack, className)));
         clientData.classStack.emplace_back(&currentClass);
@@ -115,9 +120,14 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         {
             clientData.self->myErrorMessages.push_back("Class: " + clientData.classStack.back()->GetClassName() + " found invalid type with name: " + fieldName);
         }
+
+        if (!IsTypePublicRecursive(type))
+            return CXChildVisit_Continue;
+        
+        const uint32_t byteOffset = GetByteOffsetOfField(inCurrentCursor, fieldName);
         
         const std::string typeName = GetSpelling(type);
-        clientData.classStack.back()->AddField(ReflectedField(fieldName, typeName));
+        clientData.classStack.back()->AddField(ReflectedField(fieldName, typeName, byteOffset));
     }
     
     return CXChildVisit_Continue;
@@ -206,6 +216,86 @@ std::string ReflectionParser::BuildClassNameFromStack(const std::vector<Reflecte
     }
     className += inNewClassName;
     return className;
+}
+
+uint32_t ReflectionParser::GetByteOffsetOfField(const CXCursor& inCurrentCursor, const std::string& inFieldName)
+{
+    CXCursor classCursor = clang_getCursorSemanticParent(inCurrentCursor);
+    CXType classType = clang_getCursorType(classCursor);
+    long long bitOffset = clang_Type_getOffsetOf(classType, inFieldName.c_str());
+    long long byteOffset = 0;
+    if (bitOffset < 0)
+    {
+        std::cout << "Failed to get offset for field: " << inFieldName << std::endl;
+    }
+    else
+    {
+        byteOffset = bitOffset / 8;
+    }
+    return static_cast<uint32_t>(byteOffset);
+}
+
+bool ReflectionParser::IsTypePublicRecursive(CXType type)
+{
+    // Handle pointers, references, arrays
+    while (true)
+    {
+        if (type.kind == CXType_Pointer || type.kind == CXType_LValueReference || type.kind == CXType_RValueReference)
+        {
+            type = clang_getPointeeType(type);
+            continue;
+        }
+
+        if (type.kind == CXType_ConstantArray || type.kind == CXType_IncompleteArray)
+        {
+            type = clang_getArrayElementType(type);
+            continue;
+        }
+
+        break;
+    }
+
+    // Check type declaration
+    CXCursor typeDecl = clang_getTypeDeclaration(type);
+    if (!clang_Cursor_isNull(typeDecl))
+    {
+        // Handle template specializations
+        CXCursor specialized = clang_getSpecializedCursorTemplate(typeDecl);
+        if (!clang_Cursor_isNull(specialized))
+            typeDecl = specialized;
+
+        CX_CXXAccessSpecifier access = clang_getCXXAccessSpecifier(typeDecl);
+        if (access != CX_CXXPublic && access != CX_CXXInvalidAccessSpecifier)
+            return false;
+
+        // Walk semantic parents for nested private classes
+        CXCursor parent = clang_getCursorSemanticParent(typeDecl);
+        while (!clang_Cursor_isNull(parent))
+        {
+            CX_CXXAccessSpecifier parentAccess = clang_getCXXAccessSpecifier(parent);
+            if (parentAccess != CX_CXXPublic && parentAccess != CX_CXXInvalidAccessSpecifier)
+                return false;
+
+            parent = clang_getCursorSemanticParent(parent);
+        }
+    }
+
+    // Now handle templates recursively
+    int numTemplateArgs = clang_Type_getNumTemplateArguments(type);
+    if (numTemplateArgs > 0)
+    {
+        for (int i = 0; i < numTemplateArgs; ++i)
+        {
+            CXType templateArg = clang_Type_getTemplateArgumentAsType(type, i);
+            if (templateArg.kind == CXType_Invalid)
+                continue;
+
+            if (!IsTypePublicRecursive(templateArg))
+                return false;
+        }
+    }
+
+    return true;
 }
 
 ReflectedClass& ReflectionParser::AddClass(const std::string& inFile, const ReflectedClass& inClass)

@@ -41,7 +41,7 @@ void ReflectionFileBuilder::BuildClassDeclarations(const ReflectionCache& inCach
     {
         for (const ReflectedClass& reflectedClass : entry.myClasses)
         {
-            outString += "reflectionSystem.AddClass(\"" + reflectedClass.GetClassName() + "\", typeid(" + reflectedClass.GetClassName() + ").name());\n";
+            outString += "reflectionSystem.AddClass<" + reflectedClass.GetClassName() + ">(\"" + reflectedClass.GetClassName() + "\", typeid(" + reflectedClass.GetClassName() + ").name());\n";
         }
     }
 }
@@ -58,7 +58,7 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
             for (const ReflectedField& field : reflectedClass.GetFields())
             {
                 // TODO: Implement pointer and reference bools here.
-                outString += "\tcurrentClass->AddField(Field(\"" + field.GetFieldName() + "\", offsetof(" + reflectedClass.GetClassName() + ", " + field.GetFieldName() + "), reflectionSystem.GetClass<" + field.GetFieldType() + ">()));\n";
+                outString += "\tcurrentClass->AddField(Field(\"" + field.GetFieldName() + "\", " + std::to_string(field.GetByteOffset()) +", reflectionSystem.GetClass<" + field.GetFieldType() + ">()));\n";
             }
 
             for (const std::string& baseClassTypeName : reflectedClass.GetBaseTypeNames())

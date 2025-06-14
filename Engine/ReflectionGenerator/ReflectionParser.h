@@ -46,6 +46,8 @@ private:
 
     static uint32_t GetByteOffsetOfField(const CXCursor& inCurrentCursor, const std::string& inFieldName);
 
+    static bool IsTypePublicRecursive(CXType inType);
+
     ReflectedClass& AddClass(const std::string& inFile, const ReflectedClass& inClass);
     
 private:

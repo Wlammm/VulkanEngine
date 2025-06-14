@@ -40,6 +40,9 @@ void ReflectionCache::LoadCache()
     
     for (auto& [filePath, cacheData] : json.items())
     {
+        if (!std::filesystem::exists(filePath))
+            continue;
+        
         CachedFileData fileData;
         fileData.Load(cacheData);
         myCache[filePath] = fileData;

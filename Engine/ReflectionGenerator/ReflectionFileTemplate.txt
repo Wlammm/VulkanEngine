@@ -4,8 +4,6 @@
 #include "Engine/Reflection/Field.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 
-#define private public
-#define protected public
 
 // BEGIN INCLUDES FOR REFLECTED TYPES
 
@@ -31,5 +29,3 @@ public:
         }
     }
 };
-#undef private
-#undef protected
