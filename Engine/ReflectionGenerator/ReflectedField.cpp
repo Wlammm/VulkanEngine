@@ -37,6 +37,7 @@ nlohmann::json ReflectedField::Save() const
     nlohmann::json json;
     json["fieldName"] = myFieldName;
     json["fieldType"] = myFieldType;
+    json["byteOffset"]  = myByteOffset;
 
     for (const std::string& metadata : myMetadata)
     {
@@ -50,6 +51,7 @@ void ReflectedField::Load(const nlohmann::json& inJson)
 {
     myFieldName = inJson["fieldName"];
     myFieldType = inJson["fieldType"];
+    myByteOffset = inJson["byteOffset"];
     if(inJson.contains("metadata"))
         myMetadata = inJson["metadata"].get<std::vector<std::string>>();
 }

@@ -1,6 +1,7 @@
 ﻿#include "EditorPch.h"
 #include "InspectorWindow.h"
 
+#include "ImGuiPropertyDrawer.h"
 #include "SelectionSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/Components/TransformComponent.h"
@@ -62,17 +63,9 @@ void InspectorWindow::DrawComponentProperties(Component* inComponent)
 
     if (isOpen)
     {
-        
         for (const Field& field : componentClass->GetFieldsWithMetadata("ExposeToEditor"))
         {
-            ImGui::PushID(&field);
-
-            ImGui::Text(field.GetName().c_str());
-            ImGui::SameLine();
-            static float val = 0;
-            ImGui::DragFloat("##something", &val);
-
-            ImGui::PopID();
+            ImGuiPropertyDrawer::DrawProperty(field, inComponent);
         }
     }
 }

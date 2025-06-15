@@ -14,6 +14,20 @@ public:
 
     const List<std::string>& GetMetadata() const;
     bool HasMetadata(const std::string& inMetadata) const;
+
+    template<typename Type>
+    Type& GetTypeFromInstance(void* inInstance) const
+    {
+        char* charPtr = (char*)inInstance;
+        Type* typePtr = (Type*)(charPtr + myOffset);
+        return *typePtr;
+    }
+
+    void* GetPointerToValue(void* inInstance) const
+    {
+        char* charPtr = (char*)inInstance;
+        return (void*)(charPtr + myOffset);
+    }
     
 private:
     friend class GeneratedReflectionData;

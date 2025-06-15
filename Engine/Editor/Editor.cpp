@@ -2,6 +2,7 @@
 #include "Editor.h"
 #include "Windows/EditorWindow.h"
 #include "Windows/HierarchyWindow.h"
+#include "Windows/ImGuiPropertyDrawer.h"
 #include "Windows/InspectorWindow.h"
 #include "Windows/Viewport.h"
 
@@ -9,6 +10,8 @@ Editor::Editor()
 {
 	check(myInstance == nullptr && "There is already an instance of this class. Only one allowed!");
 	myInstance = this;
+
+	ImGuiPropertyDrawer::RegisterDrawers();
 
 	AddWindow<Viewport>();
 	AddWindow<HierarchyWindow>();

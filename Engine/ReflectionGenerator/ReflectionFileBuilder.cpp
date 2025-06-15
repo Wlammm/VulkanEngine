@@ -58,7 +58,7 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
             for (const ReflectedField& field : reflectedClass.GetFields())
             {
                 outString += "\t{\n";
-                outString += "\t\tField& currentField = currentClass->AddField(Field(\"" + field.GetFieldName() + "\", " + std::to_string(field.GetByteOffset()) +", reflectionSystem.GetClass<" + field.GetFieldType() + ">()));\n";
+                outString += "\t\tField& currentField = currentClass->AddField(Field(\"" + field.GetFieldName() + "\", " + std::to_string(field.GetByteOffset()) +", reflectionSystem.GetOrCreateClass<" + field.GetFieldType() + ">(\"" + field.GetFieldType() + "\")));\n";
                 for (const std::string& metadata : field.GetFieldMetadata())
                 {
                     outString += "\t\tcurrentField.AddMetadata(\"" + metadata + "\");\n";
