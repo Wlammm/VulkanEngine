@@ -16,7 +16,9 @@ public:
     const List<Field>& GetFields() const;
 
     List<Field> GetFieldsWithMetadata(const std::string& inMetadata) const;
-    
+
+    const Method* GetMethod(const std::string& inMethodName) const;
+     
     template<typename ClassType>
     bool IsA() const
     {

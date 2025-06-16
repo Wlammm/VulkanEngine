@@ -38,6 +38,16 @@ List<Field> Class::GetFieldsWithMetadata(const std::string& inMetadata) const
     return fields;
 }
 
+const Method* Class::GetMethod(const std::string& inMethodName) const
+{
+    for (const Method& method : myMethods)
+    {
+        if (method.GetMethodName() == inMethodName)
+            return &method;
+    }
+    return nullptr;
+}
+
 Field& Class::AddField(const Field& inField)
 {
     return myFields.Emplace(inField);

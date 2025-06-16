@@ -5368,6 +5368,18 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inMetadata", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
 currentClass->AddMethod(Method("GetFieldsWithMetadata", reflectionSystem.GetOrCreateClass<List<Field>>("List<Field>"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Class* instance = static_cast<Class*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+const Method * result = instance->GetMethod(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMethodName", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
+currentClass->AddMethod(Method("GetMethod", reflectionSystem.GetOrCreateClass<const Method *>("const Method *"), invoker, arguments));
+}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ReflectionSystem>();
