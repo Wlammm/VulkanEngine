@@ -61,6 +61,7 @@ public:
     glm::vec3 GetRotationRad() const;
     glm::vec3 GetRotationDeg() const;
 
+    META(AllowPrivateAccess)
     glm::vec3 GetScale() const;
 
     TransformComponent* GetParent() const;

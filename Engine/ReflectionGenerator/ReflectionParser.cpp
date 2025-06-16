@@ -141,7 +141,8 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
             clang_CXXConstructor_isMoveConstructor(inCurrentCursor))
                 return CXChildVisit_Continue;
 
-        ReflectedMethod method(methodName, returnTypeName, isConst, isStatic, isReturnTypePtr, isReturnTypeRef);
+        const std::vector<std::string> metadata = GetMetadata(inCurrentCursor);
+        ReflectedMethod method(methodName, returnTypeName, isConst, isStatic, isReturnTypePtr, isReturnTypeRef, metadata);
 
         const int numArgs = clang_Cursor_getNumArguments(inCurrentCursor);
         for (int i = 0; i < numArgs; ++i)
@@ -181,7 +182,7 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         
         const uint32_t byteOffset = GetByteOffsetOfField(inCurrentCursor, fieldName);
 
-        const std::vector<std::string> fieldMetaData = GetFieldMetaData(inCurrentCursor);
+        const std::vector<std::string> fieldMetaData = GetMetadata(inCurrentCursor);
         
         const std::string typeName = GetSpelling(type);
         clientData.classStack.back()->AddField(ReflectedField(fieldName, typeName, byteOffset, fieldMetaData));
@@ -378,7 +379,7 @@ std::string GetSourceText(CXSourceRange range, CXTranslationUnit translationUnit
     return std::string(fileContents + startOffset, endOffset - startOffset);
 }
 
-std::vector<std::string> ReflectionParser::GetFieldMetaData(const CXCursor& fieldCursor)
+std::vector<std::string> ReflectionParser::GetMetadata(const CXCursor& fieldCursor)
 {
     std::vector<std::string> metaData;
     

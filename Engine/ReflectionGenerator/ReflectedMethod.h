@@ -31,7 +31,7 @@ class ReflectedMethod
 {
 public:
     ReflectedMethod();
-    ReflectedMethod(const std::string& inMethodName, const std::string& inReturnTypeName, const bool inIsConst, const bool inIsStatic, const bool inIsReturnTypePointer, const bool inIsReturnTypeReference);
+    ReflectedMethod(const std::string& inMethodName, const std::string& inReturnTypeName, const bool inIsConst, const bool inIsStatic, const bool inIsReturnTypePointer, const bool inIsReturnTypeReference, const std::vector<std::string>& inMetadata);
 
     void AddArgument(const ReflectedMethodArgument& inArgument);
 
@@ -41,6 +41,9 @@ public:
 
     const bool IsReturnTypePointer() const;
     const bool IsReturnTypeReference() const;
+
+    const std::vector<std::string>& GetMetadata() const;
+
     
     nlohmann::json Save() const;
 
@@ -60,4 +63,5 @@ private:
     bool myIsStatic = false;
     
     std::vector<ReflectedMethodArgument> myArguments;
+    std::vector<std::string> myMetadata;
 };

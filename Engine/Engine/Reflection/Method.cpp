@@ -22,6 +22,16 @@ const std::string& Method::GetMethodName() const
     return myMethodName;
 }
 
+const List<std::string>& Method::GetMetadata() const
+{
+    return myMetadata;
+}
+
+bool Method::HasMetadata(const std::string& inMetadata) const
+{
+    return myMetadata.Contains(inMetadata);
+}
+
 void* Method::Invoke(void* inInstance, const List<void*>& inArguments) const
 {
     if (myInvoker.IsValid())
@@ -35,5 +45,10 @@ Method::Method(const std::string& inMethodName, const Class* inReturnType, const
     myReturnType = inReturnType;
     myArguments = inArguments;
     myInvoker = std::move(inInvoker);
+}
+
+void Method::AddMetadata(const std::string& inMetadata)
+{
+    myMetadata.Add(inMetadata);
 }
 

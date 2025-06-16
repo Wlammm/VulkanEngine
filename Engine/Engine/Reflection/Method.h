@@ -28,6 +28,10 @@ public:
     
     const std::string& GetMethodName() const;
 
+    const List<std::string>& GetMetadata() const;
+    bool HasMetadata(const std::string& inMetadata) const;
+
+
     void* Invoke(void* inInstance, const List<void*>& inArguments) const;
 
     template<typename ReturnType, typename... Args>
@@ -54,6 +58,8 @@ public:
 private:
     Method(const std::string& inMethodName, const Class* inReturnType, const InvokerType& inInvoker, const List<MethodArgument>& inArguments);
     
+    void AddMetadata(const std::string& inMetadata);
+    
 private:
     friend class ReflectionSystem;
     friend class GeneratedReflectionData;
@@ -61,6 +67,7 @@ private:
     std::string myMethodName;
     const Class* myReturnType = nullptr;
     List<MethodArgument> myArguments{};
+    List<std::string> myMetadata;
 
     InvokerType myInvoker;
 };

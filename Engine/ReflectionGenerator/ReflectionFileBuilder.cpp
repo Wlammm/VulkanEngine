@@ -133,7 +133,13 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
                     outString += "arguments.Add(MethodArgument(\"" + arg.GetArgumentName() + "\", reflectionSystem.GetOrCreateClass<" + arg.GetArgumentType() + ">(\"" + arg.GetArgumentType() + "\")));\n";
                 }
                 
-                outString += "currentClass->AddMethod(Method(\"" + method.GetMethodName() + "\", reflectionSystem.GetOrCreateClass<" + method.GetReturnTypeName() + ">(\"" + method.GetReturnTypeName() + "\"), invoker, arguments));\n";
+                outString += "Method& currentMethod = currentClass->AddMethod(Method(\"" + method.GetMethodName() + "\", reflectionSystem.GetOrCreateClass<" + method.GetReturnTypeName() + ">(\"" + method.GetReturnTypeName() + "\"), invoker, arguments));\n";
+
+                for (const std::string& metadata : method.GetMetadata())
+                {
+                    outString += "currentMethod.AddMetadata(\"" + metadata + "\");\n";
+                }
+                
                 outString += "}\n";
             }
             

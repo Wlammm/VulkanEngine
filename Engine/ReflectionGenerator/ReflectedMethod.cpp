@@ -62,7 +62,7 @@ ReflectedMethod::ReflectedMethod()
 {
 }
 
-ReflectedMethod::ReflectedMethod(const std::string& inMethodName, const std::string& inReturnTypeName, const bool inIsConst, const bool inIsStatic, const bool inIsReturnTypePointer, const bool inIsReturnTypeReference)
+ReflectedMethod::ReflectedMethod(const std::string& inMethodName, const std::string& inReturnTypeName, const bool inIsConst, const bool inIsStatic, const bool inIsReturnTypePointer, const bool inIsReturnTypeReference, const std::vector<std::string>& inMetadata)
 {
     myMethodName = inMethodName;
     myReturnTypeName = inReturnTypeName;
@@ -70,6 +70,7 @@ ReflectedMethod::ReflectedMethod(const std::string& inMethodName, const std::str
     myIsStatic = inIsStatic;
     myIsReturnTypePointer = inIsReturnTypePointer;
     myIsReturnTypeReference = inIsReturnTypeReference;
+    myMetadata = inMetadata;
 }
 
 void ReflectedMethod::AddArgument(const ReflectedMethodArgument& inArgument)
@@ -102,6 +103,11 @@ const bool ReflectedMethod::IsReturnTypeReference() const
     return myIsReturnTypeReference;
 }
 
+const std::vector<std::string>& ReflectedMethod::GetMetadata() const
+{
+    return myMetadata;
+}
+
 nlohmann::json ReflectedMethod::Save() const
 {
     nlohmann::json json;
@@ -111,6 +117,7 @@ nlohmann::json ReflectedMethod::Save() const
     json["isStatic"] = myIsStatic;
     json["isReturnTypePointer"] = myIsReturnTypePointer;
     json["isReturnTypeReference"] = myIsReturnTypeReference;
+    json["metadata"] = myMetadata;
 
     for (const ReflectedMethodArgument& argument : myArguments)
     {
@@ -128,6 +135,7 @@ void ReflectedMethod::Load(const nlohmann::json& inJson)
     myIsStatic = inJson["isStatic"].get<bool>();
     myIsReturnTypePointer = inJson["isReturnTypePointer"].get<bool>();
     myIsReturnTypeReference = inJson["isReturnTypeReference"].get<bool>();
+    myMetadata = inJson["metadata"].get<std::vector<std::string>>();
 
     if (inJson.contains("arguments"))
     {
