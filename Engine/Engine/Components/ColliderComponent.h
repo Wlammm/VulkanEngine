@@ -32,7 +32,7 @@ public:
     // An offset applied to the position of the physX actor.
     void SetLocalShapePosition(const glm::vec3& inOffset);
     void SetLocalShapeRotation(const glm::vec3& inRotation);
-
+    
 protected:
     physx::PxShape* myShape = nullptr;
 

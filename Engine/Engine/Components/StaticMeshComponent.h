@@ -34,8 +34,11 @@ private:
     
 private:
     std::filesystem::path myPath = "";
-    
+
+    META(ExposeToEditor)
     List<Material*> myMaterials{};
+
+    META(ExposeToEditor)
     Model* myModel = nullptr;
 
     List<MeshInstanceIndex> myMeshInstances{};

@@ -4,12 +4,30 @@
 #include "Engine/Reflection/Field.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 
-
 // BEGIN INCLUDES FOR REFLECTED TYPES
 
 $(FileIncludes)
 
 // END INCLUDES FOR REFLECTED TYPES
+
+template<typename T>
+std::any WrapReturnValue(T&& value)
+{
+    using Decayed = std::decay_t<T>;
+    
+    if constexpr (std::is_reference_v<T>)
+    {
+        return std::any(std::ref(value));
+    }
+    else if constexpr (std::is_copy_constructible_v<Decayed>)
+    {
+        return std::any(std::forward<T>(value));
+    }
+    else
+    {
+        return std::any(std::make_shared<Decayed>(std::forward<T>(value)));
+    }
+}
 
 class GeneratedReflectionData
 {

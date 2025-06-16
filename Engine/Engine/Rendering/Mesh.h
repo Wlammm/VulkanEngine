@@ -12,8 +12,6 @@ public:
 
     uint GetHandle() const;
 
-    const std::filesystem::path& GetAlbedoPathTemp() const;
-
     const std::string& GetAlbedoPath() const;
     const std::string& GetNormalPath() const;
     const std::string& GetMaterialPath() const;

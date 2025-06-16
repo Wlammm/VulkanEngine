@@ -3,6 +3,7 @@
 ../External/
 ../External/assimp/include/
 ../External/aftermath/include/
+../External/access_private_20/include
 ../ImGui/
 ../External/tracy/
 ../External/glm/

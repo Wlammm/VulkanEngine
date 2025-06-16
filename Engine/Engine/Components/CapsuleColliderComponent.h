@@ -13,6 +13,9 @@ private:
     void OnScaleChanged() override;
     
 private:
+    META(ExposeToEditor)
     float myRadius = 50.0f;
+
+    META(ExposeToEditor)
     float myHeight = 100.0f;
 };

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <regex>
 #include <sstream>
+#include <set>
 
 #include "ReflectionCache.h"
 
@@ -70,6 +71,72 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
             {
                 outString += "\tcurrentClass->AddBaseClass(reflectionSystem.GetMutableClass<" + baseClassTypeName + ">());\n";
             }
+
+            for (const ReflectedMethod& method : reflectedClass.GetMethods())
+            {
+                /*
+                    *Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void* 
+                    {
+                    String* instance = static_cast<String*>(inInstance);
+                    std::basic_string<char> & arg0 = (std::basic_string<char>&)(inArguments[0]);
+                    std::basic_string<char> & result = instance->ToLower(arg0);
+                    return (void*)&result;
+                    });
+                */
+                
+                // Add method reflection code here.
+                outString += "{\n";
+
+                outString += "Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*\n";
+                outString += "{\n";
+                outString += reflectedClass.GetClassName() + "* instance = static_cast<" + reflectedClass.GetClassName() + "*>(inInstance);\n";
+
+                std::string argList;
+                for (int i = 0; i < method.GetArguments().size(); ++i)
+                {
+                    const ReflectedMethodArgument& arg = method.GetArguments()[i];
+                    if (arg.GetIsPointer())
+                        outString += arg.GetArgumentType() + " arg" + std::to_string(i) + " = (" + arg.GetUnqualifiedTypeName() + "*)inArguments[" + std::to_string(i) + "];\n";
+                    else
+                        outString += arg.GetArgumentType() + " arg" + std::to_string(i) + " = *(" + arg.GetUnqualifiedTypeName() + "*)inArguments[" + std::to_string(i) + "];\n";
+                    
+                    if (argList.empty())
+                        argList += "arg" + std::to_string(i);
+                    else
+                        argList += ", arg" + std::to_string(i);
+                }
+
+                if (method.GetReturnTypeName() == "void")
+                {
+                    outString += "instance->" + method.GetMethodName() + "(" + argList + ");\n";
+                    outString += "return nullptr;\n";
+                }
+                else
+                {
+                    if (method.IsReturnTypePointer() || method.IsReturnTypeReference())
+                        outString += method.GetReturnTypeName() + " result = instance->" + method.GetMethodName() + "(" + argList + ");\n";
+                    else
+                        outString += "static thread_local " + method.GetReturnTypeName() + " result = instance->" + method.GetMethodName() + "(" + argList + ");\n";
+                    
+                    if (method.IsReturnTypePointer())
+                        outString += "return (void*)result;\n";
+                    else
+                        outString += "return (void*)&result;\n";
+                }
+                outString += "});\n";
+
+                // Method& currentMethod = currentClass->AddMethod(Method(inMethodName, GetClass<ClassType>(), invoker, listWithARgumetns));
+                outString += "List<MethodArgument> arguments{};\n";
+
+                for (const ReflectedMethodArgument& arg : method.GetArguments())
+                {
+                    outString += "arguments.Add(MethodArgument(\"" + arg.GetArgumentName() + "\", reflectionSystem.GetOrCreateClass<" + arg.GetArgumentType() + ">(\"" + arg.GetArgumentType() + "\")));\n";
+                }
+                
+                outString += "currentClass->AddMethod(Method(\"" + method.GetMethodName() + "\", reflectionSystem.GetOrCreateClass<" + method.GetReturnTypeName() + ">(\"" + method.GetReturnTypeName() + "\"), invoker, arguments));\n";
+                outString += "}\n";
+            }
+            
             outString += "}\n";
         }
     }

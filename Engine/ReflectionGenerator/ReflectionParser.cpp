@@ -5,6 +5,7 @@
 
 #include "IncludePaths.h"
 #include "PathUtils.hpp"
+#include "ReflectedMethod.h"
 #include "../ImGui/imgui_internal.h"
 
 ReflectionParser::ReflectionParser(const std::string& inFileToReflect, const IncludePaths& inIncludePaths)
@@ -111,10 +112,59 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         clientData.classStack.back()->AddBaseClass(baseClassName);
     }
 
-    if (kind == CXCursor_AnnotateAttr || kind == CXCursor_UnexposedAttr )
+    if (kind == CXCursor_CXXMethod)
     {
-        std::string name = GetSpelling(inCurrentCursor);
-        int a= 10;
+        CX_CXXAccessSpecifier accessSpecifier = clang_getCXXAccessSpecifier(inCurrentCursor);
+        if (accessSpecifier != CX_CXXPublic)
+            return CXChildVisit_Continue;
+        
+        const std::string methodName = GetSpelling(inCurrentCursor);
+        const CXType returnType = clang_getCanonicalType(clang_getCursorResultType(inCurrentCursor));
+        
+
+        const bool isReturnTypePtr = returnType.kind == CXType_Pointer;
+        const bool isReturnTypeRef = returnType.kind == CXType_LValueReference;
+        
+        const std::string returnTypeName = GetSpelling(returnType);
+        bool isConst = clang_CXXMethod_isConst(inCurrentCursor);
+        bool isStatic = clang_CXXMethod_isStatic(inCurrentCursor);
+
+        if (clang_Cursor_isVariadic(inCurrentCursor))
+            return CXChildVisit_Continue;
+        
+        if (clang_CXXConstructor_isCopyConstructor(inCurrentCursor) ||
+            clang_CXXMethod_isCopyAssignmentOperator(inCurrentCursor) ||
+            clang_CXXMethod_isMoveAssignmentOperator(inCurrentCursor) ||
+            clang_CXXMethod_isPureVirtual(inCurrentCursor) ||
+            clang_CXXMethod_isDefaulted(inCurrentCursor) ||
+            clang_CXXConstructor_isCopyConstructor(inCurrentCursor) ||
+            clang_CXXConstructor_isMoveConstructor(inCurrentCursor))
+                return CXChildVisit_Continue;
+
+        ReflectedMethod method(methodName, returnTypeName, isConst, isStatic, isReturnTypePtr, isReturnTypeRef);
+
+        const int numArgs = clang_Cursor_getNumArguments(inCurrentCursor);
+        for (int i = 0; i < numArgs; ++i)
+        {
+            CXCursor argCursor = clang_Cursor_getArgument(inCurrentCursor, i);
+            const std::string argName = GetSpelling(argCursor);
+
+            CXType returnType = clang_getCanonicalType(clang_getCursorType(argCursor));
+            const bool isArgTypePtr = returnType.kind == CXType_Pointer;
+            const bool isArgTypeRef = returnType.kind == CXType_LValueReference;
+            const std::string argTypeName = GetSpelling(returnType);
+
+            std::string unqualifiedTypeName;
+            if (isArgTypePtr)
+                unqualifiedTypeName = GetSpelling(clang_getCanonicalType(clang_getPointeeType(returnType)));
+            else if (isArgTypeRef)
+                unqualifiedTypeName = GetSpelling(clang_getCanonicalType(clang_getNonReferenceType(returnType)));
+            else
+                unqualifiedTypeName = argTypeName;
+            method.AddArgument(ReflectedMethodArgument(argName, argTypeName, unqualifiedTypeName, isArgTypePtr, isArgTypeRef));
+        }
+
+        clientData.classStack.back()->AddMethod(method);
     }
 
     if (kind == CXCursor_FieldDecl)

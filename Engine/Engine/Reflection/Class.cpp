@@ -38,6 +38,25 @@ List<Field> Class::GetFieldsWithMetadata(const std::string& inMetadata) const
     return fields;
 }
 
+Field& Class::AddField(const Field& inField)
+{
+    return myFields.Emplace(inField);
+}
+
+Method& Class::AddMethod(const Method& inMethod)
+{
+    return myMethods.Emplace(inMethod);
+}
+
+void Class::AddBaseClass(Class* inBaseClass)
+{
+    if (!inBaseClass)
+        return;
+        
+    myBaseClasses.Add(inBaseClass);
+    inBaseClass->myDerivedClasses.Add(this);
+}
+
 Class::Class(const std::string& inClassName, const std::string& inFullName, Delegate<void*()> inFactoryFunction)
     : myClassName(inClassName), myFullName(inFullName)
 { }

@@ -30,10 +30,6 @@ public:
     void SetPosition(const float inX, const float inY, const float inZ);
     void SetPosition(const physx::PxVec3T<float>& inPosition);
 
-    void SetPitch(float pitchRadians);
-    void SetYaw(float yawRadians);
-    void SetRoll(float rollRadians);
-
     void SetPositionX(const float inX);
     void SetPositionY(const float inY);
     void SetPositionZ(const float inZ);
@@ -95,7 +91,7 @@ private:
     glm::vec3 myPosition { 0, 0, 0 };
     META(ExposeToEditor)
     glm::quat myRotation = glm::identity<glm::quat>();
-    META(ExposeToEditor)
+    META(ExposeToEditor, AllowPrivateAccess)
     glm::vec3 myScale { 1, 1, 1 };
 
     // This bool is set to true whenever we get an update from physics.

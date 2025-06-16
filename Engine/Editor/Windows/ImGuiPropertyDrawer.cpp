@@ -11,7 +11,7 @@ void ImGuiPropertyDrawer::RegisterDrawers()
 
     RegisterDrawer<float>(reflectionSystem.GetClass<float>(), [](float& inVal)
     {
-        ImGui::InputFloat2("##float", &inVal);
+        ImGui::InputFloat("##float", &inVal);
     });
 
     RegisterDrawer<int>(reflectionSystem.GetClass<int>(), [](int& inVal)

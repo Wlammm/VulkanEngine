@@ -15,10 +15,12 @@ private:
 	glm::vec2 myResolution;
 	glm::mat4 myProjection;
 
+	META(ExposeToEditor)
 	float myFov = 90.0f;
+	META(ExposeToEditor)
 	float myNearPlane = 1.0f;
+	META(ExposeToEditor)
 	float myFarPlane = 100000.0f;
 
 	bool myIsOrthographic = false;
-
 };

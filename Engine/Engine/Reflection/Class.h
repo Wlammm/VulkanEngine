@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Field.h"
+#include "Method.h"
 #include "Engine/Containers/List.hpp"
 #include "Engine/Delegates/Delegate.hpp"
 
@@ -43,19 +44,10 @@ public:
 private:
     friend class ReflectionSystem;
     friend class GeneratedReflectionData;
-    Field& AddField(const Field& inField)
-    {
-        return myFields.Emplace(inField);
-    }
-
-    void AddBaseClass(Class* inBaseClass)
-    {
-        if (!inBaseClass)
-            return;
-        
-        myBaseClasses.Add(inBaseClass);
-        inBaseClass->myDerivedClasses.Add(this);
-    }
+    
+    Field& AddField(const Field& inField);
+    Method& AddMethod(const Method& inMethod);
+    void AddBaseClass(Class* inBaseClass);
     
     Class() = delete;
     Class(const std::string& inClassName, const std::string& inFullName, Delegate<void*()> inFactoryFunction);
@@ -73,4 +65,5 @@ private:
     List<const Class*> myDerivedClasses{};
     
     List<Field> myFields{};
+    List<Method> myMethods{};
 };

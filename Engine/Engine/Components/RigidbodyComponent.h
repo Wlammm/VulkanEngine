@@ -82,5 +82,6 @@ private:
     physx::PxRigidDynamic* myActor = nullptr;
     int myFramesSinceStartSleep = 0;
 
+    META(ExposeToEditor)
     float myMass = 0.0f;
 };

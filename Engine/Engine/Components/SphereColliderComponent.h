@@ -12,5 +12,6 @@ private:
     void OnScaleChanged() override;
     
 private:
+    META(ExposeToEditor)
     float myRadius = 50;
 };

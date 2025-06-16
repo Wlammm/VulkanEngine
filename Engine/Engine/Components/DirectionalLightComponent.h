@@ -20,8 +20,10 @@ public:
     void EnableShadows();
 
 private:
+    META(ExposeToEditor)
     bool myIsShadowsEnabled = false;
-    
+
+    META(ExposeToEditor)
     glm::vec4 myColor = {1, 1, 1, 1};
     glm::mat4 myLightProjection;
 };

@@ -32,15 +32,27 @@ private:
     physx::PxControllerCollisionFlags myCollisionFlags;
 	physx::PxControllerFilters myFilter = 0;
 
-    float myHeight = 200;
+    META(ExposeToEditor)
+    float myHeight = 200
+    ;
+    META(ExposeToEditor)
     float myRadius = 20;
+    
+    META(ExposeToEditor)
     float mySlopeLimitDegrees = 45;
+
     float myMinDist = 0.1f;
     float myStepOffset = 10.0f;
+    
+    META(ExposeToEditor)
     bool myUseGravity = true;
 
     float myDownVelocity = 0;
+
+    META(ExposeToEditor)
     float myGravity = 981;
+
+    META(ExposeToEditor)
     float myTerminalVelocity = 5500;
 
     glm::vec3 myDisplacement = glm::vec3(0, 0, 0);

@@ -7,9 +7,16 @@ public:
     void Tick() override;
 
 private:
+    META(ExposeToEditor)
     float myMouseSensitivity = 15.0f;
+
+    META(ExposeToEditor)
     float mySpringArmChangeAmount = 20;
+    
+    META(ExposeToEditor)
     float myMinSpringArmLength = 50;
+
+    META(ExposeToEditor)
     float myMaxSpringArmLength = 1000;
 
     float myPitch = 0.f;

@@ -71,6 +71,8 @@ workspace "Engine"
 		"../%{prj.name}/**.natvis",
 	}
 	
+	filter "action:vs*"
+		buildoptions { "/bigobj" }
 	filter "configurations:Game Debug"
 		defines { "DEBUG" }
 		symbols "On"
