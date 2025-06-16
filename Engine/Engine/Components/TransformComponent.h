@@ -81,6 +81,7 @@ public:
     MulticastDelegate<void()> OnRotationChanged;
     MulticastDelegate<void()> OnScaleChanged;
 
+    void MarkDirtyFromInspector();
 private:
     void MarkDirty(bool inPosition, bool inRotation, bool inScale);
 
@@ -88,7 +89,7 @@ private:
     bool myRotationDirty = false;
     bool myScaleDirty = false;
 
-    META(ExposeToEditor)
+    META(ExposeToEditor, OnInspectorChangedEvent(MarkDirtyFromInspector))
     glm::vec3 myPosition { 0, 0, 0 };
     META(ExposeToEditor)
     glm::quat myRotation = glm::identity<glm::quat>();

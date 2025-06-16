@@ -314,6 +314,11 @@ void TransformComponent::Rotate(const float inX, const float inY, const float in
 	Rotate({inX, inY, inZ});
 }
 
+void TransformComponent::MarkDirtyFromInspector()
+{
+	MarkDirty(true, true, true);
+}
+
 void TransformComponent::MarkDirty(bool inPosition, bool inRotation, bool inScale)
 {
 	MarkRenderStateDirty();

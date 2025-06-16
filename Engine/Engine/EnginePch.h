@@ -46,6 +46,9 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 #define ExposeToEditor
 #endif
 
+// Called whenever the field was modified in the inspector
+#define OnInspectorChangedEvent(methodName)
+
 //#define TRACY_FIBERS
 
 #include "Engine/Utils/StdIncludes.hpp"
