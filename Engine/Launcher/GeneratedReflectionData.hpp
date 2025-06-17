@@ -1579,7 +1579,6 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", reflectionSys
 	{
 		Field& currentField = currentClass->AddField(Field("myScale", 360, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
 		currentField.AddMetadata("ExposeToEditor");
-		currentField.AddMetadata("AllowPrivateAccess");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySkipPhysicsUpdate", 372, reflectionSystem.GetOrCreateClass<bool>("bool")));
@@ -2024,7 +2023,7 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetScale", reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>"), invoker, arguments));
-		currentMethod.AddMetadata("AllowPrivateAccess");
+currentMethod.AddMetadata("AllowPrivateAccess");
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -2141,6 +2140,7 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("MarkDirtyFromInspector", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+currentMethod.AddMetadata("AllowPrivateAccess");
 }
 }
 { 

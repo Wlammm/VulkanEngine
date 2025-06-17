@@ -41,7 +41,7 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 // add up to META10 or more as needed
 
 
-#define AllowPrivateAccess friend class ReflectionPrivateMethodAccesser;
+#define AllowPrivateAccess friend class GeneratedReflectionData;
 
 #define ExposeToEditor
 #endif

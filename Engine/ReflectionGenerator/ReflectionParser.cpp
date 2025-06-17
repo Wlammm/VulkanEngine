@@ -72,6 +72,16 @@ const IncludePaths& ReflectionParser::GetIncludePaths() const
     return myIncludePaths;
 }
 
+bool HasAllowPrivateAccessMetadata(const std::vector<std::string>& inMetadata)
+{
+    for (const std::string& metadata: inMetadata)
+    {
+        if (metadata.contains("AllowPrivateAccess"))
+            return true;
+    }
+    return false;
+}
+
 CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCursor inParentCursor, CXClientData inClientData)
 {
     ClientData& clientData = *static_cast<ClientData*>(inClientData);
@@ -114,8 +124,9 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
 
     if (kind == CXCursor_CXXMethod)
     {
+        const std::vector<std::string> metadata = GetMetadata(inCurrentCursor);
         CX_CXXAccessSpecifier accessSpecifier = clang_getCXXAccessSpecifier(inCurrentCursor);
-        if (accessSpecifier != CX_CXXPublic)
+        if (accessSpecifier != CX_CXXPublic && !HasAllowPrivateAccessMetadata(metadata))
             return CXChildVisit_Continue;
         
         const std::string methodName = GetSpelling(inCurrentCursor);
@@ -141,7 +152,6 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
             clang_CXXConstructor_isMoveConstructor(inCurrentCursor))
                 return CXChildVisit_Continue;
 
-        const std::vector<std::string> metadata = GetMetadata(inCurrentCursor);
         ReflectedMethod method(methodName, returnTypeName, isConst, isStatic, isReturnTypePtr, isReturnTypeRef, metadata);
 
         const int numArgs = clang_Cursor_getNumArguments(inCurrentCursor);
