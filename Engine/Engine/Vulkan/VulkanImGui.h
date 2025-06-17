@@ -9,10 +9,15 @@ public:
 	static void BeginFrame();
 	static void Render(vk::CommandBuffer inCommandBuffer);
 
+	inline static ImFont* SourceSansPro_Regular = nullptr;
+	
 private:
 	static int ImGuiCreateWindowSurfaceImpl(ImGuiViewport* viewport, ImU64 vk_instance, const void* vk_allocator, ImU64* out_vk_surface);
 	static void VulkanCheckResult(VkResult result);
 
+	static void LoadFonts();
+
+	
 private:
 	inline static VkDescriptorPool myDescriptorPool;
 

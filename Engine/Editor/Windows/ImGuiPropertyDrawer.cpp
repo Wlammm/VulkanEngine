@@ -56,7 +56,10 @@ bool ImGuiPropertyDrawer::DrawProperty(const Field& inField, void* inInstance)
 {
     ImGui::PushID(inInstance);
     ImGui::Text(inField.GetName().c_str());
-    ImGui::SameLine(0.0f, 40);
+
+    float windowWidth = ImGui::GetWindowSize().x;
+    
+    ImGui::SameLine(windowWidth * 0.35f, 0);
     ON_SCOPE_EXIT([](){ ImGui::PopID(); });
 
     auto it = myDrawers.find(inField.GetType());

@@ -93,6 +93,14 @@ void Engine::Tick()
 	if (Input::IsKeyDown(KeyCode::Escape))
 		PostQuitMessage(0);
 
+	{
+		ZoneScopedN("TicksNextFrame");
+		// Move the data so that we can bind the same function for the next frame inside this invocation.
+		MulticastDelegate<void()> ticksThisFrame = std::move(TickNextFrame);
+		TickNextFrame.Clear();
+		ticksThisFrame.Invoke();
+	}
+	
 	myVulkanContext->BeginFrame();
 	myFilewatcher->FlushChanges();
 	
@@ -101,16 +109,7 @@ void Engine::Tick()
 	
 	myWorld->Update();
 
-	
 	myExternalTickFunction();
-
-	{
-		ZoneScopedN("TicksNextFrame");
-		// Move the data so that we can bind the same function for the next frame inside this invocation.
-		MulticastDelegate<void()> ticksThisFrame = std::move(TickNextFrame);
-		TickNextFrame.Clear();
-		ticksThisFrame.Invoke();
-	}
 	
 	GetEngineSystem<TextureSystem>().Tick();
 	GetEngineSystem<RenderSystem>().Tick();

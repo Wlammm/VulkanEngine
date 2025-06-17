@@ -6,6 +6,8 @@ class ReflectionSystem : public System
 {
 public:
     ~ReflectionSystem();
+
+    const List<Class*>& GetAllClasses() const;
     
     template<typename ClassType>
     const Class* GetClass() const
@@ -21,8 +23,8 @@ public:
         return nullptr;
     }
 
-    template<typename BaseType>
-    const Class* GetClass(const BaseType* inInstance) const
+    template<typename ClassType>
+    const Class* GetClass(const ClassType* inInstance) const
     {
         const std::string typeName = typeid(*inInstance).name();
         for (const Class* entry : myClasses)
@@ -40,7 +42,7 @@ private:
     void AddClass(const std::string& inClassName, const std::string& inFullName)
     {
         if constexpr (std::is_default_constructible_v<ClassType> && !std::is_abstract_v<ClassType>)
-            myClasses.Add(new Class(inClassName, inFullName, []() -> void* { return new std::remove_const<ClassType>::type(); }));
+            myClasses.Add(new Class(inClassName, inFullName, []() -> void* { return new typename std::remove_const<ClassType>::type(); }));
         else
             myClasses.Add(new Class(inClassName, inFullName, []() -> void* { check(false && "Class is not default constructible or abstract"); return nullptr; }));
     }

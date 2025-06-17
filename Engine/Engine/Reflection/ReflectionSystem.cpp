@@ -9,3 +9,8 @@ ReflectionSystem::~ReflectionSystem()
     }
     myClasses.Clear();
 }
+
+const List<Class*>& ReflectionSystem::GetAllClasses() const
+{
+    return myClasses;
+}

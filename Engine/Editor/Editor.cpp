@@ -1,5 +1,9 @@
 #include "EditorPch.h"
 #include "Editor.h"
+
+#include "EditorSystem/EditorSystem.h"
+#include "Engine/Engine.h"
+#include "Engine/Reflection/ReflectionSystem.h"
 #include "Windows/EditorWindow.h"
 #include "Windows/HierarchyWindow.h"
 #include "Windows/ImGuiPropertyDrawer.h"
@@ -13,9 +17,8 @@ Editor::Editor()
 
 	ImGuiPropertyDrawer::RegisterDrawers();
 
-	AddWindow<Viewport>();
-	AddWindow<HierarchyWindow>();
-	AddWindow<InspectorWindow>();
+	AddEditorWindows();
+	AddEditorSystems();
 }
 
 Editor::~Editor()
@@ -44,6 +47,11 @@ void Editor::Tick()
 	for(const auto& window : myWindows)
 	{
 		window->DoTick();
+	}
+
+	for (const auto& system : mySystems)
+	{
+		system->Tick();
 	}
 
 	ImGui::End();
@@ -91,5 +99,33 @@ void Editor::BeginMainDockSpace()
 	{
 		ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+	}
+}
+
+void Editor::AddEditorWindows()
+{
+	ReflectionSystem& reflectionSystem = Engine::GetEngineSystem<ReflectionSystem>();
+
+	const Class* editorWindowClass = reflectionSystem.GetClass<EditorWindow>();
+
+	for (const Class* entry : editorWindowClass->GetDerivedClasses())
+	{
+		EditorWindow* window = entry->CreateInstance<EditorWindow>();
+		window->myID = myNextID++;
+		myWindows.Add(window);
+	}
+}
+
+void Editor::AddEditorSystems()
+{
+	ReflectionSystem& reflectionSystem = Engine::GetEngineSystem<ReflectionSystem>();
+
+	const Class* editorSystemClass = reflectionSystem.GetClass<EditorSystem>();
+
+	for (const Class* entry : editorSystemClass->GetDerivedClasses())
+	{
+		EditorSystem* system = entry->CreateInstance<EditorSystem>();
+		system->myID = myNextID++;
+		mySystems.Add(system);
 	}
 }

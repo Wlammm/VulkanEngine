@@ -2,7 +2,7 @@
 #include "InspectorWindow.h"
 
 #include "ImGuiPropertyDrawer.h"
-#include "SelectionSystem.h"
+#include "Editor/EditorSystem/SelectionSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/Components/TransformComponent.h"
 #include "Engine/ComponentSystem/Component.h"

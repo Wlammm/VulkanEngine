@@ -9,25 +9,29 @@ public:
 
 	static void StaticTick();
 
-	template<typename T, typename... Args>
-	static T* AddWindow(Args&&... params)
-	{
-		T* window = new T(std::forward<Args>(params)...);
-		window->myID = myInstance->myNextID++;
-		myInstance->myWindows.Add(window);
-		return window;
-	}
-
 	static void RemoveWindow(class EditorWindow* inEditorWindow);
 
 	void SetGameTickFunction(const Delegate<void()>& inTickFunction);
+
+	template<typename WindowType>
+	static void OpenEditorWindow()
+	{
+		WindowType* window = new WindowType();
+		window->myID = myInstance->myNextID++;;
+		myInstance->myWindows.Add(window);
+	}
 	
 private:
 	void Tick();
 	void BeginMainDockSpace();
 
+	void AddEditorWindows();
+	void AddEditorSystems();
+
 private:
 	List<class EditorWindow*> myWindows{};
+	List<class EditorSystem*> mySystems{};
+	
 	int myNextID = 1;
 
 	Delegate<void()> myGameTickFunction;

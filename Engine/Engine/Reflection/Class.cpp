@@ -26,6 +26,11 @@ const List<Field>& Class::GetFields() const
     return myFields;
 }
 
+const List<Method>& Class::GetMethods() const
+{
+    return myMethods;
+}
+
 List<Field> Class::GetFieldsWithMetadata(const std::string& inMetadata) const
 {
     List<Field> fields;
@@ -36,6 +41,19 @@ List<Field> Class::GetFieldsWithMetadata(const std::string& inMetadata) const
             fields.Add(field);
     }
     return fields;
+}
+
+List<const Method*> Class::GetMethodsWithMetadata(const std::string& inMetadata) const
+{
+    List<const Method*> methods;
+    for (const Method& method : myMethods)
+    {
+        if (method.HasMetadata(inMetadata))
+        {
+            methods.Add(&method);
+        }
+    }
+    return methods;
 }
 
 const Method* Class::GetMethod(const std::string& inMethodName) const
@@ -67,6 +85,6 @@ void Class::AddBaseClass(Class* inBaseClass)
     inBaseClass->myDerivedClasses.Add(this);
 }
 
-Class::Class(const std::string& inClassName, const std::string& inFullName, Delegate<void*()> inFactoryFunction)
-    : myClassName(inClassName), myFullName(inFullName)
+Class::Class(const std::string& inClassName, const std::string& inFullName, const Delegate<void*()>& inFactoryFunction)
+    : myClassName(inClassName), myFullName(inFullName), myFactoryFunction(inFactoryFunction)
 { }

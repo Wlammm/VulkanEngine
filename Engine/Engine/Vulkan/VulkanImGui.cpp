@@ -62,6 +62,9 @@ void VulkanImGui::Start()
 	ImGui_ImplVulkan_Init(&createInfo, Engine::GetEngineSystem<RenderSystem>().GetImGuiRenderPass());
 
 	vk::CommandBuffer cmd = VulkanContext::GetDevice().CreateCommandBufferForThread(std::this_thread::get_id(), true);
+	
+	LoadFonts();
+	
 	ImGui_ImplVulkan_CreateFontsTexture(cmd);
 	VulkanContext::GetDevice().FlushCommandBufferFromThread(std::this_thread::get_id(), cmd);
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
@@ -109,4 +112,10 @@ int VulkanImGui::ImGuiCreateWindowSurfaceImpl(ImGuiViewport* viewport, ImU64 vk_
 void VulkanImGui::VulkanCheckResult(VkResult result)
 {
 	check(result == VkResult::VK_SUCCESS);
+}
+
+void VulkanImGui::LoadFonts()
+{
+	ImGuiIO& io = ImGui::GetIO();
+	SourceSansPro_Regular = io.Fonts->AddFontFromFileTTF("Editor/Fonts/SourceSansPro-Regular.ttf", 16.0f);
 }

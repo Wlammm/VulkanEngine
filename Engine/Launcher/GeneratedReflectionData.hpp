@@ -6,18 +6,20 @@
 
 // BEGIN INCLUDES FOR REFLECTED TYPES
 
-#include "../Editor/Windows/HierarchyWindow.h"
 #include "../Editor/EditorSystem/EditorSystem.h"
+#include "../Editor/Windows/HierarchyWindow.h"
 #include "../Engine/Animation/Skeleton.h"
 #include "../Editor/Editor.h"
+#include "../Editor/EditorSystem/ImGuiDemoSystem.h"
 #include "../Editor/EditorPch.h"
 #include "../Engine/Components/EditorCameraMovementComponent.h"
-#include "../Editor/Windows/ImGuiPropertyDrawer.h"
 #include "../Editor/EditorSystem/EditorToolbar.h"
-#include "../Editor/Windows/EditorWindow.h"
+#include "../Editor/Toolbar/Themes/EditorThemes.h"
+#include "../Engine/Components/CapsuleColliderComponent.h"
+#include "../Editor/EditorSystem/SelectionSystem.h"
 #include "../Editor/Windows/InspectorWindow.h"
-#include "../Engine/Physics/PhysicsErrorCallback.h"
-#include "../Editor/Windows/SelectionSystem.h"
+#include "../Editor/Windows/EditorWindow.h"
+#include "../Editor/Windows/ImGuiPropertyDrawer.h"
 #include "../Editor/Windows/Viewport.h"
 #include "../Engine/Core/Filewatcher.h"
 #include "../Engine/AssetRegistry/Asset.h"
@@ -48,7 +50,6 @@
 #include "../Engine/Components/LandscapeRenderComponent.h"
 #include "../Engine/Components/BoxColliderComponent.h"
 #include "../Engine/Components/CameraComponent.h"
-#include "../Engine/Components/CapsuleColliderComponent.h"
 #include "../Engine/Delegates/Internal/FreeFuncCtor.hpp"
 #include "../Engine/Vulkan/GPUSceneSystem.h"
 #include "../Engine/Components/RigidbodyComponent.h"
@@ -91,6 +92,7 @@
 #include "../Engine/Math/Heightfield.h"
 #include "../Engine/Math/LinearColor.h"
 #include "../Engine/Physics/PhysXInclude.h"
+#include "../Engine/Physics/PhysicsErrorCallback.h"
 #include "../Engine/Physics/PhysicsListener.h"
 #include "../Engine/Physics/PhysicsQueryStructs.h"
 #include "../Engine/Reflection/Class.h"
@@ -178,18 +180,20 @@ public:
 
 		// Create all classes.
 		{
-		    reflectionSystem.AddClass<HierarchyWindow>("HierarchyWindow", typeid(HierarchyWindow).name());
-reflectionSystem.AddClass<EditorSystem>("EditorSystem", typeid(EditorSystem).name());
+		    reflectionSystem.AddClass<EditorSystem>("EditorSystem", typeid(EditorSystem).name());
+reflectionSystem.AddClass<HierarchyWindow>("HierarchyWindow", typeid(HierarchyWindow).name());
 reflectionSystem.AddClass<Skeleton>("Skeleton", typeid(Skeleton).name());
 reflectionSystem.AddClass<Skeleton::Bone>("Skeleton::Bone", typeid(Skeleton::Bone).name());
 reflectionSystem.AddClass<Editor>("Editor", typeid(Editor).name());
+reflectionSystem.AddClass<ImGuiDemoSystem>("ImGuiDemoSystem", typeid(ImGuiDemoSystem).name());
 reflectionSystem.AddClass<EditorCameraMovementComponent>("EditorCameraMovementComponent", typeid(EditorCameraMovementComponent).name());
-reflectionSystem.AddClass<ImGuiPropertyDrawer>("ImGuiPropertyDrawer", typeid(ImGuiPropertyDrawer).name());
 reflectionSystem.AddClass<EditorToolbar>("EditorToolbar", typeid(EditorToolbar).name());
-reflectionSystem.AddClass<EditorWindow>("EditorWindow", typeid(EditorWindow).name());
-reflectionSystem.AddClass<InspectorWindow>("InspectorWindow", typeid(InspectorWindow).name());
-reflectionSystem.AddClass<PhysicsErrorCallback>("PhysicsErrorCallback", typeid(PhysicsErrorCallback).name());
+reflectionSystem.AddClass<EditorThemes>("EditorThemes", typeid(EditorThemes).name());
+reflectionSystem.AddClass<CapsuleColliderComponent>("CapsuleColliderComponent", typeid(CapsuleColliderComponent).name());
 reflectionSystem.AddClass<SelectionSystem>("SelectionSystem", typeid(SelectionSystem).name());
+reflectionSystem.AddClass<InspectorWindow>("InspectorWindow", typeid(InspectorWindow).name());
+reflectionSystem.AddClass<EditorWindow>("EditorWindow", typeid(EditorWindow).name());
+reflectionSystem.AddClass<ImGuiPropertyDrawer>("ImGuiPropertyDrawer", typeid(ImGuiPropertyDrawer).name());
 reflectionSystem.AddClass<Viewport>("Viewport", typeid(Viewport).name());
 reflectionSystem.AddClass<Filewatcher>("Filewatcher", typeid(Filewatcher).name());
 reflectionSystem.AddClass<Filewatcher::CallbackHandle>("Filewatcher::CallbackHandle", typeid(Filewatcher::CallbackHandle).name());
@@ -226,7 +230,6 @@ reflectionSystem.AddClass<CoroutineManager>("CoroutineManager", typeid(Coroutine
 reflectionSystem.AddClass<LandscapeRenderComponent>("LandscapeRenderComponent", typeid(LandscapeRenderComponent).name());
 reflectionSystem.AddClass<BoxColliderComponent>("BoxColliderComponent", typeid(BoxColliderComponent).name());
 reflectionSystem.AddClass<CameraComponent>("CameraComponent", typeid(CameraComponent).name());
-reflectionSystem.AddClass<CapsuleColliderComponent>("CapsuleColliderComponent", typeid(CapsuleColliderComponent).name());
 reflectionSystem.AddClass<GPUSceneSystem>("GPUSceneSystem", typeid(GPUSceneSystem).name());
 reflectionSystem.AddClass<ForceMode>("ForceMode", typeid(ForceMode).name());
 reflectionSystem.AddClass<RigidbodyComponent>("RigidbodyComponent", typeid(RigidbodyComponent).name());
@@ -257,6 +260,7 @@ reflectionSystem.AddClass<Color>("Color", typeid(Color).name());
 reflectionSystem.AddClass<PhysicsSystem>("PhysicsSystem", typeid(PhysicsSystem).name());
 reflectionSystem.AddClass<Heightfield>("Heightfield", typeid(Heightfield).name());
 reflectionSystem.AddClass<LinearColor>("LinearColor", typeid(LinearColor).name());
+reflectionSystem.AddClass<PhysicsErrorCallback>("PhysicsErrorCallback", typeid(PhysicsErrorCallback).name());
 reflectionSystem.AddClass<PhysicsListener>("PhysicsListener", typeid(PhysicsListener).name());
 reflectionSystem.AddClass<RaycastHit>("RaycastHit", typeid(RaycastHit).name());
 reflectionSystem.AddClass<Class>("Class", typeid(Class).name());
@@ -319,6 +323,12 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
         // Add all fields & add base classes.
         {
             { 
+	Class* currentClass = reflectionSystem.GetMutableClass<EditorSystem>();
+	{
+		Field& currentField = currentClass->AddField(Field("myID", 8, reflectionSystem.GetOrCreateClass<int>("int")));
+	}
+}
+{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<HierarchyWindow>();
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EditorWindow>());
 {
@@ -331,9 +341,6 @@ return nullptr;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<EditorSystem>();
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Skeleton>();
@@ -362,10 +369,13 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 		Field& currentField = currentClass->AddField(Field("myWindows", 0, reflectionSystem.GetOrCreateClass<List<EditorWindow *>>("List<EditorWindow *>")));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myNextID", 24, reflectionSystem.GetOrCreateClass<int>("int")));
+		Field& currentField = currentClass->AddField(Field("mySystems", 24, reflectionSystem.GetOrCreateClass<List<EditorSystem *>>("List<EditorSystem *>")));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myGameTickFunction", 32, reflectionSystem.GetOrCreateClass<Delegate<void ()>>("Delegate<void ()>")));
+		Field& currentField = currentClass->AddField(Field("myNextID", 48, reflectionSystem.GetOrCreateClass<int>("int")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myGameTickFunction", 56, reflectionSystem.GetOrCreateClass<Delegate<void ()>>("Delegate<void ()>")));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -400,6 +410,31 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inTickFunction", reflectionSystem.GetOrCreateClass<const Delegate<void ()> &>("const Delegate<void ()> &")));
 Method& currentMethod = currentClass->AddMethod(Method("SetGameTickFunction", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<ImGuiDemoSystem>();
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EditorSystem>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ImGuiDemoSystem* instance = static_cast<ImGuiDemoSystem*>(inInstance);
+instance->OpenImGuiDemoWindow();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OpenImGuiDemoWindow", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+currentMethod.AddMetadata(R"delim(EditorMenuItem("Open ImGui Demo Window"))delim");
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ImGuiDemoSystem* instance = static_cast<ImGuiDemoSystem*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -448,34 +483,10 @@ Method& currentMethod = currentClass->AddMethod(Method("ResetMouseDelta", reflec
 }
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<ImGuiPropertyDrawer>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ImGuiPropertyDrawer* instance = static_cast<ImGuiPropertyDrawer*>(inInstance);
-instance->RegisterDrawers();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("RegisterDrawers", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ImGuiPropertyDrawer* instance = static_cast<ImGuiPropertyDrawer*>(inInstance);
-const Field & arg0 = *(const Field*)inArguments[0];
-void * arg1 = (void*)inArguments[1];
-static thread_local bool result = instance->DrawProperty(arg0, arg1);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inField", reflectionSystem.GetOrCreateClass<const Field &>("const Field &")));
-arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
-Method& currentMethod = currentClass->AddMethod(Method("DrawProperty", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
-}
-}
-{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<EditorToolbar>();
+	{
+		Field& currentField = currentClass->AddField(Field("myToolbarMethods", 16, reflectionSystem.GetOrCreateClass<List<const Method *>>("List<const Method *>")));
+	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EditorSystem>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -489,61 +500,63 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 }
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<EditorWindow>();
-	{
-		Field& currentField = currentClass->AddField(Field("myWindowName", 8, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIsClosable", 40, reflectionSystem.GetOrCreateClass<bool>("bool")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myID", 44, reflectionSystem.GetOrCreateClass<int>("int")));
-	}
+	Class* currentClass = reflectionSystem.GetMutableClass<EditorThemes>();
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-EditorWindow* instance = static_cast<EditorWindow*>(inInstance);
-instance->DoTick();
+EditorThemes* instance = static_cast<EditorThemes*>(inInstance);
+instance->DefaultTheme();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("DoTick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("DefaultTheme", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+currentMethod.AddMetadata(R"delim(EditorMenuItem("Themes/Default"))delim");
 }
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<InspectorWindow>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EditorWindow>());
+	Class* currentClass = reflectionSystem.GetMutableClass<CapsuleColliderComponent>();
+	{
+		Field& currentField = currentClass->AddField(Field("myRadius", 56, reflectionSystem.GetOrCreateClass<float>("float")));
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHeight", 60, reflectionSystem.GetOrCreateClass<float>("float")));
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
+	}
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ColliderComponent>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-InspectorWindow* instance = static_cast<InspectorWindow*>(inInstance);
-instance->Tick();
+CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
+instance->OnCreate();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("OnCreate", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<PhysicsErrorCallback>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<physx::PxErrorCallback>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-PhysicsErrorCallback* instance = static_cast<PhysicsErrorCallback*>(inInstance);
-physx::PxErrorCode::Enum arg0 = *(physx::PxErrorCode::Enum*)inArguments[0];
-const char * arg1 = (const char*)inArguments[1];
-const char * arg2 = (const char*)inArguments[2];
-int arg3 = *(int*)inArguments[3];
-instance->reportError(arg0, arg1, arg2, arg3);
+CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
+const float arg0 = *(const float*)inArguments[0];
+instance->SetRadius(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("code", reflectionSystem.GetOrCreateClass<physx::PxErrorCode::Enum>("physx::PxErrorCode::Enum")));
-arguments.Add(MethodArgument("message", reflectionSystem.GetOrCreateClass<const char *>("const char *")));
-arguments.Add(MethodArgument("file", reflectionSystem.GetOrCreateClass<const char *>("const char *")));
-arguments.Add(MethodArgument("line", reflectionSystem.GetOrCreateClass<int>("int")));
-Method& currentMethod = currentClass->AddMethod(Method("reportError", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+arguments.Add(MethodArgument("inRadius", reflectionSystem.GetOrCreateClass<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("SetRadius", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
+const float arg0 = *(const float*)inArguments[0];
+instance->SetHeight(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inHeight", reflectionSystem.GetOrCreateClass<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("SetHeight", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -603,6 +616,69 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("ClearSelection", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<InspectorWindow>();
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EditorWindow>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+InspectorWindow* instance = static_cast<InspectorWindow*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<EditorWindow>();
+	{
+		Field& currentField = currentClass->AddField(Field("myWindowName", 8, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsClosable", 40, reflectionSystem.GetOrCreateClass<bool>("bool")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myID", 44, reflectionSystem.GetOrCreateClass<int>("int")));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorWindow* instance = static_cast<EditorWindow*>(inInstance);
+instance->DoTick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DoTick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<ImGuiPropertyDrawer>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ImGuiPropertyDrawer* instance = static_cast<ImGuiPropertyDrawer*>(inInstance);
+instance->RegisterDrawers();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("RegisterDrawers", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ImGuiPropertyDrawer* instance = static_cast<ImGuiPropertyDrawer*>(inInstance);
+const Field & arg0 = *(const Field*)inArguments[0];
+void * arg1 = (void*)inArguments[1];
+static thread_local bool result = instance->DrawProperty(arg0, arg1);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inField", reflectionSystem.GetOrCreateClass<const Field &>("const Field &")));
+arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+Method& currentMethod = currentClass->AddMethod(Method("DrawProperty", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
 }
 }
 { 
@@ -1210,6 +1286,18 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inMetadata", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("HasMetadata", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Method* instance = static_cast<Method*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local List<std::basic_string<char>> result = instance->GetMetadataArgs(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMetadata", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetMetadataArgs", reflectionSystem.GetOrCreateClass<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
+}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ImageData>();
@@ -1569,16 +1657,16 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", reflectionSys
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myPosition", 332, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
-		currentField.AddMetadata("ExposeToEditor");
-		currentField.AddMetadata("OnInspectorChangedEvent(MarkDirtyFromInspector)");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
+		currentField.AddMetadata(R"delim(OnInspectorChangedEvent(MarkDirtyFromInspector))delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myRotation", 344, reflectionSystem.GetOrCreateClass<glm::qua<float>>("glm::qua<float>")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myScale", 360, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySkipPhysicsUpdate", 372, reflectionSystem.GetOrCreateClass<bool>("bool")));
@@ -2023,7 +2111,7 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetScale", reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>"), invoker, arguments));
-currentMethod.AddMetadata("AllowPrivateAccess");
+currentMethod.AddMetadata(R"delim(AllowPrivateAccess)delim");
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -2140,7 +2228,7 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("MarkDirtyFromInspector", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-currentMethod.AddMetadata("AllowPrivateAccess");
+currentMethod.AddMetadata(R"delim(AllowPrivateAccess)delim");
 }
 }
 { 
@@ -2909,7 +2997,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetHeightfield", reflect
 	Class* currentClass = reflectionSystem.GetMutableClass<BoxColliderComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myHalfSize", 56, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ColliderComponent>());
 {
@@ -2945,15 +3033,15 @@ Method& currentMethod = currentClass->AddMethod(Method("SetHalfSize", reflection
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myFov", 88, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myNearPlane", 92, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myFarPlane", 96, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myIsOrthographic", 100, reflectionSystem.GetOrCreateClass<bool>("bool")));
@@ -3002,52 +3090,6 @@ arguments.Add(MethodArgument("inFov", reflectionSystem.GetOrCreateClass<const fl
 arguments.Add(MethodArgument("inNearPlane", reflectionSystem.GetOrCreateClass<const float>("const float")));
 arguments.Add(MethodArgument("inFarPlane", reflectionSystem.GetOrCreateClass<const float>("const float")));
 Method& currentMethod = currentClass->AddMethod(Method("CreatePerspective", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<CapsuleColliderComponent>();
-	{
-		Field& currentField = currentClass->AddField(Field("myRadius", 56, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myHeight", 60, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
-	}
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ColliderComponent>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
-instance->OnCreate();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnCreate", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
-instance->SetRadius(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inRadius", reflectionSystem.GetOrCreateClass<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("SetRadius", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
-instance->SetHeight(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inHeight", reflectionSystem.GetOrCreateClass<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("SetHeight", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -3163,7 +3205,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetNumObjects", reflecti
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMass", 28, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 {
@@ -3412,15 +3454,15 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRotationConstraint", 
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myHeight", 64, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myRadius", 68, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySlopeLimitDegrees", 72, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMinDist", 76, reflectionSystem.GetOrCreateClass<float>("float")));
@@ -3430,18 +3472,18 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRotationConstraint", 
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myUseGravity", 84, reflectionSystem.GetOrCreateClass<bool>("bool")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDownVelocity", 88, reflectionSystem.GetOrCreateClass<float>("float")));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myGravity", 92, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myTerminalVelocity", 96, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDisplacement", 100, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
@@ -3870,11 +3912,11 @@ Method& currentMethod = currentClass->AddMethod(Method("GetGDRPipeline", reflect
 	Class* currentClass = reflectionSystem.GetMutableClass<DirectionalLightComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myIsShadowsEnabled", 16, reflectionSystem.GetOrCreateClass<bool>("bool")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myColor", 20, reflectionSystem.GetOrCreateClass<glm::vec<4, float>>("glm::vec<4, float>")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myLightProjection", 36, reflectionSystem.GetOrCreateClass<glm::mat<4, 4, float>>("glm::mat<4, 4, float>")));
@@ -4010,15 +4052,15 @@ Method& currentMethod = currentClass->AddMethod(Method("OnScaleChanged", reflect
 	Class* currentClass = reflectionSystem.GetMutableClass<PointLightComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myColor", 16, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myIntensity", 28, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myRange", 32, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 {
@@ -4268,7 +4310,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SplitString", reflection
 	Class* currentClass = reflectionSystem.GetMutableClass<SphereColliderComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myRadius", 56, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ColliderComponent>());
 {
@@ -4301,11 +4343,11 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRadius", reflectionSy
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMaterials", 48, reflectionSystem.GetOrCreateClass<List<Material *>>("List<Material *>")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myModel", 72, reflectionSystem.GetOrCreateClass<Model *>("Model *")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMeshInstances", 80, reflectionSystem.GetOrCreateClass<List<unsigned int>>("List<unsigned int>")));
@@ -5108,6 +5150,28 @@ Method& currentMethod = currentClass->AddMethod(Method("ToColor", reflectionSyst
 }
 }
 { 
+	Class* currentClass = reflectionSystem.GetMutableClass<PhysicsErrorCallback>();
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<physx::PxErrorCallback>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PhysicsErrorCallback* instance = static_cast<PhysicsErrorCallback*>(inInstance);
+physx::PxErrorCode::Enum arg0 = *(physx::PxErrorCode::Enum*)inArguments[0];
+const char * arg1 = (const char*)inArguments[1];
+const char * arg2 = (const char*)inArguments[2];
+int arg3 = *(int*)inArguments[3];
+instance->reportError(arg0, arg1, arg2, arg3);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("code", reflectionSystem.GetOrCreateClass<physx::PxErrorCode::Enum>("physx::PxErrorCode::Enum")));
+arguments.Add(MethodArgument("message", reflectionSystem.GetOrCreateClass<const char *>("const char *")));
+arguments.Add(MethodArgument("file", reflectionSystem.GetOrCreateClass<const char *>("const char *")));
+arguments.Add(MethodArgument("line", reflectionSystem.GetOrCreateClass<int>("int")));
+Method& currentMethod = currentClass->AddMethod(Method("reportError", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<PhysicsListener>();
 	{
 		Field& currentField = currentClass->AddField(Field("myDequeueCollisionsDelegate", 32, reflectionSystem.GetOrCreateClass<MulticastDelegate<void ()>>("MulticastDelegate<void ()>")));
@@ -5395,6 +5459,16 @@ Method& currentMethod = currentClass->AddMethod(Method("GetFields", reflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Class* instance = static_cast<Class*>(inInstance);
+const List<Method> & result = instance->GetMethods();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetMethods", reflectionSystem.GetOrCreateClass<const List<Method> &>("const List<Method> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Class* instance = static_cast<Class*>(inInstance);
 const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
 static thread_local List<Field> result = instance->GetFieldsWithMetadata(arg0);
 return (void*)&result;
@@ -5402,6 +5476,18 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inMetadata", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("GetFieldsWithMetadata", reflectionSystem.GetOrCreateClass<List<Field>>("List<Field>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Class* instance = static_cast<Class*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local List<const Method *> result = instance->GetMethodsWithMetadata(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMetadata", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetMethodsWithMetadata", reflectionSystem.GetOrCreateClass<List<const Method *>>("List<const Method *>"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5422,6 +5508,16 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMethod", reflectionSy
 		Field& currentField = currentClass->AddField(Field("myClasses", 8, reflectionSystem.GetOrCreateClass<List<Class *>>("List<Class *>")));
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ReflectionSystem* instance = static_cast<ReflectionSystem*>(inInstance);
+const List<Class *> & result = instance->GetAllClasses();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAllClasses", reflectionSystem.GetOrCreateClass<const List<Class *> &>("const List<Class *> &"), invoker, arguments));
+}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<DebugPipeline>();
@@ -8149,19 +8245,19 @@ Method& currentMethod = currentClass->AddMethod(Method("ToggleCactus", reflectio
 	Class* currentClass = reflectionSystem.GetMutableClass<PlayerCameraControllerComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myMouseSensitivity", 16, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySpringArmChangeAmount", 20, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMinSpringArmLength", 24, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMaxSpringArmLength", 28, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myPitch", 32, reflectionSystem.GetOrCreateClass<float>("float")));
@@ -8194,15 +8290,15 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 	Class* currentClass = reflectionSystem.GetMutableClass<PlayerComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("mySpeed", 16, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySprintSpeed", 20, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myJumpForce", 24, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 {
@@ -8220,19 +8316,19 @@ Method& currentMethod = currentClass->AddMethod(Method("TickPhysics", reflection
 	Class* currentClass = reflectionSystem.GetMutableClass<SpringArmComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myLength", 16, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myOffset", 20, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myExclusionTags", 32, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myHitOffset", 36, reflectionSystem.GetOrCreateClass<float>("float")));
-		currentField.AddMetadata("ExposeToEditor");
+		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 {

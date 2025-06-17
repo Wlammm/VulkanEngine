@@ -62,7 +62,7 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
                 outString += "\t\tField& currentField = currentClass->AddField(Field(\"" + field.GetFieldName() + "\", " + std::to_string(field.GetByteOffset()) +", reflectionSystem.GetOrCreateClass<" + field.GetFieldType() + ">(\"" + field.GetFieldType() + "\")));\n";
                 for (const std::string& metadata : field.GetFieldMetadata())
                 {
-                    outString += "\t\tcurrentField.AddMetadata(\"" + metadata + "\");\n";
+                    outString += "\t\tcurrentField.AddMetadata(R\"delim(" + metadata + ")delim\");\n";
                 }
                 outString += "\t}\n";
             }
@@ -137,7 +137,7 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
 
                 for (const std::string& metadata : method.GetMetadata())
                 {
-                    outString += "currentMethod.AddMetadata(\"" + metadata + "\");\n";
+                    outString += "currentMethod.AddMetadata(R\"delim(" + metadata + ")delim\");\n";
                 }
                 
                 outString += "}\n";

@@ -14,9 +14,11 @@ public:
     const List<const Class*>& GetDerivedClasses() const;
 
     const List<Field>& GetFields() const;
+    const List<Method>& GetMethods() const;
 
     List<Field> GetFieldsWithMetadata(const std::string& inMetadata) const;
-
+    List<const Method*> GetMethodsWithMetadata(const std::string& inMetadata) const;
+    
     const Method* GetMethod(const std::string& inMethodName) const;
      
     template<typename ClassType>
@@ -36,7 +38,7 @@ public:
     
     // TODO: Support sending constructor arguments here. This can be done but we need to parse the arguments via the reflection generator first.
     template<typename ClassType>
-    void* CreateInstance()
+    ClassType* CreateInstance() const
     {
         check(IsA<ClassType>());
         void* instance = myFactoryFunction();
@@ -52,7 +54,7 @@ private:
     void AddBaseClass(Class* inBaseClass);
     
     Class() = delete;
-    Class(const std::string& inClassName, const std::string& inFullName, Delegate<void*()> inFactoryFunction);
+    Class(const std::string& inClassName, const std::string& inFullName, const Delegate<void*()>& inFactoryFunction);
     
     // This is the full name which matches what you get when using typeid(ClassType).name()
     std::string myFullName = "";

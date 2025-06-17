@@ -29,11 +29,11 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 #define META2(a, b) a b
 #define META3(a, b, c) a b c
 #define META4(a, b, c, d) a b c d
-#define META5(a, b, c, d) a b c d
-#define META6(a, b, c, d, e) a b c d e 
-#define META7(a, b, c, d, e, f) a b c d e f
-#define META8(a, b, c, d, e, f, g) a b c d e f g
-#define META9(a, b, c, d, e, f, g, h) a b c d e f h
+#define META5(a, b, c, d, e) a b c d e
+#define META6(a, b, c, d, e, f) a b c d e f
+#define META7(a, b, c, d, e, f, g) a b c d e f g
+#define META8(a, b, c, d, e, f, g, h) a b c d e f g h
+#define META9(a, b, c, d, e, f, g, h, i) a b c d e f g h i
 
 // Disable warning about empty macro arguments. 
 #pragma warning(disable : 4003)
@@ -46,6 +46,9 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 
 // Called whenever the field was modified in the inspector
 #define OnInspectorChangedEvent(methodName)
+
+// Adds an entry to the editor toolbar. The paths can be for example "File/Save/SaveAs".
+#define EditorMenuItem(menuItemPath)
 
 //#define TRACY_FIBERS
 
