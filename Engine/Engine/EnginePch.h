@@ -38,9 +38,7 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 // Disable warning about empty macro arguments. 
 #pragma warning(disable : 4003)
 
-// add up to META10 or more as needed
-
-
+// This is only needed if you want the reflection system to recognize private methods. Private fields are always reflected.
 #define AllowPrivateAccess friend class GeneratedReflectionData;
 
 #define ExposeToEditor
