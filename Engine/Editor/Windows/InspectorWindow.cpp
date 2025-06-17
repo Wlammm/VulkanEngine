@@ -65,7 +65,15 @@ void InspectorWindow::DrawComponentProperties(Component* inComponent)
     {
         for (const Field& field : componentClass->GetFieldsWithMetadata("ExposeToEditor"))
         {
-            ImGuiPropertyDrawer::DrawProperty(field, inComponent);
+            if (ImGuiPropertyDrawer::DrawProperty(field, inComponent))
+            {
+                if (field.HasMetadata("OnInspectorChangedEvent"))
+                {
+                    // If you crash here it's because you've forgotten to add a methodName to your OnInspectorChangedEvent or the method is private and missing AllowPrivateAccess tag.
+                    const std::string methodName = field.GetMetadataArgs("OnInspectorChangedEvent").First();
+                    componentClass->GetMethod(methodName)->Invoke(inComponent);                    
+                }
+            }
         }
     }
 }

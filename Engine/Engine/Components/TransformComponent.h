@@ -81,8 +81,10 @@ public:
     MulticastDelegate<void()> OnRotationChanged;
     MulticastDelegate<void()> OnScaleChanged;
 
-    void MarkDirtyFromInspector();
 private:
+    META(AllowPrivateAccess)
+    void MarkDirtyFromInspector();
+    
     void MarkDirty(bool inPosition, bool inRotation, bool inScale);
 
     bool myPositionDirty = false;
@@ -93,7 +95,7 @@ private:
     glm::vec3 myPosition { 0, 0, 0 };
     META(ExposeToEditor)
     glm::quat myRotation = glm::identity<glm::quat>();
-    META(ExposeToEditor, AllowPrivateAccess)
+    META(ExposeToEditor)
     glm::vec3 myScale { 1, 1, 1 };
 
     // This bool is set to true whenever we get an update from physics.

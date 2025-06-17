@@ -15,6 +15,9 @@ public:
     const List<std::string>& GetMetadata() const;
     bool HasMetadata(const std::string& inMetadata) const;
 
+    // Returns the arguments of a metadata tag. Example META(SomeMeta(Arg1, Arg2)) returns Arg1 and Arg2
+    List<std::string> GetMetadataArgs(const std::string& inMetadata) const;
+
     template<typename Type>
     Type& GetTypeFromInstance(void* inInstance) const
     {

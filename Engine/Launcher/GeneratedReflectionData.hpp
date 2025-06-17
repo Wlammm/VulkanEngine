@@ -465,13 +465,13 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 ImGuiPropertyDrawer* instance = static_cast<ImGuiPropertyDrawer*>(inInstance);
 const Field & arg0 = *(const Field*)inArguments[0];
 void * arg1 = (void*)inArguments[1];
-instance->DrawProperty(arg0, arg1);
-return nullptr;
+static thread_local bool result = instance->DrawProperty(arg0, arg1);
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inField", reflectionSystem.GetOrCreateClass<const Field &>("const Field &")));
 arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
-Method& currentMethod = currentClass->AddMethod(Method("DrawProperty", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("DrawProperty", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
 }
 }
 { 
@@ -1209,20 +1209,6 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inMetadata", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("HasMetadata", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Method* instance = static_cast<Method*>(inInstance);
-void * arg0 = (void*)inArguments[0];
-const List<void *> & arg1 = *(const List<void *>*)inArguments[1];
-void * result = instance->Invoke(arg0, arg1);
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
-arguments.Add(MethodArgument("inArguments", reflectionSystem.GetOrCreateClass<const List<void *> &>("const List<void *> &")));
-Method& currentMethod = currentClass->AddMethod(Method("Invoke", reflectionSystem.GetOrCreateClass<void *>("void *"), invoker, arguments));
 }
 }
 { 
@@ -4530,6 +4516,18 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inMetadata", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("HasMetadata", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local List<std::basic_string<char>> result = instance->GetMetadataArgs(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMetadata", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetMetadataArgs", reflectionSystem.GetOrCreateClass<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

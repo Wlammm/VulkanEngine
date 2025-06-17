@@ -11,32 +11,32 @@ void ImGuiPropertyDrawer::RegisterDrawers()
 
     RegisterDrawer<float>(reflectionSystem.GetClass<float>(), [](float& inVal)
     {
-        ImGui::InputFloat("##float", &inVal);
+        return ImGui::InputFloat("##float", &inVal);
     });
 
     RegisterDrawer<int>(reflectionSystem.GetClass<int>(), [](int& inVal)
     {
-        ImGui::InputInt("##int", &inVal);
+        return ImGui::InputInt("##int", &inVal);
     });
 
     RegisterDrawer<bool>(reflectionSystem.GetClass<bool>(), [](bool& inVal)
     {
-        ImGui::Checkbox("##bool", &inVal);
+        return ImGui::Checkbox("##bool", &inVal);
     });
     
     RegisterDrawer<glm::vec2>(reflectionSystem.GetClass<glm::vec2>(), [](glm::vec2& inVal)
     {
-        ImGui::InputFloat2("##vec2", &inVal.x);
+        return ImGui::InputFloat2("##vec2", &inVal.x);
     });
 
     RegisterDrawer<glm::vec3>(reflectionSystem.GetClass<glm::vec3>(), [](glm::vec3& inVal)
     {
-        ImGui::DragFloat3("##vec3", &inVal.x);
+        return ImGui::DragFloat3("##vec3", &inVal.x);
     });
 
     RegisterDrawer<glm::vec4>(reflectionSystem.GetClass<glm::vec4>(), [](glm::vec4& inVal)
     {
-        ImGui::InputFloat4("##vec4", &inVal.x);
+        return ImGui::InputFloat4("##vec4", &inVal.x);
     });
 
     RegisterDrawer<glm::quat>(reflectionSystem.GetClass<glm::quat>(), [](glm::quat& inVal)
@@ -46,11 +46,13 @@ void ImGuiPropertyDrawer::RegisterDrawers()
         if (ImGui::InputFloat3("##quat", &rotation.x))
         {
             inVal = glm::quat(glm::radians(rotation));
+            return true;
         }
+        return false;
     });
 }
 
-void ImGuiPropertyDrawer::DrawProperty(const Field& inField, void* inInstance)
+bool ImGuiPropertyDrawer::DrawProperty(const Field& inField, void* inInstance)
 {
     ImGui::PushID(inInstance);
     ImGui::Text(inField.GetName().c_str());
@@ -62,12 +64,14 @@ void ImGuiPropertyDrawer::DrawProperty(const Field& inField, void* inInstance)
     {
         void* valPtr = inField.GetPointerToValue(inInstance);
         ImGui::PushID(valPtr);
-        it->second(valPtr);
+        const bool returnVal =  it->second(valPtr);
         ImGui::PopID();
+        return returnVal;
     }
     else
     {
         std::string text = "No drawer registered for type: " + inField.GetType()->GetName();
         ImGui::Text(text.c_str());
+        return false;
     }
 }

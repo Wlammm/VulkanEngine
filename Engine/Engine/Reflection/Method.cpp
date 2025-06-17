@@ -32,13 +32,6 @@ bool Method::HasMetadata(const std::string& inMetadata) const
     return myMetadata.Contains(inMetadata);
 }
 
-void* Method::Invoke(void* inInstance, const List<void*>& inArguments) const
-{
-    if (myInvoker.IsValid())
-        return myInvoker(inInstance, inArguments);
-    return nullptr;
-}
-
 Method::Method(const std::string& inMethodName, const Class* inReturnType, const Delegate<void*(void*, const List<void*>&)>& inInvoker, const List<MethodArgument>& inArguments)
 {
     myMethodName = inMethodName;

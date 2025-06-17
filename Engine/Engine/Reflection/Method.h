@@ -32,14 +32,14 @@ public:
     bool HasMetadata(const std::string& inMetadata) const;
 
 
-    void* Invoke(void* inInstance, const List<void*>& inArguments) const;
-
-    template<typename ReturnType, typename... Args>
+    template<typename ReturnType = void, typename... Args>
     ReturnType Invoke(void* inInstance, Args&&... inArgs) const
     {
         List<void*> arguments = { (void*)std::addressof(inArgs)... };
-        void* result = Invoke(inInstance,  arguments);
 
+        check(myInvoker.IsValid());
+        void* result = myInvoker(inInstance, arguments);
+            
         if constexpr (std::is_void_v<ReturnType>)
         {
             return;
