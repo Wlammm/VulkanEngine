@@ -11,7 +11,7 @@
 #include "Engine/Components/EditorCameraMovementComponent.h"
 
 Viewport::Viewport()
-	: EditorWindow("Viewport", false)
+	: EditorWindow("Viewport", true)
 {
 	mySampler = VulkanUtils::GetSampler(SamplerMode::Clamp);
 

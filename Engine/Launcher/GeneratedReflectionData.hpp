@@ -498,6 +498,20 @@ return nullptr;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorToolbar* instance = static_cast<EditorToolbar*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+const Delegate<void ()> & arg1 = *(const Delegate<void ()>*)inArguments[1];
+instance->AddToolbarButton(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inPath", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
+arguments.Add(MethodArgument("inCallback", reflectionSystem.GetOrCreateClass<const Delegate<void ()> &>("const Delegate<void ()> &")));
+Method& currentMethod = currentClass->AddMethod(Method("AddToolbarButton", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<EditorThemes>();

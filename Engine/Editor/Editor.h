@@ -1,6 +1,8 @@
 #pragma once
 #include "Engine/Delegates/Delegate.hpp"
 
+class Class;
+
 class Editor
 {
 public:
@@ -20,6 +22,17 @@ public:
 		window->myID = myInstance->myNextID++;;
 		myInstance->myWindows.Add(window);
 	}
+
+	template<typename SystemType>
+	SystemType* GetSystem() const
+	{
+		for (EditorSystem* system : mySystems)
+		{
+			if (SystemType* castedSystem = dynamic_cast<SystemType*>(system))
+				return castedSystem;
+		}
+		return nullptr;
+	}
 	
 private:
 	void Tick();
@@ -27,6 +40,8 @@ private:
 
 	void AddEditorWindows();
 	void AddEditorSystems();
+
+	void AddWindow(const Class* inWindowClass);
 
 private:
 	List<class EditorWindow*> myWindows{};

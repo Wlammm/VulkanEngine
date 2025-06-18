@@ -54,9 +54,6 @@ void EditorToolbar::Tick()
     {
         for (const Method* method : myToolbarMethods)
         {
-            ImGui::PushID(method);
-            ON_SCOPE_EXIT([](){ ImGui::PopID(); });
-            
             List<std::string> args = method->GetMetadataArgs("EditorMenuItem");
             check(args.size() >= 1);
             
@@ -64,20 +61,31 @@ void EditorToolbar::Tick()
             const List<std::string> pathParts = SplitPath(pathArg);
             
            if (pathParts.size() > 1)
-           {
-               RenderMultipleParts(method, pathParts);
-           }
+               RenderMultipleParts(pathParts, [method](){ method->Invoke(nullptr);} );
            else
-           {
-               RenderSinglePart(method, pathParts);
-           }
+               RenderSinglePart(pathParts, [method](){ method->Invoke(nullptr);} );
+        }
+
+        for (const ToolbarButtonInfo& button : myToolbarButtons)
+        {
+            const List<std::string> pathParts = SplitPath(button.myPath);
+
+            if (pathParts.size() > 1)
+                RenderMultipleParts(pathParts, [button](){ button.myCallback(); });
+            else
+                RenderSinglePart(pathParts, [button](){ button.myCallback(); });
         }
         
         ImGui::EndMenuBar();
     }
 }
 
-void EditorToolbar::RenderMultipleParts(const Method* inMethod, const List<std::string>& inPathParts)
+void EditorToolbar::AddToolbarButton(const std::string& inPath, const Delegate<void()>& inCallback)
+{
+    myToolbarButtons.Emplace(inPath, inCallback);
+}
+
+void EditorToolbar::RenderMultipleParts(const List<std::string>& inPathParts, const Delegate<void()> inCallback)
 {
     if (!ImGui::BeginMenu(inPathParts[0].c_str()))
         return;
@@ -90,10 +98,12 @@ void EditorToolbar::RenderMultipleParts(const Method* inMethod, const List<std::
                 
         if (isLastPart)
         {
+            ImGui::PushID(&inCallback);
             if (ImGui::MenuItem(part.c_str()))
             {
-                inMethod->Invoke(nullptr);
+                inCallback();
             }
+            ImGui::PopID();
         }
         else
         {
@@ -116,10 +126,10 @@ void EditorToolbar::RenderMultipleParts(const Method* inMethod, const List<std::
     ImGui::EndMenu();
 }
 
-void EditorToolbar::RenderSinglePart(const Method* inMethod, const List<std::string>& inPathParts)
+void EditorToolbar::RenderSinglePart(const List<std::string>& inPathParts, const Delegate<void()> inCallback)
 {
     if (ImGui::MenuItem(inPathParts[0].c_str()))
     {
-        inMethod->Invoke(nullptr);
+        inCallback();
     }
 }

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "EditorSystem.h"
+#include "Engine/Delegates/Delegate.hpp"
 
 class Method;
 
@@ -10,11 +11,20 @@ public:
     
     void Tick() override;
 
-private:
-    void RenderMultipleParts(const Method* inMethod, const List<std::string>& inPathParts);
-    void RenderSinglePart(const Method* inMethod, const List<std::string>& inPathParts);
+    void AddToolbarButton(const std::string& inPath, const Delegate<void()>& inCallback);
     
+private:
+    void RenderMultipleParts(const List<std::string>& inPathParts, const Delegate<void()> inCallback);
+    void RenderSinglePart(const List<std::string>& inPathParts, const Delegate<void()> inCallback);
 
 private:
     List<const Method*> myToolbarMethods{};
+
+    struct ToolbarButtonInfo
+    {
+        std::string myPath ;
+        Delegate<void()> myCallback;
+    };
+
+    List<ToolbarButtonInfo> myToolbarButtons{};
 };
