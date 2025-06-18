@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Delegates/Delegate.hpp"
 
+class AssetRegistry;
 class Class;
 
 class Editor
@@ -11,6 +12,8 @@ public:
 
 	static void StaticTick();
 
+	static AssetRegistry* GetAssetRegistry();
+	
 	static void RemoveWindow(class EditorWindow* inEditorWindow);
 
 	void SetGameTickFunction(const Delegate<void()>& inTickFunction);
@@ -50,6 +53,8 @@ private:
 	int myNextID = 1;
 
 	Delegate<void()> myGameTickFunction;
+
+	AssetRegistry* myAssetRegistry = nullptr;
 	
 private:
 	inline static Editor* myInstance = nullptr;

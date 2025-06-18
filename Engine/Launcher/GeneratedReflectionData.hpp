@@ -17,6 +17,11 @@
 #include "../Editor/Toolbar/Themes/EditorThemes.h"
 #include "../Engine/Components/CapsuleColliderComponent.h"
 #include "../Editor/EditorSystem/SelectionSystem.h"
+#include "../Engine/Delegates/Internal/ConstMemberFuncCtor.hpp"
+#include "../Editor/Utils/EditorConfirmPrompt.h"
+#include "../Engine/Components/SinWaveMovementComponent.h"
+#include "../Editor/Utils/ImGuiTextureUtils.h"
+#include "../Editor/Windows/ContentBrowserWindow.h"
 #include "../Editor/Windows/InspectorWindow.h"
 #include "../Editor/Windows/EditorWindow.h"
 #include "../Editor/Windows/ImGuiPropertyDrawer.h"
@@ -50,20 +55,16 @@
 #include "../Engine/Components/LandscapeRenderComponent.h"
 #include "../Engine/Components/BoxColliderComponent.h"
 #include "../Engine/Components/CameraComponent.h"
-#include "../Engine/Delegates/Internal/FreeFuncCtor.hpp"
 #include "../Engine/Vulkan/GPUSceneSystem.h"
 #include "../Engine/Components/RigidbodyComponent.h"
 #include "../Engine/Components/CharacterControllerComponent.h"
 #include "../Engine/Components/ColliderComponent.h"
-#include "../Engine/Rendering/RenderSystem.h"
-#include "../Engine/Delegates/Internal/LambdaFuncCtor.hpp"
 #include "../Engine/Components/DirectionalLightComponent.h"
 #include "../Engine/System/WorldSystem.h"
 #include "../Engine/Components/LandscapeColliderComponent.h"
 #include "../Engine/Containers/SegmentedList.h"
 #include "../Engine/Components/PointLightComponent.h"
 #include "../Engine/Coroutines/Coroutine.h"
-#include "../Engine/Components/SinWaveMovementComponent.h"
 #include "../Engine/Utils/String.hpp"
 #include "../Engine/Components/SphereColliderComponent.h"
 #include "../Engine/Components/StaticMeshComponent.h"
@@ -76,8 +77,10 @@
 #include "../Engine/Delegates/Delegate.hpp"
 #include "../Engine/Coroutines/Awaitable.h"
 #include "../Engine/Core/EngineDefines.hpp"
-#include "../Engine/Delegates/Internal/ConstMemberFuncCtor.hpp"
+#include "../Engine/Delegates/Internal/FreeFuncCtor.hpp"
 #include "../Engine/Delegates/Internal/FuncCtor.hpp"
+#include "../Engine/Rendering/RenderSystem.h"
+#include "../Engine/Delegates/Internal/LambdaFuncCtor.hpp"
 #include "../Engine/Delegates/Internal/MemberFuncCtor.hpp"
 #include "../Engine/Delegates/MulticastDelegate.hpp"
 #include "../Engine/Engine.h"
@@ -191,6 +194,11 @@ reflectionSystem.AddClass<EditorToolbar>("EditorToolbar", typeid(EditorToolbar).
 reflectionSystem.AddClass<EditorThemes>("EditorThemes", typeid(EditorThemes).name());
 reflectionSystem.AddClass<CapsuleColliderComponent>("CapsuleColliderComponent", typeid(CapsuleColliderComponent).name());
 reflectionSystem.AddClass<SelectionSystem>("SelectionSystem", typeid(SelectionSystem).name());
+reflectionSystem.AddClass<EditorConfirmPrompt>("EditorConfirmPrompt", typeid(EditorConfirmPrompt).name());
+reflectionSystem.AddClass<SinWaveMovementComponent>("SinWaveMovementComponent", typeid(SinWaveMovementComponent).name());
+reflectionSystem.AddClass<ImGuiTextureUtils>("ImGuiTextureUtils", typeid(ImGuiTextureUtils).name());
+reflectionSystem.AddClass<ContentBrowserItem>("ContentBrowserItem", typeid(ContentBrowserItem).name());
+reflectionSystem.AddClass<ContentBrowserWindow>("ContentBrowserWindow", typeid(ContentBrowserWindow).name());
 reflectionSystem.AddClass<InspectorWindow>("InspectorWindow", typeid(InspectorWindow).name());
 reflectionSystem.AddClass<EditorWindow>("EditorWindow", typeid(EditorWindow).name());
 reflectionSystem.AddClass<ImGuiPropertyDrawer>("ImGuiPropertyDrawer", typeid(ImGuiPropertyDrawer).name());
@@ -235,13 +243,11 @@ reflectionSystem.AddClass<ForceMode>("ForceMode", typeid(ForceMode).name());
 reflectionSystem.AddClass<RigidbodyComponent>("RigidbodyComponent", typeid(RigidbodyComponent).name());
 reflectionSystem.AddClass<CharacterControllerComponent>("CharacterControllerComponent", typeid(CharacterControllerComponent).name());
 reflectionSystem.AddClass<ColliderComponent>("ColliderComponent", typeid(ColliderComponent).name());
-reflectionSystem.AddClass<RenderSystem>("RenderSystem", typeid(RenderSystem).name());
 reflectionSystem.AddClass<DirectionalLightComponent>("DirectionalLightComponent", typeid(DirectionalLightComponent).name());
 reflectionSystem.AddClass<WorldSystem>("WorldSystem", typeid(WorldSystem).name());
 reflectionSystem.AddClass<LandscapeColliderComponent>("LandscapeColliderComponent", typeid(LandscapeColliderComponent).name());
 reflectionSystem.AddClass<PointLightComponent>("PointLightComponent", typeid(PointLightComponent).name());
 reflectionSystem.AddClass<PromiseReturnTypeImplementation<void>>("PromiseReturnTypeImplementation<void>", typeid(PromiseReturnTypeImplementation<void>).name());
-reflectionSystem.AddClass<SinWaveMovementComponent>("SinWaveMovementComponent", typeid(SinWaveMovementComponent).name());
 reflectionSystem.AddClass<String>("String", typeid(String).name());
 reflectionSystem.AddClass<SphereColliderComponent>("SphereColliderComponent", typeid(SphereColliderComponent).name());
 reflectionSystem.AddClass<StaticMeshComponent>("StaticMeshComponent", typeid(StaticMeshComponent).name());
@@ -251,6 +257,7 @@ reflectionSystem.AddClass<AutoInitManager>("AutoInitManager", typeid(AutoInitMan
 reflectionSystem.AddClass<Field>("Field", typeid(Field).name());
 reflectionSystem.AddClass<Awaitable>("Awaitable", typeid(Awaitable).name());
 reflectionSystem.AddClass<ThreadType>("ThreadType", typeid(ThreadType).name());
+reflectionSystem.AddClass<RenderSystem>("RenderSystem", typeid(RenderSystem).name());
 reflectionSystem.AddClass<Engine>("Engine", typeid(Engine).name());
 reflectionSystem.AddClass<EngineProperties>("EngineProperties", typeid(EngineProperties).name());
 reflectionSystem.AddClass<EventHandler>("EventHandler", typeid(EventHandler).name());
@@ -377,6 +384,9 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 	{
 		Field& currentField = currentClass->AddField(Field("myGameTickFunction", 56, reflectionSystem.GetOrCreateClass<Delegate<void ()>>("Delegate<void ()>")));
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 64, reflectionSystem.GetOrCreateClass<AssetRegistry *>("AssetRegistry *")));
+	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
@@ -386,6 +396,16 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("StaticTick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Editor* instance = static_cast<Editor*>(inInstance);
+AssetRegistry * result = instance->GetAssetRegistry();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAssetRegistry", reflectionSystem.GetOrCreateClass<AssetRegistry *>("AssetRegistry *"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -630,6 +650,181 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("ClearSelection", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<EditorConfirmPrompt>();
+	{
+		Field& currentField = currentClass->AddField(Field("myTitle", 0, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBody", 32, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCallback", 64, reflectionSystem.GetOrCreateClass<Delegate<void ()>>("Delegate<void ()>")));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorConfirmPrompt* instance = static_cast<EditorConfirmPrompt*>(inInstance);
+instance->Show();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Show", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorConfirmPrompt* instance = static_cast<EditorConfirmPrompt*>(inInstance);
+instance->Update();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Update", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<SinWaveMovementComponent>();
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+SinWaveMovementComponent* instance = static_cast<SinWaveMovementComponent*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<ImGuiTextureUtils>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ImGuiTextureUtils* instance = static_cast<ImGuiTextureUtils*>(inInstance);
+const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
+static thread_local vk::DescriptorSet result = instance->CreateDescriptorSetForTexture(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inPath", reflectionSystem.GetOrCreateClass<const std::filesystem::path &>("const std::filesystem::path &")));
+Method& currentMethod = currentClass->AddMethod(Method("CreateDescriptorSetForTexture", reflectionSystem.GetOrCreateClass<vk::DescriptorSet>("vk::DescriptorSet"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<ContentBrowserItem>();
+	{
+		Field& currentField = currentClass->AddField(Field("myPath", 0, reflectionSystem.GetOrCreateClass<std::filesystem::path>("std::filesystem::path")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTexture", 32, reflectionSystem.GetOrCreateClass<vk::DescriptorSet>("vk::DescriptorSet")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsSelected", 40, reflectionSystem.GetOrCreateClass<bool>("bool")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsDirectory", 41, reflectionSystem.GetOrCreateClass<bool>("bool")));
+	}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<ContentBrowserWindow>();
+	{
+		Field& currentField = currentClass->AddField(Field("myTooltipProgress", 48, reflectionSystem.GetOrCreateClass<float>("float")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTooltipDuration", 52, reflectionSystem.GetOrCreateClass<float>("float")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCanSeeTooltip", 56, reflectionSystem.GetOrCreateClass<bool>("bool")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRoot", 64, reflectionSystem.GetOrCreateClass<std::filesystem::path>("std::filesystem::path")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCurrentPath", 96, reflectionSystem.GetOrCreateClass<std::filesystem::path>("std::filesystem::path")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySelectedTreePath", 128, reflectionSystem.GetOrCreateClass<std::filesystem::path>("std::filesystem::path")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySearchString", 160, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySearchPaths", 192, reflectionSystem.GetOrCreateClass<List<std::filesystem::path>>("List<std::filesystem::path>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirectories", 216, reflectionSystem.GetOrCreateClass<std::map<std::filesystem::path, List<std::filesystem::path>>>("std::map<std::filesystem::path, List<std::filesystem::path>>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myItems", 232, reflectionSystem.GetOrCreateClass<List<ContentBrowserItem>>("List<ContentBrowserItem>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHistory", 256, reflectionSystem.GetOrCreateClass<std::deque<std::filesystem::path>>("std::deque<std::filesystem::path>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myForwardHistory", 296, reflectionSystem.GetOrCreateClass<std::deque<std::filesystem::path>>("std::deque<std::filesystem::path>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFolderIcons", 336, reflectionSystem.GetOrCreateClass<std::array<vk::DescriptorSet, 2>>("std::array<vk::DescriptorSet, 2>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myExcludedExtensions", 352, reflectionSystem.GetOrCreateClass<List<std::basic_string<char>>>("List<std::basic_string<char>>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDragDropPath", 376, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySelectedItem", 408, reflectionSystem.GetOrCreateClass<int>("int")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenamingItem", 412, reflectionSystem.GetOrCreateClass<int>("int")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNewFileName", 416, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenamingInProgress", 448, reflectionSystem.GetOrCreateClass<bool>("bool")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySearchBarOpenedThisFrame", 449, reflectionSystem.GetOrCreateClass<bool>("bool")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTextureSize", 452, reflectionSystem.GetOrCreateClass<float>("float")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTextureSizeMin", 456, reflectionSystem.GetOrCreateClass<float>("float")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTextureSizeMax", 460, reflectionSystem.GetOrCreateClass<float>("float")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFocusedResult", 464, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myConfirmPrompt", 472, reflectionSystem.GetOrCreateClass<EditorConfirmPrompt>("EditorConfirmPrompt")));
+	}
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EditorWindow>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ContentBrowserWindow* instance = static_cast<ContentBrowserWindow*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ContentBrowserWindow* instance = static_cast<ContentBrowserWindow*>(inInstance);
+instance->ReloadDirectory();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("ReloadDirectory", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -2439,6 +2634,16 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDeltaTime", reflectio
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Time* instance = static_cast<Time*>(inInstance);
+static thread_local float result = instance->GetUnscaledDeltaTime();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetUnscaledDeltaTime", reflectionSystem.GetOrCreateClass<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
 const float arg0 = *(const float*)inArguments[0];
 instance->SetTimeScale(arg0);
 return nullptr;
@@ -3754,175 +3959,6 @@ Method& currentMethod = currentClass->AddMethod(Method("SetLocalShapeRotation", 
 }
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<RenderSystem>();
-	{
-		Field& currentField = currentClass->AddField(Field("myIsUsingGPUDrivenRendering", 32, reflectionSystem.GetOrCreateClass<bool>("bool")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCopyPipeline", 40, reflectionSystem.GetOrCreateClass<FullscreenPipeline *>("FullscreenPipeline *")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDebugPipeline", 48, reflectionSystem.GetOrCreateClass<DebugPipeline *>("DebugPipeline *")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myGDRPipeline", 56, reflectionSystem.GetOrCreateClass<GDRPipeline *>("GDRPipeline *")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySkyboxPipeline", 64, reflectionSystem.GetOrCreateClass<SkyboxPipeline *>("SkyboxPipeline *")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRenderPass", 72, reflectionSystem.GetOrCreateClass<vk::RenderPass>("vk::RenderPass")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainRenderPass", 80, reflectionSystem.GetOrCreateClass<vk::RenderPass>("vk::RenderPass")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myVkFrameBuffer", 88, reflectionSystem.GetOrCreateClass<vk::Framebuffer>("vk::Framebuffer")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainFrameBuffers", 96, reflectionSystem.GetOrCreateClass<List<vk::Framebuffer>>("List<vk::Framebuffer>")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myClearValues", 120, reflectionSystem.GetOrCreateClass<vk::ClearValue[2]>("vk::ClearValue[2]")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDepthBuffer", 152, reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRenderTexture", 160, reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myResolvedRenderTexture", 168, reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *")));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDirectionalLightShadowMap", 176, reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *")));
-	}
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EventObserver>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-instance->Init();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Init", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-vk::RenderPass & result = instance->GetRenderPass();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetRenderPass", reflectionSystem.GetOrCreateClass<vk::RenderPass &>("vk::RenderPass &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-vk::RenderPass & result = instance->GetImGuiRenderPass();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetImGuiRenderPass", reflectionSystem.GetOrCreateClass<vk::RenderPass &>("vk::RenderPass &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-VulkanImage * result = instance->GetRenderTexture();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetRenderTexture", reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-VulkanImage * result = instance->GetResolvedRenderTexture();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetResolvedRenderTexture", reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-VulkanImage * result = instance->GetDepthTexture();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetDepthTexture", reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-VulkanImage * result = instance->GetDirectionalLightShadowMap();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetDirectionalLightShadowMap", reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-instance->OnSwapChainResize();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnSwapChainResize", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-static thread_local vk::CommandBuffer result = instance->CreateUploadCommandBuffer_TS();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("CreateUploadCommandBuffer_TS", reflectionSystem.GetOrCreateClass<vk::CommandBuffer>("vk::CommandBuffer"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-vk::CommandBuffer arg0 = *(vk::CommandBuffer*)inArguments[0];
-instance->QueueCommandBufferForUpload_TS(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("commandBuffer", reflectionSystem.GetOrCreateClass<vk::CommandBuffer>("vk::CommandBuffer")));
-Method& currentMethod = currentClass->AddMethod(Method("QueueCommandBufferForUpload_TS", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-const GDRPipeline & result = instance->GetGDRPipeline();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetGDRPipeline", reflectionSystem.GetOrCreateClass<const GDRPipeline &>("const GDRPipeline &"), invoker, arguments));
-}
-}
-{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<DirectionalLightComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myIsShadowsEnabled", 16, reflectionSystem.GetOrCreateClass<bool>("bool")));
@@ -4181,20 +4217,6 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("return_void", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<SinWaveMovementComponent>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-SinWaveMovementComponent* instance = static_cast<SinWaveMovementComponent*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -4635,6 +4657,175 @@ Method& currentMethod = currentClass->AddMethod(Method("await_resume", reflectio
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ThreadType>();
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<RenderSystem>();
+	{
+		Field& currentField = currentClass->AddField(Field("myIsUsingGPUDrivenRendering", 32, reflectionSystem.GetOrCreateClass<bool>("bool")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCopyPipeline", 40, reflectionSystem.GetOrCreateClass<FullscreenPipeline *>("FullscreenPipeline *")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDebugPipeline", 48, reflectionSystem.GetOrCreateClass<DebugPipeline *>("DebugPipeline *")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myGDRPipeline", 56, reflectionSystem.GetOrCreateClass<GDRPipeline *>("GDRPipeline *")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySkyboxPipeline", 64, reflectionSystem.GetOrCreateClass<SkyboxPipeline *>("SkyboxPipeline *")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenderPass", 72, reflectionSystem.GetOrCreateClass<vk::RenderPass>("vk::RenderPass")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainRenderPass", 80, reflectionSystem.GetOrCreateClass<vk::RenderPass>("vk::RenderPass")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVkFrameBuffer", 88, reflectionSystem.GetOrCreateClass<vk::Framebuffer>("vk::Framebuffer")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainFrameBuffers", 96, reflectionSystem.GetOrCreateClass<List<vk::Framebuffer>>("List<vk::Framebuffer>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myClearValues", 120, reflectionSystem.GetOrCreateClass<vk::ClearValue[2]>("vk::ClearValue[2]")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDepthBuffer", 152, reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenderTexture", 160, reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myResolvedRenderTexture", 168, reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirectionalLightShadowMap", 176, reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *")));
+	}
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EventObserver>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+instance->Init();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Init", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+vk::RenderPass & result = instance->GetRenderPass();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetRenderPass", reflectionSystem.GetOrCreateClass<vk::RenderPass &>("vk::RenderPass &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+vk::RenderPass & result = instance->GetImGuiRenderPass();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetImGuiRenderPass", reflectionSystem.GetOrCreateClass<vk::RenderPass &>("vk::RenderPass &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+VulkanImage * result = instance->GetRenderTexture();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetRenderTexture", reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+VulkanImage * result = instance->GetResolvedRenderTexture();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetResolvedRenderTexture", reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+VulkanImage * result = instance->GetDepthTexture();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetDepthTexture", reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+VulkanImage * result = instance->GetDirectionalLightShadowMap();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetDirectionalLightShadowMap", reflectionSystem.GetOrCreateClass<VulkanImage *>("VulkanImage *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+instance->OnSwapChainResize();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnSwapChainResize", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+static thread_local vk::CommandBuffer result = instance->CreateUploadCommandBuffer_TS();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("CreateUploadCommandBuffer_TS", reflectionSystem.GetOrCreateClass<vk::CommandBuffer>("vk::CommandBuffer"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+vk::CommandBuffer arg0 = *(vk::CommandBuffer*)inArguments[0];
+instance->QueueCommandBufferForUpload_TS(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("commandBuffer", reflectionSystem.GetOrCreateClass<vk::CommandBuffer>("vk::CommandBuffer")));
+Method& currentMethod = currentClass->AddMethod(Method("QueueCommandBufferForUpload_TS", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+const GDRPipeline & result = instance->GetGDRPipeline();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetGDRPipeline", reflectionSystem.GetOrCreateClass<const GDRPipeline &>("const GDRPipeline &"), invoker, arguments));
+}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Engine>();
@@ -7661,6 +7852,16 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetFormat", reflectionSystem.GetOrCreateClass<vk::Format>("vk::Format"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanImage* instance = static_cast<VulkanImage*>(inInstance);
+static thread_local bool result = instance->HasImageView();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("HasImageView", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

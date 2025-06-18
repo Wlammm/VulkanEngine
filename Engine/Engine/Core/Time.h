@@ -6,6 +6,8 @@ public:
 	static void Tick();
 
 	static float GetDeltaTime();
+	static float GetUnscaledDeltaTime();
+	
 	static void SetTimeScale(const float inTimeScale);
 
 	static double GetSeconds();

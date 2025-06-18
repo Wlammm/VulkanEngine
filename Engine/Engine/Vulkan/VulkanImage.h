@@ -43,6 +43,8 @@ public:
 	vk::ImageView GetImageView() const;
 	vk::Format GetFormat() const;
 
+
+	bool HasImageView() const;
 	void CreateView(vk::ImageViewType inViewType);
 	void CreateView(vk::ImageViewType inViewType, vk::ImageSubresourceRange inRange);
 

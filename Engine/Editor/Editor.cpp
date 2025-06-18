@@ -4,6 +4,7 @@
 #include "EditorSystem/EditorSystem.h"
 #include "EditorSystem/EditorToolbar.h"
 #include "Engine/Engine.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 #include "Toolbar/Themes/EditorThemes.h"
 #include "Windows/EditorWindow.h"
@@ -17,6 +18,8 @@ Editor::Editor()
     check(myInstance == nullptr && "There is already an instance of this class. Only one allowed!");
     myInstance = this;
 
+    myAssetRegistry = new AssetRegistry();
+    
     ImGuiPropertyDrawer::RegisterDrawers();
 
     AddEditorSystems();
@@ -32,12 +35,18 @@ Editor::~Editor()
         RemoveWindow(myWindows[i]);
     }
 
+    del(myAssetRegistry);
     myInstance = nullptr;
 }
 
 void Editor::StaticTick()
 {
     myInstance->Tick();
+}
+
+AssetRegistry* Editor::GetAssetRegistry()
+{
+    return myInstance->myAssetRegistry;
 }
 
 void Editor::Tick()

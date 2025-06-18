@@ -1,7 +1,7 @@
 ﻿#include "EditorPch.h"
 #include "HierarchyWindow.h"
 
-#include "SelectionSystem.h"
+#include "Editor/EditorSystem/SelectionSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/ComponentSystem/GameObject.h"
 #include "Engine/Core/Input.h"

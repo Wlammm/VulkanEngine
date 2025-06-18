@@ -82,6 +82,11 @@ vk::Format VulkanImage::GetFormat() const
 	return myFormat;
 }
 
+bool VulkanImage::HasImageView() const
+{
+	return myView != nullptr;
+}
+
 void* VulkanImage::Map()
 {
 	void* ptr;
