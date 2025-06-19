@@ -50,6 +50,9 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 // Adds an entry to the editor toolbar. The paths can be for example "File/Save/SaveAs".
 #define EditorMenuItem(menuItemPath)
 
+// Replaces glm::vec3's normal inspector renderer with a color picker.
+#define ExposeAsColor
+
 //#define TRACY_FIBERS
 
 #include "Engine/Utils/StdIncludes.hpp"

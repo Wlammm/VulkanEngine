@@ -6,7 +6,7 @@ class ImGuiDemoSystem : public EditorSystem
 public:
     ImGuiDemoSystem();
     
-    META(EditorMenuItem("Open ImGui Demo Window"))
+    META(EditorMenuItem("ImGui Demo"))
     static void OpenImGuiDemoWindow();
     
     void Tick() override;

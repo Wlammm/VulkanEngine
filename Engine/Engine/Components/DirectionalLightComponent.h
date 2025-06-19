@@ -23,7 +23,7 @@ private:
     META(ExposeToEditor)
     bool myIsShadowsEnabled = false;
 
-    META(ExposeToEditor)
+    META(ExposeToEditor, ExposeAsColor)
     glm::vec4 myColor = {1, 1, 1, 1};
     glm::mat4 myLightProjection;
 };

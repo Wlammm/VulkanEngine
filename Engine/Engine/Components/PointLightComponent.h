@@ -20,7 +20,7 @@ public:
     void SetRange(const float inRange);
     
 private:
-    META(ExposeToEditor)
+    META(ExposeToEditor, ExposeAsColor)
     glm::vec3 myColor{1, 1, 1};
 
     META(ExposeToEditor)

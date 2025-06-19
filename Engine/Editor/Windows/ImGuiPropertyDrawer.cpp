@@ -9,37 +9,41 @@ void ImGuiPropertyDrawer::RegisterDrawers()
 {
     ReflectionSystem& reflectionSystem = Engine::GetEngineSystem<ReflectionSystem>();
 
-    RegisterDrawer<float>(reflectionSystem.GetClass<float>(), [](float& inVal)
+    RegisterDrawer<float>(reflectionSystem.GetClass<float>(), [](float& inVal, const Field& inField)
     {
         return ImGui::InputFloat("##float", &inVal);
     });
 
-    RegisterDrawer<int>(reflectionSystem.GetClass<int>(), [](int& inVal)
+    RegisterDrawer<int>(reflectionSystem.GetClass<int>(), [](int& inVal, const Field& inField)
     {
         return ImGui::InputInt("##int", &inVal);
     });
 
-    RegisterDrawer<bool>(reflectionSystem.GetClass<bool>(), [](bool& inVal)
+    RegisterDrawer<bool>(reflectionSystem.GetClass<bool>(), [](bool& inVal, const Field& inField)
     {
         return ImGui::Checkbox("##bool", &inVal);
     });
     
-    RegisterDrawer<glm::vec2>(reflectionSystem.GetClass<glm::vec2>(), [](glm::vec2& inVal)
+    RegisterDrawer<glm::vec2>(reflectionSystem.GetClass<glm::vec2>(), [](glm::vec2& inVal, const Field& inField)
     {
         return ImGui::InputFloat2("##vec2", &inVal.x);
     });
 
-    RegisterDrawer<glm::vec3>(reflectionSystem.GetClass<glm::vec3>(), [](glm::vec3& inVal)
+    RegisterDrawer<glm::vec3>(reflectionSystem.GetClass<glm::vec3>(), [](glm::vec3& inVal, const Field& inField)
     {
+        if (inField.HasMetadata("ExposeAsColor"))
+            return ImGui::ColorEdit3("##ColorEdit3", &inVal.x);
         return ImGui::DragFloat3("##vec3", &inVal.x);
     });
 
-    RegisterDrawer<glm::vec4>(reflectionSystem.GetClass<glm::vec4>(), [](glm::vec4& inVal)
+    RegisterDrawer<glm::vec4>(reflectionSystem.GetClass<glm::vec4>(), [](glm::vec4& inVal, const Field& inField)
     {
+        if (inField.HasMetadata("ExposeAsColor"))
+            return ImGui::ColorEdit3("##ColorEdit3", &inVal.x);
         return ImGui::InputFloat4("##vec4", &inVal.x);
     });
 
-    RegisterDrawer<glm::quat>(reflectionSystem.GetClass<glm::quat>(), [](glm::quat& inVal)
+    RegisterDrawer<glm::quat>(reflectionSystem.GetClass<glm::quat>(), [](glm::quat& inVal, const Field& inField)
     {
         glm::vec3 rotation = glm::degrees(glm::eulerAngles(inVal));
         
@@ -67,7 +71,7 @@ bool ImGuiPropertyDrawer::DrawProperty(const Field& inField, void* inInstance)
     {
         void* valPtr = inField.GetPointerToValue(inInstance);
         ImGui::PushID(valPtr);
-        const bool returnVal =  it->second(valPtr);
+        const bool returnVal =  it->second(valPtr, inField);
         ImGui::PopID();
         return returnVal;
     }

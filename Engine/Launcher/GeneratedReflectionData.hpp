@@ -444,7 +444,7 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("OpenImGuiDemoWindow", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-currentMethod.AddMetadata(R"delim(EditorMenuItem("Open ImGui Demo Window"))delim");
+currentMethod.AddMetadata(R"delim(EditorMenuItem("ImGui Demo"))delim");
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -4103,6 +4103,7 @@ Method& currentMethod = currentClass->AddMethod(Method("OnScaleChanged", reflect
 	{
 		Field& currentField = currentClass->AddField(Field("myColor", 16, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
+		currentField.AddMetadata(R"delim(ExposeAsColor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myIntensity", 28, reflectionSystem.GetOrCreateClass<float>("float")));

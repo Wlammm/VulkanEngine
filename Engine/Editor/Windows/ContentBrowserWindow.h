@@ -92,7 +92,7 @@ private:
 
     bool mySearchBarOpenedThisFrame = false;
 
-    float myTextureSize = 92;
+    float myTextureSize = 64;
     float myTextureSizeMin = 48;
     float myTextureSizeMax = 140;
 
