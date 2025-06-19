@@ -64,6 +64,8 @@ public:
     // This will add a file to the cache potentially overwriting existing cached data.
     void CacheFile(const std::string& inFile, const std::list<ReflectedClass>& inClasses);
 
+    void UpdateWriteTimeForFile(const std::string& inFile);
+
     bool IsCacheValidForFile(const std::string& inFile) const;
     const std::list<ReflectedClass>& GetCachedClassesForFile(const std::string& inFile) const;
 

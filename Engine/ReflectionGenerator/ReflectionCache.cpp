@@ -56,6 +56,12 @@ void ReflectionCache::CacheFile(const std::string& inFile, const std::list<Refle
     myCache[inFile] = { lastWriteTime, inClasses };
 }
 
+void ReflectionCache::UpdateWriteTimeForFile(const std::string& inFile)
+{
+    std::filesystem::file_time_type lastWriteTime = std::filesystem::last_write_time(inFile);
+    myCache[inFile].myLastWriteTime = lastWriteTime;
+}
+
 bool ReflectionCache::IsCacheValidForFile(const std::string& inFile) const
 {
     const std::string normalizedFilePath = PathUtils::NormalizePath(inFile);
@@ -87,6 +93,8 @@ void ReflectionCache::UpdateCacheFromUnityFile(const UnityFileBuilder& inUnityFi
         
         if (myCache.find(normalizedPath) == myCache.end())
             CacheFile(normalizedPath, {});
+        else
+            UpdateWriteTimeForFile(normalizedPath);
     }
 }
 

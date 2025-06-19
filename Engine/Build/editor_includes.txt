@@ -1,4 +1,5 @@
 ../
+../Editor/
 %{VULKAN_SDK}/Include/
 ../External/
 ../External/assimp/include/
