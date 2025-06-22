@@ -16,6 +16,8 @@ public:
     const List<Field>& GetFields() const;
     const List<Method>& GetMethods() const;
 
+    unsigned int GetSize() const;
+
     List<Field> GetFieldsWithMetadata(const std::string& inMetadata) const;
     List<const Method*> GetMethodsWithMetadata(const std::string& inMetadata) const;
     
@@ -54,7 +56,7 @@ private:
     void AddBaseClass(Class* inBaseClass);
     
     Class() = delete;
-    Class(const std::string& inClassName, const std::string& inFullName, const Delegate<void*()>& inFactoryFunction);
+    Class(const std::string& inClassName, const std::string& inFullName, const unsigned int inSize, const Delegate<void*()>& inFactoryFunction);
     
     // This is the full name which matches what you get when using typeid(ClassType).name()
     std::string myFullName = "";
@@ -62,6 +64,8 @@ private:
     // This is a prettified class name. It'll return just the ClassName.
     std::string myClassName = "";
 
+    unsigned int myByteSize = 0;
+    
     // This is a callback that creates an instance of this class type.
     Delegate<void*()> myFactoryFunction;
     

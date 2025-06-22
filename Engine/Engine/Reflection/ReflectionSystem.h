@@ -41,10 +41,17 @@ private:
     template<typename ClassType>
     void AddClass(const std::string& inClassName, const std::string& inFullName)
     {
+        constexpr size_t classSize = []() constexpr {
+            if constexpr (std::is_void_v<ClassType>)
+                return size_t(0);
+            else
+                return sizeof(std::remove_reference_t<ClassType>);
+        }();
+        
         if constexpr (std::is_default_constructible_v<ClassType> && !std::is_abstract_v<ClassType>)
-            myClasses.Add(new Class(inClassName, inFullName, []() -> void* { return new typename std::remove_const<ClassType>::type(); }));
+            myClasses.Add(new Class(inClassName, inFullName, classSize, []() -> void* { return new typename std::remove_const<ClassType>::type(); }));
         else
-            myClasses.Add(new Class(inClassName, inFullName, []() -> void* { check(false && "Class is not default constructible or abstract"); return nullptr; }));
+            myClasses.Add(new Class(inClassName, inFullName, classSize, []() -> void* { check(false && "Class is not default constructible or abstract"); return nullptr; }));
     }
 
     template<typename ClassType>

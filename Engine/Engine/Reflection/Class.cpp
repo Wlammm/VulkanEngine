@@ -31,6 +31,11 @@ const List<Method>& Class::GetMethods() const
     return myMethods;
 }
 
+unsigned int Class::GetSize() const
+{
+    return myByteSize;
+}
+
 List<Field> Class::GetFieldsWithMetadata(const std::string& inMetadata) const
 {
     List<Field> fields;
@@ -85,6 +90,6 @@ void Class::AddBaseClass(Class* inBaseClass)
     inBaseClass->myDerivedClasses.Add(this);
 }
 
-Class::Class(const std::string& inClassName, const std::string& inFullName, const Delegate<void*()>& inFactoryFunction)
-    : myClassName(inClassName), myFullName(inFullName), myFactoryFunction(inFactoryFunction)
+Class::Class(const std::string& inClassName, const std::string& inFullName, const unsigned int inSize, const Delegate<void*()>& inFactoryFunction)
+    : myClassName(inClassName), myFullName(inFullName), myByteSize(inSize), myFactoryFunction(inFactoryFunction)
 { }

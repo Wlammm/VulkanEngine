@@ -3967,6 +3967,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetLocalShapeRotation", 
 	{
 		Field& currentField = currentClass->AddField(Field("myColor", 20, reflectionSystem.GetOrCreateClass<glm::vec<4, float>>("glm::vec<4, float>")));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
+		currentField.AddMetadata(R"delim(ExposeAsColor)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myLightProjection", 36, reflectionSystem.GetOrCreateClass<glm::mat<4, 4, float>>("glm::mat<4, 4, float>")));
@@ -5597,19 +5598,22 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 		Field& currentField = currentClass->AddField(Field("myClassName", 32, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFactoryFunction", 64, reflectionSystem.GetOrCreateClass<Delegate<void *()>>("Delegate<void *()>")));
+		Field& currentField = currentClass->AddField(Field("myByteSize", 64, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myBaseClasses", 72, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
+		Field& currentField = currentClass->AddField(Field("myFactoryFunction", 72, reflectionSystem.GetOrCreateClass<Delegate<void *()>>("Delegate<void *()>")));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDerivedClasses", 96, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
+		Field& currentField = currentClass->AddField(Field("myBaseClasses", 80, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFields", 120, reflectionSystem.GetOrCreateClass<List<Field>>("List<Field>")));
+		Field& currentField = currentClass->AddField(Field("myDerivedClasses", 104, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMethods", 144, reflectionSystem.GetOrCreateClass<List<Method>>("List<Method>")));
+		Field& currentField = currentClass->AddField(Field("myFields", 128, reflectionSystem.GetOrCreateClass<List<Field>>("List<Field>")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMethods", 152, reflectionSystem.GetOrCreateClass<List<Method>>("List<Method>")));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5670,6 +5674,16 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetMethods", reflectionSystem.GetOrCreateClass<const List<Method> &>("const List<Method> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Class* instance = static_cast<Class*>(inInstance);
+static thread_local unsigned int result = instance->GetSize();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetSize", reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
