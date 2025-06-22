@@ -59,8 +59,10 @@ public:
     const List<IComponentArray*>& GetAllComponentArrays() const;
     
 private:
+    META(SerializeField)
     List<GameObject*> myObjects{};
     List<GameObject*> myObjectsToDestory{};
 
+    META(SerializeField)
     mutable List<IComponentArray*> myComponentArrays;
 };

@@ -36,6 +36,11 @@ unsigned int Class::GetSize() const
     return myByteSize;
 }
 
+bool Class::IsCopyable() const
+{
+    return myIsCopyable;
+}
+
 List<Field> Class::GetFieldsWithMetadata(const std::string& inMetadata) const
 {
     List<Field> fields;
@@ -90,6 +95,6 @@ void Class::AddBaseClass(Class* inBaseClass)
     inBaseClass->myDerivedClasses.Add(this);
 }
 
-Class::Class(const std::string& inClassName, const std::string& inFullName, const unsigned int inSize, const Delegate<void*()>& inFactoryFunction)
-    : myClassName(inClassName), myFullName(inFullName), myByteSize(inSize), myFactoryFunction(inFactoryFunction)
+Class::Class(const std::string& inClassName, const std::string& inFullName, const unsigned int inSize, const bool inIsCopyable,  const Delegate<void*()>& inFactoryFunction)
+    : myClassName(inClassName), myFullName(inFullName), myByteSize(inSize), myIsCopyable(inIsCopyable), myFactoryFunction(inFactoryFunction)
 { }

@@ -20,7 +20,7 @@ public:
 	
 	static void SetIsRunning(const bool inIsRunning);
 
-	ReflectionSystem& GetReflectionSystem();
+	static ReflectionSystem& GetReflectionSystem();
 	
 	static const EngineProperties& GetEngineProperties();
 	static const class WindowHandler& GetWindowHandler();

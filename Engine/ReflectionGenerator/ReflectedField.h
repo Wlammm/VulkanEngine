@@ -12,6 +12,8 @@ public:
     const std::string& GetFieldName() const;
     const std::string& GetFieldType() const;
 
+    void AddTemplateArgument(const std::string& inTemplateArgument);
+    
     const std::vector<std::string>& GetFieldMetadata() const;
 
     const uint32_t GetByteOffset() const;
@@ -24,6 +26,8 @@ private:
     std::string myFieldType;
 
     std::vector<std::string> myMetadata;
+
+    std::string<std::string> myTemplateArguments;
 
     uint32_t myByteOffset;
 };

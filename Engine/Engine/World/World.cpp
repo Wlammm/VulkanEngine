@@ -25,6 +25,7 @@
 #include "Engine/Core/Input.h"
 #include "Engine/Core/Time.h"
 #include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/Serialization/BinaryWriter.h"
 #include "Engine/Systems/LandscapeSystem.h"
 
 World::World()
@@ -122,6 +123,19 @@ void World::Update()
 void World::Destroy()
 {
 	
+}
+
+void World::SaveToFile(const std::filesystem::path& inPath)
+{
+	BinaryWriter writer(inPath);
+	// writer.WriteClass(this, Engine::GetReflectionSystem().GetClass(this));
+	writer.WriteClass(&GetComponentSystem(), Engine::GetReflectionSystem().GetClass(&GetComponentSystem()));
+	writer.Save();
+}
+
+void World::LoadFromFile(const std::filesystem::path& inPath)
+{
+	check(false);
 }
 
 bool World::Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, RaycastHit& outHit, const float inMaxDistance, const TagMask inExcludedTags, bool inIgnoreTriggers)

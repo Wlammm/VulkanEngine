@@ -53,6 +53,9 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 // Replaces glm::vec3's normal inspector renderer with a color picker.
 #define ExposeAsColor
 
+// Use this to serialize the field to disk in case the class is being serialized.
+#define SerializeField
+
 //#define TRACY_FIBERS
 
 #include "Engine/Utils/StdIncludes.hpp"

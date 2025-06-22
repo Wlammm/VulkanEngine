@@ -87,9 +87,9 @@ void ReflectedClass::Load(const nlohmann::json& inJson)
     }
 }
 
-void ReflectedClass::AddField(const ReflectedField& inField)
+ReflectedField& ReflectedClass::AddField(const ReflectedField& inField)
 {
-    myFields.emplace_back(inField);
+    return myFields.emplace_back(inField);
 }
 
 void ReflectedClass::AddMethod(const ReflectedMethod& inMethod)

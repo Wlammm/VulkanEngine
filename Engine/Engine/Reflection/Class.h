@@ -18,6 +18,8 @@ public:
 
     unsigned int GetSize() const;
 
+    bool IsCopyable() const;
+
     List<Field> GetFieldsWithMetadata(const std::string& inMetadata) const;
     List<const Method*> GetMethodsWithMetadata(const std::string& inMetadata) const;
     
@@ -56,7 +58,7 @@ private:
     void AddBaseClass(Class* inBaseClass);
     
     Class() = delete;
-    Class(const std::string& inClassName, const std::string& inFullName, const unsigned int inSize, const Delegate<void*()>& inFactoryFunction);
+    Class(const std::string& inClassName, const std::string& inFullName, const unsigned int inSize, const bool inIsCopyable,  const Delegate<void*()>& inFactoryFunction);
     
     // This is the full name which matches what you get when using typeid(ClassType).name()
     std::string myFullName = "";
@@ -65,6 +67,8 @@ private:
     std::string myClassName = "";
 
     unsigned int myByteSize = 0;
+
+    bool myIsCopyable = false;
     
     // This is a callback that creates an instance of this class type.
     Delegate<void*()> myFactoryFunction;

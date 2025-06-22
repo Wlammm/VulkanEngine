@@ -49,9 +49,9 @@ private:
         }();
         
         if constexpr (std::is_default_constructible_v<ClassType> && !std::is_abstract_v<ClassType>)
-            myClasses.Add(new Class(inClassName, inFullName, classSize, []() -> void* { return new typename std::remove_const<ClassType>::type(); }));
+            myClasses.Add(new Class(inClassName, inFullName, classSize, std::is_trivially_copyable_v<ClassType>, []() -> void* { return new typename std::remove_const<ClassType>::type(); }));
         else
-            myClasses.Add(new Class(inClassName, inFullName, classSize, []() -> void* { check(false && "Class is not default constructible or abstract"); return nullptr; }));
+            myClasses.Add(new Class(inClassName, inFullName, classSize, std::is_trivially_copyable_v<ClassType>, []() -> void* { check(false && "Class is not default constructible or abstract"); return nullptr; }));
     }
 
     template<typename ClassType>

@@ -22,6 +22,11 @@ const std::string& ReflectedField::GetFieldType() const
     return myFieldType;
 }
 
+void ReflectedField::AddTemplateArgument(const std::string& inTemplateArgument)
+{
+    myTemplateArguments.push_back(inTemplateArgument);
+}
+
 const std::vector<std::string>& ReflectedField::GetFieldMetadata() const
 {
     return myMetadata;

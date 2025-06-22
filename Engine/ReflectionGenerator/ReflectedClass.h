@@ -24,7 +24,7 @@ public:
     nlohmann::json Save() const;
     void Load(const nlohmann::json& inJson);
     
-    void AddField(const ReflectedField& inField);
+    ReflectedField& AddField(const ReflectedField& inField);
     void AddMethod(const ReflectedMethod& inMethod);
     
 private:

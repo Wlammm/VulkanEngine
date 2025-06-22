@@ -6,10 +6,11 @@
 
 // BEGIN INCLUDES FOR REFLECTED TYPES
 
-#include "../Editor/EditorSystem/EditorSystem.h"
-#include "../Editor/Windows/HierarchyWindow.h"
+#include "../Editor/Toolbar/File/SaveLoadToolbar.h"
 #include "../Engine/Animation/Skeleton.h"
 #include "../Editor/Editor.h"
+#include "../Editor/EditorSystem/EditorSystem.h"
+#include "../Editor/Windows/HierarchyWindow.h"
 #include "../Editor/EditorSystem/ImGuiDemoSystem.h"
 #include "../Editor/EditorPch.h"
 #include "../Engine/Components/EditorCameraMovementComponent.h"
@@ -17,7 +18,6 @@
 #include "../Editor/Toolbar/Themes/EditorThemes.h"
 #include "../Engine/Components/CapsuleColliderComponent.h"
 #include "../Editor/EditorSystem/SelectionSystem.h"
-#include "../Engine/Delegates/Internal/ConstMemberFuncCtor.hpp"
 #include "../Editor/Utils/EditorConfirmPrompt.h"
 #include "../Engine/Components/SinWaveMovementComponent.h"
 #include "../Editor/Utils/ImGuiTextureUtils.h"
@@ -45,6 +45,7 @@
 #include "../Engine/Components/TransformComponent.h"
 #include "../Engine/ComponentSystem/Component.h"
 #include "../Engine/Core/Time.h"
+#include "../Engine/Serialization/TypeSerializers/TypeSerializer.h"
 #include "../Engine/Components/MeshColliderComponent.h"
 #include "../Engine/ComponentSystem/ComponentArray.h"
 #include "../Engine/Core/Console.h"
@@ -77,6 +78,7 @@
 #include "../Engine/Delegates/Delegate.hpp"
 #include "../Engine/Coroutines/Awaitable.h"
 #include "../Engine/Core/EngineDefines.hpp"
+#include "../Engine/Delegates/Internal/ConstMemberFuncCtor.hpp"
 #include "../Engine/Delegates/Internal/FreeFuncCtor.hpp"
 #include "../Engine/Delegates/Internal/FuncCtor.hpp"
 #include "../Engine/Rendering/RenderSystem.h"
@@ -114,6 +116,7 @@
 #include "../Engine/Rendering/Vertex.hpp"
 #include "../Engine/Rendering/VertexBufferSystem.h"
 #include "../Engine/Serialization/BinaryReader.h"
+#include "../Engine/Serialization/TypeSerializers/StringSerializer.h"
 #include "../Engine/Shaders/MeshStructs.hpp"
 #include "../Engine/System/System.h"
 #include "../Engine/System/SystemManager.hpp"
@@ -183,11 +186,12 @@ public:
 
 		// Create all classes.
 		{
-		    reflectionSystem.AddClass<EditorSystem>("EditorSystem", typeid(EditorSystem).name());
-reflectionSystem.AddClass<HierarchyWindow>("HierarchyWindow", typeid(HierarchyWindow).name());
+		    reflectionSystem.AddClass<SaveLoadToolbar>("SaveLoadToolbar", typeid(SaveLoadToolbar).name());
 reflectionSystem.AddClass<Skeleton>("Skeleton", typeid(Skeleton).name());
 reflectionSystem.AddClass<Skeleton::Bone>("Skeleton::Bone", typeid(Skeleton::Bone).name());
 reflectionSystem.AddClass<Editor>("Editor", typeid(Editor).name());
+reflectionSystem.AddClass<EditorSystem>("EditorSystem", typeid(EditorSystem).name());
+reflectionSystem.AddClass<HierarchyWindow>("HierarchyWindow", typeid(HierarchyWindow).name());
 reflectionSystem.AddClass<ImGuiDemoSystem>("ImGuiDemoSystem", typeid(ImGuiDemoSystem).name());
 reflectionSystem.AddClass<EditorCameraMovementComponent>("EditorCameraMovementComponent", typeid(EditorCameraMovementComponent).name());
 reflectionSystem.AddClass<EditorToolbar>("EditorToolbar", typeid(EditorToolbar).name());
@@ -228,6 +232,7 @@ reflectionSystem.AddClass<Input::MouseButton>("Input::MouseButton", typeid(Input
 reflectionSystem.AddClass<TransformComponent>("TransformComponent", typeid(TransformComponent).name());
 reflectionSystem.AddClass<Component>("Component", typeid(Component).name());
 reflectionSystem.AddClass<Time>("Time", typeid(Time).name());
+reflectionSystem.AddClass<ITypeSerializer>("ITypeSerializer", typeid(ITypeSerializer).name());
 reflectionSystem.AddClass<MeshColliderComponent>("MeshColliderComponent", typeid(MeshColliderComponent).name());
 reflectionSystem.AddClass<IComponentArray>("IComponentArray", typeid(IComponentArray).name());
 reflectionSystem.AddClass<Console>("Console", typeid(Console).name());
@@ -286,6 +291,7 @@ reflectionSystem.AddClass<BinaryWriter>("BinaryWriter", typeid(BinaryWriter).nam
 reflectionSystem.AddClass<Vertex>("Vertex", typeid(Vertex).name());
 reflectionSystem.AddClass<VertexBufferSystem>("VertexBufferSystem", typeid(VertexBufferSystem).name());
 reflectionSystem.AddClass<BinaryReader>("BinaryReader", typeid(BinaryReader).name());
+reflectionSystem.AddClass<StringSerializer>("StringSerializer", typeid(StringSerializer).name());
 reflectionSystem.AddClass<MeshData>("MeshData", typeid(MeshData).name());
 reflectionSystem.AddClass<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
 reflectionSystem.AddClass<IndexBufferData>("IndexBufferData", typeid(IndexBufferData).name());
@@ -330,23 +336,28 @@ reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
         // Add all fields & add base classes.
         {
             { 
-	Class* currentClass = reflectionSystem.GetMutableClass<EditorSystem>();
-	{
-		Field& currentField = currentClass->AddField(Field("myID", 8, reflectionSystem.GetOrCreateClass<int>("int")));
-	}
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<HierarchyWindow>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EditorWindow>());
+	Class* currentClass = reflectionSystem.GetMutableClass<SaveLoadToolbar>();
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-HierarchyWindow* instance = static_cast<HierarchyWindow*>(inInstance);
-instance->Tick();
+SaveLoadToolbar* instance = static_cast<SaveLoadToolbar*>(inInstance);
+instance->Save();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("Save", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+currentMethod.AddMetadata(R"delim(EditorMenuItem("File/Save"))delim");
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+SaveLoadToolbar* instance = static_cast<SaveLoadToolbar*>(inInstance);
+instance->Load();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Load", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+currentMethod.AddMetadata(R"delim(EditorMenuItem("File/Load"))delim");
 }
 }
 { 
@@ -430,6 +441,26 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inTickFunction", reflectionSystem.GetOrCreateClass<const Delegate<void ()> &>("const Delegate<void ()> &")));
 Method& currentMethod = currentClass->AddMethod(Method("SetGameTickFunction", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<EditorSystem>();
+	{
+		Field& currentField = currentClass->AddField(Field("myID", 8, reflectionSystem.GetOrCreateClass<int>("int")));
+	}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<HierarchyWindow>();
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EditorWindow>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+HierarchyWindow* instance = static_cast<HierarchyWindow*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -2674,6 +2705,34 @@ Method& currentMethod = currentClass->AddMethod(Method("GetTimeSinceStart", refl
 }
 }
 { 
+	Class* currentClass = reflectionSystem.GetMutableClass<ITypeSerializer>();
+	{
+		Field& currentField = currentClass->AddField(Field("myClass", 8, reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ITypeSerializer* instance = static_cast<ITypeSerializer*>(inInstance);
+const Class * result = instance->GetClass();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ITypeSerializer* instance = static_cast<ITypeSerializer*>(inInstance);
+const Class * arg0 = (const Class*)inArguments[0];
+ITypeSerializer * result = instance->GetSerializer(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
+Method& currentMethod = currentClass->AddMethod(Method("GetSerializer", reflectionSystem.GetOrCreateClass<ITypeSerializer *>("ITypeSerializer *"), invoker, arguments));
+}
+}
+{ 
 	Class* currentClass = reflectionSystem.GetMutableClass<MeshColliderComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myModel", 56, reflectionSystem.GetOrCreateClass<Model *>("Model *")));
@@ -2780,12 +2839,14 @@ Method& currentMethod = currentClass->AddMethod(Method("LogError", reflectionSys
 	Class* currentClass = reflectionSystem.GetMutableClass<ComponentSystem>();
 	{
 		Field& currentField = currentClass->AddField(Field("myObjects", 16, reflectionSystem.GetOrCreateClass<List<GameObject *>>("List<GameObject *>")));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myObjectsToDestory", 40, reflectionSystem.GetOrCreateClass<List<GameObject *>>("List<GameObject *>")));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myComponentArrays", 64, reflectionSystem.GetOrCreateClass<List<IComponentArray *>>("List<IComponentArray *>")));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<WorldSystem>());
 {
@@ -5601,6 +5662,9 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 		Field& currentField = currentClass->AddField(Field("myByteSize", 64, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
 	}
 	{
+		Field& currentField = currentClass->AddField(Field("myIsCopyable", 68, reflectionSystem.GetOrCreateClass<bool>("bool")));
+	}
+	{
 		Field& currentField = currentClass->AddField(Field("myFactoryFunction", 72, reflectionSystem.GetOrCreateClass<Delegate<void *()>>("Delegate<void *()>")));
 	}
 	{
@@ -5684,6 +5748,16 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetSize", reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Class* instance = static_cast<Class*>(inInstance);
+static thread_local bool result = instance->IsCopyable();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsCopyable", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -6259,12 +6333,66 @@ Method& currentMethod = currentClass->AddMethod(Method("Save", reflectionSystem.
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 BinaryWriter* instance = static_cast<BinaryWriter*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Class * arg1 = (const Class*)inArguments[1];
+instance->WriteClass(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
+Method& currentMethod = currentClass->AddMethod(Method("WriteClass", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+BinaryWriter* instance = static_cast<BinaryWriter*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Field & arg1 = *(const Field*)inArguments[1];
+instance->WriteField(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inField", reflectionSystem.GetOrCreateClass<const Field &>("const Field &")));
+Method& currentMethod = currentClass->AddMethod(Method("WriteField", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+BinaryWriter* instance = static_cast<BinaryWriter*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+instance->Write(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inString", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("Write", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+BinaryWriter* instance = static_cast<BinaryWriter*>(inInstance);
 const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
 instance->Write(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inPath", reflectionSystem.GetOrCreateClass<const std::filesystem::path &>("const std::filesystem::path &")));
+Method& currentMethod = currentClass->AddMethod(Method("Write", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+BinaryWriter* instance = static_cast<BinaryWriter*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const int arg1 = *(const int*)inArguments[1];
+instance->Write(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inSize", reflectionSystem.GetOrCreateClass<const int>("const int")));
 Method& currentMethod = currentClass->AddMethod(Method("Write", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
@@ -6444,6 +6572,52 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("out", reflectionSystem.GetOrCreateClass<std::filesystem::path &>("std::filesystem::path &")));
+Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+BinaryReader* instance = static_cast<BinaryReader*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const int arg1 = *(const int*)inArguments[1];
+instance->Read(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("outInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inSize", reflectionSystem.GetOrCreateClass<const int>("const int")));
+Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<StringSerializer>();
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<TypeSerializer<std::basic_string<char>>>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StringSerializer* instance = static_cast<StringSerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+BinaryWriter * arg1 = (BinaryWriter*)inArguments[1];
+instance->Write(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inWriter", reflectionSystem.GetOrCreateClass<BinaryWriter *>("BinaryWriter *")));
+Method& currentMethod = currentClass->AddMethod(Method("Write", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StringSerializer* instance = static_cast<StringSerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+BinaryReader * arg1 = (BinaryReader*)inArguments[1];
+instance->Read(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inReader", reflectionSystem.GetOrCreateClass<BinaryReader *>("BinaryReader *")));
 Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
@@ -8385,6 +8559,30 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Destroy", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
+instance->SaveToFile(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inPath", reflectionSystem.GetOrCreateClass<const std::filesystem::path &>("const std::filesystem::path &")));
+Method& currentMethod = currentClass->AddMethod(Method("SaveToFile", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
+instance->LoadFromFile(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inPath", reflectionSystem.GetOrCreateClass<const std::filesystem::path &>("const std::filesystem::path &")));
+Method& currentMethod = currentClass->AddMethod(Method("LoadFromFile", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

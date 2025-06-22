@@ -20,6 +20,9 @@ public:
 	void Update();
 	void Destroy();
 
+	void SaveToFile(const std::filesystem::path& inPath);
+	void LoadFromFile(const std::filesystem::path& inPath);
+
 	bool Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, RaycastHit& outHit, const float inMaxDistance = FLOAT_MAX, const TagMask inExcludedTags = 0, bool inIgnoreTriggers = true);
 	bool RaycastAll(const glm::vec3& inOrigin, const glm::vec3& inDirection, List<RaycastHit>& outHits, const float inMaxDistance = FLOAT_MAX, const TagMask inExcludedTags = 0, bool inIgnoreTriggers = true);
 	

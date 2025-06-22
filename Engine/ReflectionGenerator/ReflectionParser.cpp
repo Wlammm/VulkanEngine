@@ -195,7 +195,18 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         const std::vector<std::string> fieldMetaData = GetMetadata(inCurrentCursor);
         
         const std::string typeName = GetSpelling(type);
-        clientData.classStack.back()->AddField(ReflectedField(fieldName, typeName, byteOffset, fieldMetaData));
+        ReflectedField& field = clientData.classStack.back()->AddField(ReflectedField(fieldName, typeName, byteOffset, fieldMetaData));
+
+        int numTemplateArgs = clang_Type_getNumTemplateArguments(type);
+        for (int i = 0; i < numTemplateArgs; ++i)
+        {
+            CXType templateArg = clang_Type_getTemplateArgumentAsType(type, i);
+            if (templateArg.kind == CXType_Invalid)
+            {
+                std::string templateArgName = GetSpelling(templateArg);
+                field.AddTemplateArgument(templateArgName);
+            }
+        }
     }
     
     return CXChildVisit_Continue;
