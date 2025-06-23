@@ -49,6 +49,7 @@ public:
         return static_cast<ClassType*>(instance);
     }
 
+
 private:
     friend class ReflectionSystem;
     friend class GeneratedReflectionData;
@@ -75,7 +76,7 @@ private:
     
     List<const Class*> myBaseClasses{};
     List<const Class*> myDerivedClasses{};
-    
+
     List<Field> myFields{};
     List<Method> myMethods{};
 };

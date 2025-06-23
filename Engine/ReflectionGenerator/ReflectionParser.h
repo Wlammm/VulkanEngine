@@ -37,10 +37,13 @@ private:
     void BuildCommandLineArgs(std::vector<const char*>& outCommandLineArgs) const;
     static std::string GetSpelling(const CXCursor& inCursor);
     static std::string GetSpelling(const CXType& inType);
+    static std::string GetTemplateArgSpelling(const CXType& inType);
     static std::string GetSpelling(const CXCursorKind inCursorKind);
 
     static std::string GetDisplayName(const CXCursor& inCursor);
     static std::string GetFileName(const CXSourceLocation& inLocation);
+
+    static std::vector<std::string> GetTemplateArguments(const std::string& inFullTypeSpelling);
 
     static std::string BuildClassNameFromStack(const std::vector<ReflectedClass*>& inClassStack, const std::string& inNewClassName);
 

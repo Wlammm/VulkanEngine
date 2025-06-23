@@ -22,11 +22,6 @@ const std::string& ReflectedField::GetFieldType() const
     return myFieldType;
 }
 
-void ReflectedField::AddTemplateArgument(const std::string& inTemplateArgument)
-{
-    myTemplateArguments.push_back(inTemplateArgument);
-}
-
 const std::vector<std::string>& ReflectedField::GetFieldMetadata() const
 {
     return myMetadata;
@@ -48,6 +43,11 @@ nlohmann::json ReflectedField::Save() const
     {
         json["metadata"].push_back(metadata);
     }
+
+    for (const std::string& metadata : myTemplateArguments)
+    {
+        json["templateArguments"].push_back(metadata);
+    }
     
     return json;
 }
@@ -59,4 +59,17 @@ void ReflectedField::Load(const nlohmann::json& inJson)
     myByteOffset = inJson["byteOffset"];
     if(inJson.contains("metadata"))
         myMetadata = inJson["metadata"].get<std::vector<std::string>>();
+
+    if (inJson.contains("templateArguments"))
+        myTemplateArguments = inJson["templateArguments"].get<std::vector<std::string>>();
+}
+
+void ReflectedField::AddTemplateArgument(const std::string& inTemplateArgument)
+{
+    myTemplateArguments.emplace_back(inTemplateArgument);
+}
+
+const std::vector<std::string>& ReflectedField::GetTemplateArguments() const
+{
+    return myTemplateArguments;
 }

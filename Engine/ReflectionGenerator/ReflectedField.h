@@ -12,8 +12,6 @@ public:
     const std::string& GetFieldName() const;
     const std::string& GetFieldType() const;
 
-    void AddTemplateArgument(const std::string& inTemplateArgument);
-    
     const std::vector<std::string>& GetFieldMetadata() const;
 
     const uint32_t GetByteOffset() const;
@@ -21,13 +19,17 @@ public:
     nlohmann::json Save() const;
     void Load(const nlohmann::json& inJson);
     
+    void AddTemplateArgument(const std::string& inTemplateArgument);
+
+    const std::vector<std::string>& GetTemplateArguments() const;
+    
 private:
     std::string myFieldName;
     std::string myFieldType;
 
     std::vector<std::string> myMetadata;
 
-    std::string<std::string> myTemplateArguments;
-
+    std::vector<std::string> myTemplateArguments;
+    
     uint32_t myByteOffset;
 };

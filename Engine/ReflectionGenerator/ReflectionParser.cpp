@@ -200,10 +200,11 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         int numTemplateArgs = clang_Type_getNumTemplateArguments(type);
         for (int i = 0; i < numTemplateArgs; ++i)
         {
-            CXType templateArg = clang_Type_getTemplateArgumentAsType(type, i);
-            if (templateArg.kind == CXType_Invalid)
+            CXType templateArg = clang_getCanonicalType(clang_Type_getTemplateArgumentAsType(type, i));
+            if (templateArg.kind != CXType_Invalid)
             {
-                std::string templateArgName = GetSpelling(templateArg);
+                std::string templateArgName = GetTemplateArgSpelling(templateArg);
+
                 field.AddTemplateArgument(templateArgName);
             }
         }
@@ -252,6 +253,20 @@ std::string ReflectionParser::GetSpelling(const CXType& inType)
     return spelling;
 }
 
+std::string ReflectionParser::GetTemplateArgSpelling(const CXType& inType)
+{
+    const CXString clangSpelling = clang_getTypeSpelling(inType);
+    std::string spelling = clang_getCString(clangSpelling);
+    clang_disposeString(clangSpelling);
+
+    // This is a hack for std::filesystem::path that doesnt contain the namespace and I cant be asked to make the proper solution right now.
+    if (spelling.contains("std::hash<") && !spelling.contains("std::hash<std::"))
+    {
+        spelling.replace(0, std::strlen("std::hash<"), "std::hash<std::");
+    }
+    return spelling;
+}
+
 std::string ReflectionParser::GetSpelling(const CXCursorKind inCursorKind)
 {
     const CXString clangSpelling = clang_getCursorKindSpelling(inCursorKind);
@@ -283,6 +298,71 @@ std::string ReflectionParser::GetFileName(const CXSourceLocation& inLocation)
 
     filename = PathUtils::NormalizePath(filename);
     return filename;
+}
+
+std::vector<std::string> ReflectionParser::GetTemplateArguments(const std::string& inFullTypeSpelling)
+{
+    std::vector<std::string> arguments;
+    
+    size_t start = inFullTypeSpelling.find('<');
+    if (start == std::string::npos)
+        return arguments; 
+    
+    int depth = 0;
+    size_t end = std::string::npos;
+    for (size_t i = start; i < inFullTypeSpelling.size(); ++i)
+    {
+        if (inFullTypeSpelling[i] == '<')
+            ++depth;
+        else if (inFullTypeSpelling[i] == '>')
+        {
+            --depth;
+            if (depth == 0)
+            {
+                end = i;
+                break;
+            }
+        }
+    }
+    
+    if (end == std::string::npos)
+        return arguments;
+    
+    std::string argsStr = inFullTypeSpelling.substr(start + 1, end - start - 1);
+    
+    depth = 0;
+    size_t argStart = 0;
+    for (size_t i = 0; i < argsStr.size(); ++i)
+    {
+        if (argsStr[i] == '<')
+            ++depth;
+        else if (argsStr[i] == '>')
+            --depth;
+        else if (argsStr[i] == ',' && depth == 0)
+        {
+            std::string arg = argsStr.substr(argStart, i - argStart);
+            size_t first = arg.find_first_not_of(" \t\n\r");
+            size_t last = arg.find_last_not_of(" \t\n\r");
+            if (first != std::string::npos && last != std::string::npos)
+                arguments.push_back(arg.substr(first, last - first + 1));
+            else
+                arguments.push_back("");
+            argStart = i + 1;
+        }
+    }
+    
+    if (argStart < argsStr.size())
+    {
+        std::string arg = argsStr.substr(argStart);
+        size_t first = arg.find_first_not_of(" \t\n\r");
+        size_t last = arg.find_last_not_of(" \t\n\r");
+        if (first != std::string::npos && last != std::string::npos)
+            arguments.push_back(arg.substr(first, last - first + 1));
+        else
+            arguments.push_back("");
+    }
+    
+    return arguments;
 }
 
 std::string ReflectionParser::BuildClassNameFromStack(const std::vector<ReflectedClass*>& inClassStack, const std::string& inNewClassName)

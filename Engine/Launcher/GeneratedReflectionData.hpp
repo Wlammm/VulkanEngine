@@ -364,18 +364,33 @@ currentMethod.AddMetadata(R"delim(EditorMenuItem("File/Load"))delim");
 	Class* currentClass = reflectionSystem.GetMutableClass<Skeleton>();
 	{
 		Field& currentField = currentClass->AddField(Field("myJoints", 0, reflectionSystem.GetOrCreateClass<List<Skeleton::Bone>>("List<Skeleton::Bone>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Skeleton::Bone>("Skeleton::Bone"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Skeleton::Bone>();
 	{
 		Field& currentField = currentClass->AddField(Field("myBindPosition", 0, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myBindRotation", 12, reflectionSystem.GetOrCreateClass<glm::qua<float>>("glm::qua<float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myBindScale", 28, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myIndexToParent", 40, reflectionSystem.GetOrCreateClass<int>("int")));
@@ -385,15 +400,30 @@ currentMethod.AddMetadata(R"delim(EditorMenuItem("File/Load"))delim");
 	Class* currentClass = reflectionSystem.GetMutableClass<Editor>();
 	{
 		Field& currentField = currentClass->AddField(Field("myWindows", 0, reflectionSystem.GetOrCreateClass<List<EditorWindow *>>("List<EditorWindow *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<EditorWindow *>("EditorWindow *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySystems", 24, reflectionSystem.GetOrCreateClass<List<EditorSystem *>>("List<EditorSystem *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<EditorSystem *>("EditorSystem *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myNextID", 48, reflectionSystem.GetOrCreateClass<int>("int")));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myGameTickFunction", 56, reflectionSystem.GetOrCreateClass<Delegate<void ()>>("Delegate<void ()>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void ()>("void ()"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 64, reflectionSystem.GetOrCreateClass<AssetRegistry *>("AssetRegistry *")));
@@ -495,6 +525,9 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMouseDelta", 20, reflectionSystem.GetOrCreateClass<glm::vec<2, float>>("glm::vec<2, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myYaw", 28, reflectionSystem.GetOrCreateClass<float>("float")));
@@ -537,6 +570,12 @@ Method& currentMethod = currentClass->AddMethod(Method("ResetMouseDelta", reflec
 	Class* currentClass = reflectionSystem.GetMutableClass<EditorToolbar>();
 	{
 		Field& currentField = currentClass->AddField(Field("myToolbarMethods", 16, reflectionSystem.GetOrCreateClass<List<const Method *>>("List<const Method *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<const Method *>("const Method *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<EditorSystem>());
 {
@@ -687,12 +726,33 @@ Method& currentMethod = currentClass->AddMethod(Method("ClearSelection", reflect
 	Class* currentClass = reflectionSystem.GetMutableClass<EditorConfirmPrompt>();
 	{
 		Field& currentField = currentClass->AddField(Field("myTitle", 0, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myBody", 32, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCallback", 64, reflectionSystem.GetOrCreateClass<Delegate<void ()>>("Delegate<void ()>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void ()>("void ()"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -781,30 +841,93 @@ Method& currentMethod = currentClass->AddMethod(Method("CreateDescriptorSetForTe
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySearchString", 160, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySearchPaths", 192, reflectionSystem.GetOrCreateClass<List<std::filesystem::path>>("List<std::filesystem::path>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::filesystem::path>("std::filesystem::path"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDirectories", 216, reflectionSystem.GetOrCreateClass<std::map<std::filesystem::path, List<std::filesystem::path>>>("std::map<std::filesystem::path, List<std::filesystem::path>>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::filesystem::path>("std::filesystem::path"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<List<std::filesystem::path>>("List<std::filesystem::path>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::less<std::filesystem::path>>("std::less<std::filesystem::path>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<std::pair<const std::filesystem::path, List<std::filesystem::path>>>>("std::allocator<std::pair<const std::filesystem::path, List<std::filesystem::path>>>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myItems", 232, reflectionSystem.GetOrCreateClass<List<ContentBrowserItem>>("List<ContentBrowserItem>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<ContentBrowserItem>("ContentBrowserItem"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myHistory", 256, reflectionSystem.GetOrCreateClass<std::deque<std::filesystem::path>>("std::deque<std::filesystem::path>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::filesystem::path>("std::filesystem::path"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<std::filesystem::path>>("std::allocator<std::filesystem::path>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myForwardHistory", 296, reflectionSystem.GetOrCreateClass<std::deque<std::filesystem::path>>("std::deque<std::filesystem::path>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::filesystem::path>("std::filesystem::path"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<std::filesystem::path>>("std::allocator<std::filesystem::path>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myFolderIcons", 336, reflectionSystem.GetOrCreateClass<std::array<vk::DescriptorSet, 2>>("std::array<vk::DescriptorSet, 2>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::DescriptorSet>("vk::DescriptorSet"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myExcludedExtensions", 352, reflectionSystem.GetOrCreateClass<List<std::basic_string<char>>>("List<std::basic_string<char>>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDragDropPath", 376, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySelectedItem", 408, reflectionSystem.GetOrCreateClass<int>("int")));
@@ -814,6 +937,15 @@ Method& currentMethod = currentClass->AddMethod(Method("CreateDescriptorSetForTe
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myNewFileName", 416, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myRenamingInProgress", 448, reflectionSystem.GetOrCreateClass<bool>("bool")));
@@ -876,6 +1008,15 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 	Class* currentClass = reflectionSystem.GetMutableClass<EditorWindow>();
 	{
 		Field& currentField = currentClass->AddField(Field("myWindowName", 8, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myIsClosable", 40, reflectionSystem.GetOrCreateClass<bool>("bool")));
@@ -928,6 +1069,12 @@ Method& currentMethod = currentClass->AddMethod(Method("DrawProperty", reflectio
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDescriptorSets", 80, reflectionSystem.GetOrCreateClass<List<vk::DescriptorSet>>("List<vk::DescriptorSet>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::DescriptorSet>("vk::DescriptorSet"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySampler", 104, reflectionSystem.GetOrCreateClass<vk::Sampler>("vk::Sampler")));
@@ -961,12 +1108,39 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myShouldRun", 96, reflectionSystem.GetOrCreateClass<std::atomic<bool>>("std::atomic<bool>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<bool>("bool"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myFilesToWatch", 104, reflectionSystem.GetOrCreateClass<std::unordered_map<std::filesystem::path, Filewatcher::FileData>>("std::unordered_map<std::filesystem::path, Filewatcher::FileData>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::filesystem::path>("std::filesystem::path"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Filewatcher::FileData>("Filewatcher::FileData"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::hash<std::filesystem::path>>("std::hash<std::filesystem::path>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::equal_to<std::filesystem::path>>("std::equal_to<std::filesystem::path>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<std::pair<const std::filesystem::path, Filewatcher::FileData>>>("std::allocator<std::pair<const std::filesystem::path, Filewatcher::FileData>>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myModifiedPaths", 168, reflectionSystem.GetOrCreateClass<std::set<Filewatcher::FileData *>>("std::set<Filewatcher::FileData *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Filewatcher::FileData *>("Filewatcher::FileData *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::less<Filewatcher::FileData *>>("std::less<Filewatcher::FileData *>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<Filewatcher::FileData *>>("std::allocator<Filewatcher::FileData *>"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -1041,12 +1215,30 @@ Method& currentMethod = currentClass->AddMethod(Method("operator==", reflectionS
 	Class* currentClass = reflectionSystem.GetMutableClass<Filewatcher::FileData>();
 	{
 		Field& currentField = currentClass->AddField(Field("myCallbackIDIndexList", 0, reflectionSystem.GetOrCreateClass<List<Filewatcher::CallbackHandle>>("List<Filewatcher::CallbackHandle>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Filewatcher::CallbackHandle>("Filewatcher::CallbackHandle"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCallbacks", 24, reflectionSystem.GetOrCreateClass<List<std::function<void ()>>>("List<std::function<void ()>>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::function<void ()>>("std::function<void ()>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myLastModifiedTime", 48, reflectionSystem.GetOrCreateClass<std::chrono::time_point<std::filesystem::_File_time_clock>>("std::chrono::time_point<std::filesystem::_File_time_clock>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::filesystem::_File_time_clock>("std::filesystem::_File_time_clock"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::chrono::duration<long long, std::ratio<1, 10000000>>>("std::chrono::duration<long long, std::ratio<1, 10000000>>"));
+	}
 	}
 }
 { 
@@ -1085,12 +1277,27 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPath", reflectionSyst
 	Class* currentClass = reflectionSystem.GetMutableClass<SerializationMeshData>();
 	{
 		Field& currentField = currentClass->AddField(Field("myVertices", 0, reflectionSystem.GetOrCreateClass<List<Vertex>>("List<Vertex>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Vertex>("Vertex"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myIndices", 24, reflectionSystem.GetOrCreateClass<List<unsigned int>>("List<unsigned int>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySphereCenterBounds", 48, reflectionSystem.GetOrCreateClass<glm::vec<4, float>>("glm::vec<4, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myStagingVertexBuffer", 64, reflectionSystem.GetOrCreateClass<VulkanBuffer *>("VulkanBuffer *")));
@@ -1100,18 +1307,51 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPath", reflectionSyst
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myAlbedoPath", 80, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myNormalPath", 112, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMaterialPath", 144, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Model>();
 	{
 		Field& currentField = currentClass->AddField(Field("myMeshes", 56, reflectionSystem.GetOrCreateClass<List<Mesh *>>("List<Mesh *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Mesh *>("Mesh *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Asset>());
 {
@@ -1247,6 +1487,12 @@ Method& currentMethod = currentClass->AddMethod(Method("SetModel", reflectionSys
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myContainers", 80, reflectionSystem.GetOrCreateClass<List<IAssetContainer *>>("List<IAssetContainer *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<IAssetContainer *>("IAssetContainer *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -1275,6 +1521,27 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPathFromAssetName", r
 	Class* currentClass = reflectionSystem.GetMutableClass<JsonAsset>();
 	{
 		Field& currentField = currentClass->AddField(Field("myJson", 56, reflectionSystem.GetOrCreateClass<nlohmann::basic_json<>>("nlohmann::basic_json<>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<bool>("bool"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<long long>("long long"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned long long>("unsigned long long"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<double>("double"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::vector<unsigned char>>("std::vector<unsigned char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void>("void"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Asset>());
 {
@@ -1397,6 +1664,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMaterial", reflection
 	Class* currentClass = reflectionSystem.GetMutableClass<Shader>();
 	{
 		Field& currentField = currentClass->AddField(Field("OnShaderRecompiled", 56, reflectionSystem.GetOrCreateClass<MulticastDelegate<void ()>>("MulticastDelegate<void ()>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void ()>("void ()"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myShaderModule", 160, reflectionSystem.GetOrCreateClass<vk::ShaderModule>("vk::ShaderModule")));
@@ -1452,6 +1722,15 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", reflect
 	Class* currentClass = reflectionSystem.GetMutableClass<MethodArgument>();
 	{
 		Field& currentField = currentClass->AddField(Field("myArgumentName", 0, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myArgumentType", 32, reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
@@ -1481,18 +1760,42 @@ Method& currentMethod = currentClass->AddMethod(Method("GetArgumentType", reflec
 	Class* currentClass = reflectionSystem.GetMutableClass<Method>();
 	{
 		Field& currentField = currentClass->AddField(Field("myMethodName", 0, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myReturnType", 32, reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myArguments", 40, reflectionSystem.GetOrCreateClass<List<MethodArgument>>("List<MethodArgument>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<MethodArgument>("MethodArgument"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMetadata", 64, reflectionSystem.GetOrCreateClass<List<std::basic_string<char>>>("List<std::basic_string<char>>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myInvoker", 88, reflectionSystem.GetOrCreateClass<Delegate<void *(void *, const List<void *> &)>>("Delegate<void *(void *, const List<void *> &)>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void *(void *, const List<void *> &)>("void *(void *, const List<void *> &)"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -1558,6 +1861,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMetadataArgs", reflec
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myPixelData", 48, reflectionSystem.GetOrCreateClass<List<unsigned char>>("List<unsigned char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned char>("unsigned char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 }
 { 
@@ -1626,6 +1935,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetBindlessIndex", refle
 	Class* currentClass = reflectionSystem.GetMutableClass<ThreadPool>();
 	{
 		Field& currentField = currentClass->AddField(Field("myThreads", 0, reflectionSystem.GetOrCreateClass<List<std::thread>>("List<std::thread>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::thread>("std::thread"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myLookingForTaskMutex", 24, reflectionSystem.GetOrCreateClass<std::mutex>("std::mutex")));
@@ -1635,9 +1950,18 @@ Method& currentMethod = currentClass->AddMethod(Method("GetBindlessIndex", refle
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myShouldExit", 176, reflectionSystem.GetOrCreateClass<std::atomic<bool>>("std::atomic<bool>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<bool>("bool"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myTasks", 184, reflectionSystem.GetOrCreateClass<std::queue<std::function<void ()>>>("std::queue<std::function<void ()>>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::function<void ()>>("std::function<void ()>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::deque<std::function<void ()>>>("std::deque<std::function<void ()>>"));
+	}
 	}
 }
 { 
@@ -1879,12 +2203,21 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", reflectionSys
 	Class* currentClass = reflectionSystem.GetMutableClass<TransformComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("OnPositionChanged", 16, reflectionSystem.GetOrCreateClass<MulticastDelegate<void ()>>("MulticastDelegate<void ()>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void ()>("void ()"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("OnRotationChanged", 120, reflectionSystem.GetOrCreateClass<MulticastDelegate<void ()>>("MulticastDelegate<void ()>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void ()>("void ()"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("OnScaleChanged", 224, reflectionSystem.GetOrCreateClass<MulticastDelegate<void ()>>("MulticastDelegate<void ()>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void ()>("void ()"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myPositionDirty", 328, reflectionSystem.GetOrCreateClass<bool>("bool")));
@@ -1899,14 +2232,23 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", reflectionSys
 		Field& currentField = currentClass->AddField(Field("myPosition", 332, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 		currentField.AddMetadata(R"delim(OnInspectorChangedEvent(MarkDirtyFromInspector))delim");
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myRotation", 344, reflectionSystem.GetOrCreateClass<glm::qua<float>>("glm::qua<float>")));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myScale", 360, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySkipPhysicsUpdate", 372, reflectionSystem.GetOrCreateClass<bool>("bool")));
@@ -1916,6 +2258,12 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", reflectionSys
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myChildren", 384, reflectionSystem.GetOrCreateClass<List<TransformComponent *>>("List<TransformComponent *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<TransformComponent *>("TransformComponent *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 {
@@ -2784,6 +3132,12 @@ Method& currentMethod = currentClass->AddMethod(Method("SetModel", reflectionSys
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myLogToFileStream", 16, reflectionSystem.GetOrCreateClass<std::basic_ofstream<char>>("std::basic_ofstream<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCoutBuffer", 280, reflectionSystem.GetOrCreateClass<std::basic_streambuf<char> *>("std::basic_streambuf<char> *")));
@@ -2840,13 +3194,31 @@ Method& currentMethod = currentClass->AddMethod(Method("LogError", reflectionSys
 	{
 		Field& currentField = currentClass->AddField(Field("myObjects", 16, reflectionSystem.GetOrCreateClass<List<GameObject *>>("List<GameObject *>")));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<GameObject *>("GameObject *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myObjectsToDestory", 40, reflectionSystem.GetOrCreateClass<List<GameObject *>>("List<GameObject *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<GameObject *>("GameObject *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myComponentArrays", 64, reflectionSystem.GetOrCreateClass<List<IComponentArray *>>("List<IComponentArray *>")));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<IComponentArray *>("IComponentArray *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<WorldSystem>());
 {
@@ -3002,15 +3374,24 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAllComponentArrays", 
 	Class* currentClass = reflectionSystem.GetMutableClass<IVulkanDynamicBuffer>();
 	{
 		Field& currentField = currentClass->AddField(Field("OnBufferRecreated", 8, reflectionSystem.GetOrCreateClass<MulticastDelegate<void ()>>("MulticastDelegate<void ()>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void ()>("void ()"));
+	}
 	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<GameObject>();
 	{
 		Field& currentField = currentClass->AddField(Field("OnComponentAdded", 0, reflectionSystem.GetOrCreateClass<MulticastDelegate<void (Component *)>>("MulticastDelegate<void (Component *)>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void (Component *)>("void (Component *)"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("OnComponentRemoved", 104, reflectionSystem.GetOrCreateClass<MulticastDelegate<void (Component *)>>("MulticastDelegate<void (Component *)>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void (Component *)>("void (Component *)"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myComponentSystem", 208, reflectionSystem.GetOrCreateClass<ComponentSystem *>("ComponentSystem *")));
@@ -3278,6 +3659,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetHeightfield", reflect
 	{
 		Field& currentField = currentClass->AddField(Field("myHalfSize", 56, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ColliderComponent>());
 {
@@ -3307,9 +3691,15 @@ Method& currentMethod = currentClass->AddMethod(Method("SetHalfSize", reflection
 	Class* currentClass = reflectionSystem.GetMutableClass<CameraComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myResolution", 16, reflectionSystem.GetOrCreateClass<glm::vec<2, float>>("glm::vec<2, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myProjection", 24, reflectionSystem.GetOrCreateClass<glm::mat<4, 4, float>>("glm::mat<4, 4, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myFov", 88, reflectionSystem.GetOrCreateClass<float>("float")));
@@ -3376,6 +3766,12 @@ Method& currentMethod = currentClass->AddMethod(Method("CreatePerspective", refl
 	Class* currentClass = reflectionSystem.GetMutableClass<GPUSceneSystem>();
 	{
 		Field& currentField = currentClass->AddField(Field("myFreeSparseIndices", 8, reflectionSystem.GetOrCreateClass<List<unsigned int>>("List<unsigned int>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myNextFreeSparseIndex", 32, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
@@ -3391,6 +3787,12 @@ Method& currentMethod = currentClass->AddMethod(Method("CreatePerspective", refl
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDenseBufferCPURepresentation", 64, reflectionSystem.GetOrCreateClass<List<unsigned int, unsigned int>>("List<unsigned int, unsigned int>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 {
@@ -3728,6 +4130,12 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRotationConstraint", 
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCollisionFlags", 24, reflectionSystem.GetOrCreateClass<physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>>("physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<physx::PxControllerCollisionFlag::Enum>("physx::PxControllerCollisionFlag::Enum"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned char>("unsigned char"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myFilter", 32, reflectionSystem.GetOrCreateClass<physx::PxControllerFilters>("physx::PxControllerFilters")));
@@ -3767,9 +4175,15 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRotationConstraint", 
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDisplacement", 100, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myPositionOffset", 112, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 {
@@ -3913,9 +4327,15 @@ Method& currentMethod = currentClass->AddMethod(Method("Jump", reflectionSystem.
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myLocalShapePosition", 32, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myLocalShapeRotation", 44, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 {
@@ -4029,9 +4449,15 @@ Method& currentMethod = currentClass->AddMethod(Method("SetLocalShapeRotation", 
 		Field& currentField = currentClass->AddField(Field("myColor", 20, reflectionSystem.GetOrCreateClass<glm::vec<4, float>>("glm::vec<4, float>")));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 		currentField.AddMetadata(R"delim(ExposeAsColor)delim");
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myLightProjection", 36, reflectionSystem.GetOrCreateClass<glm::mat<4, 4, float>>("glm::mat<4, 4, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 {
@@ -4166,6 +4592,9 @@ Method& currentMethod = currentClass->AddMethod(Method("OnScaleChanged", reflect
 		Field& currentField = currentClass->AddField(Field("myColor", 16, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 		currentField.AddMetadata(R"delim(ExposeAsColor)delim");
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myIntensity", 28, reflectionSystem.GetOrCreateClass<float>("float")));
@@ -4443,6 +4872,12 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRadius", reflectionSy
 	{
 		Field& currentField = currentClass->AddField(Field("myMaterials", 48, reflectionSystem.GetOrCreateClass<List<Material *>>("List<Material *>")));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Material *>("Material *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myModel", 72, reflectionSystem.GetOrCreateClass<Model *>("Model *")));
@@ -4450,6 +4885,12 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRadius", reflectionSy
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMeshInstances", 80, reflectionSystem.GetOrCreateClass<List<unsigned int>>("List<unsigned int>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<Component>());
 {
@@ -4596,6 +5037,15 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 	Class* currentClass = reflectionSystem.GetMutableClass<Field>();
 	{
 		Field& currentField = currentClass->AddField(Field("myName", 0, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myOffset", 32, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
@@ -4605,6 +5055,21 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMetadata", 48, reflectionSystem.GetOrCreateClass<List<std::basic_string<char>>>("List<std::basic_string<char>>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTemplateArguments", 72, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<const Class *>("const Class *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -4682,6 +5147,36 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
 Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", reflectionSystem.GetOrCreateClass<void *>("void *"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+static thread_local bool result = instance->IsTemplatedType();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsTemplatedType", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+const List<const Class *> & result = instance->GetTemplateArguments();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetTemplateArguments", reflectionSystem.GetOrCreateClass<const List<const Class *> &>("const List<const Class *> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+static thread_local const std::basic_string<char> result = instance->GetTemplateClassName();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetTemplateClassName", reflectionSystem.GetOrCreateClass<const std::basic_string<char>>("const std::basic_string<char>"), invoker, arguments));
+}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Awaitable>();
@@ -4749,6 +5244,12 @@ Method& currentMethod = currentClass->AddMethod(Method("await_resume", reflectio
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainFrameBuffers", 96, reflectionSystem.GetOrCreateClass<List<vk::Framebuffer>>("List<vk::Framebuffer>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::Framebuffer>("vk::Framebuffer"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myClearValues", 120, reflectionSystem.GetOrCreateClass<vk::ClearValue[2]>("vk::ClearValue[2]")));
@@ -4927,6 +5428,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetGDRPipeline", reflect
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myExternalTickFunction", 184, reflectionSystem.GetOrCreateClass<std::function<void ()>>("std::function<void ()>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void ()>("void ()"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5089,6 +5593,15 @@ Method& currentMethod = currentClass->AddMethod(Method("SetExternalTickFunction"
 	Class* currentClass = reflectionSystem.GetMutableClass<EngineProperties>();
 	{
 		Field& currentField = currentClass->AddField(Field("Title", 0, reflectionSystem.GetOrCreateClass<std::basic_string<wchar_t>>("std::basic_string<wchar_t>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<wchar_t>("wchar_t"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<wchar_t>>("std::char_traits<wchar_t>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<wchar_t>>("std::allocator<wchar_t>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("WindowWidth", 32, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
@@ -5104,6 +5617,18 @@ Method& currentMethod = currentClass->AddMethod(Method("SetExternalTickFunction"
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("StartupArguments", 48, reflectionSystem.GetOrCreateClass<std::unordered_set<std::basic_string<char>>>("std::unordered_set<std::basic_string<char>>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::hash<std::basic_string<char>>>("std::hash<std::basic_string<char>>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::equal_to<std::basic_string<char>>>("std::equal_to<std::basic_string<char>>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<std::basic_string<char>>>("std::allocator<std::basic_string<char>>"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5148,6 +5673,12 @@ Method& currentMethod = currentClass->AddMethod(Method("HasStartupArgument", ref
 	Class* currentClass = reflectionSystem.GetMutableClass<EventHandler>();
 	{
 		Field& currentField = currentClass->AddField(Field("myObservers", 0, reflectionSystem.GetOrCreateClass<List<EventObserver *>>("List<EventObserver *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<EventObserver *>("EventObserver *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5166,6 +5697,18 @@ Method& currentMethod = currentClass->AddMethod(Method("FireEvent", reflectionSy
 	Class* currentClass = reflectionSystem.GetMutableClass<EventObserver>();
 	{
 		Field& currentField = currentClass->AddField(Field("myEvents", 8, reflectionSystem.GetOrCreateClass<std::map<EventType, std::function<void ()>>>("std::map<EventType, std::function<void ()>>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<EventType>("EventType"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::function<void ()>>("std::function<void ()>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::less<EventType>>("std::less<EventType>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<std::pair<const EventType, std::function<void ()>>>>("std::allocator<std::pair<const EventType, std::function<void ()>>>"));
+	}
 	}
 }
 { 
@@ -5260,6 +5803,12 @@ Method& currentMethod = currentClass->AddMethod(Method("Blue", reflectionSystem.
 	Class* currentClass = reflectionSystem.GetMutableClass<PhysicsSystem>();
 	{
 		Field& currentField = currentClass->AddField(Field("myPhysicsCommands", 16, reflectionSystem.GetOrCreateClass<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>("List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>("Delegate<void (physx::PxPhysics *, physx::PxScene *)>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDefaultErrorCallback", 40, reflectionSystem.GetOrCreateClass<physx::PxErrorCallback *>("physx::PxErrorCallback *")));
@@ -5378,6 +5927,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPhysicsListener", ref
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myPerlinNoise", 4, reflectionSystem.GetOrCreateClass<siv::BasicPerlinNoise<float>>("siv::BasicPerlinNoise<float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5443,6 +5995,9 @@ Method& currentMethod = currentClass->AddMethod(Method("reportError", reflection
 	Class* currentClass = reflectionSystem.GetMutableClass<PhysicsListener>();
 	{
 		Field& currentField = currentClass->AddField(Field("myDequeueCollisionsDelegate", 32, reflectionSystem.GetOrCreateClass<MulticastDelegate<void ()>>("MulticastDelegate<void ()>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void ()>("void ()"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<physx::PxSimulationEventCallback>());
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<physx::PxUserControllerHitReport>());
@@ -5639,9 +6194,15 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 	Class* currentClass = reflectionSystem.GetMutableClass<RaycastHit>();
 	{
 		Field& currentField = currentClass->AddField(Field("myHitPosition", 0, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myHitNormal", 12, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myHitDistance", 24, reflectionSystem.GetOrCreateClass<float>("float")));
@@ -5654,9 +6215,27 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 	Class* currentClass = reflectionSystem.GetMutableClass<Class>();
 	{
 		Field& currentField = currentClass->AddField(Field("myFullName", 0, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myClassName", 32, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myByteSize", 64, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
@@ -5666,18 +6245,45 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myFactoryFunction", 72, reflectionSystem.GetOrCreateClass<Delegate<void *()>>("Delegate<void *()>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void *()>("void *()"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myBaseClasses", 80, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<const Class *>("const Class *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDerivedClasses", 104, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<const Class *>("const Class *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myFields", 128, reflectionSystem.GetOrCreateClass<List<Field>>("List<Field>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Field>("Field"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMethods", 152, reflectionSystem.GetOrCreateClass<List<Method>>("List<Method>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Method>("Method"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5800,6 +6406,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMethod", reflectionSy
 	Class* currentClass = reflectionSystem.GetMutableClass<ReflectionSystem>();
 	{
 		Field& currentField = currentClass->AddField(Field("myClasses", 8, reflectionSystem.GetOrCreateClass<List<Class *>>("List<Class *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Class *>("Class *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 {
@@ -5922,6 +6534,12 @@ Method& currentMethod = currentClass->AddMethod(Method("AddFullscreenPass", refl
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDirtyTransforms", 256, reflectionSystem.GetOrCreateClass<List<TransformComponent *>>("List<TransformComponent *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<TransformComponent *>("TransformComponent *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -6004,6 +6622,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetIndex", reflectionSys
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myIndexBuffers", 16, reflectionSystem.GetOrCreateClass<List<IndexBufferHandle *>>("List<IndexBufferHandle *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<IndexBufferHandle *>("IndexBufferHandle *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myBuffer", 40, reflectionSystem.GetOrCreateClass<ResizableBuffer *>("ResizableBuffer *")));
@@ -6013,9 +6637,21 @@ Method& currentMethod = currentClass->AddMethod(Method("GetIndex", reflectionSys
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySparseIndexData_CPURepresentation", 56, reflectionSystem.GetOrCreateClass<List<IndexBufferData>>("List<IndexBufferData>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<IndexBufferData>("IndexBufferData"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myFreeSparseIndices", 80, reflectionSystem.GetOrCreateClass<List<unsigned int>>("List<unsigned int>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 {
@@ -6099,18 +6735,48 @@ Method& currentMethod = currentClass->AddMethod(Method("GetGlobalSparseIndexData
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySphereBounds", 16, reflectionSystem.GetOrCreateClass<glm::vec<4, float>>("glm::vec<4, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myHandle", 32, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myAlbedoPath", 40, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myNormalPath", 72, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMaterialPath", 104, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -6187,6 +6853,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMaterialPath", reflec
 	Class* currentClass = reflectionSystem.GetMutableClass<MeshSystem>();
 	{
 		Field& currentField = currentClass->AddField(Field("myMeshes", 8, reflectionSystem.GetOrCreateClass<List<Mesh *>>("List<Mesh *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Mesh *>("Mesh *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myBuffer", 32, reflectionSystem.GetOrCreateClass<ResizableBuffer *>("ResizableBuffer *")));
@@ -6318,6 +6990,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDescriptorLayout", re
 	Class* currentClass = reflectionSystem.GetMutableClass<BinaryWriter>();
 	{
 		Field& currentField = currentClass->AddField(Field("myStream", 0, reflectionSystem.GetOrCreateClass<std::basic_ofstream<char>>("std::basic_ofstream<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -6400,18 +7078,30 @@ Method& currentMethod = currentClass->AddMethod(Method("Write", reflectionSystem
 	Class* currentClass = reflectionSystem.GetMutableClass<Vertex>();
 	{
 		Field& currentField = currentClass->AddField(Field("myPosition", 0, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myColor", 12, reflectionSystem.GetOrCreateClass<int>("int")));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myNormal", 16, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myTangents", 28, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myBinormals", 40, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myTexCoords", 52, reflectionSystem.GetOrCreateClass<glm::vec<2, float>[2]>("glm::vec<2, float>[2]")));
@@ -6459,6 +7149,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAttributeDescriptions
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myVertexBuffers", 16, reflectionSystem.GetOrCreateClass<List<VertexBufferHandle *>>("List<VertexBufferHandle *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<VertexBufferHandle *>("VertexBufferHandle *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myBuffer", 40, reflectionSystem.GetOrCreateClass<ResizableBuffer *>("ResizableBuffer *")));
@@ -6468,9 +7164,21 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAttributeDescriptions
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySparseVertexData_CPURepresentation", 56, reflectionSystem.GetOrCreateClass<List<VertexBufferData>>("List<VertexBufferData>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<VertexBufferData>("VertexBufferData"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myFreeSparseIndices", 80, reflectionSystem.GetOrCreateClass<List<unsigned int>>("List<unsigned int>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
 {
@@ -6558,6 +7266,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetVertexOffsetFromVerte
 	Class* currentClass = reflectionSystem.GetMutableClass<BinaryReader>();
 	{
 		Field& currentField = currentClass->AddField(Field("myBuffer", 0, reflectionSystem.GetOrCreateClass<List<unsigned char>>("List<unsigned char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned char>("unsigned char"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myReadOffset", 24, reflectionSystem.GetOrCreateClass<unsigned long long>("unsigned long long")));
@@ -6625,6 +7339,9 @@ Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.
 	Class* currentClass = reflectionSystem.GetMutableClass<MeshData>();
 	{
 		Field& currentField = currentClass->AddField(Field("myBoundingSphereModelSpace", 0, reflectionSystem.GetOrCreateClass<glm::vec<4, float>>("glm::vec<4, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myVertexIndex", 16, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
@@ -6655,6 +7372,9 @@ Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.
 	Class* currentClass = reflectionSystem.GetMutableClass<MeshInstanceData>();
 	{
 		Field& currentField = currentClass->AddField(Field("myToWorld", 0, reflectionSystem.GetOrCreateClass<glm::mat<4, 4, float>>("glm::mat<4, 4, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMeshIndex", 64, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
@@ -6673,6 +7393,9 @@ Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.
 	Class* currentClass = reflectionSystem.GetMutableClass<PerDrawData>();
 	{
 		Field& currentField = currentClass->AddField(Field("myToWorld", 0, reflectionSystem.GetOrCreateClass<glm::mat<4, 4, float>>("glm::mat<4, 4, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", 64, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
@@ -6691,9 +7414,15 @@ Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.
 	Class* currentClass = reflectionSystem.GetMutableClass<PointLightData>();
 	{
 		Field& currentField = currentClass->AddField(Field("myColor", 0, reflectionSystem.GetOrCreateClass<glm::vec<4, float>>("glm::vec<4, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myPosition", 16, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myRange", 28, reflectionSystem.GetOrCreateClass<float>("float")));
@@ -6891,9 +7620,15 @@ Method& currentMethod = currentClass->AddMethod(Method("ClearDrawInfos", reflect
 	Class* currentClass = reflectionSystem.GetMutableClass<Debug::DrawLineInfos>();
 	{
 		Field& currentField = currentClass->AddField(Field("myStart", 0, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myEnd", 12, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myColor", 24, reflectionSystem.GetOrCreateClass<Color>("Color")));
@@ -6906,6 +7641,9 @@ Method& currentMethod = currentClass->AddMethod(Method("ClearDrawInfos", reflect
 	Class* currentClass = reflectionSystem.GetMutableClass<OnScopeExit>();
 	{
 		Field& currentField = currentClass->AddField(Field("myOnScopeExit", 0, reflectionSystem.GetOrCreateClass<std::function<void ()>>("std::function<void ()>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void ()>("void ()"));
+	}
 	}
 }
 { 
@@ -6969,6 +7707,18 @@ Method& currentMethod = currentClass->AddMethod(Method("IsOnMainThread", reflect
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("m_shaderDebugInfo", 88, reflectionSystem.GetOrCreateClass<std::map<GFSDK_Aftermath_ShaderDebugInfoIdentifier, std::vector<unsigned char>>>("std::map<GFSDK_Aftermath_ShaderDebugInfoIdentifier, std::vector<unsigned char>>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<GFSDK_Aftermath_ShaderDebugInfoIdentifier>("GFSDK_Aftermath_ShaderDebugInfoIdentifier"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::vector<unsigned char>>("std::vector<unsigned char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::less<GFSDK_Aftermath_ShaderDebugInfoIdentifier>>("std::less<GFSDK_Aftermath_ShaderDebugInfoIdentifier>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<std::pair<const GFSDK_Aftermath_ShaderDebugInfoIdentifier, std::vector<unsigned char>>>>("std::allocator<std::pair<const GFSDK_Aftermath_ShaderDebugInfoIdentifier, std::vector<unsigned char>>>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("m_shaderDatabase", 104, reflectionSystem.GetOrCreateClass<ShaderDatabase>("ShaderDatabase")));
@@ -7004,9 +7754,33 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAftermathFlags", refl
 	Class* currentClass = reflectionSystem.GetMutableClass<ShaderDatabase>();
 	{
 		Field& currentField = currentClass->AddField(Field("m_shaderBinaries", 0, reflectionSystem.GetOrCreateClass<std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>>("std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<GFSDK_Aftermath_ShaderBinaryHash>("GFSDK_Aftermath_ShaderBinaryHash"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::vector<unsigned char>>("std::vector<unsigned char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::less<GFSDK_Aftermath_ShaderBinaryHash>>("std::less<GFSDK_Aftermath_ShaderBinaryHash>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<std::pair<const GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>>>("std::allocator<std::pair<const GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("m_shaderBinariesWithDebugInfo", 16, reflectionSystem.GetOrCreateClass<std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>>("std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<GFSDK_Aftermath_ShaderDebugName>("GFSDK_Aftermath_ShaderDebugName"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::vector<unsigned char>>("std::vector<unsigned char>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::less<GFSDK_Aftermath_ShaderDebugName>>("std::less<GFSDK_Aftermath_ShaderDebugName>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<std::pair<const GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>>>("std::allocator<std::pair<const GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>>"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -7041,6 +7815,9 @@ Method& currentMethod = currentClass->AddMethod(Method("FindShaderBinaryWithDebu
 	Class* currentClass = reflectionSystem.GetMutableClass<ResizableBuffer>();
 	{
 		Field& currentField = currentClass->AddField(Field("OnBufferResized", 0, reflectionSystem.GetOrCreateClass<MulticastDelegate<void ()>>("MulticastDelegate<void ()>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void ()>("void ()"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myHasActiveUpload", 104, reflectionSystem.GetOrCreateClass<bool>("bool")));
@@ -7547,6 +8324,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPtr", reflectionSyste
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("markerMap", 56, reflectionSystem.GetOrCreateClass<std::array<std::map<unsigned long long, std::basic_string<char>>, 4>>("std::array<std::map<unsigned long long, std::basic_string<char>>, 4>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::map<unsigned long long, std::basic_string<char>>>("std::map<unsigned long long, std::basic_string<char>>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myNvidiaAftermathDebugger", 120, reflectionSystem.GetOrCreateClass<NvidiaAftermathTracker *>("NvidiaAftermathTracker *")));
@@ -7556,9 +8336,21 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPtr", reflectionSyste
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myExtensions", 136, reflectionSystem.GetOrCreateClass<const List<const char *>>("const List<const char *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<const char *>("const char *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myLayers", 160, reflectionSystem.GetOrCreateClass<const List<const char *>>("const List<const char *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<const char *>("const char *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -7801,9 +8593,33 @@ Method& currentMethod = currentClass->AddMethod(Method("Rebuild", reflectionSyst
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCommandPools", 120, reflectionSystem.GetOrCreateClass<std::map<std::thread::id, vk::CommandPool>>("std::map<std::thread::id, vk::CommandPool>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::thread::id>("std::thread::id"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::CommandPool>("vk::CommandPool"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::less<std::thread::id>>("std::less<std::thread::id>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<std::pair<const std::thread::id, vk::CommandPool>>>("std::allocator<std::pair<const std::thread::id, vk::CommandPool>>"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myComputeCommandPools", 136, reflectionSystem.GetOrCreateClass<std::map<std::thread::id, vk::CommandPool>>("std::map<std::thread::id, vk::CommandPool>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::thread::id>("std::thread::id"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::CommandPool>("vk::CommandPool"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::less<std::thread::id>>("std::less<std::thread::id>"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<std::pair<const std::thread::id, vk::CommandPool>>>("std::allocator<std::pair<const std::thread::id, vk::CommandPool>>"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -7979,6 +8795,9 @@ Method& currentMethod = currentClass->AddMethod(Method("Render", reflectionSyste
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySize", 28, reflectionSystem.GetOrCreateClass<glm::vec<2, float>>("glm::vec<2, float>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myNumMipLevels", 36, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
@@ -8132,6 +8951,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetNumMSAASamples", refl
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myQueueFamilyProperties", 768, reflectionSystem.GetOrCreateClass<List<vk::QueueFamilyProperties>>("List<vk::QueueFamilyProperties>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::QueueFamilyProperties>("vk::QueueFamilyProperties"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMSAASampleCount", 792, reflectionSystem.GetOrCreateClass<vk::SampleCountFlagBits>("vk::SampleCountFlagBits")));
@@ -8150,6 +8975,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetNumMSAASamples", refl
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDeviceExtensions", 816, reflectionSystem.GetOrCreateClass<List<const char *>>("List<const char *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<const char *>("const char *"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8319,12 +9150,30 @@ Method& currentMethod = currentClass->AddMethod(Method("GetIncludedFiles", refle
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myFences", 24, reflectionSystem.GetOrCreateClass<List<vk::Fence>>("List<vk::Fence>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::Fence>("vk::Fence"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myImageAcquiredSemaphores", 48, reflectionSystem.GetOrCreateClass<List<vk::Semaphore>>("List<vk::Semaphore>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::Semaphore>("vk::Semaphore"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDrawCompleteSemaphores", 72, reflectionSystem.GetOrCreateClass<List<vk::Semaphore>>("List<vk::Semaphore>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::Semaphore>("vk::Semaphore"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myFrameIndex", 96, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
@@ -8346,15 +9195,33 @@ Method& currentMethod = currentClass->AddMethod(Method("GetIncludedFiles", refle
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myImages", 128, reflectionSystem.GetOrCreateClass<List<vk::Image>>("List<vk::Image>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::Image>("vk::Image"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myImageViews", 152, reflectionSystem.GetOrCreateClass<List<vk::ImageView>>("List<vk::ImageView>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::ImageView>("vk::ImageView"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCommandPool", 176, reflectionSystem.GetOrCreateClass<vk::CommandPool>("vk::CommandPool")));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCommandBuffers", 184, reflectionSystem.GetOrCreateClass<List<vk::CommandBuffer>>("List<vk::CommandBuffer>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::CommandBuffer>("vk::CommandBuffer"));
+	}
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+	}
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8749,6 +9616,9 @@ Method& currentMethod = currentClass->AddMethod(Method("TickPhysics", reflection
 	{
 		Field& currentField = currentClass->AddField(Field("myOffset", 20, reflectionSystem.GetOrCreateClass<glm::vec<3, float>>("glm::vec<3, float>")));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<float>("float"));
+	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myExclusionTags", 32, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));

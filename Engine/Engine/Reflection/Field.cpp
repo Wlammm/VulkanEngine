@@ -1,6 +1,8 @@
 ﻿#include "EnginePch.h"
 #include "Field.h"
 
+#include "Class.h"
+
 const std::string& Field::GetName() const
 {
     return myName;
@@ -61,6 +63,26 @@ List<std::string> Field::GetMetadataArgs(const std::string& inMetadata) const
     return {};
 }
 
+bool Field::IsTemplatedType() const
+{
+    return !myTemplateArguments.IsEmpty();
+}
+
+const List<const Class*>& Field::GetTemplateArguments() const
+{
+    return myTemplateArguments;
+}
+
+const std::string Field::GetTemplateClassName() const
+{
+    size_t angleBracketPos = myType->GetFullName().find('<');
+    if (angleBracketPos != std::string::npos)
+    {
+        return myType->GetFullName().substr(0, angleBracketPos);
+    }
+    return myType->GetFullName();
+}
+
 Field::Field(const std::string& inName, const uint inOffset, const Class* inType)
 {
     myName = inName;
@@ -71,4 +93,9 @@ Field::Field(const std::string& inName, const uint inOffset, const Class* inType
 void Field::AddMetadata(const std::string& inMetadata)
 {
     myMetadata.Add(inMetadata);
+}
+
+void Field::AddTemplateArgument(const Class* inClass)
+{
+    myTemplateArguments.Add(inClass);
 }

@@ -42,12 +42,12 @@ private:
     void AddClass(const std::string& inClassName, const std::string& inFullName)
     {
         constexpr size_t classSize = []() constexpr {
-            if constexpr (std::is_void_v<ClassType>)
+            if constexpr (std::is_void_v<ClassType> || std::is_function_v<ClassType>)
                 return size_t(0);
             else
                 return sizeof(std::remove_reference_t<ClassType>);
         }();
-        
+            
         if constexpr (std::is_default_constructible_v<ClassType> && !std::is_abstract_v<ClassType>)
             myClasses.Add(new Class(inClassName, inFullName, classSize, std::is_trivially_copyable_v<ClassType>, []() -> void* { return new typename std::remove_const<ClassType>::type(); }));
         else

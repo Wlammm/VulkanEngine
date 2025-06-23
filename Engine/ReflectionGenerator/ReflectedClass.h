@@ -26,7 +26,8 @@ public:
     
     ReflectedField& AddField(const ReflectedField& inField);
     void AddMethod(const ReflectedMethod& inMethod);
-    
+
+
 private:
     // The file this class is defined in.
     std::string myClassName;
