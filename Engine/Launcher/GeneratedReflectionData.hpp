@@ -116,6 +116,7 @@
 #include "../Engine/Rendering/Vertex.hpp"
 #include "../Engine/Rendering/VertexBufferSystem.h"
 #include "../Engine/Serialization/BinaryReader.h"
+#include "../Engine/Serialization/TypeSerializers/PrimitiveSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/StringSerializer.h"
 #include "../Engine/Shaders/MeshStructs.hpp"
 #include "../Engine/System/System.h"
@@ -154,6 +155,8 @@
 #include "../Game/Game.h"
 #include "../Game/GamePch.h"
 #include "../Game/GameTags.h"
+#include "../Engine/Containers/ICollectable.h"
+#include "../Engine/Serialization/TypeSerializers/CollectableSerializer.h"
 
 
 // END INCLUDES FOR REFLECTED TYPES
@@ -232,7 +235,7 @@ reflectionSystem.AddClass<Input::MouseButton>("Input::MouseButton", typeid(Input
 reflectionSystem.AddClass<TransformComponent>("TransformComponent", typeid(TransformComponent).name());
 reflectionSystem.AddClass<Component>("Component", typeid(Component).name());
 reflectionSystem.AddClass<Time>("Time", typeid(Time).name());
-reflectionSystem.AddClass<ITypeSerializer>("ITypeSerializer", typeid(ITypeSerializer).name());
+reflectionSystem.AddClass<TypeSerializer>("TypeSerializer", typeid(TypeSerializer).name());
 reflectionSystem.AddClass<MeshColliderComponent>("MeshColliderComponent", typeid(MeshColliderComponent).name());
 reflectionSystem.AddClass<IComponentArray>("IComponentArray", typeid(IComponentArray).name());
 reflectionSystem.AddClass<Console>("Console", typeid(Console).name());
@@ -291,6 +294,7 @@ reflectionSystem.AddClass<BinaryWriter>("BinaryWriter", typeid(BinaryWriter).nam
 reflectionSystem.AddClass<Vertex>("Vertex", typeid(Vertex).name());
 reflectionSystem.AddClass<VertexBufferSystem>("VertexBufferSystem", typeid(VertexBufferSystem).name());
 reflectionSystem.AddClass<BinaryReader>("BinaryReader", typeid(BinaryReader).name());
+reflectionSystem.AddClass<PrimitiveSerializer>("PrimitiveSerializer", typeid(PrimitiveSerializer).name());
 reflectionSystem.AddClass<StringSerializer>("StringSerializer", typeid(StringSerializer).name());
 reflectionSystem.AddClass<MeshData>("MeshData", typeid(MeshData).name());
 reflectionSystem.AddClass<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
@@ -330,6 +334,8 @@ reflectionSystem.AddClass<PlayerCameraControllerComponent>("PlayerCameraControll
 reflectionSystem.AddClass<PlayerComponent>("PlayerComponent", typeid(PlayerComponent).name());
 reflectionSystem.AddClass<SpringArmComponent>("SpringArmComponent", typeid(SpringArmComponent).name());
 reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
+reflectionSystem.AddClass<ICollectable>("ICollectable", typeid(ICollectable).name());
+reflectionSystem.AddClass<CollectableSerializer>("CollectableSerializer", typeid(CollectableSerializer).name());
 
         }
         
@@ -1778,17 +1784,11 @@ Method& currentMethod = currentClass->AddMethod(Method("GetArgumentType", reflec
 	{
 		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<MethodArgument>("MethodArgument"));
 	}
-	{
-		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
-	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMetadata", 64, reflectionSystem.GetOrCreateClass<List<std::basic_string<char>>>("List<std::basic_string<char>>")));
 	{
 		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>"));
-	}
-	{
-		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
 	}
 	}
 	{
@@ -3053,31 +3053,18 @@ Method& currentMethod = currentClass->AddMethod(Method("GetTimeSinceStart", refl
 }
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<ITypeSerializer>();
-	{
-		Field& currentField = currentClass->AddField(Field("myClass", 8, reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
-	}
+	Class* currentClass = reflectionSystem.GetMutableClass<TypeSerializer>();
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-ITypeSerializer* instance = static_cast<ITypeSerializer*>(inInstance);
-const Class * result = instance->GetClass();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ITypeSerializer* instance = static_cast<ITypeSerializer*>(inInstance);
+TypeSerializer* instance = static_cast<TypeSerializer*>(inInstance);
 const Class * arg0 = (const Class*)inArguments[0];
-ITypeSerializer * result = instance->GetSerializer(arg0);
+TypeSerializer * result = instance->GetSerializer(arg0);
 return (void*)result;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
-Method& currentMethod = currentClass->AddMethod(Method("GetSerializer", reflectionSystem.GetOrCreateClass<ITypeSerializer *>("ITypeSerializer *"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetSerializer", reflectionSystem.GetOrCreateClass<TypeSerializer *>("TypeSerializer *"), invoker, arguments));
 }
 }
 { 
@@ -3769,9 +3756,6 @@ Method& currentMethod = currentClass->AddMethod(Method("CreatePerspective", refl
 	{
 		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"));
 	}
-	{
-		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
-	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myNextFreeSparseIndex", 32, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
@@ -3786,10 +3770,7 @@ Method& currentMethod = currentClass->AddMethod(Method("CreatePerspective", refl
 		Field& currentField = currentClass->AddField(Field("myDenseBuffer", 56, reflectionSystem.GetOrCreateClass<ResizableBuffer *>("ResizableBuffer *")));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDenseBufferCPURepresentation", 64, reflectionSystem.GetOrCreateClass<List<unsigned int, unsigned int>>("List<unsigned int, unsigned int>")));
-	{
-		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"));
-	}
+		Field& currentField = currentClass->AddField(Field("myDenseBufferCPURepresentation", 64, reflectionSystem.GetOrCreateClass<List<unsigned int>>("List<unsigned int>")));
 	{
 		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"));
 	}
@@ -5058,17 +5039,11 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 	{
 		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>"));
 	}
-	{
-		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
-	}
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myTemplateArguments", 72, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
 	{
 		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<const Class *>("const Class *"));
-	}
-	{
-		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
 	}
 	}
 {
@@ -6238,51 +6213,60 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.
 	}
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myByteSize", 64, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
+		Field& currentField = currentClass->AddField(Field("myNonTemplateName", 64, reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<char>("char"));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myIsCopyable", 68, reflectionSystem.GetOrCreateClass<bool>("bool")));
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::char_traits<char>>("std::char_traits<char>"));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFactoryFunction", 72, reflectionSystem.GetOrCreateClass<Delegate<void *()>>("Delegate<void *()>")));
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::allocator<char>>("std::allocator<char>"));
+	}
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myByteSize", 96, reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsCopyable", 100, reflectionSystem.GetOrCreateClass<bool>("bool")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFactoryFunction", 104, reflectionSystem.GetOrCreateClass<Delegate<void *()>>("Delegate<void *()>")));
 	{
 		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<void *()>("void *()"));
 	}
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myBaseClasses", 80, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
+		Field& currentField = currentClass->AddField(Field("myBaseClasses", 112, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
 	{
 		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<const Class *>("const Class *"));
 	}
-	{
-		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
-	}
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDerivedClasses", 104, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
+		Field& currentField = currentClass->AddField(Field("myDerivedClasses", 136, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
 	{
 		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<const Class *>("const Class *"));
 	}
-	{
-		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
-	}
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFields", 128, reflectionSystem.GetOrCreateClass<List<Field>>("List<Field>")));
+		Field& currentField = currentClass->AddField(Field("myFields", 160, reflectionSystem.GetOrCreateClass<List<Field>>("List<Field>")));
 	{
 		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Field>("Field"));
 	}
-	{
-		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
-	}
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMethods", 152, reflectionSystem.GetOrCreateClass<List<Method>>("List<Method>")));
+		Field& currentField = currentClass->AddField(Field("myMethods", 184, reflectionSystem.GetOrCreateClass<List<Method>>("List<Method>")));
 	{
 		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Method>("Method"));
 	}
+	}
 	{
-		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
+		Field& currentField = currentClass->AddField(Field("myIsTemplateSpecialization", 208, reflectionSystem.GetOrCreateClass<bool>("bool")));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTemplateArguments", 216, reflectionSystem.GetOrCreateClass<List<const Class *>>("List<const Class *>")));
+	{
+		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<const Class *>("const Class *"));
 	}
 	}
 {
@@ -6401,6 +6385,48 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inMethodName", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("GetMethod", reflectionSystem.GetOrCreateClass<const Method *>("const Method *"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Class* instance = static_cast<Class*>(inInstance);
+static thread_local bool result = instance->IsTemplateSpecialization();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsTemplateSpecialization", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Class* instance = static_cast<Class*>(inInstance);
+const List<const Class *> & result = instance->GetTemplateArgumentTypes();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetTemplateArgumentTypes", reflectionSystem.GetOrCreateClass<const List<const Class *> &>("const List<const Class *> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Class* instance = static_cast<Class*>(inInstance);
+static thread_local std::basic_string<char> result = instance->GetNonTemplatedName();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetNonTemplatedName", reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Class* instance = static_cast<Class*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local std::basic_string<char> result = instance->GetClassNameWithoutForwardDeclares(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inClassName", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetClassNameWithoutForwardDeclares", reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>"), invoker, arguments));
+}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<ReflectionSystem>();
@@ -6408,9 +6434,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMethod", reflectionSy
 		Field& currentField = currentClass->AddField(Field("myClasses", 8, reflectionSystem.GetOrCreateClass<List<Class *>>("List<Class *>")));
 	{
 		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<Class *>("Class *"));
-	}
-	{
-		currentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"));
 	}
 	}
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<System>());
@@ -6423,6 +6446,30 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetAllClasses", reflectionSystem.GetOrCreateClass<const List<Class *> &>("const List<Class *> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ReflectionSystem* instance = static_cast<ReflectionSystem*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+const Class * result = instance->GetClassByName(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inName", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetClassByName", reflectionSystem.GetOrCreateClass<const Class *>("const Class *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ReflectionSystem* instance = static_cast<ReflectionSystem*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+const Class * result = instance->GetClassByFullName(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inFullName", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetClassByFullName", reflectionSystem.GetOrCreateClass<const Class *>("const Class *"), invoker, arguments));
 }
 }
 { 
@@ -7064,13 +7111,13 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 BinaryWriter* instance = static_cast<BinaryWriter*>(inInstance);
 void * arg0 = (void*)inArguments[0];
-const int arg1 = *(const int*)inArguments[1];
+const unsigned int arg1 = *(const unsigned int*)inArguments[1];
 instance->Write(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
-arguments.Add(MethodArgument("inSize", reflectionSystem.GetOrCreateClass<const int>("const int")));
+arguments.Add(MethodArgument("inSize", reflectionSystem.GetOrCreateClass<const unsigned int>("const unsigned int")));
 Method& currentMethod = currentClass->AddMethod(Method("Write", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
@@ -7293,30 +7340,92 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 BinaryReader* instance = static_cast<BinaryReader*>(inInstance);
 void * arg0 = (void*)inArguments[0];
-const int arg1 = *(const int*)inArguments[1];
+const unsigned int arg1 = *(const unsigned int*)inArguments[1];
 instance->Read(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("outInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
-arguments.Add(MethodArgument("inSize", reflectionSystem.GetOrCreateClass<const int>("const int")));
+arguments.Add(MethodArgument("inSize", reflectionSystem.GetOrCreateClass<const unsigned int>("const unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<PrimitiveSerializer>();
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<TypeSerializer>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PrimitiveSerializer* instance = static_cast<PrimitiveSerializer*>(inInstance);
+const Class * arg0 = (const Class*)inArguments[0];
+static thread_local bool result = instance->SerializesType(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
+Method& currentMethod = currentClass->AddMethod(Method("SerializesType", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PrimitiveSerializer* instance = static_cast<PrimitiveSerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Class * arg1 = (const Class*)inArguments[1];
+BinaryWriter * arg2 = (BinaryWriter*)inArguments[2];
+instance->Write(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
+arguments.Add(MethodArgument("inWriter", reflectionSystem.GetOrCreateClass<BinaryWriter *>("BinaryWriter *")));
+Method& currentMethod = currentClass->AddMethod(Method("Write", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PrimitiveSerializer* instance = static_cast<PrimitiveSerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Class * arg1 = (const Class*)inArguments[1];
+BinaryReader * arg2 = (BinaryReader*)inArguments[2];
+instance->Read(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
+arguments.Add(MethodArgument("inReader", reflectionSystem.GetOrCreateClass<BinaryReader *>("BinaryReader *")));
 Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<StringSerializer>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<TypeSerializer<std::basic_string<char>>>());
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<TypeSerializer>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StringSerializer* instance = static_cast<StringSerializer*>(inInstance);
+const Class * arg0 = (const Class*)inArguments[0];
+static thread_local bool result = instance->SerializesType(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
+Method& currentMethod = currentClass->AddMethod(Method("SerializesType", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
+}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 StringSerializer* instance = static_cast<StringSerializer*>(inInstance);
 void * arg0 = (void*)inArguments[0];
-BinaryWriter * arg1 = (BinaryWriter*)inArguments[1];
-instance->Write(arg0, arg1);
+const Class * arg1 = (const Class*)inArguments[1];
+BinaryWriter * arg2 = (BinaryWriter*)inArguments[2];
+instance->Write(arg0, arg1, arg2);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
 arguments.Add(MethodArgument("inWriter", reflectionSystem.GetOrCreateClass<BinaryWriter *>("BinaryWriter *")));
 Method& currentMethod = currentClass->AddMethod(Method("Write", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
@@ -7325,12 +7434,14 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 StringSerializer* instance = static_cast<StringSerializer*>(inInstance);
 void * arg0 = (void*)inArguments[0];
-BinaryReader * arg1 = (BinaryReader*)inArguments[1];
-instance->Read(arg0, arg1);
+const Class * arg1 = (const Class*)inArguments[1];
+BinaryReader * arg2 = (BinaryReader*)inArguments[2];
+instance->Read(arg0, arg1, arg2);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
 arguments.Add(MethodArgument("inReader", reflectionSystem.GetOrCreateClass<BinaryReader *>("BinaryReader *")));
 Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
@@ -9707,6 +9818,57 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<ICollectable>();
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<CollectableSerializer>();
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<TypeSerializer>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CollectableSerializer* instance = static_cast<CollectableSerializer*>(inInstance);
+const Class * arg0 = (const Class*)inArguments[0];
+static thread_local bool result = instance->SerializesType(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
+Method& currentMethod = currentClass->AddMethod(Method("SerializesType", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CollectableSerializer* instance = static_cast<CollectableSerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Class * arg1 = (const Class*)inArguments[1];
+BinaryWriter * arg2 = (BinaryWriter*)inArguments[2];
+instance->Write(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
+arguments.Add(MethodArgument("inWriter", reflectionSystem.GetOrCreateClass<BinaryWriter *>("BinaryWriter *")));
+Method& currentMethod = currentClass->AddMethod(Method("Write", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CollectableSerializer* instance = static_cast<CollectableSerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Class * arg1 = (const Class*)inArguments[1];
+BinaryReader * arg2 = (BinaryReader*)inArguments[2];
+instance->Read(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
+arguments.Add(MethodArgument("inReader", reflectionSystem.GetOrCreateClass<BinaryReader *>("BinaryReader *")));
+Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 

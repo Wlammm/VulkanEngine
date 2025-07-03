@@ -24,7 +24,15 @@ public:
     List<const Method*> GetMethodsWithMetadata(const std::string& inMetadata) const;
     
     const Method* GetMethod(const std::string& inMethodName) const;
-     
+
+    bool IsTemplateSpecialization() const;
+    const List<const Class*>& GetTemplateArgumentTypes() const;
+
+    // Returns type name without template arguments
+    std::string GetNonTemplatedName() const;
+
+    static std::string GetClassNameWithoutForwardDeclares(const std::string& inClassName);
+    
     template<typename ClassType>
     bool IsA() const
     {
@@ -35,6 +43,9 @@ public:
         for (const Class* baseClass : myBaseClasses)
         {
             if (baseClass->GetFullName() == fullName)
+                return true;
+
+            if (baseClass->IsA<ClassType>())
                 return true;
         }
         return false;
@@ -67,6 +78,9 @@ private:
     // This is a prettified class name. It'll return just the ClassName.
     std::string myClassName = "";
 
+    // This will return the name of the template type without the template arguments.
+    std::string myNonTemplateName = "";
+    
     unsigned int myByteSize = 0;
 
     bool myIsCopyable = false;
@@ -79,4 +93,7 @@ private:
 
     List<Field> myFields{};
     List<Method> myMethods{};
+
+    bool myIsTemplateSpecialization = false;
+    List<const Class*> myTemplateArguments{};
 };

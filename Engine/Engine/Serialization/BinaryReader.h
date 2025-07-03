@@ -33,7 +33,7 @@ public:
         myReadOffset += sizeof(T);
     }
 
-    void Read(void* outInstance, const int inSize)
+    void Read(void* outInstance, const unsigned int inSize)
     {
         memcpy(&outInstance, myBuffer.data() + myReadOffset, inSize);
         myReadOffset += inSize;

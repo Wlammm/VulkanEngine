@@ -6,49 +6,37 @@ class BinaryReader;
 class Class;
 class BinaryWriter;
 
-class ITypeSerializer
+class TypeSerializer
 {
 public:
-    virtual void Write(void* inInstance, BinaryWriter* inWriter) = 0;
-    virtual void Read(void* inInstance, BinaryReader* inReader) = 0;
-
-    const Class* GetClass() const { return myClass; }
+    virtual ~TypeSerializer() = default;
+    virtual void Write(void* inInstance, const Class* inClass, BinaryWriter* inWriter) = 0;
+    virtual void Read(void* inInstance, const Class* inClass, BinaryReader* inReader) = 0;
     
-    static ITypeSerializer* GetSerializer(const Class* inClass)
+    virtual bool SerializesType(const Class* inClass) const = 0;
+    
+    static TypeSerializer* GetSerializer(const Class* inClass)
     {
         if (mySerializers.IsEmpty())
             RegisterSerializers();
 
-        for (ITypeSerializer* serializer : mySerializers)
+        for (TypeSerializer* serializer : mySerializers)
         {
-            if (serializer->GetClass() == inClass)
+            if (serializer->SerializesType(inClass))
                 return serializer;
         }
         return nullptr;
     }
-    
-protected:
-    const Class* myClass = nullptr;
 
-    
 private:
     static void RegisterSerializers()
     {
-        for (const Class* entry : Engine::GetReflectionSystem().GetClass<ITypeSerializer>()->GetDerivedClasses())
+        const Class* typeSerializerClass = Engine::GetReflectionSystem().GetClass<TypeSerializer>();
+        for (const Class* entry : typeSerializerClass->GetDerivedClasses())
         {
-            mySerializers.Add(entry->CreateInstance<ITypeSerializer>());
+            mySerializers.Add(entry->CreateInstance<TypeSerializer>());
         }
     }
     
-    inline static List<ITypeSerializer*> mySerializers;
-};
-
-template<typename ClassType>
-class TypeSerializer : public ITypeSerializer
-{
-public:
-    TypeSerializer()
-    {
-        myClass = Engine::GetReflectionSystem().GetClass<ClassType>();
-    }
+    inline static List<TypeSerializer*> mySerializers;
 };

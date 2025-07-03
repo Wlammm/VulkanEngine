@@ -4,6 +4,7 @@
 
 #include "Engine/Core/CheckDefine.hpp"
 #include "ContainerTypes.hpp"
+#include "ICollectable.h"
 
 #define CanCopy std::is_trivially_copyable<ElementType>::value || IsCopyable<ElementType>::value
 
@@ -13,9 +14,10 @@ concept ComparisonOperator = requires(ElementType a)
 	a == a;
 };
 
-template<typename ElementType, typename SizeType = int>
-class List
+template<typename ElementType>
+class List : public ICollectable
 {
+	using SizeType = int;
 public:
 	List()
 	{
@@ -375,6 +377,22 @@ private:
 			}
 			free(oldPtr);
 		}
+	}
+
+public:
+	int GetElementSize() const override
+	{
+		return sizeof(ElementType);
+	}
+	
+	int GetNumElements() const override 
+	{
+		return size();
+	}
+
+	void* GetElementsPointer() const override
+	{
+		return myPtr;
 	}
 
 private:

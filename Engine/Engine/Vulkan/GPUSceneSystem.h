@@ -40,5 +40,5 @@ private:
 
     // This holds a cpu representation of the dense buffer. We need this to find what index a specific mesh is in so we can remove it from the gpu scene.
     ResizableBuffer* myDenseBuffer = nullptr;
-    List<uint, uint> myDenseBufferCPURepresentation{};
+    List<uint> myDenseBufferCPURepresentation{};
 };

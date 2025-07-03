@@ -28,10 +28,8 @@ public:
 		const Class* fieldType = inField.GetType();
 		Write(fieldType->GetFullName());
 
-		if (ITypeSerializer* serializer = ITypeSerializer::GetSerializer(fieldType))
-			serializer->Write(inInstance, this);
-		else if (fieldType->IsCopyable())
-			myStream.write((char*)inInstance, fieldType->GetSize());
+		if (TypeSerializer* serializer = TypeSerializer::GetSerializer(fieldType))
+			serializer->Write(inInstance, fieldType, this);
 		else
 			WriteClass(inInstance, fieldType);
 	}
@@ -70,7 +68,7 @@ public:
 		myStream.write(c, size);
 	}
 
-	void Write(void* inInstance, const int inSize)
+	void Write(void* inInstance, const unsigned int inSize)
 	{
 		myStream.write((char*)inInstance, inSize);
 	}

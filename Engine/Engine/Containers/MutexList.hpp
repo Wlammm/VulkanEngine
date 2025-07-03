@@ -5,54 +5,55 @@
 
 #define LockMutex std::unique_lock<std::recursive_mutex> lock; { ZoneScopedN("MutexList::Wait"); lock = std::unique_lock<std::recursive_mutex>(myMutex); }
 
-template<typename ElementType, typename SizeType = int>
+template<typename ElementType>
 class MutexList
 {
+	using SizeType = int;
 public:
 	MutexList()
 	{
 		LockMutex;
-		myList = List<ElementType, SizeType>();
+		myList = List<ElementType>();
 	}
 
 	MutexList(const SizeType inCapacity)
 	{
 		LockMutex;
-		myList = List<ElementType, SizeType>(inCapacity);
+		myList = List<ElementType>(inCapacity);
 	}
 
 	MutexList(const List<ElementType>& inCopy)
 	{
 		LockMutex;
-		myList = List<ElementType, SizeType>(inCopy);
+		myList = List<ElementType>(inCopy);
 	}
 
 	MutexList(const MutexList<ElementType>& inCopy)
 	{
 		LockMutex;
-		myList = List<ElementType, SizeType>(inCopy.myList);
+		myList = List<ElementType>(inCopy.myList);
 	}
 
 	MutexList(const std::vector<ElementType>& inCopy)
 	{
 		LockMutex;
-		myList = List<ElementType, SizeType>(inCopy);
+		myList = List<ElementType>(inCopy);
 	}
 
 	MutexList(const std::initializer_list<ElementType>& inInitList)
 	{
 		LockMutex;
-		myList = List<ElementType, SizeType>(inInitList);
+		myList = List<ElementType>(inInitList);
 	}
 	
-	MutexList<ElementType, SizeType>& operator=(const List<ElementType>& inCopy)
+	MutexList<ElementType>& operator=(const List<ElementType>& inCopy)
 	{
 		LockMutex;
 		myList.operator=(inCopy);
 		return *this;
 	}
 
-	MutexList<ElementType, SizeType>& operator=(const MutexList<ElementType>& inCopy)
+	MutexList<ElementType>& operator=(const MutexList<ElementType>& inCopy)
 	{
 		LockMutex;
 		myList.operator=(inCopy.myList);
@@ -211,5 +212,5 @@ public:
 
 private:
 	mutable std::recursive_mutex myMutex;
-	List<ElementType, SizeType> myList{};
+	List<ElementType> myList{};
 };
