@@ -27,6 +27,9 @@ public:
     ReflectedField& AddField(const ReflectedField& inField);
     void AddMethod(const ReflectedMethod& inMethod);
 
+    void AddTemplateArgument(const int inIndex, const std::string& inTemplateArgument);
+    const std::vector<std::string>& GetTemplateArguments() const;
+    
 
 private:
     // The file this class is defined in.
@@ -36,4 +39,5 @@ private:
     std::vector<ReflectedMethod> myMethods;
     
     std::vector<std::string> myBaseTypeNames;
+    std::vector<std::string> myTemplateArguments;
 };

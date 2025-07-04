@@ -32,25 +32,16 @@ public:
         return (void*)(charPtr + myOffset);
     }
 
-    bool IsTemplatedType() const;
-    const List<const Class*>& GetTemplateArguments() const;
-
-    // Will return the templated class name. Example: List<int> will return List. int will return int.
-    const std::string GetTemplateClassName() const;
-    
 private:
     friend class GeneratedReflectionData;
     Field() = delete;
     Field(const std::string& inName, const uint32_t inOffset, const Class* inType);
 
     void AddMetadata(const std::string& inMetadata);
-    void AddTemplateArgument(const Class* inClass);
     
     std::string myName = "";
     uint32_t myOffset = 0;
     const Class* myType = nullptr;
 
     List<std::string> myMetadata;
-
-    List<const Class*> myTemplateArguments{};
 };

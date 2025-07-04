@@ -81,17 +81,12 @@ const Method* Class::GetMethod(const std::string& inMethodName) const
 
 bool Class::IsTemplateSpecialization() const
 {
-    return myIsTemplateSpecialization;
+    return !myTemplateArguments.IsEmpty();
 }
 
 const List<const Class*>& Class::GetTemplateArgumentTypes() const
 {
     return myTemplateArguments;
-}
-
-std::string Class::GetNonTemplatedName() const
-{
-    return myNonTemplateName;
 }
 
 std::string Class::GetClassNameWithoutForwardDeclares(const std::string& inClassName)
@@ -184,24 +179,4 @@ List<std::string> SplitTemplateArgs(const std::string& input)
 Class::Class(const std::string& inClassName, const std::string& inFullName, const unsigned int inSize, const bool inIsCopyable,  const Delegate<void*()>& inFactoryFunction)
     : myClassName(inClassName), myFullName(inFullName), myByteSize(inSize), myIsCopyable(inIsCopyable), myFactoryFunction(inFactoryFunction)
 {
-    if (inClassName.contains('<') && inClassName.contains('>'))
-    {
-        myIsTemplateSpecialization = true;
-        myNonTemplateName = inClassName.substr(0, inClassName.find_first_of('<'));
-        
-        const List<std::string> templateArgClassNames = SplitTemplateArgs(inFullName);
-        for (const std::string& arg : templateArgClassNames)
-        {
-            const std::string sanitizedClassName = GetClassNameWithoutForwardDeclares(arg);
-            const Class* templateArgClass = Engine::GetReflectionSystem().GetClassByName(sanitizedClassName);
-
-            // TODO: Some template arguments doesnt have a class implementation so it will be nullptr. Not all template arguments are recognized.
-            if (!templateArgClass)
-                continue;
-            
-            // check(templateArgClass);
-            myTemplateArguments.Add(templateArgClass);
-        }
-    }
-    
 }

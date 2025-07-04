@@ -87,31 +87,74 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
     ClientData& clientData = *static_cast<ClientData*>(inClientData);
     
     CXCursorKind kind = clang_getCursorKind(inCurrentCursor);
-    if (kind == CXCursor_StructDecl || kind == CXCursor_ClassDecl || kind == CXCursor_EnumDecl)
+    if (kind == CXCursor_StructDecl || kind == CXCursor_ClassDecl)
     {
         const std::string className = GetDisplayName(inCurrentCursor);
 
-        // If the class is declared in another file and not the one we're searching we can just skip it.
         const CXSourceLocation location = clang_getCursorLocation(inCurrentCursor);
         if (clang_Location_isInSystemHeader(location))
             return CXChildVisit_Continue;
 
         if (!clang_isCursorDefinition(inCurrentCursor))
+        {
+            std::cout << "SKipping class : " << GetSpelling(inCurrentCursor) << std::endl;
             return CXChildVisit_Continue;
+        }
 
-        // Dont iterate private classes as they wont work with our reflected file.
         CX_CXXAccessSpecifier accessSpecifier = clang_getCXXAccessSpecifier(inCurrentCursor);
         if (accessSpecifier != CX_CXXPublic && accessSpecifier != CX_CXXInvalidAccessSpecifier)
             return CXChildVisit_Continue;
 
+        // Detect if this class is a template specialization
+        CXCursor templateCursor = clang_getSpecializedCursorTemplate(inCurrentCursor);
+        bool isTemplateSpecialization = templateCursor.kind != CXCursor_InvalidFile;
+
         const std::string fileName = GetFileName(location);
-        ReflectedClass& currentClass = clientData.self->AddClass(fileName, ReflectedClass(BuildClassNameFromStack(clientData.classStack, className)));
-        clientData.classStack.emplace_back(&currentClass);
+        std::string fullClassName = GetSpelling(clang_getCursorType(inCurrentCursor)); // gets "List<int>" etc.
 
-        clang_visitChildren(inCurrentCursor, &ReflectionParser::TraverseAST, inClientData);
-
-        clientData.classStack.pop_back();
+        ReflectedClass* currentClass = nullptr;
         
+        if (clientData.self->HasAlreadyParsedClass(fullClassName))
+        {
+            currentClass = clientData.self->FindClass(fullClassName);
+        }
+       else
+       {
+            currentClass = &clientData.self->AddClass(fileName, ReflectedClass(fullClassName));
+            clientData.self->MarkClassAsParsed(fullClassName);
+       }
+
+        // Extract template arguments
+        if (isTemplateSpecialization)
+        {
+            CXType specializedType = clang_getCanonicalType(clang_getCursorType(inCurrentCursor));
+            int numTemplateArgs = clang_Type_getNumTemplateArguments(specializedType);
+            for (int i = 0; i < numTemplateArgs; ++i)
+            {
+                CXType argType = clang_Type_getTemplateArgumentAsType(specializedType, i);
+                if (argType.kind != CXType_Invalid)
+                {
+                    currentClass->AddTemplateArgument(i, GetTemplateArgSpelling(argType));
+                }
+            }
+
+            // Manually walk base classes for template specializations
+            clang_visitChildren(templateCursor, [](CXCursor baseCursor, CXCursor, CXClientData clientData) {
+                if (clang_getCursorKind(baseCursor) == CXCursor_CXXBaseSpecifier)
+                {
+                    CXType baseType = clang_getCanonicalType(clang_getCursorType(baseCursor));
+                    std::string baseName = GetSpelling(baseType);
+                    auto* currentClass = static_cast<ReflectedClass*>(clientData);
+                    currentClass->AddBaseClass(baseName);
+                }
+                return CXChildVisit_Continue;
+            }, currentClass);
+        }
+
+        clientData.classStack.emplace_back(currentClass);
+        clang_visitChildren(inCurrentCursor, &ReflectionParser::TraverseAST, inClientData);
+        clientData.classStack.pop_back();
+
         return CXChildVisit_Continue;
     }
 
@@ -181,33 +224,41 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
     if (kind == CXCursor_FieldDecl)
     {
         const std::string fieldName = GetSpelling(inCurrentCursor);
-        const CXType type = clang_getCanonicalType(clang_getCursorType(inCurrentCursor));
+        CXType type = clang_getCanonicalType(clang_getCursorType(inCurrentCursor));
+
         if (type.kind == CXType_Invalid)
         {
             clientData.self->myErrorMessages.push_back("Class: " + clientData.classStack.back()->GetClassName() + " found invalid type with name: " + fieldName);
+            return CXChildVisit_Continue;
         }
 
         if (!IsTypePublicRecursive(type))
             return CXChildVisit_Continue;
-        
-        const uint32_t byteOffset = GetByteOffsetOfField(inCurrentCursor, fieldName);
 
-        const std::vector<std::string> fieldMetaData = GetMetadata(inCurrentCursor);
-        
         const std::string typeName = GetSpelling(type);
-        ReflectedField& field = clientData.classStack.back()->AddField(ReflectedField(fieldName, typeName, byteOffset, fieldMetaData));
 
         int numTemplateArgs = clang_Type_getNumTemplateArguments(type);
-        for (int i = 0; i < numTemplateArgs; ++i)
+        if (numTemplateArgs > 0)
         {
-            CXType templateArg = clang_getCanonicalType(clang_Type_getTemplateArgumentAsType(type, i));
-            if (templateArg.kind != CXType_Invalid)
+            if (!clientData.self->HasAlreadyParsedClass(typeName))
             {
-                std::string templateArgName = GetTemplateArgSpelling(templateArg);
+                CXCursor typeDeclaration = clang_getTypeDeclaration(type);
+                CXCursor templateCursor = clang_getSpecializedCursorTemplate(typeDeclaration);
 
-                field.AddTemplateArgument(templateArgName);
+                if (templateCursor.kind != CXCursor_InvalidFile)
+                {
+                    TraverseAST(typeDeclaration, clang_getNullCursor(), inClientData);
+                }
             }
         }
+
+        // Reflect the field like normal
+        uint32_t byteOffset = GetByteOffsetOfField(inCurrentCursor, fieldName);
+        std::vector<std::string> fieldMetaData = GetMetadata(inCurrentCursor);
+
+        ReflectedField& field = clientData.classStack.back()->AddField(
+            ReflectedField(fieldName, typeName, byteOffset, fieldMetaData)
+        );
     }
     
     return CXChildVisit_Continue;
@@ -298,71 +349,6 @@ std::string ReflectionParser::GetFileName(const CXSourceLocation& inLocation)
 
     filename = PathUtils::NormalizePath(filename);
     return filename;
-}
-
-std::vector<std::string> ReflectionParser::GetTemplateArguments(const std::string& inFullTypeSpelling)
-{
-    std::vector<std::string> arguments;
-    
-    size_t start = inFullTypeSpelling.find('<');
-    if (start == std::string::npos)
-        return arguments; 
-    
-    int depth = 0;
-    size_t end = std::string::npos;
-    for (size_t i = start; i < inFullTypeSpelling.size(); ++i)
-    {
-        if (inFullTypeSpelling[i] == '<')
-            ++depth;
-        else if (inFullTypeSpelling[i] == '>')
-        {
-            --depth;
-            if (depth == 0)
-            {
-                end = i;
-                break;
-            }
-        }
-    }
-    
-    if (end == std::string::npos)
-        return arguments;
-    
-    std::string argsStr = inFullTypeSpelling.substr(start + 1, end - start - 1);
-    
-    depth = 0;
-    size_t argStart = 0;
-    for (size_t i = 0; i < argsStr.size(); ++i)
-    {
-        if (argsStr[i] == '<')
-            ++depth;
-        else if (argsStr[i] == '>')
-            --depth;
-        else if (argsStr[i] == ',' && depth == 0)
-        {
-            std::string arg = argsStr.substr(argStart, i - argStart);
-            size_t first = arg.find_first_not_of(" \t\n\r");
-            size_t last = arg.find_last_not_of(" \t\n\r");
-            if (first != std::string::npos && last != std::string::npos)
-                arguments.push_back(arg.substr(first, last - first + 1));
-            else
-                arguments.push_back("");
-            argStart = i + 1;
-        }
-    }
-    
-    if (argStart < argsStr.size())
-    {
-        std::string arg = argsStr.substr(argStart);
-        size_t first = arg.find_first_not_of(" \t\n\r");
-        size_t last = arg.find_last_not_of(" \t\n\r");
-        if (first != std::string::npos && last != std::string::npos)
-            arguments.push_back(arg.substr(first, last - first + 1));
-        else
-            arguments.push_back("");
-    }
-    
-    return arguments;
 }
 
 std::string ReflectionParser::BuildClassNameFromStack(const std::vector<ReflectedClass*>& inClassStack, const std::string& inNewClassName)
@@ -519,4 +505,28 @@ ReflectedClass& ReflectionParser::AddClass(const std::string& inFile, const Refl
     
     myClassesInFiles[inFile].push_back(inClass);
     return myClassesInFiles[inFile].back();
+}
+
+bool ReflectionParser::HasAlreadyParsedClass(const std::string& inClassName) const
+{
+    return std::find(myParsedClassNames.begin(), myParsedClassNames.end(), inClassName) != myParsedClassNames.end();
+}
+
+void ReflectionParser::MarkClassAsParsed(const std::string& inClassName)
+{
+    myParsedClassNames.emplace_back(inClassName);
+}
+
+ReflectedClass* ReflectionParser::FindClass(const std::string& inClassName)
+{
+    for (std::list<ReflectedClass>& entry : myClassesInFiles | std::views::values)
+    {
+        for (ReflectedClass& classEntry : entry)
+        {
+            if (classEntry.GetClassName() == inClassName)
+                return &classEntry;
+        }
+    }
+    
+    return nullptr;
 }

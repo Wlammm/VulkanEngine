@@ -28,9 +28,6 @@ public:
     bool IsTemplateSpecialization() const;
     const List<const Class*>& GetTemplateArgumentTypes() const;
 
-    // Returns type name without template arguments
-    std::string GetNonTemplatedName() const;
-
     static std::string GetClassNameWithoutForwardDeclares(const std::string& inClassName);
     
     template<typename ClassType>
@@ -60,6 +57,11 @@ public:
         return static_cast<ClassType*>(instance);
     }
 
+    void AddTemplateArgument(const Class* inTemplateArgumentClass)
+    {
+        myTemplateArguments.Add(inTemplateArgumentClass);
+    }
+
 
 private:
     friend class ReflectionSystem;
@@ -78,9 +80,6 @@ private:
     // This is a prettified class name. It'll return just the ClassName.
     std::string myClassName = "";
 
-    // This will return the name of the template type without the template arguments.
-    std::string myNonTemplateName = "";
-    
     unsigned int myByteSize = 0;
 
     bool myIsCopyable = false;
@@ -94,6 +93,5 @@ private:
     List<Field> myFields{};
     List<Method> myMethods{};
 
-    bool myIsTemplateSpecialization = false;
     List<const Class*> myTemplateArguments{};
 };

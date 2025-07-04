@@ -56,6 +56,12 @@ nlohmann::json ReflectedClass::Save() const
     {
         json["baseTypeNames"].push_back(baseTypeName);
     }
+
+    for (const std::string& templateArg : myTemplateArguments)
+    {
+        json["templateArguments"].push_back(templateArg);
+    }
+    
     return json;
 }
 
@@ -85,6 +91,11 @@ void ReflectedClass::Load(const nlohmann::json& inJson)
     {
         myBaseTypeNames = inJson["baseTypeNames"].get<std::vector<std::string>>();
     }
+
+    if (inJson.contains("templateArguments"))
+    {
+        myTemplateArguments = inJson["templateArguments"].get<std::vector<std::string>>();
+    }
 }
 
 ReflectedField& ReflectedClass::AddField(const ReflectedField& inField)
@@ -95,4 +106,20 @@ ReflectedField& ReflectedClass::AddField(const ReflectedField& inField)
 void ReflectedClass::AddMethod(const ReflectedMethod& inMethod)
 {
     myMethods.push_back(inMethod);
+}
+
+void ReflectedClass::AddTemplateArgument(const int inIndex, const std::string& inTemplateArgument)
+{
+    // If we already have the template argument just verify it is the same as we want it now and return.
+    if (myTemplateArguments.size() > inIndex)
+    {
+        assert(myTemplateArguments[inIndex] == inTemplateArgument);
+        return;
+    }
+    myTemplateArguments.push_back(inTemplateArgument);   
+}
+
+const std::vector<std::string>& ReflectedClass::GetTemplateArguments() const
+{
+    return myTemplateArguments;
 }

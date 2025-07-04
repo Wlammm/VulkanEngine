@@ -19,17 +19,11 @@ public:
     nlohmann::json Save() const;
     void Load(const nlohmann::json& inJson);
     
-    void AddTemplateArgument(const std::string& inTemplateArgument);
-
-    const std::vector<std::string>& GetTemplateArguments() const;
-    
 private:
     std::string myFieldName;
     std::string myFieldType;
 
     std::vector<std::string> myMetadata;
 
-    std::vector<std::string> myTemplateArguments;
-    
     uint32_t myByteOffset;
 };

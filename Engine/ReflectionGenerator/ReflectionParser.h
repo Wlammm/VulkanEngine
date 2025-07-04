@@ -53,6 +53,11 @@ private:
     static std::vector<std::string> GetMetadata(const CXCursor& inCursor);
 
     ReflectedClass& AddClass(const std::string& inFile, const ReflectedClass& inClass);
+
+    bool HasAlreadyParsedClass(const std::string& inClassName) const;
+    void MarkClassAsParsed(const std::string& inClassName);
+
+    ReflectedClass* FindClass(const std::string& inClassName);
     
 private:
     std::string myFileToReflect;
@@ -63,6 +68,7 @@ private:
     bool myFailed = false;
 
     std::unordered_map<std::string, std::list<ReflectedClass>> myClassesInFiles;
+    std::vector<std::string> myParsedClassNames;
 
     std::vector<std::string> myErrorMessages;
 };

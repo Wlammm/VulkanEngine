@@ -64,12 +64,6 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
                 {
                     outString += "\t\tcurrentField.AddMetadata(R\"delim(" + metadata + ")delim\");\n";
                 }
-                for (const std::string& templateArgument : field.GetTemplateArguments())
-                {
-                    outString += "\t{\n";
-                    outString += "\t\tcurrentField.AddTemplateArgument(reflectionSystem.GetOrCreateClass<" + templateArgument + ">(\"" + templateArgument + "\"));\n";
-                    outString += "\t}\n";
-                }
                 
                 outString += "\t}\n";
             }
@@ -77,6 +71,11 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
             for (const std::string& baseClassTypeName : reflectedClass.GetBaseTypeNames())
             {
                 outString += "\tcurrentClass->AddBaseClass(reflectionSystem.GetMutableClass<" + baseClassTypeName + ">());\n";
+            }
+
+            for (const std::string& templateArgClassName : reflectedClass.GetTemplateArguments())
+            {
+                outString += "\tcurrentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<" + templateArgClassName + ">(\"" + templateArgClassName + "\"));\n";
             }
 
             for (const ReflectedMethod& method : reflectedClass.GetMethods())
