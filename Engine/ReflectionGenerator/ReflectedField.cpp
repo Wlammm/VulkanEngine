@@ -4,12 +4,14 @@ ReflectedField::ReflectedField()
 {
 }
 
-ReflectedField::ReflectedField(const std::string& inFieldName, const std::string& inFieldType, const uint32_t inByteOffset, const std::vector<std::string>& inMetadata)
+ReflectedField::ReflectedField(const std::string& inFieldName, const std::string& inFieldType, const uint32_t inByteOffset, const std::vector<std::string>& inMetadata, bool inIsPointer, bool inIsReference)
 {
     myFieldName = inFieldName;
     myFieldType = inFieldType;
     myByteOffset = inByteOffset;
     myMetadata = inMetadata;
+    myIsPointer = inIsPointer;
+    myIsReference = inIsReference;
 }
 
 const std::string& ReflectedField::GetFieldName() const
@@ -20,6 +22,16 @@ const std::string& ReflectedField::GetFieldName() const
 const std::string& ReflectedField::GetFieldType() const
 {
     return myFieldType;
+}
+
+const bool ReflectedField::GetIsPointer() const
+{
+    return myIsPointer;
+}
+
+const bool ReflectedField::GetIsReference() const
+{
+    return myIsReference;
 }
 
 const std::vector<std::string>& ReflectedField::GetFieldMetadata() const
@@ -38,6 +50,8 @@ nlohmann::json ReflectedField::Save() const
     json["fieldName"] = myFieldName;
     json["fieldType"] = myFieldType;
     json["byteOffset"]  = myByteOffset;
+    json["isPointer"] = myIsPointer;
+    json["isReference"] = myIsReference;
 
     for (const std::string& metadata : myMetadata)
     {
@@ -52,6 +66,9 @@ void ReflectedField::Load(const nlohmann::json& inJson)
     myFieldName = inJson["fieldName"];
     myFieldType = inJson["fieldType"];
     myByteOffset = inJson["byteOffset"];
+    myIsPointer = inJson["isPointer"];
+    myIsReference = inJson["isReference"];
+    
     if(inJson.contains("metadata"))
         myMetadata = inJson["metadata"].get<std::vector<std::string>>();
 }

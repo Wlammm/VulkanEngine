@@ -84,7 +84,7 @@ bool Class::IsTemplateSpecialization() const
     return !myTemplateArguments.IsEmpty();
 }
 
-const List<const Class*>& Class::GetTemplateArgumentTypes() const
+const List<ClassTemplateArgument>& Class::GetTemplateArguments() const
 {
     return myTemplateArguments;
 }

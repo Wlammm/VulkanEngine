@@ -7,10 +7,13 @@ class ReflectedField
 {
 public:
     ReflectedField();
-    ReflectedField(const std::string& inFieldName, const std::string& inFieldType, const uint32_t inByteOffset, const std::vector<std::string>& inMetadata);
+    ReflectedField(const std::string& inFieldName, const std::string& inFieldType, const uint32_t inByteOffset, const std::vector<std::string>& inMetadata, bool inIsPointer, bool inIsReference);
 
     const std::string& GetFieldName() const;
     const std::string& GetFieldType() const;
+
+    const bool GetIsPointer() const;
+    const bool GetIsReference() const;
 
     const std::vector<std::string>& GetFieldMetadata() const;
 
@@ -26,4 +29,7 @@ private:
     std::vector<std::string> myMetadata;
 
     uint32_t myByteOffset;
+
+    bool myIsPointer;
+    bool myIsReference;
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Delegates/Delegate.hpp"
+#include <vma/vk_mem_alloc.h>
 
 class VulkanAllocator
 {

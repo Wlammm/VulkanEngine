@@ -64,11 +64,13 @@ List<std::string> Field::GetMetadataArgs(const std::string& inMetadata) const
 }
 
 
-Field::Field(const std::string& inName, const uint inOffset, const Class* inType)
+Field::Field(const std::string& inName, const uint inOffset, const Class* inType, const bool inIsPointer, const bool inIsReference)
 {
     myName = inName;
     myOffset = inOffset;
     myType = inType;
+    myIsPointer = inIsPointer;
+    myIsReference = inIsReference;
 }
 
 void Field::AddMetadata(const std::string& inMetadata)

@@ -4,6 +4,13 @@
 #include "Engine/Containers/List.hpp"
 #include "Engine/Delegates/Delegate.hpp"
 
+struct ClassTemplateArgument
+{
+    const Class* myType;
+    const bool myIsPointer;
+    const bool myIsReference;
+};
+
 class Class 
 {
 public:
@@ -26,7 +33,7 @@ public:
     const Method* GetMethod(const std::string& inMethodName) const;
 
     bool IsTemplateSpecialization() const;
-    const List<const Class*>& GetTemplateArgumentTypes() const;
+    const List<ClassTemplateArgument>& GetTemplateArguments() const;
 
     static std::string GetClassNameWithoutForwardDeclares(const std::string& inClassName);
     
@@ -57,11 +64,10 @@ public:
         return static_cast<ClassType*>(instance);
     }
 
-    void AddTemplateArgument(const Class* inTemplateArgumentClass)
+    void AddTemplateArgument(const Class* inTemplateArgumentClass, const bool inIsPointer, const bool inIsReference)
     {
-        myTemplateArguments.Add(inTemplateArgumentClass);
+        myTemplateArguments.Add({ inTemplateArgumentClass, inIsPointer, inIsReference });
     }
-
 
 private:
     friend class ReflectionSystem;
@@ -93,5 +99,5 @@ private:
     List<Field> myFields{};
     List<Method> myMethods{};
 
-    List<const Class*> myTemplateArguments{};
+    List<ClassTemplateArgument> myTemplateArguments{};
 };

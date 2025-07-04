@@ -96,10 +96,7 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
             return CXChildVisit_Continue;
 
         if (!clang_isCursorDefinition(inCurrentCursor))
-        {
-            std::cout << "SKipping class : " << GetSpelling(inCurrentCursor) << std::endl;
             return CXChildVisit_Continue;
-        }
 
         CX_CXXAccessSpecifier accessSpecifier = clang_getCXXAccessSpecifier(inCurrentCursor);
         if (accessSpecifier != CX_CXXPublic && accessSpecifier != CX_CXXInvalidAccessSpecifier)
@@ -131,10 +128,21 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
             int numTemplateArgs = clang_Type_getNumTemplateArguments(specializedType);
             for (int i = 0; i < numTemplateArgs; ++i)
             {
-                CXType argType = clang_Type_getTemplateArgumentAsType(specializedType, i);
+                CXType argType = clang_getCanonicalType(clang_Type_getTemplateArgumentAsType(specializedType, i));
                 if (argType.kind != CXType_Invalid)
                 {
-                    currentClass->AddTemplateArgument(i, GetTemplateArgSpelling(argType));
+                    std::string templateArgTypeName = GetSpelling(argType);
+
+                    const bool isPointer = argType.kind == CXType_Pointer;
+                    const bool isReference = argType.kind == CXType_LValueReference;
+                    
+                    if (isPointer)
+                        templateArgTypeName = GetSpelling(clang_getPointeeType(argType));
+                    if (isReference)
+                        templateArgTypeName = GetSpelling(clang_getNonReferenceType(argType));
+
+                    currentClass->AddTemplateArgument(i, templateArgTypeName, isPointer, isReference);
+                    // currentClass->AddTemplateArgument(i, GetTemplateArgSpelling(argType));
                 }
             }
 
@@ -207,7 +215,7 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
             const bool isArgTypePtr = returnType.kind == CXType_Pointer;
             const bool isArgTypeRef = returnType.kind == CXType_LValueReference;
             const std::string argTypeName = GetSpelling(returnType);
-
+            
             std::string unqualifiedTypeName;
             if (isArgTypePtr)
                 unqualifiedTypeName = GetSpelling(clang_getCanonicalType(clang_getPointeeType(returnType)));
@@ -235,7 +243,19 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         if (!IsTypePublicRecursive(type))
             return CXChildVisit_Continue;
 
-        const std::string typeName = GetSpelling(type);
+        std::string typeName = GetSpelling(type);
+
+        const bool isPointer = type.kind == CXType_Pointer;
+        const bool isReference = type.kind == CXType_LValueReference;
+
+        const CXSourceLocation location = clang_getCursorLocation(inCurrentCursor);
+        const bool isInSystemHeader = clang_Location_isInSystemHeader(location);
+
+        // We dont want to force libraries's to be fully included as this can cause issues with header only libraries. So allow them to stay as pointers.
+        if (!isInSystemHeader && isPointer)
+            typeName = GetSpelling(clang_getPointeeType(type));
+        if (!isInSystemHeader && isReference)
+            typeName = GetSpelling(clang_getNonReferenceType(type));
 
         int numTemplateArgs = clang_Type_getNumTemplateArguments(type);
         if (numTemplateArgs > 0)
@@ -256,8 +276,10 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         uint32_t byteOffset = GetByteOffsetOfField(inCurrentCursor, fieldName);
         std::vector<std::string> fieldMetaData = GetMetadata(inCurrentCursor);
 
+        typeName = ReplaceBadTypeNames(typeName);
+        
         ReflectedField& field = clientData.classStack.back()->AddField(
-            ReflectedField(fieldName, typeName, byteOffset, fieldMetaData)
+            ReflectedField(fieldName, typeName, byteOffset, fieldMetaData, isPointer, isReference)
         );
     }
     
@@ -529,4 +551,15 @@ ReflectedClass* ReflectionParser::FindClass(const std::string& inClassName)
     }
     
     return nullptr;
+}
+
+std::string ReflectionParser::ReplaceBadTypeNames(const std::string& inTypeName)
+{
+    if (inTypeName == "VmaAllocation_T")
+        return "VmaAllocation";
+
+    if (inTypeName == "VmaAllocator_T")
+        return "VmaAllocator";
+
+    return inTypeName;
 }

@@ -59,7 +59,7 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
             for (const ReflectedField& field : reflectedClass.GetFields())
             {
                 outString += "\t{\n";
-                outString += "\t\tField& currentField = currentClass->AddField(Field(\"" + field.GetFieldName() + "\", " + std::to_string(field.GetByteOffset()) +", reflectionSystem.GetOrCreateClass<" + field.GetFieldType() + ">(\"" + field.GetFieldType() + "\")));\n";
+                outString += "\t\tField& currentField = currentClass->AddField(Field(\"" + field.GetFieldName() + "\", " + std::to_string(field.GetByteOffset()) +", reflectionSystem.GetOrCreateClass<" + field.GetFieldType() + ">(\"" + field.GetFieldType() + "\"), " + (field.GetIsPointer() ? "true" : "false") + ", " + (field.GetIsReference() ? "true" : "false") + "));\n";
                 for (const std::string& metadata : field.GetFieldMetadata())
                 {
                     outString += "\t\tcurrentField.AddMetadata(R\"delim(" + metadata + ")delim\");\n";
@@ -73,9 +73,9 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
                 outString += "\tcurrentClass->AddBaseClass(reflectionSystem.GetMutableClass<" + baseClassTypeName + ">());\n";
             }
 
-            for (const std::string& templateArgClassName : reflectedClass.GetTemplateArguments())
+            for (const ReflectedClassTemplateArgument& templateArg : reflectedClass.GetTemplateArguments())
             {
-                outString += "\tcurrentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<" + templateArgClassName + ">(\"" + templateArgClassName + "\"));\n";
+                outString += "\tcurrentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<" + templateArg.myTypeName + ">(\"" + templateArg.myTypeName + "\"), " + (templateArg.myIsPointer ? "true" : "false") + ", " + (templateArg.myIsReference ? "true" : "false") + ");\n";
             }
 
             for (const ReflectedMethod& method : reflectedClass.GetMethods())

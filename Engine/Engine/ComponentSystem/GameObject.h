@@ -98,6 +98,7 @@ private:
     bool myRenderStateDirty = false;
     bool myPhysicsStateDirty = false;
 
+    META(SerializeField)
     TagMask myTags;
 
 #if DEBUG_GAMEOBJECT_NAMES

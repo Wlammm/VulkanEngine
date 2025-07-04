@@ -57,9 +57,14 @@ nlohmann::json ReflectedClass::Save() const
         json["baseTypeNames"].push_back(baseTypeName);
     }
 
-    for (const std::string& templateArg : myTemplateArguments)
+    for (const ReflectedClassTemplateArgument& templateArg : myTemplateArguments)
     {
-        json["templateArguments"].push_back(templateArg);
+        nlohmann::json arg;
+        arg["typeName"] = templateArg.myTypeName;
+        arg["isPointer"] = templateArg.myIsPointer;
+        arg["isReference"] = templateArg.myIsReference;
+        
+        json["templateArguments"].push_back(arg);
     }
     
     return json;
@@ -94,7 +99,14 @@ void ReflectedClass::Load(const nlohmann::json& inJson)
 
     if (inJson.contains("templateArguments"))
     {
-        myTemplateArguments = inJson["templateArguments"].get<std::vector<std::string>>();
+        for (nlohmann::json json : inJson["templateArguments"])
+        {
+            ReflectedClassTemplateArgument arg;
+            arg.myTypeName = json["typeName"].get<std::string>();
+            arg.myIsPointer = json["isPointer"].get<bool>();
+            arg.myIsReference = json["isReference"].get<bool>();
+            myTemplateArguments.emplace_back(arg);
+        }
     }
 }
 
@@ -108,18 +120,18 @@ void ReflectedClass::AddMethod(const ReflectedMethod& inMethod)
     myMethods.push_back(inMethod);
 }
 
-void ReflectedClass::AddTemplateArgument(const int inIndex, const std::string& inTemplateArgument)
+void ReflectedClass::AddTemplateArgument(const int inIndex, const std::string& inTemplateArgument, const bool inIsPointer, const bool inIsReference)
 {
     // If we already have the template argument just verify it is the same as we want it now and return.
     if (myTemplateArguments.size() > inIndex)
     {
-        assert(myTemplateArguments[inIndex] == inTemplateArgument);
+        assert(myTemplateArguments[inIndex].myTypeName == inTemplateArgument);
         return;
     }
-    myTemplateArguments.push_back(inTemplateArgument);   
+    myTemplateArguments.push_back({ inTemplateArgument, inIsPointer, inIsReference });   
 }
 
-const std::vector<std::string>& ReflectedClass::GetTemplateArguments() const
+const std::vector<ReflectedClassTemplateArgument>& ReflectedClass::GetTemplateArguments() const
 {
     return myTemplateArguments;
 }

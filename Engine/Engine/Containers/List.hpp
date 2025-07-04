@@ -71,7 +71,7 @@ public:
 		Clear();
 		if (myPtr)
 		{
-			free(myPtr);
+			free((void*)myPtr);
 			myPtr = nullptr;
 		}
 		myCapacity = 0;
@@ -392,7 +392,7 @@ public:
 
 	void* GetElementsPointer() const override
 	{
-		return myPtr;
+		return (void*)myPtr;
 	}
 
 private:
