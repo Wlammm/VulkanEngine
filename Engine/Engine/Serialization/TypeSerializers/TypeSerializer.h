@@ -2,16 +2,14 @@
 #include "Engine/Engine.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 
-class BinaryReader;
+class BinarySerializer;
 class Class;
-class BinaryWriter;
 
 class TypeSerializer
 {
 public:
     virtual ~TypeSerializer() = default;
-    virtual void Write(void* inInstance, const Class* inClass, BinaryWriter* inWriter) = 0;
-    virtual void Read(void* inInstance, const Class* inClass, BinaryReader* inReader) = 0;
+    virtual void Serialize(void* inInstance, const Class* inClass, BinarySerializer* inSerializer) = 0;
     
     virtual bool SerializesType(const Class* inClass) const = 0;
     

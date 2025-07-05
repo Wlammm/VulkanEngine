@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "TypeSerializer.h"
 
-class PrimitiveSerializer : public TypeSerializer
+class ListSerializer : public TypeSerializer
 {
 public:
     bool SerializesType(const Class* inClass) const override;

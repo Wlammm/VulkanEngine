@@ -10,11 +10,14 @@ class Field
 public:
     const std::string& GetName() const;
     uint32_t GetOffset() const;
-    const Class* GetType() const;
+    const Class* GetClass() const;
 
     const List<std::string>& GetMetadata() const;
     bool HasMetadata(const std::string& inMetadata) const;
 
+    bool IsPointer() const;
+    bool IsReference() const;
+    
     // Returns the arguments of a metadata tag. Example META(SomeMeta(Arg1, Arg2)) returns Arg1 and Arg2
     List<std::string> GetMetadataArgs(const std::string& inMetadata) const;
 

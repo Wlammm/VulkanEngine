@@ -25,6 +25,8 @@ public:
 
     unsigned int GetSize() const;
 
+    const Field* FindFieldByName(const std::string& inFieldName) const;
+    
     bool IsCopyable() const;
 
     List<Field> GetFieldsWithMetadata(const std::string& inMetadata) const;

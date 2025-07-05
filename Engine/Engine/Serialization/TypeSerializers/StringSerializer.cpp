@@ -2,6 +2,7 @@
 #include "StringSerializer.h"
 
 #include "Engine/Serialization/BinaryReader.h"
+#include "Engine/Serialization/BinarySerializer.h"
 #include "Engine/Serialization/BinaryWriter.h"
 
 bool StringSerializer::SerializesType(const Class* inClass) const
@@ -10,20 +11,15 @@ bool StringSerializer::SerializesType(const Class* inClass) const
     return stringClass == inClass;
 }
 
-void StringSerializer::Write(void* inInstance, const Class* inClass, BinaryWriter* inWriter)
+void StringSerializer::Serialize(void* inInstance, const Class* inClass, BinarySerializer* inSerializer)
 {
     std::string* string = (std::string*)inInstance;
 
-    inWriter->Write(string->size());
-    inWriter->Write(string->data(), static_cast<int>(string->size()));
-}
+    int size = static_cast<int>(string->size());
+    inSerializer->SerializeCopyable(size);
 
-void StringSerializer::Read(void* inInstance, const Class* inClass, BinaryReader* inReader)
-{
-    std::string* string = (std::string*)inInstance;
+    if (inSerializer->IsReading())
+        string->resize(size);
 
-    std::string::size_type size;
-    inReader->Read(size);
-    string->resize(size);
-    inReader->Read(string->data(), static_cast<int>(size));
+    inSerializer->SerializeBinaryData(string->data(), size);
 }

@@ -4,7 +4,6 @@
 
 #include "Engine/Core/CheckDefine.hpp"
 #include "ContainerTypes.hpp"
-#include "ICollectable.h"
 
 #define CanCopy std::is_trivially_copyable<ElementType>::value || IsCopyable<ElementType>::value
 
@@ -14,17 +13,28 @@ concept ComparisonOperator = requires(ElementType a)
 	a == a;
 };
 
-template<typename ElementType>
-class List : public ICollectable
+using ListSizeType = int;
+
+class IList
 {
-	using SizeType = int;
+public:
+	virtual constexpr ListSizeType size() const noexcept = 0;
+	virtual int GetSizeofElement() const = 0;
+	virtual void Resize(const ListSizeType inSize) = 0;
+	
+	virtual void* GetData() const = 0;
+};
+
+template<typename ElementType>
+class List : public IList
+{
 public:
 	List()
 	{
 		Construct();
 	}
 
-	List(const SizeType inCapacity)
+	List(const ListSizeType inCapacity)
 	{
 		Construct();
 		Grow(inCapacity);
@@ -39,12 +49,12 @@ public:
 	List(const std::vector<ElementType>& inCopy)
 	{
 		Construct();
-		check(inCopy.capacity() < std::numeric_limits<SizeType>::max());
-		Grow(static_cast<SizeType>(inCopy.capacity()));
+		check(inCopy.capacity() < std::numeric_limits<ListSizeType>::max());
+		Grow(static_cast<ListSizeType>(inCopy.capacity()));
 
 		if constexpr (CanCopy)
 		{
-			mySize = static_cast<SizeType>(inCopy.size());
+			mySize = static_cast<ListSizeType>(inCopy.size());
 			memcpy(myPtr, inCopy.data(), sizeof(ElementType) * inCopy.size());
 		}
 		else
@@ -87,11 +97,11 @@ public:
 	//void operator=(const std::vector<ElementType>& inCopy)
 	//{
 	//	Clear();
-	//	Grow(static_cast<SizeType>(inCopy.capacity()));
+	//	Grow(static_cast<ListSizeType>(inCopy.capacity()));
 	//
 	//	if constexpr (CanCopy)
 	//	{
-	//		mySize = static_cast<SizeType>(inCopy.size());
+	//		mySize = static_cast<ListSizeType>(inCopy.size());
 	//		memcpy(myPtr, inCopy.data(), sizeof(ElementType) * inCopy.size());
 	//	}
 	//	else
@@ -103,12 +113,12 @@ public:
 	//	}
 	//}
 
-	constexpr SizeType size() const noexcept
+	constexpr ListSizeType size() const noexcept override
 	{
 		return mySize;
 	}
 
-	SizeType capacity() const noexcept
+	ListSizeType capacity() const noexcept
 	{
 		return myCapacity;
 	}
@@ -118,7 +128,7 @@ public:
 		return mySize == 0;
 	}
 
-	bool IsValidIndex(const SizeType inIndex) const
+	bool IsValidIndex(const ListSizeType inIndex) const
 	{
 		return inIndex >= 0 && inIndex < mySize;
 	}
@@ -136,7 +146,7 @@ public:
 		mySize = 0;
 	}
 
-	void Resize(const SizeType inSize)
+	void Resize(const ListSizeType inSize) override
 	{
 		if(mySize == inSize)
 			return;
@@ -145,14 +155,14 @@ public:
 		mySize = inSize;
 	}
 
-	void Reserve(const SizeType inSize)
+	void Reserve(const ListSizeType inSize)
 	{
 		Grow(inSize);
 	}
 
-	SizeType FindIndex(const ElementType& inValue) const requires ComparisonOperator<ElementType>
+	ListSizeType FindIndex(const ElementType& inValue) const requires ComparisonOperator<ElementType>
 	{
-		for(SizeType i = 0; i < mySize; ++i)
+		for(ListSizeType i = 0; i < mySize; ++i)
 		{
 			if (myPtr[i] == inValue)
 				return i;
@@ -221,7 +231,7 @@ public:
 #pragma endregion
 
 #pragma region Remove
-	void RemoveIndex(const SizeType inIndex)
+	void RemoveIndex(const ListSizeType inIndex)
 	{
 		check(inIndex >= 0 && inIndex < mySize && "Index out of range.");
 
@@ -236,7 +246,7 @@ public:
 		}
 		else
 		{
-			for (SizeType i = inIndex; i < mySize - 1; ++i)
+			for (ListSizeType i = inIndex; i < mySize - 1; ++i)
 			{
 				new (myPtr + i) ElementType(std::move(myPtr[i + 1]));
 			}
@@ -251,7 +261,7 @@ public:
 
 	void Remove(const ElementType& inValue) requires ComparisonOperator<ElementType>
 	{
-		for (SizeType i = 0; i < mySize; ++i)
+		for (ListSizeType i = 0; i < mySize; ++i)
 		{
 			if (myPtr[i] == inValue)
 			{
@@ -261,10 +271,10 @@ public:
 		}
 	}
 
-	void RemoveRange(const SizeType inNumElements, const SizeType inOffset = 0)
+	void RemoveRange(const ListSizeType inNumElements, const ListSizeType inOffset = 0)
 	{
 		// TODO: Improve performance by bulk removing here.
-		for(SizeType i = 0; i  < inNumElements; ++i)
+		for(ListSizeType i = 0; i  < inNumElements; ++i)
 		{
 			RemoveIndex(inOffset);
 		}
@@ -272,13 +282,13 @@ public:
 #pragma endregion
 
 #pragma region Data Accessors
-	const ElementType& operator[] (const SizeType inIndex) const
+	const ElementType& operator[] (const ListSizeType inIndex) const
 	{
 		check(inIndex >= 0 && inIndex < mySize && "Index out of range.");
 		return myPtr[inIndex];
 	}
 
-	ElementType& operator[] (const SizeType inIndex)
+	ElementType& operator[] (const ListSizeType inIndex)
 	{
 		check(inIndex >= 0 && inIndex < mySize && "Index out of range.");
 		return myPtr[inIndex];
@@ -313,6 +323,11 @@ public:
 		return myPtr;
 	}
 
+	void* GetData() const override
+	{
+		return myPtr;
+	}
+
 #pragma endregion
 
 #pragma region Iterators
@@ -327,15 +342,20 @@ public:
 	}
 #pragma endregion
 
-private:
-	SizeType UpperPowerOfTwo(SizeType inRequiredSize)
+	int GetSizeofElement() const override
 	{
-		SizeType a = static_cast<SizeType>(log2(inRequiredSize));
+		return sizeof(ElementType);
+	}
+
+private:
+	ListSizeType UpperPowerOfTwo(ListSizeType inRequiredSize)
+	{
+		ListSizeType a = static_cast<ListSizeType>(log2(inRequiredSize));
 
 		if (pow(2, a) == inRequiredSize)
 			return inRequiredSize;
 
-		return static_cast<SizeType>(pow(2, a + 1));
+		return static_cast<ListSizeType>(pow(2, a + 1));
 	}
 
 	void Construct()
@@ -343,17 +363,17 @@ private:
 		Grow(2);
 	}
 
-	void CheckCapacityForAdd(const SizeType inNumNewElements)
+	void CheckCapacityForAdd(const ListSizeType inNumNewElements)
 	{
-		const SizeType requiredSize = mySize + inNumNewElements;
+		const ListSizeType requiredSize = mySize + inNumNewElements;
 		if (requiredSize <= myCapacity)
 			return;
 
-		const SizeType newSize = UpperPowerOfTwo(requiredSize);
+		const ListSizeType newSize = UpperPowerOfTwo(requiredSize);
 		Grow(newSize);
 	}
 
-	void Grow(const SizeType inNewCapacity)
+	void Grow(const ListSizeType inNewCapacity)
 	{
 		ElementType* oldPtr = myPtr;
 		myPtr = reinterpret_cast<ElementType*>(calloc(inNewCapacity, sizeof(ElementType)));
@@ -367,7 +387,7 @@ private:
 			}
 			else
 			{
-				for (SizeType i = 0; i < mySize; ++i)
+				for (ListSizeType i = 0; i < mySize; ++i)
 				{
 					// Use move constructor for non-trivial types
 					new (myPtr + i) ElementType(std::move(oldPtr[i]));
@@ -379,24 +399,8 @@ private:
 		}
 	}
 
-public:
-	int GetElementSize() const override
-	{
-		return sizeof(ElementType);
-	}
-	
-	int GetNumElements() const override 
-	{
-		return size();
-	}
-
-	void* GetElementsPointer() const override
-	{
-		return (void*)myPtr;
-	}
-
 private:
 	ElementType* myPtr = nullptr;
-	SizeType mySize = 0;
-	SizeType myCapacity = 0;
+	ListSizeType mySize = 0;
+	ListSizeType myCapacity = 0;
 };

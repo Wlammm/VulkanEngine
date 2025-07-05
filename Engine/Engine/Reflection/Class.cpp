@@ -39,6 +39,16 @@ unsigned int Class::GetSize() const
     return myByteSize;
 }
 
+const Field* Class::FindFieldByName(const std::string& inFieldName) const
+{
+    for (Field& field : myFields)
+    {
+        if (field.GetName() == inFieldName)
+            return &field;
+    }
+    return nullptr;
+}
+
 bool Class::IsCopyable() const
 {
     return myIsCopyable;

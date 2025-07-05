@@ -70,15 +70,14 @@
 #include "../Engine/Components/SphereColliderComponent.h"
 #include "../Engine/Components/StaticMeshComponent.h"
 #include "../Engine/Containers/ContainerTypes.hpp"
-#include "../Engine/Containers/ICollectable.h"
 #include "../Engine/Containers/List.hpp"
 #include "../Engine/Core/AutoInit.h"
 #include "../Engine/Core/AutoInitManager.h"
 #include "../Engine/Core/CheckDefine.hpp"
-#include "../Engine/Coroutines/Awaitable.h"
-#include "../Engine/Core/EngineDefines.hpp"
 #include "../Engine/Reflection/Field.h"
 #include "../Engine/Delegates/Delegate.hpp"
+#include "../Engine/Coroutines/Awaitable.h"
+#include "../Engine/Core/EngineDefines.hpp"
 #include "../Engine/Delegates/Internal/ConstMemberFuncCtor.hpp"
 #include "../Engine/Delegates/Internal/FreeFuncCtor.hpp"
 #include "../Engine/Delegates/Internal/FuncCtor.hpp"
@@ -117,8 +116,8 @@
 #include "../Engine/Rendering/Vertex.hpp"
 #include "../Engine/Rendering/VertexBufferSystem.h"
 #include "../Engine/Serialization/BinaryReader.h"
-#include "../Engine/Serialization/TypeSerializers/CollectableSerializer.h"
-#include "../Engine/Serialization/TypeSerializers/PrimitiveSerializer.h"
+#include "../Engine/Serialization/BinarySerializer.h"
+#include "../Engine/Serialization/TypeSerializers/ListSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/StringSerializer.h"
 #include "../Engine/Shaders/MeshStructs.hpp"
 #include "../Engine/System/System.h"
@@ -157,6 +156,7 @@
 #include "../Game/Game.h"
 #include "../Game/GamePch.h"
 #include "../Game/GameTags.h"
+#include "../Engine/Serialization/TypeSerializers/PrimitiveSerializer.h"
 
 
 // END INCLUDES FOR REFLECTED TYPES
@@ -257,23 +257,7 @@ reflectionSystem.AddClass<String>("String", typeid(String).name());
 reflectionSystem.AddClass<SphereColliderComponent>("SphereColliderComponent", typeid(SphereColliderComponent).name());
 reflectionSystem.AddClass<StaticMeshComponent>("StaticMeshComponent", typeid(StaticMeshComponent).name());
 reflectionSystem.AddClass<IsCopyable<int>>("IsCopyable<int>", typeid(IsCopyable<int>).name());
-reflectionSystem.AddClass<ICollectable>("ICollectable", typeid(ICollectable).name());
-reflectionSystem.AddClass<List<Skeleton::Bone>>("List<Skeleton::Bone>", typeid(List<Skeleton::Bone>).name());
-reflectionSystem.AddClass<List<std::thread>>("List<std::thread>", typeid(List<std::thread>).name());
-reflectionSystem.AddClass<List<IAssetContainer *>>("List<IAssetContainer *>", typeid(List<IAssetContainer *>).name());
-reflectionSystem.AddClass<List<vk::Framebuffer>>("List<vk::Framebuffer>", typeid(List<vk::Framebuffer>).name());
-reflectionSystem.AddClass<List<Vertex>>("List<Vertex>", typeid(List<Vertex>).name());
-reflectionSystem.AddClass<List<unsigned int>>("List<unsigned int>", typeid(List<unsigned int>).name());
-reflectionSystem.AddClass<List<Mesh *>>("List<Mesh *>", typeid(List<Mesh *>).name());
-reflectionSystem.AddClass<List<Filewatcher::CallbackHandle>>("List<Filewatcher::CallbackHandle>", typeid(List<Filewatcher::CallbackHandle>).name());
-reflectionSystem.AddClass<List<std::function<void ()>>>("List<std::function<void ()>>", typeid(List<std::function<void ()>>).name());
-reflectionSystem.AddClass<List<unsigned char>>("List<unsigned char>", typeid(List<unsigned char>).name());
-reflectionSystem.AddClass<List<GameObject *>>("List<GameObject *>", typeid(List<GameObject *>).name());
-reflectionSystem.AddClass<List<IComponentArray *>>("List<IComponentArray *>", typeid(List<IComponentArray *>).name());
-reflectionSystem.AddClass<List<Material *>>("List<Material *>", typeid(List<Material *>).name());
-reflectionSystem.AddClass<List<TransformComponent *>>("List<TransformComponent *>", typeid(List<TransformComponent *>).name());
-reflectionSystem.AddClass<List<EventObserver *>>("List<EventObserver *>", typeid(List<EventObserver *>).name());
-reflectionSystem.AddClass<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>("List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>", typeid(List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>).name());
+reflectionSystem.AddClass<IList>("IList", typeid(IList).name());
 reflectionSystem.AddClass<List<std::basic_string<char>>>("List<std::basic_string<char>>", typeid(List<std::basic_string<char>>).name());
 reflectionSystem.AddClass<List<MethodArgument>>("List<MethodArgument>", typeid(List<MethodArgument>).name());
 reflectionSystem.AddClass<List<const Class *>>("List<const Class *>", typeid(List<const Class *>).name());
@@ -281,33 +265,16 @@ reflectionSystem.AddClass<List<Field>>("List<Field>", typeid(List<Field>).name()
 reflectionSystem.AddClass<List<Method>>("List<Method>", typeid(List<Method>).name());
 reflectionSystem.AddClass<List<ClassTemplateArgument>>("List<ClassTemplateArgument>", typeid(List<ClassTemplateArgument>).name());
 reflectionSystem.AddClass<List<Class *>>("List<Class *>", typeid(List<Class *>).name());
-reflectionSystem.AddClass<List<IndexBufferHandle *>>("List<IndexBufferHandle *>", typeid(List<IndexBufferHandle *>).name());
-reflectionSystem.AddClass<List<IndexBufferData>>("List<IndexBufferData>", typeid(List<IndexBufferData>).name());
-reflectionSystem.AddClass<List<VertexBufferHandle *>>("List<VertexBufferHandle *>", typeid(List<VertexBufferHandle *>).name());
-reflectionSystem.AddClass<List<VertexBufferData>>("List<VertexBufferData>", typeid(List<VertexBufferData>).name());
-reflectionSystem.AddClass<List<const char *>>("List<const char *>", typeid(List<const char *>).name());
-reflectionSystem.AddClass<List<vk::QueueFamilyProperties>>("List<vk::QueueFamilyProperties>", typeid(List<vk::QueueFamilyProperties>).name());
-reflectionSystem.AddClass<List<vk::Fence>>("List<vk::Fence>", typeid(List<vk::Fence>).name());
-reflectionSystem.AddClass<List<vk::Semaphore>>("List<vk::Semaphore>", typeid(List<vk::Semaphore>).name());
-reflectionSystem.AddClass<List<vk::Image>>("List<vk::Image>", typeid(List<vk::Image>).name());
-reflectionSystem.AddClass<List<vk::ImageView>>("List<vk::ImageView>", typeid(List<vk::ImageView>).name());
-reflectionSystem.AddClass<List<vk::CommandBuffer>>("List<vk::CommandBuffer>", typeid(List<vk::CommandBuffer>).name());
-reflectionSystem.AddClass<List<EditorWindow *>>("List<EditorWindow *>", typeid(List<EditorWindow *>).name());
-reflectionSystem.AddClass<List<EditorSystem *>>("List<EditorSystem *>", typeid(List<EditorSystem *>).name());
-reflectionSystem.AddClass<List<const Method *>>("List<const Method *>", typeid(List<const Method *>).name());
-reflectionSystem.AddClass<List<std::filesystem::path>>("List<std::filesystem::path>", typeid(List<std::filesystem::path>).name());
-reflectionSystem.AddClass<List<ContentBrowserItem>>("List<ContentBrowserItem>", typeid(List<ContentBrowserItem>).name());
-reflectionSystem.AddClass<List<vk::DescriptorSet>>("List<vk::DescriptorSet>", typeid(List<vk::DescriptorSet>).name());
 reflectionSystem.AddClass<AutoInit>("AutoInit", typeid(AutoInit).name());
 reflectionSystem.AddClass<AutoInitManager>("AutoInitManager", typeid(AutoInitManager).name());
-reflectionSystem.AddClass<Awaitable>("Awaitable", typeid(Awaitable).name());
 reflectionSystem.AddClass<Field>("Field", typeid(Field).name());
 reflectionSystem.AddClass<Delegate<void *(void *, const List<void *> &)>>("Delegate<void *(void *, const List<void *> &)>", typeid(Delegate<void *(void *, const List<void *> &)>).name());
 reflectionSystem.AddClass<Delegate<void *()>>("Delegate<void *()>", typeid(Delegate<void *()>).name());
-reflectionSystem.AddClass<Delegate<void ()>>("Delegate<void ()>", typeid(Delegate<void ()>).name());
+reflectionSystem.AddClass<Awaitable>("Awaitable", typeid(Awaitable).name());
 reflectionSystem.AddClass<RenderSystem>("RenderSystem", typeid(RenderSystem).name());
 reflectionSystem.AddClass<MulticastDelegate<void ()>>("MulticastDelegate<void ()>", typeid(MulticastDelegate<void ()>).name());
 reflectionSystem.AddClass<MulticastDelegate<void (Component *)>>("MulticastDelegate<void (Component *)>", typeid(MulticastDelegate<void (Component *)>).name());
+reflectionSystem.AddClass<TestClass>("TestClass", typeid(TestClass).name());
 reflectionSystem.AddClass<Engine>("Engine", typeid(Engine).name());
 reflectionSystem.AddClass<EngineProperties>("EngineProperties", typeid(EngineProperties).name());
 reflectionSystem.AddClass<EventHandler>("EventHandler", typeid(EventHandler).name());
@@ -336,8 +303,8 @@ reflectionSystem.AddClass<BinaryWriter>("BinaryWriter", typeid(BinaryWriter).nam
 reflectionSystem.AddClass<Vertex>("Vertex", typeid(Vertex).name());
 reflectionSystem.AddClass<VertexBufferSystem>("VertexBufferSystem", typeid(VertexBufferSystem).name());
 reflectionSystem.AddClass<BinaryReader>("BinaryReader", typeid(BinaryReader).name());
-reflectionSystem.AddClass<CollectableSerializer>("CollectableSerializer", typeid(CollectableSerializer).name());
-reflectionSystem.AddClass<PrimitiveSerializer>("PrimitiveSerializer", typeid(PrimitiveSerializer).name());
+reflectionSystem.AddClass<BinarySerializer>("BinarySerializer", typeid(BinarySerializer).name());
+reflectionSystem.AddClass<ListSerializer>("ListSerializer", typeid(ListSerializer).name());
 reflectionSystem.AddClass<StringSerializer>("StringSerializer", typeid(StringSerializer).name());
 reflectionSystem.AddClass<MeshData>("MeshData", typeid(MeshData).name());
 reflectionSystem.AddClass<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
@@ -376,6 +343,7 @@ reflectionSystem.AddClass<PlayerCameraControllerComponent>("PlayerCameraControll
 reflectionSystem.AddClass<PlayerComponent>("PlayerComponent", typeid(PlayerComponent).name());
 reflectionSystem.AddClass<SpringArmComponent>("SpringArmComponent", typeid(SpringArmComponent).name());
 reflectionSystem.AddClass<Game>("Game", typeid(Game).name());
+reflectionSystem.AddClass<PrimitiveSerializer>("PrimitiveSerializer", typeid(PrimitiveSerializer).name());
 
         }
         
@@ -4592,208 +4560,42 @@ Method& currentMethod = currentClass->AddMethod(Method("OnRenderStateDirty", ref
 	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<int>("int"), false, false);
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<ICollectable>();
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<Skeleton::Bone>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<Skeleton::Bone>("Skeleton::Bone"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<std::thread>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::thread>("std::thread"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<IAssetContainer *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<IAssetContainer>("IAssetContainer"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<vk::Framebuffer>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::Framebuffer>("vk::Framebuffer"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<Vertex>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<Vertex>("Vertex"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<unsigned int>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<Mesh *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<Mesh>("Mesh"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<Filewatcher::CallbackHandle>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<Filewatcher::CallbackHandle>("Filewatcher::CallbackHandle"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<std::function<void ()>>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::function<void ()>>("std::function<void ()>"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<unsigned char>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<unsigned char>("unsigned char"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<GameObject *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<GameObject>("GameObject"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<IComponentArray *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<IComponentArray>("IComponentArray"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<Material *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<Material>("Material"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<TransformComponent *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<TransformComponent>("TransformComponent"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<EventObserver *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<EventObserver>("EventObserver"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>("Delegate<void (physx::PxPhysics *, physx::PxScene *)>"), false, false);
+	Class* currentClass = reflectionSystem.GetMutableClass<IList>();
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<List<std::basic_string<char>>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<IList>());
 	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::basic_string<char>>("std::basic_string<char>"), false, false);
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<List<MethodArgument>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<IList>());
 	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<MethodArgument>("MethodArgument"), false, false);
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<List<const Class *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<IList>());
 	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<const Class>("const Class"), true, false);
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<List<Field>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<IList>());
 	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<Field>("Field"), false, false);
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<List<Method>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<IList>());
 	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<Method>("Method"), false, false);
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<List<ClassTemplateArgument>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<IList>());
 	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<ClassTemplateArgument>("ClassTemplateArgument"), false, false);
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<List<Class *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<IList>());
 	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<Class>("Class"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<IndexBufferHandle *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<IndexBufferHandle>("IndexBufferHandle"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<IndexBufferData>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<IndexBufferData>("IndexBufferData"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<VertexBufferHandle *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<VertexBufferHandle>("VertexBufferHandle"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<VertexBufferData>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<VertexBufferData>("VertexBufferData"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<const char *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<const char>("const char"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<vk::QueueFamilyProperties>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::QueueFamilyProperties>("vk::QueueFamilyProperties"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<vk::Fence>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::Fence>("vk::Fence"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<vk::Semaphore>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::Semaphore>("vk::Semaphore"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<vk::Image>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::Image>("vk::Image"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<vk::ImageView>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::ImageView>("vk::ImageView"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<vk::CommandBuffer>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::CommandBuffer>("vk::CommandBuffer"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<EditorWindow *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<EditorWindow>("EditorWindow"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<EditorSystem *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<EditorSystem>("EditorSystem"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<const Method *>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<const Method>("const Method"), true, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<std::filesystem::path>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<std::filesystem::path>("std::filesystem::path"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<ContentBrowserItem>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<ContentBrowserItem>("ContentBrowserItem"), false, false);
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<List<vk::DescriptorSet>>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<ICollectable>());
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<vk::DescriptorSet>("vk::DescriptorSet"), false, false);
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<AutoInit>();
@@ -4821,41 +4623,6 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Class* currentClass = reflectionSystem.GetMutableClass<Awaitable>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Awaitable* instance = static_cast<Awaitable*>(inInstance);
-static thread_local bool result = instance->await_ready();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("await_ready", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Awaitable* instance = static_cast<Awaitable*>(inInstance);
-std::coroutine_handle<void> arg0 = *(std::coroutine_handle<void>*)inArguments[0];
-instance->await_suspend(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inCoroutineHandle", reflectionSystem.GetOrCreateClass<std::coroutine_handle<void>>("std::coroutine_handle<void>")));
-Method& currentMethod = currentClass->AddMethod(Method("await_suspend", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Awaitable* instance = static_cast<Awaitable*>(inInstance);
-instance->await_resume();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("await_resume", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -4902,11 +4669,11 @@ Method& currentMethod = currentClass->AddMethod(Method("GetOffset", reflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Field* instance = static_cast<Field*>(inInstance);
-const Class * result = instance->GetType();
+const Class * result = instance->GetClass();
 return (void*)result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetType", reflectionSystem.GetOrCreateClass<const Class *>("const Class *"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -4929,6 +4696,26 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inMetadata", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("HasMetadata", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+static thread_local bool result = instance->IsPointer();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsPointer", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+static thread_local bool result = instance->IsReference();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsReference", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -4964,8 +4751,39 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", refl
 	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<void *()>("void *()"), false, false);
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<Delegate<void ()>>();
-	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<void ()>("void ()"), false, false);
+	Class* currentClass = reflectionSystem.GetMutableClass<Awaitable>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Awaitable* instance = static_cast<Awaitable*>(inInstance);
+static thread_local bool result = instance->await_ready();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("await_ready", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Awaitable* instance = static_cast<Awaitable*>(inInstance);
+std::coroutine_handle<void> arg0 = *(std::coroutine_handle<void>*)inArguments[0];
+instance->await_suspend(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCoroutineHandle", reflectionSystem.GetOrCreateClass<std::coroutine_handle<void>>("std::coroutine_handle<void>")));
+Method& currentMethod = currentClass->AddMethod(Method("await_suspend", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Awaitable* instance = static_cast<Awaitable*>(inInstance);
+instance->await_resume();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("await_resume", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<RenderSystem>();
@@ -5143,6 +4961,17 @@ Method& currentMethod = currentClass->AddMethod(Method("GetGDRPipeline", reflect
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<MulticastDelegate<void (Component *)>>();
 	currentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<void (Component *)>("void (Component *)"), false, false);
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<TestClass>();
+	{
+		Field& currentField = currentClass->AddField(Field("SomeFloat", 0, reflectionSystem.GetOrCreateClass<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("SomeField", 4, reflectionSystem.GetOrCreateClass<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
 }
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<Engine>();
@@ -6014,6 +5843,18 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetSize", reflectionSystem.GetOrCreateClass<unsigned int>("unsigned int"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Class* instance = static_cast<Class*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+const Field * result = instance->FindFieldByName(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inFieldName", reflectionSystem.GetOrCreateClass<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("FindFieldByName", reflectionSystem.GetOrCreateClass<const Field *>("const Field *"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -6928,60 +6769,108 @@ Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.
 }
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<CollectableSerializer>();
-	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<TypeSerializer>());
+	Class* currentClass = reflectionSystem.GetMutableClass<BinarySerializer>();
+	{
+		Field& currentField = currentClass->AddField(Field("myPath", 0, reflectionSystem.GetOrCreateClass<std::filesystem::path>("std::filesystem::path"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myOutputStream", 32, reflectionSystem.GetOrCreateClass<std::basic_ostream<char>>("std::basic_ostream<char>"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsStreamOpen", 40, reflectionSystem.GetOrCreateClass<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsTemporary", 41, reflectionSystem.GetOrCreateClass<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myInBuffer", 48, reflectionSystem.GetOrCreateClass<List<unsigned char>>("List<unsigned char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myReadOffset", 72, reflectionSystem.GetOrCreateClass<unsigned long long>("unsigned long long"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMode", 80, reflectionSystem.GetOrCreateClass<BinarySerializer::Mode>("BinarySerializer::Mode"), false, false));
+	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CollectableSerializer* instance = static_cast<CollectableSerializer*>(inInstance);
-const Class * arg0 = (const Class*)inArguments[0];
-static thread_local bool result = instance->SerializesType(arg0);
+BinarySerializer* instance = static_cast<BinarySerializer*>(inInstance);
+static thread_local bool result = instance->IsReading();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
-Method& currentMethod = currentClass->AddMethod(Method("SerializesType", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("IsReading", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CollectableSerializer* instance = static_cast<CollectableSerializer*>(inInstance);
-void * arg0 = (void*)inArguments[0];
-const Class * arg1 = (const Class*)inArguments[1];
-BinaryWriter * arg2 = (BinaryWriter*)inArguments[2];
-instance->Write(arg0, arg1, arg2);
-return nullptr;
+BinarySerializer* instance = static_cast<BinarySerializer*>(inInstance);
+static thread_local bool result = instance->IsWriting();
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
-arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
-arguments.Add(MethodArgument("inWriter", reflectionSystem.GetOrCreateClass<BinaryWriter *>("BinaryWriter *")));
-Method& currentMethod = currentClass->AddMethod(Method("Write", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("IsWriting", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CollectableSerializer* instance = static_cast<CollectableSerializer*>(inInstance);
-void * arg0 = (void*)inArguments[0];
-const Class * arg1 = (const Class*)inArguments[1];
-BinaryReader * arg2 = (BinaryReader*)inArguments[2];
-instance->Read(arg0, arg1, arg2);
+BinarySerializer* instance = static_cast<BinarySerializer*>(inInstance);
+instance->Close();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+Method& currentMethod = currentClass->AddMethod(Method("Close", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+BinarySerializer* instance = static_cast<BinarySerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Class * arg1 = (const Class*)inArguments[1];
+const bool arg2 = *(const bool*)inArguments[2];
+instance->SerializeClass(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOutInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
 arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
-arguments.Add(MethodArgument("inReader", reflectionSystem.GetOrCreateClass<BinaryReader *>("BinaryReader *")));
-Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+arguments.Add(MethodArgument("inIsPointer", reflectionSystem.GetOrCreateClass<const bool>("const bool")));
+Method& currentMethod = currentClass->AddMethod(Method("SerializeClass", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+BinarySerializer* instance = static_cast<BinarySerializer*>(inInstance);
+std::basic_string<char> & arg0 = *(std::basic_string<char>*)inArguments[0];
+instance->SerializeString(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOutString", reflectionSystem.GetOrCreateClass<std::basic_string<char> &>("std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("SerializeString", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+BinarySerializer* instance = static_cast<BinarySerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const int arg1 = *(const int*)inArguments[1];
+instance->SerializeBinaryData(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOutInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inSize", reflectionSystem.GetOrCreateClass<const int>("const int")));
+Method& currentMethod = currentClass->AddMethod(Method("SerializeBinaryData", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 { 
-	Class* currentClass = reflectionSystem.GetMutableClass<PrimitiveSerializer>();
+	Class* currentClass = reflectionSystem.GetMutableClass<ListSerializer>();
 	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<TypeSerializer>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-PrimitiveSerializer* instance = static_cast<PrimitiveSerializer*>(inInstance);
+ListSerializer* instance = static_cast<ListSerializer*>(inInstance);
 const Class * arg0 = (const Class*)inArguments[0];
 static thread_local bool result = instance->SerializesType(arg0);
 return (void*)&result;
@@ -6993,34 +6882,18 @@ Method& currentMethod = currentClass->AddMethod(Method("SerializesType", reflect
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-PrimitiveSerializer* instance = static_cast<PrimitiveSerializer*>(inInstance);
+ListSerializer* instance = static_cast<ListSerializer*>(inInstance);
 void * arg0 = (void*)inArguments[0];
 const Class * arg1 = (const Class*)inArguments[1];
-BinaryWriter * arg2 = (BinaryWriter*)inArguments[2];
-instance->Write(arg0, arg1, arg2);
+BinarySerializer * arg2 = (BinarySerializer*)inArguments[2];
+instance->Serialize(arg0, arg1, arg2);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
 arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
-arguments.Add(MethodArgument("inWriter", reflectionSystem.GetOrCreateClass<BinaryWriter *>("BinaryWriter *")));
-Method& currentMethod = currentClass->AddMethod(Method("Write", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PrimitiveSerializer* instance = static_cast<PrimitiveSerializer*>(inInstance);
-void * arg0 = (void*)inArguments[0];
-const Class * arg1 = (const Class*)inArguments[1];
-BinaryReader * arg2 = (BinaryReader*)inArguments[2];
-instance->Read(arg0, arg1, arg2);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
-arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
-arguments.Add(MethodArgument("inReader", reflectionSystem.GetOrCreateClass<BinaryReader *>("BinaryReader *")));
-Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+arguments.Add(MethodArgument("inSerializer", reflectionSystem.GetOrCreateClass<BinarySerializer *>("BinarySerializer *")));
+Method& currentMethod = currentClass->AddMethod(Method("Serialize", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -7044,31 +6917,15 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 StringSerializer* instance = static_cast<StringSerializer*>(inInstance);
 void * arg0 = (void*)inArguments[0];
 const Class * arg1 = (const Class*)inArguments[1];
-BinaryWriter * arg2 = (BinaryWriter*)inArguments[2];
-instance->Write(arg0, arg1, arg2);
+BinarySerializer * arg2 = (BinarySerializer*)inArguments[2];
+instance->Serialize(arg0, arg1, arg2);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
 arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
-arguments.Add(MethodArgument("inWriter", reflectionSystem.GetOrCreateClass<BinaryWriter *>("BinaryWriter *")));
-Method& currentMethod = currentClass->AddMethod(Method("Write", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StringSerializer* instance = static_cast<StringSerializer*>(inInstance);
-void * arg0 = (void*)inArguments[0];
-const Class * arg1 = (const Class*)inArguments[1];
-BinaryReader * arg2 = (BinaryReader*)inArguments[2];
-instance->Read(arg0, arg1, arg2);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
-arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
-arguments.Add(MethodArgument("inReader", reflectionSystem.GetOrCreateClass<BinaryReader *>("BinaryReader *")));
-Method& currentMethod = currentClass->AddMethod(Method("Read", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+arguments.Add(MethodArgument("inSerializer", reflectionSystem.GetOrCreateClass<BinarySerializer *>("BinarySerializer *")));
+Method& currentMethod = currentClass->AddMethod(Method("Serialize", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -8413,7 +8270,7 @@ Method& currentMethod = currentClass->AddMethod(Method("Render", reflectionSyste
 { 
 	Class* currentClass = reflectionSystem.GetMutableClass<VulkanImage>();
 	{
-		Field& currentField = currentClass->AddField(Field("myAllocation", 0, reflectionSystem.GetOrCreateClass<VmaAllocation>("VmaAllocation_T"), true, false));
+		Field& currentField = currentClass->AddField(Field("myAllocation", 0, reflectionSystem.GetOrCreateClass<VmaAllocation>("VmaAllocation"), true, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myImage", 8, reflectionSystem.GetOrCreateClass<vk::Image>("vk::Image"), false, false));
@@ -9284,6 +9141,38 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Tick", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Class* currentClass = reflectionSystem.GetMutableClass<PrimitiveSerializer>();
+	currentClass->AddBaseClass(reflectionSystem.GetMutableClass<TypeSerializer>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PrimitiveSerializer* instance = static_cast<PrimitiveSerializer*>(inInstance);
+const Class * arg0 = (const Class*)inArguments[0];
+static thread_local bool result = instance->SerializesType(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
+Method& currentMethod = currentClass->AddMethod(Method("SerializesType", reflectionSystem.GetOrCreateClass<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PrimitiveSerializer* instance = static_cast<PrimitiveSerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Class * arg1 = (const Class*)inArguments[1];
+BinarySerializer * arg2 = (BinarySerializer*)inArguments[2];
+instance->Serialize(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", reflectionSystem.GetOrCreateClass<void *>("void *")));
+arguments.Add(MethodArgument("inClass", reflectionSystem.GetOrCreateClass<const Class *>("const Class *")));
+arguments.Add(MethodArgument("inSerializer", reflectionSystem.GetOrCreateClass<BinarySerializer *>("BinarySerializer *")));
+Method& currentMethod = currentClass->AddMethod(Method("Serialize", reflectionSystem.GetOrCreateClass<void>("void"), invoker, arguments));
 }
 }
 

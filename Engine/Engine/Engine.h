@@ -6,6 +6,17 @@
 
 class ReflectionSystem;
 
+
+class TestClass
+{
+public:
+	META(SerializeField)
+	float SomeFloat = 12.345f;
+	
+	META(SerializeField)
+	int SomeField = 321;
+};
+
 class Engine
 {
 public:

@@ -25,12 +25,10 @@ public:
 	{
 		Write(inField.GetName());
 		
-		const Class* fieldType = inField.GetType();
+		const Class* fieldType = inField.GetClass();
 		Write(fieldType->GetFullName());
 
 		if (TypeSerializer* serializer = TypeSerializer::GetSerializer(fieldType))
-			serializer->Write(inInstance, fieldType, this);
-		else
 			WriteClass(inInstance, fieldType);
 	}
 	

@@ -23,6 +23,7 @@
 #include "Rendering/RenderSystem.h"
 #include "Rendering/TextureSystem.h"
 #include "Rendering/VertexBufferSystem.h"
+#include "Serialization/BinarySerializer.h"
 #include "System/SystemManager.hpp"
 #include "Systems/PointLightSystem.h"
 #include "Vulkan/GPUSceneSystem.h"
@@ -76,6 +77,21 @@ Engine::~Engine()
 
 void Engine::Tick()
 {
+	
+	BinarySerializer serializer("SomeFile.format", BinarySerializer::Mode::Write);
+	TestClass testClass;
+	testClass.SomeField = 321534534;
+	testClass.SomeFloat = 321321321.232154f;
+	serializer.SerializeClass(testClass);
+	serializer.Close();
+
+	TestClass readClass;
+	BinarySerializer reader("SomeFile.format", BinarySerializer::Mode::Read);
+	reader.SerializeClass(readClass);
+	reader.Close();
+	
+
+	exit(0);
 	myFrameIndex++;
 	FrameMark;
 	ZoneScoped;

@@ -276,6 +276,9 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         uint32_t byteOffset = GetByteOffsetOfField(inCurrentCursor, fieldName);
         std::vector<std::string> fieldMetaData = GetMetadata(inCurrentCursor);
 
+        if (typeName == "VmaAllocator_T")
+            int a = 10;
+        
         typeName = ReplaceBadTypeNames(typeName);
         
         ReflectedField& field = clientData.classStack.back()->AddField(

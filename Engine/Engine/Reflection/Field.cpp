@@ -13,7 +13,7 @@ uint Field::GetOffset() const
     return myOffset;
 }
 
-const Class* Field::GetType() const
+const Class* Field::GetClass() const
 {
     return myType;
 }
@@ -32,6 +32,16 @@ bool Field::HasMetadata(const std::string& inMetadata) const
     }
 
     return false;
+}
+
+bool Field::IsPointer() const
+{
+    return myIsPointer;
+}
+
+bool Field::IsReference() const
+{
+    return myIsReference;
 }
 
 List<std::string> Field::GetMetadataArgs(const std::string& inMetadata) const
