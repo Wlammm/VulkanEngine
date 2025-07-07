@@ -34,23 +34,37 @@ public:
     template <typename ClassType>
     void SerializeClass(ClassType& inOutInstance)
     {
-        void* instance = (void*)&inOutInstance;
-        const Class* type = Engine::GetReflectionSystem().GetClass<std::remove_pointer_t<ClassType>>();
-        check(type && "Failed to find class type.");
-        bool isPointer = std::is_pointer<ClassType>::value;
-
-        static_assert(!std::is_reference_v<ClassType> && "SerializeClass does not support reference types.");
-
-        SerializeClass(instance, type, isPointer);
+        myWasLastClassSerializationFullyComplete = true;
+        SerializeClassInternal(inOutInstance);
     }
 
     void SerializeClass(void* inOutInstance, const Class* inClass, const bool inIsPointer);
 
+    // Returns true if last serialization was fully complete. No fields failed to serialize.
+    bool WasLastClassSerializationFullyComplete() const;
+    
     void SerializeString(std::string& inOutString);
 
     void SerializeBinaryData(void* inOutInstance, const int inSize);
 
 private:
+    friend class TypeSerializer;
+    
+    template <typename ClassType>
+    void SerializeClassInternal(ClassType& inOutInstance)
+    {
+        void* instance = (void*)&inOutInstance;
+        const Class* type = ReflectionSystem::GetClass<std::remove_pointer_t<ClassType>>();
+        check(type && "Failed to find class type.");
+        bool isPointer = std::is_pointer<ClassType>::value;
+
+        static_assert(!std::is_reference_v<ClassType> && "SerializeClass does not support reference types.");
+
+        SerializeClassInternal(instance, type, isPointer);
+    }
+
+    void SerializeClassInternal(void* inOutInstance, const Class* inClass, const bool inIsPointer);
+    
     void ReadClass(void* outInstance, const Class* inClass, const bool inIsPointer);
     void WriteClass(void* inInstance, const Class* inClass, const bool inIsPointer);
 
@@ -84,6 +98,9 @@ private:
 
     List<unsigned char> myInBuffer;
     size_t myReadOffset = 0;
+
+    // Returns true if all fields were serialized correctly.
+    bool myWasLastClassSerializationFullyComplete = true;
 
     Mode myMode;
 };

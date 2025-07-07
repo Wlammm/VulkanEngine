@@ -42,7 +42,7 @@ void ReflectionFileBuilder::BuildClassDeclarations(const ReflectionCache& inCach
     {
         for (const ReflectedClass& reflectedClass : entry.myClasses)
         {
-            outString += "reflectionSystem.AddClass<" + reflectedClass.GetClassName() + ">(\"" + reflectedClass.GetClassName() + "\", typeid(" + reflectedClass.GetClassName() + ").name());\n";
+            outString += "ReflectionSystem::AddClass<" + reflectedClass.GetClassName() + ">(\"" + reflectedClass.GetClassName() + "\", typeid(" + reflectedClass.GetClassName() + ").name());\n";
         }
     }
 }
@@ -54,12 +54,12 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
         for (const ReflectedClass& reflectedClass : entry.myClasses)
         {
             outString += "{ \n";
-            outString += "\tClass* currentClass = reflectionSystem.GetMutableClass<" + reflectedClass.GetClassName() + ">();\n";
+            outString += "\tClass* currentClass = ReflectionSystem::GetMutableClass<" + reflectedClass.GetClassName() + ">();\n";
 
             for (const ReflectedField& field : reflectedClass.GetFields())
             {
                 outString += "\t{\n";
-                outString += "\t\tField& currentField = currentClass->AddField(Field(\"" + field.GetFieldName() + "\", " + std::to_string(field.GetByteOffset()) +", reflectionSystem.GetOrCreateClass<" + field.GetFieldType() + ">(\"" + field.GetFieldType() + "\"), " + (field.GetIsPointer() ? "true" : "false") + ", " + (field.GetIsReference() ? "true" : "false") + "));\n";
+                outString += "\t\tField& currentField = currentClass->AddField(Field(\"" + field.GetFieldName() + "\", " + std::to_string(field.GetByteOffset()) +", ReflectionSystem::GetOrCreateClass<" + field.GetFieldType() + ">(\"" + field.GetFieldType() + "\"), " + (field.GetIsPointer() ? "true" : "false") + ", " + (field.GetIsReference() ? "true" : "false") + "));\n";
                 for (const std::string& metadata : field.GetFieldMetadata())
                 {
                     outString += "\t\tcurrentField.AddMetadata(R\"delim(" + metadata + ")delim\");\n";
@@ -70,12 +70,12 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
             
             for (const std::string& baseClassTypeName : reflectedClass.GetBaseTypeNames())
             {
-                outString += "\tcurrentClass->AddBaseClass(reflectionSystem.GetMutableClass<" + baseClassTypeName + ">());\n";
+                outString += "\tcurrentClass->AddBaseClass(ReflectionSystem::GetMutableClass<" + baseClassTypeName + ">());\n";
             }
 
             for (const ReflectedClassTemplateArgument& templateArg : reflectedClass.GetTemplateArguments())
             {
-                outString += "\tcurrentClass->AddTemplateArgument(reflectionSystem.GetOrCreateClass<" + templateArg.myTypeName + ">(\"" + templateArg.myTypeName + "\"), " + (templateArg.myIsPointer ? "true" : "false") + ", " + (templateArg.myIsReference ? "true" : "false") + ");\n";
+                outString += "\tcurrentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateClass<" + templateArg.myTypeName + ">(\"" + templateArg.myTypeName + "\"), " + (templateArg.myIsPointer ? "true" : "false") + ", " + (templateArg.myIsReference ? "true" : "false") + ");\n";
             }
 
             for (const ReflectedMethod& method : reflectedClass.GetMethods())
@@ -136,10 +136,10 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
 
                 for (const ReflectedMethodArgument& arg : method.GetArguments())
                 {
-                    outString += "arguments.Add(MethodArgument(\"" + arg.GetArgumentName() + "\", reflectionSystem.GetOrCreateClass<" + arg.GetArgumentType() + ">(\"" + arg.GetArgumentType() + "\")));\n";
+                    outString += "arguments.Add(MethodArgument(\"" + arg.GetArgumentName() + "\", ReflectionSystem::GetOrCreateClass<" + arg.GetArgumentType() + ">(\"" + arg.GetArgumentType() + "\")));\n";
                 }
                 
-                outString += "Method& currentMethod = currentClass->AddMethod(Method(\"" + method.GetMethodName() + "\", reflectionSystem.GetOrCreateClass<" + method.GetReturnTypeName() + ">(\"" + method.GetReturnTypeName() + "\"), invoker, arguments));\n";
+                outString += "Method& currentMethod = currentClass->AddMethod(Method(\"" + method.GetMethodName() + "\", ReflectionSystem::GetOrCreateClass<" + method.GetReturnTypeName() + ">(\"" + method.GetReturnTypeName() + "\"), invoker, arguments));\n";
 
                 for (const std::string& metadata : method.GetMetadata())
                 {

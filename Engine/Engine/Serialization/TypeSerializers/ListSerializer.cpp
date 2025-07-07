@@ -12,9 +12,8 @@ void ListSerializer::Serialize(void* inInstance, const Class* inClass, BinarySer
 {
     const ClassTemplateArgument& listStorageType = inClass->GetTemplateArguments().First();
     check(!listStorageType.myIsReference && "Cannot serialize references");
-    IList* list = (IList*)inInstance;
+    IList* list = static_cast<IList*>(inInstance);
 
-    
     int size = list->size();    
     inSerializer->SerializeCopyable(size);
     

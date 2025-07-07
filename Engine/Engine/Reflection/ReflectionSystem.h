@@ -1,15 +1,12 @@
 ﻿#pragma once
 #include "Class.h"
-#include "Engine/System/System.h"
 
-class ReflectionSystem : public System
+class ReflectionSystem 
 {
 public:
-    ~ReflectionSystem();
+    static const List<Class*>& GetAllClasses();
 
-    const List<Class*>& GetAllClasses() const;
-
-    const Class* GetClassByName(const std::string& inName) const
+    static const Class* GetClassByName(const std::string& inName)
     {
         for (const Class* entry : myClasses)
         {
@@ -19,7 +16,7 @@ public:
         return nullptr;
     }
 
-    const Class* GetClassByFullName(const std::string& inFullName) const
+    static const Class* GetClassByFullName(const std::string& inFullName)
     {
         for (const Class* entry : myClasses)
         {
@@ -30,7 +27,7 @@ public:
     }
 
     template <typename ClassType>
-    const Class* GetClass() const
+    static const Class* GetClass()
     {
         const std::string typeName = typeid(ClassType).name();
 
@@ -44,7 +41,7 @@ public:
     }
 
     template <typename ClassType>
-    const Class* GetClass(const ClassType* inInstance) const
+    static const Class* GetClass(const ClassType* inInstance)
     {
         const std::string typeName = typeid(*inInstance).name();
         for (const Class* entry : myClasses)
@@ -59,7 +56,7 @@ private:
     friend class GeneratedReflectionData;
 
     template <typename ClassType>
-    void AddClass(const std::string& inClassName, const std::string& inFullName)
+    static void AddClass(const std::string& inClassName, const std::string& inFullName)
     {
         constexpr size_t classSize = []() constexpr
         {
@@ -88,7 +85,7 @@ private:
     }
 
     template <typename ClassType>
-    const Class* GetOrCreateClass(const std::string& inClassName)
+    static const Class* GetOrCreateClass(const std::string& inClassName)
     {
         const Class* retrievedClass = GetClass<ClassType>();
         if (retrievedClass)
@@ -100,7 +97,7 @@ private:
     }
 
     template <typename ClassType>
-    Class* GetMutableClass() const
+    static Class* GetMutableClass()
     {
         const std::string typeName = typeid(ClassType).name();
         for (Class* entry : myClasses)
@@ -112,5 +109,5 @@ private:
         return nullptr;
     }
 
-    List<Class*> myClasses{};
+    inline static List<Class*> myClasses{};
 };

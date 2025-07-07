@@ -18,6 +18,7 @@ using ListSizeType = int;
 class IList
 {
 public:
+	virtual ~IList() = default;
 	virtual constexpr ListSizeType size() const noexcept = 0;
 	virtual int GetSizeofElement() const = 0;
 	virtual void Resize(const ListSizeType inSize) = 0;
@@ -26,7 +27,7 @@ public:
 };
 
 template<typename ElementType>
-class List : public IList
+class List final : public IList
 {
 public:
 	List()

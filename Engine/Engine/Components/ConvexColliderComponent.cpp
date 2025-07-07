@@ -18,10 +18,10 @@ void ConvexColliderComponent::OnCreate()
     physicsSystem.QueuePhysicsCommand([this, &physicsSystem](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
         // TODO: Cache cooked physics shapes to improve startup time.
-        const List<SerializationMeshData> meshData = Model::GetSerializationDataForModel(myModel);
+        const SerializationModelData modelData = Model::GetSerializationDataForModel(myModel);
 
         List<glm::vec3> vertices;
-        for(const SerializationMeshData& mesh : meshData)
+        for(const SerializationMeshData& mesh : modelData.myMeshDatas)
         {
             for(const Vertex& vertex : mesh.myVertices)
             {

@@ -121,9 +121,7 @@ void Editor::BeginMainDockSpace()
 
 void Editor::AddEditorWindows()
 {
-    ReflectionSystem& reflectionSystem = Engine::GetEngineSystem<ReflectionSystem>();
-
-    const Class* editorWindowClass = reflectionSystem.GetClass<EditorWindow>();
+    const Class* editorWindowClass = ReflectionSystem::GetClass<EditorWindow>();
 
     EditorToolbar* toolbar = GetSystem<EditorToolbar>();
     for (const Class* entry : editorWindowClass->GetDerivedClasses())
@@ -140,9 +138,7 @@ void Editor::AddEditorWindows()
 
 void Editor::AddEditorSystems()
 {
-    ReflectionSystem& reflectionSystem = Engine::GetEngineSystem<ReflectionSystem>();
-
-    const Class* editorSystemClass = reflectionSystem.GetClass<EditorSystem>();
+    const Class* editorSystemClass = ReflectionSystem::GetClass<EditorSystem>();
 
     for (const Class* entry : editorSystemClass->GetDerivedClasses())
     {

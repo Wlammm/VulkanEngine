@@ -22,6 +22,8 @@ public:
 
     const List<Field>& GetFields() const;
     const List<Method>& GetMethods() const;
+    const Field* FindField(const std::string& inFieldName) const; 
+    
 
     unsigned int GetSize() const;
 

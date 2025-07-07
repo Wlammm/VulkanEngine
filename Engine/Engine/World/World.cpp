@@ -25,7 +25,7 @@
 #include "Engine/Core/Input.h"
 #include "Engine/Core/Time.h"
 #include "Engine/Physics/PhysicsSystem.h"
-#include "Engine/Serialization/BinaryWriter.h"
+#include "Engine/Serialization/BinarySerializer.h"
 #include "Engine/Systems/LandscapeSystem.h"
 
 World::World()
@@ -127,10 +127,10 @@ void World::Destroy()
 
 void World::SaveToFile(const std::filesystem::path& inPath)
 {
-	BinaryWriter writer(inPath);
+	BinarySerializer writer(inPath, BinarySerializer::Mode::Write);
 	// writer.WriteClass(this, Engine::GetReflectionSystem().GetClass(this));
-	writer.WriteClass(&GetComponentSystem(), Engine::GetReflectionSystem().GetClass(&GetComponentSystem()));
-	writer.Save();
+	writer.SerializeClass(GetComponentSystem());
+	writer.Close();
 }
 
 void World::LoadFromFile(const std::filesystem::path& inPath)

@@ -25,13 +25,13 @@ void MeshColliderComponent::OnCreate()
     physicsSystem.QueuePhysicsCommand([this, &physicsSystem, scale](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
         // TODO: Cache cooked physics shapes to improve startup time.
-        const List<SerializationMeshData> meshData = Model::GetSerializationDataForModel(myModel);
+        const SerializationModelData modelData = Model::GetSerializationDataForModel(myModel);
 
         List<physx::PxVec3> vertices;
         List<uint> indices;
         std::unordered_map<glm::vec3, int> indexMap;
         int index = 0;
-        for(const SerializationMeshData& mesh : meshData)
+        for(const SerializationMeshData& mesh : modelData.myMeshDatas)
         {
             check(mesh.myIndices.size() % 3 == 0);
             index++;

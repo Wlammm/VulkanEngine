@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Engine/Engine.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 
 class BinarySerializer;
@@ -29,7 +28,7 @@ public:
 private:
     static void RegisterSerializers()
     {
-        const Class* typeSerializerClass = Engine::GetReflectionSystem().GetClass<TypeSerializer>();
+        const Class* typeSerializerClass = ReflectionSystem::GetClass<TypeSerializer>();
         for (const Class* entry : typeSerializerClass->GetDerivedClasses())
         {
             mySerializers.Add(entry->CreateInstance<TypeSerializer>());

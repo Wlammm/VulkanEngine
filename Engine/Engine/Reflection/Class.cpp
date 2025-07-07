@@ -34,6 +34,16 @@ const List<Method>& Class::GetMethods() const
     return myMethods;
 }
 
+const Field* Class::FindField(const std::string& inFieldName) const
+{
+    for (const Field& field : myFields)
+    {
+        if (field.GetName() == inFieldName)
+            return &field;
+    }
+    return nullptr;
+}
+
 unsigned int Class::GetSize() const
 {
     return myByteSize;

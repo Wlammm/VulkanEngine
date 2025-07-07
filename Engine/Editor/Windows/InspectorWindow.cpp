@@ -58,7 +58,7 @@ void InspectorWindow::Tick()
 void InspectorWindow::DrawComponentProperties(Component* inComponent)
 {
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    const Class* componentClass = Engine::GetEngineSystem<ReflectionSystem>().GetClass(inComponent);
+    const Class* componentClass = ReflectionSystem::GetClass(inComponent);
     bool isOpen = ImGui::CollapsingHeader(componentClass->GetName().c_str());
 
     if (isOpen)

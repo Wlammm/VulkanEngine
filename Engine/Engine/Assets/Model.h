@@ -5,18 +5,38 @@
 
 class VulkanBuffer;
 class Mesh;
+
 using CachePath = std::filesystem::path;
+using SourcePath = std::filesystem::path;
 
 struct SerializationMeshData
 {
+	META(SerializeField)
 	List<Vertex> myVertices{};
+	META(SerializeField)
 	List<uint> myIndices{};
+	META(SerializeField)
 	glm::vec4 mySphereCenterBounds{};
 	VulkanBuffer* myStagingVertexBuffer = nullptr;
 	VulkanBuffer* myStagingIndexBuffer = nullptr;
+	META(SerializeField)
 	std::string myAlbedoPath;
+	META(SerializeField)
 	std::string myNormalPath;
+	META(SerializeField)
 	std::string myMaterialPath;
+};
+
+struct SerializationModelData
+{
+	META(SerializeField)
+	std::filesystem::path mySourceFilePath;
+
+	META(SerializeField)
+	std::filesystem::file_time_type myLastCachedWriteTime;
+	
+	META(SerializeField)
+	List<SerializationMeshData> myMeshDatas{};
 };
 
 class Model : public Asset
@@ -30,19 +50,20 @@ public:
 	const List<Mesh*>& GetMeshes() const;
 
 	// Used to query vertex information about a model.
-	static List<SerializationMeshData> GetSerializationDataForModel(Model* inModel);
+	static SerializationModelData GetSerializationDataForModel(Model* inModel);
 	
 private:
-	static CachePath GetCachedFilePath(const std::filesystem::path& inPath);
-	static bool IsCached(const std::filesystem::path& inPath);
+	static CachePath ConvertToCachePath(const SourcePath& inPath);
+	static bool IsCached(const CachePath& inPath);
 
-	static bool TryLoadMeshDatasFromCache(const CachePath& inPath, List<SerializationMeshData>& outMeshDatas);
-	static List<SerializationMeshData> LoadMeshDatasFromFbx(const std::filesystem::path& inPath);
-	void SaveToCache(const List<SerializationMeshData>& inMeshDatas, const std::filesystem::path& inSourcePath);
+	static bool TryLoadModelDataFromCache(const CachePath& inPath, SerializationModelData& outModelData);
+	static void SaveModelDataToCache(const CachePath& inPath, SerializationModelData& inModelData);
+	
+	static SerializationModelData LoadModelDataFromSourceFile(const SourcePath& inPath);
 
-	void InitializeFromMeshData(const List<SerializationMeshData>& inMeshDatas);
-	void InitializeStagingBuffers(List<SerializationMeshData>& inMeshDatas);
-	uint GetRequiredVertexBufferSize(const List<SerializationMeshData>& inMeshDatas);
+	void InitializeFromMeshData(const SerializationModelData& inModelData);
+	void InitializeStagingBuffers(SerializationModelData& inModelData);
+	uint GetRequiredVertexBufferSize(const SerializationModelData& inModelData);
 	
 private:
 	List<Mesh*> myMeshes{};

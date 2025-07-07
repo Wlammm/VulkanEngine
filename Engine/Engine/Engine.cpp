@@ -77,7 +77,7 @@ Engine::~Engine()
 
 void Engine::Tick()
 {
-	
+#if 0 // Serialization testing.
 	BinarySerializer serializer("SomeFile.format", BinarySerializer::Mode::Write);
 	TestClass testClass;
 	testClass.SomeField = 321534534;
@@ -89,9 +89,9 @@ void Engine::Tick()
 	BinarySerializer reader("SomeFile.format", BinarySerializer::Mode::Read);
 	reader.SerializeClass(readClass);
 	reader.Close();
-	
-
 	exit(0);
+#endif	
+
 	myFrameIndex++;
 	FrameMark;
 	ZoneScoped;
@@ -152,11 +152,6 @@ void Engine::SetIsRunning(const bool inIsRunning)
 	myInstance->myIsRunning = inIsRunning;
 }
 
-ReflectionSystem& Engine::GetReflectionSystem()
-{
-	return myInstance->mySystemManager->GetSystem<ReflectionSystem>();
-}
-
 const EngineProperties& Engine::GetEngineProperties()
 {
 	return myInstance->myEngineProperties;
@@ -209,7 +204,6 @@ void Engine::SetExternalTickFunction(const std::function<void()> inExternalTickF
 
 void Engine::CreateSystems()
 {
-	mySystemManager->AddSystem<ReflectionSystem>();
 	mySystemManager->AddSystem<StagingSystem>();
 	mySystemManager->AddSystem<RenderSystem>();
 	mySystemManager->AddSystem<TextureSystem>();

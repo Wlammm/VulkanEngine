@@ -32,10 +32,8 @@ std::any WrapReturnValue(T&& value)
 class GeneratedReflectionData
 {
 public:
-	static void RegisterReflectionData(Engine& inEngine)
+	static void RegisterReflectionData()
 	{
-		ReflectionSystem& reflectionSystem = inEngine.GetReflectionSystem(); 
-
 		// Create all classes.
 		{
 		    $(ClassDeclarations)

@@ -61,12 +61,23 @@ void BinarySerializer::Close()
     myIsStreamOpen = false;
 }
 
-void BinarySerializer::SerializeClass(void* inOutInstance, const Class* inClass, const bool inIsPointer)
+void BinarySerializer::SerializeClassInternal(void* inOutInstance, const Class* inClass, const bool inIsPointer)
 {
     if (IsReading())
         ReadClass(inOutInstance, inClass, inIsPointer);
     else
         WriteClass(inOutInstance, inClass, inIsPointer);
+}
+
+void BinarySerializer::SerializeClass(void* inOutInstance, const Class* inClass, const bool inIsPointer)
+{
+    myWasLastClassSerializationFullyComplete = true;
+    SerializeClassInternal(inOutInstance, inClass, inIsPointer);
+}
+
+bool BinarySerializer::WasLastClassSerializationFullyComplete() const
+{
+    return myWasLastClassSerializationFullyComplete;
 }
 
 void BinarySerializer::SerializeString(std::string& inOutString)
@@ -93,6 +104,11 @@ void BinarySerializer::ReadClass(void* outInstance, const Class* inClass, const 
     int fieldCount = 0;
     ReadCopyable(fieldCount);
 
+    const List<Field> serializableFields = inClass->GetFieldsWithMetadata("SerializeField");
+    // Not all serializable fields were saved.
+    if (serializableFields.size() != fieldCount)
+        myWasLastClassSerializationFullyComplete = false;
+    
     for (int i = 0; i < fieldCount; ++i)
     {
         std::string fieldName;
@@ -110,6 +126,7 @@ void BinarySerializer::ReadClass(void* outInstance, const Class* inClass, const 
         {
             LOG("BinarySerializer::ReadClass - Failed to find field: %s %s in class %s.", fieldName.c_str(), fieldTypeName.c_str(), inClass->GetName().c_str());
             myReadOffset += fieldSize;
+            myWasLastClassSerializationFullyComplete = false;
             continue;
         }
 
@@ -117,6 +134,7 @@ void BinarySerializer::ReadClass(void* outInstance, const Class* inClass, const 
         {
             LOG("BinarySerializer::ReadClass - Field is no longer serializable: : %s %s in class %s.", fieldName.c_str(), fieldTypeName.c_str(), inClass->GetName().c_str());
             myReadOffset += fieldSize;
+            myWasLastClassSerializationFullyComplete = false;
             continue;
         }
 
@@ -129,7 +147,7 @@ void BinarySerializer::ReadClass(void* outInstance, const Class* inClass, const 
         }
         else
         {
-            SerializeClass(fieldPtr, fieldClass, field->IsPointer());
+            SerializeClassInternal(fieldPtr, fieldClass, field->IsPointer());
         }
     }
 }
@@ -160,7 +178,7 @@ void BinarySerializer::WriteClass(void* inInstance, const Class* inClass, const 
         }
         else
         {
-            tempSerializer.SerializeClass(fieldPtr, fieldClass, field.IsPointer());
+            tempSerializer.SerializeClassInternal(fieldPtr, fieldClass, field.IsPointer());
         }
 
         std::string fieldBytes = fieldBufferStream.str();

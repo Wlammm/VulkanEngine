@@ -31,8 +31,6 @@ public:
 	
 	static void SetIsRunning(const bool inIsRunning);
 
-	static ReflectionSystem& GetReflectionSystem();
-	
 	static const EngineProperties& GetEngineProperties();
 	static const class WindowHandler& GetWindowHandler();
 	static class EventHandler& GetEventHandler();

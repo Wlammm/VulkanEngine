@@ -1,13 +1,11 @@
 ﻿#include "EnginePch.h"
 #include "StringSerializer.h"
 
-#include "Engine/Serialization/BinaryReader.h"
 #include "Engine/Serialization/BinarySerializer.h"
-#include "Engine/Serialization/BinaryWriter.h"
 
 bool StringSerializer::SerializesType(const Class* inClass) const
 {
-    const Class* stringClass = Engine::GetReflectionSystem().GetClass<std::string>();
+    const Class* stringClass = ReflectionSystem::GetClass<std::string>();
     return stringClass == inClass;
 }
 

@@ -6,9 +6,7 @@
 
 EditorToolbar::EditorToolbar()
 {
-    ReflectionSystem& reflectionSystem = Engine::GetEngineSystem<ReflectionSystem>();
-
-    for (const Class* entry : reflectionSystem.GetAllClasses())
+    for (const Class* entry : ReflectionSystem::GetAllClasses())
     {
         for (const Method* method : entry->GetMethodsWithMetadata("EditorMenuItem"))
         {

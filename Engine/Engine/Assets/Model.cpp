@@ -7,47 +7,39 @@
 
 #include "Engine/Engine.h"
 #include "Engine/Coroutines/Awaitable.h"
+#include "Engine/Reflection/Class.h"
+#include "Engine/Reflection/ReflectionSystem.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
 #include "Engine/Rendering/Mesh.h"
 #include "Engine/Rendering/MeshSystem.h"
 #include "Engine/Rendering/MeshUtils.h"
 #include "Engine/Rendering/VertexBufferSystem.h"
-#include "Engine/Serialization/BinaryReader.h"
-#include "Engine/Serialization/BinaryWriter.h"
+#include "Engine/Serialization/BinarySerializer.h"
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
 #include "Engine/Vulkan/VulkanContext.h"
 
 Coroutine<void, void, false> Model::Load(const std::filesystem::path inPath)
 {
-	List<SerializationMeshData> meshDatas;
+	SerializationModelData modelData;
 	{
 		ZoneScoped;
-	
-		bool shouldRecache = true;
-		if(IsCached(inPath))
+		const CachePath cachedPath = ConvertToCachePath(inPath);
+		if (!TryLoadModelDataFromCache(cachedPath, modelData))
 		{
-			shouldRecache = !TryLoadMeshDatasFromCache(inPath, meshDatas);
-		}
-	
-		if(shouldRecache)
-		{
-			meshDatas = LoadMeshDatasFromFbx(inPath);
-			SaveToCache(meshDatas, inPath);
+			modelData = LoadModelDataFromSourceFile(inPath);
+			SaveModelDataToCache(cachedPath, modelData);
 		}
 	}
-	InitializeStagingBuffers(meshDatas);
+	InitializeStagingBuffers(modelData);
 	
 	co_await Awaitables::SwitchToThread(ThreadType::Main);
 	{
 		ZoneScoped;
-		InitializeFromMeshData(meshDatas);
+		InitializeFromMeshData(modelData);
 	}
 
 	co_await Awaitables::SwitchToThread(ThreadType::Worker);
-	{
-		meshDatas.Reset();
-	}
 }
 
 void Model::Unload()
@@ -60,87 +52,75 @@ const List<Mesh*>& Model::GetMeshes() const
 	return myMeshes;
 }
 
-List<SerializationMeshData> Model::GetSerializationDataForModel(Model* inModel)
+SerializationModelData Model::GetSerializationDataForModel(Model* inModel)
 {
 	ZoneScoped;
 	check(inModel);
 	
-	List<SerializationMeshData> meshDatas;
-
-	bool foundValidData = true;
-	if(IsCached(inModel->myPath))
+	SerializationModelData modelData;
 	{
-		foundValidData = TryLoadMeshDatasFromCache(inModel->myPath, meshDatas);
+		ZoneScoped;
+		if (!TryLoadModelDataFromCache(inModel->myPath, modelData))
+		{
+			modelData = LoadModelDataFromSourceFile(inModel->myPath);
+			SaveModelDataToCache(inModel->myPath, modelData);
+		}
 	}
-
-	if(!foundValidData)
-	{
-		meshDatas = LoadMeshDatasFromFbx(inModel->myPath);
-	}
-
-	return meshDatas;
+	
+	return modelData;
 }
 
-std::filesystem::path Model::GetCachedFilePath(const std::filesystem::path& inPath)
+std::filesystem::path Model::ConvertToCachePath(const std::filesystem::path& inPath)
 {
 	return L"Cache/ModelCache/" + inPath.filename().wstring() + L".model";
 }
 
-bool Model::IsCached(const std::filesystem::path& inPath)
+bool Model::IsCached(const CachePath& inPath)
 {
-	return std::filesystem::exists(GetCachedFilePath(inPath));
+	return std::filesystem::exists(ConvertToCachePath(inPath));
 }
 
-bool Model::TryLoadMeshDatasFromCache(const CachePath& inPath, List<SerializationMeshData>& outMeshDatas)
+bool Model::TryLoadModelDataFromCache(const CachePath& inPath, SerializationModelData& outModelData)
 {
-	//ZoneScoped;
-	BinaryReader reader(inPath);
-
-	int fileVersion;
-	reader.Read(fileVersion);
-
-	if(fileVersion != BinaryVersion)
-	{
-		LOG_WARNING("ModelFactory: Outdated binary for model: %s", inPath.string().c_str());
+	if (!std::filesystem::exists(ConvertToCachePath(inPath)))
 		return false;
-	}
 
-	std::filesystem::path sourceFilePath;
-	reader.Read(sourceFilePath);
+	BinarySerializer serializer(inPath, BinarySerializer::Mode::Read);
 	
-	std::filesystem::file_time_type lastWriteTimeSourceFile;
-	reader.Read(lastWriteTimeSourceFile);
+	SerializationModelData modelData;
+	serializer.SerializeClass(modelData);
 
-	const std::filesystem::file_time_type fbxLastWriteTime = std::filesystem::last_write_time(sourceFilePath);
-	if (!std::filesystem::exists(sourceFilePath))
-	{
-		LOG_WARNING("Model: Source file does not exists anymore.", inPath.string().c_str());
+	// Structure has failed and some fields failed to serialize correctly. 
+	if (!serializer.WasLastClassSerializationFullyComplete())
 		return false;
-	}
 
-	if (fbxLastWriteTime != lastWriteTimeSourceFile)
-	{ 
-		LOG_WARNING("Model: Cache is out of date. Model not loaded: %s", inPath.string().c_str());
+	check(std::filesystem::exists(modelData.mySourceFilePath) && "Attempting to access cached model data with deleted source asset.");
+	const std::filesystem::file_time_type sourceLastWriteTime = std::filesystem::last_write_time(modelData.mySourceFilePath);
+
+	if (sourceLastWriteTime != modelData.myLastCachedWriteTime)
 		return false;
-	}
 
-	size_t numMeshes;
-	reader.Read(numMeshes);
-
-	for (size_t i = 0; i < numMeshes; ++i)
-	{
-		SerializationMeshData& mesh = outMeshDatas.Emplace();
-		reader.Read(mesh.myVertices);
-		reader.Read(mesh.myIndices);
-		reader.Read(mesh.mySphereCenterBounds);
-	}
+	outModelData = std::move(modelData);
 	return true;
 }
 
-List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::path& inPath)
+void Model::SaveModelDataToCache(const std::filesystem::path& inPath, SerializationModelData& inModelData)
+{
+	const Class* cls = ReflectionSystem::GetClass<SerializationModelData>();
+
+	const Field* field = cls->FindField("myMeshDatas");
+
+	int offsetof = offsetof(SerializationModelData, myMeshDatas);
+	
+	BinarySerializer serializer(inPath, BinarySerializer::Mode::Write);
+	serializer.SerializeClass(inModelData);
+}
+
+SerializationModelData Model::LoadModelDataFromSourceFile(const std::filesystem::path& inPath)
 {
 	//ZoneScoped;
-	List<SerializationMeshData> meshDatas{};
+	SerializationModelData modelData{};
+	modelData.mySourceFilePath = inPath;
 	
 	static thread_local Assimp::Importer myImporter{};
 	
@@ -159,19 +139,19 @@ List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::p
 	if (!scene)
 	{
 		LOG_ERROR("Failed to load model: %s", inPath.string().c_str());
-		return meshDatas;
+		return modelData;
 	}
 
 	const uint numMeshes = scene->mNumMeshes;
 	if (numMeshes == 0)
 	{
 		LOG_ERROR("FBX does not contain any meshes: %s", inPath.string().c_str());
-		return meshDatas;
+		return modelData;
 	}
 	
 	for (uint meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
 	{
-		SerializationMeshData& meshData = meshDatas.Emplace();
+		SerializationMeshData& meshData = modelData.myMeshDatas.Emplace();
 
 		const aiMesh* aiMesh = scene->mMeshes[meshIndex];
 		
@@ -239,36 +219,13 @@ List<SerializationMeshData> Model::LoadMeshDatasFromFbx(const std::filesystem::p
 	}
 
 	myImporter.FreeScene();
-	return meshDatas;
+	return modelData;
 }
 
-void Model::SaveToCache(const List<SerializationMeshData>& inMeshDatas, const std::filesystem::path& inSourcePath)
+void Model::InitializeFromMeshData(const SerializationModelData& inModelData)
 {
 	//ZoneScoped;
-	BinaryWriter writer(GetCachedFilePath(inSourcePath));
-	writer.Write(BinaryVersion);
-
-	writer.Write(inSourcePath);
-	const std::filesystem::file_time_type fbxLastWriteTime = std::filesystem::last_write_time(inSourcePath);
-	writer.Write(fbxLastWriteTime);
-
-	const size_t numMeshes = inMeshDatas.size();
-	writer.Write(numMeshes);
-
-	for(const SerializationMeshData& mesh : inMeshDatas)
-	{
-		writer.Write(mesh.myVertices);
-		writer.Write(mesh.myIndices);
-		writer.Write(mesh.mySphereCenterBounds);
-	}
-
-	writer.Save();
-}
-
-void Model::InitializeFromMeshData(const List<SerializationMeshData>& inMeshDatas)
-{
-	//ZoneScoped;
-	for(const SerializationMeshData& meshData : inMeshDatas)
+	for(const SerializationMeshData& meshData : inModelData.myMeshDatas)
 	{
 		VertexBufferHandle* vertexBuffer = Engine::GetEngineSystem<VertexBufferSystem>().UploadVertexBuffer(meshData.myStagingVertexBuffer, meshData.myVertices.size());
 		VulkanAllocator::DestroyBuffer_TS(meshData.myStagingVertexBuffer);
@@ -284,9 +241,10 @@ void Model::InitializeFromMeshData(const List<SerializationMeshData>& inMeshData
 		myMeshes.Last()->myMaterialPath = meshData.myMaterialPath;
 	}
 }
-void Model::InitializeStagingBuffers(List<SerializationMeshData>& inMeshDatas)
+
+void Model::InitializeStagingBuffers(SerializationModelData& inModelData)
 {
-	for(SerializationMeshData& meshData : inMeshDatas)
+	for(SerializationMeshData& meshData : inModelData.myMeshDatas)
 	{
 		const uint vertexSize = meshData.myVertices.size() * sizeof(Vertex);
 		meshData.myStagingVertexBuffer = VulkanAllocator::AllocateBuffer_TS("ModelVertexBufferStaging", VulkanBuffer::StagingCreateInfo(vertexSize), VMA_MEMORY_USAGE_AUTO, true);
@@ -298,10 +256,10 @@ void Model::InitializeStagingBuffers(List<SerializationMeshData>& inMeshDatas)
 	}
 }
 
-uint Model::GetRequiredVertexBufferSize(const List<SerializationMeshData>& inMeshDatas)
+uint Model::GetRequiredVertexBufferSize(const SerializationModelData& inModelData)
 {
 	uint requiredSize = 0;
-	for(const SerializationMeshData& meshData : inMeshDatas)
+	for(const SerializationMeshData& meshData : inModelData.myMeshDatas)
 	{
 		requiredSize += sizeof(Vertex) * meshData.myVertices.size();
 	}

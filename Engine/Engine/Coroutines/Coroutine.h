@@ -53,6 +53,7 @@ public:
             Engine::TickNextFrame.Bind(OnComplete);
             return {};
         }
+        
         void unhandled_exception()
         {
             check(false);

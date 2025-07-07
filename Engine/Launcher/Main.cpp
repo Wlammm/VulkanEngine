@@ -20,8 +20,8 @@ int main(int argc, char** argv)
 		properties.Title = L"Engine";
 		properties.AddStartupArguments(argc, argv);
 
+		GeneratedReflectionData::RegisterReflectionData();
 		Engine engine{ properties };
-		GeneratedReflectionData::RegisterReflectionData(engine);
 		
 		Game game{};
 		
