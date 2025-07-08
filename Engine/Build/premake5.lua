@@ -128,10 +128,6 @@ project "Launcher"
 	location "../%{prj.name}"
 	targetdir  "../../Bin/"
 	includedirs(launcher_includes)
-	prebuildcommands 
-	{
-		"cd ../Build/ && ReflectionGenerator.exe"
-	}
 	libdirs
 	{
 		"%{PHYSX_LIB_DIR}",
@@ -172,6 +168,17 @@ project "Launcher"
 		"echo Running post build",
 		"{COPY} %{PHYSX_LIB_DIR}/*.dll ../../Bin/"
 	}
+	
+	filter "configurations:*Debug*"
+		prebuildcommands 
+		{
+			"cd ../Build/ && ReflectionGenerator.exe --debug"
+		}
+	filter "configurations:*Release*"
+		prebuildcommands 
+		{
+			"cd ../Build/ && ReflectionGenerator.exe"
+		}
 
 project "Engine"
     kind "StaticLib"

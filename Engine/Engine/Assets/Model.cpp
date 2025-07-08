@@ -106,12 +106,6 @@ bool Model::TryLoadModelDataFromCache(const CachePath& inPath, SerializationMode
 
 void Model::SaveModelDataToCache(const std::filesystem::path& inPath, SerializationModelData& inModelData)
 {
-	const Class* cls = ReflectionSystem::GetClass<SerializationModelData>();
-
-	const Field* field = cls->FindField("myMeshDatas");
-
-	int offsetof = offsetof(SerializationModelData, myMeshDatas);
-	
 	BinarySerializer serializer(inPath, BinarySerializer::Mode::Write);
 	serializer.SerializeClass(inModelData);
 }

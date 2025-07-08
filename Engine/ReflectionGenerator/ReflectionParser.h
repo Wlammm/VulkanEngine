@@ -12,7 +12,7 @@
 class ReflectionParser
 {
 public:
-    ReflectionParser(const std::string& inFileToReflect, const IncludePaths& inIncludePaths);
+    ReflectionParser(const std::string& inFileToReflect, const IncludePaths& inIncludePaths, const bool inIsDebugBuild);
     
     void Parse();
 
@@ -69,6 +69,7 @@ private:
     inline static CXTranslationUnit myTranslationUnit;
     
     bool myFailed = false;
+    bool myIsDebugBuild = false;
 
     std::unordered_map<std::string, std::list<ReflectedClass>> myClassesInFiles;
     std::vector<std::string> myParsedClassNames;

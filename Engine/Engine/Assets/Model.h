@@ -30,7 +30,7 @@ struct SerializationMeshData
 struct SerializationModelData
 {
 	META(SerializeField)
-	std::filesystem::path mySourceFilePath;
+	std::wstring mySourceFilePath;
 
 	META(SerializeField)
 	std::filesystem::file_time_type myLastCachedWriteTime;

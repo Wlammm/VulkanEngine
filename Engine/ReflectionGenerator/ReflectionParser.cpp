@@ -8,9 +8,10 @@
 #include "ReflectedMethod.h"
 #include "../ImGui/imgui_internal.h"
 
-ReflectionParser::ReflectionParser(const std::string& inFileToReflect, const IncludePaths& inIncludePaths)
+ReflectionParser::ReflectionParser(const std::string& inFileToReflect, const IncludePaths& inIncludePaths, const bool inIsDebugBuild)
     : myIncludePaths(inIncludePaths)
 {
+    myIsDebugBuild = inIsDebugBuild;
     myFileToReflect = inFileToReflect;
     
     Parse();
@@ -294,18 +295,50 @@ void ReflectionParser::BuildCommandLineArgs(std::vector<const char*>& outCommand
     outCommandLineArgs.push_back("-x");
     outCommandLineArgs.push_back("c++");
     outCommandLineArgs.push_back("-std=c++23");
-    outCommandLineArgs.push_back("-nostdinc++");
+    // Remove -nostdinc++ to allow standard library
     outCommandLineArgs.push_back("-fms-compatibility");
     outCommandLineArgs.push_back("-fms-extensions");
-    outCommandLineArgs.push_back("-fmsc-version=1929"); 
-    outCommandLineArgs.push_back("-Wno-pragma-once-outside-header");
+    outCommandLineArgs.push_back("-fms-compatibility-version=19.29");
+    // outCommandLineArgs.push_back("-fmsc-version=1929"); 
     outCommandLineArgs.push_back("-D_MSC_VER=1929");
     outCommandLineArgs.push_back("-D_WIN32");
+    outCommandLineArgs.push_back("-D_WIN64");
+    outCommandLineArgs.push_back("-D_M_X64=100");
     outCommandLineArgs.push_back("-D_WINDOWS");
-    outCommandLineArgs.push_back("-Wno-everything");
-    outCommandLineArgs.push_back("-DREFLECTION_GENERATION=1");
+    outCommandLineArgs.push_back("--target=x86_64-pc-windows-msvc");
+    outCommandLineArgs.push_back("-D_LIBCPP_HAS_NO_LOCAL_SSO ");
+    
+    if (myIsDebugBuild)
+    {
+        outCommandLineArgs.push_back("-O0");
+        outCommandLineArgs.push_back("-D_DEBUG=1");
+        outCommandLineArgs.push_back("-D_ITERATOR_DEBUG_LEVEL=2");
+        outCommandLineArgs.push_back("-D_HAS_ITERATOR_DEBUGGING=1");
+    }
+    else
+    {
+        outCommandLineArgs.push_back("-O2");
+        outCommandLineArgs.push_back("-DNDEBUG=1");
+        outCommandLineArgs.push_back("-D_ITERATOR_DEBUG_LEVEL=0");
+    }
+
+    // Add these defines to fix static assertion issuesr
+    outCommandLineArgs.push_back("-D_MSC_VER=1929");
+    outCommandLineArgs.push_back("-D_WIN32");
+    outCommandLineArgs.push_back("-D_WIN64");
+    outCommandLineArgs.push_back("-D_M_X64=100");
+    outCommandLineArgs.push_back("-D_WINDOWS");
     outCommandLineArgs.push_back("-D_CRT_USE_BUILTIN_OFFSETOF=1");
+    outCommandLineArgs.push_back("-D_HAS_EXCEPTIONS=1");
+    outCommandLineArgs.push_back("-D_NATIVE_WCHAR_T_DEFINED=1");
+    outCommandLineArgs.push_back("-D_WCHAR_T_DEFINED=1");
+    
+    // Ensure MSVC standard library is used first
+    outCommandLineArgs.push_back("-I");
+    outCommandLineArgs.push_back("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/include");
+
     outCommandLineArgs.push_back("-DNDEBUG=1");
+    outCommandLineArgs.push_back("-DREFLECTION_GENERATION=1");
 
     for (const std::string& includeArg : myIncludePaths.GetIncludeArguments())
     {

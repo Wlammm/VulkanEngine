@@ -43,11 +43,29 @@ void PrintResult(const ReflectionParser& inParser)
 }
 
 // Project is working from the Build directory.
-int main()
+int main(int argc, char* argv[])
 {
+    bool isDebugBuild = false;
+
+    if (argc > 1)
+    {
+        if (std::string(argv[1]) == "--debug")
+        {
+            isDebugBuild = true;
+        }
+    }
+
+    if (isDebugBuild)
+        std::cout << "Generating reflection data for debug configuration." << std::endl;
+    else
+        std::cout << "Generating reflection data for release configuration" << std::endl;
+    
     auto startTime = std::chrono::high_resolution_clock::now();
 
-    ReflectionCache reflectionCache("ReflectionCache.json");
+    std::string cacheFilePath = "ReflectionCache.json";
+    if (isDebugBuild)
+        cacheFilePath = "Debug_ReflectionCache.json";
+    ReflectionCache reflectionCache(cacheFilePath);
     
     IncludePaths includes = IncludePaths("engine_includes.txt") + IncludePaths("editor_includes.txt") + IncludePaths("game_includes.txt");
 
@@ -55,7 +73,7 @@ int main()
 
     if (unityFile.HasFilesToCompile())
     {
-        ReflectionParser parser = ReflectionParser(unityFile.GetPath(), includes);
+        ReflectionParser parser = ReflectionParser(unityFile.GetPath(), includes, isDebugBuild);
     
         reflectionCache.UpdateCacheFromParser(parser);
         reflectionCache.UpdateCacheFromUnityFile(unityFile);
