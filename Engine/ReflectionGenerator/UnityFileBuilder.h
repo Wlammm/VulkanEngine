@@ -19,4 +19,6 @@ private:
 
 private:
     std::vector<std::string> myHeaders{};
+
+    bool myHasFilesToCompile = false;
 };

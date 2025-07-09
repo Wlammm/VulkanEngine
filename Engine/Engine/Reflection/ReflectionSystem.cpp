@@ -1,7 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "ReflectionSystem.h"
 
-const List<Class*>& ReflectionSystem::GetAllClasses()
+const List<Type*>& ReflectionSystem::GetAllClasses()
 {
-    return myClasses;
+    return myTypes;
 }

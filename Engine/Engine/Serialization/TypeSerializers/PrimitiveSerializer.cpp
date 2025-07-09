@@ -3,7 +3,7 @@
 
 #include "Engine/Serialization/BinarySerializer.h"
 
-bool PrimitiveSerializer::SerializesType(const Class* inClass) const
+bool PrimitiveSerializer::SerializesType(const Type* inClass) const
 {
     return
         inClass->IsA<int>() ||
@@ -15,7 +15,7 @@ bool PrimitiveSerializer::SerializesType(const Class* inClass) const
         inClass->IsA<bool>();
 }
 
-void PrimitiveSerializer::Serialize(void* inInstance, const Class* inClass, BinarySerializer* inSerializer)
+void PrimitiveSerializer::Serialize(void* inInstance, const Type* inClass, BinarySerializer* inSerializer)
 {
     inSerializer->SerializeBinaryData(inInstance, inClass->GetSize());
 }

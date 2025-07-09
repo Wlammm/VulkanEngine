@@ -2,7 +2,7 @@
 #include "ImGuiPropertyDrawer.h"
 
 #include "Engine/Engine.h"
-#include "Engine/Reflection/Class.h"
+#include "Engine/Reflection/Type.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 
 void ImGuiPropertyDrawer::RegisterDrawers()
@@ -64,7 +64,7 @@ bool ImGuiPropertyDrawer::DrawProperty(const Field& inField, void* inInstance)
     ImGui::SameLine(windowWidth * 0.35f, 0);
     ON_SCOPE_EXIT([](){ ImGui::PopID(); });
 
-    auto it = myDrawers.find(inField.GetClass());
+    auto it = myDrawers.find(inField.GetType());
     if (it != myDrawers.end())
     {
         void* valPtr = inField.GetPointerToValue(inInstance);
@@ -75,7 +75,7 @@ bool ImGuiPropertyDrawer::DrawProperty(const Field& inField, void* inInstance)
     }
     else
     {
-        std::string text = "No drawer registered for type: " + inField.GetClass()->GetName();
+        std::string text = "No drawer registered for type: " + inField.GetType()->GetName();
         ImGui::Text(text.c_str());
         return false;
     }

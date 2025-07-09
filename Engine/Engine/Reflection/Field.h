@@ -3,14 +3,14 @@
 #include "Engine/Containers/List.hpp"
 #include <string>
 
-class Class;
+class Type;
 
 class Field
 {
 public:
     const std::string& GetName() const;
     uint32_t GetOffset() const;
-    const Class* GetClass() const;
+    const Type* GetType() const;
 
     const List<std::string>& GetMetadata() const;
     bool HasMetadata(const std::string& inMetadata) const;
@@ -38,13 +38,13 @@ public:
 private:
     friend class GeneratedReflectionData;
     Field() = delete;
-    Field(const std::string& inName, const uint32_t inOffset, const Class* inType, const bool inIsPointer, const bool inIsReference);
+    Field(const std::string& inName, const uint32_t inOffset, const Type* inType, const bool inIsPointer, const bool inIsReference);
 
     void AddMetadata(const std::string& inMetadata);
     
     std::string myName = "";
     uint32_t myOffset = 0;
-    const Class* myType = nullptr;
+    const Type* myType = nullptr;
 
     bool myIsPointer = false;
     bool myIsReference = false;

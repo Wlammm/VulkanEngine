@@ -3,7 +3,7 @@
 
 #include "Engine/Delegates/Delegate.hpp"
 
-class Class;
+class Type;
 
 class MethodArgument
 {
@@ -11,14 +11,14 @@ class MethodArgument
     friend class GeneratedReflectionData;
 public:
     const std::string& GetArgumentName() const;
-    const Class* GetArgumentType() const;
+    const Type* GetArgumentType() const;
 
 private:
-    MethodArgument(const std::string& inArgumentName, const Class* inArgumentType);
+    MethodArgument(const std::string& inArgumentName, const Type* inArgumentType);
 
 private:
     std::string myArgumentName;
-    const Class* myArgumentType = nullptr;
+    const Type* myArgumentType = nullptr;
 };
 
 class Method
@@ -58,7 +58,7 @@ public:
     }
     
 private:
-    Method(const std::string& inMethodName, const Class* inReturnType, const InvokerType& inInvoker, const List<MethodArgument>& inArguments);
+    Method(const std::string& inMethodName, const Type* inReturnType, const InvokerType& inInvoker, const List<MethodArgument>& inArguments);
     
     void AddMetadata(const std::string& inMetadata);
     
@@ -67,7 +67,7 @@ private:
     friend class GeneratedReflectionData;
     
     std::string myMethodName;
-    const Class* myReturnType = nullptr;
+    const Type* myReturnType = nullptr;
     List<MethodArgument> myArguments{};
     List<std::string> myMetadata;
 

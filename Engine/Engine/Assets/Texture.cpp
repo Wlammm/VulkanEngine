@@ -70,7 +70,8 @@ ImageData Texture::LoadImageDataFromSourceFile(const std::filesystem::path& inPa
 
     ImageData imageData{};
     imageData.mySourceFile = inPath;
-
+    imageData.myLastSourceWriteTime = std::filesystem::last_write_time(inPath);
+    
     stbi_uc* pixels = stbi_load(inPath.string().c_str(), &imageData.myWidth, &imageData.myHeight, &imageData.myChannels,
                                 STBI_rgb_alpha);
     check(pixels);
@@ -92,13 +93,12 @@ bool Texture::TryLoadImageDataFromCache(const CachePath& inPath, ImageData& outD
 
     ImageData data;
     BinarySerializer serializer(inPath, BinarySerializer::Mode::Read);
-    serializer.SerializeClass(data);
+    serializer.SerializeType(data);
 
-    if (!serializer.WasLastClassSerializationFullyComplete())
+    if (!serializer.WasLastTypeSerializationFullyComplete())
         return false;
 
     std::filesystem::file_time_type sourceWriteTime = std::filesystem::last_write_time(data.mySourceFile);
-
     if (sourceWriteTime != data.myLastSourceWriteTime)
         return false;
 
@@ -109,7 +109,7 @@ bool Texture::TryLoadImageDataFromCache(const CachePath& inPath, ImageData& outD
 void Texture::SaveImageDataToCache(const CachePath& inPath, const ImageData& inData)
 {
     BinarySerializer serializer(inPath, BinarySerializer::Mode::Write);
-    serializer.SerializeClass(inData);
+    serializer.SerializeType(inData);
 }
 
 void Texture::InitializeFromImageData(const ImageData& inImageData)

@@ -6,12 +6,12 @@ const std::string& MethodArgument::GetArgumentName() const
     return myArgumentName;
 }
 
-const Class* MethodArgument::GetArgumentType() const
+const Type* MethodArgument::GetArgumentType() const
 {
     return myArgumentType;
 }
 
-MethodArgument::MethodArgument(const std::string& inArgumentName, const Class* inArgumentType)
+MethodArgument::MethodArgument(const std::string& inArgumentName, const Type* inArgumentType)
 {
     myArgumentName = inArgumentName;
     myArgumentType = inArgumentType;
@@ -66,7 +66,7 @@ List<std::string> Method::GetMetadataArgs(const std::string& inMetadata) const
     return {};
 }
 
-Method::Method(const std::string& inMethodName, const Class* inReturnType, const Delegate<void*(void*, const List<void*>&)>& inInvoker, const List<MethodArgument>& inArguments)
+Method::Method(const std::string& inMethodName, const Type* inReturnType, const Delegate<void*(void*, const List<void*>&)>& inInvoker, const List<MethodArgument>& inArguments)
 {
     myMethodName = inMethodName;
     myReturnType = inReturnType;

@@ -121,10 +121,10 @@ void Editor::BeginMainDockSpace()
 
 void Editor::AddEditorWindows()
 {
-    const Class* editorWindowClass = ReflectionSystem::GetClass<EditorWindow>();
+    const Type* editorWindowClass = ReflectionSystem::GetClass<EditorWindow>();
 
     EditorToolbar* toolbar = GetSystem<EditorToolbar>();
-    for (const Class* entry : editorWindowClass->GetDerivedClasses())
+    for (const Type* entry : editorWindowClass->GetDerivedTypes())
     {
         AddWindow(entry);
 
@@ -138,9 +138,9 @@ void Editor::AddEditorWindows()
 
 void Editor::AddEditorSystems()
 {
-    const Class* editorSystemClass = ReflectionSystem::GetClass<EditorSystem>();
+    const Type* editorSystemClass = ReflectionSystem::GetClass<EditorSystem>();
 
-    for (const Class* entry : editorSystemClass->GetDerivedClasses())
+    for (const Type* entry : editorSystemClass->GetDerivedTypes())
     {
         EditorSystem* system = entry->CreateInstance<EditorSystem>();
         system->myID = myNextID++;
@@ -148,7 +148,7 @@ void Editor::AddEditorSystems()
     }
 }
 
-void Editor::AddWindow(const Class* inWindowClass)
+void Editor::AddWindow(const Type* inWindowClass)
 {
     EditorWindow* window = inWindowClass->CreateInstance<EditorWindow>();
     window->myID = myNextID++;

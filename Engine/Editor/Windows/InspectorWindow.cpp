@@ -7,7 +7,7 @@
 #include "Engine/Components/TransformComponent.h"
 #include "Engine/ComponentSystem/Component.h"
 #include "Engine/ComponentSystem/GameObject.h"
-#include "Engine/Reflection/Class.h"
+#include "Engine/Reflection/Type.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 
 InspectorWindow::InspectorWindow()
@@ -58,7 +58,7 @@ void InspectorWindow::Tick()
 void InspectorWindow::DrawComponentProperties(Component* inComponent)
 {
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    const Class* componentClass = ReflectionSystem::GetClass(inComponent);
+    const Type* componentClass = ReflectionSystem::GetClass(inComponent);
     bool isOpen = ImGui::CollapsingHeader(componentClass->GetName().c_str());
 
     if (isOpen)

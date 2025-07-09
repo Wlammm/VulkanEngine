@@ -69,7 +69,7 @@
 #include "../Engine/Physics\PhysicsQueryStructs.h"
 #include "../Engine/Physics\PhysicsSystem.h"
 #include "../Engine/Physics\PhysXInclude.h"
-#include "../Engine/Reflection\Class.h"
+#include "../Engine/Reflection\Type.h"
 #include "../Engine/Reflection\Field.h"
 #include "../Engine/Reflection\ReflectionSystem.h"
 #include "../Engine/Rendering\DebugPipeline.h"

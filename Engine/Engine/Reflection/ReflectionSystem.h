@@ -1,14 +1,14 @@
 ﻿#pragma once
-#include "Class.h"
+#include "Type.h"
 
 class ReflectionSystem 
 {
 public:
-    static const List<Class*>& GetAllClasses();
+    static const List<Type*>& GetAllClasses();
 
-    static const Class* GetClassByName(const std::string& inName)
+    static const Type* GetClassByName(const std::string& inName)
     {
-        for (const Class* entry : myClasses)
+        for (const Type* entry : myTypes)
         {
             if (entry->GetName() == inName)
                 return entry;
@@ -16,9 +16,9 @@ public:
         return nullptr;
     }
 
-    static const Class* GetClassByFullName(const std::string& inFullName)
+    static const Type* GetClassByFullName(const std::string& inFullName)
     {
-        for (const Class* entry : myClasses)
+        for (const Type* entry : myTypes)
         {
             if (entry->GetFullName() == inFullName)
                 return entry;
@@ -27,11 +27,11 @@ public:
     }
 
     template <typename ClassType>
-    static const Class* GetClass()
+    static const Type* GetClass()
     {
         const std::string typeName = typeid(ClassType).name();
 
-        for (const Class* entry : myClasses)
+        for (const Type* entry : myTypes)
         {
             if (entry->GetFullName() == typeName)
                 return entry;
@@ -41,10 +41,10 @@ public:
     }
 
     template <typename ClassType>
-    static const Class* GetClass(const ClassType* inInstance)
+    static const Type* GetClass(const ClassType* inInstance)
     {
         const std::string typeName = typeid(*inInstance).name();
-        for (const Class* entry : myClasses)
+        for (const Type* entry : myTypes)
         {
             if (entry->GetFullName() == typeName)
                 return entry;
@@ -56,7 +56,7 @@ private:
     friend class GeneratedReflectionData;
 
     template <typename ClassType>
-    static void AddClass(const std::string& inClassName, const std::string& inFullName)
+    static void AddType(const std::string& inTypeName, const std::string& inFullName)
     {
         constexpr size_t classSize = []() constexpr
         {
@@ -67,40 +67,49 @@ private:
         }();
 
         // Make sure we dont have duplicate classes.
-        for (const Class* entry : myClasses)
+        for (const Type* entry : myTypes)
         {
             check(entry->myFullName != inFullName);
         }
 
         if constexpr (std::is_default_constructible_v<ClassType> && !std::is_abstract_v<ClassType>)
-            myClasses.Add(new Class(inClassName, inFullName, classSize, std::is_trivially_copyable_v<ClassType>,
-                []() -> void* { return new typename std::remove_const<ClassType>::type(); }));
+        {
+            myTypes.Add(new Type(inTypeName, inFullName, classSize, std::is_trivially_copyable_v<ClassType>,
+                []() -> void* { return new typename std::remove_const<ClassType>::type(); },
+                [](void* destination){ new (destination) typename std::remove_const<ClassType>::type(); }));
+        }
         else
-            myClasses.Add(new Class(inClassName, inFullName, classSize, std::is_trivially_copyable_v<ClassType>,
+        {
+            myTypes.Add(new Type(inTypeName, inFullName, classSize, std::is_trivially_copyable_v<ClassType>,
                 []() -> void*
                 {
                     check(false && "Class is not default constructible or abstract. Make sure you have implemented an empty constructor and all pure virtual methods!");
                     return nullptr;
+                },
+            [](void*)
+                {
+                    check(false && "PlacementNew not supported for this type!");
                 }));
+        }
     }
 
     template <typename ClassType>
-    static const Class* GetOrCreateClass(const std::string& inClassName)
+    static const Type* GetOrCreateType(const std::string& inTypeName)
     {
-        const Class* retrievedClass = GetClass<ClassType>();
+        const Type* retrievedClass = GetClass<ClassType>();
         if (retrievedClass)
             return retrievedClass;
 
-        AddClass<ClassType>(inClassName, typeid(ClassType).name());
-        std::cout << "Creating class " << inClassName << std::endl;
-        return myClasses.Last();
+        AddType<ClassType>(inTypeName, typeid(ClassType).name());
+        std::cout << "Creating class " << inTypeName << std::endl;
+        return myTypes.Last();
     }
 
     template <typename ClassType>
-    static Class* GetMutableClass()
+    static Type* GetMutableType()
     {
         const std::string typeName = typeid(ClassType).name();
-        for (Class* entry : myClasses)
+        for (Type* entry : myTypes)
         {
             if (entry->GetFullName() == typeName)
                 return entry;
@@ -109,5 +118,5 @@ private:
         return nullptr;
     }
 
-    inline static List<Class*> myClasses{};
+    inline static List<Type*> myTypes{};
 };

@@ -337,7 +337,6 @@ void ReflectionParser::BuildCommandLineArgs(std::vector<const char*>& outCommand
     outCommandLineArgs.push_back("-I");
     outCommandLineArgs.push_back("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/include");
 
-    outCommandLineArgs.push_back("-DNDEBUG=1");
     outCommandLineArgs.push_back("-DREFLECTION_GENERATION=1");
 
     for (const std::string& includeArg : myIncludePaths.GetIncludeArguments())

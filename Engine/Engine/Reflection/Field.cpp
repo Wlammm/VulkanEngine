@@ -1,7 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "Field.h"
 
-#include "Class.h"
+#include "Type.h"
 
 const std::string& Field::GetName() const
 {
@@ -13,7 +13,7 @@ uint Field::GetOffset() const
     return myOffset;
 }
 
-const Class* Field::GetClass() const
+const Type* Field::GetType() const
 {
     return myType;
 }
@@ -74,7 +74,7 @@ List<std::string> Field::GetMetadataArgs(const std::string& inMetadata) const
 }
 
 
-Field::Field(const std::string& inName, const uint inOffset, const Class* inType, const bool inIsPointer, const bool inIsReference)
+Field::Field(const std::string& inName, const uint inOffset, const Type* inType, const bool inIsPointer, const bool inIsReference)
 {
     myName = inName;
     myOffset = inOffset;

@@ -129,7 +129,7 @@ void World::SaveToFile(const std::filesystem::path& inPath)
 {
 	BinarySerializer writer(inPath, BinarySerializer::Mode::Write);
 	// writer.WriteClass(this, Engine::GetReflectionSystem().GetClass(this));
-	writer.SerializeClass(GetComponentSystem());
+	writer.SerializeType(GetComponentSystem());
 	writer.Close();
 }
 

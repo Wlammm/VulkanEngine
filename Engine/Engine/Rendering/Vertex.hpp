@@ -2,11 +2,17 @@
 
 struct Vertex
 {
+	META(SerializeField)
 	glm::vec3 myPosition; // x, y, z
+	META(SerializeField)
 	int32_t myColor;
+	META(SerializeField)
 	glm::vec3 myNormal; // x, y, z 
+	META(SerializeField)
 	glm::vec3 myTangents; // x, y, z
+	META(SerializeField)
 	glm::vec3 myBinormals; // x, y, z
+	META(SerializeField)
 	glm::vec2 myTexCoords[2];
 	
 	void PackColor(const glm::vec4& inColor)

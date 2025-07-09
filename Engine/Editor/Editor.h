@@ -2,7 +2,7 @@
 #include "Engine/Delegates/Delegate.hpp"
 
 class AssetRegistry;
-class Class;
+class Type;
 
 class Editor
 {
@@ -44,7 +44,7 @@ private:
 	void AddEditorWindows();
 	void AddEditorSystems();
 
-	void AddWindow(const Class* inWindowClass);
+	void AddWindow(const Type* inWindowClass);
 
 private:
 	List<class EditorWindow*> myWindows{};

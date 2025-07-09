@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Engine/Engine.h"
-#include "Engine/Reflection/Class.h"
+#include "Engine/Reflection/Type.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 #include "TypeSerializers/TypeSerializer.h"
 
@@ -32,41 +32,43 @@ public:
     }
 
     template <typename ClassType>
-    void SerializeClass(ClassType& inOutInstance)
+    void SerializeType(ClassType& inOutInstance)
     {
-        myWasLastClassSerializationFullyComplete = true;
-        SerializeClassInternal(inOutInstance);
+        myWasLastTypeSerializationFullyComplete = true;
+        SerializeTypeInternal(inOutInstance);
     }
 
-    void SerializeClass(void* inOutInstance, const Class* inClass, const bool inIsPointer);
+    void SerializeType(void* inOutInstance, const Type* inType, const bool inIsPointer);
 
     // Returns true if last serialization was fully complete. No fields failed to serialize.
-    bool WasLastClassSerializationFullyComplete() const;
+    bool WasLastTypeSerializationFullyComplete() const;
     
     void SerializeString(std::string& inOutString);
 
     void SerializeBinaryData(void* inOutInstance, const int inSize);
 
 private:
+    inline static MutexList<std::string> missingTypesAlreadyWarnedAbout{};
+    
     friend class TypeSerializer;
     
     template <typename ClassType>
-    void SerializeClassInternal(ClassType& inOutInstance)
+    void SerializeTypeInternal(ClassType& inOutInstance)
     {
         void* instance = (void*)&inOutInstance;
-        const Class* type = ReflectionSystem::GetClass<std::remove_pointer_t<ClassType>>();
+        const Type* type = ReflectionSystem::GetClass<std::remove_pointer_t<ClassType>>();
         check(type && "Failed to find class type.");
         bool isPointer = std::is_pointer<ClassType>::value;
 
         static_assert(!std::is_reference_v<ClassType> && "SerializeClass does not support reference types.");
 
-        SerializeClassInternal(instance, type, isPointer);
+        SerializeTypeInternal(instance, type, isPointer);
     }
 
-    void SerializeClassInternal(void* inOutInstance, const Class* inClass, const bool inIsPointer);
+    void SerializeTypeInternal(void* inOutInstance, const Type* inType, const bool inIsPointer);
     
-    void ReadClass(void* outInstance, const Class* inClass, const bool inIsPointer);
-    void WriteClass(void* inInstance, const Class* inClass, const bool inIsPointer);
+    void ReadType(void* outInstance, const Type* inType, const bool inIsPointer);
+    void WriteType(void* inInstance, const Type* inType, const bool inIsPointer);
 
     void WriteBinaryData(void* inInstance, const int inSize);
     void ReadBinaryData(void* outInstance, const int inSize);
@@ -100,7 +102,7 @@ private:
     size_t myReadOffset = 0;
 
     // Returns true if all fields were serialized correctly.
-    bool myWasLastClassSerializationFullyComplete = true;
+    bool myWasLastTypeSerializationFullyComplete = true;
 
     Mode myMode;
 };

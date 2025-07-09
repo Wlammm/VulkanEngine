@@ -4,7 +4,7 @@
 class PathSerializer : public TypeSerializer
 {
 public:
-    bool SerializesType(const Class* inClass) const override;
+    bool SerializesType(const Type* inClass) const override;
 
-    void Serialize(void* inInstance, const Class* inClass, BinarySerializer* inSerializer) override;
+    void Serialize(void* inInstance, const Type* inClass, BinarySerializer* inSerializer) override;
 };

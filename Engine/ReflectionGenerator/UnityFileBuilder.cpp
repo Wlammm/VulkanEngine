@@ -25,7 +25,7 @@ const std::string& UnityFileBuilder::GetPath() const
 
 bool UnityFileBuilder::HasFilesToCompile() const
 {
-    return !myHeaders.empty();
+    return myHasFilesToCompile;
 }
 
 void UnityFileBuilder::FindAllHeadersToReflectInDirectory(const std::string& inDirectory, const ReflectionCache& inReflectionCache, std::vector<std::string>& outHeaders)
@@ -35,13 +35,16 @@ void UnityFileBuilder::FindAllHeadersToReflectInDirectory(const std::string& inD
         std::cout << "ReflectionJobScheduler::FindAllHeadersInDirectory - inDirectory doesnt exists or isnt a directory." << std::endl;
         return;
     }
-    
+
     for (const std::filesystem::directory_entry& entry : std::filesystem::recursive_directory_iterator(inDirectory))
     {
         if (std::filesystem::is_regular_file(entry) && (entry.path().extension() == ".h" || entry.path().extension() == ".hpp"))
         {
-            if (inReflectionCache.IsCacheValidForFile(entry.path().string()))
-                continue;
+            if (!inReflectionCache.IsCacheValidForFile(entry.path().string()))
+            {
+                // TODO: The reflection system sometimes breaks for template instantiations as their declaration might not be part of the compile. For now we regenerate for the whole project as skipping some classes are neglible performance wise..
+                myHasFilesToCompile = true;
+            }
             
             outHeaders.push_back(entry.path().string());
         }

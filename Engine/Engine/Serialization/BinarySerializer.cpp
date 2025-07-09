@@ -9,6 +9,8 @@ BinarySerializer::BinarySerializer(const std::filesystem::path& inPath, const Mo
     if (IsWriting())
     {
         myIsStreamOpen = true;
+        if (!std::filesystem::exists(inPath.parent_path()))
+            std::filesystem::create_directories(inPath.parent_path());
         myOutputStream = new std::ofstream(myPath,std::ios::binary);
     }
     else
@@ -61,23 +63,23 @@ void BinarySerializer::Close()
     myIsStreamOpen = false;
 }
 
-void BinarySerializer::SerializeClassInternal(void* inOutInstance, const Class* inClass, const bool inIsPointer)
+void BinarySerializer::SerializeTypeInternal(void* inOutInstance, const Type* inType, const bool inIsPointer)
 {
     if (IsReading())
-        ReadClass(inOutInstance, inClass, inIsPointer);
+        ReadType(inOutInstance, inType, inIsPointer);
     else
-        WriteClass(inOutInstance, inClass, inIsPointer);
+        WriteType(inOutInstance, inType, inIsPointer);
 }
 
-void BinarySerializer::SerializeClass(void* inOutInstance, const Class* inClass, const bool inIsPointer)
+void BinarySerializer::SerializeType(void* inOutInstance, const Type* inType, const bool inIsPointer)
 {
-    myWasLastClassSerializationFullyComplete = true;
-    SerializeClassInternal(inOutInstance, inClass, inIsPointer);
+    myWasLastTypeSerializationFullyComplete = true;
+    SerializeTypeInternal(inOutInstance, inType, inIsPointer);
 }
 
-bool BinarySerializer::WasLastClassSerializationFullyComplete() const
+bool BinarySerializer::WasLastTypeSerializationFullyComplete() const
 {
-    return myWasLastClassSerializationFullyComplete;
+    return myWasLastTypeSerializationFullyComplete;
 }
 
 void BinarySerializer::SerializeString(std::string& inOutString)
@@ -96,18 +98,18 @@ void BinarySerializer::SerializeBinaryData(void* inOutInstance, const int inSize
         WriteBinaryData(inOutInstance, inSize);
 }
 
-void BinarySerializer::ReadClass(void* outInstance, const Class* inClass, const bool inIsPointer)
+void BinarySerializer::ReadType(void* outInstance, const Type* inType, const bool inIsPointer)
 {
     if (inIsPointer)
-        outInstance = inClass->CreateInstance<void>();
+        outInstance = inType->CreateInstance<void>();
 
     int fieldCount = 0;
     ReadCopyable(fieldCount);
 
-    const List<Field> serializableFields = inClass->GetFieldsWithMetadata("SerializeField");
+    const List<Field> serializableFields = inType->GetFieldsWithMetadata("SerializeField");
     // Not all serializable fields were saved.
     if (serializableFields.size() != fieldCount)
-        myWasLastClassSerializationFullyComplete = false;
+        myWasLastTypeSerializationFullyComplete = false;
     
     for (int i = 0; i < fieldCount; ++i)
     {
@@ -120,25 +122,25 @@ void BinarySerializer::ReadClass(void* outInstance, const Class* inClass, const 
         int fieldSize = 0;
         ReadCopyable(fieldSize);
 
-        const Field* field = inClass->FindFieldByName(fieldName);
+        const Field* field = inType->FindFieldByName(fieldName);
 
-        if (!field || field->GetClass()->GetName() != fieldTypeName)
+        if (!field || field->GetType()->GetName() != fieldTypeName)
         {
-            LOG("BinarySerializer::ReadClass - Failed to find field: %s %s in class %s.", fieldName.c_str(), fieldTypeName.c_str(), inClass->GetName().c_str());
+            LOG("BinarySerializer::ReadClass - Failed to find field: %s %s in class %s.", fieldName.c_str(), fieldTypeName.c_str(), inType->GetName().c_str());
             myReadOffset += fieldSize;
-            myWasLastClassSerializationFullyComplete = false;
+            myWasLastTypeSerializationFullyComplete = false;
             continue;
         }
 
         if (!field->HasMetadata("SerializeField"))
         {
-            LOG("BinarySerializer::ReadClass - Field is no longer serializable: : %s %s in class %s.", fieldName.c_str(), fieldTypeName.c_str(), inClass->GetName().c_str());
+            LOG("BinarySerializer::ReadClass - Field is no longer serializable: : %s %s in class %s.", fieldName.c_str(), fieldTypeName.c_str(), inType->GetName().c_str());
             myReadOffset += fieldSize;
-            myWasLastClassSerializationFullyComplete = false;
+            myWasLastTypeSerializationFullyComplete = false;
             continue;
         }
 
-        const Class* fieldClass = field->GetClass();
+        const Type* fieldClass = field->GetType();
         void* fieldPtr = field->GetPointerToValue(outInstance);
 
         if (TypeSerializer* customSerializer = TypeSerializer::GetSerializer(fieldClass))
@@ -147,23 +149,31 @@ void BinarySerializer::ReadClass(void* outInstance, const Class* inClass, const 
         }
         else
         {
-            SerializeClassInternal(fieldPtr, fieldClass, field->IsPointer());
+            SerializeTypeInternal(fieldPtr, fieldClass, field->IsPointer());
         }
     }
 }
 
-void BinarySerializer::WriteClass(void* inInstance, const Class* inClass, const bool inIsPointer)
+void BinarySerializer::WriteType(void* inInstance, const Type* inType, const bool inIsPointer)
 {
-    const List<Field> fieldsToSerialize = inClass->GetFieldsWithMetadata("SerializeField");
+    check(inType);
+    
+    const List<Field> fieldsToSerialize = inType->GetFieldsWithMetadata("SerializeField");
     int fieldCount = fieldsToSerialize.size();
     WriteCopyable(fieldCount);
 
+    if (fieldCount == 0 && !missingTypesAlreadyWarnedAbout.Contains(inType->GetName()) && inType->GetName() != "")
+    {
+        missingTypesAlreadyWarnedAbout.Add(std::string(inType->GetName()));
+        LOG_WARNING("BinarySerializer - %s contains 0 serializable fields. Should this type have a TypeSerializer?", inType->GetName().c_str());
+    }
+    
     for (const Field& field : fieldsToSerialize)
     {
         std::string fieldName = field.GetName();
         WriteString(fieldName);
 
-        const Class* fieldClass = field.GetClass();
+        const Type* fieldClass = field.GetType();
         std::string fieldTypeName = fieldClass->GetName();
         WriteString(fieldTypeName);
 
@@ -178,7 +188,7 @@ void BinarySerializer::WriteClass(void* inInstance, const Class* inClass, const 
         }
         else
         {
-            tempSerializer.SerializeClassInternal(fieldPtr, fieldClass, field.IsPointer());
+            tempSerializer.SerializeTypeInternal(fieldPtr, fieldClass, field.IsPointer());
         }
 
         std::string fieldBytes = fieldBufferStream.str();

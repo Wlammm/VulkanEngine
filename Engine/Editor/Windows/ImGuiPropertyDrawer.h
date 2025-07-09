@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/Delegates/Delegate.hpp"
 
-class Class;
+class Type;
 class Field;
 
 class ImGuiPropertyDrawer
@@ -12,7 +12,7 @@ public:
     static void RegisterDrawers();
     
     template<typename T>
-    static void RegisterDrawer(const Class* type, Delegate<bool(T&, const Field& inField)> inDrawer)
+    static void RegisterDrawer(const Type* type, Delegate<bool(T&, const Field& inField)> inDrawer)
     {
         myDrawers[type] = [inDrawer](void* data, const Field& inField) -> bool
         {
@@ -25,5 +25,5 @@ public:
     static bool DrawProperty(const Field& inField, void* inInstance);
 
 private:
-    static inline std::unordered_map<const Class*, DrawerFunc> myDrawers;
+    static inline std::unordered_map<const Type*, DrawerFunc> myDrawers;
 };

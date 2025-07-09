@@ -390,9 +390,7 @@ private:
 			{
 				for (ListSizeType i = 0; i < mySize; ++i)
 				{
-					// Use move constructor for non-trivial types
 					new (myPtr + i) ElementType(std::move(oldPtr[i]));
-					// Explicitly destroy the old element
 					oldPtr[i].~ElementType();
 				}
 			}

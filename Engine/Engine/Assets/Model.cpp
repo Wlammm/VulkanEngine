@@ -7,7 +7,7 @@
 
 #include "Engine/Engine.h"
 #include "Engine/Coroutines/Awaitable.h"
-#include "Engine/Reflection/Class.h"
+#include "Engine/Reflection/Type.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
 #include "Engine/Rendering/Mesh.h"
@@ -82,16 +82,16 @@ bool Model::IsCached(const CachePath& inPath)
 
 bool Model::TryLoadModelDataFromCache(const CachePath& inPath, SerializationModelData& outModelData)
 {
-	if (!std::filesystem::exists(ConvertToCachePath(inPath)))
+	if (!std::filesystem::exists(inPath))
 		return false;
 
 	BinarySerializer serializer(inPath, BinarySerializer::Mode::Read);
 	
 	SerializationModelData modelData;
-	serializer.SerializeClass(modelData);
+	serializer.SerializeType(modelData);
 
 	// Structure has failed and some fields failed to serialize correctly. 
-	if (!serializer.WasLastClassSerializationFullyComplete())
+	if (!serializer.WasLastTypeSerializationFullyComplete())
 		return false;
 
 	check(std::filesystem::exists(modelData.mySourceFilePath) && "Attempting to access cached model data with deleted source asset.");
@@ -107,7 +107,7 @@ bool Model::TryLoadModelDataFromCache(const CachePath& inPath, SerializationMode
 void Model::SaveModelDataToCache(const std::filesystem::path& inPath, SerializationModelData& inModelData)
 {
 	BinarySerializer serializer(inPath, BinarySerializer::Mode::Write);
-	serializer.SerializeClass(inModelData);
+	serializer.SerializeType(inModelData);
 }
 
 SerializationModelData Model::LoadModelDataFromSourceFile(const std::filesystem::path& inPath)
@@ -115,6 +115,7 @@ SerializationModelData Model::LoadModelDataFromSourceFile(const std::filesystem:
 	//ZoneScoped;
 	SerializationModelData modelData{};
 	modelData.mySourceFilePath = inPath;
+	modelData.myLastCachedWriteTime = std::filesystem::last_write_time(inPath);
 	
 	static thread_local Assimp::Importer myImporter{};
 	
