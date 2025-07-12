@@ -26,13 +26,13 @@ void HierarchyWindow::Tick()
 
     for (int objectIndex = 0; objectIndex < Engine::GetWorld().GetComponentSystem().GetAllGameObjects().size(); ++objectIndex)
     {
-        GameObject* gameObject = Engine::GetWorld().GetComponentSystem().GetAllGameObjects()[objectIndex];
+        const GameObject& gameObject = Engine::GetWorld().GetComponentSystem().GetAllGameObjects()[objectIndex];
 
-        const std::string lowerCaseGameObjectName = String::ToLowerCopy(gameObject->GetName());
+        const std::string lowerCaseGameObjectName = String::ToLowerCopy(gameObject.GetName());
         if (lowerCaseSearch != "" && lowerCaseGameObjectName.find(lowerCaseSearch) == std::string::npos)
             continue;
         
-        std::string nameID = gameObject->GetName() + "##" + std::to_string(objectIndex);
+        std::string nameID = gameObject.GetName() + "##" + std::to_string(objectIndex);
         if (ImGui::Selectable(nameID.c_str(), SelectionSystem::IsObjectSelected(gameObject), ImGuiSelectableFlags_AllowDoubleClick))
         {
             if (!Input::IsKeyPressed(KeyCode::LeftControl))

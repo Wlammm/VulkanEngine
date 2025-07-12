@@ -51,56 +51,56 @@ void World::Init()
 	//camObject->AddComponent<EditorCameraMovementComponent>();
 
 	{
-		GameObject* sponza = GetComponentSystem().CreateGameObject("Sponza");
-		sponza->GetTransform()->SetPositionY(2000);
-		StaticMeshComponent* staticMesh = sponza->AddComponent<StaticMeshComponent>();
+		GameObject sponza = GetComponentSystem().CreateGameObject("Sponza");
+		sponza.GetTransform()->SetPositionY(2000);
+		StaticMeshComponent* staticMesh = sponza.AddComponent<StaticMeshComponent>();
 		myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/Sponza.gltf", [staticMesh, sponza](Model* inModel)
 		{
 			staticMesh->SetModel(inModel);
 		});
-		sponza->GetTransform()->SetScale(100.0f);
+		sponza.GetTransform()->SetScale(100.0f);
 	}
 
 	{
-		GameObject* sponza = GetComponentSystem().CreateGameObject("Sponza2");
-		sponza->GetTransform()->SetPosition(5000, 2000, 0);
-		StaticMeshComponent* staticMesh = sponza->AddComponent<StaticMeshComponent>();
+		GameObject sponza = GetComponentSystem().CreateGameObject("Sponza2");
+		sponza.GetTransform()->SetPosition(5000, 2000, 0);
+		StaticMeshComponent* staticMesh = sponza.AddComponent<StaticMeshComponent>();
 		myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/Sponza.gltf", [staticMesh, sponza](Model* inModel)
 		{
 			staticMesh->SetModel(inModel);
-			//sponza->AddComponent<MeshColliderComponent>()->SetModel(inModel);
+			//sponza.AddComponent<MeshColliderComponent>()->SetModel(inModel);
 		});
-		sponza->GetTransform()->SetScale(100.0f);
+		sponza.GetTransform()->SetScale(100.0f);
 	}
 	
-	GameObject* landscape = GetComponentSystem().CreateGameObject("Landscape");
-	landscape->AddComponent<LandscapeRenderComponent>();
-	landscape->AddComponent<LandscapeColliderComponent>();
+	GameObject landscape = GetComponentSystem().CreateGameObject("Landscape");
+	landscape.AddComponent<LandscapeRenderComponent>();
+	landscape.AddComponent<LandscapeColliderComponent>();
 
 	GetAssetRegistry().GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [&](Model* inModel)
 	{
 		for (int i =0; i < 50; ++i)
 		{
-			GameObject* cube = GetComponentSystem().CreateGameObject("Cube");
-			cube->GetTransform()->SetPosition(glm::vec3{(float)i * 100, 10000, 0});
-			cube->AddComponent<StaticMeshComponent>()->SetModel(inModel);
-			cube->AddComponent<BoxColliderComponent>();
-			cube->AddComponent<RigidbodyComponent>();
+			GameObject cube = GetComponentSystem().CreateGameObject("Cube");
+			cube.GetTransform()->SetPosition(glm::vec3{(float)i * 100, 10000, 0});
+			cube.AddComponent<StaticMeshComponent>()->SetModel(inModel);
+			cube.AddComponent<BoxColliderComponent>();
+			cube.AddComponent<RigidbodyComponent>();
 		}
 	});
 	
-	GameObject* dirLightObject = GetComponentSystem().CreateGameObject("DirectionalLight");
-	DirectionalLightComponent* light = dirLightObject->AddComponent<DirectionalLightComponent>();
-	dirLightObject->GetTransform()->SetRotationDeg(321, 314, -50);
+	GameObject dirLightObject = GetComponentSystem().CreateGameObject("DirectionalLight");
+	DirectionalLightComponent* light = dirLightObject.AddComponent<DirectionalLightComponent>();
+	dirLightObject.GetTransform()->SetRotationDeg(321, 314, -50);
 	light->SetColor({1, 168/255.0, 120/255.0, 1});
 
 	glm::vec3 startPosition = glm::vec3(-800.0f, 50.0f, -35.0f);
 	for (int i = 0; i < 5; i++)
 	{
-		GameObject* pointLightObject = GetComponentSystem().CreateGameObject("PointLight");
-		PointLightComponent* pointLight = pointLightObject->AddComponent<PointLightComponent>();
+		GameObject pointLightObject = GetComponentSystem().CreateGameObject("PointLight");
+		PointLightComponent* pointLight = pointLightObject.AddComponent<PointLightComponent>();
 		
-		const auto& transform = pointLightObject->GetTransform();
+		const auto& transform = pointLightObject.GetTransform();
 		transform->SetPosition(startPosition);
 		transform->Move(glm::right() * (i * 400.0f));
 
@@ -238,27 +238,6 @@ DirectionalLightComponent* World::GetDirectionalLight() const
 ComponentSystem& World::GetComponentSystem() const
 {
 	return GetWorldSystem<ComponentSystem>();
-}
-
-void World::ToggleCactus()
-{
-	LOG("Toggle cactus");
-	if(myCactus)
-	{
-		myCactus->Destroy();
-		myCactus = nullptr;
-		return;
-	}
-	
-	myCactus  = GetComponentSystem().CreateGameObject("Cactus");
-	myCactus->GetTransform()->SetPosition(0, 100, 0);
-	myAssetRegistry->GetAssetAsync<Model>("Assets/Cactus.fbx", [this](Model* inModel)
-	{
-		myCactus->AddComponent<StaticMeshComponent>()->SetModel(inModel);
-		myCactus->GetTransform()->SetScale(10, 1, 1);
-		myCactus->AddComponent<MeshColliderComponent>()->SetModel(inModel);
-		myCactus->GetTransform()->SetScale(10, 1, 10);
-	});
 }
 
 void World::CreateWorldSystems()

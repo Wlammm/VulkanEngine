@@ -11,16 +11,31 @@ void ComponentSystem::Tick()
         array->Tick();
     }
 
-    for(GameObject* gameObject : myObjectsToDestory)
+    for(GameObjectID& gameObjectID : myObjectsToDestory)
     {
+        // TODO: This might cause performance issues. Consider extracting the methods to a utils class that both can use. 
+        GameObject gameObject = GameObject(gameObjectID);
+        
+        // Remove all components.
+        for(Component* comp : gameObject.GetComponents())
+        {
+            comp->OnDestroy();
+        }
+    
+        const List<IComponentArray*>& arrays = gameObject.GetComponentSystem()->GetAllComponentArrays();
+        for(IComponentArray* array : arrays)
+        {
+            array->TryRemoveComponentForGameObject(gameObject);
+        }
+
+        myGameObjectData.erase(gameObject);
         myObjects.Remove(gameObject);
-        delete gameObject;
     }
     myObjectsToDestory.Clear();
 
-    for (GameObject* gameObject : myObjects)
+    for (GameObjectID& id : myObjects)
     {
-        gameObject->ResetRenderStateDirtyFlag();
+        GetGameObjectData(id).myRenderStateDirty = false;
     }
 }
 
@@ -33,7 +48,7 @@ void ComponentSystem::TickPhysics()
     }
 }
 
-void ComponentSystem::OnCollisionEnterForGameObject(GameObject* inObject, GameObject* inOther)
+void ComponentSystem::OnCollisionEnterForGameObject(const GameObject& inObject, const GameObject& inOther)
 {
     for(IComponentArray* array : myComponentArrays)
     {
@@ -41,7 +56,7 @@ void ComponentSystem::OnCollisionEnterForGameObject(GameObject* inObject, GameOb
     }
 }
 
-void ComponentSystem::OnCollisionForGameObject(GameObject* inObject, GameObject* inOther)
+void ComponentSystem::OnCollisionForGameObject(const GameObject& inObject, const GameObject& inOther)
 {
     for(IComponentArray* array : myComponentArrays)
     {
@@ -49,7 +64,7 @@ void ComponentSystem::OnCollisionForGameObject(GameObject* inObject, GameObject*
     }
 }
 
-void ComponentSystem::OnCollisionExitForGameObject(GameObject* inObject, GameObject* inOther)
+void ComponentSystem::OnCollisionExitForGameObject(const GameObject& inObject, const GameObject& inOther)
 {
     for(IComponentArray* array : myComponentArrays)
     {
@@ -57,7 +72,7 @@ void ComponentSystem::OnCollisionExitForGameObject(GameObject* inObject, GameObj
     }
 }
 
-void ComponentSystem::OnTriggerEnterForGameObject(GameObject* inObject, GameObject* inOther)
+void ComponentSystem::OnTriggerEnterForGameObject(const GameObject& inObject, const GameObject& inOther)
 {
     for(IComponentArray* array : myComponentArrays)
     {
@@ -65,7 +80,7 @@ void ComponentSystem::OnTriggerEnterForGameObject(GameObject* inObject, GameObje
     }
 }
 
-void ComponentSystem::OnTriggerForGameObject(GameObject* inObject, GameObject* inOther)
+void ComponentSystem::OnTriggerForGameObject(const GameObject& inObject, const GameObject& inOther)
 {
     for(IComponentArray* array : myComponentArrays)
     {
@@ -73,7 +88,7 @@ void ComponentSystem::OnTriggerForGameObject(GameObject* inObject, GameObject* i
     }
 }
 
-void ComponentSystem::OnTriggerExitForGameObject(GameObject* inObject, GameObject* inOther)
+void ComponentSystem::OnTriggerExitForGameObject(const GameObject& inObject, const GameObject& inOther)
 {
     for(IComponentArray* array : myComponentArrays)
     {
@@ -81,24 +96,25 @@ void ComponentSystem::OnTriggerExitForGameObject(GameObject* inObject, GameObjec
     }
 }
 
-GameObject* ComponentSystem::CreateGameObject(const std::string& inObjectName)
+GameObject ComponentSystem::CreateGameObject(const std::string& inObjectName)
 {
-    GameObject* gameObject = new GameObject();
-    gameObject->myComponentSystem = this;
+    GameObject gameObject = GameObject(UniqueID::GenerateUniqueID());
+    GameObjectData& gameObjectData = myGameObjectData.emplace(gameObject, GameObjectData()).first->second;
+    gameObjectData.myComponentSystem = this;
 #if DEBUG_GAMEOBJECT_NAMES
-    gameObject->myName = inObjectName;
+    gameObjectData.myName = inObjectName;
 #endif
     myObjects.Add(gameObject);
-    gameObject->myTransform = gameObject->AddComponent<TransformComponent>();
+    gameObjectData.myTransform = gameObject.AddComponent<TransformComponent>();
     return gameObject;
 }
 
-void ComponentSystem::DestroyGameObject(GameObject* inGameObject)
+void ComponentSystem::DestroyGameObject(const GameObject& inGameObject)
 {
     myObjectsToDestory.Add(inGameObject);
 }
 
-const List<GameObject*>& ComponentSystem::GetAllGameObjects() const
+const List<GameObjectID>& ComponentSystem::GetAllGameObjects() const
 {
     return myObjects;
 }
@@ -106,4 +122,9 @@ const List<GameObject*>& ComponentSystem::GetAllGameObjects() const
 const List<IComponentArray*>& ComponentSystem::GetAllComponentArrays() const
 {
     return myComponentArrays;
+}
+
+GameObjectData& ComponentSystem::GetGameObjectData(const GameObject& inGameObject)
+{
+    return myGameObjectData[inGameObject];
 }

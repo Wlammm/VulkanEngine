@@ -49,7 +49,7 @@ void RigidbodyComponent::OnCreate()
     physicsSystem.QueuePhysicsCommand([this, &physicsSystem](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
         myActor = inPhysics->createRigidDynamic(GetTransform()->AsPxTransform());
-        myActor->userData = GetGameObject();
+        myActor->userData = const_cast<GameObject*>(&GetGameObject());
         
         myActor->setGlobalPose(GetTransform()->AsPxTransform());
 

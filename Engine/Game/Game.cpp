@@ -21,26 +21,26 @@ Game::Game()
     check(myInstance == nullptr);
     myInstance = this;
 
-    GameObject* player = Engine::GetWorld().GetComponentSystem().CreateGameObject("Player");
-    player->GetTransform()->SetPosition(glm::vec3{0, 5000, 0});
-    player->GetTransform()->SetRotationDeg(glm::vec3{0, 0, 0});
-    CharacterControllerComponent* characterController = player->AddComponent<CharacterControllerComponent>();
+    GameObject player = Engine::GetWorld().GetComponentSystem().CreateGameObject("Player");
+    player.GetTransform()->SetPosition(glm::vec3{0, 5000, 0});
+    player.GetTransform()->SetRotationDeg(glm::vec3{0, 0, 0});
+    CharacterControllerComponent* characterController = player.AddComponent<CharacterControllerComponent>();
     
-    player->AddComponent<PlayerComponent>();
-    StaticMeshComponent* staticMesh = player->AddComponent<StaticMeshComponent>("Assets/Characters/PlayerCharacter/Character.fbx");
+    player.AddComponent<PlayerComponent>();
+    StaticMeshComponent* staticMesh = player.AddComponent<StaticMeshComponent>("Assets/Characters/PlayerCharacter/Character.fbx");
     staticMesh->SetMaterialAsync("Assets/Characters/PlayerCharacter/Character.mat", 0);
     
-    player->AddTags(GameTags::Player);
-    player->GetTransform()->SetScale({1, 1, 1});
+    player.AddTags(GameTags::Player);
+    player.GetTransform()->SetScale({1, 1, 1});
 
-    GameObject* camera =  Engine::GetWorld().GetComponentSystem().CreateGameObject("PlayerCamera");
-    camera->GetTransform()->SetParent(player->GetTransform());
+    GameObject camera =  Engine::GetWorld().GetComponentSystem().CreateGameObject("PlayerCamera");
+    camera.GetTransform()->SetParent(player.GetTransform());
     
-    CameraComponent* cameraComp = camera->AddComponent<CameraComponent>();
+    CameraComponent* cameraComp = camera.AddComponent<CameraComponent>();
     cameraComp->CreatePerspective(Engine::GetRenderResolution());
-    camera->AddComponent<PlayerCameraControllerComponent>();
+    camera.AddComponent<PlayerCameraControllerComponent>();
     
-    SpringArmComponent* springArm = camera->AddComponent<SpringArmComponent>();
+    SpringArmComponent* springArm = camera.AddComponent<SpringArmComponent>();
     springArm->SetLength(400);
     springArm->SetExclusionTags(GameTags::Player);
     springArm->SetOffset({0, 100, 0});

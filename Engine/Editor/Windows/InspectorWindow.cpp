@@ -17,7 +17,7 @@ InspectorWindow::InspectorWindow()
 
 void InspectorWindow::Tick()
 {
-    const List<GameObject*> selectedObjects = SelectionSystem::GetSelectedObjects();
+    const List<GameObject> selectedObjects = SelectionSystem::GetSelectedObjects();
 
     if (selectedObjects.IsEmpty())
     {
@@ -31,22 +31,22 @@ void InspectorWindow::Tick()
         return;
     }
 
-    GameObject* selectedObject = selectedObjects.First();
+    GameObject selectedObject = selectedObjects.First();
 
     ImGui::Text("Name: ");
     ImGui::SameLine();
-    std::string objectName = selectedObject->GetName();
+    std::string objectName = selectedObject.GetName();
     if (ImGui::InputText("##inspectorObjectName", &objectName))
     {
-        selectedObject->SetName(objectName);
+        selectedObject.SetName(objectName);
     }
 
     ImGui::Separator();
 
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    DrawComponentProperties(selectedObject->GetComponent<TransformComponent>());
+    DrawComponentProperties(selectedObject.GetComponent<TransformComponent>());
 
-    for (Component* component : selectedObject->GetComponents())
+    for (Component* component : selectedObject.GetComponents())
     {
         if (component->IsA<TransformComponent>())
             continue;

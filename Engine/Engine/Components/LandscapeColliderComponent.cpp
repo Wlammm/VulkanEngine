@@ -13,12 +13,18 @@
 #include "Engine/Utils/Debug.h"
 #include "Engine/World/World.h"
 
+LandscapeColliderComponent::~LandscapeColliderComponent()
+{
+    GetGameObject().GetOnComponentAdded().UnBind(&LandscapeColliderComponent::OnComponentAdded, this);
+
+}
+
 void LandscapeColliderComponent::OnCreate()
 {
     LandscapeRenderComponent* renderComponent = GetComponent<LandscapeRenderComponent>();
     if(!renderComponent)
     {
-        GetGameObject()->OnComponentAdded.Bind(&LandscapeColliderComponent::OnComponentAdded, this);
+        GetGameObject().GetOnComponentAdded().Bind(&LandscapeColliderComponent::OnComponentAdded, this);
         return;
     }
 

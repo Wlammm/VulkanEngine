@@ -13,16 +13,16 @@ public:
     virtual void Tick() = 0;
     virtual void TickPhysics() = 0;
 
-    virtual void TryRemoveComponentForGameObject(const GameObject* inObject) = 0;
-    virtual class Component* TryGetComponentForGameObject(const GameObject* inObject) = 0;
+    virtual void TryRemoveComponentForGameObject(const GameObject& inObject) = 0;
+    virtual class Component* TryGetComponentForGameObject(const GameObject& inObject) = 0;
     
-    virtual void OnTriggerEnterForGameObject(GameObject* inObject, GameObject* inOther) = 0;
-    virtual void OnTriggerForGameObject(GameObject* inObject, GameObject* inOther) = 0;
-    virtual void OnTriggerExitForGameObject(GameObject* inObject, GameObject* inOther) = 0;
+    virtual void OnTriggerEnterForGameObject(const GameObject& inObject, const GameObject& inOther) = 0;
+    virtual void OnTriggerForGameObject(const GameObject& inObject, const GameObject& inOther) = 0;
+    virtual void OnTriggerExitForGameObject(const GameObject& inObject, const GameObject& inOther) = 0;
     
-    virtual void OnCollisionEnterForGameObject(GameObject* inObject, GameObject* inOther) = 0;
-    virtual void OnCollisionForGameObject(GameObject* inObject, GameObject* inOther) = 0;
-    virtual void OnCollisionExitForGameObject(GameObject* inObject, GameObject* inOther) = 0;
+    virtual void OnCollisionEnterForGameObject(const GameObject& inObject, const GameObject& inOther) = 0;
+    virtual void OnCollisionForGameObject(const GameObject& inObject, const GameObject& inOther) = 0;
+    virtual void OnCollisionExitForGameObject(const GameObject& inObject, const GameObject& inOther) = 0;
 };
 
 #define IMPLEMENTS_METHOD(methodName)\
@@ -68,7 +68,7 @@ public:
         {
             for(ComponentType& component : myComponents)
             {
-                if(component.GetGameObject()->IsRenderStateDirty())
+                if(component.GetGameObject().IsRenderStateDirty())
                 {
                     component.ComponentType::OnRenderStateDirty();
                 }
@@ -95,7 +95,7 @@ public:
         }
     }
 
-    void OnTriggerEnterForGameObject(GameObject* inObject, GameObject* inOther) override
+    void OnTriggerEnterForGameObject(const GameObject& inObject, const GameObject& inOther) override
     {
         if constexpr (!ImplementsOnTriggerEnter())
             return;
@@ -107,7 +107,7 @@ public:
         comp->OnTriggerEnter(inOther);
     }
 
-    void OnTriggerForGameObject(GameObject* inObject, GameObject* inOther) override
+    void OnTriggerForGameObject(const GameObject& inObject, const GameObject& inOther) override
     {
         if constexpr (!ImplementsOnTrigger())
             return;
@@ -119,7 +119,7 @@ public:
         comp->OnTrigger(inOther);
     }
 
-    void OnTriggerExitForGameObject(GameObject* inObject, GameObject* inOther) override
+    void OnTriggerExitForGameObject(const GameObject& inObject, const GameObject& inOther) override
     {
         if constexpr (!ImplementsOnTriggerExit())
             return;
@@ -131,7 +131,7 @@ public:
         comp->OnTriggerExit(inOther);
     }
 
-    void OnCollisionEnterForGameObject(GameObject* inObject, GameObject* inOther) override
+    void OnCollisionEnterForGameObject(const GameObject& inObject, const GameObject& inOther) override
     {
         if constexpr (!ImplementsOnCollisionEnter())
             return;
@@ -143,7 +143,7 @@ public:
         comp->OnCollisionEnter(inOther);
     }
 
-    void OnCollisionForGameObject(GameObject* inObject, GameObject* inOther) override
+    void OnCollisionForGameObject(const GameObject& inObject, const GameObject& inOther) override
     {
         if constexpr (!ImplementsOnCollision())
             return;
@@ -155,7 +155,7 @@ public:
         comp->OnCollision(inOther);
     }
 
-    void OnCollisionExitForGameObject(GameObject* inObject, GameObject* inOther) override
+    void OnCollisionExitForGameObject(const GameObject& inObject, const GameObject& inOther) override
     {
         if constexpr (!ImplementsOnCollisionExit())
             return;
@@ -168,7 +168,7 @@ public:
     }
 
     template<typename... Args>
-    ComponentType* AddComponentForGameObject(GameObject* inGameObject, Args&&... inArgs)
+    ComponentType* AddComponentForGameObject(const GameObject& inGameObject, Args&&... inArgs)
     {
         check(myGameObjectToComponentIndex.find(inGameObject) == myGameObjectToComponentIndex.end() && "Object already have one of these components on it. Only one of each type is allowed.");
 
@@ -178,7 +178,7 @@ public:
         return &(*iterator);
     }
 
-    void TryRemoveComponentForGameObject(const GameObject* inObject) override
+    void TryRemoveComponentForGameObject(const GameObject& inObject) override
     {
         if(myGameObjectToComponentIndex.find(inObject) == myGameObjectToComponentIndex.end())
             return;
@@ -186,7 +186,7 @@ public:
         RemoveComponentForGameObject(inObject);
     }
 
-    class Component* TryGetComponentForGameObject(const GameObject* inObject) override
+    class Component* TryGetComponentForGameObject(const GameObject& inObject) override
     {
         const auto iter = myGameObjectToComponentIndex.find(inObject);
         if(iter == myGameObjectToComponentIndex.end())
@@ -195,7 +195,7 @@ public:
         return &(*iter->second);
     }
 
-    void RemoveComponentForGameObject(const GameObject* inGameObject)
+    void RemoveComponentForGameObject(const GameObject& inGameObject)
     {
         const auto iter = myGameObjectToComponentIndex.find(inGameObject);
 
@@ -206,12 +206,12 @@ public:
         myGameObjectToComponentIndex.erase(iter);
     }
 
-    bool HasComponentForGameObject(const GameObject* inObject) const
+    bool HasComponentForGameObject(const GameObject& inObject) const
     {
         return myGameObjectToComponentIndex.find(inObject) != myGameObjectToComponentIndex.end();
     }
     
-    ComponentType* GetComponentForGameObject(const GameObject* inObject)
+    ComponentType* GetComponentForGameObject(const GameObject& inObject)
     {
         auto iter = myGameObjectToComponentIndex.find(inObject);
         if(iter == myGameObjectToComponentIndex.end())
@@ -229,5 +229,5 @@ private:
     plf::colony<ComponentType> myComponents{};
     
     // TODO: Investigate performance impact of this vs an ordered map.
-    std::unordered_map<const GameObject*, typename plf::colony<ComponentType>::iterator> myGameObjectToComponentIndex;
+    std::unordered_map<const GameObject, typename plf::colony<ComponentType>::iterator> myGameObjectToComponentIndex;
 };

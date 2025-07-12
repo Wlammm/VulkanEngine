@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include "ComponentArray.h"
 #include "ComponentSystem.h"
-#include "Engine/Delegates/MulticastDelegate.hpp"
+#include "GameObjectTag.hpp"
+#include "GameObjectID.hpp"
 
 class World;
 class TransformComponent;
@@ -12,13 +13,20 @@ class Component;
 #define DEBUG_GAMEOBJECT_NAMES DEBUG
 #endif
 
-using TagMask = uint32_t;
-
 class GameObject
 {
 public:
     GameObject() = default;
-    ~GameObject();
+    GameObject(const GameObjectID& inGameObjectID);
+    GameObject(const GameObject& inOther);
+
+    operator GameObjectID() const
+    {
+        return myGameObjectID;
+    }
+    
+    GameObject& operator=(const GameObject& inOther);
+    bool operator==(const GameObject& inOther) const;
     
     bool IsRenderStateDirty() const;
 
@@ -33,26 +41,26 @@ public:
     template<typename ComponentType, typename... Args>
     ComponentType* AddComponent(Args&&... inArgs)
     {
-        ComponentArray<ComponentType>& componentArray = myComponentSystem->GetComponentArrayForType<ComponentType>();
-        ComponentType* component = componentArray.AddComponentForGameObject(this, std::forward<Args>(inArgs)...);
-        component->myGameObject = this;
+        ComponentArray<ComponentType>& componentArray = GetGameObjectData().myComponentSystem->GetComponentArrayForType<ComponentType>();
+        ComponentType* component = componentArray.AddComponentForGameObject(*this, std::forward<Args>(inArgs)...);
+        component->myGameObject = *this;
 
         component->OnCreate();
-        OnComponentAdded(component);
+        GetOnComponentAdded()(component);
         return component;
     }
-    
+
     template<typename ComponentType>
     ComponentType* GetComponent() const
     {
         static_assert(std::is_base_of<Component, ComponentType>() && "ComponentType is an invalid type. Did you forget to include it?");
-        ComponentArray<ComponentType>& componentArray = myComponentSystem->GetComponentArrayForType<ComponentType>();
+        ComponentArray<ComponentType>& componentArray = GetGameObjectData().myComponentSystem->GetComponentArrayForType<ComponentType>();
 
         // TODO: This is doing double work. Maybe have the gameobject know if the component exists on it or not?
-        if(!componentArray.HasComponentForGameObject(this))
+        if(!componentArray.HasComponentForGameObject(*this))
             return nullptr;
         
-        return componentArray.GetComponentForGameObject(this);
+        return componentArray.GetComponentForGameObject(*this);
     }
 
     template<typename ComponentType>
@@ -60,13 +68,13 @@ public:
     {
         static_assert(std::is_base_of<Component, ComponentType>() && "ComponentType is an invalid type. Did you forget to include it?");
         LOG("Remove Component called.");
-        ComponentArray<ComponentType>& componentArray = myComponentSystem->GetComponentArrayForType<ComponentType>();
+        ComponentArray<ComponentType>& componentArray = GetGameObjectData().myComponentSystem->GetComponentArrayForType<ComponentType>();
 
         ComponentType* component = GetComponent<ComponentType>();
         OnComponentRemoved(component);
         component->OnDestroy();
         
-        componentArray.RemoveComponentForGameObject(this);
+        componentArray.RemoveComponentForGameObject(*this);
     }
 
     TransformComponent* GetTransform() const;
@@ -84,24 +92,29 @@ public:
 
     World* GetWorld() const;
 
-    // Called after a component was added. Right after Component::OnCreate
-    MulticastDelegate<void(Component*)> OnComponentAdded;
-    
-    // Called right before a component is deleted.
-    MulticastDelegate<void(Component*)> OnComponentRemoved;
+    MulticastDelegate<void(Component*)>& GetOnComponentAdded() const;
+    MulticastDelegate<void(Component*)>& GetOnComponentRemoved() const;
 
 private:
+    ComponentSystem* GetComponentSystem() const;
+    GameObjectData& GetGameObjectData() const;
+    
     friend ComponentSystem;
-    ComponentSystem* myComponentSystem = nullptr;
-    TransformComponent* myTransform = nullptr;
-
-    bool myRenderStateDirty = false;
-    bool myPhysicsStateDirty = false;
 
     META(SerializeField)
-    TagMask myTags;
-
-#if DEBUG_GAMEOBJECT_NAMES
-    std::string myName = "Unnamed GameObject";
-#endif
+    GameObjectID myGameObjectID;
 };
+
+// Now define GameObject hashing:
+namespace std {
+    template<>
+    struct hash<GameObject> {
+        std::size_t operator()(const GameObject& go) const {
+            return std::hash<GameObjectID>()(static_cast<GameObjectID>(go));
+        }
+    };
+
+    // Add const version, as STL containers will often require this:
+    template<>
+    struct hash<const GameObject> : hash<GameObject> {};
+}

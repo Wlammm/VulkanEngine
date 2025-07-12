@@ -5,42 +5,48 @@
 #include "ComponentSystem.h"
 #include "Engine/Components/TransformComponent.h"
 
-GameObject::~GameObject()
+GameObject::GameObject(const UniqueID& inGameObjectID)
 {
-    // Remove all components.
-    for(Component* comp : GetComponents())
-    {
-        comp->OnDestroy();
-    }
-    
-    const List<IComponentArray*>& arrays = myComponentSystem->GetAllComponentArrays();
-    for(IComponentArray* array : arrays)
-    {
-        array->TryRemoveComponentForGameObject(this);
-    }
+    myGameObjectID = inGameObjectID;
+}
+
+GameObject::GameObject(const GameObject& inOther)
+{
+    myGameObjectID = inOther.myGameObjectID;
+}
+
+GameObject& GameObject::operator=(const GameObject& inOther)
+{
+    myGameObjectID = inOther.myGameObjectID;
+    return *this;
+}
+
+bool GameObject::operator==(const GameObject& inOther) const
+{
+    return myGameObjectID == inOther.myGameObjectID;
 }
 
 bool GameObject::IsRenderStateDirty() const
 {
-    return myRenderStateDirty;
+    return GetGameObjectData().myRenderStateDirty;
 }
 
 void GameObject::ResetRenderStateDirtyFlag()
 {
-    myRenderStateDirty = false;
+    GetGameObjectData().myRenderStateDirty = false;
 }
 
 void GameObject::SetName(const std::string& inName)
 {
 #if DEBUG_GAMEOBJECT_NAMES
-    myName = inName;
+    GetGameObjectData().myName = inName;
 #endif
 }
 
 const std::string& GameObject::GetName() const
 {
 #if DEBUG_GAMEOBJECT_NAMES
-    return myName;
+    return GetGameObjectData().myName;
 #else
     static std::string empty;
     return empty;
@@ -51,9 +57,9 @@ List<Component*> GameObject::GetComponents() const
 {
     List<Component*> components;
 
-    for(IComponentArray* array : myComponentSystem->GetAllComponentArrays())
+    for(IComponentArray* array : GetComponentSystem()->GetAllComponentArrays())
     {
-        if(Component* comp = array->TryGetComponentForGameObject(this))
+        if(Component* comp = array->TryGetComponentForGameObject(*this))
             components.Add(comp);
     }
     return components;
@@ -66,50 +72,70 @@ TransformComponent* GameObject::GetTransform() const
 
 void GameObject::Destroy()
 {
-    myComponentSystem->DestroyGameObject(this);
+    GetComponentSystem()->DestroyGameObject(*this);
 }
 
 TagMask GameObject::GetTags() const
 {
-    return myTags;
+    return GetGameObjectData().myTags;
 }
 
 void GameObject::AddTags(TagMask inTags)
 {
-    myTags |= inTags;
+    GetGameObjectData().myTags |= inTags;
 }
 
 void GameObject::RemoveTags(TagMask inTags)
 {
-    myTags &= ~inTags;
+    GetGameObjectData().myTags &= ~inTags;
 }
 
 void GameObject::ClearTags()
 {
-    myTags = 0;
+    GetGameObjectData().myTags = 0;
 }
 
 bool GameObject::HasAnyTag(TagMask inTags) const
 {
-    return myTags & inTags;
+    return GetGameObjectData().myTags & inTags;
 }
 
 bool GameObject::HasAllTags(TagMask inTags) const
 {
-    return myTags == inTags;
+    return GetGameObjectData().myTags == inTags;
 }
 
 void GameObject::MarkRenderStateDirty()
 {
-    myRenderStateDirty = true;
+    GetGameObjectData().myRenderStateDirty = true;
 }
 
 void GameObject::MarkPhysicsStateDirty()
 {
-    myPhysicsStateDirty = true;
+    GetGameObjectData().myPhysicsStateDirty = true;
 }
 
 World* GameObject::GetWorld() const
 {
-    return myComponentSystem->GetWorld();
+    return GetComponentSystem()->GetWorld();
+}
+
+MulticastDelegate<void(Component*)>& GameObject::GetOnComponentAdded() const
+{
+    return GetGameObjectData().myOnComponentAdded;
+}
+
+MulticastDelegate<void(Component*)>& GameObject::GetOnComponentRemoved() const
+{
+    return GetGameObjectData().myOnComponentRemoved;
+}
+
+ComponentSystem* GameObject::GetComponentSystem() const
+{
+    return GetGameObjectData().myComponentSystem;
+}
+
+GameObjectData& GameObject::GetGameObjectData() const
+{
+    return ComponentSystem::GetGameObjectData(*this);
 }

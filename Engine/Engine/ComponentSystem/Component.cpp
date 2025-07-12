@@ -6,20 +6,20 @@
 
 void Component::MarkRenderStateDirty()
 {
-    myGameObject->MarkRenderStateDirty();
+    myGameObject.MarkRenderStateDirty();
 }
 
-GameObject* Component::GetGameObject() const
+const GameObject& Component::GetGameObject() const
 {
     return myGameObject;
 }
 
 TransformComponent* Component::GetTransform() const
 {
-    return myGameObject->GetTransform();    
+    return myGameObject.GetTransform();    
 }
 
 World* Component::GetWorld() const
 {
-    return myGameObject->GetWorld();
+    return myGameObject.GetWorld();
 }

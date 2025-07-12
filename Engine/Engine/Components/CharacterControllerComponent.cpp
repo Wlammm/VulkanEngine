@@ -40,9 +40,9 @@ void CharacterControllerComponent::OnCreate()
     desc.stepOffset = myStepOffset;
 
     myController = physicsSystem.GetControllerManager()->createController(desc);
-    
-    myController->getActor()->userData = GetGameObject();
-    myController->setUserData(GetGameObject());
+    GameObject* gameObjectPtr = const_cast<GameObject*>(&GetGameObject());
+    myController->getActor()->userData = gameObjectPtr;
+    myController->setUserData(gameObjectPtr);
 }
 
 void CharacterControllerComponent::OnDestroy()

@@ -9,6 +9,7 @@
 #include "../Editor/Toolbar/File/SaveLoadToolbar.h"
 #include "../Engine/Animation/Skeleton.h"
 #include "../Editor/Editor.h"
+#include "../Engine/Core/UniqueID.h"
 #include "../Editor/EditorSystem/EditorSystem.h"
 #include "../Editor/Windows/HierarchyWindow.h"
 #include "../Editor/EditorSystem/ImGuiDemoSystem.h"
@@ -37,6 +38,7 @@
 #include "../Engine/Assets/JsonAsset.h"
 #include "../Engine/Assets/Material.h"
 #include "../Engine/Assets/Shader.h"
+#include "../Engine/Core/Random.h"
 #include "../Engine/Reflection/Method.h"
 #include "../Engine/Assets/Texture.h"
 #include "../Engine/Core/ThreadPool.h"
@@ -52,7 +54,6 @@
 #include "../Engine/ComponentSystem/ComponentSystem.h"
 #include "../Engine/Vulkan/VulkanDynamicBuffer.hpp"
 #include "../Engine/ComponentSystem/GameObject.h"
-#include "../Engine/Coroutines/CoroutineManager.h"
 #include "../Engine/Components/LandscapeRenderComponent.h"
 #include "../Engine/Components/BoxColliderComponent.h"
 #include "../Engine/Components/CameraComponent.h"
@@ -74,10 +75,11 @@
 #include "../Engine/Core/AutoInit.h"
 #include "../Engine/Core/AutoInitManager.h"
 #include "../Engine/Core/CheckDefine.hpp"
-#include "../Engine/Reflection/Field.h"
-#include "../Engine/Delegates/Delegate.hpp"
 #include "../Engine/Coroutines/Awaitable.h"
 #include "../Engine/Core/EngineDefines.hpp"
+#include "../Engine/Coroutines/CoroutineManager.h"
+#include "../Engine/Reflection/Field.h"
+#include "../Engine/Delegates/Delegate.hpp"
 #include "../Engine/Delegates/Internal/ConstMemberFuncCtor.hpp"
 #include "../Engine/Delegates/Internal/FreeFuncCtor.hpp"
 #include "../Engine/Delegates/Internal/FuncCtor.hpp"
@@ -88,6 +90,7 @@
 #include "../Engine/Engine.h"
 #include "../Engine/EnginePch.h"
 #include "../Engine/EngineProperties.hpp"
+#include "../Engine/ComponentSystem/GameObjectTag.hpp"
 #include "../Engine/Events/EventHandler.h"
 #include "../Engine/Events/EventObserver.h"
 #include "../Engine/Events/EventTypes.hpp"
@@ -158,6 +161,7 @@
 #include "../Game/Game.h"
 #include "../Game/GamePch.h"
 #include "../Game/GameTags.h"
+#include "../Engine/ComponentSystem/GameObjectID.hpp"
 
 
 // END INCLUDES FOR REFLECTED TYPES
@@ -192,6 +196,7 @@ public:
 ReflectionSystem::AddType<Skeleton>("Skeleton", typeid(Skeleton).name());
 ReflectionSystem::AddType<Skeleton::Bone>("Skeleton::Bone", typeid(Skeleton::Bone).name());
 ReflectionSystem::AddType<Editor>("Editor", typeid(Editor).name());
+ReflectionSystem::AddType<UniqueID>("UniqueID", typeid(UniqueID).name());
 ReflectionSystem::AddType<EditorSystem>("EditorSystem", typeid(EditorSystem).name());
 ReflectionSystem::AddType<HierarchyWindow>("HierarchyWindow", typeid(HierarchyWindow).name());
 ReflectionSystem::AddType<ImGuiDemoSystem>("ImGuiDemoSystem", typeid(ImGuiDemoSystem).name());
@@ -223,6 +228,7 @@ ReflectionSystem::AddType<AssetRegistry>("AssetRegistry", typeid(AssetRegistry).
 ReflectionSystem::AddType<JsonAsset>("JsonAsset", typeid(JsonAsset).name());
 ReflectionSystem::AddType<Material>("Material", typeid(Material).name());
 ReflectionSystem::AddType<Shader>("Shader", typeid(Shader).name());
+ReflectionSystem::AddType<Random>("Random", typeid(Random).name());
 ReflectionSystem::AddType<MethodArgument>("MethodArgument", typeid(MethodArgument).name());
 ReflectionSystem::AddType<Method>("Method", typeid(Method).name());
 ReflectionSystem::AddType<ImageData>("ImageData", typeid(ImageData).name());
@@ -237,10 +243,10 @@ ReflectionSystem::AddType<TypeSerializer>("TypeSerializer", typeid(TypeSerialize
 ReflectionSystem::AddType<MeshColliderComponent>("MeshColliderComponent", typeid(MeshColliderComponent).name());
 ReflectionSystem::AddType<IComponentArray>("IComponentArray", typeid(IComponentArray).name());
 ReflectionSystem::AddType<Console>("Console", typeid(Console).name());
+ReflectionSystem::AddType<GameObjectData>("GameObjectData", typeid(GameObjectData).name());
 ReflectionSystem::AddType<ComponentSystem>("ComponentSystem", typeid(ComponentSystem).name());
 ReflectionSystem::AddType<IVulkanDynamicBuffer>("IVulkanDynamicBuffer", typeid(IVulkanDynamicBuffer).name());
 ReflectionSystem::AddType<GameObject>("GameObject", typeid(GameObject).name());
-ReflectionSystem::AddType<CoroutineManager>("CoroutineManager", typeid(CoroutineManager).name());
 ReflectionSystem::AddType<LandscapeRenderComponent>("LandscapeRenderComponent", typeid(LandscapeRenderComponent).name());
 ReflectionSystem::AddType<BoxColliderComponent>("BoxColliderComponent", typeid(BoxColliderComponent).name());
 ReflectionSystem::AddType<CameraComponent>("CameraComponent", typeid(CameraComponent).name());
@@ -269,7 +275,7 @@ ReflectionSystem::AddType<List<Mesh *>>("List<Mesh *>", typeid(List<Mesh *>).nam
 ReflectionSystem::AddType<List<Filewatcher::CallbackHandle>>("List<Filewatcher::CallbackHandle>", typeid(List<Filewatcher::CallbackHandle>).name());
 ReflectionSystem::AddType<List<std::function<void ()>>>("List<std::function<void ()>>", typeid(List<std::function<void ()>>).name());
 ReflectionSystem::AddType<List<unsigned char>>("List<unsigned char>", typeid(List<unsigned char>).name());
-ReflectionSystem::AddType<List<GameObject *>>("List<GameObject *>", typeid(List<GameObject *>).name());
+ReflectionSystem::AddType<List<UniqueID>>("List<UniqueID>", typeid(List<UniqueID>).name());
 ReflectionSystem::AddType<List<IComponentArray *>>("List<IComponentArray *>", typeid(List<IComponentArray *>).name());
 ReflectionSystem::AddType<List<Material *>>("List<Material *>", typeid(List<Material *>).name());
 ReflectionSystem::AddType<List<TransformComponent *>>("List<TransformComponent *>", typeid(List<TransformComponent *>).name());
@@ -300,12 +306,13 @@ ReflectionSystem::AddType<List<ContentBrowserItem>>("List<ContentBrowserItem>", 
 ReflectionSystem::AddType<List<vk::DescriptorSet>>("List<vk::DescriptorSet>", typeid(List<vk::DescriptorSet>).name());
 ReflectionSystem::AddType<AutoInit>("AutoInit", typeid(AutoInit).name());
 ReflectionSystem::AddType<AutoInitManager>("AutoInitManager", typeid(AutoInitManager).name());
+ReflectionSystem::AddType<Awaitable>("Awaitable", typeid(Awaitable).name());
+ReflectionSystem::AddType<CoroutineManager>("CoroutineManager", typeid(CoroutineManager).name());
 ReflectionSystem::AddType<Field>("Field", typeid(Field).name());
 ReflectionSystem::AddType<Delegate<void *(void *, const List<void *> &)>>("Delegate<void *(void *, const List<void *> &)>", typeid(Delegate<void *(void *, const List<void *> &)>).name());
 ReflectionSystem::AddType<Delegate<void *()>>("Delegate<void *()>", typeid(Delegate<void *()>).name());
 ReflectionSystem::AddType<Delegate<void (void *)>>("Delegate<void (void *)>", typeid(Delegate<void (void *)>).name());
 ReflectionSystem::AddType<Delegate<void ()>>("Delegate<void ()>", typeid(Delegate<void ()>).name());
-ReflectionSystem::AddType<Awaitable>("Awaitable", typeid(Awaitable).name());
 ReflectionSystem::AddType<RenderSystem>("RenderSystem", typeid(RenderSystem).name());
 ReflectionSystem::AddType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>", typeid(MulticastDelegate<void ()>).name());
 ReflectionSystem::AddType<MulticastDelegate<void (Component *)>>("MulticastDelegate<void (Component *)>", typeid(MulticastDelegate<void (Component *)>).name());
@@ -495,6 +502,47 @@ Method& currentMethod = currentClass->AddMethod(Method("SetGameTickFunction", Re
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniqueID>();
+	{
+		Field& currentField = currentClass->AddField(Field("myA", 0, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myB", 4, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myC", 8, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myD", 12, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+UniqueID* instance = static_cast<UniqueID*>(inInstance);
+static thread_local UniqueID result = instance->GenerateUniqueID();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GenerateUniqueID", ReflectionSystem::GetOrCreateType<UniqueID>("UniqueID"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+UniqueID* instance = static_cast<UniqueID*>(inInstance);
+const UniqueID & arg0 = *(const UniqueID*)inArguments[0];
+static thread_local bool result = instance->operator==(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const UniqueID &>("const UniqueID &")));
+Method& currentMethod = currentClass->AddMethod(Method("operator==", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<EditorSystem>();
 	{
 		Field& currentField = currentClass->AddField(Field("myID", 8, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
@@ -542,25 +590,25 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<EditorCameraMovementComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myResetMouseDelta", 16, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myResetMouseDelta", 24, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMouseDelta", 20, ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMouseDelta", 28, ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myYaw", 28, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myYaw", 36, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPitch", 32, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPitch", 40, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMovementSpeed", 36, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMovementSpeed", 44, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myShiftMultiplier", 40, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myShiftMultiplier", 48, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myScrollMultiplier", 44, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myScrollMultiplier", 52, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
@@ -632,11 +680,11 @@ currentMethod.AddMetadata(R"delim(EditorMenuItem("Themes/Default"))delim");
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<CapsuleColliderComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myRadius", 56, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myRadius", 64, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myHeight", 60, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myHeight", 68, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ColliderComponent>());
@@ -681,46 +729,46 @@ Method& currentMethod = currentClass->AddMethod(Method("SetHeight", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
-const List<GameObject *> & result = instance->GetSelectedObjects();
+const List<GameObject> & result = instance->GetSelectedObjects();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetSelectedObjects", ReflectionSystem::GetOrCreateType<const List<GameObject *> &>("const List<GameObject *> &"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetSelectedObjects", ReflectionSystem::GetOrCreateType<const List<GameObject> &>("const List<GameObject> &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
 static thread_local bool result = instance->IsObjectSelected(arg0);
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("IsObjectSelected", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
 instance->SelectObject(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("SelectObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
 instance->DeselectObject(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("DeselectObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
@@ -1276,7 +1324,7 @@ Method& currentMethod = currentClass->AddMethod(Method("AddGraphicsCommands", Re
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<ConvexColliderComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myModel", 56, ReflectionSystem::GetOrCreateType<Model>("Model"), true, false));
+		Field& currentField = currentClass->AddField(Field("myModel", 64, ReflectionSystem::GetOrCreateType<Model>("Model"), true, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ColliderComponent>());
 {
@@ -1519,6 +1567,12 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", ReflectionSystem::GetOrCreateType<vk::ShaderModule>("vk::ShaderModule"), invoker, arguments));
 }
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Random>();
+	{
+		Field& currentField = currentClass->AddField(Field("myEngine", 0, ReflectionSystem::GetOrCreateType<std::mersenne_twister_engine<unsigned int, 32, 624, 397, 31, 2567483615, 11, 4294967295, 7, 2636928640, 15, 4022730752, 18, 1812433253>>("std::mersenne_twister_engine<unsigned int, 32, 624, 397, 31, 2567483615, 11, 4294967295, 7, 2636928640, 15, 4022730752, 18, 1812433253>"), false, false));
+	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<MethodArgument>();
@@ -1954,44 +2008,44 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSys
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<TransformComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("OnPositionChanged", 16, ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
+		Field& currentField = currentClass->AddField(Field("OnPositionChanged", 24, ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("OnRotationChanged", 120, ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
+		Field& currentField = currentClass->AddField(Field("OnRotationChanged", 128, ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("OnScaleChanged", 224, ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
+		Field& currentField = currentClass->AddField(Field("OnScaleChanged", 232, ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPositionDirty", 328, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPositionDirty", 336, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myRotationDirty", 329, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myRotationDirty", 337, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myScaleDirty", 330, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myScaleDirty", 338, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPosition", 332, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPosition", 340, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 		currentField.AddMetadata(R"delim(OnInspectorChangedEvent(MarkDirtyFromInspector))delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myRotation", 344, ReflectionSystem::GetOrCreateType<glm::qua<float>>("glm::qua<float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myRotation", 352, ReflectionSystem::GetOrCreateType<glm::qua<float>>("glm::qua<float>"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myScale", 360, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myScale", 368, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySkipPhysicsUpdate", 372, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySkipPhysicsUpdate", 380, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myParent", 376, ReflectionSystem::GetOrCreateType<TransformComponent>("TransformComponent"), true, false));
+		Field& currentField = currentClass->AddField(Field("myParent", 384, ReflectionSystem::GetOrCreateType<TransformComponent>("TransformComponent"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myChildren", 384, ReflectionSystem::GetOrCreateType<List<TransformComponent *>>("List<TransformComponent *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myChildren", 392, ReflectionSystem::GetOrCreateType<List<TransformComponent *>>("List<TransformComponent *>"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
@@ -2550,7 +2604,7 @@ currentMethod.AddMetadata(R"delim(AllowPrivateAccess)delim");
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<Component>();
 	{
-		Field& currentField = currentClass->AddField(Field("myGameObject", 8, ReflectionSystem::GetOrCreateType<GameObject>("GameObject"), true, false));
+		Field& currentField = currentClass->AddField(Field("myGameObject", 8, ReflectionSystem::GetOrCreateType<GameObject>("GameObject"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -2576,72 +2630,72 @@ Method& currentMethod = currentClass->AddMethod(Method("OnDestroy", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Component* instance = static_cast<Component*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
 instance->OnTriggerEnter(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("OnTriggerEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Component* instance = static_cast<Component*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
 instance->OnTrigger(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("OnTrigger", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Component* instance = static_cast<Component*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
 instance->OnTriggerExit(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("OnTriggerExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Component* instance = static_cast<Component*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
 instance->OnCollisionEnter(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("OnCollisionEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Component* instance = static_cast<Component*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
 instance->OnCollision(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("OnCollision", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Component* instance = static_cast<Component*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
 instance->OnCollisionExit(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("OnCollisionExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
@@ -2688,11 +2742,11 @@ Method& currentMethod = currentClass->AddMethod(Method("OnRenderStateDirty", Ref
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Component* instance = static_cast<Component*>(inInstance);
-GameObject * result = instance->GetGameObject();
-return (void*)result;
+const GameObject & result = instance->GetGameObject();
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetGameObject", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetGameObject", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -2798,7 +2852,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetSerializer", Reflecti
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<MeshColliderComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myModel", 56, ReflectionSystem::GetOrCreateType<Model>("Model"), true, false));
+		Field& currentField = currentClass->AddField(Field("myModel", 64, ReflectionSystem::GetOrCreateType<Model>("Model"), true, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ColliderComponent>());
 {
@@ -2899,13 +2953,41 @@ Method& currentMethod = currentClass->AddMethod(Method("LogError", ReflectionSys
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<GameObjectData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myName", 0, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myOnComponentAdded", 40, ReflectionSystem::GetOrCreateType<MulticastDelegate<void (Component *)>>("MulticastDelegate<void (Component *)>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myOnComponentRemoved", 144, ReflectionSystem::GetOrCreateType<MulticastDelegate<void (Component *)>>("MulticastDelegate<void (Component *)>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myComponentSystem", 248, ReflectionSystem::GetOrCreateType<ComponentSystem>("ComponentSystem"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTransform", 256, ReflectionSystem::GetOrCreateType<TransformComponent>("TransformComponent"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenderStateDirty", 264, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPhysicsStateDirty", 265, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTags", 268, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<ComponentSystem>();
 	{
-		Field& currentField = currentClass->AddField(Field("myObjects", 16, ReflectionSystem::GetOrCreateType<List<GameObject *>>("List<GameObject *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myObjects", 16, ReflectionSystem::GetOrCreateType<List<UniqueID>>("List<UniqueID>"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myObjectsToDestory", 40, ReflectionSystem::GetOrCreateType<List<GameObject *>>("List<GameObject *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myObjectsToDestory", 40, ReflectionSystem::GetOrCreateType<List<UniqueID>>("List<UniqueID>"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myComponentArrays", 64, ReflectionSystem::GetOrCreateType<List<IComponentArray *>>("List<IComponentArray *>"), false, false));
@@ -2936,84 +3018,84 @@ Method& currentMethod = currentClass->AddMethod(Method("TickPhysics", Reflection
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ComponentSystem* instance = static_cast<ComponentSystem*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
-GameObject * arg1 = (GameObject*)inArguments[1];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
+const GameObject & arg1 = *(const GameObject*)inArguments[1];
 instance->OnCollisionEnterForGameObject(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("OnCollisionEnterForGameObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ComponentSystem* instance = static_cast<ComponentSystem*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
-GameObject * arg1 = (GameObject*)inArguments[1];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
+const GameObject & arg1 = *(const GameObject*)inArguments[1];
 instance->OnCollisionForGameObject(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("OnCollisionForGameObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ComponentSystem* instance = static_cast<ComponentSystem*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
-GameObject * arg1 = (GameObject*)inArguments[1];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
+const GameObject & arg1 = *(const GameObject*)inArguments[1];
 instance->OnCollisionExitForGameObject(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("OnCollisionExitForGameObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ComponentSystem* instance = static_cast<ComponentSystem*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
-GameObject * arg1 = (GameObject*)inArguments[1];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
+const GameObject & arg1 = *(const GameObject*)inArguments[1];
 instance->OnTriggerEnterForGameObject(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("OnTriggerEnterForGameObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ComponentSystem* instance = static_cast<ComponentSystem*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
-GameObject * arg1 = (GameObject*)inArguments[1];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
+const GameObject & arg1 = *(const GameObject*)inArguments[1];
 instance->OnTriggerForGameObject(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("OnTriggerForGameObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ComponentSystem* instance = static_cast<ComponentSystem*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
-GameObject * arg1 = (GameObject*)inArguments[1];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
+const GameObject & arg1 = *(const GameObject*)inArguments[1];
 instance->OnTriggerExitForGameObject(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("OnTriggerExitForGameObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
@@ -3021,34 +3103,34 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 ComponentSystem* instance = static_cast<ComponentSystem*>(inInstance);
 const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-GameObject * result = instance->CreateGameObject(arg0);
-return (void*)result;
+static thread_local GameObject result = instance->CreateGameObject(arg0);
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inObjectName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("CreateGameObject", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("CreateGameObject", ReflectionSystem::GetOrCreateType<GameObject>("GameObject"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ComponentSystem* instance = static_cast<ComponentSystem*>(inInstance);
-GameObject * arg0 = (GameObject*)inArguments[0];
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
 instance->DestroyGameObject(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inGameObject", ReflectionSystem::GetOrCreateType<GameObject *>("GameObject *")));
+arguments.Add(MethodArgument("inGameObject", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
 Method& currentMethod = currentClass->AddMethod(Method("DestroyGameObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ComponentSystem* instance = static_cast<ComponentSystem*>(inInstance);
-const List<GameObject *> & result = instance->GetAllGameObjects();
+const List<UniqueID> & result = instance->GetAllGameObjects();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAllGameObjects", ReflectionSystem::GetOrCreateType<const List<GameObject *> &>("const List<GameObject *> &"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetAllGameObjects", ReflectionSystem::GetOrCreateType<const List<UniqueID> &>("const List<UniqueID> &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -3060,6 +3142,18 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetAllComponentArrays", ReflectionSystem::GetOrCreateType<const List<IComponentArray *> &>("const List<IComponentArray *> &"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ComponentSystem* instance = static_cast<ComponentSystem*>(inInstance);
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
+GameObjectData & result = instance->GetGameObjectData(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inGameObject", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetGameObjectData", ReflectionSystem::GetOrCreateType<GameObjectData &>("GameObjectData &"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<IVulkanDynamicBuffer>();
@@ -3070,27 +3164,21 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAllComponentArrays", 
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<GameObject>();
 	{
-		Field& currentField = currentClass->AddField(Field("OnComponentAdded", 0, ReflectionSystem::GetOrCreateType<MulticastDelegate<void (Component *)>>("MulticastDelegate<void (Component *)>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("OnComponentRemoved", 104, ReflectionSystem::GetOrCreateType<MulticastDelegate<void (Component *)>>("MulticastDelegate<void (Component *)>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myComponentSystem", 208, ReflectionSystem::GetOrCreateType<ComponentSystem>("ComponentSystem"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myTransform", 216, ReflectionSystem::GetOrCreateType<TransformComponent>("TransformComponent"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRenderStateDirty", 224, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPhysicsStateDirty", 225, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myTags", 228, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		Field& currentField = currentClass->AddField(Field("myGameObjectID", 0, ReflectionSystem::GetOrCreateType<UniqueID>("UniqueID"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GameObject* instance = static_cast<GameObject*>(inInstance);
+const GameObject & arg0 = *(const GameObject*)inArguments[0];
+static thread_local bool result = instance->operator==(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const GameObject &>("const GameObject &")));
+Method& currentMethod = currentClass->AddMethod(Method("operator==", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
@@ -3261,39 +3349,46 @@ return (void*)result;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetWorld", ReflectionSystem::GetOrCreateType<World *>("World *"), invoker, arguments));
 }
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<CoroutineManager>();
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CoroutineManager* instance = static_cast<CoroutineManager*>(inInstance);
-static thread_local Coroutine<void, void> result = instance->Load();
+GameObject* instance = static_cast<GameObject*>(inInstance);
+MulticastDelegate<void (Component *)> & result = instance->GetOnComponentAdded();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem::GetOrCreateType<Coroutine<void, void>>("Coroutine<void, void>"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetOnComponentAdded", ReflectionSystem::GetOrCreateType<MulticastDelegate<void (Component *)> &>("MulticastDelegate<void (Component *)> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GameObject* instance = static_cast<GameObject*>(inInstance);
+MulticastDelegate<void (Component *)> & result = instance->GetOnComponentRemoved();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetOnComponentRemoved", ReflectionSystem::GetOrCreateType<MulticastDelegate<void (Component *)> &>("MulticastDelegate<void (Component *)> &"), invoker, arguments));
 }
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<LandscapeRenderComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myHeightfield", 16, ReflectionSystem::GetOrCreateType<Heightfield>("Heightfield"), false, false));
+		Field& currentField = currentClass->AddField(Field("myHeightfield", 24, ReflectionSystem::GetOrCreateType<Heightfield>("Heightfield"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myVertexBuffer", 280, ReflectionSystem::GetOrCreateType<VertexBufferHandle>("VertexBufferHandle"), true, false));
+		Field& currentField = currentClass->AddField(Field("myVertexBuffer", 288, ReflectionSystem::GetOrCreateType<VertexBufferHandle>("VertexBufferHandle"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myIndexBuffer", 288, ReflectionSystem::GetOrCreateType<IndexBufferHandle>("IndexBufferHandle"), true, false));
+		Field& currentField = currentClass->AddField(Field("myIndexBuffer", 296, ReflectionSystem::GetOrCreateType<IndexBufferHandle>("IndexBufferHandle"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMesh", 296, ReflectionSystem::GetOrCreateType<Mesh>("Mesh"), true, false));
+		Field& currentField = currentClass->AddField(Field("myMesh", 304, ReflectionSystem::GetOrCreateType<Mesh>("Mesh"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMeshInstance", 304, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMeshInstance", 312, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMaterial", 312, ReflectionSystem::GetOrCreateType<Material>("Material"), true, false));
+		Field& currentField = currentClass->AddField(Field("myMaterial", 320, ReflectionSystem::GetOrCreateType<Material>("Material"), true, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
@@ -3340,7 +3435,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetHeightfield", Reflect
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<BoxColliderComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myHalfSize", 56, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myHalfSize", 64, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ColliderComponent>());
@@ -3370,25 +3465,25 @@ Method& currentMethod = currentClass->AddMethod(Method("SetHalfSize", Reflection
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<CameraComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myResolution", 16, ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myResolution", 24, ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myProjection", 24, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myProjection", 32, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFov", 88, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myFov", 96, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myNearPlane", 92, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myNearPlane", 100, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFarPlane", 96, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myFarPlane", 104, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myIsOrthographic", 100, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myIsOrthographic", 108, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
@@ -3539,13 +3634,13 @@ Method& currentMethod = currentClass->AddMethod(Method("GetNumObjects", Reflecti
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<RigidbodyComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myActor", 16, ReflectionSystem::GetOrCreateType<physx::PxRigidDynamic>("physx::PxRigidDynamic"), true, false));
+		Field& currentField = currentClass->AddField(Field("myActor", 24, ReflectionSystem::GetOrCreateType<physx::PxRigidDynamic>("physx::PxRigidDynamic"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFramesSinceStartSleep", 24, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		Field& currentField = currentClass->AddField(Field("myFramesSinceStartSleep", 32, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMass", 28, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMass", 36, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
@@ -3785,52 +3880,52 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRotationConstraint", 
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<CharacterControllerComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myController", 16, ReflectionSystem::GetOrCreateType<physx::PxController>("physx::PxController"), true, false));
+		Field& currentField = currentClass->AddField(Field("myController", 24, ReflectionSystem::GetOrCreateType<physx::PxController>("physx::PxController"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCollisionFlags", 24, ReflectionSystem::GetOrCreateType<physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>>("physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myCollisionFlags", 32, ReflectionSystem::GetOrCreateType<physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>>("physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFilter", 32, ReflectionSystem::GetOrCreateType<physx::PxControllerFilters>("physx::PxControllerFilters"), false, false));
+		Field& currentField = currentClass->AddField(Field("myFilter", 40, ReflectionSystem::GetOrCreateType<physx::PxControllerFilters>("physx::PxControllerFilters"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myHeight", 64, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myHeight", 72, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myRadius", 68, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myRadius", 76, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySlopeLimitDegrees", 72, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySlopeLimitDegrees", 80, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMinDist", 76, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMinDist", 84, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myStepOffset", 80, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myStepOffset", 88, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myUseGravity", 84, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myUseGravity", 92, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDownVelocity", 88, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDownVelocity", 96, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myGravity", 92, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myGravity", 100, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myTerminalVelocity", 96, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myTerminalVelocity", 104, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDisplacement", 100, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDisplacement", 108, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPositionOffset", 112, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPositionOffset", 120, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
@@ -3967,16 +4062,16 @@ Method& currentMethod = currentClass->AddMethod(Method("Jump", ReflectionSystem:
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<ColliderComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myShape", 16, ReflectionSystem::GetOrCreateType<physx::PxShape>("physx::PxShape"), true, false));
+		Field& currentField = currentClass->AddField(Field("myShape", 24, ReflectionSystem::GetOrCreateType<physx::PxShape>("physx::PxShape"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myActor", 24, ReflectionSystem::GetOrCreateType<physx::PxRigidStatic>("physx::PxRigidStatic"), true, false));
+		Field& currentField = currentClass->AddField(Field("myActor", 32, ReflectionSystem::GetOrCreateType<physx::PxRigidStatic>("physx::PxRigidStatic"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myLocalShapePosition", 32, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myLocalShapePosition", 40, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myLocalShapeRotation", 44, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myLocalShapeRotation", 52, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
@@ -4083,16 +4178,16 @@ Method& currentMethod = currentClass->AddMethod(Method("SetLocalShapeRotation", 
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<DirectionalLightComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myIsShadowsEnabled", 16, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myIsShadowsEnabled", 24, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myColor", 20, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myColor", 28, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 		currentField.AddMetadata(R"delim(ExposeAsColor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myLightProjection", 36, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myLightProjection", 44, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
@@ -4224,16 +4319,16 @@ Method& currentMethod = currentClass->AddMethod(Method("OnScaleChanged", Reflect
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<PointLightComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myColor", 16, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myColor", 24, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 		currentField.AddMetadata(R"delim(ExposeAsColor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myIntensity", 28, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myIntensity", 36, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myRange", 32, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myRange", 40, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
@@ -4470,7 +4565,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SplitString", Reflection
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<SphereColliderComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myRadius", 56, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myRadius", 64, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ColliderComponent>());
@@ -4500,18 +4595,18 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRadius", ReflectionSy
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<StaticMeshComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myPath", 16, ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPath", 24, ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMaterials", 56, ReflectionSystem::GetOrCreateType<List<Material *>>("List<Material *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMaterials", 64, ReflectionSystem::GetOrCreateType<List<Material *>>("List<Material *>"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myModel", 80, ReflectionSystem::GetOrCreateType<Model>("Model"), true, false));
+		Field& currentField = currentClass->AddField(Field("myModel", 88, ReflectionSystem::GetOrCreateType<Model>("Model"), true, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMeshInstances", 88, ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMeshInstances", 96, ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
@@ -4686,9 +4781,9 @@ Method& currentMethod = currentClass->AddMethod(Method("OnRenderStateDirty", Ref
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<unsigned char>("unsigned char"), false, false);
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<GameObject *>>();
+	Type* currentClass = ReflectionSystem::GetMutableType<List<UniqueID>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<GameObject>("GameObject"), true, false);
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<UniqueID>("UniqueID"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<IComponentArray *>>();
@@ -4860,6 +4955,54 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<Awaitable>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Awaitable* instance = static_cast<Awaitable*>(inInstance);
+static thread_local bool result = instance->await_ready();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("await_ready", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Awaitable* instance = static_cast<Awaitable*>(inInstance);
+std::coroutine_handle<void> arg0 = *(std::coroutine_handle<void>*)inArguments[0];
+instance->await_suspend(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCoroutineHandle", ReflectionSystem::GetOrCreateType<std::coroutine_handle<void>>("std::coroutine_handle<void>")));
+Method& currentMethod = currentClass->AddMethod(Method("await_suspend", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Awaitable* instance = static_cast<Awaitable*>(inInstance);
+instance->await_resume();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("await_resume", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<CoroutineManager>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CoroutineManager* instance = static_cast<CoroutineManager*>(inInstance);
+static thread_local Coroutine<void, void> result = instance->Load();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem::GetOrCreateType<Coroutine<void, void>>("Coroutine<void, void>"), invoker, arguments));
+}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<Field>();
 	{
 		Field& currentField = currentClass->AddField(Field("myName", 0, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
@@ -4991,41 +5134,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", Refl
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void ()>>();
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void ()>("void ()"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Awaitable>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Awaitable* instance = static_cast<Awaitable*>(inInstance);
-static thread_local bool result = instance->await_ready();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("await_ready", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Awaitable* instance = static_cast<Awaitable*>(inInstance);
-std::coroutine_handle<void> arg0 = *(std::coroutine_handle<void>*)inArguments[0];
-instance->await_suspend(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inCoroutineHandle", ReflectionSystem::GetOrCreateType<std::coroutine_handle<void>>("std::coroutine_handle<void>")));
-Method& currentMethod = currentClass->AddMethod(Method("await_suspend", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Awaitable* instance = static_cast<Awaitable*>(inInstance);
-instance->await_resume();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("await_resume", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<RenderSystem>();
@@ -9147,9 +9255,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetHInstance", Reflectio
 	{
 		Field& currentField = currentClass->AddField(Field("mySystemManager", 16, ReflectionSystem::GetOrCreateType<SystemManager<WorldSystem>>("SystemManager<WorldSystem>"), true, false));
 	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCactus", 24, ReflectionSystem::GetOrCreateType<GameObject>("GameObject"), true, false));
-	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<AutoInit>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -9279,49 +9384,39 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetComponentSystem", ReflectionSystem::GetOrCreateType<ComponentSystem &>("ComponentSystem &"), invoker, arguments));
 }
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-instance->ToggleCactus();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("ToggleCactus", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<PlayerCameraControllerComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myMouseSensitivity", 16, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMouseSensitivity", 24, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySpringArmChangeAmount", 20, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySpringArmChangeAmount", 28, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMinSpringArmLength", 24, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMinSpringArmLength", 32, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMaxSpringArmLength", 28, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMaxSpringArmLength", 36, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPitch", 32, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPitch", 40, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myYaw", 36, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myYaw", 44, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myStoredPitch", 40, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myStoredPitch", 48, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myStoredYaw", 44, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myStoredYaw", 52, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myStoredSpringArmLength", 48, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myStoredSpringArmLength", 56, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
@@ -9338,15 +9433,15 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<PlayerComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("mySpeed", 16, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySpeed", 24, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySprintSpeed", 20, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySprintSpeed", 28, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myJumpForce", 24, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myJumpForce", 32, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
@@ -9364,19 +9459,19 @@ Method& currentMethod = currentClass->AddMethod(Method("TickPhysics", Reflection
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<SpringArmComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myLength", 16, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myLength", 24, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myOffset", 20, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myOffset", 28, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myExclusionTags", 32, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		Field& currentField = currentClass->AddField(Field("myExclusionTags", 40, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myHitOffset", 36, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		Field& currentField = currentClass->AddField(Field("myHitOffset", 44, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(ExposeToEditor)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());

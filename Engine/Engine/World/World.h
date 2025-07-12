@@ -32,8 +32,6 @@ public:
 
 	ComponentSystem& GetComponentSystem() const;
 	
-	void ToggleCactus();
-
 	template<typename SystemType>
 	SystemType& GetWorldSystem() const
 	{
@@ -47,6 +45,4 @@ private:
 	class AssetRegistry* myAssetRegistry = nullptr;
 
 	SystemManager<WorldSystem>* mySystemManager = nullptr;
-
-	class GameObject* myCactus = nullptr;
 };

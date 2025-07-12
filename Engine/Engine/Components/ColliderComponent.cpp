@@ -39,7 +39,7 @@ void ColliderComponent::OnCreate()
         }
         auto transform = GetTransform();
         myActor = inPhysics->createRigidStatic(GetTransform()->AsPxTransform());
-        myActor->userData = GetGameObject();
+        myActor->userData = const_cast<GameObject*>(&GetGameObject());
         
         myActor->attachShape(*myShape);
         
@@ -49,8 +49,8 @@ void ColliderComponent::OnCreate()
         inScene->addActor(*myActor);
     });
 
-    GetGameObject()->OnComponentAdded.Bind(&ColliderComponent::OnComponentAdded, this);
-    GetGameObject()->OnComponentRemoved.Bind(&ColliderComponent::OnComponentRemoved, this);
+    GetGameObject().GetOnComponentAdded().Bind(&ColliderComponent::OnComponentAdded, this);
+    GetGameObject().GetOnComponentRemoved().Bind(&ColliderComponent::OnComponentRemoved, this);
 }
 
 void ColliderComponent::OnDestroy()
@@ -72,8 +72,8 @@ void ColliderComponent::OnDestroy()
     GetTransform()->OnRotationChanged.UnBind(&ColliderComponent::OnPhysicsStateDirty, this);
     GetTransform()->OnScaleChanged.UnBind(&ColliderComponent::OnScaleChanged, this);
     
-    GetGameObject()->OnComponentAdded.UnBind(&ColliderComponent::OnComponentAdded, this);
-    GetGameObject()->OnComponentRemoved.UnBind(&ColliderComponent::OnComponentRemoved, this);
+    GetGameObject().GetOnComponentAdded().UnBind(&ColliderComponent::OnComponentAdded, this);
+    GetGameObject().GetOnComponentRemoved().UnBind(&ColliderComponent::OnComponentRemoved, this);
 }
 
 void ColliderComponent::OnPhysicsStateDirty()

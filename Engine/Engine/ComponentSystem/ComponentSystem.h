@@ -1,9 +1,34 @@
 ﻿#pragma once
 #include "ComponentArray.h"
+#include "GameObjectID.hpp"
+#include "GameObjectTag.hpp"
+#include "Engine/Delegates/MulticastDelegate.hpp"
 #include "Engine/System/WorldSystem.h"
 
+class TransformComponent;
+class ComponentSystem;
 class Component;
 class GameObject;
+
+struct GameObjectData
+{
+    std::string myName;
+
+    // Called after a component was added. Right after Component::OnCreate
+    MulticastDelegate<void(Component*)> myOnComponentAdded;
+    
+    // Called right before a component is deleted.
+    MulticastDelegate<void(Component*)> myOnComponentRemoved;
+
+    ComponentSystem* myComponentSystem = nullptr;
+    TransformComponent* myTransform = nullptr;
+    
+    bool myRenderStateDirty = false;
+    bool myPhysicsStateDirty = false;
+
+    META(SerializeField)
+    TagMask myTags;
+};
 
 class ComponentSystem : public WorldSystem
 {
@@ -13,18 +38,18 @@ public:
     void Tick() override;
     void TickPhysics();
 
-    void OnCollisionEnterForGameObject(GameObject* inObject, GameObject* inOther);
-    void OnCollisionForGameObject(GameObject* inObject, GameObject* inOther);
-    void OnCollisionExitForGameObject(GameObject* inObject, GameObject* inOther);
+    void OnCollisionEnterForGameObject(const GameObject& inObject, const GameObject& inOther);
+    void OnCollisionForGameObject(const GameObject& inObject, const GameObject& inOther);
+    void OnCollisionExitForGameObject(const GameObject& inObject, const GameObject& inOther);
     
-    void OnTriggerEnterForGameObject(GameObject* inObject, GameObject* inOther);
-    void OnTriggerForGameObject(GameObject* inObject, GameObject* inOther);
-    void OnTriggerExitForGameObject(GameObject* inObject, GameObject* inOther);
+    void OnTriggerEnterForGameObject(const GameObject& inObject, const GameObject& inOther);
+    void OnTriggerForGameObject(const GameObject& inObject, const GameObject& inOther);
+    void OnTriggerExitForGameObject(const GameObject& inObject, const GameObject& inOther);
 
-    GameObject* CreateGameObject(const std::string& inObjectName);
-    void DestroyGameObject(GameObject* inGameObject);
+    GameObject CreateGameObject(const std::string& inObjectName);
+    void DestroyGameObject(const GameObject& inGameObject);
 
-    const List<GameObject*>& GetAllGameObjects() const;
+    const List<GameObjectID>& GetAllGameObjects() const;
     
     template<typename ComponentType>
     ComponentArray<ComponentType>& GetComponentArrayForType() const
@@ -57,11 +82,16 @@ public:
     }
 
     const List<IComponentArray*>& GetAllComponentArrays() const;
+
+    static GameObjectData& GetGameObjectData(const GameObject& inGameObject);
     
 private:
     META(SerializeField)
-    List<GameObject*> myObjects{};
-    List<GameObject*> myObjectsToDestory{};
+    // We use gameObjectID's here to avoid a circular include with GameObject.h
+    List<GameObjectID> myObjects{};
+    List<GameObjectID> myObjectsToDestory{};
+
+    inline static std::unordered_map<GameObjectID, GameObjectData> myGameObjectData{};
 
     META(SerializeField)
     mutable List<IComponentArray*> myComponentArrays;

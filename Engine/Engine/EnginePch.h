@@ -87,6 +87,7 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 #include "Engine/Math/LinearColor.h"
 
 #include "Engine/Core/Console.h"
+#include "Engine/Core/UniqueID.h"
 
 #include "Engine/Containers/List.hpp"
 #include "Engine/Containers/MutexList.hpp"

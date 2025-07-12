@@ -23,7 +23,6 @@
 #include "Rendering/RenderSystem.h"
 #include "Rendering/TextureSystem.h"
 #include "Rendering/VertexBufferSystem.h"
-#include "Serialization/BinarySerializer.h"
 #include "System/SystemManager.hpp"
 #include "Systems/PointLightSystem.h"
 #include "Vulkan/GPUSceneSystem.h"
