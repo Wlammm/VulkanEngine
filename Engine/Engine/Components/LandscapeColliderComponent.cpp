@@ -15,8 +15,8 @@
 
 LandscapeColliderComponent::~LandscapeColliderComponent()
 {
-    GetGameObject().GetOnComponentAdded().UnBind(&LandscapeColliderComponent::OnComponentAdded, this);
-
+    if (myHasBoundDelegate)
+        GetGameObject().GetOnComponentAdded().UnBind(&LandscapeColliderComponent::OnComponentAdded, this);
 }
 
 void LandscapeColliderComponent::OnCreate()
@@ -24,6 +24,7 @@ void LandscapeColliderComponent::OnCreate()
     LandscapeRenderComponent* renderComponent = GetComponent<LandscapeRenderComponent>();
     if(!renderComponent)
     {
+        myHasBoundDelegate = true;
         GetGameObject().GetOnComponentAdded().Bind(&LandscapeColliderComponent::OnComponentAdded, this);
         return;
     }

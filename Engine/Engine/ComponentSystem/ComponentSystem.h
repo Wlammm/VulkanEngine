@@ -34,6 +34,7 @@ class ComponentSystem : public WorldSystem
 {
 public:
     ComponentSystem(World* inWorld) : WorldSystem(inWorld) {}
+    ~ComponentSystem();
 
     void Tick() override;
     void EditorTick() override;

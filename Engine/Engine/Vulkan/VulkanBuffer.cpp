@@ -93,8 +93,7 @@ void VulkanBuffer::UploadStaged(const void* inData, uint inSize, uint inOffset)
 	//VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer::UploadStaged Staging buffer", VulkanBuffer::StagingCreateInfo(inSize), VMA_MEMORY_USAGE_AUTO, true);
 	//stagingBuffer->SetData(inData, inSize);
 
-	StagingSystem& stagingSystem = Engine::GetEngineSystem<StagingSystem>();
-	StagingBuffer stagingBuffer = stagingSystem.GetStagingBufferWithSize(inSize);
+	StagingBuffer stagingBuffer = StagingSystem::GetStagingBufferWithSize_TS(inSize);
 	stagingBuffer.SetData(inData, inSize);
 	
 	VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();

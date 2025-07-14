@@ -27,6 +27,10 @@ LandscapeRenderComponent::LandscapeRenderComponent()
 LandscapeRenderComponent::~LandscapeRenderComponent()
 {
     // Remove buffers.
+    if(myMeshInstance != (uint)-1)
+    {
+        Engine::GetEngineSystem<GPUSceneSystem>().RemoveMeshInstance(myMeshInstance);
+    }
 }
 
 void LandscapeRenderComponent::OnCreate()

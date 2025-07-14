@@ -4393,6 +4393,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetWorld", ReflectionSys
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<LandscapeColliderComponent>();
+	{
+		Field& currentField = currentClass->AddField(Field("myHasBoundDelegate", 64, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ColliderComponent>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8069,21 +8072,18 @@ Method& currentMethod = currentClass->AddMethod(Method("GetUnderlyingBuffer", Re
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<StagingSystem>();
-	{
-		Field& currentField = currentClass->AddField(Field("myLastFrameIndex", 8, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 StagingSystem* instance = static_cast<StagingSystem*>(inInstance);
 const unsigned int arg0 = *(const unsigned int*)inArguments[0];
-static thread_local StagingBuffer result = instance->GetStagingBufferWithSize(arg0);
+static thread_local StagingBuffer result = instance->GetStagingBufferWithSize_TS(arg0);
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("GetStagingBufferWithSize", ReflectionSystem::GetOrCreateType<StagingBuffer>("StagingBuffer"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetStagingBufferWithSize_TS", ReflectionSystem::GetOrCreateType<StagingBuffer>("StagingBuffer"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

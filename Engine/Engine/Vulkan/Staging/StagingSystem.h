@@ -12,7 +12,7 @@ public:
     StagingSystem();
     ~StagingSystem();
 
-    StagingBuffer GetStagingBufferWithSize(const uint inSize);
+    static StagingBuffer GetStagingBufferWithSize_TS(const uint inSize);
 
     void Tick();
     
@@ -23,11 +23,13 @@ private:
     struct BufferData
     {
         ResizableBuffer* myBuffer;
-        uint myOffset = 0;
+        uint myOffset;
     };
 
-    uint myLastFrameIndex = (uint)-1;
-    StagingSystem::BufferData* myCurrentStageData = nullptr;
+    inline static std::mutex myMutex{};
     
-    std::array<StagingSystem::BufferData, VulkanContext::FrameLag> myStagingBuffers;
+    inline static uint myLastFrameIndex = (uint)-1;
+    inline static StagingSystem::BufferData* myCurrentStageData = nullptr;
+    
+    inline static std::array<StagingSystem::BufferData, VulkanContext::FrameLag> myStagingBuffers;
 };

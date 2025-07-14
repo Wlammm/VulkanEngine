@@ -17,4 +17,6 @@ private:
     
     // Called whenever a landscape render component is added or during on create if one already exists. 
     void CreateCollider();
+
+    bool myHasBoundDelegate = false;
 };

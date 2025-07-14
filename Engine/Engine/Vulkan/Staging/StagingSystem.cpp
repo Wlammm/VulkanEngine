@@ -25,6 +25,7 @@ StagingSystem::StagingSystem()
 
 StagingSystem::~StagingSystem()
 {
+    std::scoped_lock lock(myMutex);
     for(int i = 0; i < 3; ++i)
     {
         VulkanAllocator::DestroyBuffer_TS(myStagingBuffers[i].myBuffer);
@@ -32,8 +33,9 @@ StagingSystem::~StagingSystem()
     }
 }
 
-StagingBuffer StagingSystem::GetStagingBufferWithSize(const uint inSize)
+StagingBuffer StagingSystem::GetStagingBufferWithSize_TS(const uint inSize)
 {
+    std::scoped_lock lock(myMutex);
     if(myCurrentStageData->myOffset + inSize > myCurrentStageData->myBuffer->GetBuffer()->GetSize())
     {
         LOG("Staging buffer overflow. Resizing");
@@ -53,6 +55,7 @@ void StagingSystem::Tick()
 
 void StagingSystem::PrepareThisFramesStagingBuffer()
 {
+    std::scoped_lock lock(myMutex);
     myCurrentStageData = &myStagingBuffers[VulkanContext::GetSwapChain().GetFrameIndex()];
 
     // We do this as first frame we will get 2 ticks here before we get a new frame index. We cant overwrite this data then or shit gets corrupted.

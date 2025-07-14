@@ -3,6 +3,15 @@
 #include "GameObject.h"
 #include "Engine/Components/TransformComponent.h"
 
+ComponentSystem::~ComponentSystem()
+{
+    for (IComponentArray* array : myComponentArrays)
+    {
+        del(array);
+    }
+    myComponentArrays.Clear();
+}
+
 void ComponentSystem::Tick()
 {
     ZoneScoped;
