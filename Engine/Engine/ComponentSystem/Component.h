@@ -19,6 +19,8 @@ public:
     virtual void OnCollisionEnter(const GameObject& inOther) {}
     virtual void OnCollision(const GameObject& inOther) {}
     virtual void OnCollisionExit(const GameObject& inOther) {}
+
+    virtual void EditorTick() {}
     
     // This function does not get called unless DoesComponentTick is implemented and returns true.
     virtual void Tick() {}

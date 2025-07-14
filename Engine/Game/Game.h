@@ -1,10 +1,13 @@
 ﻿#pragma once
+#include "Engine/Core/AutoInit.h"
 
-class Game
+class Game : public AutoInit
 {
 public:
     Game();
-    ~Game();
+    ~Game() override;
+
+    void Init() override;
     
     static void StaticTick();
     

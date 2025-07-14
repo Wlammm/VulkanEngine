@@ -5,7 +5,7 @@
 #include "TransformComponent.h"
 #include "Engine/Core/Input.h"
 
-void EditorCameraMovementComponent::Tick()
+void EditorCameraMovementComponent::EditorTick()
 {
     UpdateMovement();
     UpdateRotation();
@@ -19,7 +19,6 @@ void EditorCameraMovementComponent::ResetMouseDelta()
 
 void EditorCameraMovementComponent::UpdateMovement()
 {
-    return;
     glm::vec3 movement{};
 
     if (Input::IsKeyPressed(KeyCode::W))

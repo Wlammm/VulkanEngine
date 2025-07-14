@@ -5,6 +5,7 @@
 #include "Engine/System/WorldSystem.h"
 #include "Engine/Physics/PhysicsQueryStructs.h"
 
+class CameraComponent;
 class DirectionalLightComponent;
 class ComponentSystem;
 class ECSRegistry;
@@ -16,8 +17,8 @@ public:
 	World();
 	~World();
 
-	void Init() override final;
-	void Update();
+	void Init() override;
+	virtual void Tick() = 0;
 	void Destroy();
 
 	void SaveToFile(const std::filesystem::path& inPath);
@@ -38,11 +39,16 @@ public:
 		return mySystemManager->GetSystem<SystemType>();
 	}
 
+	void SetMainCamera(CameraComponent* inCamera);
+	CameraComponent* GetMainCamera() const;
+	
 private:
 	void CreateWorldSystems();
 	
-private:
+protected:
 	class AssetRegistry* myAssetRegistry = nullptr;
 
 	SystemManager<WorldSystem>* mySystemManager = nullptr;
+
+	CameraComponent* myMainCamera = nullptr;
 };

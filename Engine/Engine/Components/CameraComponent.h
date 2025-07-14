@@ -10,6 +10,8 @@ public:
 	
 	void CreateOrthographic(const glm::vec2& inResolution, const float inNearPlane = 1.0f, const float inFarPlane = 100000.0f);
 	void CreatePerspective(const glm::vec2& inResolution, const float inFov = 90.0f, const float inNearPlane = 1.0f, const float inFarPlane = 100000.0f);
+
+	void SetAsMainCamera();
 	
 private:
 	glm::vec2 myResolution;

@@ -3,15 +3,19 @@
 
 #include "EditorSystem/EditorSystem.h"
 #include "EditorSystem/EditorToolbar.h"
+#include "EditorSystem/SelectionSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Reflection/ReflectionSystem.h"
+#include "Engine/World/GameWorld.h"
+#include "Engine/World/World.h"
 #include "Toolbar/Themes/EditorThemes.h"
 #include "Windows/EditorWindow.h"
 #include "Windows/HierarchyWindow.h"
 #include "Windows/ImGuiPropertyDrawer.h"
 #include "Windows/InspectorWindow.h"
 #include "Windows/Viewport.h"
+#include "World/EditorWorld.h"
 
 Editor::Editor()
 {
@@ -26,6 +30,8 @@ Editor::Editor()
     AddEditorWindows();
 
     EditorThemes::DefaultTheme();
+
+    Engine::SetWorld(new EditorWorld());
 }
 
 Editor::~Editor()
@@ -53,8 +59,7 @@ void Editor::Tick()
 {
     // TODO: This should probably be removed whenever we implement play in editor.
     check(myGameTickFunction.IsValid());
-    myGameTickFunction.Invoke();
-
+    
     BeginMainDockSpace();
 
     for (const auto& window : myWindows)
@@ -82,6 +87,46 @@ void Editor::RemoveWindow(EditorWindow* inEditorWindow)
 void Editor::SetGameTickFunction(const Delegate<void()>& inTickFunction)
 {
     myGameTickFunction = inTickFunction;
+}
+
+void Editor::TogglePIE()
+{
+    SelectionSystem::ClearSelection();
+    if (myInstance->myIsPIE)
+    {
+        myInstance->StopPIE();
+    }
+    else
+    {
+        myInstance->StartPIE();    
+    }
+}
+
+bool Editor::IsPIE()
+{
+    return myInstance->myIsPIE;
+}
+
+void Editor::StartPIE()
+{
+    myIsPIE = true;
+
+    World* currentWorld = Engine::GetWorld();
+    if (currentWorld != nullptr)
+        del(currentWorld);
+    
+    Engine::SetWorld(new GameWorld());
+}
+
+void Editor::StopPIE()
+{
+    myIsPIE = false;
+
+    World* currentWorld = Engine::GetWorld();
+    if (currentWorld != nullptr)
+        del(currentWorld);
+    
+    Engine::SetWorld(new EditorWorld());
 }
 
 void Editor::BeginMainDockSpace()

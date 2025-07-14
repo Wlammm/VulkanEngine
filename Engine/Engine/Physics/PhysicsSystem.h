@@ -25,6 +25,9 @@ class PhysicsSystem : public WorldSystem
 {
 public:
     inline static bool IsSimulatingPhysics = false;
+
+    static void CreateStaticObjects();
+    static void DestoryStaticObjects();
     
     PhysicsSystem(World* inWorld);
     ~PhysicsSystem();
@@ -49,14 +52,14 @@ public:
 private:
     List<Delegate<void(physx::PxPhysics* inPhysics, physx::PxScene* inScene)>> myPhysicsCommands{};
     
-    physx::PxErrorCallback* myDefaultErrorCallback = nullptr;
-    physx::PxDefaultAllocator* myDefaultAllocator = nullptr;
+    inline static physx::PxErrorCallback* myDefaultErrorCallback = nullptr;
+    inline static physx::PxDefaultAllocator* myDefaultAllocator = nullptr;
     physx::PxTolerancesScale* myToleranceScale = nullptr;
-    physx::PxFoundation* myFoundation = nullptr;
-    physx::PxPvd* myPvd = nullptr;
-    physx::PxPvdTransport* myPvdTransport = nullptr;
+    inline static physx::PxFoundation* myFoundation = nullptr;
+    inline static physx::PxPvd* myPvd = nullptr;
+    inline static physx::PxPvdTransport* myPvdTransport = nullptr;
     physx::PxMaterial* myDefaultMaterial = nullptr;
-    PhysicsListener* myListener;
+    inline static PhysicsListener* myListener;
 
     // It is not allowed to add, remove, or modify objects while the simulation is running. Use QueuePhysicsCommand if you want to make changes to these objects.
     physx::PxPhysics* myPhysics = nullptr;

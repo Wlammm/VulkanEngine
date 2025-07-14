@@ -54,25 +54,42 @@ physx::PxFilterFlags SimulationFilterShader(
 }
 
 
-PhysicsSystem::PhysicsSystem(World* inWorld)
-    : WorldSystem(inWorld)
+void PhysicsSystem::CreateStaticObjects()
 {
-    // TODO: Maybe these needs to be made static or into some other system as this is currently created once for each world.
     myDefaultAllocator = new physx::PxDefaultAllocator();
     myDefaultErrorCallback = new PhysicsErrorCallback();
-    myToleranceScale = new physx::PxTolerancesScale();
-    myListener = new PhysicsListener();
-    myToleranceScale->length = 100.0f;
-    myToleranceScale->speed = 981.f;
     
     myFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *myDefaultAllocator, *myDefaultErrorCallback);
     check(myFoundation && "Could not create physics foundation.");
-
+    
     myPvd = physx::PxCreatePvd(*myFoundation);
     myPvdTransport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
     bool successfulPvdConnection = myPvd->connect(*myPvdTransport, physx::PxPvdInstrumentationFlag::eALL);
     if(successfulPvdConnection) 
         LOG("PhysicsSystem::PhysicsSystem - Successfully connected to PhysX PVD");
+}
+
+void PhysicsSystem::DestoryStaticObjects()
+{
+    if(myPvd && myPvd->isConnected())
+    {
+        myPvdTransport->disconnect();
+        myPvd->disconnect();
+    }
+    PhysXRelease(myPvdTransport);
+    PhysXRelease(myPvd);
+    PhysXRelease(myFoundation);
+    del(myDefaultAllocator);
+    del(myDefaultErrorCallback);
+}
+
+PhysicsSystem::PhysicsSystem(World* inWorld)
+    : WorldSystem(inWorld)
+{
+    myListener = new PhysicsListener();
+    myToleranceScale = new physx::PxTolerancesScale();
+    myToleranceScale->length = 100.0f;
+    myToleranceScale->speed = 981.f;
 
     constexpr bool recordMemoryAllocations = true;
     myPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *myFoundation, *myToleranceScale, recordMemoryAllocations, myPvd);
@@ -104,22 +121,11 @@ PhysicsSystem::PhysicsSystem(World* inWorld)
 PhysicsSystem::~PhysicsSystem()
 {
     PhysXRelease(myControllerManager);
+    PhysXRelease(myScene);
     del(myToleranceScale);
     PhysXRelease(myDefaultMaterial);
-    PhysXRelease(myScene);
     PhysXRelease(myPhysics);
     del(myListener);
-    
-    if(myPvd && myPvd->isConnected())
-    {
-        myPvdTransport->disconnect();
-        myPvd->disconnect();
-    }
-    PhysXRelease(myPvdTransport);
-    PhysXRelease(myPvd);
-    PhysXRelease(myFoundation);
-    del(myDefaultAllocator);
-    del(myDefaultErrorCallback);
 }
 
 void PhysicsSystem::Tick()

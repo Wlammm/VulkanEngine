@@ -11,6 +11,7 @@ class IComponentArray
 public:
     virtual ~IComponentArray() = default;
     virtual void Tick() = 0;
+    virtual void EditorTick() = 0;
     virtual void TickPhysics() = 0;
 
     virtual void TryRemoveComponentForGameObject(const GameObject& inObject) = 0;
@@ -43,6 +44,7 @@ public:
     inline static constexpr int ComponentsPerSegment = 128;
 
     IMPLEMENTS_METHOD(Tick);
+    IMPLEMENTS_METHOD(EditorTick);
     IMPLEMENTS_METHOD(TickPhysics);
     IMPLEMENTS_METHOD(OnRenderStateDirty);
     
@@ -80,6 +82,28 @@ public:
             for(ComponentType& component : myComponents)
             {
                 component.ComponentType::Tick();
+            }
+        }
+    }
+
+    void EditorTick() override
+    {
+        if constexpr (ImplementsOnRenderStateDirty())
+        {
+            for(ComponentType& component : myComponents)
+            {
+                if(component.GetGameObject().IsRenderStateDirty())
+                {
+                    component.ComponentType::OnRenderStateDirty();
+                }
+            }
+        }
+
+        if constexpr (ImplementsEditorTick())
+        {
+            for(ComponentType& component : myComponents)
+            {
+                component.ComponentType::EditorTick();
             }
         }
     }

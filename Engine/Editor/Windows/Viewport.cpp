@@ -9,6 +9,7 @@
 #include "Engine/World/World.h"
 #include "Engine/ComponentSystem/ComponentSystem.h"
 #include "Engine/Components/EditorCameraMovementComponent.h"
+#include "Utils/ImGuiTextureUtils.h"
 
 Viewport::Viewport()
 	: EditorWindow("Viewport", true)
@@ -18,6 +19,10 @@ Viewport::Viewport()
 	myDescriptorSets.Emplace();
 	myDescriptorSets.Emplace();
 	myDescriptorSets.Emplace();
+
+	myPlayButtonTexture = ImGuiTextureUtils::CreateDescriptorSetForTexture("Editor/Viewport/PlayButton.png");
+	myStopButtonTexture = ImGuiTextureUtils::CreateDescriptorSetForTexture("Editor/Viewport/StopButton.png");
+	
 }
 
 Viewport::~Viewport()
@@ -40,6 +45,7 @@ void Viewport::Tick()
 	UpdateCurrentTexture();
 	UpdateViewportImageSize();
 	UpdateCaptureMouse();
+	DrawPIEHUD();
 }
 
 vk::DescriptorSet Viewport::GetCurrentDescriptorSet()
@@ -87,8 +93,8 @@ void Viewport::UpdateCaptureMouse()
 
 	if (myEditorCamera == nullptr)
 	{
-		World& world = Engine::GetWorld();
-		ComponentSystem& componentSystem = world.GetComponentSystem();
+		World* world = Engine::GetWorld();
+		ComponentSystem& componentSystem = world->GetComponentSystem();
 
 		if (!(myEditorCamera = componentSystem.GetAnyComponentOfType<EditorCameraMovementComponent>()))
 			return;
@@ -117,6 +123,65 @@ void Viewport::UpdateCaptureMouse()
 		SetCursorPos(static_cast<int>(mousePosition.x), static_cast<int>(myP1.y - 10.0f));
 		myEditorCamera->ResetMouseDelta();
 	}
+}
+
+void Viewport::DrawPIEHUD()
+{
+	const float hudWidth = 80.0f;
+	const float hudHeight = 30.0f;
+	const float padding = 8.0f;
+
+	ImVec2 hudPos;
+	hudPos.x = myP0.x + ((myP1.x - myP0.x) - hudWidth) * 0.5f;
+	hudPos.y = myP0.y + padding;
+
+	ImGui::SetNextWindowPos(hudPos, ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(hudWidth, hudHeight));
+	ImGui::SetNextWindowBgAlpha(0.35f); 
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
+
+	ImGuiWindowFlags windowFlags = 
+		ImGuiWindowFlags_NoDecoration | 
+		ImGuiWindowFlags_NoDocking |
+		ImGuiWindowFlags_AlwaysAutoResize |
+		ImGuiWindowFlags_NoNav | 
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_NoFocusOnAppearing | 
+		ImGuiWindowFlags_NoScrollbar;
+
+	ImGui::Begin("##PIEOverlay", nullptr, windowFlags);
+
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1, 1, 1, 0.1f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1, 1, 1, 0.2f));
+
+	ImVec2 pos = ImGui::GetCursorPos();
+	pos.y -= 5;
+	ImGui::SetCursorPos(pos);
+	
+	if (ImGui::ImageButton(myPlayButtonTexture, {20, 20}))
+	{
+		if (!Editor::IsPIE())
+			Editor::TogglePIE();
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::ImageButton(myStopButtonTexture, {20, 20}))
+	{
+		if (Editor::IsPIE())
+			Editor::TogglePIE();
+	}
+	
+	ImGui::PopStyleColor(3);
+	ImGui::End();
+
+	ImGui::PopStyleColor();
+	ImGui::PopStyleVar(2);
 }
 
 ImVec2 Viewport::ClampToAspectRatio(const ImVec2& inSize, const ImVec2& inAspectRatio) const

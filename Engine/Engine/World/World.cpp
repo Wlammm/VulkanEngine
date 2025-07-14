@@ -110,16 +110,6 @@ void World::Init()
 	}
 }
 
-void World::Update()
-{
-	ZoneScoped;
-	
-	for(WorldSystem* system : mySystemManager->GetAllSystems())
-	{
-		system->Tick();
-	}
- }
-
 void World::Destroy()
 {
 	
@@ -238,6 +228,16 @@ DirectionalLightComponent* World::GetDirectionalLight() const
 ComponentSystem& World::GetComponentSystem() const
 {
 	return GetWorldSystem<ComponentSystem>();
+}
+
+void World::SetMainCamera(CameraComponent* inCamera)
+{
+	myMainCamera = inCamera;
+}
+
+CameraComponent* World::GetMainCamera() const
+{
+	return myMainCamera;
 }
 
 void World::CreateWorldSystems()

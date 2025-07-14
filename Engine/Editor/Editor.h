@@ -18,6 +18,12 @@ public:
 
 	void SetGameTickFunction(const Delegate<void()>& inTickFunction);
 
+	static void TogglePIE();
+	static bool IsPIE();
+
+	void StartPIE();
+	void StopPIE();
+	
 	template<typename WindowType>
 	static void OpenEditorWindow()
 	{
@@ -55,6 +61,8 @@ private:
 	Delegate<void()> myGameTickFunction;
 
 	AssetRegistry* myAssetRegistry = nullptr;
+
+	bool myIsPIE = false;
 	
 private:
 	inline static Editor* myInstance = nullptr;

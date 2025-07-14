@@ -444,30 +444,32 @@ void GDRPipeline::CreateGraphicsPipeline()
 
 void GDRPipeline::BuildFrameBuffer() const
 {
-	for (const CameraComponent& camera : Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<CameraComponent>())
-	{
-		TransformComponent* transform = camera.GetTransform();
-		
-		FrameData data{};
-		data.myProjection = camera.GetProjection();
-		data.myToView = glm::affineInverse(transform->GetMatrix());
-		data.myCameraPosition = transform->GetPosition();
+	CameraComponent* camera = Engine::GetWorld()->GetMainCamera();
 
-		if(myCubemap)
-			data.myCubemapIndex = myCubemap->GetBindlessIndex();
-		
-		myFrameDataBuffer->SetData(data);
+	if (!camera)
+	{
+		LOG_ERROR("No main camera set!");
 		return;
 	}
+	
+	TransformComponent* transform = camera->GetTransform();
+	
+	FrameData data{};
+	data.myProjection = camera->GetProjection();
+	data.myToView = glm::affineInverse(transform->GetMatrix());
+	data.myCameraPosition = transform->GetPosition();
 
-	LOG("No render camera found.");	
+	if(myCubemap)
+		data.myCubemapIndex = myCubemap->GetBindlessIndex();
+	
+	myFrameDataBuffer->SetData(data);
 }
 
 void GDRPipeline::BuildDirectionalLightBuffer() const
 {
 	DirectionalLightBuffer buffer = {};
 
-	for (const DirectionalLightComponent& light : Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<DirectionalLightComponent>())
+	for (const DirectionalLightComponent& light : Engine::GetWorld()->GetComponentSystem().GetAllComponentsOfType<DirectionalLightComponent>())
 	{
 		TransformComponent* transform = light.GetTransform();
 		buffer.myColor = light.GetColor();

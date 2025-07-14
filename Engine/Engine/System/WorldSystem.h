@@ -10,6 +10,7 @@ public:
     virtual ~WorldSystem() = default;
 
     virtual void Tick() {};
+    virtual void EditorTick() {};
 
     World* GetWorld() const;
     

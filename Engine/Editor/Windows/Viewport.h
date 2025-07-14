@@ -25,10 +25,15 @@ private:
 	void UpdateViewportImageSize();
 	void UpdateCaptureMouse();
 
+	void DrawPIEHUD();
+
 	ImVec2 ClampToAspectRatio(const ImVec2& inSize, const ImVec2& inAspectRatio) const;
 
 private:
 	EditorCameraMovementComponent* myEditorCamera = nullptr;
+
+	vk::DescriptorSet myPlayButtonTexture;
+	vk::DescriptorSet myStopButtonTexture;
 
 	List<vk::DescriptorSet> myDescriptorSets;
 	vk::Sampler mySampler;

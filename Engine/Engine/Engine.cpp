@@ -17,6 +17,7 @@
 
 #include "Tracy/tracy/Tracy.hpp"
 #include "Core/AutoInitManager.h"
+#include "Physics/PhysicsSystem.h"
 #include "Reflection/ReflectionSystem.h"
 #include "Rendering/IndexBufferSystem.h"
 #include "Rendering/MeshSystem.h"
@@ -48,6 +49,8 @@ Engine::Engine(const EngineProperties inEngineProperties)
 
 	AssetRegistry::ScanAssetsFolder();
 	
+	PhysicsSystem::CreateStaticObjects();
+	
 	myPostMaster = new EventHandler();
 	myThreadPool = new ThreadPool();
 	myFilewatcher = new Filewatcher();
@@ -57,7 +60,9 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	mySystemManager = new SystemManager<System>();
 	CreateSystems();
 
+#if !EDITOR
 	SetWorld(new World());
+#endif
 }
 
 Engine::~Engine()
@@ -70,6 +75,8 @@ Engine::~Engine()
 	del(myFilewatcher);
 	del(myThreadPool);
 	del(myPostMaster);
+
+	PhysicsSystem::DestoryStaticObjects();
 
 	myInstance = nullptr;
 }
@@ -122,7 +129,7 @@ void Engine::Tick()
 	GetEngineSystem<StagingSystem>().Tick();
 	GetEngineSystem<GPUSceneSystem>().Tick();
 	
-	myWorld->Update();
+	myWorld->Tick();
 
 	myExternalTickFunction();
 	
@@ -181,9 +188,9 @@ Filewatcher& Engine::GetFilewatcher()
 	return *myInstance->myFilewatcher;
 }
 
-World& Engine::GetWorld()
+World* Engine::GetWorld()
 {
-	return *myInstance->myWorld;
+	return myInstance->myWorld;
 }
 
 void Engine::SetWorld(World* inWorld)

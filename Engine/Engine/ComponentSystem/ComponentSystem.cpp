@@ -11,32 +11,19 @@ void ComponentSystem::Tick()
         array->Tick();
     }
 
-    for(GameObjectID& gameObjectID : myObjectsToDestory)
-    {
-        // TODO: This might cause performance issues. Consider extracting the methods to a utils class that both can use. 
-        GameObject gameObject = GameObject(gameObjectID);
-        
-        // Remove all components.
-        for(Component* comp : gameObject.GetComponents())
-        {
-            comp->OnDestroy();
-        }
-    
-        const List<IComponentArray*>& arrays = gameObject.GetComponentSystem()->GetAllComponentArrays();
-        for(IComponentArray* array : arrays)
-        {
-            array->TryRemoveComponentForGameObject(gameObject);
-        }
+    TickObjectDeletes();
+}
 
-        myGameObjectData.erase(gameObject);
-        myObjects.Remove(gameObject);
-    }
-    myObjectsToDestory.Clear();
+void ComponentSystem::EditorTick()
+{
+    WorldSystem::EditorTick();
 
-    for (GameObjectID& id : myObjects)
+    for (IComponentArray* array : myComponentArrays)
     {
-        GetGameObjectData(id).myRenderStateDirty = false;
+        array->EditorTick();
     }
+
+    TickObjectDeletes();
 }
 
 void ComponentSystem::TickPhysics()
@@ -127,4 +114,34 @@ const List<IComponentArray*>& ComponentSystem::GetAllComponentArrays() const
 GameObjectData& ComponentSystem::GetGameObjectData(const GameObject& inGameObject)
 {
     return myGameObjectData[inGameObject];
+}
+
+void ComponentSystem::TickObjectDeletes()
+{
+    for(GameObjectID& gameObjectID : myObjectsToDestory)
+    {
+        // TODO: This might cause performance issues. Consider extracting the methods to a utils class that both can use. 
+        GameObject gameObject = GameObject(gameObjectID);
+        
+        // Remove all components.
+        for(Component* comp : gameObject.GetComponents())
+        {
+            comp->OnDestroy();
+        }
+    
+        const List<IComponentArray*>& arrays = gameObject.GetComponentSystem()->GetAllComponentArrays();
+        for(IComponentArray* array : arrays)
+        {
+            array->TryRemoveComponentForGameObject(gameObject);
+        }
+
+        myGameObjectData.erase(gameObject);
+        myObjects.Remove(gameObject);
+    }
+    myObjectsToDestory.Clear();
+
+    for (GameObjectID& id : myObjects)
+    {
+        GetGameObjectData(id).myRenderStateDirty = false;
+    }
 }

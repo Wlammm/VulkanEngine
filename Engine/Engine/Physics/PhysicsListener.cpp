@@ -22,8 +22,8 @@ void PhysicsListener::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
         {
             myDequeueCollisionsDelegate.Bind([firstObject, secondObject]()
             {
-                Engine::GetWorld().GetComponentSystem().OnTriggerExitForGameObject(*firstObject, *secondObject);
-                Engine::GetWorld().GetComponentSystem().OnTriggerExitForGameObject(*secondObject, *firstObject);
+                Engine::GetWorld()->GetComponentSystem().OnTriggerExitForGameObject(*firstObject, *secondObject);
+                Engine::GetWorld()->GetComponentSystem().OnTriggerExitForGameObject(*secondObject, *firstObject);
             });
             myTriggerPairs.Remove({firstObject, secondObject});
         }
@@ -31,8 +31,8 @@ void PhysicsListener::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
         {
             myDequeueCollisionsDelegate.Bind([firstObject, secondObject]()
             {
-                Engine::GetWorld().GetComponentSystem().OnTriggerEnterForGameObject(*firstObject, *secondObject);
-                Engine::GetWorld().GetComponentSystem().OnTriggerEnterForGameObject(*secondObject, *firstObject);
+                Engine::GetWorld()->GetComponentSystem().OnTriggerEnterForGameObject(*firstObject, *secondObject);
+                Engine::GetWorld()->GetComponentSystem().OnTriggerEnterForGameObject(*secondObject, *firstObject);
             });
             myTriggerPairs.Add({firstObject, secondObject});
         }
@@ -48,8 +48,8 @@ void PhysicsListener::onContact(const physx::PxContactPairHeader& pairHeader, co
     {
         myDequeueCollisionsDelegate.Bind([firstObject, secondObject]()
         {
-            Engine::GetWorld().GetComponentSystem().OnCollisionExitForGameObject(*firstObject, *secondObject);
-            Engine::GetWorld().GetComponentSystem().OnCollisionExitForGameObject(*secondObject, *firstObject);
+            Engine::GetWorld()->GetComponentSystem().OnCollisionExitForGameObject(*firstObject, *secondObject);
+            Engine::GetWorld()->GetComponentSystem().OnCollisionExitForGameObject(*secondObject, *firstObject);
         });
         myCollisionPairs.Remove({firstObject, secondObject});
     }
@@ -57,8 +57,8 @@ void PhysicsListener::onContact(const physx::PxContactPairHeader& pairHeader, co
     {
         myDequeueCollisionsDelegate.Bind([firstObject, secondObject]()
         {
-            Engine::GetWorld().GetComponentSystem().OnCollisionEnterForGameObject(*firstObject, *secondObject);
-            Engine::GetWorld().GetComponentSystem().OnCollisionEnterForGameObject(*secondObject, *firstObject);
+            Engine::GetWorld()->GetComponentSystem().OnCollisionEnterForGameObject(*firstObject, *secondObject);
+            Engine::GetWorld()->GetComponentSystem().OnCollisionEnterForGameObject(*secondObject, *firstObject);
         });
         myCollisionPairs.Add({firstObject, secondObject});
     }
@@ -132,13 +132,13 @@ void PhysicsListener::Tick()
     
     for(const ContactPair& pair : myCollisionPairs)
     {
-        Engine::GetWorld().GetComponentSystem().OnCollisionForGameObject(*pair.myFirst, *pair.mySecond);
-        Engine::GetWorld().GetComponentSystem().OnCollisionForGameObject(*pair.mySecond, *pair.myFirst);
+        Engine::GetWorld()->GetComponentSystem().OnCollisionForGameObject(*pair.myFirst, *pair.mySecond);
+        Engine::GetWorld()->GetComponentSystem().OnCollisionForGameObject(*pair.mySecond, *pair.myFirst);
     }
 
     for(const ContactPair& pair : myTriggerPairs)
     {
-        Engine::GetWorld().GetComponentSystem().OnTriggerForGameObject(*pair.myFirst, *pair.mySecond);
-        Engine::GetWorld().GetComponentSystem().OnTriggerForGameObject(*pair.mySecond, *pair.myFirst);
+        Engine::GetWorld()->GetComponentSystem().OnTriggerForGameObject(*pair.myFirst, *pair.mySecond);
+        Engine::GetWorld()->GetComponentSystem().OnTriggerForGameObject(*pair.mySecond, *pair.myFirst);
     }
 }

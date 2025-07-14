@@ -38,7 +38,7 @@ public:
 	static class ThreadPool& GetThreadPool();
 	static class Filewatcher& GetFilewatcher();
 
-	static class World& GetWorld();
+	static class World* GetWorld();
 	static void SetWorld(World* inWorld);
 
 	template<typename SystemType>

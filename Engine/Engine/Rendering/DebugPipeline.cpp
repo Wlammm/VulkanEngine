@@ -174,17 +174,19 @@ VulkanBuffer* DebugPipeline::BuildVertexBuffer()
 
 void DebugPipeline::UpdateFrameBuffer()
 {
-	for (const CameraComponent& camera : Engine::GetWorld().GetComponentSystem().GetAllComponentsOfType<CameraComponent>())
+	CameraComponent* camera = Engine::GetWorld()->GetMainCamera();
+
+	if (!camera)
 	{
-		TransformComponent* transform = camera.GetTransform();
-		
-		FrameData data{};
-		data.myProjection = camera.GetProjection();
-		data.myToView = glm::affineInverse(transform->GetMatrix());
-		data.myCameraPosition = transform->GetPosition();
-		myFrameDataBuffer->SetData(data);
+		LOG_ERROR("No main camera set!");
 		return;
 	}
-
-	LOG("No render camera found.");	
+	
+	TransformComponent* transform = camera->GetTransform();
+	
+	FrameData data{};
+	data.myProjection = camera->GetProjection();
+	data.myToView = glm::affineInverse(transform->GetMatrix());
+	data.myCameraPosition = transform->GetPosition();
+	myFrameDataBuffer->SetData(data);
 }

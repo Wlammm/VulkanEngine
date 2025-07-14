@@ -178,9 +178,12 @@ void SkyboxPipeline::BuildFrameBuffer()
 	if (!mySkybox)
 		return;
 
-	CameraComponent* camera = Engine::GetWorld().GetComponentSystem().GetAnyComponentOfType<CameraComponent>();
+	CameraComponent* camera = Engine::GetWorld()->GetMainCamera();
 	if(!camera)
+	{
+		LOG_ERROR("No main camera set!");
 		return;
+	}
 		
 	FrameData data{};
 	data.myProjection = camera->GetProjection();

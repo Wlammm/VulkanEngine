@@ -36,6 +36,7 @@ public:
     ComponentSystem(World* inWorld) : WorldSystem(inWorld) {}
 
     void Tick() override;
+    void EditorTick() override;
     void TickPhysics();
 
     void OnCollisionEnterForGameObject(const GameObject& inObject, const GameObject& inOther);
@@ -84,8 +85,12 @@ public:
     const List<IComponentArray*>& GetAllComponentArrays() const;
 
     static GameObjectData& GetGameObjectData(const GameObject& inGameObject);
+
+private:
+    void TickObjectDeletes();
     
 private:
+    
     META(SerializeField)
     // We use gameObjectID's here to avoid a circular include with GameObject.h
     List<GameObjectID> myObjects{};

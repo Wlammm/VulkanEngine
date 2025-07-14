@@ -1,6 +1,8 @@
 ﻿#include "EnginePch.h"
 #include "CameraComponent.h"
 
+#include "Engine/World/World.h"
+
 CameraComponent::CameraComponent()
 {
         
@@ -32,4 +34,9 @@ void CameraComponent::CreatePerspective(const glm::vec2& inResolution, const flo
     myProjection = glm::perspective(glm::radians(inFov / aspectRatio), aspectRatio, inNearPlane, inFarPlane);
     myProjection[1][1] *= -1;
     myIsOrthographic = false;
+}
+
+void CameraComponent::SetAsMainCamera()
+{
+    GetWorld()->SetMainCamera(this);
 }

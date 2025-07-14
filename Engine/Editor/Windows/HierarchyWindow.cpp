@@ -24,9 +24,9 @@ void HierarchyWindow::Tick()
     
     const std::string lowerCaseSearch = String::ToLowerCopy(searchField);
 
-    for (int objectIndex = 0; objectIndex < Engine::GetWorld().GetComponentSystem().GetAllGameObjects().size(); ++objectIndex)
+    for (int objectIndex = 0; objectIndex < Engine::GetWorld()->GetComponentSystem().GetAllGameObjects().size(); ++objectIndex)
     {
-        const GameObject& gameObject = Engine::GetWorld().GetComponentSystem().GetAllGameObjects()[objectIndex];
+        const GameObject& gameObject = Engine::GetWorld()->GetComponentSystem().GetAllGameObjects()[objectIndex];
 
         const std::string lowerCaseGameObjectName = String::ToLowerCopy(gameObject.GetName());
         if (lowerCaseSearch != "" && lowerCaseGameObjectName.find(lowerCaseSearch) == std::string::npos)
