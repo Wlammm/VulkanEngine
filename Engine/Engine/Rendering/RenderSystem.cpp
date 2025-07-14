@@ -14,6 +14,7 @@
 #include "Engine/ComponentSystem/ComponentSystem.h"
 #include "Engine/Core/Input.h"
 #include "Engine/Systems/PointLightSystem.h"
+#include "Engine/Vulkan/VulkanCommandBuffer.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
 #include "Engine/Vulkan/VulkanImage.h"
@@ -104,16 +105,13 @@ void RenderSystem::OnSwapChainResize()
 	CreateRenderResources();
 }
 
-vk::CommandBuffer RenderSystem::CreateUploadCommandBuffer_TS()
+VulkanCommandBuffer* RenderSystem::CreateUploadCommandBuffer_TS()
 {
-	vk::CommandBuffer commandBuffer = VulkanContext::GetDevice().CreateCommandBufferForThread(std::this_thread::get_id(), true, true);
-	
-	std::scoped_lock lock(myUploadMutex);
-	myUploadCommandBuffersToThreadIDLUT.insert({commandBuffer, std::this_thread::get_id()});
+	VulkanCommandBuffer* commandBuffer = VulkanContext::GetDevice().CreateCommandBuffer(true, true);
 	return commandBuffer;
 }
 
-void RenderSystem::QueueCommandBufferForUpload_TS(vk::CommandBuffer commandBuffer)
+void RenderSystem::QueueCommandBufferForUpload_TS(VulkanCommandBuffer* commandBuffer)
 {
 	std::scoped_lock lock(myUploadMutex);
 	myQueuedUploadCommandBuffers.Add(commandBuffer);
@@ -220,16 +218,13 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 	GPUMARK_SCOPE(inCommandBuffer, "UploadPass");
 
 	std::scoped_lock lock(myUploadMutex);
-	for(vk::CommandBuffer commandBuffer : myQueuedUploadCommandBuffers)
+	for(VulkanCommandBuffer* commandBuffer : myQueuedUploadCommandBuffers)
 	{
-		commandBuffer.end();
-		inCommandBuffer.executeCommands(commandBuffer);
-		std::thread::id threadId = myUploadCommandBuffersToThreadIDLUT.at(commandBuffer);
-		myUploadCommandBuffersToThreadIDLUT.erase(commandBuffer);
-		
-		VulkanAllocator::QueueDestroyCommand([threadId, commandBuffer]()
+		commandBuffer->GetAPIResource().end();
+		inCommandBuffer.executeCommands(commandBuffer->GetAPIResource());
+		VulkanAllocator::QueueDestroyCommand([commandBuffer]()
 		{
-			VulkanContext::GetDevice()->freeCommandBuffers(VulkanContext::GetDevice().GetCommandPoolForThread(threadId), commandBuffer);
+			delete commandBuffer;
 		});
 	}
 	myQueuedUploadCommandBuffers.Clear();
@@ -314,11 +309,9 @@ void RenderSystem::AddImGuiPass(vk::CommandBuffer inCommandBuffer)
 void RenderSystem::FlushUploadCommands()
 {
 	std::scoped_lock lock(myUploadMutex);
-	for(vk::CommandBuffer commandBuffer : myQueuedUploadCommandBuffers)
+	for(VulkanCommandBuffer* commandBuffer : myQueuedUploadCommandBuffers)
 	{
-		std::thread::id threadId = myUploadCommandBuffersToThreadIDLUT.at(commandBuffer);
-		myUploadCommandBuffersToThreadIDLUT.erase(commandBuffer);
-		VulkanContext::GetDevice().FlushCommandBufferFromThread(threadId, commandBuffer);
+		VulkanContext::GetDevice().FlushCommandBuffer(commandBuffer);
 	}
 	myQueuedUploadCommandBuffers.Clear();
 }

@@ -10,6 +10,7 @@
 #include "Engine/Utils/ThreadUtils.hpp"
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
+#include "Engine/Vulkan/VulkanCommandBuffer.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
 #include "Engine/Vulkan/VulkanImage.h"
@@ -34,6 +35,7 @@ Coroutine<void, void, false> Texture::Load(const std::filesystem::path inPath)
 
 void Texture::Unload()
 {
+    TextureSystem::RemoveTexture_TS(this);
     VulkanAllocator::DestroyImage_TS(myImage);
     myImage = nullptr;
 }
@@ -156,7 +158,7 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
 #endif
     myImage->CreateView(vk::ImageViewType::e2D);
 
-    vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
+    VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
 
     vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
                                                  .setAspectMask(vk::ImageAspectFlagBits::eColor)
@@ -173,7 +175,7 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
                                                 .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
                                                 .setOldLayout(vk::ImageLayout::eUndefined)
                                                 .setNewLayout(vk::ImageLayout::eTransferDstOptimal);
-    commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eHost, vk::PipelineStageFlagBits::eTransfer,
+    commandBuffer->GetAPIResource().pipelineBarrier(vk::PipelineStageFlagBits::eHost, vk::PipelineStageFlagBits::eTransfer,
                                   vk::DependencyFlagBits(), {}, {}, {imageMemoryBarrier});
 
     vk::BufferImageCopy bufferCopyRegion{};
@@ -188,7 +190,7 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
                     .setDepth(1);
     bufferCopyRegion.setBufferOffset(0);
 
-    commandBuffer.copyBufferToImage(stagingBuffer->GetAPIResource(), myImage->GetAPIResource(),
+    commandBuffer->GetAPIResource().copyBufferToImage(stagingBuffer->GetAPIResource(), myImage->GetAPIResource(),
                                     vk::ImageLayout::eTransferDstOptimal, {bufferCopyRegion});
 
     // Not needed as generate mip levels will transition it to correct layout.
@@ -204,7 +206,7 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
     //							  .setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));
 
 
-    GenerateMipLevels(commandBuffer);
+    GenerateMipLevels(commandBuffer->GetAPIResource());
     RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
     VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 #if DEBUG

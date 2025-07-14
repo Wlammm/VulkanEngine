@@ -121,6 +121,7 @@
 #include "../Engine/Vulkan\Staging\StagingSystem.h"
 #include "../Engine/Vulkan\VulkanAllocator.h"
 #include "../Engine/Vulkan\VulkanBuffer.h"
+#include "../Engine/Vulkan\VulkanCommandBuffer.h"
 #include "../Engine/Vulkan\VulkanContext.h"
 #include "../Engine/Vulkan\VulkanDescriptorSet.h"
 #include "../Engine/Vulkan\VulkanDevice.h"

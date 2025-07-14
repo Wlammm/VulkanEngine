@@ -6,6 +6,7 @@
 #include "VulkanAllocator.h"
 #include <vma/vk_mem_alloc.h>
 
+#include "VulkanCommandBuffer.h"
 #include "Engine/Engine.h"
 #include "Engine/Rendering/RenderSystem.h"
 #include "Staging/StagingSystem.h"
@@ -19,9 +20,9 @@ void VulkanBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const uint 
 {
 	check(GetSize() >= inSize + inOffset);
 
-	vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
+	VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
 	vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset);
-	commandBuffer.copyBuffer(inStagingBuffer->GetAPIResource(), GetAPIResource(), { copyRegion });
+	commandBuffer->GetAPIResource().copyBuffer(inStagingBuffer->GetAPIResource(), GetAPIResource(), { copyRegion });
 	
 	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
 }
@@ -96,9 +97,9 @@ void VulkanBuffer::UploadStaged(const void* inData, uint inSize, uint inOffset)
 	StagingBuffer stagingBuffer = stagingSystem.GetStagingBufferWithSize(inSize);
 	stagingBuffer.SetData(inData, inSize);
 	
-	vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
+	VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
 	vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset).setSrcOffset(stagingBuffer.GetOffset());
-	commandBuffer.copyBuffer(stagingBuffer.GetUnderlyingBuffer()->GetAPIResource(), GetAPIResource(), { copyRegion });
+	commandBuffer->GetAPIResource().copyBuffer(stagingBuffer.GetUnderlyingBuffer()->GetAPIResource(), GetAPIResource(), { copyRegion });
 	
 	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
 }

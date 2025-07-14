@@ -6,6 +6,7 @@
 #include "Engine/Engine.h"
 #include "VulkanAllocator.h"
 #include "VulkanBuffer.h"
+#include "VulkanCommandBuffer.h"
 #include "Engine/Rendering/RenderSystem.h"
 #include "Engine/Utils/MathUtils.hpp"
 
@@ -24,7 +25,7 @@ void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const ui
     CheckCapacity(inSize + inOffset);
     myBuffer->CopyDataFromBuffer(inStagingBuffer, inSize, inOffset);
 
-    vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
+    VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
     
     vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
         .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
@@ -35,7 +36,7 @@ void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const ui
         .setOffset(0)
         .setSize(VK_WHOLE_SIZE);
 
-    commandBuffer.pipelineBarrier(
+    commandBuffer->GetAPIResource().pipelineBarrier(
                 vk::PipelineStageFlagBits::eTransfer,
                 vk::PipelineStageFlagBits::eTransfer,
                 vk::DependencyFlags{},
@@ -53,7 +54,7 @@ void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffs
     // If the buffer isnt writable we need to insert a barrier for other copies to wait for this to finish or we cant guarantee that the memory is correct.
     if(!myBuffer->IsMappable())
     {
-        vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
+        VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
         
         vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
         .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
@@ -64,7 +65,7 @@ void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffs
         .setOffset(0)
         .setSize(VK_WHOLE_SIZE);
 
-        commandBuffer.pipelineBarrier(
+        commandBuffer->GetAPIResource().pipelineBarrier(
                     vk::PipelineStageFlagBits::eTransfer,
                     vk::PipelineStageFlagBits::eTransfer,
                     vk::DependencyFlags{},
@@ -79,9 +80,9 @@ void ResizableBuffer::MoveData(const uint inSourceOffset, const uint inDstOffset
 {
     CheckCapacity(inSize + std::max(inDstOffset, inSourceOffset));
     
-    vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
+    VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
     vk::BufferCopy copy = vk::BufferCopy().setSize(inSize).setSrcOffset(inSourceOffset).setDstOffset(inDstOffset);
-    commandBuffer.copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
+    commandBuffer->GetAPIResource().copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
     
     vk::BufferMemoryBarrier bufferMemoryBarrier{};
     bufferMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
@@ -95,7 +96,7 @@ void ResizableBuffer::MoveData(const uint inSourceOffset, const uint inDstOffset
     vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eTransfer;
     vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eComputeShader;
 
-    commandBuffer.pipelineBarrier(
+    commandBuffer->GetAPIResource().pipelineBarrier(
         srcStageMask,              
         dstStageMask,              
         {},                        
@@ -121,10 +122,10 @@ void ResizableBuffer::Resize(const uint inRequiredSize)
     myBuffer = VulkanAllocator::AllocateBuffer_TS(myBuffer->GetName(), createInfo, myBuffer->GetVmaMemoryUsage(), myBuffer->IsMappable());
     myHasActiveUpload = true;
     
-    vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
+    VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
     myHasActiveUpload = false;
     vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize());
-    commandBuffer.copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
+    commandBuffer->GetAPIResource().copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
 
     // Ensure the copy is finished before any further copies to this buffer
     vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
@@ -136,7 +137,7 @@ void ResizableBuffer::Resize(const uint inRequiredSize)
         .setOffset(0)
         .setSize(VK_WHOLE_SIZE);
 
-    commandBuffer.pipelineBarrier(
+    commandBuffer->GetAPIResource().pipelineBarrier(
                 vk::PipelineStageFlagBits::eTransfer,
                 vk::PipelineStageFlagBits::eTransfer,
                 vk::DependencyFlags{},

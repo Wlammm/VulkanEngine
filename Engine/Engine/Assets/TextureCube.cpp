@@ -7,6 +7,7 @@
 #include "Engine/Rendering/TextureSystem.h"
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
+#include "Engine/Vulkan/VulkanCommandBuffer.h"
 #include "Engine/Vulkan/VulkanImage.h"
 #include "Engine/Vulkan/Staging/StagingBuffer.h"
 #include "Engine/Vulkan/Staging/StagingSystem.h"
@@ -49,7 +50,7 @@ Coroutine<void, void, false> TextureCube::Load(const std::filesystem::path inPat
 
     myImage->CreateView(vk::ImageViewType::e2D);
 
-    vk::CommandBuffer commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
+    VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
 
     vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
     .setAspectMask(vk::ImageAspectFlagBits::eColor)
@@ -66,7 +67,7 @@ Coroutine<void, void, false> TextureCube::Load(const std::filesystem::path inPat
         .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
         .setOldLayout(vk::ImageLayout::eUndefined)
         .setNewLayout(vk::ImageLayout::eTransferDstOptimal);
-    commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eHost, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlagBits(), {}, {}, { imageMemoryBarrier });
+    commandBuffer->GetAPIResource().pipelineBarrier(vk::PipelineStageFlagBits::eHost, vk::PipelineStageFlagBits::eTransfer, vk::DependencyFlagBits(), {}, {}, { imageMemoryBarrier });
 	
     vk::BufferImageCopy bufferCopyRegion{};
     bufferCopyRegion.imageSubresource
@@ -80,7 +81,7 @@ Coroutine<void, void, false> TextureCube::Load(const std::filesystem::path inPat
         .setDepth(1);
     bufferCopyRegion.setBufferOffset(0);
 	
-    commandBuffer.copyBufferToImage(stagingBuffer->GetAPIResource(), myImage->GetAPIResource(), vk::ImageLayout::eTransferDstOptimal, { bufferCopyRegion });
+    commandBuffer->GetAPIResource().copyBufferToImage(stagingBuffer->GetAPIResource(), myImage->GetAPIResource(), vk::ImageLayout::eTransferDstOptimal, { bufferCopyRegion });
     RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
 	VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 
@@ -91,6 +92,7 @@ Coroutine<void, void, false> TextureCube::Load(const std::filesystem::path inPat
 
 void TextureCube::Unload()
 {
+    TextureSystem::RemoveTextureCube_TS(this);
     VulkanAllocator::DestroyImage_TS(myImage);
     myImage = nullptr;
 }

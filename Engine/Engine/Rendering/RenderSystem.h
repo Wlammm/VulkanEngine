@@ -9,6 +9,8 @@
 #endif
 
 
+class VulkanCommandBuffer;
+
 class RenderSystem : public System, public EventObserver
 {
 public:
@@ -28,8 +30,8 @@ public:
     
     void OnSwapChainResize();
 	
-    static vk::CommandBuffer CreateUploadCommandBuffer_TS();
-    static void QueueCommandBufferForUpload_TS(vk::CommandBuffer commandBuffer);
+    static VulkanCommandBuffer* CreateUploadCommandBuffer_TS();
+    static void QueueCommandBufferForUpload_TS(VulkanCommandBuffer* commandBuffer);
 
     const class GDRPipeline& GetGDRPipeline() const;
 
@@ -60,8 +62,7 @@ private:
 
 private:
     inline static std::recursive_mutex myUploadMutex;
-    inline static std::map<vk::CommandBuffer, std::thread::id> myUploadCommandBuffersToThreadIDLUT;
-    inline static List<vk::CommandBuffer> myQueuedUploadCommandBuffers;
+    inline static List<VulkanCommandBuffer*> myQueuedUploadCommandBuffers;
     
     bool myIsUsingGPUDrivenRendering = true;
     

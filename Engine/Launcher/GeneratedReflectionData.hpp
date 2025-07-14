@@ -147,6 +147,7 @@
 #include "../Engine/Vulkan/Staging/StagingSystem.h"
 #include "../Engine/Vulkan/VulkanAllocator.h"
 #include "../Engine/Vulkan/VulkanBuffer.h"
+#include "../Engine/Vulkan/VulkanCommandBuffer.h"
 #include "../Engine/Vulkan/VulkanContext.h"
 #include "../Engine/Vulkan/VulkanDescriptorSet.h"
 #include "../Engine/Vulkan/VulkanDevice.h"
@@ -377,6 +378,7 @@ ReflectionSystem::AddType<StagingBuffer>("StagingBuffer", typeid(StagingBuffer).
 ReflectionSystem::AddType<StagingSystem>("StagingSystem", typeid(StagingSystem).name());
 ReflectionSystem::AddType<VulkanAllocator>("VulkanAllocator", typeid(VulkanAllocator).name());
 ReflectionSystem::AddType<VulkanBuffer>("VulkanBuffer", typeid(VulkanBuffer).name());
+ReflectionSystem::AddType<VulkanCommandBuffer>("VulkanCommandBuffer", typeid(VulkanCommandBuffer).name());
 ReflectionSystem::AddType<VulkanContext>("VulkanContext", typeid(VulkanContext).name());
 ReflectionSystem::AddType<VulkanDescriptorSet>("VulkanDescriptorSet", typeid(VulkanDescriptorSet).name());
 ReflectionSystem::AddType<VulkanDevice>("VulkanDevice", typeid(VulkanDevice).name());
@@ -5413,22 +5415,22 @@ Method& currentMethod = currentClass->AddMethod(Method("OnSwapChainResize", Refl
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-static thread_local vk::CommandBuffer result = instance->CreateUploadCommandBuffer_TS();
-return (void*)&result;
+VulkanCommandBuffer * result = instance->CreateUploadCommandBuffer_TS();
+return (void*)result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("CreateUploadCommandBuffer_TS", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("CreateUploadCommandBuffer_TS", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-vk::CommandBuffer arg0 = *(vk::CommandBuffer*)inArguments[0];
+VulkanCommandBuffer * arg0 = (VulkanCommandBuffer*)inArguments[0];
 instance->QueueCommandBufferForUpload_TS(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("commandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+arguments.Add(MethodArgument("commandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *")));
 Method& currentMethod = currentClass->AddMethod(Method("QueueCommandBufferForUpload_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
@@ -6961,6 +6963,30 @@ Method& currentMethod = currentClass->AddMethod(Method("RegisterTextureCube_TS",
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TextureSystem* instance = static_cast<TextureSystem*>(inInstance);
+Texture * arg0 = (Texture*)inArguments[0];
+instance->RemoveTexture_TS(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTexture", ReflectionSystem::GetOrCreateType<Texture *>("Texture *")));
+Method& currentMethod = currentClass->AddMethod(Method("RemoveTexture_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+TextureSystem* instance = static_cast<TextureSystem*>(inInstance);
+TextureCube * arg0 = (TextureCube*)inArguments[0];
+instance->RemoveTextureCube_TS(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTexture", ReflectionSystem::GetOrCreateType<TextureCube *>("TextureCube *")));
+Method& currentMethod = currentClass->AddMethod(Method("RemoveTextureCube_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+TextureSystem* instance = static_cast<TextureSystem*>(inInstance);
 static thread_local vk::DescriptorSet result = instance->GetDescriptorSet();
 return (void*)&result;
 });
@@ -8374,6 +8400,25 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPtr", ReflectionSyste
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<VulkanCommandBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("myCommandBuffer", 0, ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCommandPool", 8, ReflectionSystem::GetOrCreateType<vk::CommandPool>("vk::CommandPool"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanCommandBuffer* instance = static_cast<VulkanCommandBuffer*>(inInstance);
+static thread_local vk::CommandBuffer result = instance->GetAPIResource();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), invoker, arguments));
+}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<VulkanContext>();
 	{
 		Field& currentField = currentClass->AddField(Field("myVulkanInstance", 0, ReflectionSystem::GetOrCreateType<vk::Instance>("vk::Instance"), false, false));
@@ -8647,15 +8692,6 @@ Method& currentMethod = currentClass->AddMethod(Method("Rebuild", ReflectionSyst
 	{
 		Field& currentField = currentClass->AddField(Field("myTransferQueue", 32, ReflectionSystem::GetOrCreateType<vk::Queue>("vk::Queue"), false, false));
 	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCommandPoolsMutex", 40, ReflectionSystem::GetOrCreateType<std::recursive_mutex>("std::recursive_mutex"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCommandPools", 120, ReflectionSystem::GetOrCreateType<std::map<std::thread::id, vk::CommandPool>>("std::map<std::thread::id, vk::CommandPool>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myComputeCommandPools", 144, ReflectionSystem::GetOrCreateType<std::map<std::thread::id, vk::CommandPool>>("std::map<std::thread::id, vk::CommandPool>"), false, false));
-	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
@@ -8730,43 +8766,27 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDevice", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanDevice* instance = static_cast<VulkanDevice*>(inInstance);
-const std::thread::id arg0 = *(const std::thread::id*)inArguments[0];
-static thread_local vk::CommandPool result = instance->GetCommandPoolForThread(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inThreadId", ReflectionSystem::GetOrCreateType<const std::thread::id>("const std::thread::id")));
-Method& currentMethod = currentClass->AddMethod(Method("GetCommandPoolForThread", ReflectionSystem::GetOrCreateType<vk::CommandPool>("vk::CommandPool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanDevice* instance = static_cast<VulkanDevice*>(inInstance);
-const std::thread::id arg0 = *(const std::thread::id*)inArguments[0];
+const bool arg0 = *(const bool*)inArguments[0];
 const bool arg1 = *(const bool*)inArguments[1];
-const bool arg2 = *(const bool*)inArguments[2];
-static thread_local vk::CommandBuffer result = instance->CreateCommandBufferForThread(arg0, arg1, arg2);
-return (void*)&result;
+VulkanCommandBuffer * result = instance->CreateCommandBuffer(arg0, arg1);
+return (void*)result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inThreadId", ReflectionSystem::GetOrCreateType<const std::thread::id>("const std::thread::id")));
 arguments.Add(MethodArgument("inBegin", ReflectionSystem::GetOrCreateType<const bool>("const bool")));
 arguments.Add(MethodArgument("isSecondaryBuffer", ReflectionSystem::GetOrCreateType<const bool>("const bool")));
-Method& currentMethod = currentClass->AddMethod(Method("CreateCommandBufferForThread", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("CreateCommandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanDevice* instance = static_cast<VulkanDevice*>(inInstance);
-const std::thread::id arg0 = *(const std::thread::id*)inArguments[0];
-vk::CommandBuffer arg1 = *(vk::CommandBuffer*)inArguments[1];
-instance->FlushCommandBufferFromThread(arg0, arg1);
+VulkanCommandBuffer * arg0 = (VulkanCommandBuffer*)inArguments[0];
+instance->FlushCommandBuffer(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inThreadId", ReflectionSystem::GetOrCreateType<const std::thread::id>("const std::thread::id")));
-arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
-Method& currentMethod = currentClass->AddMethod(Method("FlushCommandBufferFromThread", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *")));
+Method& currentMethod = currentClass->AddMethod(Method("FlushCommandBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 

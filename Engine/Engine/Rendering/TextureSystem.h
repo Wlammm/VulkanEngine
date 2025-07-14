@@ -18,6 +18,9 @@ public:
     static void RegisterTexture_TS(Texture* inTexture);
     static void RegisterTextureCube_TS(TextureCube* inTexture);
 
+    static void RemoveTexture_TS(Texture* inTexture);
+    static void RemoveTextureCube_TS(TextureCube* inTexture);
+    
     vk::DescriptorSet GetDescriptorSet() const;
     vk::DescriptorSetLayout GetDescriptorLayout() const;
     
@@ -31,7 +34,12 @@ private:
     
 private:
     inline static MutexList<Texture*> myTextures;
+    inline static MutexList<uint> myFreeIndices;
+    
     inline static MutexList<TextureCube*> myTextureCubes;
+    inline static MutexList<uint> myFreeCubeIndices;
+
+    inline static Texture* myMissingMaterialTexture = nullptr;
     
     vk::DescriptorPool myDescriptorPool;
     

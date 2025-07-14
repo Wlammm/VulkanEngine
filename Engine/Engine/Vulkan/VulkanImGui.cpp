@@ -1,5 +1,7 @@
 #include "EnginePch.h"
 #include "VulkanImGui.h"
+
+#include "VulkanCommandBuffer.h"
 #include "Engine/Engine.h"
 #include "Engine/Windows/WindowHandler.h"
 #include "VulkanContext.h"
@@ -61,12 +63,12 @@ void VulkanImGui::Start()
 
 	ImGui_ImplVulkan_Init(&createInfo, Engine::GetEngineSystem<RenderSystem>().GetImGuiRenderPass());
 
-	vk::CommandBuffer cmd = VulkanContext::GetDevice().CreateCommandBufferForThread(std::this_thread::get_id(), true);
+	VulkanCommandBuffer* cmd = VulkanContext::GetDevice().CreateCommandBuffer(true, false);
 	
 	LoadFonts();
 	
-	ImGui_ImplVulkan_CreateFontsTexture(cmd);
-	VulkanContext::GetDevice().FlushCommandBufferFromThread(std::this_thread::get_id(), cmd);
+	ImGui_ImplVulkan_CreateFontsTexture(cmd->GetAPIResource());
+	VulkanContext::GetDevice().FlushCommandBuffer(cmd);
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 
 	myDescriptorPool = imguiPool;

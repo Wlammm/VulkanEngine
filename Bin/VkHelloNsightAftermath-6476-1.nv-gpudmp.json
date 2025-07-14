@@ -1,0 +1,376 @@
+[
+  {
+    "Base info": {
+      "Application name": "launcher.exe",
+      "Dump date": "Mon Jul 14 15:16:57 2025",
+      "Dump tick count": 23074391,
+      "Graphics API": "Vulkan",
+      "PID": 6476
+    }
+  },
+  {
+    "Display driver info": {
+      "Version": "572.70"
+    }
+  },
+  {
+    "OS info": {
+      "Build number": 26100,
+      "Service pack major version": 0,
+      "Service pack minor version": 0,
+      "Windows major version": 10,
+      "Windows minor version": 0,
+      "Windows product type": 1
+    }
+  },
+  {
+    "GPU info": {
+      "Adapter LUID": 60949,
+      "Adapter name": "GB203-A"
+    }
+  },
+  {
+    "Page fault info": {
+      "Access Type": "Unknown",
+      "Client": "Unknown",
+      "Engine": "Unknown",
+      "Fault Type": "The MMU returned an unknown reason.",
+      "GPU virtual address": 18633203712,
+      "Resource": {
+        "Context pointer": 2112892508448,
+        "Create destroy tick count": 23074386,
+        "Depth": 1,
+        "Destroyed": false,
+        "GPU virtual address": 18633195520,
+        "Height": 1,
+        "Mip levels": 0,
+        "Name": "Texture staging buffer",
+        "Size": 8388608,
+        "Width": 8388608
+      },
+      "Resources": [
+        {
+          "Resource": {
+            "Context pointer": 2112892508448,
+            "Create destroy tick count": 23074386,
+            "Depth": 1,
+            "Destroyed": false,
+            "GPU virtual address": 18633195520,
+            "Height": 1,
+            "Mip levels": 0,
+            "Name": "Texture staging buffer",
+            "Resource Pointer/Handle": 2112892508528,
+            "Size": 8388608,
+            "Width": 8388608
+          }
+        },
+        {
+          "Resource": {
+            "Context pointer": 2111262074112,
+            "Create destroy tick count": 23069656,
+            "Depth": 1,
+            "Destroyed": true,
+            "GPU virtual address": 18610834432,
+            "Height": 2048,
+            "Mip levels": 12,
+            "Name": "Assets/Characters/PlayerCharacter/Character_M.png",
+            "Resource Pointer/Handle": 2111262074192,
+            "Size": 22371328,
+            "Width": 2048
+          }
+        },
+        {
+          "Resource": {
+            "Context pointer": 2111229296624,
+            "Create destroy tick count": 23060713,
+            "Depth": 1,
+            "Destroyed": true,
+            "GPU virtual address": 18616428544,
+            "Height": 2048,
+            "Mip levels": 12,
+            "Name": "Assets/Materials/LandscapeGrass/LandscapeGrass_A.png",
+            "Resource Pointer/Handle": 2111229296704,
+            "Size": 22371328,
+            "Width": 2048
+          }
+        },
+        {
+          "Resource": {
+            "Context pointer": 2111131682016,
+            "Create destroy tick count": 23057997,
+            "Depth": 1,
+            "Destroyed": true,
+            "GPU virtual address": 18627611648,
+            "Height": 1024,
+            "Mip levels": 11,
+            "Name": "./Assets\\Sponza\\6593109234861095314.jpg",
+            "Resource Pointer/Handle": 2111131682096,
+            "Size": 5594112,
+            "Width": 1024
+          }
+        }
+      ]
+    }
+  },
+  {
+    "Device info": {
+      "Adapter reset occurred": false,
+      "Device state": "Error_DMA_PageFault",
+      "Engine reset occurred": true
+    }
+  },
+  {
+    "Aftermath markers": {
+      "Context": {
+        "Events": [
+          {
+            "Event": {
+              "Callstack": {
+                "Stack": [
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140716316065943
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140716317096482
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "VkLayer_khronos_validation.dll",
+                      "Pointer": 140713942259261
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "vulkan-1.dll",
+                      "Pointer": 140714089640845
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696093431775
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696093399627
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696093429314
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696093404964
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696092355658
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696092378356
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696091205437
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696091133767
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696096372537
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696096372258
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696096371934
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696096372686
+                    }
+                  }
+                ]
+              },
+              "Pipe": "Unknown",
+              "Status": "NotStarted",
+              "Type": "Automatic"
+            }
+          },
+          {
+            "Event": {
+              "Callstack": {
+                "Stack": [
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140716316065943
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140716317094972
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140716316424857
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "VkLayer_khronos_validation.dll",
+                      "Pointer": 140713942765470
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "VkLayer_khronos_validation.dll",
+                      "Pointer": 140713942260859
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "vulkan-1.dll",
+                      "Pointer": 140714089639709
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696092301276
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696092297457
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696092300377
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696092299543
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696093461899
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696093192837
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696093319942
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696091491115
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696091242471
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696094176472
+                    }
+                  }
+                ]
+              },
+              "Pipe": "Unknown",
+              "Status": "Finished",
+              "Type": "Automatic"
+            }
+          }
+        ],
+        "Type": "CommandQueue"
+      }
+    }
+  },
+  {
+    "Shader infos": {
+      "Info": {
+        "Shader hash": 4941646792166424430,
+        "Shader name": "fragment_02",
+        "Shader size": 7424,
+        "Shader type": "Fragment"
+      }
+    }
+  },
+  {
+    "ApplicationName": "VkHelloNsightAftermath"
+  },
+  {
+    "ApplicationVersion": "v1.0"
+  },
+  {
+    "UserDefined+0": "This is a GPU crash dump example."
+  },
+  {
+    "UserDefined+1": "Engine State: Rendering."
+  },
+  {
+    "UserDefined+2": "More user-defined information..."
+  },
+  {
+    "Fingerprint": {
+      "Hash": 4870266188768336953,
+      "Quality": 0
+    }
+  }
+]

@@ -1,6 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "TextureSystem.h"
 
+#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Assets/Texture.h"
 #include "Engine/Assets/TextureCube.h"
 #include "Engine/Vulkan/VulkanContext.h"
@@ -14,7 +15,10 @@ TextureSystem::TextureSystem()
 {
     CreateDescritorPool();
     CreateDescriptorSetLayout();
-    CreateDescriptorSet();   
+    CreateDescriptorSet();
+
+    check(!myMissingMaterialTexture && "This variable is static so make sure we dont create multiple in case we ever create multiple instances of this system.");
+    myMissingMaterialTexture = Engine::GetAssetRegistry().GetAssetSynchronous<Texture>("MissingTexture.png");
 }
 
 TextureSystem::~TextureSystem()
@@ -32,7 +36,20 @@ void TextureSystem::Tick()
 void TextureSystem::RegisterTexture_TS(Texture* inTexture)
 {
     vk::Sampler sampler = VulkanUtils::GetSampler(SamplerMode::Wrap);
-    uint handle = myNextArrayIndex++;
+    
+    uint handle;
+    myFreeIndices.Lock();
+    if (myFreeIndices.size() != 0)
+    {
+        handle = myFreeIndices.Last();
+        myFreeIndices.RemoveIndex(myFreeIndices.size() - 1);
+    }
+    else
+    {
+        handle = myNextArrayIndex++;
+    }
+    myFreeIndices.Unlock();
+    
     const vk::DescriptorImageInfo imageInfo = vk::DescriptorImageInfo()
         .setSampler(sampler)
         .setImageView(inTexture->GetImageView())
@@ -73,6 +90,58 @@ void TextureSystem::RegisterTextureCube_TS(TextureCube* inTexture)
     VulkanContext::GetDevice()->updateDescriptorSets({write}, {});
     inTexture->myBindlessIndex = handle;
     myTextureCubes.Add(inTexture);
+}
+
+void TextureSystem::RemoveTexture_TS(Texture* inTexture)
+{
+    if (inTexture->myBindlessIndex == UINT32_MAX)
+        return;
+
+    vk::DescriptorImageInfo imageInfo = {};
+    imageInfo.imageLayout = vk::ImageLayout::eReadOnlyOptimal;
+    imageInfo.imageView = myMissingMaterialTexture->GetImageView();
+    imageInfo.sampler = VulkanUtils::GetSampler(SamplerMode::Wrap);
+
+    const vk::WriteDescriptorSet write = vk::WriteDescriptorSet()
+        .setDescriptorCount(1)
+        .setDstArrayElement(inTexture->myBindlessIndex)
+        .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+        .setDstSet(myDescriptorSet)
+        .setDstBinding(BINDLESS_BINDING)
+        .setImageInfo(imageInfo);
+
+    VulkanContext::GetDevice()->updateDescriptorSets({write}, {});
+
+    myFreeIndices.Add(inTexture->myBindlessIndex);
+    inTexture->myBindlessIndex = UINT32_MAX;
+
+    myTextures.Remove(inTexture);
+}
+
+void TextureSystem::RemoveTextureCube_TS(TextureCube* inTexture)
+{
+    if (inTexture->myBindlessIndex == UINT32_MAX)
+        return; 
+
+    vk::DescriptorImageInfo nullImageInfo = {};
+    nullImageInfo.imageLayout = vk::ImageLayout::eReadOnlyOptimal;
+    nullImageInfo.imageView = myMissingMaterialTexture->GetImageView();
+    nullImageInfo.sampler = VulkanUtils::GetSampler(SamplerMode::Wrap);
+
+    const vk::WriteDescriptorSet write = vk::WriteDescriptorSet()
+        .setDescriptorCount(1)
+        .setDstArrayElement(inTexture->myBindlessIndex)
+        .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+        .setDstSet(myDescriptorSet)
+        .setDstBinding(BINDLESS_BINDING)
+        .setImageInfo(nullImageInfo);
+
+    VulkanContext::GetDevice()->updateDescriptorSets({write}, {});
+
+    myFreeCubeIndices.Add(inTexture->myBindlessIndex);
+    inTexture->myBindlessIndex = UINT32_MAX;
+    
+    myTextureCubes.Remove(inTexture);
 }
 
 vk::DescriptorSet TextureSystem::GetDescriptorSet() const
