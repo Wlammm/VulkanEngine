@@ -71,6 +71,7 @@ void PhysicsSystem::CreateStaticObjects()
 
 void PhysicsSystem::DestoryStaticObjects()
 {
+    PxCloseExtensions();
     if(myPvd && myPvd->isConnected())
     {
         myPvdTransport->disconnect();
