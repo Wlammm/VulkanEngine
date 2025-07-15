@@ -94,6 +94,9 @@ void TextureSystem::RegisterTextureCube_TS(TextureCube* inTexture)
 
 void TextureSystem::RemoveTexture_TS(Texture* inTexture)
 {
+    if (!myDescriptorSet)
+        return;
+    
     if (inTexture->myBindlessIndex == UINT32_MAX)
         return;
 

@@ -8788,6 +8788,18 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *")));
 Method& currentMethod = currentClass->AddMethod(Method("FlushCommandBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanDevice* instance = static_cast<VulkanDevice*>(inInstance);
+const List<VulkanCommandBuffer *> & arg0 = *(const List<VulkanCommandBuffer *>*)inArguments[0];
+instance->FlushSecondaryCommandBuffers(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffers", ReflectionSystem::GetOrCreateType<const List<VulkanCommandBuffer *> &>("const List<VulkanCommandBuffer *> &")));
+Method& currentMethod = currentClass->AddMethod(Method("FlushSecondaryCommandBuffers", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<VulkanImGui>();

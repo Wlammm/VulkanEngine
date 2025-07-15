@@ -21,6 +21,7 @@ public:
 
 	VulkanCommandBuffer* CreateCommandBuffer(const bool inBegin, const bool isSecondaryBuffer = false);
 	void FlushCommandBuffer(VulkanCommandBuffer* inCommandBuffer);
+	void FlushSecondaryCommandBuffers(const List<VulkanCommandBuffer*>& inCommandBuffers);
 
 private:
 	List<vk::DeviceQueueCreateInfo> GetQueueFamilyCreateInfos();

@@ -1,6 +1,7 @@
 #include "EnginePch.h"
 #include "VulkanDevice.h"
 
+#include "VulkanAllocator.h"
 #include "VulkanCommandBuffer.h"
 #include "VulkanContext.h"
 #include "VulkanPhysicalDevice.h"
@@ -117,6 +118,24 @@ void VulkanDevice::FlushCommandBuffer(VulkanCommandBuffer* inCommandBuffer)
 	check(result == vk::Result::eSuccess);
 
 	myDevice.destroyFence(fence);
+	del(inCommandBuffer);
+}
+
+void VulkanDevice::FlushSecondaryCommandBuffers(const List<VulkanCommandBuffer*>& inCommandBuffers)
+{
+	VulkanCommandBuffer* commandBuffer = CreateCommandBuffer(true);
+	for (VulkanCommandBuffer* secondaryBuffer : inCommandBuffers)
+	{
+		secondaryBuffer->GetAPIResource().end();
+		commandBuffer->GetAPIResource().executeCommands(secondaryBuffer->GetAPIResource());
+	}
+
+	FlushCommandBuffer(commandBuffer);
+
+	for (VulkanCommandBuffer* secondaryBuffer : inCommandBuffers)
+	{
+		del(secondaryBuffer);
+	}
 }
 
 List<vk::DeviceQueueCreateInfo> VulkanDevice::GetQueueFamilyCreateInfos()

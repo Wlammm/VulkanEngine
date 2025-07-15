@@ -108,6 +108,13 @@ void RenderSystem::OnSwapChainResize()
 VulkanCommandBuffer* RenderSystem::CreateUploadCommandBuffer_TS()
 {
 	VulkanCommandBuffer* commandBuffer = VulkanContext::GetDevice().CreateCommandBuffer(true, true);
+#if DEBUG
+	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
+														   .setObjectHandle(VulkanContext::GetVulkanHandle(commandBuffer->GetAPIResource()))
+														   .setPObjectName("Upload command buffer")
+														   .setObjectType(vk::ObjectType::eCommandBuffer));
+#endif
+	
 	return commandBuffer;
 }
 
@@ -309,10 +316,7 @@ void RenderSystem::AddImGuiPass(vk::CommandBuffer inCommandBuffer)
 void RenderSystem::FlushUploadCommands()
 {
 	std::scoped_lock lock(myUploadMutex);
-	for(VulkanCommandBuffer* commandBuffer : myQueuedUploadCommandBuffers)
-	{
-		VulkanContext::GetDevice().FlushCommandBuffer(commandBuffer);
-	}
+	VulkanContext::GetDevice().FlushSecondaryCommandBuffers(myQueuedUploadCommandBuffers);
 	myQueuedUploadCommandBuffers.Clear();
 }
 
