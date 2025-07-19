@@ -1,14 +1,21 @@
 #include "EditorPch.h"
 #include "Viewport.h"
+
+#include "EditorSystem/SelectionSystem.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanSwapChain.h"
 #include "Engine/Vulkan/VulkanUtils.hpp"
 #include "Engine/Vulkan/VulkanImage.h"
 #include "Engine/Engine.h"
+#include "Engine/Components/CameraComponent.h"
 #include "Engine/Rendering/RenderSystem.h"
 #include "Engine/World/World.h"
 #include "Engine/ComponentSystem/ComponentSystem.h"
 #include "Engine/Components/EditorCameraMovementComponent.h"
+#include "Engine/Components/StaticMeshComponent.h"
+#include "Engine/Components/TransformComponent.h"
+#include "Engine/Core/Input.h"
+#include "Engine/Utils/Debug.h"
 #include "Utils/ImGuiTextureUtils.h"
 
 Viewport::Viewport()
@@ -46,6 +53,7 @@ void Viewport::Tick()
 	UpdateViewportImageSize();
 	UpdateCaptureMouse();
 	DrawPIEHUD();
+	HandleDragDrop();
 }
 
 vk::DescriptorSet Viewport::GetCurrentDescriptorSet()
@@ -184,6 +192,44 @@ void Viewport::DrawPIEHUD()
 	ImGui::PopStyleVar(2);
 }
 
+void Viewport::HandleDragDrop()
+{
+	bool isPreviewingMeshThisFrame = false;
+	if (ImGui::BeginDragDropTarget())
+	{
+		const ImGuiPayload* payload = ImGui::GetDragDropPayload();
+		std::filesystem::path path = *(std::string*)payload->Data;
+
+		if (ImGui::AcceptDragDropPayload(".fbx"))
+		{
+			GameObject object = Engine::GetWorld()->GetComponentSystem().CreateGameObject(path.filename().string());
+			object.AddComponent<StaticMeshComponent>(path);
+			object.GetTransform()->SetPosition(myPreviewObject->GetTransform()->GetPosition());
+			SelectionSystem::ClearSelection();
+			SelectionSystem::SelectObject(object);
+		}
+		else
+		{
+			if (payload->IsDataType(".fbx"))
+			{
+				isPreviewingMeshThisFrame = true;
+				if (myPreviewObject == nullptr)
+				{
+					SpawnPreviewMesh(path);
+				}
+
+				UpdatePreviewMesh();
+			}
+		}
+		ImGui::EndDragDropTarget();
+	}
+
+	if (!isPreviewingMeshThisFrame && myPreviewObject != nullptr)
+	{
+		RemovePreviewMesh();
+	}
+}
+
 ImVec2 Viewport::ClampToAspectRatio(const ImVec2& inSize, const ImVec2& inAspectRatio) const
 {
 	float x = inSize.x, y = inSize.y;
@@ -204,4 +250,58 @@ ImVec2 Viewport::ClampToAspectRatio(const ImVec2& inSize, const ImVec2& inAspect
 		x = inSize.x;
 	}
 	return ImVec2(x, y);
+}
+
+void Viewport::SpawnPreviewMesh(const std::filesystem::path& inMeshPath)
+{
+	myPreviewObject = new GameObject(Engine::GetWorld()->GetComponentSystem().CreateGameObject(inMeshPath.filename().string()));
+	StaticMeshComponent* mesh = myPreviewObject->AddComponent<StaticMeshComponent>(inMeshPath);
+	mesh->SetDepthWriteEnabled(false);
+}
+
+glm::vec2 Viewport::GetNormalizedMousePositionInViewport() const
+{
+	const ImVec2 imguiMousePos = ImGui::GetMousePos();
+	
+	const glm::vec2 imageSize = glm::vec2(myP1.x - myP0.x,myP1.y - myP0.y);
+
+	glm::vec2 mousePos = glm::vec2(imguiMousePos.x, imguiMousePos.y);
+	mousePos -= glm::vec2(myP0.x, myP0.y);
+	mousePos /= imageSize;
+
+	mousePos = glm::clamp(mousePos, glm::vec2(0, 0), glm::vec2(1, 1));
+	
+	return mousePos;
+}
+
+void Viewport::UpdatePreviewMesh()
+{
+	if (!myPreviewObject)
+		return;
+	
+	CameraComponent* mainCamera = Engine::GetWorld()->GetMainCamera();
+	check(mainCamera && "We're expecting a valid camera at all time in editor");
+	
+	const glm::vec2 normalizedScreenPos = GetNormalizedMousePositionInViewport();
+
+	glm::vec3 worldPos;
+	bool hit = mainCamera->ScreenToWorldPos(normalizedScreenPos, worldPos);
+	if (!hit)
+	{
+		LOG("No hit");
+		const glm::vec3 directionToObject = glm::normalize(mainCamera->GetRayDirectionFromScreen(normalizedScreenPos));
+		worldPos = mainCamera->ScreenToNearPlane(normalizedScreenPos) + directionToObject * 1000.0f;
+	}
+	else
+	{
+		LOG("HIT");
+	}
+
+	myPreviewObject->GetTransform()->SetPosition(worldPos); 
+}
+
+void Viewport::RemovePreviewMesh()
+{
+	myPreviewObject->Destroy();
+	del(myPreviewObject);
 }

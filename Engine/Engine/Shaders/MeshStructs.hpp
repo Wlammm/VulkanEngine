@@ -45,6 +45,7 @@ struct ALIGNAS(16) MeshInstanceData
     ALIGNAS(4) uint myAlbedoIndex DEFAULT_TO((uint)-1);
     ALIGNAS(4) uint myNormalIndex DEFAULT_TO((uint)-1);
     ALIGNAS(4) uint myMaterialIndex DEFAULT_TO((uint)-1);
+    ALIGNAS(4) int myDepthWriteEnabled DEFAULT_TO(1);
 };
 
 struct PerDrawData

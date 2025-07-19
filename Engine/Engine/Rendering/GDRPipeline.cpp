@@ -55,8 +55,11 @@ GDRPipeline::~GDRPipeline()
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	
     VulkanAllocator::DestroyBuffer_TS(myIndirectCommandsBuffer);
+    VulkanAllocator::DestroyBuffer_TS(myIndirectCommandsBufferNoDepth);
     VulkanAllocator::DestroyBuffer_TS(myPerDrawDataBuffer);
+    VulkanAllocator::DestroyBuffer_TS(myPerDrawDataNoDepthBuffer);
     VulkanAllocator::DestroyBuffer_TS(myCountBuffer);
+    VulkanAllocator::DestroyBuffer_TS(myCountNoDepthBuffer);
     VulkanAllocator::DestroyBuffer_TS(myDirectionalLightBuffer);
     VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
     myCountBuffer = nullptr;
@@ -99,14 +102,32 @@ void GDRPipeline::AddComputeCommands(vk::CommandBuffer inCommandBuffer)
 			.setSize(VK_WHOLE_SIZE),
 		vk::BufferMemoryBarrier()
 			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
+			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eVertexAttributeRead)
+			.setBuffer(myIndirectCommandsBufferNoDepth->GetBuffer()->GetAPIResource())
+			.setOffset(0)
+			.setSize(VK_WHOLE_SIZE),
+		vk::BufferMemoryBarrier()
+			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
 			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eIndexRead)
 			.setBuffer(myPerDrawDataBuffer->GetBuffer()->GetAPIResource())
 			.setOffset(0)
 			.setSize(VK_WHOLE_SIZE),
 		vk::BufferMemoryBarrier()
 			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
+			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eIndexRead)
+			.setBuffer(myPerDrawDataNoDepthBuffer->GetBuffer()->GetAPIResource())
+			.setOffset(0)
+			.setSize(VK_WHOLE_SIZE),
+		vk::BufferMemoryBarrier()
+			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
 			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead)
 			.setBuffer(myCountBuffer->GetAPIResource())
+			.setOffset(0)
+			.setSize(VK_WHOLE_SIZE),
+		vk::BufferMemoryBarrier()
+			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
+			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead)
+			.setBuffer(myCountNoDepthBuffer->GetAPIResource())
 			.setOffset(0)
 			.setSize(VK_WHOLE_SIZE),
 	};
@@ -125,7 +146,8 @@ void GDRPipeline::AddGraphicsCommands(vk::CommandBuffer inCommandBuffer)
 	GPUMARK_SCOPE(inCommandBuffer, "MainPass");
 	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
 	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
-	
+
+	inCommandBuffer.setDepthWriteEnable(true);
 	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
 	BuildFrameBuffer();
 	BuildDirectionalLightBuffer();
@@ -143,6 +165,13 @@ void GDRPipeline::AddGraphicsCommands(vk::CommandBuffer inCommandBuffer)
 		myCountBuffer->GetAPIResource(), 0,
 		static_cast<uint>(myIndirectCommandsBuffer->GetBuffer()->GetSize() / sizeof(vk::DrawIndexedIndirectCommand)),
 		sizeof(vk::DrawIndexedIndirectCommand));
+
+	inCommandBuffer.setDepthWriteEnable(false);
+	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameNoDepthDescriptorSet.GetSet(), {});
+	inCommandBuffer.drawIndexedIndirectCount(myIndirectCommandsBufferNoDepth->GetBuffer()->GetAPIResource(), 0,
+			myCountNoDepthBuffer->GetAPIResource(), 0,
+			static_cast<uint>(myIndirectCommandsBufferNoDepth->GetBuffer()->GetSize() / sizeof(vk::DrawIndexedIndirectCommand)),
+			sizeof(vk::DrawIndexedIndirectCommand));
 }
 
 VulkanBuffer* GDRPipeline::GetCountBuffer() const
@@ -169,6 +198,12 @@ void GDRPipeline::CreateBuffers()
         .setSize(sizeof(uint))
         .setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer),
         VMA_MEMORY_USAGE_AUTO);
+
+	myCountNoDepthBuffer = VulkanAllocator::AllocateBuffer_TS("IndirectDrawCount NoDepth Buffer",
+		vk::BufferCreateInfo()
+		.setSize(sizeof(uint))
+		.setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer),
+		VMA_MEMORY_USAGE_AUTO);
     
     const uint numObjects = objectSystem.GetNumObjects() != 0 ? objectSystem.GetNumObjects() : 4;
     
@@ -178,11 +213,24 @@ void GDRPipeline::CreateBuffers()
         .setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
         VMA_MEMORY_USAGE_AUTO));
 
+	myIndirectCommandsBufferNoDepth = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("IndirectDrawCommands Buffer No Depth",
+		vk::BufferCreateInfo()
+		.setSize(sizeof(vk::DrawIndexedIndirectCommand) * numObjects)
+		.setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
+		VMA_MEMORY_USAGE_AUTO));
+
     myPerDrawDataBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("PerDrawCallData Buffer",
         vk::BufferCreateInfo()
         .setSize(sizeof(vk::DrawIndexedIndirectCommand) * numObjects)
         .setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
         VMA_MEMORY_USAGE_AUTO));
+
+	// TODO: This should probably not have allocations for all objects. Only the meshes that shouldnt render depth.
+	myPerDrawDataNoDepthBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("PerDrawCallData NoDepth Buffer",
+		vk::BufferCreateInfo()
+		.setSize(sizeof(vk::DrawIndexedIndirectCommand) * numObjects)
+		.setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
+		VMA_MEMORY_USAGE_AUTO));
 
     myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
         "FrameDataBuffer",
@@ -218,51 +266,104 @@ void GDRPipeline::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
     uint requiredSize = objectSystem.GetNumObjects() * sizeof(vk::DrawIndexedIndirectCommand);
     if(requiredSize > myIndirectCommandsBuffer->GetBuffer()->GetSize())
     {
-        myIndirectCommandsBuffer->Resize(requiredSize);
+	    {
+		    myIndirectCommandsBuffer->Resize(requiredSize);
 
-    	vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
-			.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-			.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
-			.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-			.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-			.setBuffer(myIndirectCommandsBuffer->GetBuffer()->GetAPIResource())
-			.setOffset(0)
-			.setSize(VK_WHOLE_SIZE);
+	    	vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
+				.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+				.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
+				.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+				.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+				.setBuffer(myIndirectCommandsBuffer->GetBuffer()->GetAPIResource())
+				.setOffset(0)
+				.setSize(VK_WHOLE_SIZE);
 
-    	// Insert the pipeline barrier
-    	inCommandBuffer.pipelineBarrier(
-			vk::PipelineStageFlagBits::eTransfer,
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::DependencyFlags(),
-			nullptr,
-			bufferMemoryBarrier,
-			nullptr
-		);
+	    	// Insert the pipeline barrier
+	    	inCommandBuffer.pipelineBarrier(
+				vk::PipelineStageFlagBits::eTransfer,
+				vk::PipelineStageFlagBits::eComputeShader,
+				vk::DependencyFlags(),
+				nullptr,
+				bufferMemoryBarrier,
+				nullptr
+			);
+	    }
+
+    	// No depth
+    	// TODO: This should all be refactored and nicer.
+	    {
+	    	myIndirectCommandsBufferNoDepth->Resize(requiredSize);
+
+	    	vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
+				.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+				.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
+				.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+				.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+				.setBuffer(myIndirectCommandsBufferNoDepth->GetBuffer()->GetAPIResource())
+				.setOffset(0)
+				.setSize(VK_WHOLE_SIZE);
+
+	    	// Insert the pipeline barrier
+	    	inCommandBuffer.pipelineBarrier(
+				vk::PipelineStageFlagBits::eTransfer,
+				vk::PipelineStageFlagBits::eComputeShader,
+				vk::DependencyFlags(),
+				nullptr,
+				bufferMemoryBarrier,
+				nullptr
+			);
+	    }
     }
 
     uint drawCallRequiredSize = objectSystem.GetNumObjects() * sizeof(PerDrawData);
     if(drawCallRequiredSize > myPerDrawDataBuffer->GetBuffer()->GetSize())
     {
-        myPerDrawDataBuffer->Resize(drawCallRequiredSize);
+	    {
+		    myPerDrawDataBuffer->Resize(drawCallRequiredSize);
 
-    	vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
-			.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-			.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
-			.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-			.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-			.setBuffer(myPerDrawDataBuffer->GetBuffer()->GetAPIResource())
-			.setOffset(0)
-			.setSize(VK_WHOLE_SIZE);
+	    	vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
+				.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+				.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
+				.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+				.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+				.setBuffer(myPerDrawDataBuffer->GetBuffer()->GetAPIResource())
+				.setOffset(0)
+				.setSize(VK_WHOLE_SIZE);
 
-    	// Insert the pipeline barrier
-    	inCommandBuffer.pipelineBarrier(
-			vk::PipelineStageFlagBits::eTransfer,
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::DependencyFlags(),
-			nullptr,
-			bufferMemoryBarrier,
-			nullptr
-		);
+	    	// Insert the pipeline barrier
+	    	inCommandBuffer.pipelineBarrier(
+				vk::PipelineStageFlagBits::eTransfer,
+				vk::PipelineStageFlagBits::eComputeShader,
+				vk::DependencyFlags(),
+				nullptr,
+				bufferMemoryBarrier,
+				nullptr
+			);
+	    }
+
+    	// No depth
+	    {
+	    	myPerDrawDataNoDepthBuffer->Resize(drawCallRequiredSize);
+
+	    	vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
+				.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+				.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
+				.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+				.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+				.setBuffer(myPerDrawDataNoDepthBuffer->GetBuffer()->GetAPIResource())
+				.setOffset(0)
+				.setSize(VK_WHOLE_SIZE);
+
+	    	// Insert the pipeline barrier
+	    	inCommandBuffer.pipelineBarrier(
+				vk::PipelineStageFlagBits::eTransfer,
+				vk::PipelineStageFlagBits::eComputeShader,
+				vk::DependencyFlags(),
+				nullptr,
+				bufferMemoryBarrier,
+				nullptr
+			);
+	    }
     }
 }
 
@@ -274,6 +375,7 @@ void GDRPipeline::CreatePrePassResources()
     
     myPrePass.myDescriptorSet = new VulkanDescriptorSet();
     myPrePass.myDescriptorSet->BindBuffer(myCountBuffer, vk::ShaderStageFlagBits::eCompute, 0, vk::DescriptorType::eStorageBuffer);
+    myPrePass.myDescriptorSet->BindBuffer(myCountNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
     myPrePass.myDescriptorSet->Build();
 
     // Create pipeline
@@ -307,6 +409,9 @@ void GDRPipeline::CreateCullPassResources()
     myCullPass.myDescriptorSet->BindBuffer(myIndirectCommandsBuffer, vk::ShaderStageFlagBits::eCompute, 2, vk::DescriptorType::eStorageBuffer);
     myCullPass.myDescriptorSet->BindBuffer(myCountBuffer, vk::ShaderStageFlagBits::eCompute, 3, vk::DescriptorType::eStorageBuffer);
     myCullPass.myDescriptorSet->BindBuffer(myPerDrawDataBuffer, vk::ShaderStageFlagBits::eCompute, 4, vk::DescriptorType::eStorageBuffer);
+    myCullPass.myDescriptorSet->BindBuffer(myPerDrawDataNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 8, vk::DescriptorType::eStorageBuffer);
+    myCullPass.myDescriptorSet->BindBuffer(myCountNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 9, vk::DescriptorType::eStorageBuffer);
+    myCullPass.myDescriptorSet->BindBuffer(myIndirectCommandsBufferNoDepth, vk::ShaderStageFlagBits::eCompute, 10, vk::DescriptorType::eStorageBuffer);
     myCullPass.myDescriptorSet->Build();
 
     // Create pipeline
@@ -332,38 +437,75 @@ void GDRPipeline::CreateDrawPassResources()
 	myFragmentShader->OnShaderRecompiled.Bind(&GDRPipeline::OnShaderRecompiled, this);
 	
     // Descriptor sets
-    myFrameDescriptorSet.BindBuffer(
-        myFrameDataBuffer, 
-        vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
-        0, 
-        vk::DescriptorType::eUniformBuffer);
+	{
+		myFrameDescriptorSet.BindBuffer(
+			myFrameDataBuffer, 
+			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
+			0, 
+			vk::DescriptorType::eUniformBuffer);
 	
-    myFrameDescriptorSet.BindBuffer(
-        Engine::GetEngineSystem<PointLightSystem>().GetBuffer(), 
-        vk::ShaderStageFlagBits::eFragment, 
-        1, 
-        vk::DescriptorType::eStorageBuffer);
+		myFrameDescriptorSet.BindBuffer(
+			Engine::GetEngineSystem<PointLightSystem>().GetBuffer(), 
+			vk::ShaderStageFlagBits::eFragment, 
+			1, 
+			vk::DescriptorType::eStorageBuffer);
 	
-    myFrameDescriptorSet.BindBuffer(
-        myDirectionalLightBuffer,
-        vk::ShaderStageFlagBits::eFragment, 
-        2, 
-        vk::DescriptorType::eUniformBuffer);
+		myFrameDescriptorSet.BindBuffer(
+			myDirectionalLightBuffer,
+			vk::ShaderStageFlagBits::eFragment, 
+			2, 
+			vk::DescriptorType::eUniformBuffer);
 
-    myFrameDescriptorSet.BindImage(
-        Engine::GetEngineSystem<RenderSystem>().GetDirectionalLightShadowMap(), 
-        VulkanUtils::GetSampler(SamplerMode::Clamp), 
-        3, 
-        vk::ShaderStageFlagBits::eFragment,
-        vk::ImageLayout::eDepthStencilReadOnlyOptimal);
+		myFrameDescriptorSet.BindImage(
+			Engine::GetEngineSystem<RenderSystem>().GetDirectionalLightShadowMap(), 
+			VulkanUtils::GetSampler(SamplerMode::Clamp), 
+			3, 
+			vk::ShaderStageFlagBits::eFragment,
+			vk::ImageLayout::eDepthStencilReadOnlyOptimal);
 
-	myFrameDescriptorSet.BindBuffer(
-		myPerDrawDataBuffer,
-		vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 
-		4, 
-		vk::DescriptorType::eStorageBuffer);
+		myFrameDescriptorSet.BindBuffer(
+			myPerDrawDataBuffer,
+			vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 
+			4, 
+			vk::DescriptorType::eStorageBuffer);
 	
-    myFrameDescriptorSet.Build();
+		myFrameDescriptorSet.Build();
+	}
+
+	{
+		myFrameNoDepthDescriptorSet.BindBuffer(
+			myFrameDataBuffer, 
+			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
+			0, 
+			vk::DescriptorType::eUniformBuffer);
+	
+		myFrameNoDepthDescriptorSet.BindBuffer(
+			Engine::GetEngineSystem<PointLightSystem>().GetBuffer(), 
+			vk::ShaderStageFlagBits::eFragment, 
+			1, 
+			vk::DescriptorType::eStorageBuffer);
+	
+		myFrameNoDepthDescriptorSet.BindBuffer(
+			myDirectionalLightBuffer,
+			vk::ShaderStageFlagBits::eFragment, 
+			2, 
+			vk::DescriptorType::eUniformBuffer);
+
+		myFrameNoDepthDescriptorSet.BindImage(
+			Engine::GetEngineSystem<RenderSystem>().GetDirectionalLightShadowMap(), 
+			VulkanUtils::GetSampler(SamplerMode::Clamp), 
+			3, 
+			vk::ShaderStageFlagBits::eFragment,
+			vk::ImageLayout::eDepthStencilReadOnlyOptimal);
+
+		myFrameNoDepthDescriptorSet.BindBuffer(
+			myPerDrawDataNoDepthBuffer,
+			vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 
+			4, 
+			vk::DescriptorType::eStorageBuffer);
+	
+		myFrameNoDepthDescriptorSet.Build();
+	}
 
     // Pipeline creation
 	CreateGraphicsPipeline();
@@ -422,7 +564,7 @@ void GDRPipeline::CreateGraphicsPipeline()
 			vk::ColorComponentFlagBits::eA) };
 
 	const vk::PipelineColorBlendStateCreateInfo colorBlendInfo = vk::PipelineColorBlendStateCreateInfo().setAttachments(colorBlendAttachments);
-	const std::array<vk::DynamicState, 2> dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
+	const std::array<vk::DynamicState, 3> dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor, vk::DynamicState::eDepthWriteEnable };
 	const vk::PipelineDynamicStateCreateInfo dynamicStateInfo = vk::PipelineDynamicStateCreateInfo().setDynamicStates(dynamicStates);
 
 	const vk::ResultValue<vk::Pipeline> returnValue = VulkanContext::GetDevice()->createGraphicsPipeline(VulkanContext::GetPipelineCache(), vk::GraphicsPipelineCreateInfo()

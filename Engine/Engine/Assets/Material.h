@@ -19,9 +19,11 @@ public:
 	Texture* GetAlbedo() const;
 	Texture* GetNormal() const;
 	Texture* GetMaterial() const;
-	
+
 private:
 	Texture* myAlbedoTexture = nullptr;
 	Texture* myNormalTexture = nullptr;
 	Texture* myMaterialTexture = nullptr;
+
+	bool myDepthWriteEnabled = true;
 };

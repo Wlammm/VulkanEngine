@@ -27,9 +27,11 @@ public:
     class VulkanImage* GetResolvedRenderTexture() const;
     class VulkanImage* GetDepthTexture();
     class VulkanImage* GetDirectionalLightShadowMap() const;
-    
+
     void OnSwapChainResize();
-	
+
+    float ReadDepthAtScreenPos(const glm::vec2& inNormalizedScreenPos) const;
+    
     static VulkanCommandBuffer* CreateUploadCommandBuffer_TS();
     static void QueueCommandBufferForUpload_TS(VulkanCommandBuffer* commandBuffer);
 
@@ -90,6 +92,8 @@ private:
     
     // This is a resolved render texture that has a MSAA count of 1. This is required so we can use it as input to imgui for the editor viewport. 
     class VulkanImage* myResolvedRenderTexture = nullptr;
+    // This is used for editor depth reading as readback is not supported on multisampled textures.
+    class VulkanImage* myResolvedDepthTexture = nullptr;
 
     static constexpr glm::vec2 myShadowMapSize = glm::vec2(4096, 4096);
     class VulkanImage* myDirectionalLightShadowMap = nullptr;

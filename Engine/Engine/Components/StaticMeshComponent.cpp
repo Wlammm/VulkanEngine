@@ -152,7 +152,7 @@ void StaticMeshComponent::OnRenderStateDirty()
     {
         const Mesh* mesh = myModel->GetMeshes()[meshIndex];
         
-        MeshInstanceData data{ GetTransform()->GetMatrix(), mesh->GetHandle() };
+        MeshInstanceData data{ .myToWorld=GetTransform()->GetMatrix(), .myMeshIndex=mesh->GetHandle(), .myDepthWriteEnabled=myShouldWriteDepth };
 
         check(myMaterials.IsValidIndex(meshIndex));
         if(myMaterials[meshIndex] && myMaterials[meshIndex]->IsValid())
@@ -172,6 +172,15 @@ void StaticMeshComponent::OnRenderStateDirty()
         // Otherwise we add a new mesh instance for this one.
         myMeshInstances.Add(Engine::GetEngineSystem<GPUSceneSystem>().AddMeshInstance(data));
     }
+}
+
+void StaticMeshComponent::SetDepthWriteEnabled(const bool inEnabled)
+{
+    if (myShouldWriteDepth == inEnabled)
+        return;
+    
+    myShouldWriteDepth = inEnabled;
+    MarkRenderStateDirty();
 }
 
 void StaticMeshComponent::RemoveFromGPUScene()

@@ -1058,25 +1058,28 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<Viewport>();
 	{
-		Field& currentField = currentClass->AddField(Field("myEditorCamera", 88, ReflectionSystem::GetOrCreateType<EditorCameraMovementComponent>("EditorCameraMovementComponent"), true, false));
+		Field& currentField = currentClass->AddField(Field("myPreviewObject", 88, ReflectionSystem::GetOrCreateType<GameObject>("GameObject"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPlayButtonTexture", 96, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
+		Field& currentField = currentClass->AddField(Field("myEditorCamera", 96, ReflectionSystem::GetOrCreateType<EditorCameraMovementComponent>("EditorCameraMovementComponent"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myStopButtonTexture", 104, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPlayButtonTexture", 104, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDescriptorSets", 112, ReflectionSystem::GetOrCreateType<List<vk::DescriptorSet>>("List<vk::DescriptorSet>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myStopButtonTexture", 112, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySampler", 136, ReflectionSystem::GetOrCreateType<vk::Sampler>("vk::Sampler"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDescriptorSets", 120, ReflectionSystem::GetOrCreateType<List<vk::DescriptorSet>>("List<vk::DescriptorSet>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myP0", 144, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySampler", 144, ReflectionSystem::GetOrCreateType<vk::Sampler>("vk::Sampler"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myP1", 152, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
+		Field& currentField = currentClass->AddField(Field("myP0", 152, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myP1", 160, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EventObserver>());
@@ -1089,6 +1092,16 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Viewport* instance = static_cast<Viewport*>(inInstance);
+static thread_local glm::vec<2, float> result = instance->GetNormalizedMousePositionInViewport();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetNormalizedMousePositionInViewport", ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), invoker, arguments));
 }
 }
 { 
@@ -1481,6 +1494,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetJson", ReflectionSyst
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMaterialTexture", 80, ReflectionSystem::GetOrCreateType<Texture>("Texture"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDepthWriteEnabled", 88, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
 {
@@ -3619,6 +3635,80 @@ return nullptr;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("SetAsMainCamera", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
+glm::vec<3, float> & arg1 = *(glm::vec<3, float>*)inArguments[1];
+static thread_local bool result = instance->ScreenToWorldPos(arg0, arg1);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
+arguments.Add(MethodArgument("outWorldPos", ReflectionSystem::GetOrCreateType<glm::vec<3, float> &>("glm::vec<3, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("ScreenToWorldPos", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
+static thread_local glm::vec<3, float> result = instance->ScreenToNearPlane(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("ScreenToNearPlane", ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
+static thread_local glm::vec<3, float> result = instance->ScreenToFarPlane(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("ScreenToFarPlane", ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
+static thread_local glm::vec<3, float> result = instance->GetRayDirectionFromScreen(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetRayDirectionFromScreen", ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const float arg0 = *(const float*)inArguments[0];
+static thread_local float result = instance->ToLinearDepth(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNonLinearDepth", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("ToLinearDepth", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const float arg0 = *(const float*)inArguments[0];
+static thread_local float result = instance->ToNormalizedLinearDepth(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNDCDepth", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("ToNormalizedLinearDepth", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<GPUSceneSystem>();
@@ -4710,6 +4800,9 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRadius", ReflectionSy
 	{
 		Field& currentField = currentClass->AddField(Field("myMeshInstances", 96, ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShouldWriteDepth", 120, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -4818,6 +4911,18 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("OnRenderStateDirty", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
+const bool arg0 = *(const bool*)inArguments[0];
+instance->SetDepthWriteEnabled(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inEnabled", ReflectionSystem::GetOrCreateType<const bool>("const bool")));
+Method& currentMethod = currentClass->AddMethod(Method("SetDepthWriteEnabled", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -5320,7 +5425,10 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", Refl
 		Field& currentField = currentClass->AddField(Field("myResolvedRenderTexture", 176, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDirectionalLightShadowMap", 184, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+		Field& currentField = currentClass->AddField(Field("myResolvedDepthTexture", 184, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirectionalLightShadowMap", 192, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EventObserver>());
@@ -5413,6 +5521,18 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("OnSwapChainResize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
+static thread_local float result = instance->ReadDepthAtScreenPos(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("ReadDepthAtScreenPos", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -6563,34 +6683,46 @@ Method& currentMethod = currentClass->AddMethod(Method("AddFullscreenPass", Refl
 		Field& currentField = currentClass->AddField(Field("myIndirectCommandsBuffer", 88, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCountBuffer", 96, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myIndirectCommandsBufferNoDepth", 96, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPerDrawDataBuffer", 104, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myCountBuffer", 104, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", 112, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
+		Field& currentField = currentClass->AddField(Field("myCountNoDepthBuffer", 112, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 208, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPerDrawDataBuffer", 120, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPipeline", 216, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPerDrawDataNoDepthBuffer", 128, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myVertexShader", 224, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", 136, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFragmentShader", 232, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+		Field& currentField = currentClass->AddField(Field("myFrameNoDepthDescriptorSet", 232, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", 240, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 328, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDirectionalLightBuffer", 248, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myPipeline", 336, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDirtyTransforms", 256, ReflectionSystem::GetOrCreateType<List<TransformComponent *>>("List<TransformComponent *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myVertexShader", 344, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFragmentShader", 352, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", 360, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirectionalLightBuffer", 368, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirtyTransforms", 376, ReflectionSystem::GetOrCreateType<List<TransformComponent *>>("List<TransformComponent *>"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -7601,6 +7733,9 @@ Method& currentMethod = currentClass->AddMethod(Method("Serialize", ReflectionSy
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 76, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDepthWriteEnabled", 80, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
 	}
 }
 { 

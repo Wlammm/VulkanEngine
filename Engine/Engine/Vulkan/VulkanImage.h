@@ -14,7 +14,13 @@ public:
 			.setArrayLayers(1)
 			.setSamples(inSampleCount)
 			.setTiling(vk::ImageTiling::eOptimal)
+#if EDITOR
+			// We need to add transfer source when in editor to be able to readback depth for editor stuff.
+			// TODO: Only do this for the resolve depth. Not required for all depth buffers
+			.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferSrc)
+#else
 			.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment)
+#endif
 			.setSharingMode(vk::SharingMode::eExclusive)
 			.setInitialLayout(vk::ImageLayout::eUndefined);
 

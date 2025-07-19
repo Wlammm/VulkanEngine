@@ -28,6 +28,8 @@ public:
     const Material* GetMaterialForMesh(Mesh* inMesh) const;
 
     void OnRenderStateDirty() override;
+
+    void SetDepthWriteEnabled(const bool inEnabled);
     
 private:
     void RemoveFromGPUScene();
@@ -42,4 +44,7 @@ private:
     Model* myModel = nullptr;
 
     List<MeshInstanceIndex> myMeshInstances{};
+
+    // TODO: This should probably be moved to the material later on. Currently we dont support dynamic material updates in runtime.
+    bool myShouldWriteDepth = true;
 };

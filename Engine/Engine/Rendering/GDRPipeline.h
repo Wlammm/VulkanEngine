@@ -59,11 +59,15 @@ private:
     ComputePassResources myCullPass;
     
     ResizableBuffer* myIndirectCommandsBuffer = nullptr;
+    ResizableBuffer* myIndirectCommandsBufferNoDepth = nullptr;
     VulkanBuffer* myCountBuffer = nullptr;
+    VulkanBuffer* myCountNoDepthBuffer = nullptr;
     ResizableBuffer* myPerDrawDataBuffer = nullptr;
+    ResizableBuffer* myPerDrawDataNoDepthBuffer = nullptr;
     
     // ==== Draw resources ====
     VulkanDescriptorSet myFrameDescriptorSet{};
+    VulkanDescriptorSet myFrameNoDepthDescriptorSet{};
     vk::PipelineLayout myPipelineLayout;
     vk::Pipeline myPipeline;
     

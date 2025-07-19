@@ -43,6 +43,23 @@ layout(std430, set = 0, binding = 4) buffer OutPerDrawDataBuffer
     PerDrawData perDrawData[];
 } outPerDrawData;
 
+
+layout(std430, set = 0, binding = 8) buffer OutPerDrawDataNoDepthBuffer
+{
+    PerDrawData perDrawData[];
+} outPerDrawDataNoDepth;
+
+layout(std430, set = 0, binding = 9) buffer OutCountNoDepthBuffer
+{
+    uint myDrawCount;
+} outCountBufferNoDepth;
+
+layout(std430, set = 0, binding = 10) buffer OutIndirectBufferNoDepth
+{
+    DrawIndexedIndirectCommand drawCommands[];
+} outIndirectBufferNoDepth;
+
+
 layout (local_size_x = 256) in;
 
 void main() {
@@ -58,17 +75,42 @@ void main() {
     VertexBufferData vertexData = inVertexDataBuffer.myVertexDatas[meshData.myVertexIndex];
     IndexBufferData indexData = inIndexDataBuffer.myIndexDatas[meshData.myIndexDataIndex];
     
-    uint renderIndex = atomicAdd(outCountBuffer.myDrawCount, 1);
     
-    // Build indirect buffer that will be sent into vertex shader stage.
-    outIndirectBuffer.drawCommands[renderIndex].firstInstance = 0;
-    outIndirectBuffer.drawCommands[renderIndex].instanceCount = 1;
-    outIndirectBuffer.drawCommands[renderIndex].indexCount = indexData.myCount;
-    outIndirectBuffer.drawCommands[renderIndex].vertexOffset = int(vertexData.myOffset);
-    outIndirectBuffer.drawCommands[renderIndex].firstIndex = indexData.myOffset;
+    bool depthWriteEnabled = instanceData.myDepthWriteEnabled == 1;
     
-    outPerDrawData.perDrawData[renderIndex].myAlbedoIndex = instanceData.myAlbedoIndex;
-    outPerDrawData.perDrawData[renderIndex].myNormalIndex = instanceData.myNormalIndex;
-    outPerDrawData.perDrawData[renderIndex].myMaterialIndex = instanceData.myMaterialIndex;
-    outPerDrawData.perDrawData[renderIndex].myToWorld = instanceData.myToWorld;
-}
+    if(depthWriteEnabled)
+    {
+        // TODO: This should probably not be duplicated code later on.
+
+        uint renderIndex = atomicAdd(outCountBuffer.myDrawCount, 1);
+        
+        
+        // Build indirect buffer that will be sent into vertex shader stage.
+        outIndirectBuffer.drawCommands[renderIndex].firstInstance = 0;
+        outIndirectBuffer.drawCommands[renderIndex].instanceCount = 1;
+        outIndirectBuffer.drawCommands[renderIndex].indexCount = indexData.myCount;
+        outIndirectBuffer.drawCommands[renderIndex].vertexOffset = int(vertexData.myOffset);
+        outIndirectBuffer.drawCommands[renderIndex].firstIndex = indexData.myOffset;
+
+        outPerDrawData.perDrawData[renderIndex].myAlbedoIndex = instanceData.myAlbedoIndex;
+        outPerDrawData.perDrawData[renderIndex].myNormalIndex = instanceData.myNormalIndex;
+        outPerDrawData.perDrawData[renderIndex].myMaterialIndex = instanceData.myMaterialIndex;
+        outPerDrawData.perDrawData[renderIndex].myToWorld = instanceData.myToWorld;
+    }
+    else
+    {
+        uint renderIndex = atomicAdd(outCountBufferNoDepth.myDrawCount, 1);
+
+        // Build indirect buffer that will be sent into vertex shader stage.
+        outIndirectBufferNoDepth.drawCommands[renderIndex].firstInstance = 0;
+        outIndirectBufferNoDepth.drawCommands[renderIndex].instanceCount = 1;
+        outIndirectBufferNoDepth.drawCommands[renderIndex].indexCount = indexData.myCount;
+        outIndirectBufferNoDepth.drawCommands[renderIndex].vertexOffset = int(vertexData.myOffset);
+        outIndirectBufferNoDepth.drawCommands[renderIndex].firstIndex = indexData.myOffset;
+
+        outPerDrawDataNoDepth.perDrawData[renderIndex].myAlbedoIndex = instanceData.myAlbedoIndex;
+        outPerDrawDataNoDepth.perDrawData[renderIndex].myNormalIndex = instanceData.myNormalIndex;
+        outPerDrawDataNoDepth.perDrawData[renderIndex].myMaterialIndex = instanceData.myMaterialIndex;
+        outPerDrawDataNoDepth.perDrawData[renderIndex].myToWorld = instanceData.myToWorld;
+    }
+} 

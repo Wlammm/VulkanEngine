@@ -13,6 +13,13 @@ public:
 
 	void SetAsMainCamera();
 	
+    bool ScreenToWorldPos(const glm::vec2& inNormalizedScreenPos, glm::vec3& outWorldPos) const;
+	glm::vec3 ScreenToNearPlane(const glm::vec2& inNormalizedScreenPos) const;
+	glm::vec3 ScreenToFarPlane(const glm::vec2& inNormalizedScreenPos) const;
+	glm::vec3 GetRayDirectionFromScreen(const glm::vec2& inNormalizedScreenPos) const;
+
+	float ToLinearDepth(const float inNonLinearDepth) const;
+	float ToNormalizedLinearDepth(const float inNDCDepth) const;
 private:
 	glm::vec2 myResolution;
 	glm::mat4 myProjection;

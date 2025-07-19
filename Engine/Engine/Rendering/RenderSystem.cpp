@@ -105,6 +105,63 @@ void RenderSystem::OnSwapChainResize()
 	CreateRenderResources();
 }
 
+float RenderSystem::ReadDepthAtScreenPos(const glm::vec2& inNormalizedScreenPos) const
+{
+	glm::ivec2 imageSize = glm::ivec2(myDepthBuffer->GetSize());
+
+	int pixelX = static_cast<int>(inNormalizedScreenPos.x * imageSize.x);
+	int pixelY = static_cast<int>(inNormalizedScreenPos.y * imageSize.y);
+
+	pixelX = std::min(pixelX, imageSize.x - 1);
+	pixelY = std::min(pixelY, imageSize.y - 1);
+
+	vk::BufferCreateInfo bufferInfo = vk::BufferCreateInfo()
+		.setSize(sizeof(float))
+		.setUsage(vk::BufferUsageFlagBits::eTransferDst)
+		.setSharingMode(vk::SharingMode::eExclusive);
+
+	VulkanBuffer* buffer = VulkanAllocator::AllocateBuffer_TS("Depth read buffer", bufferInfo, VMA_MEMORY_USAGE_CPU_ONLY, true);
+
+	VulkanCommandBuffer* commandBuffer = VulkanContext::GetDevice().CreateCommandBuffer(true, false);
+
+	vk::ImageMemoryBarrier barrier = vk::ImageMemoryBarrier()
+		.setOldLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal)
+		.setNewLayout(vk::ImageLayout::eTransferSrcOptimal)
+		.setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+		.setDstAccessMask(vk::AccessFlagBits::eTransferRead)
+		.setImage(myResolvedDepthTexture->GetAPIResource())
+		.setSubresourceRange(vk::ImageSubresourceRange()
+			.setAspectMask(vk::ImageAspectFlagBits::eDepth)
+			.setBaseMipLevel(0).setLevelCount(1)
+			.setBaseArrayLayer(0).setLayerCount(1));
+
+	commandBuffer->GetAPIResource().pipelineBarrier(
+		vk::PipelineStageFlagBits::eLateFragmentTests,
+		vk::PipelineStageFlagBits::eTransfer,
+		{}, nullptr, nullptr, barrier);
+
+	vk::BufferImageCopy copyRegion = vk::BufferImageCopy()
+		.setBufferOffset(0)
+		.setBufferRowLength(0)
+		.setBufferImageHeight(0)
+		.setImageOffset(vk::Offset3D{pixelX, pixelY,0 })
+		.setImageExtent(vk::Extent3D{1, 1, 1});
+	
+	copyRegion.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eDepth;
+	copyRegion.imageSubresource.mipLevel = 0;
+	copyRegion.imageSubresource.baseArrayLayer = 0;
+	copyRegion.imageSubresource.layerCount = 1;
+	
+	commandBuffer->GetAPIResource().copyImageToBuffer(myResolvedDepthTexture->GetAPIResource(), vk::ImageLayout::eTransferSrcOptimal, buffer->GetAPIResource(), copyRegion);
+
+	VulkanContext::GetDevice().FlushCommandBuffer(commandBuffer);
+
+	float depthValue = *(float*)buffer->GetPtr();
+
+	VulkanAllocator::DestroyBuffer_TS(buffer);
+	return depthValue;
+}
+
 VulkanCommandBuffer* RenderSystem::CreateUploadCommandBuffer_TS()
 {
 	VulkanCommandBuffer* commandBuffer = VulkanContext::GetDevice().CreateCommandBuffer(true, true);
@@ -341,6 +398,7 @@ void RenderSystem::DestroyRenderResources()
 	VulkanAllocator::DestroyImage_TS(myRenderTexture);
 	VulkanAllocator::DestroyImage_TS(myResolvedRenderTexture);
 	VulkanAllocator::DestroyImage_TS(myDepthBuffer);
+	VulkanAllocator::DestroyImage_TS(myResolvedDepthTexture);
 	del(myCopyPipeline);
 	del(myDebugPipeline);
 	del(mySkyboxPipeline);
@@ -401,13 +459,19 @@ void RenderSystem::CreateRenderTextures()
 		VulkanImage::DepthCreateInfo({ VulkanContext::GetSwapChain().GetWidth(),VulkanContext::GetSwapChain().GetHeight() }, VulkanContext::GetPhysicalDevice().GetMaxMSAASamples()),
 		VMA_MEMORY_USAGE_AUTO);
 	myDepthBuffer->CreateDepthView();
+
+	myResolvedDepthTexture = VulkanAllocator::AllocateImage_TS(
+		"Resolved depth texture",
+		VulkanImage::DepthCreateInfo({ VulkanContext::GetSwapChain().GetWidth(),VulkanContext::GetSwapChain().GetHeight() }, vk::SampleCountFlagBits::e1),
+		VMA_MEMORY_USAGE_AUTO);
+	myResolvedDepthTexture->CreateDepthView();
 }
 
 void RenderSystem::CreateRenderPass()
 {
 	{
-		const std::array<vk::AttachmentDescription, 3> attachments = {
-			vk::AttachmentDescription()
+		const std::array<vk::AttachmentDescription2KHR, 4> attachments = {
+			vk::AttachmentDescription2() // Color
 				.setFormat(VulkanContext::GetSwapChain().GetFormat())
 				.setSamples(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples())
 				.setLoadOp(vk::AttachmentLoadOp::eClear)
@@ -416,7 +480,7 @@ void RenderSystem::CreateRenderPass()
 				.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
 				.setInitialLayout(vk::ImageLayout::eUndefined)
 				.setFinalLayout(vk::ImageLayout::eColorAttachmentOptimal),
-			vk::AttachmentDescription() // Depth
+			vk::AttachmentDescription2() // Depth
 				.setFormat(myDepthBuffer->GetFormat())
 				.setSamples(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples())
 				.setLoadOp(vk::AttachmentLoadOp::eClear)
@@ -425,7 +489,7 @@ void RenderSystem::CreateRenderPass()
 				.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
 				.setInitialLayout(vk::ImageLayout::eUndefined)
 				.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal),
-			vk::AttachmentDescription()
+			vk::AttachmentDescription2() // Resolved render target
 				.setFormat(VulkanContext::GetSwapChain().GetFormat())
 				.setSamples(vk::SampleCountFlagBits::e1)
 				.setLoadOp(vk::AttachmentLoadOp::eDontCare)
@@ -434,21 +498,39 @@ void RenderSystem::CreateRenderPass()
 				.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
 				.setInitialLayout(vk::ImageLayout::eUndefined)
 				.setFinalLayout(vk::ImageLayout::eShaderReadOnlyOptimal),
+			vk::AttachmentDescription2() // Resolved depth target
+				.setFormat(myResolvedDepthTexture->GetFormat())
+				.setSamples(vk::SampleCountFlagBits::e1)
+				.setLoadOp(vk::AttachmentLoadOp::eDontCare)
+				.setStoreOp(vk::AttachmentStoreOp::eStore)
+				.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
+				.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
+				.setInitialLayout(vk::ImageLayout::eUndefined)
+				.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal),
 		};
 
-		const auto colorReference = vk::AttachmentReference().setAttachment(0).setLayout(vk::ImageLayout::eColorAttachmentOptimal);
-		const auto depthReference = vk::AttachmentReference().setAttachment(1).setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
-		vk::AttachmentReference colorAttachmentResolveRef = vk::AttachmentReference().setAttachment(2).setLayout(vk::ImageLayout::eColorAttachmentOptimal);
+		const auto colorReference = vk::AttachmentReference2().setAttachment(0).setLayout(vk::ImageLayout::eColorAttachmentOptimal);
+		const auto depthReference = vk::AttachmentReference2().setAttachment(1).setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
+		vk::AttachmentReference2 colorAttachmentResolveRef = vk::AttachmentReference2().setAttachment(2).setLayout(vk::ImageLayout::eColorAttachmentOptimal);
+		vk::AttachmentReference2 depthAttachmentResolveRef = vk::AttachmentReference2().setAttachment(3).setLayout(vk::ImageLayout::eDepthAttachmentOptimal);
+
+		List<vk::AttachmentReference2> resolveAttachments = { colorAttachmentResolveRef };
+
+		vk::SubpassDescriptionDepthStencilResolve depthResolveInfo = vk::SubpassDescriptionDepthStencilResolve()
+			.setDepthResolveMode(vk::ResolveModeFlagBits::eAverage)
+			.setStencilResolveMode(vk::ResolveModeFlagBits::eNone)
+			.setPDepthStencilResolveAttachment(&depthAttachmentResolveRef);
 		
-		const auto subpass = vk::SubpassDescription()
+		const auto subpass = vk::SubpassDescription2()
 			.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
 			.setColorAttachments(colorReference)
 			.setPDepthStencilAttachment(&depthReference)
-			.setResolveAttachments(colorAttachmentResolveRef);
-
+			.setResolveAttachments(resolveAttachments)
+			.setPNext(&depthResolveInfo);
+		
 		vk::PipelineStageFlags stages = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
-		const std::array<vk::SubpassDependency, 1> dependencies = {
-			vk::SubpassDependency()
+		const std::array<vk::SubpassDependency2, 1> dependencies = {
+			vk::SubpassDependency2()
 				.setSrcSubpass(VK_SUBPASS_EXTERNAL)
 				.setDstSubpass(0)
 				.setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eLateFragmentTests)
@@ -458,7 +540,7 @@ void RenderSystem::CreateRenderPass()
 				.setDependencyFlags(vk::DependencyFlags())
 		};
 
-		myRenderPass = VulkanContext::GetDevice()->createRenderPass(vk::RenderPassCreateInfo().setAttachments(attachments).setSubpasses(subpass).setDependencies(dependencies));
+		myRenderPass = VulkanContext::GetDevice()->createRenderPass2(vk::RenderPassCreateInfo2().setAttachments(attachments).setSubpasses(subpass).setDependencies(dependencies));
 	}
 
 	// Render texture pass.
@@ -501,10 +583,11 @@ void RenderSystem::CreateFrameBuffers()
 {
 	// Main pass
 	{
-		std::array<vk::ImageView, 3> attachments;
+		std::array<vk::ImageView, 4> attachments;
 		attachments[0] = myRenderTexture->GetImageView();
 		attachments[1] = myDepthBuffer->GetImageView();
 		attachments[2] = myResolvedRenderTexture->GetImageView();
+		attachments[3] = myResolvedDepthTexture->GetImageView();
 		
 		myVkFrameBuffer = VulkanContext::GetDevice()->createFramebuffer(vk::FramebufferCreateInfo()
 			.setRenderPass(myRenderPass)
