@@ -288,13 +288,8 @@ void Viewport::UpdatePreviewMesh()
 	bool hit = mainCamera->ScreenToWorldPos(normalizedScreenPos, worldPos);
 	if (!hit)
 	{
-		LOG("No hit");
 		const glm::vec3 directionToObject = glm::normalize(mainCamera->GetRayDirectionFromScreen(normalizedScreenPos));
-		worldPos = mainCamera->ScreenToNearPlane(normalizedScreenPos) + directionToObject * 1000.0f;
-	}
-	else
-	{
-		LOG("HIT");
+		worldPos = mainCamera->ScreenToNearPlane(normalizedScreenPos) + directionToObject * 5000.0f;
 	}
 
 	myPreviewObject->GetTransform()->SetPosition(worldPos); 

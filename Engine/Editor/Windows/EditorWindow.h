@@ -8,6 +8,10 @@ public:
 	virtual ~EditorWindow() {};
 	void DoTick();
 
+	// Will be called each frame the window is the active window.
+	virtual void TickInput() {};
+	
+	
 protected:
 	virtual void Tick() = 0;
 

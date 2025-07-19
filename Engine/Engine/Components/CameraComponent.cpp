@@ -52,15 +52,6 @@ bool CameraComponent::ScreenToWorldPos(const glm::vec2& inNormalizedScreenPos, g
 
     if (depth <= 0 || depth >= 1)
         return false;
-
-
-    // float linearDepth = ToLinearDepth(depth);
-    
-    // glm::vec3 nearPlane = ScreenToNearPlane(inNormalizedScreenPos);
-    // glm::vec3 farPlane = ScreenToFarPlane(inNormalizedScreenPos);
-    
-    // float t = (linearDepth - myNearPlane) / (myFarPlane - myNearPlane);
-    // outWorldPos = glm::lerp(nearPlane, farPlane, t);
     
     float ndcX = inNormalizedScreenPos.x * 2.0f - 1.0f;
     float ndcY = inNormalizedScreenPos.y * 2.0f - 1.0f;

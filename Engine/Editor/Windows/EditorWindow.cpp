@@ -18,6 +18,9 @@ void EditorWindow::DoTick()
 		ImGui::Begin(name.c_str());
 
 	Tick();
+	
+	if (ImGui::IsWindowFocused())
+		TickInput();
 
 	ImGui::End();
 

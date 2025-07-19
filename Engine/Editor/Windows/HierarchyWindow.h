@@ -8,6 +8,8 @@ public:
 
     void Tick() override;
 
+    void TickInput() override;
+
 private:
     
 };

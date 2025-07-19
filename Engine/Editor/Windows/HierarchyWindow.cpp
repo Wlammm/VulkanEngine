@@ -45,3 +45,16 @@ void HierarchyWindow::Tick()
         }
     }
 }
+
+void HierarchyWindow::TickInput()
+{
+    if (Input::IsKeyDown(KeyCode::Delete))
+    {
+        for (GameObject& object : SelectionSystem::GetSelectedObjects())
+        {
+            object.Destroy();
+        }
+        SelectionSystem::ClearSelection();
+    }
+    
+}
