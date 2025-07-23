@@ -12,6 +12,7 @@ class GameObject;
 
 struct GameObjectData
 {
+    META(SerializeField)
     std::string myName;
 
     // Called after a component was added. Right after Component::OnCreate
@@ -92,11 +93,12 @@ private:
     
 private:
     
-    META(SerializeField)
     // We use gameObjectID's here to avoid a circular include with GameObject.h
+    META(SerializeField)
     List<GameObjectID> myObjects{};
     List<GameObjectID> myObjectsToDestory{};
 
+    META(SerializeField)
     inline static std::unordered_map<GameObjectID, GameObjectData> myGameObjectData{};
 
     META(SerializeField)

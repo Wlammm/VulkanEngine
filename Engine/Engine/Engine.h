@@ -68,7 +68,7 @@ private:
 
 	EngineProperties myEngineProperties;
 
-	class SystemManager<System>* mySystemManager = nullptr;
+	UniquePtr<SystemManager<System>> mySystemManager;
 	class EventHandler* myPostMaster = nullptr;
 	class ThreadPool* myThreadPool = nullptr;
 	class Filewatcher* myFilewatcher = nullptr;

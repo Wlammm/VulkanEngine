@@ -118,14 +118,15 @@ void World::Destroy()
 void World::SaveToFile(const std::filesystem::path& inPath)
 {
 	BinarySerializer writer(inPath, BinarySerializer::Mode::Write);
-	// writer.WriteClass(this, Engine::GetReflectionSystem().GetClass(this));
 	writer.SerializeType(GetComponentSystem());
 	writer.Close();
 }
 
 void World::LoadFromFile(const std::filesystem::path& inPath)
 {
-	check(false);
+	BinarySerializer writer(inPath, BinarySerializer::Mode::Read);
+	writer.SerializeType(GetComponentSystem());
+	writer.Close();
 }
 
 bool World::Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, RaycastHit& outHit, const float inMaxDistance, const TagMask inExcludedTags, bool inIgnoreTriggers)

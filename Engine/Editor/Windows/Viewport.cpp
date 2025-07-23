@@ -51,9 +51,18 @@ void Viewport::Tick()
 {
 	UpdateCurrentTexture();
 	UpdateViewportImageSize();
-	UpdateCaptureMouse();
 	DrawPIEHUD();
 	HandleDragDrop();
+}
+
+void Viewport::TickInput()
+{
+	EditorWindow::TickInput();
+	UpdateCaptureMouse();
+	CameraComponent* cameraComp = Engine::GetWorld()->GetMainCamera();
+	EditorCameraMovementComponent* cameraMovComp = cameraComp->GetComponent<EditorCameraMovementComponent>();
+	if (cameraMovComp)
+		cameraMovComp->ViewportTick();
 }
 
 vk::DescriptorSet Viewport::GetCurrentDescriptorSet()
@@ -200,7 +209,7 @@ void Viewport::HandleDragDrop()
 		const ImGuiPayload* payload = ImGui::GetDragDropPayload();
 		std::filesystem::path path = *(std::string*)payload->Data;
 
-		if (ImGui::AcceptDragDropPayload(".fbx"))
+		if (ImGui::AcceptDragDropPayload(".fbx") || ImGui::AcceptDragDropPayload(".gltf"))
 		{
 			GameObject object = Engine::GetWorld()->GetComponentSystem().CreateGameObject(path.filename().string());
 			object.AddComponent<StaticMeshComponent>(path);
@@ -210,7 +219,7 @@ void Viewport::HandleDragDrop()
 		}
 		else
 		{
-			if (payload->IsDataType(".fbx"))
+			if (payload->IsDataType(".fbx") || payload->IsDataType(".gltf"))
 			{
 				isPreviewingMeshThisFrame = true;
 				if (myPreviewObject == nullptr)

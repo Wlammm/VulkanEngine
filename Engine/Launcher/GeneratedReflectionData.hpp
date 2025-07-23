@@ -80,6 +80,7 @@
 #include "../Engine/Core/CheckDefine.hpp"
 #include "../Engine/Core/EngineDefines.hpp"
 #include "../Engine/Core/UniqueID.h"
+#include "../Engine/Core/UniquePtr.h"
 #include "../Engine/Coroutines/Awaitable.h"
 #include "../Engine/Coroutines/CoroutineManager.h"
 #include "../Engine/Reflection/Field.h"
@@ -124,6 +125,7 @@
 #include "../Engine/Utils/ThreadUtils.hpp"
 #include "../Engine/Serialization/TypeSerializers/GlmSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/ListSerializer.h"
+#include "../Engine/Serialization/TypeSerializers/MapSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/PathSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/PrimitiveSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/StringSerializer.h"
@@ -311,6 +313,7 @@ ReflectionSystem::AddType<List<vk::DescriptorSet>>("List<vk::DescriptorSet>", ty
 ReflectionSystem::AddType<AutoInit>("AutoInit", typeid(AutoInit).name());
 ReflectionSystem::AddType<AutoInitManager>("AutoInitManager", typeid(AutoInitManager).name());
 ReflectionSystem::AddType<UniqueID>("UniqueID", typeid(UniqueID).name());
+ReflectionSystem::AddType<UniquePtr<SystemManager<System>>>("UniquePtr<SystemManager<System>>", typeid(UniquePtr<SystemManager<System>>).name());
 ReflectionSystem::AddType<Awaitable>("Awaitable", typeid(Awaitable).name());
 ReflectionSystem::AddType<CoroutineManager>("CoroutineManager", typeid(CoroutineManager).name());
 ReflectionSystem::AddType<Field>("Field", typeid(Field).name());
@@ -352,6 +355,7 @@ ReflectionSystem::AddType<FileTimeSerializer>("FileTimeSerializer", typeid(FileT
 ReflectionSystem::AddType<ThreadUtils>("ThreadUtils", typeid(ThreadUtils).name());
 ReflectionSystem::AddType<GlmSerializer>("GlmSerializer", typeid(GlmSerializer).name());
 ReflectionSystem::AddType<ListSerializer>("ListSerializer", typeid(ListSerializer).name());
+ReflectionSystem::AddType<MapSerializer>("MapSerializer", typeid(MapSerializer).name());
 ReflectionSystem::AddType<PathSerializer>("PathSerializer", typeid(PathSerializer).name());
 ReflectionSystem::AddType<PrimitiveSerializer>("PrimitiveSerializer", typeid(PrimitiveSerializer).name());
 ReflectionSystem::AddType<StringSerializer>("StringSerializer", typeid(StringSerializer).name());
@@ -633,11 +637,11 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 EditorCameraMovementComponent* instance = static_cast<EditorCameraMovementComponent*>(inInstance);
-instance->EditorTick();
+instance->ViewportTick();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("EditorTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("ViewportTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -1112,6 +1116,16 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Viewport* instance = static_cast<Viewport*>(inInstance);
+instance->TickInput();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("TickInput", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -3043,6 +3057,7 @@ Method& currentMethod = currentClass->AddMethod(Method("LogError", ReflectionSys
 	Type* currentClass = ReflectionSystem::GetMutableType<GameObjectData>();
 	{
 		Field& currentField = currentClass->AddField(Field("myName", 0, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myOnComponentAdded", 40, ReflectionSystem::GetOrCreateType<MulticastDelegate<void (Component *)>>("MulticastDelegate<void (Component *)>"), false, false));
@@ -5223,6 +5238,10 @@ Method& currentMethod = currentClass->AddMethod(Method("operator==", ReflectionS
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<SystemManager<System>>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<SystemManager<System>>("SystemManager<System>"), false, false);
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<Awaitable>();
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5618,31 +5637,31 @@ Method& currentMethod = currentClass->AddMethod(Method("GetGDRPipeline", Reflect
 		Field& currentField = currentClass->AddField(Field("myEngineProperties", 8, ReflectionSystem::GetOrCreateType<EngineProperties>("EngineProperties"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySystemManager", 144, ReflectionSystem::GetOrCreateType<SystemManager<System>>("SystemManager<System>"), true, false));
+		Field& currentField = currentClass->AddField(Field("mySystemManager", 144, ReflectionSystem::GetOrCreateType<UniquePtr<SystemManager<System>>>("UniquePtr<SystemManager<System>>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPostMaster", 152, ReflectionSystem::GetOrCreateType<EventHandler>("EventHandler"), true, false));
+		Field& currentField = currentClass->AddField(Field("myPostMaster", 160, ReflectionSystem::GetOrCreateType<EventHandler>("EventHandler"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myThreadPool", 160, ReflectionSystem::GetOrCreateType<ThreadPool>("ThreadPool"), true, false));
+		Field& currentField = currentClass->AddField(Field("myThreadPool", 168, ReflectionSystem::GetOrCreateType<ThreadPool>("ThreadPool"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFilewatcher", 168, ReflectionSystem::GetOrCreateType<Filewatcher>("Filewatcher"), true, false));
+		Field& currentField = currentClass->AddField(Field("myFilewatcher", 176, ReflectionSystem::GetOrCreateType<Filewatcher>("Filewatcher"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myWindowHandler", 176, ReflectionSystem::GetOrCreateType<WindowHandler>("WindowHandler"), true, false));
+		Field& currentField = currentClass->AddField(Field("myWindowHandler", 184, ReflectionSystem::GetOrCreateType<WindowHandler>("WindowHandler"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myVulkanContext", 184, ReflectionSystem::GetOrCreateType<VulkanContext>("VulkanContext"), true, false));
+		Field& currentField = currentClass->AddField(Field("myVulkanContext", 192, ReflectionSystem::GetOrCreateType<VulkanContext>("VulkanContext"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 192, ReflectionSystem::GetOrCreateType<AssetRegistry>("AssetRegistry"), true, false));
+		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 200, ReflectionSystem::GetOrCreateType<AssetRegistry>("AssetRegistry"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myWorld", 200, ReflectionSystem::GetOrCreateType<World>("World"), true, false));
+		Field& currentField = currentClass->AddField(Field("myWorld", 208, ReflectionSystem::GetOrCreateType<World>("World"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myExternalTickFunction", 208, ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myExternalTickFunction", 216, ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -7575,6 +7594,38 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
 arguments.Add(MethodArgument("inClass", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+arguments.Add(MethodArgument("inSerializer", ReflectionSystem::GetOrCreateType<BinarySerializer *>("BinarySerializer *")));
+Method& currentMethod = currentClass->AddMethod(Method("Serialize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<MapSerializer>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<TypeSerializer>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+MapSerializer* instance = static_cast<MapSerializer*>(inInstance);
+const Type * arg0 = (const Type*)inArguments[0];
+static thread_local bool result = instance->SerializesType(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+Method& currentMethod = currentClass->AddMethod(Method("SerializesType", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+MapSerializer* instance = static_cast<MapSerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Type * arg1 = (const Type*)inArguments[1];
+BinarySerializer * arg2 = (BinarySerializer*)inArguments[2];
+instance->Serialize(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
+arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
 arguments.Add(MethodArgument("inSerializer", ReflectionSystem::GetOrCreateType<BinarySerializer *>("BinarySerializer *")));
 Method& currentMethod = currentClass->AddMethod(Method("Serialize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }

@@ -12,6 +12,7 @@ public:
 	~Viewport();
 
 	virtual void Tick() override final;
+	void TickInput() override;
 
 	glm::vec2 GetNormalizedMousePositionInViewport() const;
 

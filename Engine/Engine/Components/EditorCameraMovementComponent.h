@@ -4,7 +4,7 @@
 class EditorCameraMovementComponent : public Component
 {
 public:
-    void EditorTick() override final;
+    void ViewportTick();
 
     void ResetMouseDelta();
 

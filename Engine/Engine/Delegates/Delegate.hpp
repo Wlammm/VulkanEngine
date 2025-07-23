@@ -49,8 +49,12 @@ public:
         }
     }
 
-    // Move constructor
-    Delegate(Delegate&& other) noexcept : myFuncCtor(std::move(other.myFuncCtor))
+    Delegate(nullptr_t)
+    {
+        myFuncCtor.reset();
+    }
+
+    Delegate(Delegate&& other) : myFuncCtor(std::move(other.myFuncCtor))
     {
         other.myFuncCtor.reset();
 #if DEBUG
@@ -60,10 +64,11 @@ public:
 
     ~Delegate() = default;
     
-    template<typename Callable, typename = std::enable_if_t<!std::is_same_v<std::decay_t<Callable>, Delegate>>>
+    template<typename Callable, typename = std::enable_if_t<!std::is_same_v<std::decay_t<Callable>, Delegate> && std::is_invocable_r_v<ReturnType, Callable, ArgTypes...>>>
     Delegate(Callable&& func, SOURCE_LOCATION_INPUT_ARG)
     {
         SOURCE_LOCATION_ASSIGNMENT;
+
         myFuncCtor = std::make_unique<LambdaFuncCtor<ReturnType(ArgTypes...)>>(std::forward<Callable>(func));
     }
     
@@ -100,6 +105,12 @@ public:
             mySourceLocation = inOther.mySourceLocation;
 #endif
         }
+        return *this;
+    }
+
+    Delegate& operator=(nullptr_t)
+    {
+        myFuncCtor = nullptr;
         return *this;
     }
 

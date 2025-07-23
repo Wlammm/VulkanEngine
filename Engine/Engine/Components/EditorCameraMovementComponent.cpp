@@ -5,7 +5,7 @@
 #include "TransformComponent.h"
 #include "Engine/Core/Input.h"
 
-void EditorCameraMovementComponent::EditorTick()
+void EditorCameraMovementComponent::ViewportTick()
 {
     UpdateMovement();
     UpdateRotation();

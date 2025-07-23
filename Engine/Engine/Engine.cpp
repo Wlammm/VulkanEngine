@@ -50,14 +50,16 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	AssetRegistry::ScanAssetsFolder();
 	
 	PhysicsSystem::CreateStaticObjects();
-	
+
+	std::unique_ptr<int> somePtr;
+
 	myPostMaster = new EventHandler();
 	myThreadPool = new ThreadPool();
 	myFilewatcher = new Filewatcher();
 	myWindowHandler = new WindowHandler();
 	myVulkanContext = new VulkanContext();
 	myAssetRegistry = new AssetRegistry();
-	mySystemManager = new SystemManager<System>();
+	mySystemManager = MakeUnique<SystemManager<System>>();
 	CreateSystems();
 
 #if !EDITOR
@@ -68,7 +70,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 Engine::~Engine()
 {
 	del(myWorld);
-	del(mySystemManager);
+	mySystemManager.Reset();
 	del(myAssetRegistry);
 	del(myVulkanContext);
 	del(myWindowHandler);
