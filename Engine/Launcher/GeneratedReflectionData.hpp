@@ -315,6 +315,11 @@ ReflectionSystem::AddType<UniquePtr<Filewatcher>>("UniquePtr<Filewatcher>", type
 ReflectionSystem::AddType<UniquePtr<WindowHandler>>("UniquePtr<WindowHandler>", typeid(UniquePtr<WindowHandler>).name());
 ReflectionSystem::AddType<UniquePtr<VulkanContext>>("UniquePtr<VulkanContext>", typeid(UniquePtr<VulkanContext>).name());
 ReflectionSystem::AddType<UniquePtr<AssetRegistry>>("UniquePtr<AssetRegistry>", typeid(UniquePtr<AssetRegistry>).name());
+ReflectionSystem::AddType<UniquePtr<VulkanPhysicalDevice>>("UniquePtr<VulkanPhysicalDevice>", typeid(UniquePtr<VulkanPhysicalDevice>).name());
+ReflectionSystem::AddType<UniquePtr<VulkanDevice>>("UniquePtr<VulkanDevice>", typeid(UniquePtr<VulkanDevice>).name());
+ReflectionSystem::AddType<UniquePtr<VulkanAllocator>>("UniquePtr<VulkanAllocator>", typeid(UniquePtr<VulkanAllocator>).name());
+ReflectionSystem::AddType<UniquePtr<VulkanSwapChain>>("UniquePtr<VulkanSwapChain>", typeid(UniquePtr<VulkanSwapChain>).name());
+ReflectionSystem::AddType<UniquePtr<NvidiaAftermathTracker>>("UniquePtr<NvidiaAftermathTracker>", typeid(UniquePtr<NvidiaAftermathTracker>).name());
 ReflectionSystem::AddType<Awaitable>("Awaitable", typeid(Awaitable).name());
 ReflectionSystem::AddType<CoroutineManager>("CoroutineManager", typeid(CoroutineManager).name());
 ReflectionSystem::AddType<Field>("Field", typeid(Field).name());
@@ -5238,6 +5243,26 @@ Method& currentMethod = currentClass->AddMethod(Method("operator==", ReflectionS
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<AssetRegistry>("AssetRegistry"), false, false);
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanPhysicalDevice>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanPhysicalDevice>("VulkanPhysicalDevice"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanDevice>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanDevice>("VulkanDevice"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanAllocator>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanAllocator>("VulkanAllocator"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanSwapChain>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanSwapChain>("VulkanSwapChain"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<NvidiaAftermathTracker>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<NvidiaAftermathTracker>("NvidiaAftermathTracker"), false, false);
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<Awaitable>();
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8625,31 +8650,31 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", Reflect
 		Field& currentField = currentClass->AddField(Field("myPipelineCache", 16, ReflectionSystem::GetOrCreateType<vk::PipelineCache>("vk::PipelineCache"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPhysicalDevice", 24, ReflectionSystem::GetOrCreateType<VulkanPhysicalDevice>("VulkanPhysicalDevice"), true, false));
+		Field& currentField = currentClass->AddField(Field("myPhysicalDevice", 24, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanPhysicalDevice>>("UniquePtr<VulkanPhysicalDevice>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDevice", 32, ReflectionSystem::GetOrCreateType<VulkanDevice>("VulkanDevice"), true, false));
+		Field& currentField = currentClass->AddField(Field("myDevice", 40, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanDevice>>("UniquePtr<VulkanDevice>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myAllocator", 40, ReflectionSystem::GetOrCreateType<VulkanAllocator>("VulkanAllocator"), true, false));
+		Field& currentField = currentClass->AddField(Field("myAllocator", 56, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanAllocator>>("UniquePtr<VulkanAllocator>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySwapChain", 48, ReflectionSystem::GetOrCreateType<VulkanSwapChain>("VulkanSwapChain"), true, false));
+		Field& currentField = currentClass->AddField(Field("mySwapChain", 72, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanSwapChain>>("UniquePtr<VulkanSwapChain>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("markerMap", 56, ReflectionSystem::GetOrCreateType<std::array<std::map<unsigned long long, std::basic_string<char>>, 4>>("std::array<std::map<unsigned long long, std::basic_string<char>>, 4>"), false, false));
+		Field& currentField = currentClass->AddField(Field("markerMap", 88, ReflectionSystem::GetOrCreateType<std::array<std::map<unsigned long long, std::basic_string<char>>, 4>>("std::array<std::map<unsigned long long, std::basic_string<char>>, 4>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myNvidiaAftermathDebugger", 152, ReflectionSystem::GetOrCreateType<NvidiaAftermathTracker>("NvidiaAftermathTracker"), true, false));
+		Field& currentField = currentClass->AddField(Field("myNvidiaAftermathDebugger", 184, ReflectionSystem::GetOrCreateType<UniquePtr<NvidiaAftermathTracker>>("UniquePtr<NvidiaAftermathTracker>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDescriptorPool", 160, ReflectionSystem::GetOrCreateType<vk::DescriptorPool>("vk::DescriptorPool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDescriptorPool", 200, ReflectionSystem::GetOrCreateType<vk::DescriptorPool>("vk::DescriptorPool"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myExtensions", 168, ReflectionSystem::GetOrCreateType<const List<const char *>>("const List<const char *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myExtensions", 208, ReflectionSystem::GetOrCreateType<const List<const char *>>("const List<const char *>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myLayers", 192, ReflectionSystem::GetOrCreateType<const List<const char *>>("const List<const char *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myLayers", 232, ReflectionSystem::GetOrCreateType<const List<const char *>>("const List<const char *>"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

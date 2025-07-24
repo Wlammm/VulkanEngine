@@ -56,17 +56,17 @@ VulkanContext::VulkanContext()
 	CreateInstance();
 	CreateDebugLayer();
 
-	myPhysicalDevice = new VulkanPhysicalDevice();
+	myPhysicalDevice = MakeUnique<VulkanPhysicalDevice>();
 	
 	if(Engine::GetEngineProperties().HasStartupArgument("-aftermath"))
 	{
-		myNvidiaAftermathDebugger = new NvidiaAftermathTracker(markerMap);
+		myNvidiaAftermathDebugger = MakeUnique<NvidiaAftermathTracker>(markerMap);
 		myNvidiaAftermathDebugger->Initialize();
 	}
 	
-	myDevice = new VulkanDevice(*myPhysicalDevice);
-	myAllocator = new VulkanAllocator(myVulkanInstance, *myPhysicalDevice, *myDevice);
-	mySwapChain = new VulkanSwapChain(*myDevice);
+	myDevice = MakeUnique<VulkanDevice>(*myPhysicalDevice);
+	myAllocator = MakeUnique<VulkanAllocator>(myVulkanInstance, *myPhysicalDevice, *myDevice);
+	mySwapChain = MakeUnique<VulkanSwapChain>(*myDevice);
 
 	VulkanUtils::CreateSamplers();
 	myPipelineCache = GetDevice()->createPipelineCache(vk::PipelineCacheCreateInfo(), nullptr);
@@ -82,14 +82,14 @@ VulkanContext::~VulkanContext()
 	GetDevice()->destroyPipelineCache(myPipelineCache);
 	VulkanUtils::DestroySamplers();
 
-	del(mySwapChain);
-	del(myAllocator);
-	del(myDevice);
+	mySwapChain.Reset();
+	myAllocator.Reset();
+	myDevice.Reset();
 
 	if(myNvidiaAftermathDebugger)
-		del(myNvidiaAftermathDebugger);
+		myNvidiaAftermathDebugger.Reset();
 	
-	del(myPhysicalDevice);
+	myPhysicalDevice.Reset();
 	DestroyDebugLayer();
 	myVulkanInstance.destroy();
 }
@@ -126,7 +126,7 @@ VulkanAllocator& VulkanContext::GetAllocator()
 
 NvidiaAftermathTracker* VulkanContext::GetAftermathTracker()
 {
-	return myInstance->myNvidiaAftermathDebugger;
+	return myInstance->myNvidiaAftermathDebugger.Get();
 }
 
 glm::vec2 VulkanContext::GetRenderResolution()

@@ -48,13 +48,13 @@ private:
 	vk::DebugUtilsMessengerEXT myDebugMessenger;
 	vk::PipelineCache myPipelineCache;
 
-	class VulkanPhysicalDevice* myPhysicalDevice = nullptr;
-	class VulkanDevice* myDevice = nullptr;
-	class VulkanAllocator* myAllocator = nullptr;
-	class VulkanSwapChain* mySwapChain = nullptr;
+	UniquePtr<class VulkanPhysicalDevice> myPhysicalDevice = nullptr;
+	UniquePtr<class VulkanDevice> myDevice = nullptr;
+	UniquePtr<class VulkanAllocator> myAllocator = nullptr;
+	UniquePtr<class VulkanSwapChain> mySwapChain = nullptr;
 	
 	AfterMathMarkerMap markerMap;
-	class NvidiaAftermathTracker* myNvidiaAftermathDebugger = nullptr;
+	UniquePtr<class NvidiaAftermathTracker> myNvidiaAftermathDebugger = nullptr;
 
 	vk::DescriptorPool myDescriptorPool;
 
