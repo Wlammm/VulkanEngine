@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Engine/Events/EventObserver.h"
 #include "Engine/System/System.h"
 
 #if DEBUG
@@ -11,7 +10,7 @@
 
 class VulkanCommandBuffer;
 
-class RenderSystem : public System, public EventObserver
+class RenderSystem : public System
 {
 public:
     RenderSystem();

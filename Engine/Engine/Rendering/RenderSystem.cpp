@@ -25,11 +25,13 @@
 
 RenderSystem::RenderSystem()
 {
-	SubscribeToEvent(EventType::SwapchainResized, std::bind(&RenderSystem::OnSwapChainResize, this));
+	VulkanSwapChain::OnSwapChainResized.Bind(&RenderSystem::OnSwapChainResize,this);
 }
 
 RenderSystem::~RenderSystem()
 {
+	VulkanSwapChain::OnSwapChainResized.UnBind(&RenderSystem::OnSwapChainResize,this);
+	
 	if(myDirectionalLightShadowMap)
 		VulkanAllocator::DestroyImage_TS(myDirectionalLightShadowMap);
 	

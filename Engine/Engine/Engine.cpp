@@ -9,7 +9,6 @@
 #include "Vulkan/VulkanSwapChain.h"
 
 #include "World/World.h"
-#include "Events/EventHandler.h"
 #include "AssetRegistry/AssetRegistry.h"
 #include "Core/ThreadPool.h"
 #include "Core/Filewatcher.h"
@@ -53,7 +52,6 @@ Engine::Engine(const EngineProperties inEngineProperties)
 
 	std::unique_ptr<int> somePtr;
 
-	myPostMaster = MakeUnique<EventHandler>();
 	myThreadPool = MakeUnique<ThreadPool>();
 	myFilewatcher = MakeUnique<Filewatcher>();
 	myWindowHandler = MakeUnique<WindowHandler>();
@@ -76,7 +74,6 @@ Engine::~Engine()
 	myWindowHandler.Reset();
 	myFilewatcher.Reset();
 	myThreadPool.Reset();
-	myPostMaster.Reset();
 
 	PhysicsSystem::DestoryStaticObjects();
 
@@ -168,11 +165,6 @@ const EngineProperties& Engine::GetEngineProperties()
 const WindowHandler& Engine::GetWindowHandler()
 {
 	return *myInstance->myWindowHandler;
-}
-
-EventHandler& Engine::GetEventHandler()
-{
-	return *myInstance->myPostMaster;
 }
 
 AssetRegistry& Engine::GetAssetRegistry()

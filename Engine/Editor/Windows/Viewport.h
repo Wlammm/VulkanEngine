@@ -1,11 +1,10 @@
 #pragma once
 #include "EditorWindow.h"
-#include "Engine/Events/EventObserver.h"
 
 class GameObject;
 class EditorCameraMovementComponent;
 
-class Viewport : public EditorWindow, public EventObserver
+class Viewport : public EditorWindow
 {
 public:
 	Viewport();

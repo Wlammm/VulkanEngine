@@ -1,4 +1,5 @@
 #pragma once
+#include "Engine/Delegates/MulticastDelegate.hpp"
 
 class VulkanDevice;
 
@@ -25,6 +26,8 @@ public:
 	uint GetMinImageCount() const;
 
 	const vk::ImageView& GetImageView(const uint inIndex) const;
+
+	inline static MulticastDelegate<void()> OnSwapChainResized;
 
 private:
 	void CreateWindowSurface();

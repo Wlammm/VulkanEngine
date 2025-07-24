@@ -54,7 +54,6 @@
 #include "../Engine/Vulkan/VulkanDynamicBuffer.hpp"
 #include "../Engine/ComponentSystem/GameObject.h"
 #include "../Engine/ComponentSystem/GameObjectID.hpp"
-#include "../Engine/Events/EventHandler.h"
 #include "../Engine/ComponentSystem/GameObjectTag.hpp"
 #include "../Engine/Components/LandscapeRenderComponent.h"
 #include "../Engine/Components/BoxColliderComponent.h"
@@ -96,8 +95,6 @@
 #include "../Engine/Engine.h"
 #include "../Engine/EnginePch.h"
 #include "../Engine/EngineProperties.hpp"
-#include "../Engine/Events/EventObserver.h"
-#include "../Engine/Events/EventTypes.hpp"
 #include "../Engine/Math/Color.h"
 #include "../Engine/Math/GlmUtils.hpp"
 #include "../Engine/Physics/PhysicsSystem.h"
@@ -252,7 +249,6 @@ ReflectionSystem::AddType<GameObjectData>("GameObjectData", typeid(GameObjectDat
 ReflectionSystem::AddType<ComponentSystem>("ComponentSystem", typeid(ComponentSystem).name());
 ReflectionSystem::AddType<IVulkanDynamicBuffer>("IVulkanDynamicBuffer", typeid(IVulkanDynamicBuffer).name());
 ReflectionSystem::AddType<GameObject>("GameObject", typeid(GameObject).name());
-ReflectionSystem::AddType<EventHandler>("EventHandler", typeid(EventHandler).name());
 ReflectionSystem::AddType<LandscapeRenderComponent>("LandscapeRenderComponent", typeid(LandscapeRenderComponent).name());
 ReflectionSystem::AddType<BoxColliderComponent>("BoxColliderComponent", typeid(BoxColliderComponent).name());
 ReflectionSystem::AddType<CameraComponent>("CameraComponent", typeid(CameraComponent).name());
@@ -285,7 +281,6 @@ ReflectionSystem::AddType<List<UniqueID>>("List<UniqueID>", typeid(List<UniqueID
 ReflectionSystem::AddType<List<IComponentArray *>>("List<IComponentArray *>", typeid(List<IComponentArray *>).name());
 ReflectionSystem::AddType<List<Material *>>("List<Material *>", typeid(List<Material *>).name());
 ReflectionSystem::AddType<List<TransformComponent *>>("List<TransformComponent *>", typeid(List<TransformComponent *>).name());
-ReflectionSystem::AddType<List<EventObserver *>>("List<EventObserver *>", typeid(List<EventObserver *>).name());
 ReflectionSystem::AddType<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>("List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>", typeid(List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>).name());
 ReflectionSystem::AddType<List<std::basic_string<char>>>("List<std::basic_string<char>>", typeid(List<std::basic_string<char>>).name());
 ReflectionSystem::AddType<List<MethodArgument>>("List<MethodArgument>", typeid(List<MethodArgument>).name());
@@ -315,7 +310,6 @@ ReflectionSystem::AddType<AutoInitManager>("AutoInitManager", typeid(AutoInitMan
 ReflectionSystem::AddType<Time>("Time", typeid(Time).name());
 ReflectionSystem::AddType<UniqueID>("UniqueID", typeid(UniqueID).name());
 ReflectionSystem::AddType<UniquePtr<SystemManager<System>>>("UniquePtr<SystemManager<System>>", typeid(UniquePtr<SystemManager<System>>).name());
-ReflectionSystem::AddType<UniquePtr<EventHandler>>("UniquePtr<EventHandler>", typeid(UniquePtr<EventHandler>).name());
 ReflectionSystem::AddType<UniquePtr<ThreadPool>>("UniquePtr<ThreadPool>", typeid(UniquePtr<ThreadPool>).name());
 ReflectionSystem::AddType<UniquePtr<Filewatcher>>("UniquePtr<Filewatcher>", typeid(UniquePtr<Filewatcher>).name());
 ReflectionSystem::AddType<UniquePtr<WindowHandler>>("UniquePtr<WindowHandler>", typeid(UniquePtr<WindowHandler>).name());
@@ -334,7 +328,6 @@ ReflectionSystem::AddType<MulticastDelegate<void (Component *)>>("MulticastDeleg
 ReflectionSystem::AddType<TestClass>("TestClass", typeid(TestClass).name());
 ReflectionSystem::AddType<Engine>("Engine", typeid(Engine).name());
 ReflectionSystem::AddType<EngineProperties>("EngineProperties", typeid(EngineProperties).name());
-ReflectionSystem::AddType<EventObserver>("EventObserver", typeid(EventObserver).name());
 ReflectionSystem::AddType<Color>("Color", typeid(Color).name());
 ReflectionSystem::AddType<PhysicsSystem>("PhysicsSystem", typeid(PhysicsSystem).name());
 ReflectionSystem::AddType<Heightfield>("Heightfield", typeid(Heightfield).name());
@@ -1089,31 +1082,30 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<Viewport>();
 	{
-		Field& currentField = currentClass->AddField(Field("myPreviewObject", 88, ReflectionSystem::GetOrCreateType<GameObject>("GameObject"), true, false));
+		Field& currentField = currentClass->AddField(Field("myPreviewObject", 56, ReflectionSystem::GetOrCreateType<GameObject>("GameObject"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myEditorCamera", 96, ReflectionSystem::GetOrCreateType<EditorCameraMovementComponent>("EditorCameraMovementComponent"), true, false));
+		Field& currentField = currentClass->AddField(Field("myEditorCamera", 64, ReflectionSystem::GetOrCreateType<EditorCameraMovementComponent>("EditorCameraMovementComponent"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPlayButtonTexture", 104, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPlayButtonTexture", 72, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myStopButtonTexture", 112, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
+		Field& currentField = currentClass->AddField(Field("myStopButtonTexture", 80, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDescriptorSets", 120, ReflectionSystem::GetOrCreateType<List<vk::DescriptorSet>>("List<vk::DescriptorSet>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDescriptorSets", 88, ReflectionSystem::GetOrCreateType<List<vk::DescriptorSet>>("List<vk::DescriptorSet>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySampler", 144, ReflectionSystem::GetOrCreateType<vk::Sampler>("vk::Sampler"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySampler", 112, ReflectionSystem::GetOrCreateType<vk::Sampler>("vk::Sampler"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myP0", 152, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
+		Field& currentField = currentClass->AddField(Field("myP0", 120, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myP1", 160, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
+		Field& currentField = currentClass->AddField(Field("myP1", 128, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EventObserver>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
@@ -3425,24 +3417,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetOnComponentRemoved", 
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<EventHandler>();
-	{
-		Field& currentField = currentClass->AddField(Field("myObservers", 0, ReflectionSystem::GetOrCreateType<List<EventObserver *>>("List<EventObserver *>"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EventHandler* instance = static_cast<EventHandler*>(inInstance);
-const EventType& arg0 = *(const EventType*)inArguments[0];
-instance->FireEvent(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const EventType>("const EventType")));
-Method& currentMethod = currentClass->AddMethod(Method("FireEvent", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<LandscapeRenderComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myHeightfield", 24, ReflectionSystem::GetOrCreateType<Heightfield>("Heightfield"), false, false));
@@ -4985,11 +4959,6 @@ Method& currentMethod = currentClass->AddMethod(Method("SetDepthWriteEnabled", R
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<TransformComponent>("TransformComponent"), true, false);
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<EventObserver *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<EventObserver>("EventObserver"), true, false);
-}
-{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>("Delegate<void (physx::PxPhysics *, physx::PxScene *)>"), false, false);
@@ -5249,10 +5218,6 @@ Method& currentMethod = currentClass->AddMethod(Method("operator==", ReflectionS
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<SystemManager<System>>("SystemManager<System>"), false, false);
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<EventHandler>>();
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<EventHandler>("EventHandler"), false, false);
-}
-{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<ThreadPool>>();
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<ThreadPool>("ThreadPool"), false, false);
 }
@@ -5456,52 +5421,51 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", Refl
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<RenderSystem>();
 	{
-		Field& currentField = currentClass->AddField(Field("myIsUsingGPUDrivenRendering", 40, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myIsUsingGPUDrivenRendering", 8, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCopyPipeline", 48, ReflectionSystem::GetOrCreateType<FullscreenPipeline>("FullscreenPipeline"), true, false));
+		Field& currentField = currentClass->AddField(Field("myCopyPipeline", 16, ReflectionSystem::GetOrCreateType<FullscreenPipeline>("FullscreenPipeline"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDebugPipeline", 56, ReflectionSystem::GetOrCreateType<DebugPipeline>("DebugPipeline"), true, false));
+		Field& currentField = currentClass->AddField(Field("myDebugPipeline", 24, ReflectionSystem::GetOrCreateType<DebugPipeline>("DebugPipeline"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myGDRPipeline", 64, ReflectionSystem::GetOrCreateType<GDRPipeline>("GDRPipeline"), true, false));
+		Field& currentField = currentClass->AddField(Field("myGDRPipeline", 32, ReflectionSystem::GetOrCreateType<GDRPipeline>("GDRPipeline"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySkyboxPipeline", 72, ReflectionSystem::GetOrCreateType<SkyboxPipeline>("SkyboxPipeline"), true, false));
+		Field& currentField = currentClass->AddField(Field("mySkyboxPipeline", 40, ReflectionSystem::GetOrCreateType<SkyboxPipeline>("SkyboxPipeline"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myRenderPass", 80, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
+		Field& currentField = currentClass->AddField(Field("myRenderPass", 48, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainRenderPass", 88, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
+		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainRenderPass", 56, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myVkFrameBuffer", 96, ReflectionSystem::GetOrCreateType<vk::Framebuffer>("vk::Framebuffer"), false, false));
+		Field& currentField = currentClass->AddField(Field("myVkFrameBuffer", 64, ReflectionSystem::GetOrCreateType<vk::Framebuffer>("vk::Framebuffer"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainFrameBuffers", 104, ReflectionSystem::GetOrCreateType<List<vk::Framebuffer>>("List<vk::Framebuffer>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainFrameBuffers", 72, ReflectionSystem::GetOrCreateType<List<vk::Framebuffer>>("List<vk::Framebuffer>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myClearValues", 128, ReflectionSystem::GetOrCreateType<vk::ClearValue[2]>("vk::ClearValue[2]"), false, false));
+		Field& currentField = currentClass->AddField(Field("myClearValues", 96, ReflectionSystem::GetOrCreateType<vk::ClearValue[2]>("vk::ClearValue[2]"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDepthBuffer", 160, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+		Field& currentField = currentClass->AddField(Field("myDepthBuffer", 128, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myRenderTexture", 168, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+		Field& currentField = currentClass->AddField(Field("myRenderTexture", 136, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myResolvedRenderTexture", 176, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+		Field& currentField = currentClass->AddField(Field("myResolvedRenderTexture", 144, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myResolvedDepthTexture", 184, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+		Field& currentField = currentClass->AddField(Field("myResolvedDepthTexture", 152, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDirectionalLightShadowMap", 192, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+		Field& currentField = currentClass->AddField(Field("myDirectionalLightShadowMap", 160, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EventObserver>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
@@ -5671,28 +5635,25 @@ Method& currentMethod = currentClass->AddMethod(Method("GetGDRPipeline", Reflect
 		Field& currentField = currentClass->AddField(Field("mySystemManager", 144, ReflectionSystem::GetOrCreateType<UniquePtr<SystemManager<System>>>("UniquePtr<SystemManager<System>>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPostMaster", 160, ReflectionSystem::GetOrCreateType<UniquePtr<EventHandler>>("UniquePtr<EventHandler>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myThreadPool", 160, ReflectionSystem::GetOrCreateType<UniquePtr<ThreadPool>>("UniquePtr<ThreadPool>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myThreadPool", 176, ReflectionSystem::GetOrCreateType<UniquePtr<ThreadPool>>("UniquePtr<ThreadPool>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myFilewatcher", 176, ReflectionSystem::GetOrCreateType<UniquePtr<Filewatcher>>("UniquePtr<Filewatcher>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFilewatcher", 192, ReflectionSystem::GetOrCreateType<UniquePtr<Filewatcher>>("UniquePtr<Filewatcher>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myWindowHandler", 192, ReflectionSystem::GetOrCreateType<UniquePtr<WindowHandler>>("UniquePtr<WindowHandler>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myWindowHandler", 208, ReflectionSystem::GetOrCreateType<UniquePtr<WindowHandler>>("UniquePtr<WindowHandler>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myVulkanContext", 208, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanContext>>("UniquePtr<VulkanContext>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myVulkanContext", 224, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanContext>>("UniquePtr<VulkanContext>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 224, ReflectionSystem::GetOrCreateType<UniquePtr<AssetRegistry>>("UniquePtr<AssetRegistry>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 240, ReflectionSystem::GetOrCreateType<UniquePtr<AssetRegistry>>("UniquePtr<AssetRegistry>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myWorld", 240, ReflectionSystem::GetOrCreateType<std::shared_ptr<World>>("std::shared_ptr<World>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myWorld", 256, ReflectionSystem::GetOrCreateType<std::shared_ptr<World>>("std::shared_ptr<World>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myExternalTickFunction", 272, ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myExternalTickFunction", 256, ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5755,16 +5716,6 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetWindowHandler", ReflectionSystem::GetOrCreateType<const WindowHandler &>("const WindowHandler &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-EventHandler & result = instance->GetEventHandler();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetEventHandler", ReflectionSystem::GetOrCreateType<EventHandler &>("EventHandler &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5909,12 +5860,6 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inArg", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("HasStartupArgument", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<EventObserver>();
-	{
-		Field& currentField = currentClass->AddField(Field("myEvents", 8, ReflectionSystem::GetOrCreateType<std::map<EventType, std::function<void ()>>>("std::map<EventType, std::function<void ()>>"), false, false));
-	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<Color>();

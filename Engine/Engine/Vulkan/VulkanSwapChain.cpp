@@ -5,8 +5,6 @@
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "Engine/Engine.h"
-#include "Engine/Events/EventHandler.h"
-#include "Engine/Events/EventTypes.hpp"
 
 VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
 	: myDevice{ inDevice }
@@ -337,7 +335,7 @@ void VulkanSwapChain::Resize()
 	DestroySwapChainRelatedObjects();
 	Init();
 
-	Engine::GetEventHandler().FireEvent(EventType::SwapchainResized);
+	OnSwapChainResized();
 
 	LOG("Resize");
 }

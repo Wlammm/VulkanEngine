@@ -34,7 +34,6 @@ public:
 
 	static const EngineProperties& GetEngineProperties();
 	static const class WindowHandler& GetWindowHandler();
-	static class EventHandler& GetEventHandler();
 	static class AssetRegistry& GetAssetRegistry();
 	static class ThreadPool& GetThreadPool();
 	static class Filewatcher& GetFilewatcher();
@@ -71,7 +70,6 @@ private:
 	EngineProperties myEngineProperties;
 
 	UniquePtr<SystemManager<System>> mySystemManager;
-	UniquePtr<EventHandler> myPostMaster = nullptr;
 	UniquePtr<ThreadPool> myThreadPool = nullptr;
 	UniquePtr<Filewatcher> myFilewatcher = nullptr;
 	UniquePtr<WindowHandler> myWindowHandler = nullptr;
