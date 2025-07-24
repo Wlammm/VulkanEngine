@@ -46,9 +46,9 @@ private:
 	void CreateWorldSystems();
 	
 protected:
-	class AssetRegistry* myAssetRegistry = nullptr;
+	UniquePtr<class AssetRegistry> myAssetRegistry = nullptr;
 
-	SystemManager<WorldSystem>* mySystemManager = nullptr;
+	UniquePtr<SystemManager<WorldSystem>> mySystemManager = nullptr;
 
 	CameraComponent* myMainCamera = nullptr;
 };

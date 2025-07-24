@@ -30,15 +30,15 @@
 
 World::World()
 {
-	myAssetRegistry = new AssetRegistry();
-	mySystemManager = new SystemManager<WorldSystem>();
+	myAssetRegistry = MakeUnique<AssetRegistry>();
+	mySystemManager = MakeUnique<SystemManager<WorldSystem>>();
 	CreateWorldSystems();
 }
 
 World::~World()
 {
-	del(mySystemManager);
-	del(myAssetRegistry);
+	mySystemManager.Reset();
+	myAssetRegistry.Reset();
 }
 
 void World::Init()

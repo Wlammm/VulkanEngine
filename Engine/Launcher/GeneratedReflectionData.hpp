@@ -320,6 +320,7 @@ ReflectionSystem::AddType<UniquePtr<VulkanDevice>>("UniquePtr<VulkanDevice>", ty
 ReflectionSystem::AddType<UniquePtr<VulkanAllocator>>("UniquePtr<VulkanAllocator>", typeid(UniquePtr<VulkanAllocator>).name());
 ReflectionSystem::AddType<UniquePtr<VulkanSwapChain>>("UniquePtr<VulkanSwapChain>", typeid(UniquePtr<VulkanSwapChain>).name());
 ReflectionSystem::AddType<UniquePtr<NvidiaAftermathTracker>>("UniquePtr<NvidiaAftermathTracker>", typeid(UniquePtr<NvidiaAftermathTracker>).name());
+ReflectionSystem::AddType<UniquePtr<SystemManager<WorldSystem>>>("UniquePtr<SystemManager<WorldSystem>>", typeid(UniquePtr<SystemManager<WorldSystem>>).name());
 ReflectionSystem::AddType<Awaitable>("Awaitable", typeid(Awaitable).name());
 ReflectionSystem::AddType<CoroutineManager>("CoroutineManager", typeid(CoroutineManager).name());
 ReflectionSystem::AddType<Field>("Field", typeid(Field).name());
@@ -1060,7 +1061,7 @@ Method& currentMethod = currentClass->AddMethod(Method("DrawProperty", Reflectio
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<EditorWorld>();
 	{
-		Field& currentField = currentClass->AddField(Field("myShouldTickComponents", 32, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myShouldTickComponents", 48, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<World>());
 {
@@ -5261,6 +5262,10 @@ Method& currentMethod = currentClass->AddMethod(Method("operator==", ReflectionS
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<NvidiaAftermathTracker>>();
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<NvidiaAftermathTracker>("NvidiaAftermathTracker"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<SystemManager<WorldSystem>>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<SystemManager<WorldSystem>>("SystemManager<WorldSystem>"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<Awaitable>();
@@ -9648,13 +9653,13 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<World>();
 	{
-		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 8, ReflectionSystem::GetOrCreateType<AssetRegistry>("AssetRegistry"), true, false));
+		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 8, ReflectionSystem::GetOrCreateType<UniquePtr<AssetRegistry>>("UniquePtr<AssetRegistry>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySystemManager", 16, ReflectionSystem::GetOrCreateType<SystemManager<WorldSystem>>("SystemManager<WorldSystem>"), true, false));
+		Field& currentField = currentClass->AddField(Field("mySystemManager", 24, ReflectionSystem::GetOrCreateType<UniquePtr<SystemManager<WorldSystem>>>("UniquePtr<SystemManager<WorldSystem>>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMainCamera", 24, ReflectionSystem::GetOrCreateType<CameraComponent>("CameraComponent"), true, false));
+		Field& currentField = currentClass->AddField(Field("myMainCamera", 40, ReflectionSystem::GetOrCreateType<CameraComponent>("CameraComponent"), true, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<AutoInit>());
 {
