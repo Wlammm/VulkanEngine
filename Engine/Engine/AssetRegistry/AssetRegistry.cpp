@@ -14,7 +14,7 @@ AssetRegistry::~AssetRegistry()
 {
     myMutex.lock();
 
-    for(IAssetContainer* container : myContainers)
+    for(const UniquePtr<IAssetContainer>& container : myContainers)
     {
         container->UnloadAllAssets();
     }

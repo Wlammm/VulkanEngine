@@ -55,7 +55,7 @@ public:
         
         if (container->myPendingOnAssetLoaded.contains(inPath))
         {
-            AssetType* asset = static_cast<AssetType*>(container->myAssets.at(inPath));
+            AssetType* asset = static_cast<AssetType*>(container->myAssets.at(inPath).Get());
             container->myPendingOnAssetLoaded[inPath].Bind([inOnAssetLoaded, asset]()
             {
                 inOnAssetLoaded(asset);
@@ -65,14 +65,14 @@ public:
 
         if(container->myAssets.contains(inPath))
         {
-            inOnAssetLoaded(static_cast<AssetType*>(container->myAssets.at(inPath)));
+            inOnAssetLoaded(static_cast<AssetType*>(container->myAssets.at(inPath).Get()));
             return;
         }
 
-        AssetType* asset = new AssetType();
+        container->myAssets.insert({inPath, MakeUnique<AssetType>()});
+        AssetType* asset = container->myAssets.at(inPath).Get();
         asset->myPath = inPath;
         asset->myAssetRegistry = this;
-        container->myAssets.insert({inPath, asset});
         
         container->myPendingOnAssetLoaded.insert({inPath, {}});
         container->myPendingOnAssetLoaded[inPath].Bind([inOnAssetLoaded, asset]()
@@ -110,18 +110,21 @@ public:
         
         if (container->myAssets.contains(inPath))
         {
-            AssetType* asset = static_cast<AssetType*>(container->myAssets.at(inPath));
+            AssetType* asset = static_cast<AssetType*>(container->myAssets.at(inPath).Get());
             return asset;
         }
 
-        AssetType* asset = new AssetType();
+        container->myAssets.insert({inPath, MakeUnique<AssetType>()});
+        AssetType* asset = container->myAssets.at(inPath).Get();
+        
         asset->myPath = inPath;
         Coroutine<void, void, false> loadCoroutine = asset->Load(inPath);
+
         // TODO: Is this even guaranteed to work correctly? if we return an awaitable it will be considered ready here even though it isnt.
         loadCoroutine.Resume();
         asset->myIsValid = true;
+
         check(asset);
-        container->myAssets.insert({inPath, asset});
         return asset;
     }
 
@@ -129,19 +132,19 @@ public:
     AssetContainer<AssetType>* GetContainerForAssetType()
     {
         std::scoped_lock<std::recursive_mutex> lock(myMutex);
-        for(IAssetContainer* container : myContainers)
+        for(const UniquePtr<IAssetContainer>& container : myContainers)
         {
-            if(AssetContainer<AssetType>* castedContainer = dynamic_cast<AssetContainer<AssetType>*>(container))
+            if(AssetContainer<AssetType>* castedContainer = dynamic_cast<AssetContainer<AssetType>*>(container.Get()))
                 return castedContainer;
         }
 
-        myContainers.Add(new AssetContainer<AssetType>());
-        return static_cast<AssetContainer<AssetType>*>(myContainers.Last());
+        myContainers.Add(MakeUnique<AssetContainer<AssetType>>());
+        return static_cast<AssetContainer<AssetType>*>(myContainers.Last().Get());
     }
     
 private:
     inline static std::unordered_map<std::string, std::filesystem::path> myFilenameToPathLUT{};
 
     std::recursive_mutex myMutex{};
-    List<IAssetContainer*> myContainers{};
+    List<UniquePtr<IAssetContainer>> myContainers{};
 };

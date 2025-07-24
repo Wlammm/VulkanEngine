@@ -268,7 +268,7 @@ ReflectionSystem::AddType<IsCopyable<int>>("IsCopyable<int>", typeid(IsCopyable<
 ReflectionSystem::AddType<IList>("IList", typeid(IList).name());
 ReflectionSystem::AddType<List<Skeleton::Bone>>("List<Skeleton::Bone>", typeid(List<Skeleton::Bone>).name());
 ReflectionSystem::AddType<List<std::thread>>("List<std::thread>", typeid(List<std::thread>).name());
-ReflectionSystem::AddType<List<IAssetContainer *>>("List<IAssetContainer *>", typeid(List<IAssetContainer *>).name());
+ReflectionSystem::AddType<List<UniquePtr<IAssetContainer>>>("List<UniquePtr<IAssetContainer>>", typeid(List<UniquePtr<IAssetContainer>>).name());
 ReflectionSystem::AddType<List<vk::Framebuffer>>("List<vk::Framebuffer>", typeid(List<vk::Framebuffer>).name());
 ReflectionSystem::AddType<List<Vertex>>("List<Vertex>", typeid(List<Vertex>).name());
 ReflectionSystem::AddType<List<unsigned int>>("List<unsigned int>", typeid(List<unsigned int>).name());
@@ -1458,7 +1458,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetModel", ReflectionSys
 		Field& currentField = currentClass->AddField(Field("myMutex", 0, ReflectionSystem::GetOrCreateType<std::recursive_mutex>("std::recursive_mutex"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myContainers", 80, ReflectionSystem::GetOrCreateType<List<IAssetContainer *>>("List<IAssetContainer *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myContainers", 80, ReflectionSystem::GetOrCreateType<List<UniquePtr<IAssetContainer>>>("List<UniquePtr<IAssetContainer>>"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -4899,9 +4899,9 @@ Method& currentMethod = currentClass->AddMethod(Method("SetDepthWriteEnabled", R
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::thread>("std::thread"), false, false);
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<IAssetContainer *>>();
+	Type* currentClass = ReflectionSystem::GetMutableType<List<UniquePtr<IAssetContainer>>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IAssetContainer>("IAssetContainer"), true, false);
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<UniquePtr<IAssetContainer>>("UniquePtr<IAssetContainer>"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Framebuffer>>();
