@@ -8,16 +8,12 @@ class SystemManager
 public:
     ~SystemManager()
     {
-        for(System* system : mySystems)
-        {
-            del(system);
-        }
         mySystems.Clear();
     }
 
     void InitAllSystems()
     {
-        for(System* system : mySystems)
+        for(const UniquePtr<BaseSystemType>& system : mySystems)
         {
             system->Init();
         }
@@ -27,16 +23,15 @@ public:
     void AddSystem(Args&&... inArgs)
     {
         static_assert(std::is_base_of<BaseSystemType, SystemType>::value, "SystemType must derive from BaseSystemType");
-        SystemType* system = new SystemType(std::forward<Args>(inArgs)...);
-        mySystems.Add(system);
+        mySystems.Add(MakeUnique<SystemType>(std::forward<Args>(inArgs)...));
     }
     
     template<typename SystemType>
     SystemType& GetSystem()
     {
-        for(BaseSystemType* system : mySystems)
+        for(const UniquePtr<BaseSystemType>& system : mySystems)
         {
-            if(SystemType* castedSystem = dynamic_cast<SystemType*>(system))
+            if(SystemType* castedSystem = dynamic_cast<SystemType*>(system.Get()))
             {
                 return *castedSystem;
             }
@@ -45,11 +40,11 @@ public:
         return *(SystemType*)nullptr;
     }
 
-    const List<BaseSystemType*> GetAllSystems() const
+    const List<UniquePtr<BaseSystemType>>& GetAllSystems() const
     {
         return mySystems;
     }
 
 private:
-    List<BaseSystemType*> mySystems{};
+    List<UniquePtr<BaseSystemType>> mySystems{};
 };

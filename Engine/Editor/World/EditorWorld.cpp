@@ -20,7 +20,7 @@ void EditorWorld::Tick()
 {
     ZoneScoped;
 	
-    for(WorldSystem* system : mySystemManager->GetAllSystems())
+    for(const UniquePtr<WorldSystem>& system : mySystemManager->GetAllSystems())
     {
         system->EditorTick();
     }

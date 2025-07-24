@@ -41,7 +41,7 @@ public:
 		Grow(inCapacity);
 	}
 
-	List(const List<ElementType>& inCopy)
+	List(const List<ElementType>& inCopy) requires std::is_copy_constructible_v<ElementType>
 	{
 		Construct();
 		AddRange(inCopy);
@@ -67,7 +67,28 @@ public:
 		}
 	}
 
-	List(const std::initializer_list<ElementType>& inInitList)
+	List(List&& other)
+		: myPtr(std::exchange(other.myPtr, nullptr))
+		, mySize(std::exchange(other.mySize, 0))
+		, myCapacity(std::exchange(other.myCapacity, 0))
+	{
+	}
+
+	List& operator=(List&& other) noexcept
+	{
+		if (this != &other)
+		{
+			Clear();
+			free(myPtr);
+
+			myPtr = std::exchange(other.myPtr, nullptr);
+			mySize = std::exchange(other.mySize, 0);
+			myCapacity = std::exchange(other.myCapacity, 0);
+		}
+		return *this;
+	}
+
+	List(const std::initializer_list<ElementType>& inInitList) requires std::is_copy_constructible_v<ElementType>
 	{
 		Construct();
 
@@ -89,30 +110,11 @@ public:
 		mySize = 0;
 	}
 
-	void operator=(const List<ElementType>& inCopy)
+	void operator=(const List<ElementType>& inCopy) requires std::is_copy_constructible_v<ElementType>
 	{
 		Clear();
 		AddRange(inCopy);
 	}
-
-	//void operator=(const std::vector<ElementType>& inCopy)
-	//{
-	//	Clear();
-	//	Grow(static_cast<ListSizeType>(inCopy.capacity()));
-	//
-	//	if constexpr (CanCopy)
-	//	{
-	//		mySize = static_cast<ListSizeType>(inCopy.size());
-	//		memcpy(myPtr, inCopy.data(), sizeof(ElementType) * inCopy.size());
-	//	}
-	//	else
-	//	{
-	//		for(int i = 0; i < inCopy.size(); ++i)
-	//		{
-	//			myPtr[i] = inCopy[i];
-	//		}
-	//	}
-	//}
 
 	constexpr ListSizeType size() const noexcept override
 	{
@@ -210,7 +212,7 @@ public:
 		return Last();
 	}
 
-	void AddRange(const List<ElementType>& inList)
+	void AddRange(const List<ElementType>& inList) requires std::is_copy_constructible_v<ElementType>
 	{
 		CheckCapacityForAdd(inList.size());
 
@@ -227,7 +229,18 @@ public:
 				mySize++;
 			}
 		}
+	}
 
+	void AddRange(List<ElementType>&& inList) requires std::is_move_constructible_v<ElementType>
+	{
+		CheckCapacityForAdd(inList.size());
+
+		for (ElementType& value : inList)
+		{
+			new (myPtr + mySize) ElementType(std::move(value));
+			++mySize;
+		}
+		inList.Clear();
 	}
 #pragma endregion
 

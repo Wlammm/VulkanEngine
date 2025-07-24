@@ -59,7 +59,7 @@ public:
     UniquePtr(const UniquePtr& inOther) = delete;
     UniquePtr& operator=(const UniquePtr& inOther) = delete;
 
-    Type* Get() const
+    Type*Get() const
     {
         return myObject;
     }

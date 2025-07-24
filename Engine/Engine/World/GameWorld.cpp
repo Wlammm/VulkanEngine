@@ -45,7 +45,7 @@ void GameWorld::Tick()
 {
     ZoneScoped;
 	
-    for(WorldSystem* system : mySystemManager->GetAllSystems())
+    for(UniquePtr<WorldSystem>& system : mySystemManager->GetAllSystems())
     {
         system->Tick();
     }
