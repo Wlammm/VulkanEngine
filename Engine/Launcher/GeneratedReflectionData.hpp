@@ -46,7 +46,6 @@
 #include "../Engine/Core/Input.h"
 #include "../Engine/Components/TransformComponent.h"
 #include "../Engine/ComponentSystem/Component.h"
-#include "../Engine/Core/Time.h"
 #include "../Engine/Serialization/TypeSerializers/TypeSerializer.h"
 #include "../Engine/Components/MeshColliderComponent.h"
 #include "../Engine/ComponentSystem/ComponentArray.h"
@@ -79,6 +78,8 @@
 #include "../Engine/Core/AutoInitManager.h"
 #include "../Engine/Core/CheckDefine.hpp"
 #include "../Engine/Core/EngineDefines.hpp"
+#include "../Engine/Core/SharedPtr.h"
+#include "../Engine/Core/Time.h"
 #include "../Engine/Core/UniqueID.h"
 #include "../Engine/Core/UniquePtr.h"
 #include "../Engine/Coroutines/Awaitable.h"
@@ -243,7 +244,6 @@ ReflectionSystem::AddType<TextureCube>("TextureCube", typeid(TextureCube).name()
 ReflectionSystem::AddType<Input>("Input", typeid(Input).name());
 ReflectionSystem::AddType<TransformComponent>("TransformComponent", typeid(TransformComponent).name());
 ReflectionSystem::AddType<Component>("Component", typeid(Component).name());
-ReflectionSystem::AddType<Time>("Time", typeid(Time).name());
 ReflectionSystem::AddType<TypeSerializer>("TypeSerializer", typeid(TypeSerializer).name());
 ReflectionSystem::AddType<MeshColliderComponent>("MeshColliderComponent", typeid(MeshColliderComponent).name());
 ReflectionSystem::AddType<IComponentArray>("IComponentArray", typeid(IComponentArray).name());
@@ -312,8 +312,15 @@ ReflectionSystem::AddType<List<ContentBrowserItem>>("List<ContentBrowserItem>", 
 ReflectionSystem::AddType<List<vk::DescriptorSet>>("List<vk::DescriptorSet>", typeid(List<vk::DescriptorSet>).name());
 ReflectionSystem::AddType<AutoInit>("AutoInit", typeid(AutoInit).name());
 ReflectionSystem::AddType<AutoInitManager>("AutoInitManager", typeid(AutoInitManager).name());
+ReflectionSystem::AddType<Time>("Time", typeid(Time).name());
 ReflectionSystem::AddType<UniqueID>("UniqueID", typeid(UniqueID).name());
 ReflectionSystem::AddType<UniquePtr<SystemManager<System>>>("UniquePtr<SystemManager<System>>", typeid(UniquePtr<SystemManager<System>>).name());
+ReflectionSystem::AddType<UniquePtr<EventHandler>>("UniquePtr<EventHandler>", typeid(UniquePtr<EventHandler>).name());
+ReflectionSystem::AddType<UniquePtr<ThreadPool>>("UniquePtr<ThreadPool>", typeid(UniquePtr<ThreadPool>).name());
+ReflectionSystem::AddType<UniquePtr<Filewatcher>>("UniquePtr<Filewatcher>", typeid(UniquePtr<Filewatcher>).name());
+ReflectionSystem::AddType<UniquePtr<WindowHandler>>("UniquePtr<WindowHandler>", typeid(UniquePtr<WindowHandler>).name());
+ReflectionSystem::AddType<UniquePtr<VulkanContext>>("UniquePtr<VulkanContext>", typeid(UniquePtr<VulkanContext>).name());
+ReflectionSystem::AddType<UniquePtr<AssetRegistry>>("UniquePtr<AssetRegistry>", typeid(UniquePtr<AssetRegistry>).name());
 ReflectionSystem::AddType<Awaitable>("Awaitable", typeid(Awaitable).name());
 ReflectionSystem::AddType<CoroutineManager>("CoroutineManager", typeid(CoroutineManager).name());
 ReflectionSystem::AddType<Field>("Field", typeid(Field).name());
@@ -724,7 +731,7 @@ Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSys
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetRadius(arg0);
 return nullptr;
 });
@@ -736,7 +743,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRadius", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetHeight(arg0);
 return nullptr;
 });
@@ -1159,7 +1166,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetNormalizedMousePositi
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Filewatcher* instance = static_cast<Filewatcher*>(inInstance);
-const bool arg0 = *(const bool*)inArguments[0];
+const bool& arg0 = *(const bool*)inArguments[0];
 instance->SetShouldRun(arg0);
 return nullptr;
 });
@@ -1172,7 +1179,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 Filewatcher* instance = static_cast<Filewatcher*>(inInstance);
 const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
-const std::function<void ()> arg1 = *(const std::function<void ()>*)inArguments[1];
+const std::function<void ()>& arg1 = *(const std::function<void ()>*)inArguments[1];
 static thread_local Filewatcher::CallbackHandle result = instance->InsertWatch_TS(arg0, arg1);
 return (void*)&result;
 });
@@ -1326,7 +1333,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPath", ReflectionSyst
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Model* instance = static_cast<Model*>(inInstance);
-const std::filesystem::path arg0 = *(const std::filesystem::path*)inArguments[0];
+const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
 static thread_local Coroutine<void, void, false> result = instance->Load(arg0);
 return (void*)&result;
 });
@@ -1400,7 +1407,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetSerializationDataForM
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 SkyboxPipeline* instance = static_cast<SkyboxPipeline*>(inInstance);
-vk::CommandBuffer arg0 = *(vk::CommandBuffer*)inArguments[0];
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
 instance->AddGraphicsCommands(arg0);
 return nullptr;
 });
@@ -1489,7 +1496,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPathFromAssetName", R
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 JsonAsset* instance = static_cast<JsonAsset*>(inInstance);
-const std::filesystem::path arg0 = *(const std::filesystem::path*)inArguments[0];
+const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
 static thread_local Coroutine<void, void, false> result = instance->Load(arg0);
 return (void*)&result;
 });
@@ -1537,7 +1544,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetJson", ReflectionSyst
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Material* instance = static_cast<Material*>(inInstance);
-const std::filesystem::path arg0 = *(const std::filesystem::path*)inArguments[0];
+const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
 static thread_local Coroutine<void, void, false> result = instance->Load(arg0);
 return (void*)&result;
 });
@@ -1549,10 +1556,10 @@ Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem:
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Material* instance = static_cast<Material*>(inInstance);
-const std::filesystem::path arg0 = *(const std::filesystem::path*)inArguments[0];
-const std::filesystem::path arg1 = *(const std::filesystem::path*)inArguments[1];
-const std::filesystem::path arg2 = *(const std::filesystem::path*)inArguments[2];
-const std::filesystem::path arg3 = *(const std::filesystem::path*)inArguments[3];
+const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
+const std::filesystem::path& arg1 = *(const std::filesystem::path*)inArguments[1];
+const std::filesystem::path& arg2 = *(const std::filesystem::path*)inArguments[2];
+const std::filesystem::path& arg3 = *(const std::filesystem::path*)inArguments[3];
 static thread_local Coroutine<void, void, false> result = instance->Load(arg0, arg1, arg2, arg3);
 return (void*)&result;
 });
@@ -1620,7 +1627,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMaterial", Reflection
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Shader* instance = static_cast<Shader*>(inInstance);
-const std::filesystem::path arg0 = *(const std::filesystem::path*)inArguments[0];
+const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
 static thread_local Coroutine<void, void, false> result = instance->Load(arg0);
 return (void*)&result;
 });
@@ -1800,7 +1807,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMetadataArgs", Reflec
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Texture* instance = static_cast<Texture*>(inInstance);
-const std::filesystem::path arg0 = *(const std::filesystem::path*)inArguments[0];
+const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
 static thread_local Coroutine<void, void, false> result = instance->Load(arg0);
 return (void*)&result;
 });
@@ -1880,7 +1887,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetBindlessIndex", Refle
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TextureCube* instance = static_cast<TextureCube*>(inInstance);
-const std::filesystem::path arg0 = *(const std::filesystem::path*)inArguments[0];
+const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
 static thread_local Coroutine<void, void, false> result = instance->Load(arg0);
 return (void*)&result;
 });
@@ -1925,7 +1932,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetBindlessIndex", Refle
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Input* instance = static_cast<Input*>(inInstance);
-const int arg0 = *(const int*)inArguments[0];
+const int& arg0 = *(const int*)inArguments[0];
 static thread_local bool result = instance->IsKeyDown(arg0);
 return (void*)&result;
 });
@@ -1937,7 +1944,7 @@ Method& currentMethod = currentClass->AddMethod(Method("IsKeyDown", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Input* instance = static_cast<Input*>(inInstance);
-const Input::KeyCode arg0 = *(const Input::KeyCode*)inArguments[0];
+const Input::KeyCode& arg0 = *(const Input::KeyCode*)inArguments[0];
 static thread_local bool result = instance->IsKeyDown(arg0);
 return (void*)&result;
 });
@@ -1949,7 +1956,7 @@ Method& currentMethod = currentClass->AddMethod(Method("IsKeyDown", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Input* instance = static_cast<Input*>(inInstance);
-const Input::MouseButton arg0 = *(const Input::MouseButton*)inArguments[0];
+const Input::MouseButton& arg0 = *(const Input::MouseButton*)inArguments[0];
 static thread_local bool result = instance->IsKeyDown(arg0);
 return (void*)&result;
 });
@@ -1961,7 +1968,7 @@ Method& currentMethod = currentClass->AddMethod(Method("IsKeyDown", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Input* instance = static_cast<Input*>(inInstance);
-const int arg0 = *(const int*)inArguments[0];
+const int& arg0 = *(const int*)inArguments[0];
 static thread_local bool result = instance->IsKeyUp(arg0);
 return (void*)&result;
 });
@@ -1973,7 +1980,7 @@ Method& currentMethod = currentClass->AddMethod(Method("IsKeyUp", ReflectionSyst
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Input* instance = static_cast<Input*>(inInstance);
-const Input::KeyCode arg0 = *(const Input::KeyCode*)inArguments[0];
+const Input::KeyCode& arg0 = *(const Input::KeyCode*)inArguments[0];
 static thread_local bool result = instance->IsKeyUp(arg0);
 return (void*)&result;
 });
@@ -1985,7 +1992,7 @@ Method& currentMethod = currentClass->AddMethod(Method("IsKeyUp", ReflectionSyst
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Input* instance = static_cast<Input*>(inInstance);
-const Input::MouseButton arg0 = *(const Input::MouseButton*)inArguments[0];
+const Input::MouseButton& arg0 = *(const Input::MouseButton*)inArguments[0];
 static thread_local bool result = instance->IsKeyUp(arg0);
 return (void*)&result;
 });
@@ -1997,7 +2004,7 @@ Method& currentMethod = currentClass->AddMethod(Method("IsKeyUp", ReflectionSyst
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Input* instance = static_cast<Input*>(inInstance);
-const int arg0 = *(const int*)inArguments[0];
+const int& arg0 = *(const int*)inArguments[0];
 static thread_local bool result = instance->IsKeyPressed(arg0);
 return (void*)&result;
 });
@@ -2009,7 +2016,7 @@ Method& currentMethod = currentClass->AddMethod(Method("IsKeyPressed", Reflectio
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Input* instance = static_cast<Input*>(inInstance);
-const Input::KeyCode arg0 = *(const Input::KeyCode*)inArguments[0];
+const Input::KeyCode& arg0 = *(const Input::KeyCode*)inArguments[0];
 static thread_local bool result = instance->IsKeyPressed(arg0);
 return (void*)&result;
 });
@@ -2021,7 +2028,7 @@ Method& currentMethod = currentClass->AddMethod(Method("IsKeyPressed", Reflectio
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Input* instance = static_cast<Input*>(inInstance);
-const Input::MouseButton arg0 = *(const Input::MouseButton*)inArguments[0];
+const Input::MouseButton& arg0 = *(const Input::MouseButton*)inArguments[0];
 static thread_local bool result = instance->IsKeyPressed(arg0);
 return (void*)&result;
 });
@@ -2073,9 +2080,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMouseDeltaClientRelat
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Input* instance = static_cast<Input*>(inInstance);
-unsigned int arg0 = *(unsigned int*)inArguments[0];
-unsigned long long arg1 = *(unsigned long long*)inArguments[1];
-long long arg2 = *(long long*)inArguments[2];
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
+unsigned long long& arg1 = *(unsigned long long*)inArguments[1];
+long long& arg2 = *(long long*)inArguments[2];
 static thread_local bool result = instance->UpdateEvents(arg0, arg1, arg2);
 return (void*)&result;
 });
@@ -2255,7 +2262,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetScaleLocal", Reflecti
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TransformComponent* instance = static_cast<TransformComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetScaleLocal(arg0);
 return nullptr;
 });
@@ -2279,9 +2286,9 @@ Method& currentMethod = currentClass->AddMethod(Method("SetPosition", Reflection
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TransformComponent* instance = static_cast<TransformComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
-const float arg1 = *(const float*)inArguments[1];
-const float arg2 = *(const float*)inArguments[2];
+const float& arg0 = *(const float*)inArguments[0];
+const float& arg1 = *(const float*)inArguments[1];
+const float& arg2 = *(const float*)inArguments[2];
 instance->SetPosition(arg0, arg1, arg2);
 return nullptr;
 });
@@ -2307,7 +2314,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetPosition", Reflection
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TransformComponent* instance = static_cast<TransformComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetPositionX(arg0);
 return nullptr;
 });
@@ -2319,7 +2326,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetPositionX", Reflectio
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TransformComponent* instance = static_cast<TransformComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetPositionY(arg0);
 return nullptr;
 });
@@ -2331,7 +2338,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetPositionY", Reflectio
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TransformComponent* instance = static_cast<TransformComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetPositionZ(arg0);
 return nullptr;
 });
@@ -2355,9 +2362,9 @@ Method& currentMethod = currentClass->AddMethod(Method("SetScale", ReflectionSys
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TransformComponent* instance = static_cast<TransformComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
-const float arg1 = *(const float*)inArguments[1];
-const float arg2 = *(const float*)inArguments[2];
+const float& arg0 = *(const float*)inArguments[0];
+const float& arg1 = *(const float*)inArguments[1];
+const float& arg2 = *(const float*)inArguments[2];
 instance->SetScale(arg0, arg1, arg2);
 return nullptr;
 });
@@ -2371,7 +2378,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetScale", ReflectionSys
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TransformComponent* instance = static_cast<TransformComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetScale(arg0);
 return nullptr;
 });
@@ -2431,9 +2438,9 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRotationDeg", Reflect
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TransformComponent* instance = static_cast<TransformComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
-const float arg1 = *(const float*)inArguments[1];
-const float arg2 = *(const float*)inArguments[2];
+const float& arg0 = *(const float*)inArguments[0];
+const float& arg1 = *(const float*)inArguments[1];
+const float& arg2 = *(const float*)inArguments[2];
 instance->SetRotationDeg(arg0, arg1, arg2);
 return nullptr;
 });
@@ -2640,9 +2647,9 @@ Method& currentMethod = currentClass->AddMethod(Method("Move", ReflectionSystem:
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TransformComponent* instance = static_cast<TransformComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
-const float arg1 = *(const float*)inArguments[1];
-const float arg2 = *(const float*)inArguments[2];
+const float& arg0 = *(const float*)inArguments[0];
+const float& arg1 = *(const float*)inArguments[1];
+const float& arg2 = *(const float*)inArguments[2];
 instance->Move(arg0, arg1, arg2);
 return nullptr;
 });
@@ -2668,9 +2675,9 @@ Method& currentMethod = currentClass->AddMethod(Method("Rotate", ReflectionSyste
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TransformComponent* instance = static_cast<TransformComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
-const float arg1 = *(const float*)inArguments[1];
-const float arg2 = *(const float*)inArguments[2];
+const float& arg0 = *(const float*)inArguments[0];
+const float& arg1 = *(const float*)inArguments[1];
+const float& arg2 = *(const float*)inArguments[2];
 instance->Rotate(arg0, arg1, arg2);
 return nullptr;
 });
@@ -2868,71 +2875,6 @@ return (void*)result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetWorld", ReflectionSystem::GetOrCreateType<World *>("World *"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Time>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Time* instance = static_cast<Time*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Time* instance = static_cast<Time*>(inInstance);
-static thread_local float result = instance->GetDeltaTime();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetDeltaTime", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Time* instance = static_cast<Time*>(inInstance);
-static thread_local float result = instance->GetUnscaledDeltaTime();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetUnscaledDeltaTime", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Time* instance = static_cast<Time*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
-instance->SetTimeScale(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inTimeScale", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("SetTimeScale", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Time* instance = static_cast<Time*>(inInstance);
-static thread_local double result = instance->GetSeconds();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetSeconds", ReflectionSystem::GetOrCreateType<double>("double"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Time* instance = static_cast<Time*>(inInstance);
-static thread_local float result = instance->GetTimeSinceStart();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetTimeSinceStart", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
 }
 }
 { 
@@ -3377,7 +3319,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetTags", ReflectionSyst
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GameObject* instance = static_cast<GameObject*>(inInstance);
-unsigned int arg0 = *(unsigned int*)inArguments[0];
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
 instance->AddTags(arg0);
 return nullptr;
 });
@@ -3389,7 +3331,7 @@ Method& currentMethod = currentClass->AddMethod(Method("AddTags", ReflectionSyst
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GameObject* instance = static_cast<GameObject*>(inInstance);
-unsigned int arg0 = *(unsigned int*)inArguments[0];
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
 instance->RemoveTags(arg0);
 return nullptr;
 });
@@ -3411,7 +3353,7 @@ Method& currentMethod = currentClass->AddMethod(Method("ClearTags", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GameObject* instance = static_cast<GameObject*>(inInstance);
-unsigned int arg0 = *(unsigned int*)inArguments[0];
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
 static thread_local bool result = instance->HasAnyTag(arg0);
 return (void*)&result;
 });
@@ -3423,7 +3365,7 @@ Method& currentMethod = currentClass->AddMethod(Method("HasAnyTag", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GameObject* instance = static_cast<GameObject*>(inInstance);
-unsigned int arg0 = *(unsigned int*)inArguments[0];
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
 static thread_local bool result = instance->HasAllTags(arg0);
 return (void*)&result;
 });
@@ -3491,7 +3433,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetOnComponentRemoved", 
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 EventHandler* instance = static_cast<EventHandler*>(inInstance);
-const EventType arg0 = *(const EventType*)inArguments[0];
+const EventType& arg0 = *(const EventType*)inArguments[0];
 instance->FireEvent(arg0);
 return nullptr;
 });
@@ -3631,8 +3573,8 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
 const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
-const float arg1 = *(const float*)inArguments[1];
-const float arg2 = *(const float*)inArguments[2];
+const float& arg1 = *(const float*)inArguments[1];
+const float& arg2 = *(const float*)inArguments[2];
 instance->CreateOrthographic(arg0, arg1, arg2);
 return nullptr;
 });
@@ -3647,9 +3589,9 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
 const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
-const float arg1 = *(const float*)inArguments[1];
-const float arg2 = *(const float*)inArguments[2];
-const float arg3 = *(const float*)inArguments[3];
+const float& arg1 = *(const float*)inArguments[1];
+const float& arg2 = *(const float*)inArguments[2];
+const float& arg3 = *(const float*)inArguments[3];
 instance->CreatePerspective(arg0, arg1, arg2, arg3);
 return nullptr;
 });
@@ -3724,7 +3666,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetRayDirectionFromScree
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 static thread_local float result = instance->ToLinearDepth(arg0);
 return (void*)&result;
 });
@@ -3736,7 +3678,7 @@ Method& currentMethod = currentClass->AddMethod(Method("ToLinearDepth", Reflecti
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 static thread_local float result = instance->ToNormalizedLinearDepth(arg0);
 return (void*)&result;
 });
@@ -3792,7 +3734,7 @@ Method& currentMethod = currentClass->AddMethod(Method("AddMeshInstance", Reflec
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-const unsigned int arg0 = *(const unsigned int*)inArguments[0];
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
 const MeshInstanceData & arg1 = *(const MeshInstanceData*)inArguments[1];
 instance->UpdateMeshInstance(arg0, arg1);
 return nullptr;
@@ -3806,7 +3748,7 @@ Method& currentMethod = currentClass->AddMethod(Method("UpdateMeshInstance", Ref
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-const unsigned int arg0 = *(const unsigned int*)inArguments[0];
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
 instance->RemoveMeshInstance(arg0);
 return nullptr;
 });
@@ -3937,7 +3879,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 RigidbodyComponent* instance = static_cast<RigidbodyComponent*>(inInstance);
 const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
-const ForceMode arg1 = *(const ForceMode*)inArguments[1];
+const ForceMode& arg1 = *(const ForceMode*)inArguments[1];
 instance->AddForce(arg0, arg1);
 return nullptr;
 });
@@ -3951,7 +3893,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 RigidbodyComponent* instance = static_cast<RigidbodyComponent*>(inInstance);
 const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
-const ForceMode arg1 = *(const ForceMode*)inArguments[1];
+const ForceMode& arg1 = *(const ForceMode*)inArguments[1];
 instance->AddTorque(arg0, arg1);
 return nullptr;
 });
@@ -3964,7 +3906,7 @@ Method& currentMethod = currentClass->AddMethod(Method("AddTorque", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 RigidbodyComponent* instance = static_cast<RigidbodyComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetMass(arg0);
 return nullptr;
 });
@@ -3986,7 +3928,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMass", ReflectionSyst
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 RigidbodyComponent* instance = static_cast<RigidbodyComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetDrag(arg0);
 return nullptr;
 });
@@ -4008,7 +3950,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDrag", ReflectionSyst
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 RigidbodyComponent* instance = static_cast<RigidbodyComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetAngularDrag(arg0);
 return nullptr;
 });
@@ -4030,7 +3972,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAngularDrag", Reflect
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 RigidbodyComponent* instance = static_cast<RigidbodyComponent*>(inInstance);
-const bool arg0 = *(const bool*)inArguments[0];
+const bool& arg0 = *(const bool*)inArguments[0];
 instance->UseGravity(arg0);
 return nullptr;
 });
@@ -4042,7 +3984,7 @@ Method& currentMethod = currentClass->AddMethod(Method("UseGravity", ReflectionS
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 RigidbodyComponent* instance = static_cast<RigidbodyComponent*>(inInstance);
-const bool arg0 = *(const bool*)inArguments[0];
+const bool& arg0 = *(const bool*)inArguments[0];
 instance->SetKinematic(arg0);
 return nullptr;
 });
@@ -4078,9 +4020,9 @@ Method& currentMethod = currentClass->AddMethod(Method("DetachCollider", Reflect
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 RigidbodyComponent* instance = static_cast<RigidbodyComponent*>(inInstance);
-const bool arg0 = *(const bool*)inArguments[0];
-const bool arg1 = *(const bool*)inArguments[1];
-const bool arg2 = *(const bool*)inArguments[2];
+const bool& arg0 = *(const bool*)inArguments[0];
+const bool& arg1 = *(const bool*)inArguments[1];
+const bool& arg2 = *(const bool*)inArguments[2];
 instance->SetRotationConstraint(arg0, arg1, arg2);
 return nullptr;
 });
@@ -4208,7 +4150,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetHeight", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetHeight(arg0);
 return nullptr;
 });
@@ -4230,7 +4172,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetRadius", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetRadius(arg0);
 return nullptr;
 });
@@ -4264,7 +4206,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetPositionOffset", Refl
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->Jump(arg0);
 return nullptr;
 });
@@ -4332,7 +4274,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetShape", ReflectionSys
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ColliderComponent* instance = static_cast<ColliderComponent*>(inInstance);
-const bool arg0 = *(const bool*)inArguments[0];
+const bool& arg0 = *(const bool*)inArguments[0];
 instance->SetIsTrigger(arg0);
 return nullptr;
 });
@@ -4430,7 +4372,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetColor", ReflectionSys
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetIntensity(arg0);
 return nullptr;
 });
@@ -4635,7 +4577,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetIntensity", Reflectio
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetIntensity(arg0);
 return nullptr;
 });
@@ -4657,7 +4599,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetRange", ReflectionSys
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetRange(arg0);
 return nullptr;
 });
@@ -4779,7 +4721,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 String* instance = static_cast<String*>(inInstance);
 const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-const char arg1 = *(const char*)inArguments[1];
+const char& arg1 = *(const char*)inArguments[1];
 static thread_local List<std::basic_string<char>> result = instance->SplitString(arg0, arg1);
 return (void*)&result;
 });
@@ -4810,7 +4752,7 @@ Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSys
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 SphereColliderComponent* instance = static_cast<SphereColliderComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetRadius(arg0);
 return nullptr;
 });
@@ -4876,7 +4818,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
 const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
-const unsigned int arg1 = *(const unsigned int*)inArguments[1];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
 instance->SetMaterialAsync(arg0, arg1);
 return nullptr;
 });
@@ -4890,7 +4832,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
 Material * arg0 = (Material*)inArguments[0];
-const unsigned int arg1 = *(const unsigned int*)inArguments[1];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
 instance->SetMaterial(arg0, arg1);
 return nullptr;
 });
@@ -4903,7 +4845,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetMaterial", Reflection
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
-const unsigned int arg0 = *(const unsigned int*)inArguments[0];
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
 const Material * result = instance->GetMaterial(arg0);
 return (void*)result;
 });
@@ -4951,7 +4893,7 @@ Method& currentMethod = currentClass->AddMethod(Method("OnRenderStateDirty", Ref
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
-const bool arg0 = *(const bool*)inArguments[0];
+const bool& arg0 = *(const bool*)inArguments[0];
 instance->SetDepthWriteEnabled(arg0);
 return nullptr;
 });
@@ -5197,6 +5139,71 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<Time>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
+static thread_local float result = instance->GetDeltaTime();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetDeltaTime", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
+static thread_local float result = instance->GetUnscaledDeltaTime();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetUnscaledDeltaTime", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
+const float& arg0 = *(const float*)inArguments[0];
+instance->SetTimeScale(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTimeScale", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("SetTimeScale", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
+static thread_local double result = instance->GetSeconds();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetSeconds", ReflectionSystem::GetOrCreateType<double>("double"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
+static thread_local float result = instance->GetTimeSinceStart();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetTimeSinceStart", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<UniqueID>();
 	{
 		Field& currentField = currentClass->AddField(Field("myA", 0, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
@@ -5242,6 +5249,30 @@ Method& currentMethod = currentClass->AddMethod(Method("operator==", ReflectionS
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<SystemManager<System>>("SystemManager<System>"), false, false);
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<EventHandler>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<EventHandler>("EventHandler"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<ThreadPool>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<ThreadPool>("ThreadPool"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<Filewatcher>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Filewatcher>("Filewatcher"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<WindowHandler>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<WindowHandler>("WindowHandler"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanContext>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanContext>("VulkanContext"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<AssetRegistry>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<AssetRegistry>("AssetRegistry"), false, false);
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<Awaitable>();
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5257,7 +5288,7 @@ Method& currentMethod = currentClass->AddMethod(Method("await_ready", Reflection
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Awaitable* instance = static_cast<Awaitable*>(inInstance);
-std::coroutine_handle<void> arg0 = *(std::coroutine_handle<void>*)inArguments[0];
+std::coroutine_handle<void>& arg0 = *(std::coroutine_handle<void>*)inArguments[0];
 instance->await_suspend(arg0);
 return nullptr;
 });
@@ -5640,28 +5671,28 @@ Method& currentMethod = currentClass->AddMethod(Method("GetGDRPipeline", Reflect
 		Field& currentField = currentClass->AddField(Field("mySystemManager", 144, ReflectionSystem::GetOrCreateType<UniquePtr<SystemManager<System>>>("UniquePtr<SystemManager<System>>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPostMaster", 160, ReflectionSystem::GetOrCreateType<EventHandler>("EventHandler"), true, false));
+		Field& currentField = currentClass->AddField(Field("myPostMaster", 160, ReflectionSystem::GetOrCreateType<UniquePtr<EventHandler>>("UniquePtr<EventHandler>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myThreadPool", 168, ReflectionSystem::GetOrCreateType<ThreadPool>("ThreadPool"), true, false));
+		Field& currentField = currentClass->AddField(Field("myThreadPool", 176, ReflectionSystem::GetOrCreateType<UniquePtr<ThreadPool>>("UniquePtr<ThreadPool>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFilewatcher", 176, ReflectionSystem::GetOrCreateType<Filewatcher>("Filewatcher"), true, false));
+		Field& currentField = currentClass->AddField(Field("myFilewatcher", 192, ReflectionSystem::GetOrCreateType<UniquePtr<Filewatcher>>("UniquePtr<Filewatcher>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myWindowHandler", 184, ReflectionSystem::GetOrCreateType<WindowHandler>("WindowHandler"), true, false));
+		Field& currentField = currentClass->AddField(Field("myWindowHandler", 208, ReflectionSystem::GetOrCreateType<UniquePtr<WindowHandler>>("UniquePtr<WindowHandler>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myVulkanContext", 192, ReflectionSystem::GetOrCreateType<VulkanContext>("VulkanContext"), true, false));
+		Field& currentField = currentClass->AddField(Field("myVulkanContext", 224, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanContext>>("UniquePtr<VulkanContext>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 200, ReflectionSystem::GetOrCreateType<AssetRegistry>("AssetRegistry"), true, false));
+		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 240, ReflectionSystem::GetOrCreateType<UniquePtr<AssetRegistry>>("UniquePtr<AssetRegistry>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myWorld", 208, ReflectionSystem::GetOrCreateType<World>("World"), true, false));
+		Field& currentField = currentClass->AddField(Field("myWorld", 256, ReflectionSystem::GetOrCreateType<std::shared_ptr<World>>("std::shared_ptr<World>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myExternalTickFunction", 216, ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myExternalTickFunction", 272, ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5697,7 +5728,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetFrameIndex", Reflecti
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Engine* instance = static_cast<Engine*>(inInstance);
-const bool arg0 = *(const bool*)inArguments[0];
+const bool& arg0 = *(const bool*)inArguments[0];
 instance->SetIsRunning(arg0);
 return nullptr;
 });
@@ -5769,22 +5800,32 @@ Method& currentMethod = currentClass->AddMethod(Method("GetFilewatcher", Reflect
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Engine* instance = static_cast<Engine*>(inInstance);
-World * result = instance->GetWorld();
-return (void*)result;
+static thread_local std::shared_ptr<World> result = instance->GetWorld();
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetWorld", ReflectionSystem::GetOrCreateType<World *>("World *"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetWorld", ReflectionSystem::GetOrCreateType<std::shared_ptr<World>>("std::shared_ptr<World>"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Engine* instance = static_cast<Engine*>(inInstance);
-World * arg0 = (World*)inArguments[0];
+static thread_local std::weak_ptr<World> result = instance->GetWeakWorld();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetWeakWorld", ReflectionSystem::GetOrCreateType<std::weak_ptr<World>>("std::weak_ptr<World>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+std::shared_ptr<World>& arg0 = *(std::shared_ptr<World>*)inArguments[0];
 instance->SetWorld(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inWorld", ReflectionSystem::GetOrCreateType<World *>("World *")));
+arguments.Add(MethodArgument("inWorld", ReflectionSystem::GetOrCreateType<std::shared_ptr<World>>("std::shared_ptr<World>")));
 Method& currentMethod = currentClass->AddMethod(Method("SetWorld", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
@@ -5801,7 +5842,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetRenderResolution", Re
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Engine* instance = static_cast<Engine*>(inInstance);
-const std::function<void ()> arg0 = *(const std::function<void ()>*)inArguments[0];
+const std::function<void ()>& arg0 = *(const std::function<void ()>*)inArguments[0];
 instance->SetExternalTickFunction(arg0);
 return nullptr;
 });
@@ -5834,7 +5875,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetExternalTickFunction"
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 EngineProperties* instance = static_cast<EngineProperties*>(inInstance);
-int arg0 = *(int*)inArguments[0];
+int& arg0 = *(int*)inArguments[0];
 char ** arg1 = (char **)inArguments[1];
 instance->AddStartupArguments(arg0, arg1);
 return nullptr;
@@ -5972,16 +6013,19 @@ Method& currentMethod = currentClass->AddMethod(Method("Blue", ReflectionSystem:
 		Field& currentField = currentClass->AddField(Field("myDefaultMaterial", 48, ReflectionSystem::GetOrCreateType<physx::PxMaterial>("physx::PxMaterial"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPhysics", 56, ReflectionSystem::GetOrCreateType<physx::PxPhysics>("physx::PxPhysics"), true, false));
+		Field& currentField = currentClass->AddField(Field("myListener", 56, ReflectionSystem::GetOrCreateType<PhysicsListener>("PhysicsListener"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myScene", 64, ReflectionSystem::GetOrCreateType<physx::PxScene>("physx::PxScene"), true, false));
+		Field& currentField = currentClass->AddField(Field("myPhysics", 64, ReflectionSystem::GetOrCreateType<physx::PxPhysics>("physx::PxPhysics"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myControllerManager", 72, ReflectionSystem::GetOrCreateType<physx::PxControllerManager>("physx::PxControllerManager"), true, false));
+		Field& currentField = currentClass->AddField(Field("myScene", 72, ReflectionSystem::GetOrCreateType<physx::PxScene>("physx::PxScene"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myHasActiveSimulation", 80, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myControllerManager", 80, ReflectionSystem::GetOrCreateType<physx::PxControllerManager>("physx::PxControllerManager"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHasActiveSimulation", 88, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<WorldSystem>());
 {
@@ -6018,7 +6062,7 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 PhysicsSystem* instance = static_cast<PhysicsSystem*>(inInstance);
-Delegate<void (physx::PxPhysics *, physx::PxScene *)> arg0 = *(Delegate<void (physx::PxPhysics *, physx::PxScene *)>*)inArguments[0];
+Delegate<void (physx::PxPhysics *, physx::PxScene *)>& arg0 = *(Delegate<void (physx::PxPhysics *, physx::PxScene *)>*)inArguments[0];
 instance->QueuePhysicsCommand(arg0);
 return nullptr;
 });
@@ -6089,7 +6133,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPhysicsListener", Ref
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Heightfield* instance = static_cast<Heightfield*>(inInstance);
-const glm::vec<2, float> arg0 = *(const glm::vec<2, float>*)inArguments[0];
+const glm::vec<2, float>& arg0 = *(const glm::vec<2, float>*)inArguments[0];
 static thread_local float result = instance->GetHeight(arg0);
 return (void*)&result;
 });
@@ -6130,10 +6174,10 @@ Method& currentMethod = currentClass->AddMethod(Method("ToColor", ReflectionSyst
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 PhysicsErrorCallback* instance = static_cast<PhysicsErrorCallback*>(inInstance);
-physx::PxErrorCode::Enum arg0 = *(physx::PxErrorCode::Enum*)inArguments[0];
+physx::PxErrorCode::Enum& arg0 = *(physx::PxErrorCode::Enum*)inArguments[0];
 const char * arg1 = (const char*)inArguments[1];
 const char * arg2 = (const char*)inArguments[2];
-int arg3 = *(int*)inArguments[3];
+int& arg3 = *(int*)inArguments[3];
 instance->reportError(arg0, arg1, arg2, arg3);
 return nullptr;
 });
@@ -6159,7 +6203,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 PhysicsListener* instance = static_cast<PhysicsListener*>(inInstance);
 physx::PxTriggerPair * arg0 = (physx::PxTriggerPair*)inArguments[0];
-unsigned int arg1 = *(unsigned int*)inArguments[1];
+unsigned int& arg1 = *(unsigned int*)inArguments[1];
 instance->onTrigger(arg0, arg1);
 return nullptr;
 });
@@ -6174,7 +6218,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 PhysicsListener* instance = static_cast<PhysicsListener*>(inInstance);
 const physx::PxContactPairHeader & arg0 = *(const physx::PxContactPairHeader*)inArguments[0];
 const physx::PxContactPair * arg1 = (const physx::PxContactPair*)inArguments[1];
-unsigned int arg2 = *(unsigned int*)inArguments[2];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
 instance->onContact(arg0, arg1, arg2);
 return nullptr;
 });
@@ -6189,7 +6233,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 PhysicsListener* instance = static_cast<PhysicsListener*>(inInstance);
 physx::PxConstraintInfo * arg0 = (physx::PxConstraintInfo*)inArguments[0];
-unsigned int arg1 = *(unsigned int*)inArguments[1];
+unsigned int& arg1 = *(unsigned int*)inArguments[1];
 instance->onConstraintBreak(arg0, arg1);
 return nullptr;
 });
@@ -6203,7 +6247,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 PhysicsListener* instance = static_cast<PhysicsListener*>(inInstance);
 physx::PxActor ** arg0 = (physx::PxActor **)inArguments[0];
-unsigned int arg1 = *(unsigned int*)inArguments[1];
+unsigned int& arg1 = *(unsigned int*)inArguments[1];
 instance->onWake(arg0, arg1);
 return nullptr;
 });
@@ -6217,7 +6261,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 PhysicsListener* instance = static_cast<PhysicsListener*>(inInstance);
 physx::PxActor ** arg0 = (physx::PxActor **)inArguments[0];
-unsigned int arg1 = *(unsigned int*)inArguments[1];
+unsigned int& arg1 = *(unsigned int*)inArguments[1];
 instance->onSleep(arg0, arg1);
 return nullptr;
 });
@@ -6232,7 +6276,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 PhysicsListener* instance = static_cast<PhysicsListener*>(inInstance);
 const physx::PxRigidBody *const * arg0 = (const physx::PxRigidBody *const*)inArguments[0];
 const physx::PxTransformT<float> * arg1 = (const physx::PxTransformT<float>*)inArguments[1];
-const unsigned int arg2 = *(const unsigned int*)inArguments[2];
+const unsigned int& arg2 = *(const unsigned int*)inArguments[2];
 instance->onAdvance(arg0, arg1, arg2);
 return nullptr;
 });
@@ -6629,8 +6673,8 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 Type* instance = static_cast<Type*>(inInstance);
 const Type * arg0 = (const Type*)inArguments[0];
-const bool arg1 = *(const bool*)inArguments[1];
-const bool arg2 = *(const bool*)inArguments[2];
+const bool& arg1 = *(const bool*)inArguments[1];
+const bool& arg2 = *(const bool*)inArguments[2];
 instance->AddTemplateArgument(arg0, arg1, arg2);
 return nullptr;
 });
@@ -6665,7 +6709,7 @@ Method& currentMethod = currentClass->AddMethod(Method("AddTemplateArgument", Re
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 DebugPipeline* instance = static_cast<DebugPipeline*>(inInstance);
-const vk::CommandBuffer arg0 = *(const vk::CommandBuffer*)inArguments[0];
+const vk::CommandBuffer& arg0 = *(const vk::CommandBuffer*)inArguments[0];
 instance->AddDrawCommands(arg0);
 return nullptr;
 });
@@ -6698,7 +6742,7 @@ Method& currentMethod = currentClass->AddMethod(Method("AddDrawCommands", Reflec
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 FullscreenPipeline* instance = static_cast<FullscreenPipeline*>(inInstance);
-const vk::CommandBuffer arg0 = *(const vk::CommandBuffer*)inArguments[0];
+const vk::CommandBuffer& arg0 = *(const vk::CommandBuffer*)inArguments[0];
 instance->AddFullscreenPass(arg0);
 return nullptr;
 });
@@ -6767,7 +6811,7 @@ Method& currentMethod = currentClass->AddMethod(Method("AddFullscreenPass", Refl
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GDRPipeline* instance = static_cast<GDRPipeline*>(inInstance);
-vk::CommandBuffer arg0 = *(vk::CommandBuffer*)inArguments[0];
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
 instance->AddComputeCommands(arg0);
 return nullptr;
 });
@@ -6779,7 +6823,7 @@ Method& currentMethod = currentClass->AddMethod(Method("AddComputeCommands", Ref
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GDRPipeline* instance = static_cast<GDRPipeline*>(inInstance);
-vk::CommandBuffer arg0 = *(vk::CommandBuffer*)inArguments[0];
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
 instance->AddGraphicsCommands(arg0);
 return nullptr;
 });
@@ -6875,7 +6919,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 IndexBufferSystem* instance = static_cast<IndexBufferSystem*>(inInstance);
 VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
-const unsigned int arg1 = *(const unsigned int*)inArguments[1];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
 IndexBufferHandle * result = instance->UploadIndexBuffer(arg0, arg1);
 return (void*)result;
 });
@@ -7266,7 +7310,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
 VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
-const unsigned int arg1 = *(const unsigned int*)inArguments[1];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
 VertexBufferHandle * result = instance->UploadVertexBuffer(arg0, arg1);
 return (void*)result;
 });
@@ -7404,7 +7448,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 BinarySerializer* instance = static_cast<BinarySerializer*>(inInstance);
 void * arg0 = (void*)inArguments[0];
 const Type * arg1 = (const Type*)inArguments[1];
-const bool arg2 = *(const bool*)inArguments[2];
+const bool& arg2 = *(const bool*)inArguments[2];
 instance->SerializeType(arg0, arg1, arg2);
 return nullptr;
 });
@@ -7441,7 +7485,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 BinarySerializer* instance = static_cast<BinarySerializer*>(inInstance);
 void * arg0 = (void*)inArguments[0];
-const int arg1 = *(const int*)inArguments[1];
+const int& arg1 = *(const int*)inArguments[1];
 instance->SerializeBinaryData(arg0, arg1);
 return nullptr;
 });
@@ -7875,7 +7919,7 @@ Method& currentMethod = currentClass->AddMethod(Method("CreateSamplers", Reflect
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanUtils* instance = static_cast<VulkanUtils*>(inInstance);
-const SamplerMode arg0 = *(const SamplerMode*)inArguments[0];
+const SamplerMode& arg0 = *(const SamplerMode*)inArguments[0];
 static thread_local vk::Sampler result = instance->GetSampler(arg0);
 return (void*)&result;
 });
@@ -7970,9 +8014,9 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 Debug* instance = static_cast<Debug*>(inInstance);
 const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
-const float arg1 = *(const float*)inArguments[1];
+const float& arg1 = *(const float*)inArguments[1];
 const Color & arg2 = *(const Color*)inArguments[2];
-const int arg3 = *(const int*)inArguments[3];
+const int& arg3 = *(const int*)inArguments[3];
 instance->DrawSphere(arg0, arg1, arg2, arg3);
 return nullptr;
 });
@@ -7989,8 +8033,8 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 Debug* instance = static_cast<Debug*>(inInstance);
 const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
 const glm::qua<float> & arg1 = *(const glm::qua<float>*)inArguments[1];
-const float arg2 = *(const float*)inArguments[2];
-const float arg3 = *(const float*)inArguments[3];
+const float& arg2 = *(const float*)inArguments[2];
+const float& arg3 = *(const float*)inArguments[3];
 const Color & arg4 = *(const Color*)inArguments[4];
 instance->DrawCapsule(arg0, arg1, arg2, arg3, arg4);
 return nullptr;
@@ -8152,8 +8196,8 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
 VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
-const unsigned int arg1 = *(const unsigned int*)inArguments[1];
-unsigned int arg2 = *(unsigned int*)inArguments[2];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
 instance->CopyDataFromBuffer(arg0, arg1, arg2);
 return nullptr;
 });
@@ -8168,8 +8212,8 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
 const void * arg0 = (const void*)inArguments[0];
-const unsigned int arg1 = *(const unsigned int*)inArguments[1];
-unsigned int arg2 = *(unsigned int*)inArguments[2];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
 instance->SetData(arg0, arg1, arg2);
 return nullptr;
 });
@@ -8183,9 +8227,9 @@ Method& currentMethod = currentClass->AddMethod(Method("SetData", ReflectionSyst
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
-const unsigned int arg0 = *(const unsigned int*)inArguments[0];
-const unsigned int arg1 = *(const unsigned int*)inArguments[1];
-const unsigned int arg2 = *(const unsigned int*)inArguments[2];
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+const unsigned int& arg2 = *(const unsigned int*)inArguments[2];
 instance->MoveData(arg0, arg1, arg2);
 return nullptr;
 });
@@ -8199,7 +8243,7 @@ Method& currentMethod = currentClass->AddMethod(Method("MoveData", ReflectionSys
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
-const unsigned int arg0 = *(const unsigned int*)inArguments[0];
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
 instance->Resize(arg0);
 return nullptr;
 });
@@ -8211,7 +8255,7 @@ Method& currentMethod = currentClass->AddMethod(Method("Resize", ReflectionSyste
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
-const unsigned int arg0 = *(const unsigned int*)inArguments[0];
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
 instance->CheckCapacity(arg0);
 return nullptr;
 });
@@ -8236,7 +8280,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 StagingBuffer* instance = static_cast<StagingBuffer*>(inInstance);
 const void * arg0 = (const void*)inArguments[0];
-unsigned int arg1 = *(unsigned int*)inArguments[1];
+unsigned int& arg1 = *(unsigned int*)inArguments[1];
 instance->SetData(arg0, arg1);
 return nullptr;
 });
@@ -8283,7 +8327,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetUnderlyingBuffer", Re
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 StagingSystem* instance = static_cast<StagingSystem*>(inInstance);
-const unsigned int arg0 = *(const unsigned int*)inArguments[0];
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
 static thread_local StagingBuffer result = instance->GetStagingBufferWithSize_TS(arg0);
 return (void*)&result;
 });
@@ -8323,8 +8367,8 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
 const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
 const vk::BufferCreateInfo & arg1 = *(const vk::BufferCreateInfo*)inArguments[1];
-VmaMemoryUsage arg2 = *(VmaMemoryUsage*)inArguments[2];
-bool arg3 = *(bool*)inArguments[3];
+VmaMemoryUsage& arg2 = *(VmaMemoryUsage*)inArguments[2];
+bool& arg3 = *(bool*)inArguments[3];
 VulkanBuffer * result = instance->AllocateBuffer_TS(arg0, arg1, arg2, arg3);
 return (void*)result;
 });
@@ -8377,7 +8421,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
 const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
 const vk::ImageCreateInfo & arg1 = *(const vk::ImageCreateInfo*)inArguments[1];
-VmaMemoryUsage arg2 = *(VmaMemoryUsage*)inArguments[2];
+VmaMemoryUsage& arg2 = *(VmaMemoryUsage*)inArguments[2];
 VulkanImage * result = instance->AllocateImage_TS(arg0, arg1, arg2);
 return (void*)result;
 });
@@ -8434,7 +8478,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetVMAAllocator", Reflec
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-unsigned int arg0 = *(unsigned int*)inArguments[0];
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
 static thread_local vk::BufferCreateInfo result = instance->StagingCreateInfo(arg0);
 return (void*)&result;
 });
@@ -8470,7 +8514,7 @@ Method& currentMethod = currentClass->AddMethod(Method("IndexBufferCreateInfo", 
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-unsigned int arg0 = *(unsigned int*)inArguments[0];
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
 static thread_local vk::BufferCreateInfo result = instance->UniformBufferCreateInfo(arg0);
 return (void*)&result;
 });
@@ -8482,7 +8526,7 @@ Method& currentMethod = currentClass->AddMethod(Method("UniformBufferCreateInfo"
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-unsigned int arg0 = *(unsigned int*)inArguments[0];
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
 static thread_local vk::BufferCreateInfo result = instance->StorageBufferCreateInfo(arg0);
 return (void*)&result;
 });
@@ -8494,7 +8538,7 @@ Method& currentMethod = currentClass->AddMethod(Method("StorageBufferCreateInfo"
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-unsigned int arg0 = *(unsigned int*)inArguments[0];
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
 static thread_local vk::BufferCreateInfo result = instance->ResizableStorageBufferCreateInfo(arg0);
 return (void*)&result;
 });
@@ -8517,8 +8561,8 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
 VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
-const unsigned int arg1 = *(const unsigned int*)inArguments[1];
-unsigned int arg2 = *(unsigned int*)inArguments[2];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
 instance->CopyDataFromBuffer(arg0, arg1, arg2);
 return nullptr;
 });
@@ -8533,8 +8577,8 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
 const void * arg0 = (const void*)inArguments[0];
-const unsigned int arg1 = *(const unsigned int*)inArguments[1];
-unsigned int arg2 = *(unsigned int*)inArguments[2];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
 instance->SetData(arg0, arg1, arg2);
 return nullptr;
 });
@@ -8809,9 +8853,9 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
 const VulkanBuffer * arg0 = (const VulkanBuffer*)inArguments[0];
-vk::Flags<vk::ShaderStageFlagBits> arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
-unsigned int arg2 = *(unsigned int*)inArguments[2];
-vk::DescriptorType arg3 = *(vk::DescriptorType*)inArguments[3];
+vk::Flags<vk::ShaderStageFlagBits>& arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
+vk::DescriptorType& arg3 = *(vk::DescriptorType*)inArguments[3];
 instance->BindBuffer(arg0, arg1, arg2, arg3);
 return nullptr;
 });
@@ -8827,9 +8871,9 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
 const ResizableBuffer * arg0 = (const ResizableBuffer*)inArguments[0];
-vk::Flags<vk::ShaderStageFlagBits> arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
-unsigned int arg2 = *(unsigned int*)inArguments[2];
-vk::DescriptorType arg3 = *(vk::DescriptorType*)inArguments[3];
+vk::Flags<vk::ShaderStageFlagBits>& arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
+vk::DescriptorType& arg3 = *(vk::DescriptorType*)inArguments[3];
 instance->BindBuffer(arg0, arg1, arg2, arg3);
 return nullptr;
 });
@@ -8845,10 +8889,10 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
 const VulkanImage * arg0 = (const VulkanImage*)inArguments[0];
-const vk::Sampler arg1 = *(const vk::Sampler*)inArguments[1];
-const unsigned int arg2 = *(const unsigned int*)inArguments[2];
-const vk::Flags<vk::ShaderStageFlagBits> arg3 = *(const vk::Flags<vk::ShaderStageFlagBits>*)inArguments[3];
-const vk::ImageLayout arg4 = *(const vk::ImageLayout*)inArguments[4];
+const vk::Sampler& arg1 = *(const vk::Sampler*)inArguments[1];
+const unsigned int& arg2 = *(const unsigned int*)inArguments[2];
+const vk::Flags<vk::ShaderStageFlagBits>& arg3 = *(const vk::Flags<vk::ShaderStageFlagBits>*)inArguments[3];
+const vk::ImageLayout& arg4 = *(const vk::ImageLayout*)inArguments[4];
 instance->BindImage(arg0, arg1, arg2, arg3, arg4);
 return nullptr;
 });
@@ -8972,8 +9016,8 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDevice", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanDevice* instance = static_cast<VulkanDevice*>(inInstance);
-const bool arg0 = *(const bool*)inArguments[0];
-const bool arg1 = *(const bool*)inArguments[1];
+const bool& arg0 = *(const bool*)inArguments[0];
+const bool& arg1 = *(const bool*)inArguments[1];
 VulkanCommandBuffer * result = instance->CreateCommandBuffer(arg0, arg1);
 return (void*)result;
 });
@@ -9043,7 +9087,7 @@ Method& currentMethod = currentClass->AddMethod(Method("BeginFrame", ReflectionS
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
-vk::CommandBuffer arg0 = *(vk::CommandBuffer*)inArguments[0];
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
 instance->Render(arg0);
 return nullptr;
 });
@@ -9080,7 +9124,7 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VulkanImage* instance = static_cast<VulkanImage*>(inInstance);
 const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
-vk::SampleCountFlagBits arg1 = *(vk::SampleCountFlagBits*)inArguments[1];
+vk::SampleCountFlagBits& arg1 = *(vk::SampleCountFlagBits*)inArguments[1];
 static thread_local vk::ImageCreateInfo result = instance->DepthCreateInfo(arg0, arg1);
 return (void*)&result;
 });
@@ -9145,7 +9189,7 @@ Method& currentMethod = currentClass->AddMethod(Method("HasImageView", Reflectio
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanImage* instance = static_cast<VulkanImage*>(inInstance);
-vk::ImageViewType arg0 = *(vk::ImageViewType*)inArguments[0];
+vk::ImageViewType& arg0 = *(vk::ImageViewType*)inArguments[0];
 instance->CreateView(arg0);
 return nullptr;
 });
@@ -9157,8 +9201,8 @@ Method& currentMethod = currentClass->AddMethod(Method("CreateView", ReflectionS
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanImage* instance = static_cast<VulkanImage*>(inInstance);
-vk::ImageViewType arg0 = *(vk::ImageViewType*)inArguments[0];
-vk::ImageSubresourceRange arg1 = *(vk::ImageSubresourceRange*)inArguments[1];
+vk::ImageViewType& arg0 = *(vk::ImageViewType*)inArguments[0];
+vk::ImageSubresourceRange& arg1 = *(vk::ImageSubresourceRange*)inArguments[1];
 instance->CreateView(arg0, arg1);
 return nullptr;
 });
@@ -9359,9 +9403,9 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VulkanShaderIncluder* instance = static_cast<VulkanShaderIncluder*>(inInstance);
 const char * arg0 = (const char*)inArguments[0];
-shaderc_include_type arg1 = *(shaderc_include_type*)inArguments[1];
+shaderc_include_type& arg1 = *(shaderc_include_type*)inArguments[1];
 const char * arg2 = (const char*)inArguments[2];
-unsigned long long arg3 = *(unsigned long long*)inArguments[3];
+unsigned long long& arg3 = *(unsigned long long*)inArguments[3];
 shaderc_include_result * result = instance->GetInclude(arg0, arg1, arg2, arg3);
 return (void*)result;
 });
@@ -9559,7 +9603,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMinImageCount", Refle
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanSwapChain* instance = static_cast<VulkanSwapChain*>(inInstance);
-const unsigned int arg0 = *(const unsigned int*)inArguments[0];
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
 const vk::ImageView & result = instance->GetImageView(arg0);
 return (void*)&result;
 });
@@ -9694,9 +9738,9 @@ World* instance = static_cast<World*>(inInstance);
 const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
 const glm::vec<3, float> & arg1 = *(const glm::vec<3, float>*)inArguments[1];
 RaycastHit & arg2 = *(RaycastHit*)inArguments[2];
-const float arg3 = *(const float*)inArguments[3];
-const unsigned int arg4 = *(const unsigned int*)inArguments[4];
-bool arg5 = *(bool*)inArguments[5];
+const float& arg3 = *(const float*)inArguments[3];
+const unsigned int& arg4 = *(const unsigned int*)inArguments[4];
+bool& arg5 = *(bool*)inArguments[5];
 static thread_local bool result = instance->Raycast(arg0, arg1, arg2, arg3, arg4, arg5);
 return (void*)&result;
 });
@@ -9716,9 +9760,9 @@ World* instance = static_cast<World*>(inInstance);
 const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
 const glm::vec<3, float> & arg1 = *(const glm::vec<3, float>*)inArguments[1];
 List<RaycastHit> & arg2 = *(List<RaycastHit>*)inArguments[2];
-const float arg3 = *(const float*)inArguments[3];
-const unsigned int arg4 = *(const unsigned int*)inArguments[4];
-bool arg5 = *(bool*)inArguments[5];
+const float& arg3 = *(const float*)inArguments[3];
+const unsigned int& arg4 = *(const unsigned int*)inArguments[4];
+bool& arg5 = *(bool*)inArguments[5];
 static thread_local bool result = instance->RaycastAll(arg0, arg1, arg2, arg3, arg4, arg5);
 return (void*)&result;
 });
@@ -9878,7 +9922,7 @@ Method& currentMethod = currentClass->AddMethod(Method("TickPhysics", Reflection
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 SpringArmComponent* instance = static_cast<SpringArmComponent*>(inInstance);
-const float arg0 = *(const float*)inArguments[0];
+const float& arg0 = *(const float*)inArguments[0];
 instance->SetLength(arg0);
 return nullptr;
 });
@@ -9890,7 +9934,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetLength", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 SpringArmComponent* instance = static_cast<SpringArmComponent*>(inInstance);
-const unsigned int arg0 = *(const unsigned int*)inArguments[0];
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
 instance->SetExclusionTags(arg0);
 return nullptr;
 });

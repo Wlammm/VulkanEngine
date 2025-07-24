@@ -17,6 +17,9 @@ void EditorWindow::DoTick()
 	else
 		ImGui::Begin(name.c_str());
 
+	if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		ImGui::SetWindowFocus();
+	
 	Tick();
 	
 	if (ImGui::IsWindowFocused())

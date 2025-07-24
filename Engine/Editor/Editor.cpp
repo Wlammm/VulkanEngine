@@ -31,7 +31,7 @@ Editor::Editor()
 
     EditorThemes::DefaultTheme();
 
-    Engine::SetWorld(new EditorWorld());
+    Engine::SetWorld(MakeShared<EditorWorld>());
 }
 
 Editor::~Editor()
@@ -111,22 +111,14 @@ void Editor::StartPIE()
 {
     myIsPIE = true;
 
-    World* currentWorld = Engine::GetWorld();
-    if (currentWorld != nullptr)
-        del(currentWorld);
-    
-    Engine::SetWorld(new GameWorld());
+    Engine::SetWorld(MakeShared<GameWorld>());
 }
 
 void Editor::StopPIE()
 {
     myIsPIE = false;
 
-    World* currentWorld = Engine::GetWorld();
-    if (currentWorld != nullptr)
-        del(currentWorld);
-    
-    Engine::SetWorld(new EditorWorld());
+    Engine::SetWorld(MakeShared<EditorWorld>());
 }
 
 void Editor::BeginMainDockSpace()

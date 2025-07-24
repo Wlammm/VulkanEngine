@@ -53,12 +53,12 @@ Engine::Engine(const EngineProperties inEngineProperties)
 
 	std::unique_ptr<int> somePtr;
 
-	myPostMaster = new EventHandler();
-	myThreadPool = new ThreadPool();
-	myFilewatcher = new Filewatcher();
-	myWindowHandler = new WindowHandler();
-	myVulkanContext = new VulkanContext();
-	myAssetRegistry = new AssetRegistry();
+	myPostMaster = MakeUnique<EventHandler>();
+	myThreadPool = MakeUnique<ThreadPool>();
+	myFilewatcher = MakeUnique<Filewatcher>();
+	myWindowHandler = MakeUnique<WindowHandler>();
+	myVulkanContext = MakeUnique<VulkanContext>();
+	myAssetRegistry = MakeUnique<AssetRegistry>();
 	mySystemManager = MakeUnique<SystemManager<System>>();
 	CreateSystems();
 
@@ -69,14 +69,14 @@ Engine::Engine(const EngineProperties inEngineProperties)
 
 Engine::~Engine()
 {
-	del(myWorld);
+	myWorld.reset();
 	mySystemManager.Reset();
-	del(myAssetRegistry);
-	del(myVulkanContext);
-	del(myWindowHandler);
-	del(myFilewatcher);
-	del(myThreadPool);
-	del(myPostMaster);
+	myAssetRegistry.Reset();
+	myVulkanContext.Reset();
+	myWindowHandler.Reset();
+	myFilewatcher.Reset();
+	myThreadPool.Reset();
+	myPostMaster.Reset();
 
 	PhysicsSystem::DestoryStaticObjects();
 
@@ -190,12 +190,17 @@ Filewatcher& Engine::GetFilewatcher()
 	return *myInstance->myFilewatcher;
 }
 
-World* Engine::GetWorld()
+SharedPtr<World> Engine::GetWorld()
 {
 	return myInstance->myWorld;
 }
 
-void Engine::SetWorld(World* inWorld)
+WeakPtr<World> Engine::GetWeakWorld()
+{
+	return myInstance->myWorld;
+}
+
+void Engine::SetWorld(SharedPtr<World> inWorld)
 {
 	myInstance->myWorld = inWorld;
 }

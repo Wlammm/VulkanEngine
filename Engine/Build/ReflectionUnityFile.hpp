@@ -44,6 +44,7 @@
 #include "../Engine/Core\Filewatcher.h"
 #include "../Engine/Core\Input.h"
 #include "../Engine/Core\Random.h"
+#include "../Engine/Core\SharedPtr.h"
 #include "../Engine/Core\ThreadPool.h"
 #include "../Engine/Core\Time.h"
 #include "../Engine/Core\UniqueID.h"

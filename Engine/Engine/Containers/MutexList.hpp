@@ -193,7 +193,7 @@ public:
 		return myList.end();
 	}
 
-	// Manually lock the list until unlock is called. Use this to not have to aquire a lock for every operation.
+	// Manually lock the list until unlock is called. Use this to not have to acquire a lock for every operation.
 	// Once locked list is only accessible for the thread that locked it
 	void Lock()
 	{

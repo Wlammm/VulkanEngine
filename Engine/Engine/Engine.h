@@ -4,6 +4,7 @@
 #include "Engine/EngineProperties.hpp"
 #include "System/SystemManager.hpp"
 
+class World;
 class ReflectionSystem;
 
 
@@ -38,8 +39,9 @@ public:
 	static class ThreadPool& GetThreadPool();
 	static class Filewatcher& GetFilewatcher();
 
-	static class World* GetWorld();
-	static void SetWorld(World* inWorld);
+	static SharedPtr<World> GetWorld();
+	static WeakPtr<World> GetWeakWorld();
+	static void SetWorld(SharedPtr<World> inWorld);
 
 	template<typename SystemType>
 	static SystemType& GetEngineSystem()
@@ -69,16 +71,16 @@ private:
 	EngineProperties myEngineProperties;
 
 	UniquePtr<SystemManager<System>> mySystemManager;
-	class EventHandler* myPostMaster = nullptr;
-	class ThreadPool* myThreadPool = nullptr;
-	class Filewatcher* myFilewatcher = nullptr;
-	class WindowHandler* myWindowHandler = nullptr;
-	class VulkanContext* myVulkanContext = nullptr;
+	UniquePtr<EventHandler> myPostMaster = nullptr;
+	UniquePtr<ThreadPool> myThreadPool = nullptr;
+	UniquePtr<Filewatcher> myFilewatcher = nullptr;
+	UniquePtr<WindowHandler> myWindowHandler = nullptr;
+	UniquePtr<class VulkanContext> myVulkanContext = nullptr;
 
 	// This asset registry holds engine related data. If you need a game resource, use the worlds asset registry instead.
-	class AssetRegistry* myAssetRegistry = nullptr;
+	UniquePtr<AssetRegistry> myAssetRegistry = nullptr;
 
-	class World* myWorld = nullptr;
+	SharedPtr<World> myWorld = nullptr;
 
 	std::function<void()> myExternalTickFunction = nullptr;
 

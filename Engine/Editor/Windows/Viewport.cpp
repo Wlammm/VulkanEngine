@@ -110,7 +110,7 @@ void Viewport::UpdateCaptureMouse()
 
 	if (myEditorCamera == nullptr)
 	{
-		World* world = Engine::GetWorld();
+		SharedPtr<World> world = Engine::GetWorld();
 		ComponentSystem& componentSystem = world->GetComponentSystem();
 
 		if (!(myEditorCamera = componentSystem.GetAnyComponentOfType<EditorCameraMovementComponent>()))

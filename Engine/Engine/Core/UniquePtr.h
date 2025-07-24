@@ -2,7 +2,7 @@
 #include "Engine/Delegates/Delegate.hpp"
 
 
-template <typename PtrType>
+template <typename Type>
 class UniquePtr
 {
 public:
@@ -15,10 +15,23 @@ public:
         Reset();
     }
 
+    UniquePtr(nullptr_t)
+    {
+        Reset();
+    }
+
+    template<typename OtherType>
+    UniquePtr(UniquePtr<OtherType>&& inOther, typename std::enable_if<std::is_convertible<OtherType*, Type*>::value>::type* = nullptr)
+        : myObject(inOther.myObject), myDeleter(std::move(inOther.myDeleter))
+    {
+        inOther.Release();
+    }
+    
     UniquePtr(UniquePtr&& inOther)
     {
         myObject = inOther.myObject;
         myDeleter = inOther.myDeleter;
+        inOther.Release();
     }
 
     UniquePtr& operator=(UniquePtr&& inOther)
@@ -38,10 +51,15 @@ public:
         return *this;
     }
 
+    Type& operator*() const
+    {
+        return *myObject;
+    }
+
     UniquePtr(const UniquePtr& inOther) = delete;
     UniquePtr& operator=(const UniquePtr& inOther) = delete;
 
-    PtrType* Get() const
+    Type* Get() const
     {
         return myObject;
     }
@@ -65,18 +83,20 @@ public:
         return myObject != nullptr;
     }
 
-    PtrType* operator->() const
+    Type* operator->() const
     {
         return Get();
     }
-
 
     template<typename PtrType, typename... Args>
     friend UniquePtr<PtrType> MakeUnique(Args&&... inArgs);
     
 private:
-    PtrType* myObject = nullptr;
-    Delegate<void(PtrType* inPtr)> myDeleter = nullptr;
+    template<typename OtherType>
+    friend class UniquePtr;
+    
+    Type* myObject = nullptr;
+    Delegate<void(void* inPtr)> myDeleter = nullptr;
 };
 
 template<typename PtrType, typename... Args>
@@ -84,10 +104,11 @@ UniquePtr<PtrType> MakeUnique(Args&&... inArgs)
 {
     PtrType* object = new PtrType(std::forward<Args>(inArgs)...);
 
-    Delegate<void(PtrType*)> deleter = [](PtrType* inPtr)
+    Delegate<void(void*)> deleter = [](void* inPtr)
     {
-        inPtr->~PtrType();
-        ::operator delete(inPtr);
+        PtrType* object = static_cast<PtrType*>(inPtr);
+        object->~PtrType();
+        ::operator delete(object);
     };
 
     UniquePtr<PtrType> ptr;

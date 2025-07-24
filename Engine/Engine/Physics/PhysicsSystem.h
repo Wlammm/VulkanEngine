@@ -59,7 +59,7 @@ private:
     inline static physx::PxPvd* myPvd = nullptr;
     inline static physx::PxPvdTransport* myPvdTransport = nullptr;
     physx::PxMaterial* myDefaultMaterial = nullptr;
-    inline static PhysicsListener* myListener;
+    PhysicsListener* myListener;
 
     // It is not allowed to add, remove, or modify objects while the simulation is running. Use QueuePhysicsCommand if you want to make changes to these objects.
     physx::PxPhysics* myPhysics = nullptr;

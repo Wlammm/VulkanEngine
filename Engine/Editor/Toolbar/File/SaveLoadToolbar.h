@@ -15,9 +15,7 @@ public:
     META(EditorMenuItem("File/Load"))    
     static void Load()
     {
-        World* currentWorld = Engine::GetWorld();
-        Engine::SetWorld(new EditorWorld());
-        del(currentWorld);
+        Engine::SetWorld(MakeShared<EditorWorld>());
 
         Engine::GetWorld()->LoadFromFile("Worlds/WorldSave.world");
     }

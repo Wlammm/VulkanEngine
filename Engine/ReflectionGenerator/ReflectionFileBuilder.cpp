@@ -103,8 +103,10 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
                     const ReflectedMethodArgument& arg = method.GetArguments()[i];
                     if (arg.GetIsPointer())
                         outString += arg.GetArgumentType() + " arg" + std::to_string(i) + " = (" + arg.GetUnqualifiedTypeName() + "*)inArguments[" + std::to_string(i) + "];\n";
-                    else
+                    else if (arg.GetIsReference())
                         outString += arg.GetArgumentType() + " arg" + std::to_string(i) + " = *(" + arg.GetUnqualifiedTypeName() + "*)inArguments[" + std::to_string(i) + "];\n";
+                    else
+                        outString += arg.GetArgumentType() + "& arg" + std::to_string(i) + " = *(" + arg.GetUnqualifiedTypeName() + "*)inArguments[" + std::to_string(i) + "];\n";
                     
                     if (argList.empty())
                         argList += "arg" + std::to_string(i);
