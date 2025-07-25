@@ -57,5 +57,6 @@ public:
 
 private:
     friend GameObject;
+    META(SerializeField)
     GameObject myGameObject;
 };

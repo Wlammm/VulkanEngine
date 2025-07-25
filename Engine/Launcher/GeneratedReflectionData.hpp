@@ -278,7 +278,7 @@ ReflectionSystem::AddType<List<Filewatcher::CallbackHandle>>("List<Filewatcher::
 ReflectionSystem::AddType<List<std::function<void ()>>>("List<std::function<void ()>>", typeid(List<std::function<void ()>>).name());
 ReflectionSystem::AddType<List<unsigned char>>("List<unsigned char>", typeid(List<unsigned char>).name());
 ReflectionSystem::AddType<List<UniqueID>>("List<UniqueID>", typeid(List<UniqueID>).name());
-ReflectionSystem::AddType<List<IComponentArray *>>("List<IComponentArray *>", typeid(List<IComponentArray *>).name());
+ReflectionSystem::AddType<List<UniquePtr<IComponentArray>>>("List<UniquePtr<IComponentArray>>", typeid(List<UniquePtr<IComponentArray>>).name());
 ReflectionSystem::AddType<List<Material *>>("List<Material *>", typeid(List<Material *>).name());
 ReflectionSystem::AddType<List<TransformComponent *>>("List<TransformComponent *>", typeid(List<TransformComponent *>).name());
 ReflectionSystem::AddType<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>("List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>", typeid(List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>).name());
@@ -2701,6 +2701,7 @@ currentMethod.AddMetadata(R"delim(AllowPrivateAccess)delim");
 	Type* currentClass = ReflectionSystem::GetMutableType<Component>();
 	{
 		Field& currentField = currentClass->AddField(Field("myGameObject", 8, ReflectionSystem::GetOrCreateType<GameObject>("GameObject"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -3032,7 +3033,7 @@ Method& currentMethod = currentClass->AddMethod(Method("LogError", ReflectionSys
 		Field& currentField = currentClass->AddField(Field("myObjectsToDestory", 40, ReflectionSystem::GetOrCreateType<List<UniqueID>>("List<UniqueID>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myComponentArrays", 64, ReflectionSystem::GetOrCreateType<List<IComponentArray *>>("List<IComponentArray *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myComponentArrays", 64, ReflectionSystem::GetOrCreateType<List<UniquePtr<IComponentArray>>>("List<UniquePtr<IComponentArray>>"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<WorldSystem>());
@@ -3188,11 +3189,11 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAllGameObjects", Refl
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ComponentSystem* instance = static_cast<ComponentSystem*>(inInstance);
-const List<IComponentArray *> & result = instance->GetAllComponentArrays();
+const List<UniquePtr<IComponentArray>> & result = instance->GetAllComponentArrays();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAllComponentArrays", ReflectionSystem::GetOrCreateType<const List<IComponentArray *> &>("const List<IComponentArray *> &"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetAllComponentArrays", ReflectionSystem::GetOrCreateType<const List<UniquePtr<IComponentArray>> &>("const List<UniquePtr<IComponentArray>> &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -4950,9 +4951,9 @@ Method& currentMethod = currentClass->AddMethod(Method("SetDepthWriteEnabled", R
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<UniqueID>("UniqueID"), false, false);
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<IComponentArray *>>();
+	Type* currentClass = ReflectionSystem::GetMutableType<List<UniquePtr<IComponentArray>>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IComponentArray>("IComponentArray"), true, false);
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<UniquePtr<IComponentArray>>("UniquePtr<IComponentArray>"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<Material *>>();

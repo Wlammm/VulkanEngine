@@ -58,17 +58,16 @@ public:
     ComponentArray<ComponentType>& GetComponentArrayForType() const
     {
         // TODO: Can this be constant look up time? Not sure its even worth spending time on.
-        for(IComponentArray* array : myComponentArrays)
+        for(const UniquePtr<IComponentArray>& array : myComponentArrays)
         {
-            if(ComponentArray<ComponentType>* castedArray = dynamic_cast<ComponentArray<ComponentType>*>(array))
+            if(ComponentArray<ComponentType>* castedArray = dynamic_cast<ComponentArray<ComponentType>*>(array.Get()))
             {
                 return *castedArray;
             }
         }
 
-        ComponentArray<ComponentType>* newArray = new ComponentArray<ComponentType>();
-        myComponentArrays.Add(newArray);
-        return *newArray;
+        myComponentArrays.Add(MakeUnique<ComponentArray<ComponentType>>());
+        return *static_cast<ComponentArray<ComponentType>*>(myComponentArrays.Last().Get());
     }
     
     template<typename ComponentType>
@@ -84,7 +83,7 @@ public:
         return GetComponentArrayForType<ComponentType>().GetAllComponents();
     }
 
-    const List<IComponentArray*>& GetAllComponentArrays() const;
+    const List<UniquePtr<IComponentArray>>& GetAllComponentArrays() const;
 
     static GameObjectData& GetGameObjectData(const GameObject& inGameObject);
 
@@ -102,5 +101,5 @@ private:
     inline static std::unordered_map<GameObjectID, GameObjectData> myGameObjectData{};
 
     META(SerializeField)
-    mutable List<IComponentArray*> myComponentArrays;
+    mutable List<UniquePtr<IComponentArray>> myComponentArrays;
 };

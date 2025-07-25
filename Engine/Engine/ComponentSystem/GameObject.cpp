@@ -57,7 +57,7 @@ List<Component*> GameObject::GetComponents() const
 {
     List<Component*> components;
 
-    for(IComponentArray* array : GetComponentSystem()->GetAllComponentArrays())
+    for(const UniquePtr<IComponentArray>& array : GetComponentSystem()->GetAllComponentArrays())
     {
         if(Component* comp = array->TryGetComponentForGameObject(*this))
             components.Add(comp);

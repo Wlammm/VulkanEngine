@@ -5,17 +5,13 @@
 
 ComponentSystem::~ComponentSystem()
 {
-    for (IComponentArray* array : myComponentArrays)
-    {
-        del(array);
-    }
     myComponentArrays.Clear();
 }
 
 void ComponentSystem::Tick()
 {
     ZoneScoped;
-    for(IComponentArray* array : myComponentArrays)
+    for(const UniquePtr<IComponentArray>& array : myComponentArrays)
     {
         array->Tick();
     }
@@ -27,7 +23,7 @@ void ComponentSystem::EditorTick()
 {
     WorldSystem::EditorTick();
 
-    for (IComponentArray* array : myComponentArrays)
+    for (const UniquePtr<IComponentArray>& array : myComponentArrays)
     {
         array->EditorTick();
     }
@@ -38,7 +34,7 @@ void ComponentSystem::EditorTick()
 void ComponentSystem::TickPhysics()
 {
     ZoneScoped;
-    for(IComponentArray* array : myComponentArrays)
+    for(const UniquePtr<IComponentArray>& array : myComponentArrays)
     {
         array->TickPhysics();
     }
@@ -46,7 +42,7 @@ void ComponentSystem::TickPhysics()
 
 void ComponentSystem::OnCollisionEnterForGameObject(const GameObject& inObject, const GameObject& inOther)
 {
-    for(IComponentArray* array : myComponentArrays)
+    for(const UniquePtr<IComponentArray>& array : myComponentArrays)
     {
         array->OnCollisionEnterForGameObject(inObject, inOther);
     }
@@ -54,7 +50,7 @@ void ComponentSystem::OnCollisionEnterForGameObject(const GameObject& inObject, 
 
 void ComponentSystem::OnCollisionForGameObject(const GameObject& inObject, const GameObject& inOther)
 {
-    for(IComponentArray* array : myComponentArrays)
+    for(const UniquePtr<IComponentArray>& array : myComponentArrays)
     {
         array->OnCollisionForGameObject(inObject, inOther);
     }
@@ -62,7 +58,7 @@ void ComponentSystem::OnCollisionForGameObject(const GameObject& inObject, const
 
 void ComponentSystem::OnCollisionExitForGameObject(const GameObject& inObject, const GameObject& inOther)
 {
-    for(IComponentArray* array : myComponentArrays)
+    for(const UniquePtr<IComponentArray>& array : myComponentArrays)
     {
         array->OnCollisionExitForGameObject(inObject, inOther);
     }
@@ -70,7 +66,7 @@ void ComponentSystem::OnCollisionExitForGameObject(const GameObject& inObject, c
 
 void ComponentSystem::OnTriggerEnterForGameObject(const GameObject& inObject, const GameObject& inOther)
 {
-    for(IComponentArray* array : myComponentArrays)
+    for(const UniquePtr<IComponentArray>& array : myComponentArrays)
     {
         array->OnTriggerEnterForGameObject(inObject, inOther);
     }
@@ -78,7 +74,7 @@ void ComponentSystem::OnTriggerEnterForGameObject(const GameObject& inObject, co
 
 void ComponentSystem::OnTriggerForGameObject(const GameObject& inObject, const GameObject& inOther)
 {
-    for(IComponentArray* array : myComponentArrays)
+    for(const UniquePtr<IComponentArray>& array : myComponentArrays)
     {
         array->OnTriggerForGameObject(inObject, inOther);
     }
@@ -86,7 +82,7 @@ void ComponentSystem::OnTriggerForGameObject(const GameObject& inObject, const G
 
 void ComponentSystem::OnTriggerExitForGameObject(const GameObject& inObject, const GameObject& inOther)
 {
-    for(IComponentArray* array : myComponentArrays)
+    for(const UniquePtr<IComponentArray>& array : myComponentArrays)
     {
         array->OnTriggerExitForGameObject(inObject, inOther);
     }
@@ -115,7 +111,7 @@ const List<GameObjectID>& ComponentSystem::GetAllGameObjects() const
     return myObjects;
 }
 
-const List<IComponentArray*>& ComponentSystem::GetAllComponentArrays() const
+const List<UniquePtr<IComponentArray>>& ComponentSystem::GetAllComponentArrays() const
 {
     return myComponentArrays;
 }
@@ -138,8 +134,8 @@ void ComponentSystem::TickObjectDeletes()
             comp->OnDestroy();
         }
     
-        const List<IComponentArray*>& arrays = gameObject.GetComponentSystem()->GetAllComponentArrays();
-        for(IComponentArray* array : arrays)
+        const List<UniquePtr<IComponentArray>>& arrays = gameObject.GetComponentSystem()->GetAllComponentArrays();
+        for(const UniquePtr<IComponentArray>& array : arrays)
         {
             array->TryRemoveComponentForGameObject(gameObject);
         }
