@@ -1,7 +1,8 @@
 ﻿#pragma once
-#include "GameObject.h"
 
+class World;
 class TransformComponent;
+class Actor;
 
 class Component
 {
@@ -11,14 +12,6 @@ public:
 
     virtual void OnCreate() {}
     virtual void OnDestroy() {}
-
-    virtual void OnTriggerEnter(const GameObject& inOther) {}
-    virtual void OnTrigger(const GameObject& inOther) {}
-    virtual void OnTriggerExit(const GameObject& inOther) {}
-    
-    virtual void OnCollisionEnter(const GameObject& inOther) {}
-    virtual void OnCollision(const GameObject& inOther) {}
-    virtual void OnCollisionExit(const GameObject& inOther) {}
 
     virtual void EditorTick() {}
     
@@ -34,29 +27,27 @@ public:
     // Callback when render state is marked dirty on the gameobject. Needs to have DoesComponentImplementOnRenderStateDirty() implemeneted and return true for this to take effect.
     virtual void OnRenderStateDirty() {}
 
-    const GameObject& GetGameObject() const;
+    virtual void OnTriggerEnter(Actor* inOther) {}
+    virtual void OnTrigger(Actor* inOther) {}
+    virtual void OnTriggerExit(Actor* inOther) {}
 
-    TransformComponent* GetTransform() const;
-
-    template<typename ComponentType>
-    bool IsA()
+    virtual void OnCollisionEnter(Actor* inOther) {}
+    virtual void OnCollision(Actor* inOther) {}
+    virtual void OnCollisionExit(Actor* inOther) {}
+    
+    
+    template<typename T>
+    bool IsA() const
     {
-        static_assert(std::is_base_of<Component, ComponentType>::value && "ComponentType must derive from Component");
-        
-        // TODO: Replace this with faster check whenever we have the posibility for this.
-        return dynamic_cast<ComponentType*>(this) != nullptr;
+        return dynamic_cast<const T*>(this) != nullptr;        
     }
     
-    template<typename ComponentType>
-    ComponentType* GetComponent() const
-    {
-        return myGameObject.GetComponent<ComponentType>();
-    }
+    TransformComponent& GetTransform() const;
 
+    Actor* GetActor() const;
     World* GetWorld() const;
 
 private:
-    friend GameObject;
-    META(SerializeField)
-    GameObject myGameObject;
+    friend class Actor;
+    Actor* myActor = nullptr;
 };

@@ -11,12 +11,12 @@ public:
     void TickPhysics() override;
 
 private:
-    META(ExposeToEditor)
+    META(SerializeField)
     float mySpeed = 5;
     
-    META(ExposeToEditor)
+    META(SerializeField)
     float mySprintSpeed = 10;
     
-    META(ExposeToEditor)
+    META(SerializeField)
     float myJumpForce = 500;
 };

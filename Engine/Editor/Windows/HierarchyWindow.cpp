@@ -3,8 +3,9 @@
 
 #include "Editor/EditorSystem/SelectionSystem.h"
 #include "Engine/Engine.h"
-#include "Engine/ComponentSystem/GameObject.h"
+#include "Engine/ComponentSystem/Actor.h"
 #include "Engine/Core/Input.h"
+#include "Engine/Reflection/ReflectionSystem.h"
 #include "Engine/Utils/String.hpp"
 #include "Engine/World/World.h"
 
@@ -24,25 +25,34 @@ void HierarchyWindow::Tick()
     
     const std::string lowerCaseSearch = String::ToLowerCopy(searchField);
 
-    for (int objectIndex = 0; objectIndex < Engine::GetWorld()->GetComponentSystem().GetAllGameObjects().size(); ++objectIndex)
+    for (int objectIndex = 0; objectIndex < Engine::GetWorld()->GetAllActors().size(); ++objectIndex)
     {
-        const GameObject& gameObject = Engine::GetWorld()->GetComponentSystem().GetAllGameObjects()[objectIndex];
+        Actor* actor = Engine::GetWorld()->GetAllActors()[objectIndex].Get();
 
-        const std::string lowerCaseGameObjectName = String::ToLowerCopy(gameObject.GetName());
-        if (lowerCaseSearch != "" && lowerCaseGameObjectName.find(lowerCaseSearch) == std::string::npos)
+        const std::string lowerCaseActorName = String::ToLowerCopy(actor->GetName());
+        if (lowerCaseSearch != "" && lowerCaseActorName.find(lowerCaseSearch) == std::string::npos)
             continue;
         
-        std::string nameID = gameObject.GetName() + "##" + std::to_string(objectIndex);
-        if (ImGui::Selectable(nameID.c_str(), SelectionSystem::IsObjectSelected(gameObject), ImGuiSelectableFlags_AllowDoubleClick))
+        std::string nameID = actor->GetName() + "##" + std::to_string(objectIndex);
+        if (ImGui::Selectable(nameID.c_str(), SelectionSystem::IsObjectSelected(actor), ImGuiSelectableFlags_AllowDoubleClick))
         {
             if (!Input::IsKeyPressed(KeyCode::LeftControl))
                 SelectionSystem::ClearSelection();
 
-            if (SelectionSystem::IsObjectSelected(gameObject))
-                SelectionSystem::DeselectObject(gameObject);
+            if (SelectionSystem::IsObjectSelected(actor))
+                SelectionSystem::DeselectObject(actor);
             else
-                SelectionSystem::SelectObject(gameObject);
+                SelectionSystem::SelectObject(actor);
         }
+
+        const Type* objectType = ReflectionSystem::GetType(actor);
+
+        ImGui::SameLine();
+        float rightAlignmentPos = ImGui::GetWindowSize().x - ImGui::CalcTextSize(objectType->GetName().c_str()).x - 25; 
+        ImGui::SetCursorPosX(rightAlignmentPos);
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(150, 150, 150, 255));
+        ImGui::TextUnformatted(objectType->GetName().c_str());
+        ImGui::PopStyleColor();
     }
 }
 
@@ -50,9 +60,9 @@ void HierarchyWindow::TickInput()
 {
     if (Input::IsKeyDown(KeyCode::Delete))
     {
-        for (GameObject& object : SelectionSystem::GetSelectedObjects())
+        for (Actor* object : SelectionSystem::GetSelectedObjects())
         {
-            object.Destroy();
+            object->Destroy();
         }
         SelectionSystem::ClearSelection();
     }

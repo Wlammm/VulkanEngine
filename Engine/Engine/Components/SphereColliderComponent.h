@@ -12,6 +12,6 @@ private:
     void OnScaleChanged() override;
     
 private:
-    META(ExposeToEditor)
+    META(SerializeField)
     float myRadius = 50;
 };

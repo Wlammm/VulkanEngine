@@ -7,7 +7,6 @@
 #include "Engine/Assets/Material.h"
 #include "Engine/Assets/Texture.h"
 #include "Engine/Components/StaticMeshComponent.h"
-#include "Engine/ComponentSystem/ComponentSystem.h"
 #include "Engine/Rendering/Mesh.h"
 #include "Engine/World/World.h"
 

@@ -104,6 +104,7 @@ void StaticMeshComponent::SetMaterialAsync(const std::filesystem::path& inMateri
 
 void StaticMeshComponent::SetMaterial(Material* inMaterial, const uint inIndex)
 {
+    // TODO: This might in some rare occations happen before the mesh has loaded. We should probably add checks for that.
     myMaterials[inIndex] = inMaterial;
     MarkRenderStateDirty();
 }
@@ -152,7 +153,7 @@ void StaticMeshComponent::OnRenderStateDirty()
     {
         const Mesh* mesh = myModel->GetMeshes()[meshIndex];
         
-        MeshInstanceData data{ .myToWorld=GetTransform()->GetMatrix(), .myMeshIndex=mesh->GetHandle(), .myDepthWriteEnabled=myShouldWriteDepth };
+        MeshInstanceData data{ .myToWorld=GetTransform().GetMatrix(), .myMeshIndex=mesh->GetHandle(), .myDepthWriteEnabled=myShouldWriteDepth };
 
         check(myMaterials.IsValidIndex(meshIndex));
         if(myMaterials[meshIndex] && myMaterials[meshIndex]->IsValid())

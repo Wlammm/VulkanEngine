@@ -5,6 +5,7 @@
 
 #include "Engine/Delegates/MulticastDelegate.hpp"
 
+class Actor;
 class GameObject;
 
 class PhysicsListener : public physx::PxSimulationEventCallback, public physx::PxUserControllerHitReport, public physx::PxControllerBehaviorCallback, public physx::PxControllerFilterCallback 
@@ -46,8 +47,8 @@ private:
                     inOther.mySecond == myFirst && inOther.myFirst == mySecond;
         }
         
-        GameObject* myFirst = nullptr;
-        GameObject* mySecond = nullptr;
+        Actor* myFirst = nullptr;
+        Actor* mySecond = nullptr;
     };
 
     MulticastDelegate<void()> myDequeueCollisionsDelegate;

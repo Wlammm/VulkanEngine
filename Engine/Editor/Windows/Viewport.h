@@ -1,6 +1,7 @@
 #pragma once
 #include "EditorWindow.h"
 
+class StaticMeshActor;
 class GameObject;
 class EditorCameraMovementComponent;
 
@@ -16,7 +17,7 @@ public:
 	glm::vec2 GetNormalizedMousePositionInViewport() const;
 
 private:
-	//void OnSwapchainResized();
+	void TickEditorCamera();
 
 private:
 	//void DestroyDescriptorSet();
@@ -38,10 +39,8 @@ private:
 	void RemovePreviewMesh();
 	
 private:
-	GameObject* myPreviewObject = nullptr;
+	StaticMeshActor* myPreviewActor = nullptr;
 	
-	EditorCameraMovementComponent* myEditorCamera = nullptr;
-
 	vk::DescriptorSet myPlayButtonTexture;
 	vk::DescriptorSet myStopButtonTexture;
 

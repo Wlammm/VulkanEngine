@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "Engine/World/World.h"
 
+class EditorCameraActor;
+
 class EditorWorld : public World
 {
 public:
@@ -9,4 +11,9 @@ public:
     void Tick() override;
 
     bool myShouldTickComponents = false;
+
+    EditorCameraActor* GetEditorCamera() const;
+    
+private:
+    EditorCameraActor* myEditorCamera = nullptr;
 };

@@ -6,7 +6,7 @@
 
 EditorToolbar::EditorToolbar()
 {
-    for (const Type* entry : ReflectionSystem::GetAllClasses())
+    for (const Type* entry : ReflectionSystem::GetAllTypes())
     {
         for (const Method* method : entry->GetMethodsWithMetadata("EditorMenuItem"))
         {

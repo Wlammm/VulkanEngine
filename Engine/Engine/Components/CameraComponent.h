@@ -24,11 +24,11 @@ private:
 	glm::vec2 myResolution;
 	glm::mat4 myProjection;
 
-	META(ExposeToEditor)
+	META(SerializeField)
 	float myFov = 90.0f;
-	META(ExposeToEditor)
+	META(SerializeField)
 	float myNearPlane = 1.0f;
-	META(ExposeToEditor)
+	META(SerializeField)
 	float myFarPlane = 100000.0f;
 
 	bool myIsOrthographic = false;

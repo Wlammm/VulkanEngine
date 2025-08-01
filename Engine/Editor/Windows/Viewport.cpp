@@ -1,6 +1,7 @@
 #include "EditorPch.h"
 #include "Viewport.h"
 
+#include "Actors/EditorCameraActor.h"
 #include "EditorSystem/SelectionSystem.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanSwapChain.h"
@@ -10,13 +11,16 @@
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Rendering/RenderSystem.h"
 #include "Engine/World/World.h"
-#include "Engine/ComponentSystem/ComponentSystem.h"
 #include "Engine/Components/EditorCameraMovementComponent.h"
 #include "Engine/Components/StaticMeshComponent.h"
 #include "Engine/Components/TransformComponent.h"
+#include "Engine/ComponentSystem/Actors/StaticMeshActor.h"
 #include "Engine/Core/Input.h"
 #include "Engine/Utils/Debug.h"
 #include "Utils/ImGuiTextureUtils.h"
+#include "World/EditorWorld.h"
+
+class EditorWorld;
 
 Viewport::Viewport()
 	: EditorWindow("Viewport", true)
@@ -60,9 +64,10 @@ void Viewport::TickInput()
 	EditorWindow::TickInput();
 	UpdateCaptureMouse();
 	CameraComponent* cameraComp = Engine::GetWorld()->GetMainCamera();
-	EditorCameraMovementComponent* cameraMovComp = cameraComp->GetComponent<EditorCameraMovementComponent>();
-	if (cameraMovComp)
-		cameraMovComp->ViewportTick();
+
+
+	
+	TickEditorCamera();
 }
 
 vk::DescriptorSet Viewport::GetCurrentDescriptorSet()
@@ -108,37 +113,33 @@ void Viewport::UpdateCaptureMouse()
 	if (!isMovingMouse)
 		return;
 
-	if (myEditorCamera == nullptr)
-	{
-		SharedPtr<World> world = Engine::GetWorld();
-		ComponentSystem& componentSystem = world->GetComponentSystem();
-
-		if (!(myEditorCamera = componentSystem.GetAnyComponentOfType<EditorCameraMovementComponent>()))
-			return;
-	}
-
+	EditorWorld* world = dynamic_cast<EditorWorld*>(Engine::GetWorld().get());
+	if (!world)
+		return;
+	EditorCameraMovementComponent& editorCameraMovementComponent = world->GetEditorCamera()->GetMovementComponent();
+	
 	ImVec2 mousePosition = ImGui::GetIO().MousePos;
 
 	if (mousePosition.x > myP1.x - 5.0f)
 	{
 		SetCursorPos(static_cast<int>(myP0.x + 10.0f), static_cast<int>(mousePosition.y));
-		myEditorCamera->ResetMouseDelta();
+		editorCameraMovementComponent.ResetMouseDelta();
 	}
 	else if (mousePosition.x < myP0.x + 5.0f)
 	{
 		SetCursorPos(static_cast<int>(myP1.x - 10.0f), static_cast<int>(mousePosition.y));
-		myEditorCamera->ResetMouseDelta();
+		editorCameraMovementComponent.ResetMouseDelta();
 	}
 
 	if (mousePosition.y > myP1.y - 5.0f)
 	{
 		SetCursorPos(static_cast<int>(mousePosition.x), static_cast<int>(myP0.y + 10.0f + 18.0f * 2.0f));
-		myEditorCamera->ResetMouseDelta();
+		editorCameraMovementComponent.ResetMouseDelta();
 	}
 	else if (mousePosition.y < myP0.y + 5.0f)
 	{
 		SetCursorPos(static_cast<int>(mousePosition.x), static_cast<int>(myP1.y - 10.0f));
-		myEditorCamera->ResetMouseDelta();
+		editorCameraMovementComponent.ResetMouseDelta();
 	}
 }
 
@@ -211,18 +212,17 @@ void Viewport::HandleDragDrop()
 
 		if (ImGui::AcceptDragDropPayload(".fbx") || ImGui::AcceptDragDropPayload(".gltf"))
 		{
-			GameObject object = Engine::GetWorld()->GetComponentSystem().CreateGameObject(path.filename().string());
-			object.AddComponent<StaticMeshComponent>(path);
-			object.GetTransform()->SetPosition(myPreviewObject->GetTransform()->GetPosition());
+			StaticMeshActor* actor = Engine::GetWorld()->SpawnActor<StaticMeshActor>(path.filename().string(), path);
+			actor->GetTransform().SetPosition(myPreviewActor->GetTransform().GetPosition());
 			SelectionSystem::ClearSelection();
-			SelectionSystem::SelectObject(object);
+			SelectionSystem::SelectObject(actor);
 		}
 		else
 		{
 			if (payload->IsDataType(".fbx") || payload->IsDataType(".gltf"))
 			{
 				isPreviewingMeshThisFrame = true;
-				if (myPreviewObject == nullptr)
+				if (myPreviewActor == nullptr)
 				{
 					SpawnPreviewMesh(path);
 				}
@@ -233,7 +233,7 @@ void Viewport::HandleDragDrop()
 		ImGui::EndDragDropTarget();
 	}
 
-	if (!isPreviewingMeshThisFrame && myPreviewObject != nullptr)
+	if (!isPreviewingMeshThisFrame && myPreviewActor != nullptr)
 	{
 		RemovePreviewMesh();
 	}
@@ -263,9 +263,8 @@ ImVec2 Viewport::ClampToAspectRatio(const ImVec2& inSize, const ImVec2& inAspect
 
 void Viewport::SpawnPreviewMesh(const std::filesystem::path& inMeshPath)
 {
-	myPreviewObject = new GameObject(Engine::GetWorld()->GetComponentSystem().CreateGameObject(inMeshPath.filename().string()));
-	StaticMeshComponent* mesh = myPreviewObject->AddComponent<StaticMeshComponent>(inMeshPath);
-	mesh->SetDepthWriteEnabled(false);
+	myPreviewActor = Engine::GetWorld()->SpawnActor<StaticMeshActor>(inMeshPath.filename().string(), inMeshPath);
+	myPreviewActor->GetStaticMeshComponent().SetDepthWriteEnabled(false);
 }
 
 glm::vec2 Viewport::GetNormalizedMousePositionInViewport() const
@@ -283,9 +282,19 @@ glm::vec2 Viewport::GetNormalizedMousePositionInViewport() const
 	return mousePos;
 }
 
+void Viewport::TickEditorCamera()
+{
+	EditorWorld* world = dynamic_cast<EditorWorld*>(Engine::GetWorld().get());
+	if (!world)
+		return;
+	
+	EditorCameraMovementComponent& editorCameraMovementComponent = world->GetEditorCamera()->GetMovementComponent();
+	editorCameraMovementComponent.ViewportTick();
+}
+
 void Viewport::UpdatePreviewMesh()
 {
-	if (!myPreviewObject)
+	if (!myPreviewActor)
 		return;
 	
 	CameraComponent* mainCamera = Engine::GetWorld()->GetMainCamera();
@@ -301,11 +310,10 @@ void Viewport::UpdatePreviewMesh()
 		worldPos = mainCamera->ScreenToNearPlane(normalizedScreenPos) + directionToObject * 5000.0f;
 	}
 
-	myPreviewObject->GetTransform()->SetPosition(worldPos); 
+	myPreviewActor->GetTransform().SetPosition(worldPos); 
 }
 
 void Viewport::RemovePreviewMesh()
 {
-	myPreviewObject->Destroy();
-	del(myPreviewObject);
+	myPreviewActor->Destroy();
 }

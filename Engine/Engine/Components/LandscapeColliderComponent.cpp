@@ -9,26 +9,19 @@
 
 #include "LandscapeRenderComponent.h"
 #include "TransformComponent.h"
+#include "Engine/ComponentSystem/Actor.h"
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Utils/Debug.h"
 #include "Engine/World/World.h"
 
 LandscapeColliderComponent::~LandscapeColliderComponent()
 {
-    if (myHasBoundDelegate)
-        GetGameObject().GetOnComponentAdded().UnBind(&LandscapeColliderComponent::OnComponentAdded, this);
+    // if (myHasBoundDelegate)
+        // GetActor().GetOnComponentAdded().UnBind(&LandscapeColliderComponent::OnComponentAdded, this);
 }
 
 void LandscapeColliderComponent::OnCreate()
 {
-    LandscapeRenderComponent* renderComponent = GetComponent<LandscapeRenderComponent>();
-    if(!renderComponent)
-    {
-        myHasBoundDelegate = true;
-        GetGameObject().GetOnComponentAdded().Bind(&LandscapeColliderComponent::OnComponentAdded, this);
-        return;
-    }
-
     CreateCollider();
 }
 
@@ -51,13 +44,13 @@ void LandscapeColliderComponent::CreateCollider()
         ZoneScopedN("LandscapeColliderComponent::CreateCollider - Cook landscape collider");
         constexpr int chunkSize = LandscapeRenderComponent::chunkSize * 5;
         
-        const glm::vec3 scale = GetTransform()->GetScale();
+        const glm::vec3 scale = GetTransform().GetScale();
         
         // Create heightfield collider here.
         List<physx::PxHeightFieldSample> samples{};
         samples.Resize(chunkSize * chunkSize);
 
-        LandscapeRenderComponent* renderComponent = GetComponent<LandscapeRenderComponent>();
+        LandscapeRenderComponent* renderComponent = GetActor()->GetComponent<LandscapeRenderComponent>();
         check(renderComponent);
         
         for (int z = 0; z < chunkSize; ++z)

@@ -25,13 +25,13 @@ const ResizableBuffer* PointLightSystem::GetBuffer() const
     return myBuffer;    
 }
 
-void PointLightSystem::AddLight(TransformComponent* inTransform, PointLightComponent* inLight)
+void PointLightSystem::AddLight(TransformComponent& inTransform, PointLightComponent* inLight)
 {
     PointLightData pointLightData{};
     pointLightData.myColor = glm::vec4(inLight->GetColor(), 1.0f);
     pointLightData.myRange = inLight->GetRange();
     pointLightData.myIntensity = inLight->GetIntensity();
-    pointLightData.myPosition = inTransform->GetPosition();
+    pointLightData.myPosition = inTransform.GetPosition();
     
     constexpr int lengthByteOffset = 32;
     myBuffer->SetData(&pointLightData, sizeof(PointLightData), lengthByteOffset + sizeof(PointLightData) * myNumPointLights);

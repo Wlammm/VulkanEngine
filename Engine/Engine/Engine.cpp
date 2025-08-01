@@ -128,7 +128,7 @@ void Engine::Tick()
 	GetEngineSystem<StagingSystem>().Tick();
 	GetEngineSystem<GPUSceneSystem>().Tick();
 	
-	myWorld->Tick();
+	myWorld->DoTick();
 
 	myExternalTickFunction();
 	

@@ -4,9 +4,9 @@
 class ReflectionSystem 
 {
 public:
-    static const List<Type*>& GetAllClasses();
+    static const List<Type*>& GetAllTypes();
 
-    static const Type* GetClassByName(const std::string& inName)
+    static const Type* GetTypeByName(const std::string& inName)
     {
         for (const Type* entry : myTypes)
         {
@@ -16,7 +16,7 @@ public:
         return nullptr;
     }
 
-    static const Type* GetClassByFullName(const std::string& inFullName)
+    static const Type* GetTypeByFullName(const std::string& inFullName)
     {
         for (const Type* entry : myTypes)
         {
@@ -27,7 +27,7 @@ public:
     }
 
     template <typename ClassType>
-    static const Type* GetClass()
+    static const Type* GetType()
     {
         const std::string typeName = typeid(ClassType).name();
 
@@ -41,7 +41,7 @@ public:
     }
 
     template <typename ClassType>
-    static const Type* GetClass(const ClassType* inInstance)
+    static const Type* GetType(const ClassType* inInstance)
     {
         const std::string typeName = typeid(*inInstance).name();
         for (const Type* entry : myTypes)
@@ -96,7 +96,7 @@ private:
     template <typename ClassType>
     static const Type* GetOrCreateType(const std::string& inTypeName)
     {
-        const Type* retrievedClass = GetClass<ClassType>();
+        const Type* retrievedClass = GetType<ClassType>();
         if (retrievedClass)
             return retrievedClass;
 

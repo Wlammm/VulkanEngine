@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Engine/ComponentSystem/GameObject.h"
+#include "Engine/ComponentSystem/GameObjectTag.hpp"
 
 namespace GameTags
 {

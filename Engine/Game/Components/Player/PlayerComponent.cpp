@@ -4,6 +4,7 @@
 #include "Engine/Components/CharacterControllerComponent.h"
 #include "Engine/Components/RigidbodyComponent.h"
 #include "Engine/Components/TransformComponent.h"
+#include "Engine/ComponentSystem/Actor.h"
 #include "Engine/Core/Input.h"
 
 PlayerComponent::PlayerComponent()
@@ -19,25 +20,25 @@ void PlayerComponent::TickPhysics()
 
     if (Input::IsKeyPressed(KeyCode::W))
     {
-        movement += GetTransform()->GetForward();
+        movement += GetTransform().GetForward();
     }
     if (Input::IsKeyPressed(KeyCode::S))
     {
-        movement -= GetTransform()->GetForward();
+        movement -= GetTransform().GetForward();
     }
     if (Input::IsKeyPressed(KeyCode::A))
     {
-        movement -= GetTransform()->GetRight();
+        movement -= GetTransform().GetRight();
     }
     if (Input::IsKeyPressed(KeyCode::D))
     {
-        movement += GetTransform()->GetRight();
+        movement += GetTransform().GetRight();
     }
 
     movement.y = 0;
     if (length(movement) != 0)
     {
-        CharacterControllerComponent* characterController = GetComponent<CharacterControllerComponent>();
+        CharacterControllerComponent* characterController = GetActor()->GetComponent<CharacterControllerComponent>();
         if(!characterController)
             return;
 
@@ -53,7 +54,7 @@ void PlayerComponent::TickPhysics()
 
     if (Input::IsKeyDown(KeyCode::Space))
     {
-        CharacterControllerComponent* characterController = GetComponent<CharacterControllerComponent>();
+        CharacterControllerComponent* characterController = GetActor()->GetComponent<CharacterControllerComponent>();
         if(!characterController)
             return;
 

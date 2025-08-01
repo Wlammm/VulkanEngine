@@ -23,32 +23,32 @@ void EditorCameraMovementComponent::UpdateMovement()
 
     if (Input::IsKeyPressed(KeyCode::W))
     {
-        movement += GetTransform()->GetForward();
+        movement += GetTransform().GetForward();
     }
 
     if (Input::IsKeyPressed(KeyCode::S))
     {
-        movement -= GetTransform()->GetForward();
+        movement -= GetTransform().GetForward();
     }
 
     if (Input::IsKeyPressed(KeyCode::D))
     {
-        movement += GetTransform()->GetRight();
+        movement += GetTransform().GetRight();
     }
 
     if (Input::IsKeyPressed(KeyCode::A))
     {
-        movement -= GetTransform()->GetRight();
+        movement -= GetTransform().GetRight();
     }
 
     if (Input::IsKeyPressed(KeyCode::E))
     {
-        movement += GetTransform()->GetUp();
+        movement += GetTransform().GetUp();
     }
 
     if (Input::IsKeyPressed(KeyCode::Q))
     {
-        movement -= GetTransform()->GetUp();
+        movement -= GetTransform().GetUp();
     }
 
     if (Input::IsKeyPressed(KeyCode::LeftShift))
@@ -60,7 +60,7 @@ void EditorCameraMovementComponent::UpdateMovement()
     if (Input::IsKeyDown(MouseButton::ScrollBackwards))
         myMovementSpeed /= myScrollMultiplier;
 
-    GetTransform()->Move(movement * myMovementSpeed);
+    GetTransform().Move(movement * myMovementSpeed);
 }
 
 void EditorCameraMovementComponent::UpdateRotation()
@@ -90,6 +90,6 @@ void EditorCameraMovementComponent::UpdateRotation()
         }
 
         myPitch = glm::clamp(myPitch, -glm::pi<float>() * 0.5f + 0.001f, glm::pi<float>() * 0.5f - 0.001f);
-        GetTransform()->SetRotationRad({ myPitch, myYaw, 0.0f });
+        GetTransform().SetRotationRad({ myPitch, myYaw, 0.0f });
     }
 }

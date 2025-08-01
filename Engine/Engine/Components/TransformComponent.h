@@ -14,11 +14,11 @@ public:
 
     void TickPhysics() override;
     
-    void SetParent(TransformComponent* inParent);
+    void SetParent(TransformComponent& inParent);
     void RemoveParent();
 
-    void AddChild(TransformComponent* inChild);
-    void RemoveChild(TransformComponent* inChild);
+    void AddChild(TransformComponent& inChild);
+    void RemoveChild(TransformComponent& inChild);
     const List<TransformComponent*>& GetChildren() const;
 
     void SetPositionLocal(const glm::vec3& inPosition);
@@ -81,6 +81,10 @@ public:
     MulticastDelegate<void()> OnRotationChanged;
     MulticastDelegate<void()> OnScaleChanged;
 
+    bool IsPositionDirty() const;
+    bool IsRotationDirty() const;
+    bool IsScaleDirty() const;
+
 private:
     META(AllowPrivateAccess)
     void MarkDirtyFromInspector();
@@ -91,11 +95,11 @@ private:
     bool myRotationDirty = false;
     bool myScaleDirty = false;
 
-    META(ExposeToEditor, OnInspectorChangedEvent(MarkDirtyFromInspector))
+    META(SerializeField, OnInspectorChangedEvent(MarkDirtyFromInspector))
     glm::vec3 myPosition { 0, 0, 0 };
-    META(ExposeToEditor)
+    META(SerializeField)
     glm::quat myRotation = glm::identity<glm::quat>();
-    META(ExposeToEditor)
+    META(SerializeField)
     glm::vec3 myScale { 1, 1, 1 };
 
     // This bool is set to true whenever we get an update from physics.

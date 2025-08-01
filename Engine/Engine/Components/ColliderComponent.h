@@ -24,9 +24,6 @@ public:
 
     void SetIsTrigger(const bool inIsTrigger) const;
 
-    void OnComponentAdded(Component* inComponent);
-    void OnComponentRemoved(Component* inComponent);
-
     virtual void OnScaleChanged() = 0;
 
     // An offset applied to the position of the physX actor.

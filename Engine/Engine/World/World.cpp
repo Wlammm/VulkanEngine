@@ -6,24 +6,17 @@
 
 #include "Engine/Engine.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
-#include "Engine/Assets/Model.h"
-#include "Engine/Components/BoxColliderComponent.h"
-#include "Engine/Components/CameraComponent.h"
-#include "Engine/Components/CapsuleColliderComponent.h"
-#include "Engine/Components/ConvexColliderComponent.h"
-#include "Engine/ComponentSystem/ComponentSystem.h"
 #include "Engine/Components/DirectionalLightComponent.h"
-#include "Engine/Components/EditorCameraMovementComponent.h"
-#include "Engine/Components/LandscapeColliderComponent.h"
-#include "Engine/Components/LandscapeRenderComponent.h"
-#include "Engine/Components/MeshColliderComponent.h"
 #include "Engine/Components/PointLightComponent.h"
-#include "Engine/Components/SinWaveMovementComponent.h"
-#include "Engine/Components/SphereColliderComponent.h"
 #include "Engine/Components/StaticMeshComponent.h"
 #include "Engine/Components/TransformComponent.h"
-#include "Engine/Core/Input.h"
-#include "Engine/Core/Time.h"
+#include "Engine/ComponentSystem/Actor.h"
+#include "Engine/ComponentSystem/GameObjectTag.hpp"
+#include "Engine/ComponentSystem/Actors/DirectionalLightActor.h"
+#include "Engine/ComponentSystem/Actors/LandscapeActor.h"
+#include "Engine/ComponentSystem/Actors/PhysicsCubeActor.h"
+#include "Engine/ComponentSystem/Actors/PointLightActor.h"
+#include "Engine/ComponentSystem/Actors/StaticMeshActor.h"
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Serialization/BinarySerializer.h"
 #include "Engine/Systems/LandscapeSystem.h"
@@ -33,6 +26,10 @@ World::World()
 	myAssetRegistry = MakeUnique<AssetRegistry>();
 	mySystemManager = MakeUnique<SystemManager<WorldSystem>>();
 	CreateWorldSystems();
+
+	myDirectionalLightActor = SpawnActor<DirectionalLightActor>("DirectionalLight");
+	myDirectionalLightActor->GetTransform().SetRotationDeg(321, 314, -50);
+	myDirectionalLightActor->GetDirectionalLightComponent().SetColor({1, 168/255.0, 120/255.0, 1});
 }
 
 World::~World()
@@ -44,70 +41,47 @@ World::~World()
 void World::Init()
 {
 	// World objects.
-	//GameObject* camObject = GetComponentSystem().CreateGameObject();
-	//camObject->GetTransform()->SetPosition(0, 500, -1500);
-	//CameraComponent* camera = camObject->AddComponent<CameraComponent>();
-	//camera->CreatePerspective(Engine::GetRenderResolution());
-	//camObject->AddComponent<EditorCameraMovementComponent>();
 
 	{
-		GameObject sponza = GetComponentSystem().CreateGameObject("Sponza");
-		sponza.GetTransform()->SetPositionY(2000);
-		StaticMeshComponent* staticMesh = sponza.AddComponent<StaticMeshComponent>();
-		myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/Sponza.gltf", [staticMesh, sponza](Model* inModel)
-		{
-			staticMesh->SetModel(inModel);
-		});
-		sponza.GetTransform()->SetScale(100.0f);
+		StaticMeshActor* sponza = SpawnActor<StaticMeshActor>("Sponza", "Assets/Sponza/Sponza.gltf");
+		sponza->GetTransform().SetPositionY(2000);
+		sponza->GetTransform().SetScale(100.0f);
 	}
 
+	
 	{
-		GameObject sponza = GetComponentSystem().CreateGameObject("Sponza2");
-		sponza.GetTransform()->SetPosition(5000, 2000, 0);
-		StaticMeshComponent* staticMesh = sponza.AddComponent<StaticMeshComponent>();
-		myAssetRegistry->GetAssetAsync<Model>("Assets/Sponza/Sponza.gltf", [staticMesh, sponza](Model* inModel)
-		{
-			staticMesh->SetModel(inModel);
-			//sponza.AddComponent<MeshColliderComponent>()->SetModel(inModel);
-		});
-		sponza.GetTransform()->SetScale(100.0f);
+		StaticMeshActor* sponza = SpawnActor<StaticMeshActor>("Sponza2", "Assets/Sponza/Sponza.gltf");
+		sponza->GetTransform().SetPosition(5000, 2000, 0);
+		sponza->GetTransform().SetScale(100.0f);
 	}
 	
-	GameObject landscape = GetComponentSystem().CreateGameObject("Landscape");
-	landscape.AddComponent<LandscapeRenderComponent>();
-	landscape.AddComponent<LandscapeColliderComponent>();
+	LandscapeActor* landscape = SpawnActor<LandscapeActor>("Landscape");
 
-	GetAssetRegistry().GetAssetAsync<Model>("Assets/Primitives/Cube.fbx", [&](Model* inModel)
+	for (int i =0; i < 50; ++i)
 	{
-		for (int i =0; i < 50; ++i)
-		{
-			GameObject cube = GetComponentSystem().CreateGameObject("Cube");
-			cube.GetTransform()->SetPosition(glm::vec3{(float)i * 100, 10000, 0});
-			cube.AddComponent<StaticMeshComponent>()->SetModel(inModel);
-			cube.AddComponent<BoxColliderComponent>();
-			cube.AddComponent<RigidbodyComponent>();
-		}
-	});
+		PhysicsCubeActor* cube = SpawnActor<PhysicsCubeActor>("Cube");
+		cube->GetTransform().SetPosition(glm::vec3{(float)i * 100, 10000, 0});
+	}
 	
-	GameObject dirLightObject = GetComponentSystem().CreateGameObject("DirectionalLight");
-	DirectionalLightComponent* light = dirLightObject.AddComponent<DirectionalLightComponent>();
-	dirLightObject.GetTransform()->SetRotationDeg(321, 314, -50);
-	light->SetColor({1, 168/255.0, 120/255.0, 1});
-
 	glm::vec3 startPosition = glm::vec3(-800.0f, 50.0f, -35.0f);
 	for (int i = 0; i < 5; i++)
 	{
-		GameObject pointLightObject = GetComponentSystem().CreateGameObject("PointLight");
-		PointLightComponent* pointLight = pointLightObject.AddComponent<PointLightComponent>();
-		
-		const auto& transform = pointLightObject.GetTransform();
-		transform->SetPosition(startPosition);
-		transform->Move(glm::right() * (i * 400.0f));
+		PointLightActor* pointLightObject = SpawnActor<PointLightActor>("PointLight");
+		TransformComponent& transform = pointLightObject->GetTransform();
+		transform.SetPosition(startPosition);
+		transform.Move(glm::right() * (i * 400.0f));
 
-		pointLight->SetIntensity(40000.0f);
-		pointLight->SetRange(600.0f);
-		pointLight->TEMP_SendToGPU();
+		pointLightObject->GetPointLightComponent().SetIntensity(40000.0f);
+		pointLightObject->GetPointLightComponent().SetRange(600.0f);
+		pointLightObject->GetPointLightComponent().TEMP_SendToGPU();
 	}
+}
+
+void World::DoTick()
+{
+	Tick();
+
+	TickActorDeletes();
 }
 
 void World::Destroy()
@@ -115,17 +89,23 @@ void World::Destroy()
 	
 }
 
+void World::TickPhysics()
+{
+	for (const UniquePtr<Actor>& actor : myActors)
+	{
+		actor->DoTickPhysics();
+	}
+}
+
 void World::SaveToFile(const std::filesystem::path& inPath)
 {
 	BinarySerializer writer(inPath, BinarySerializer::Mode::Write);
-	writer.SerializeType(GetComponentSystem());
 	writer.Close();
 }
 
 void World::LoadFromFile(const std::filesystem::path& inPath)
 {
 	BinarySerializer writer(inPath, BinarySerializer::Mode::Read);
-	writer.SerializeType(GetComponentSystem());
 	writer.Close();
 }
 
@@ -165,7 +145,7 @@ bool World::Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, Ray
 	outHit.myHitDistance = touch.distance;
 	outHit.myHitPosition = { touch.position.x, touch.position.y, touch.position.z };
 	outHit.myHitNormal = { touch.normal.x, touch.normal.y, touch.normal.z };
-	outHit.myHitGameObject = (GameObject*)touch.actor->userData;
+	outHit.myHitActor = (Actor*)touch.actor->userData;
 	return true;
 }
 
@@ -201,19 +181,29 @@ bool World::RaycastAll(const glm::vec3& inOrigin, const glm::vec3& inDirection, 
 				continue;
 		}
 
-		GameObject* gameObject = (GameObject*)touch.actor->userData;
+		Actor* actor = (Actor*)touch.actor->userData;
 
-		if(gameObject->HasAnyTag(inExcludedTags))
+		if(actor->HasAnyTag(inExcludedTags))
 			continue;
 		
 		RaycastHit& outHit = outHits.Emplace();
 		outHit.myHitDistance = touch.distance;
 		outHit.myHitNormal = { touch.normal.x, touch.normal.y, touch.normal.z };
 		outHit.myHitPosition = { touch.position.x, touch.position.y, touch.position.z };
-		outHit.myHitGameObject = gameObject;
+		outHit.myHitActor = actor;
 	}
 
 	return !outHits.IsEmpty();
+}
+
+void World::RemoveActor(Actor* inActor)
+{
+	myActorsToDelete.Emplace(inActor);
+}
+
+const List<UniquePtr<Actor>>& World::GetAllActors() const
+{
+	return myActors;
 }
 
 AssetRegistry& World::GetAssetRegistry() const
@@ -221,14 +211,45 @@ AssetRegistry& World::GetAssetRegistry() const
 	return *myAssetRegistry;
 }
 
-DirectionalLightComponent* World::GetDirectionalLight() const
+void World::OnTriggerEnter(Actor* inFirst, Actor* inOther)
 {
-	return GetComponentSystem().GetAnyComponentOfType<DirectionalLightComponent>();
+	inFirst->DoOnTriggerEnter(inOther);
+	inOther->DoOnTriggerEnter(inFirst);
 }
 
-ComponentSystem& World::GetComponentSystem() const
+void World::OnTrigger(Actor* inFirst, Actor* inOther)
 {
-	return GetWorldSystem<ComponentSystem>();
+	inFirst->DoOnTrigger(inOther);
+	inOther->DoOnTrigger(inFirst);
+}
+
+void World::OnTriggerExit(Actor* inFirst, Actor* inOther)
+{
+	inFirst->DoOnTriggerExit(inOther);
+	inOther->DoOnTriggerExit(inFirst);
+}
+
+void World::OnCollisionEnter(Actor* inFirst, Actor* inOther)
+{
+	inFirst->DoOnCollisionEnter(inOther);
+	inOther->DoOnCollisionEnter(inFirst);
+}
+
+void World::OnCollision(Actor* inFirst, Actor* inOther)
+{
+	inFirst->DoOnCollision(inOther);
+	inOther->DoOnCollision(inFirst);
+}
+
+void World::OnCollisionExit(Actor* inFirst, Actor* inOther)
+{
+	inFirst->DoOnCollisionExit(inOther);
+	inOther->DoOnCollisionExit(inFirst);
+}
+
+DirectionalLightComponent* World::GetDirectionalLight() const
+{
+	return &myDirectionalLightActor->GetDirectionalLightComponent();
 }
 
 void World::SetMainCamera(CameraComponent* inCamera)
@@ -243,11 +264,26 @@ CameraComponent* World::GetMainCamera() const
 
 void World::CreateWorldSystems()
 {
-	mySystemManager->AddSystem<ComponentSystem>(this);
 	mySystemManager->AddSystem<LandscapeSystem>(this);
 	
 	// Keep the physics system last so we make sure we add all object updates before we do any physics calculations.
 	mySystemManager->AddSystem<PhysicsSystem>(this);
 
 	mySystemManager->InitAllSystems();
+}
+
+void World::TickActorDeletes()
+{
+	for (Actor* actor : myActorsToDelete)
+	{
+		for (int i = 0; i < myActors.size(); ++i)
+		{
+			if (myActors[i] == actor)
+			{
+				myActors.RemoveIndex(i);
+				break;
+			}
+		}
+	}
+	myActorsToDelete.Clear();
 }

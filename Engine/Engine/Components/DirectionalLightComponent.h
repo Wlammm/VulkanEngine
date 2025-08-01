@@ -20,10 +20,10 @@ public:
     void EnableShadows();
 
 private:
-    META(ExposeToEditor)
+    META(SerializeField)
     bool myIsShadowsEnabled = false;
 
-    META(ExposeToEditor, ExposeAsColor)
+    META(SerializeField, ExposeAsColor)
     glm::vec4 myColor = {1, 1, 1, 1};
     glm::mat4 myLightProjection;
 };

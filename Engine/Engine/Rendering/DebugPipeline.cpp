@@ -6,7 +6,6 @@
 #include "Engine/Assets/Shader.h"
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Components/TransformComponent.h"
-#include "Engine/ComponentSystem/ComponentSystem.h"
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
 #include "Engine/Utils/Debug.h"
@@ -182,11 +181,11 @@ void DebugPipeline::UpdateFrameBuffer()
 		return;
 	}
 	
-	TransformComponent* transform = camera->GetTransform();
+	TransformComponent& transform = camera->GetTransform();
 	
 	FrameData data{};
 	data.myProjection = camera->GetProjection();
-	data.myToView = glm::affineInverse(transform->GetMatrix());
-	data.myCameraPosition = transform->GetPosition();
+	data.myToView = glm::affineInverse(transform.GetMatrix());
+	data.myCameraPosition = transform.GetPosition();
 	myFrameDataBuffer->SetData(data);
 }

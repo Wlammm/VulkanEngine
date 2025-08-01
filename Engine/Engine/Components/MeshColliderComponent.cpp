@@ -19,7 +19,7 @@ void MeshColliderComponent::OnCreate()
     if(!myModel)
         return;
 
-    const glm::vec3 scale = GetTransform()->GetScale();
+    const glm::vec3 scale = GetTransform().GetScale();
     
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
     physicsSystem.QueuePhysicsCommand([this, &physicsSystem, scale](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
@@ -91,7 +91,7 @@ void MeshColliderComponent::OnScaleChanged()
     OnCreate();
     
     return;
-    const glm::vec3 scale = GetTransform()->GetScale();
+    const glm::vec3 scale = GetTransform().GetScale();
 
     // Make sure the box is not of 0 size. TODO: This shouldn't be a crash later but for now it is .
     check(scale.length() > 0);

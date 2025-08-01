@@ -11,7 +11,6 @@
 #include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Assets/Shader.h"
 #include "Engine/Components/StaticMeshComponent.h"
-#include "Engine/ComponentSystem/ComponentSystem.h"
 #include "Engine/Core/Input.h"
 #include "Engine/Systems/PointLightSystem.h"
 #include "Engine/Vulkan/VulkanCommandBuffer.h"

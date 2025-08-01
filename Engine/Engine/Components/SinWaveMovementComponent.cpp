@@ -6,5 +6,5 @@
 
 void SinWaveMovementComponent::Tick()
 {
-    GetTransform()->Move({0, std::sin(Time::GetSeconds()) * 100 * Time::GetDeltaTime(), 0});
+    GetTransform().Move({0, std::sin(Time::GetSeconds()) * 100 * Time::GetDeltaTime(), 0});
 }

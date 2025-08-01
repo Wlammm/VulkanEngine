@@ -28,7 +28,7 @@ public:
 private:
     static void RegisterSerializers()
     {
-        const Type* typeSerializerClass = ReflectionSystem::GetClass<TypeSerializer>();
+        const Type* typeSerializerClass = ReflectionSystem::GetType<TypeSerializer>();
         for (const Type* entry : typeSerializerClass->GetDerivedTypes())
         {
             mySerializers.Add(entry->CreateInstance<TypeSerializer>());

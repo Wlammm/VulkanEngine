@@ -8,6 +8,7 @@
 #include "Engine/Engine.h"
 #include "RigidbodyComponent.h"
 #include "TransformComponent.h"
+#include "Engine/ComponentSystem/Actor.h"
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/World/World.h"
 
@@ -19,13 +20,13 @@ void ColliderComponent::OnCreate()
 {
     Component::OnCreate();
 
-    GetTransform()->OnPositionChanged.Bind(&ColliderComponent::OnPhysicsStateDirty, this);
-    GetTransform()->OnRotationChanged.Bind(&ColliderComponent::OnPhysicsStateDirty, this);
-    GetTransform()->OnScaleChanged.Bind(&ColliderComponent::OnScaleChanged, this);
+    GetTransform().OnPositionChanged.Bind(&ColliderComponent::OnPhysicsStateDirty, this);
+    GetTransform().OnRotationChanged.Bind(&ColliderComponent::OnPhysicsStateDirty, this);
+    GetTransform().OnScaleChanged.Bind(&ColliderComponent::OnScaleChanged, this);
 
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
     
-    RigidbodyComponent* rigidbody = GetComponent<RigidbodyComponent>();
+    RigidbodyComponent* rigidbody = GetActor()->GetComponent<RigidbodyComponent>();
     physicsSystem.QueuePhysicsCommand([this, rigidbody](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
         check(myShape && "Shape must be initialized before calling this function.");
@@ -37,9 +38,9 @@ void ColliderComponent::OnCreate()
             rigidbody->AttachCollider(this);
             return;
         }
-        auto transform = GetTransform();
-        myActor = inPhysics->createRigidStatic(GetTransform()->AsPxTransform());
-        myActor->userData = const_cast<GameObject*>(&GetGameObject());
+        TransformComponent& transform = GetTransform();
+        myActor = inPhysics->createRigidStatic(GetTransform().AsPxTransform());
+        myActor->userData = GetActor();
         
         myActor->attachShape(*myShape);
         
@@ -48,9 +49,6 @@ void ColliderComponent::OnCreate()
 
         inScene->addActor(*myActor);
     });
-
-    GetGameObject().GetOnComponentAdded().Bind(&ColliderComponent::OnComponentAdded, this);
-    GetGameObject().GetOnComponentRemoved().Bind(&ColliderComponent::OnComponentRemoved, this);
 }
 
 void ColliderComponent::OnDestroy()
@@ -68,12 +66,9 @@ void ColliderComponent::OnDestroy()
         }
     });
 
-    GetTransform()->OnPositionChanged.UnBind(&ColliderComponent::OnPhysicsStateDirty, this);
-    GetTransform()->OnRotationChanged.UnBind(&ColliderComponent::OnPhysicsStateDirty, this);
-    GetTransform()->OnScaleChanged.UnBind(&ColliderComponent::OnScaleChanged, this);
-    
-    GetGameObject().GetOnComponentAdded().UnBind(&ColliderComponent::OnComponentAdded, this);
-    GetGameObject().GetOnComponentRemoved().UnBind(&ColliderComponent::OnComponentRemoved, this);
+    GetTransform().OnPositionChanged.UnBind(&ColliderComponent::OnPhysicsStateDirty, this);
+    GetTransform().OnRotationChanged.UnBind(&ColliderComponent::OnPhysicsStateDirty, this);
+    GetTransform().OnScaleChanged.UnBind(&ColliderComponent::OnScaleChanged, this);
 }
 
 void ColliderComponent::OnPhysicsStateDirty()
@@ -85,7 +80,7 @@ void ColliderComponent::OnPhysicsStateDirty()
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
     physicsSystem.QueuePhysicsCommand([this](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
-        myActor->setGlobalPose(GetTransform()->AsPxTransform());
+        myActor->setGlobalPose(GetTransform().AsPxTransform());
     });
 }
 
@@ -106,44 +101,6 @@ void ColliderComponent::SetIsTrigger(const bool inIsTrigger) const
             myShape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, !inIsTrigger);
             myShape->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, inIsTrigger);
         }
-    });
-}
-
-void ColliderComponent::OnComponentAdded(Component* inComponent)
-{
-    if(!inComponent->IsA<RigidbodyComponent>())
-        return;
-
-    RigidbodyComponent* rigidbody = static_cast<RigidbodyComponent*>(inComponent);
-    
-    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
-    physicsSystem.QueuePhysicsCommand([this, rigidbody](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
-    {
-        if(myActor)
-        {
-            // Add a reference here before we detach the shape and release in rigidbody. Otherwise it will be garbage collected before we can add it to our new actor.
-            myShape->acquireReference();
-            
-            myActor->detachShape(*myShape);
-            myActor->release();
-            myActor = nullptr;
-        }
-    });
-
-    rigidbody->AttachCollider(this);
-}
-
-void ColliderComponent::OnComponentRemoved(Component* inComponent)
-{
-    if(!inComponent->IsA<RigidbodyComponent>())
-        return;
-
-    PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
-    physicsSystem.QueuePhysicsCommand([this](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
-    {
-        myActor = inPhysics->createRigidStatic(GetTransform()->AsPxTransform());
-        myActor->attachShape(*myShape);
-        inScene->addActor(*myActor);
     });
 }
 

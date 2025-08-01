@@ -59,7 +59,7 @@ void LandscapeRenderComponent::OnRenderStateDirty()
         Engine::GetEngineSystem<GPUSceneSystem>().RemoveMeshInstance(myMeshInstance);
     }
     
-    MeshInstanceData data{ GetTransform()->GetMatrix(), myMesh->GetHandle() };
+    MeshInstanceData data{ GetTransform().GetMatrix(), myMesh->GetHandle() };
 
     if(myMaterial)
     {

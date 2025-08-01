@@ -158,7 +158,7 @@ void Editor::BeginMainDockSpace()
 
 void Editor::AddEditorWindows()
 {
-    const Type* editorWindowClass = ReflectionSystem::GetClass<EditorWindow>();
+    const Type* editorWindowClass = ReflectionSystem::GetType<EditorWindow>();
 
     EditorToolbar* toolbar = GetSystem<EditorToolbar>();
     for (const Type* entry : editorWindowClass->GetDerivedTypes())
@@ -175,7 +175,7 @@ void Editor::AddEditorWindows()
 
 void Editor::AddEditorSystems()
 {
-    const Type* editorSystemClass = ReflectionSystem::GetClass<EditorSystem>();
+    const Type* editorSystemClass = ReflectionSystem::GetType<EditorSystem>();
 
     for (const Type* entry : editorSystemClass->GetDerivedTypes())
     {

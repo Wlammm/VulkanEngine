@@ -3,6 +3,7 @@
 
 #include "Engine/Engine.h"
 #include "Engine/Components/TransformComponent.h"
+#include "Engine/ComponentSystem/Actor.h"
 #include "Engine/Core/Input.h"
 #include "Engine/Utils/Debug.h"
 #include "Game/Components/SpringArmComponent.h"
@@ -23,7 +24,7 @@ void PlayerCameraControllerComponent::Tick()
     {
         myStoredPitch = myPitch;
         myStoredYaw = myYaw;
-        myStoredSpringArmLength = GetComponent<SpringArmComponent>()->GetLength();
+        myStoredSpringArmLength = GetActor()->GetComponent<SpringArmComponent>()->GetLength();
 
         // This resets the yaw as its already inheriting the current yaw from the parent. If we'd keep the current value we'd get double the yaw (one from parent and one from the local rotation)
         myYaw = 0;
@@ -33,18 +34,18 @@ void PlayerCameraControllerComponent::Tick()
     {
         myPitch = myStoredPitch;
         myYaw = myStoredYaw;
-        GetComponent<SpringArmComponent>()->SetLength(myStoredSpringArmLength);
+        GetActor()->GetComponent<SpringArmComponent>()->SetLength(myStoredSpringArmLength);
     }
     
     if (Input::IsKeyPressed(KeyCode::LeftAlt))
     {
         glm::quat pitchQuat = glm::angleAxis(myPitch, glm::vec3(1, 0, 0));
         glm::quat yawQuat   = glm::angleAxis(myYaw,   glm::vec3(0, 1, 0));
-        GetTransform()->SetRotationLocal(yawQuat * pitchQuat);
+        GetTransform().SetRotationLocal(yawQuat * pitchQuat);
 
         if (Input::IsKeyDown(MouseButton::ScrollForward))
         {
-            SpringArmComponent* springArm = GetComponent<SpringArmComponent>();
+            SpringArmComponent* springArm = GetActor()->GetComponent<SpringArmComponent>();
             float length = springArm->GetLength();
             length -= mySpringArmChangeAmount;
             length = std::clamp(length, myMinSpringArmLength, myMaxSpringArmLength);
@@ -52,7 +53,7 @@ void PlayerCameraControllerComponent::Tick()
         }
         if (Input::IsKeyDown(MouseButton::ScrollBackwards))
         {
-            SpringArmComponent* springArm = GetComponent<SpringArmComponent>();
+            SpringArmComponent* springArm = GetActor()->GetComponent<SpringArmComponent>();
             float length = springArm->GetLength();
             length += mySpringArmChangeAmount;
             length = std::clamp(length, myMinSpringArmLength, myMaxSpringArmLength);
@@ -61,7 +62,7 @@ void PlayerCameraControllerComponent::Tick()
     }
     else
     {
-        GetTransform()->GetParent()->SetRotationRad({0, myYaw, 0 });
-        GetTransform()->SetRotationLocal(glm::quat({myPitch, 0, 0}));
+        GetTransform().GetParent()->SetRotationRad({0, myYaw, 0 });
+        GetTransform().SetRotationLocal(glm::quat({myPitch, 0, 0}));
     }
 }

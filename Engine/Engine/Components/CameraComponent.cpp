@@ -56,7 +56,7 @@ bool CameraComponent::ScreenToWorldPos(const glm::vec2& inNormalizedScreenPos, g
     float ndcX = inNormalizedScreenPos.x * 2.0f - 1.0f;
     float ndcY = inNormalizedScreenPos.y * 2.0f - 1.0f;
     
-    glm::mat4 view = glm::inverse(GetTransform()->GetMatrix());
+    glm::mat4 view = glm::inverse(GetTransform().GetMatrix());
     glm::mat4 invVP = glm::inverse(myProjection * view);
     
     glm::vec4 clipSpace = glm::vec4(ndcX, ndcY, depth, 1.0f);
@@ -74,7 +74,7 @@ glm::vec3 CameraComponent::ScreenToNearPlane(const glm::vec2& inNormalizedScreen
 
     glm::vec4 clipSpace = glm::vec4(ndcX, ndcY, 0, 1.0f);
 
-    glm::mat4 view = glm::inverse(GetTransform()->GetMatrix());
+    glm::mat4 view = glm::inverse(GetTransform().GetMatrix());
     glm::mat4 invVP = glm::inverse(myProjection * view);
 
     glm::vec4 worldSpace = invVP * clipSpace;
@@ -90,7 +90,7 @@ glm::vec3 CameraComponent::ScreenToFarPlane(const glm::vec2& inNormalizedScreenP
 
     glm::vec4 clipSpace = glm::vec4(ndcX, ndcY, 1.0f, 1.0f);
 
-    glm::mat4 view = glm::inverse(GetTransform()->GetMatrix());
+    glm::mat4 view = glm::inverse(GetTransform().GetMatrix());
     glm::mat4 invVP = glm::inverse(myProjection * view);
 
     glm::vec4 worldSpace = invVP * clipSpace;
@@ -107,7 +107,7 @@ glm::vec3 CameraComponent::GetRayDirectionFromScreen(const glm::vec2& inNormaliz
     glm::vec4 clipNear = glm::vec4(ndcX, ndcY, 0.0f, 1.0f);
     glm::vec4 clipFar  = glm::vec4(ndcX, ndcY, 1.0f, 1.0f);
 
-    glm::mat4 view = glm::inverse(GetTransform()->GetMatrix());
+    glm::mat4 view = glm::inverse(GetTransform().GetMatrix());
     glm::mat4 invVP = glm::inverse(myProjection * view);
 
     glm::vec4 worldNear = invVP * clipNear;

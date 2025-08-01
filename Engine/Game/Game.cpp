@@ -3,7 +3,6 @@
 
 #include "GameTags.h"
 #include "Engine/Components/StaticMeshComponent.h"
-#include "Engine/ComponentSystem/ComponentSystem.h"
 
 Game::Game()
 {

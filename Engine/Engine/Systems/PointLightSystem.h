@@ -12,7 +12,7 @@ public:
 
     const ResizableBuffer* GetBuffer() const;
     
-    void AddLight(TransformComponent* inTransform, PointLightComponent* inLight);
+    void AddLight(TransformComponent& inTransform, PointLightComponent* inLight);
 
 private:
     ResizableBuffer* myBuffer = nullptr;

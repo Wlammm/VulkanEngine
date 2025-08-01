@@ -5,8 +5,8 @@
 #include "Editor/EditorSystem/SelectionSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/Components/TransformComponent.h"
+#include "Engine/ComponentSystem/Actor.h"
 #include "Engine/ComponentSystem/Component.h"
-#include "Engine/ComponentSystem/GameObject.h"
 #include "Engine/Reflection/Type.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 
@@ -17,36 +17,36 @@ InspectorWindow::InspectorWindow()
 
 void InspectorWindow::Tick()
 {
-    const List<GameObject> selectedObjects = SelectionSystem::GetSelectedObjects();
+    const List<Actor*> selectedActors = SelectionSystem::GetSelectedObjects();
 
-    if (selectedObjects.IsEmpty())
+    if (selectedActors.IsEmpty())
     {
         ImGui::Text("Select an object to view details.");
         return;
     }
 
-    if (selectedObjects.size() > 1)
+    if (selectedActors.size() > 1)
     {
         ImGui::Text("Inspector does not support multiple selected objects.");
         return;
     }
 
-    GameObject selectedObject = selectedObjects.First();
+    Actor* selectedActor = selectedActors.First();
 
     ImGui::Text("Name: ");
     ImGui::SameLine();
-    std::string objectName = selectedObject.GetName();
+    std::string objectName = selectedActor->GetName();
     if (ImGui::InputText("##inspectorObjectName", &objectName))
     {
-        selectedObject.SetName(objectName);
+        selectedActor->SetName(objectName);
     }
 
     ImGui::Separator();
 
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    DrawComponentProperties(selectedObject.GetComponent<TransformComponent>());
+    DrawComponentProperties(&selectedActor->GetTransform());
 
-    for (Component* component : selectedObject.GetComponents())
+    for (Component* component : selectedActor->GetAllComponents())
     {
         if (component->IsA<TransformComponent>())
             continue;
@@ -58,12 +58,12 @@ void InspectorWindow::Tick()
 void InspectorWindow::DrawComponentProperties(Component* inComponent)
 {
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    const Type* componentClass = ReflectionSystem::GetClass(inComponent);
+    const Type* componentClass = ReflectionSystem::GetType(inComponent);
     bool isOpen = ImGui::CollapsingHeader(componentClass->GetName().c_str());
 
     if (isOpen)
     {
-        for (const Field& field : componentClass->GetFieldsWithMetadata("ExposeToEditor"))
+        for (const Field& field : componentClass->GetFieldsWithMetadata("SerializeField"))
         {
             if (ImGuiPropertyDrawer::DrawProperty(field, inComponent))
             {

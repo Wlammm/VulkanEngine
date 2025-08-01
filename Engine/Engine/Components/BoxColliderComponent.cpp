@@ -22,7 +22,7 @@ void BoxColliderComponent::OnCreate()
     
     physicsSystem.QueuePhysicsCommand([this, &physicsSystem](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
-        const glm::vec3 scale = GetTransform()->GetScale();
+        const glm::vec3 scale = GetTransform().GetScale();
         
         // Make sure the box is not of 0 size. TODO: This shouldnt be a crash later but for now it is .
         check(myHalfSize.length() * scale.length() > 0);
@@ -41,7 +41,7 @@ void BoxColliderComponent::SetHalfSize(const glm::vec3& inHalfSize)
 
 void BoxColliderComponent::OnScaleChanged()
 {
-    const glm::vec3 scale = GetTransform()->GetScale();
+    const glm::vec3 scale = GetTransform().GetScale();
     const glm::vec3 newSize = myHalfSize * scale;
 
     LOG("OnScalechanged");

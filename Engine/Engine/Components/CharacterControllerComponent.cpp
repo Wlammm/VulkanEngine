@@ -17,12 +17,12 @@ void CharacterControllerComponent::OnCreate()
 {
     Component::OnCreate();
 
-    GetTransform()->OnPositionChanged.Bind(&CharacterControllerComponent::OnPositionChanged, this);
+    GetTransform().OnPositionChanged.Bind(&CharacterControllerComponent::OnPositionChanged, this);
     
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
     
-    TransformComponent* transform = GetTransform();
-    const glm::vec3 position = transform->GetPosition();
+    TransformComponent& transform = GetTransform();
+    const glm::vec3 position = transform.GetPosition();
     
     physx::PxCapsuleControllerDesc desc;
     desc.setToDefault();
@@ -40,23 +40,22 @@ void CharacterControllerComponent::OnCreate()
     desc.stepOffset = myStepOffset;
 
     myController = physicsSystem.GetControllerManager()->createController(desc);
-    GameObject* gameObjectPtr = const_cast<GameObject*>(&GetGameObject());
-    myController->getActor()->userData = gameObjectPtr;
-    myController->setUserData(gameObjectPtr);
+    myController->getActor()->userData = GetActor();
+    myController->setUserData(GetActor());
 }
 
 void CharacterControllerComponent::OnDestroy()
 {
     Component::OnDestroy();
     
-    GetTransform()->OnPositionChanged.UnBind(&CharacterControllerComponent::OnPositionChanged, this);
+    GetTransform().OnPositionChanged.UnBind(&CharacterControllerComponent::OnPositionChanged, this);
     myController->release();
     myController = nullptr;
 }
 
 void CharacterControllerComponent::OnPositionChanged()
 {
-    const glm::vec3 position = GetTransform()->GetPosition() + myPositionOffset;
+    const glm::vec3 position = GetTransform().GetPosition() + myPositionOffset;
     myController->setFootPosition({position.x, position.y, position.z});
 }
 
@@ -73,7 +72,9 @@ void CharacterControllerComponent::TickPhysics()
         return;
 
     const physx::PxExtendedVec3 footPosition = myController->getFootPosition();
-    GetTransform()->SetPosition(physx::PxVec3{static_cast<float>(footPosition.x) - myPositionOffset.x, static_cast<float>(footPosition.y) - myPositionOffset.y, static_cast<float>(footPosition.z) - myPositionOffset.z });
+    
+    if (!GetTransform().IsPositionDirty())
+        GetTransform().SetPosition(physx::PxVec3{static_cast<float>(footPosition.x) - myPositionOffset.x, static_cast<float>(footPosition.y) - myPositionOffset.y, static_cast<float>(footPosition.z) - myPositionOffset.z });
 
     if (myUseGravity)
     {

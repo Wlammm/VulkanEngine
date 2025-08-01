@@ -6,6 +6,7 @@
 
 // BEGIN INCLUDES FOR REFLECTED TYPES
 
+#include "../Engine/EnginePch.h"
 $(FileIncludes)
 
 // END INCLUDES FOR REFLECTED TYPES

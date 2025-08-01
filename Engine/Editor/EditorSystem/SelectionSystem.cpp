@@ -1,23 +1,23 @@
 ﻿#include "EditorPch.h"
 #include "SelectionSystem.h"
 
-const List<GameObject>& SelectionSystem::GetSelectedObjects()
+const List<Actor*>& SelectionSystem::GetSelectedObjects()
 {
     return mySelectedObjects;
 }
 
-bool SelectionSystem::IsObjectSelected(const GameObject& inObject)
+bool SelectionSystem::IsObjectSelected(Actor* inObject)
 {
     return mySelectedObjects.Contains(inObject);
 }
 
-void SelectionSystem::SelectObject(const GameObject& inObject)
+void SelectionSystem::SelectObject(Actor* inObject)
 {
     mySelectedObjects.Add(inObject);
     OnSelectionChanged();
 }
 
-void SelectionSystem::DeselectObject(const GameObject& inObject)
+void SelectionSystem::DeselectObject(Actor* inObject)
 {
     if (mySelectedObjects.Contains(inObject))
         mySelectedObjects.Remove(inObject);

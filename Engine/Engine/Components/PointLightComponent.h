@@ -20,12 +20,12 @@ public:
     void SetRange(const float inRange);
     
 private:
-    META(ExposeToEditor, ExposeAsColor)
+    META(SerializeField, ExposeAsColor)
     glm::vec3 myColor{1, 1, 1};
 
-    META(ExposeToEditor)
+    META(SerializeField)
     float myIntensity = 1.0f;
 
-    META(ExposeToEditor)
+    META(SerializeField)
     float myRange = 100.0f;
 };

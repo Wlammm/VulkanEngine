@@ -3,7 +3,7 @@
 #if REFLECTION_GENERATION == 1
 #define META(...) __attribute__((annotate(#__VA_ARGS__)))
 #define AllowPrivateAccess
-#define ExposeToEditor
+#define HideInInspector
 #else
 #define EXPAND(x) x
 #define CAT(a, b) a##b
@@ -41,7 +41,7 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 // This is only needed if you want the reflection system to recognize private methods. Private fields are always reflected.
 #define AllowPrivateAccess friend class GeneratedReflectionData;
 
-#define ExposeToEditor
+#define HideInInspector
 #endif
 
 // Called whenever the field was modified in the inspector

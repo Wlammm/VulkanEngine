@@ -5,7 +5,7 @@
 
 bool StringSerializer::SerializesType(const Type* inClass) const
 {
-    const Type* stringClass = ReflectionSystem::GetClass<std::string>();
+    const Type* stringClass = ReflectionSystem::GetType<std::string>();
     return stringClass == inClass;
 }
 

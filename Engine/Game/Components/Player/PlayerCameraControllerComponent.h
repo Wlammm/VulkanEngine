@@ -7,16 +7,16 @@ public:
     void Tick() override;
 
 private:
-    META(ExposeToEditor)
+    META(SerializeField)
     float myMouseSensitivity = 15.0f;
 
-    META(ExposeToEditor)
+    META(SerializeField)
     float mySpringArmChangeAmount = 20;
     
-    META(ExposeToEditor)
+    META(SerializeField)
     float myMinSpringArmLength = 50;
 
-    META(ExposeToEditor)
+    META(SerializeField)
     float myMaxSpringArmLength = 1000;
 
     float myPitch = 0.f;

@@ -37,10 +37,10 @@ private:
 private:
     std::filesystem::path myPath = "";
 
-    META(ExposeToEditor)
+    META(SerializeField)
     List<Material*> myMaterials{};
 
-    META(ExposeToEditor)
+    META(SerializeField)
     Model* myModel = nullptr;
 
     List<MeshInstanceIndex> myMeshInstances{};

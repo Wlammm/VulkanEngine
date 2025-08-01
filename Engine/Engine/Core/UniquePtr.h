@@ -45,6 +45,11 @@ public:
         }
         return *this;
     }
+
+    bool operator==(Type* inOther) const
+    {
+        return myObject == inOther;
+    }
     
     UniquePtr& operator=(nullptr_t) {
         Reset();

@@ -1,25 +1,24 @@
 ﻿#include "EnginePch.h"
 #include "Component.h"
 
-#include "GameObject.h"
-#include "Engine/Components/TransformComponent.h"
+#include "Actor.h"
 
 void Component::MarkRenderStateDirty()
 {
-    myGameObject.MarkRenderStateDirty();
+    myActor->MarkRenderStateDirty();
 }
 
-const GameObject& Component::GetGameObject() const
+TransformComponent& Component::GetTransform() const
 {
-    return myGameObject;
+    return myActor->GetTransform();
 }
 
-TransformComponent* Component::GetTransform() const
+Actor* Component::GetActor() const
 {
-    return myGameObject.GetTransform();    
+    return myActor;
 }
 
 World* Component::GetWorld() const
 {
-    return myGameObject.GetWorld();
+    return myActor->GetWorld();
 }

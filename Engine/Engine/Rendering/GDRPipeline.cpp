@@ -13,8 +13,6 @@
 #include "Engine/Components/DirectionalLightComponent.h"
 #include "Engine/Components/PointLightComponent.h"
 #include "Engine/Components/TransformComponent.h"
-#include "Engine/ComponentSystem/ComponentSystem.h"
-#include "Engine/ComponentSystem/GameObject.h"
 #include "Engine/Shaders/MeshStructs.hpp"
 #include "Engine/Systems/PointLightSystem.h"
 #include "Engine/Vulkan/GPUSceneSystem.h"
@@ -594,12 +592,12 @@ void GDRPipeline::BuildFrameBuffer() const
 		return;
 	}
 	
-	TransformComponent* transform = camera->GetTransform();
+	TransformComponent& transform = camera->GetTransform();
 	
 	FrameData data{};
 	data.myProjection = camera->GetProjection();
-	data.myToView = glm::affineInverse(transform->GetMatrix());
-	data.myCameraPosition = transform->GetPosition();
+	data.myToView = glm::affineInverse(transform.GetMatrix());
+	data.myCameraPosition = transform.GetPosition();
 
 	if(myCubemap)
 		data.myCubemapIndex = myCubemap->GetBindlessIndex();
@@ -611,18 +609,14 @@ void GDRPipeline::BuildDirectionalLightBuffer() const
 {
 	DirectionalLightBuffer buffer = {};
 
-	for (const DirectionalLightComponent& light : Engine::GetWorld()->GetComponentSystem().GetAllComponentsOfType<DirectionalLightComponent>())
-	{
-		TransformComponent* transform = light.GetTransform();
-		buffer.myColor = light.GetColor();
-		buffer.myDirection = transform->GetForward();
-		buffer.myLightView = glm::affineInverse(transform->GetMatrix());
-		buffer.myLightProjection = light.GetLightProjection();
-		myDirectionalLightBuffer->SetData(buffer);
-		return;
-	}
-	buffer.myColor = glm::vec4(0, 0, 0, 0);
-	LOG("No directional light found.");
+	DirectionalLightComponent* light = Engine::GetWorld()->GetDirectionalLight();
+	
+	TransformComponent& transform = light->GetTransform();
+	buffer.myColor = light->GetColor();
+	buffer.myDirection = transform.GetForward();
+	buffer.myLightView = glm::affineInverse(transform.GetMatrix());
+	buffer.myLightProjection = light->GetLightProjection();
+	myDirectionalLightBuffer->SetData(buffer);
 }
 
 void GDRPipeline::OnTransformMarkedDirty(TransformComponent* inTransform)

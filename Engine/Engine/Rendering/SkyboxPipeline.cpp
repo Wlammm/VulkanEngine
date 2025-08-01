@@ -14,7 +14,6 @@
 #include "Engine/Assets/TextureCube.h"
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Components/TransformComponent.h"
-#include "Engine/ComponentSystem/ComponentSystem.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
 #include "Engine/Vulkan/VulkanPhysicalDevice.h"
@@ -187,8 +186,8 @@ void SkyboxPipeline::BuildFrameBuffer()
 		
 	FrameData data{};
 	data.myProjection = camera->GetProjection();
-	data.myToView = glm::affineInverse(camera->GetTransform()->GetMatrix());
-	data.myCameraPosition = camera->GetTransform()->GetPosition();
+	data.myToView = glm::affineInverse(camera->GetTransform().GetMatrix());
+	data.myCameraPosition = camera->GetTransform().GetPosition();
 	data.myCubemapIndex = mySkybox->GetBindlessIndex();
 	
 	myFrameDataBuffer->SetData(data);

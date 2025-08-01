@@ -32,26 +32,27 @@ void RigidbodyComponent::TickPhysics()
     }
 
     physx::PxTransform transform = myActor->getGlobalPose();
-    GetTransform()->SetPosition(transform.p);
-    GetTransform()->SetRotation(transform.q);
+
+    GetTransform().SetPosition(transform.p);
+    GetTransform().SetRotation(transform.q);
 }
 
 void RigidbodyComponent::OnCreate()
 {
     Component::OnCreate();
 
-    TransformComponent* transform = GetTransform();
-    transform->OnPositionChanged.Bind(&RigidbodyComponent::OnPositionChanged, this);
-    transform->OnRotationChanged.Bind(&RigidbodyComponent::OnRotationChanged, this);
+    TransformComponent& transform = GetTransform();
+    transform.OnPositionChanged.Bind(&RigidbodyComponent::OnPositionChanged, this);
+    transform.OnRotationChanged.Bind(&RigidbodyComponent::OnRotationChanged, this);
     
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
     
     physicsSystem.QueuePhysicsCommand([this, &physicsSystem](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
-        myActor = inPhysics->createRigidDynamic(GetTransform()->AsPxTransform());
-        myActor->userData = const_cast<GameObject*>(&GetGameObject());
+        myActor = inPhysics->createRigidDynamic(GetTransform().AsPxTransform());
+        myActor->userData =GetActor();
         
-        myActor->setGlobalPose(GetTransform()->AsPxTransform());
+        myActor->setGlobalPose(GetTransform().AsPxTransform());
 
         myActor->setMaxLinearVelocity(83000.0f);
         myActor->setMaxAngularVelocity(83000.0f);
@@ -79,9 +80,9 @@ void RigidbodyComponent::OnDestroy()
         inScene->removeActor(*myActor);
     });
     
-    TransformComponent* transform = GetTransform();
-    transform->OnPositionChanged.UnBind(&RigidbodyComponent::OnPositionChanged, this);
-    transform->OnRotationChanged.UnBind(&RigidbodyComponent::OnRotationChanged, this);
+    TransformComponent& transform = GetTransform();
+    transform.OnPositionChanged.UnBind(&RigidbodyComponent::OnPositionChanged, this);
+    transform.OnRotationChanged.UnBind(&RigidbodyComponent::OnRotationChanged, this);
 }
 
 void RigidbodyComponent::SetVelocity(const glm::vec3& inVelocity)
@@ -266,7 +267,7 @@ void RigidbodyComponent::AddTorque(const glm::vec3& inTorque, const ForceMode in
 void RigidbodyComponent::OnPositionChanged()
 {
     check(!PhysicsSystem::IsSimulatingPhysics);
-    const glm::vec3& position = GetTransform()->GetPosition();
+    const glm::vec3& position = GetTransform().GetPosition();
     physx::PxTransform pose = myActor->getGlobalPose();
     pose.p = { position.x, position.y, position.z };
     myActor->setGlobalPose(pose);
@@ -275,7 +276,7 @@ void RigidbodyComponent::OnPositionChanged()
 void RigidbodyComponent::OnRotationChanged()
 {
     check(!PhysicsSystem::IsSimulatingPhysics);
-    const glm::quat& rotation = GetTransform()->GetRotation();
+    const glm::quat& rotation = GetTransform().GetRotation();
     physx::PxTransform pose = myActor->getGlobalPose();
     pose.q = { rotation.x, rotation.y, rotation.z, rotation.w };
     myActor->setGlobalPose(pose);

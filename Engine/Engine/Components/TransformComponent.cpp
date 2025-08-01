@@ -53,13 +53,13 @@ void TransformComponent::TickPhysics()
 	myScaleDirty = false;
 }
 
-void TransformComponent::SetParent(TransformComponent* inParent)
+void TransformComponent::SetParent(TransformComponent& inParent)
 {
 	if (myParent)
 		RemoveParent();
 
-	myParent = inParent;
-	myParent->AddChild(this);
+	myParent = &inParent;
+	myParent->AddChild(*this);
 	MarkDirty(true, true, true);
 }
 
@@ -72,7 +72,7 @@ void TransformComponent::RemoveParent()
 	glm::quat rotation = GetRotation();
 	glm::vec3 scale = GetScale();
 
-	myParent->RemoveChild(this);
+	myParent->RemoveChild(*this);
 	myPosition = position;
 	myRotation = rotation;
 	myScale = scale;
@@ -81,16 +81,16 @@ void TransformComponent::RemoveParent()
 	MarkDirty(true, true, true);
 }
 
-void TransformComponent::AddChild(TransformComponent* inChild)
+void TransformComponent::AddChild(TransformComponent& inChild)
 {
-	check(!myChildren.Contains(inChild));
-	myChildren.Add(inChild);
+	check(!myChildren.Contains(&inChild));
+	myChildren.Add(&inChild);
 }
 
-void TransformComponent::RemoveChild(TransformComponent* inChild)
+void TransformComponent::RemoveChild(TransformComponent& inChild)
 {
-	check(myChildren.Contains(inChild));
-	myChildren.Remove(inChild);
+	check(myChildren.Contains(&inChild));
+	myChildren.Remove(&inChild);
 }
 
 const List<TransformComponent*>& TransformComponent::GetChildren() const
@@ -312,6 +312,21 @@ void TransformComponent::Rotate(const glm::vec3& inRotation)
 void TransformComponent::Rotate(const float inX, const float inY, const float inZ)
 {
 	Rotate({inX, inY, inZ});
+}
+
+bool TransformComponent::IsPositionDirty() const
+{
+	return myPositionDirty;
+}
+
+bool TransformComponent::IsRotationDirty() const
+{
+	return myRotationDirty;
+}
+
+bool TransformComponent::IsScaleDirty() const
+{
+	return myScaleDirty;
 }
 
 void TransformComponent::MarkDirtyFromInspector()

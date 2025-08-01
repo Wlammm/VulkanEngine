@@ -2,9 +2,6 @@
 #include "PhysicsSystem.h"
 #include "PhysXInclude.h"
 #include <omnipvd/PxOmniPvd.h>
-//#include "../pvdruntime/include/OmniPvdWriter.h"
-//#include "../pvdruntime/include/OmniPvdFileWriteStream.h"
-#include "Engine/ComponentSystem/ComponentSystem.h"
 #include "Engine/Core/Time.h"
 #include "Engine/World/World.h"
 #include "Engine/Physics/PhysicsErrorCallback.h"
@@ -151,7 +148,7 @@ void PhysicsSystem::Tick()
         myPhysicsCommands.Clear();
     }
     
-    GetWorld()->GetComponentSystem().TickPhysics();
+    GetWorld()->TickPhysics();
 
     IsSimulatingPhysics = true;
     myHasActiveSimulation = true;

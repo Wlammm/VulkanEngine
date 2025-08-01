@@ -56,7 +56,7 @@ private:
     void SerializeTypeInternal(ClassType& inOutInstance)
     {
         void* instance = (void*)&inOutInstance;
-        const Type* type = ReflectionSystem::GetClass<std::remove_pointer_t<ClassType>>();
+        const Type* type = ReflectionSystem::GetType<std::remove_pointer_t<ClassType>>();
         check(type && "Failed to find class type.");
         bool isPointer = std::is_pointer<ClassType>::value;
 
