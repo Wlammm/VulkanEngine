@@ -27,6 +27,7 @@
 #include "Systems/PointLightSystem.h"
 #include "Vulkan/GPUSceneSystem.h"
 #include "Vulkan/Staging/StagingSystem.h"
+#include "World/GameWorld.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -82,6 +83,14 @@ Engine::~Engine()
 
 void Engine::Tick()
 {
+	/*World* world = new GameWorld();
+	world->Init();
+	world->SaveToFile("Test/World.test");
+
+	World* world2 = new GameWorld();
+	world2->LoadFromFile("Test/World.test");
+	int a  = 10;
+*/	
 #if 0 // Serialization testing.
 	BinarySerializer serializer("SomeFile.format", BinarySerializer::Mode::Write);
 	TestClass testClass;

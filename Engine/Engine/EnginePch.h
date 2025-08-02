@@ -4,6 +4,7 @@
 #define META(...) __attribute__((annotate(#__VA_ARGS__)))
 #define AllowPrivateAccess
 #define HideInInspector
+#define SerializeField
 #else
 #define EXPAND(x) x
 #define CAT(a, b) a##b
@@ -41,6 +42,9 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 // This is only needed if you want the reflection system to recognize private methods. Private fields are always reflected.
 #define AllowPrivateAccess friend class GeneratedReflectionData;
 
+// Use this to serialize the field to disk in case the class is being serialized.
+#define SerializeField friend class GeneratedReflectionData;
+
 #define HideInInspector
 #endif
 
@@ -53,8 +57,6 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 // Replaces glm::vec3's normal inspector renderer with a color picker.
 #define ExposeAsColor
 
-// Use this to serialize the field to disk in case the class is being serialized.
-#define SerializeField
 
 //#define TRACY_FIBERS
 

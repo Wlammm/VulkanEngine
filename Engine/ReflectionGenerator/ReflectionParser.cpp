@@ -143,6 +143,14 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
                         templateArgTypeName = GetSpelling(clang_getNonReferenceType(argType));
 
                     currentClass->AddTemplateArgument(i, templateArgTypeName, isPointer, isReference);
+
+                    bool isTemplateArgTemplateSpecialization = clang_Type_getNumTemplateArguments(argType) > 0;
+                    
+                    // Only add other template specializations here as they won't otherwise be registered as types themselves.
+                    if (!clientData.self->HasAlreadyParsedClass(templateArgTypeName) && isTemplateArgTemplateSpecialization)
+                    {
+                        clientData.self->AddClass(fileName, ReflectedClass(templateArgTypeName));
+                    }
                     // currentClass->AddTemplateArgument(i, GetTemplateArgSpelling(argType));
                 }
             }
@@ -276,11 +284,21 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         // Reflect the field like normal
         uint32_t byteOffset = GetByteOffsetOfField(inCurrentCursor, fieldName);
         std::vector<std::string> fieldMetaData = GetMetadata(inCurrentCursor);
-
-        if (typeName == "VmaAllocator_T")
-            int a = 10;
         
         typeName = ReplaceBadTypeNames(typeName);
+
+        bool hasFriendDeclaringMetaData = false;
+        for (const std::string& string : fieldMetaData)
+        {
+            if (string == "SerializeField" || string == "AllowPrivateAccess")
+            {
+                hasFriendDeclaringMetaData = true;
+                break;
+            }
+        }
+
+        if (hasFriendDeclaringMetaData)
+            clientData.classStack.back()->SetGenerationFileHasAccessToPrivateMembers(true);
         
         ReflectedField& field = clientData.classStack.back()->AddField(
             ReflectedField(fieldName, typeName, byteOffset, fieldMetaData, isPointer, isReference)
@@ -559,7 +577,7 @@ ReflectedClass& ReflectionParser::AddClass(const std::string& inFile, const Refl
         myClassesInFiles[inFile] = { inClass };
         return myClassesInFiles[inFile].back();
     }
-    
+
     myClassesInFiles[inFile].push_back(inClass);
     return myClassesInFiles[inFile].back();
 }

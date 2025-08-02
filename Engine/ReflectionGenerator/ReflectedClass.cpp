@@ -135,3 +135,13 @@ const std::vector<ReflectedClassTemplateArgument>& ReflectedClass::GetTemplateAr
 {
     return myTemplateArguments;
 }
+
+void ReflectedClass::SetGenerationFileHasAccessToPrivateMembers(const bool inValue)
+{
+    myGenerationFileHasAccessToPrivateMembers = inValue;
+}
+
+bool ReflectedClass::GetHasGenerationFileHasAccessToPrivateMembers() const
+{
+    return myGenerationFileHasAccessToPrivateMembers;
+}

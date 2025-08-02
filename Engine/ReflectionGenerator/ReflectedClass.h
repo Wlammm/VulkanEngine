@@ -36,7 +36,9 @@ public:
 
     void AddTemplateArgument(const int inIndex, const std::string& inTemplateArgument, const bool inIsPointer, const bool inIsReference);
     const std::vector<ReflectedClassTemplateArgument>& GetTemplateArguments() const;
-    
+
+    void SetGenerationFileHasAccessToPrivateMembers(const bool inValue);
+    bool GetHasGenerationFileHasAccessToPrivateMembers() const;
 
 private:
     // The file this class is defined in.
@@ -47,4 +49,6 @@ private:
     
     std::vector<std::string> myBaseTypeNames;
     std::vector<ReflectedClassTemplateArgument> myTemplateArguments;
+
+    bool myGenerationFileHasAccessToPrivateMembers = false;
 };

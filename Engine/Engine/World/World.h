@@ -81,7 +81,9 @@ protected:
     UniquePtr<class AssetRegistry> myAssetRegistry = nullptr;
     UniquePtr<SystemManager<WorldSystem>> mySystemManager = nullptr;
 
+    META(SerializeField)
     List<UniquePtr<Actor>> myActors{};
+
     List<Actor*> myActorsToDelete{};
 
     DirectionalLightActor* myDirectionalLightActor;

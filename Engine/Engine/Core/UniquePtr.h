@@ -2,8 +2,14 @@
 #include "Engine/Delegates/Delegate.hpp"
 
 
+class IUniquePtr
+{
+public:
+    virtual void* GetVoidPtr() const = 0; 
+};
+
 template <typename Type>
-class UniquePtr
+class UniquePtr : public IUniquePtr
 {
 public:
     UniquePtr()
@@ -64,7 +70,12 @@ public:
     UniquePtr(const UniquePtr& inOther) = delete;
     UniquePtr& operator=(const UniquePtr& inOther) = delete;
 
-    Type*Get() const
+    Type* Get() const
+    {
+        return myObject;
+    }
+
+    void* GetVoidPtr() const override
     {
         return myObject;
     }

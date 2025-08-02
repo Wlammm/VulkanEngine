@@ -55,7 +55,7 @@ public:
 private:
     friend class GeneratedReflectionData;
 
-    template <typename ClassType>
+    template <typename ClassType>//
     static void AddType(const std::string& inTypeName, const std::string& inFullName)
     {
         constexpr size_t classSize = []() constexpr
@@ -66,7 +66,7 @@ private:
                 return sizeof(std::remove_reference_t<ClassType>);
         }();
 
-        // Make sure we dont have duplicate classes.
+        // Make sure we dont have duplicate classes.//
         for (const Type* entry : myTypes)
         {
             check(entry->myFullName != inFullName);

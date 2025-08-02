@@ -100,12 +100,14 @@ void World::TickPhysics()
 void World::SaveToFile(const std::filesystem::path& inPath)
 {
 	BinarySerializer writer(inPath, BinarySerializer::Mode::Write);
+	writer.SerializeType(*this);
 	writer.Close();
 }
 
 void World::LoadFromFile(const std::filesystem::path& inPath)
 {
 	BinarySerializer writer(inPath, BinarySerializer::Mode::Read);
+	writer.SerializeType(*this);
 	writer.Close();
 }
 

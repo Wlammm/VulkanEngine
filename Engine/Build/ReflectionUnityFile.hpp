@@ -100,6 +100,7 @@
 #include "../Engine/Serialization\TypeSerializers\PrimitiveSerializer.h"
 #include "../Engine/Serialization\TypeSerializers\StringSerializer.h"
 #include "../Engine/Serialization\TypeSerializers\TypeSerializer.h"
+#include "../Engine/Serialization\TypeSerializers\UniquePtrSerializer.h"
 #include "../Engine/Shaders\MeshStructs.hpp"
 #include "../Engine/System\System.h"
 #include "../Engine/System\SystemManager.hpp"

@@ -58,8 +58,19 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
 
             for (const ReflectedField& field : reflectedClass.GetFields())
             {
+                std::string offsetString = "";
+
+                if (reflectedClass.GetHasGenerationFileHasAccessToPrivateMembers())
+                {
+                    offsetString = "offsetof(" + reflectedClass.GetClassName() + ", " + field.GetFieldName() + ")";
+                }
+                else
+                {
+                    offsetString = std::to_string(field.GetByteOffset());
+                }
+                
                 outString += "\t{\n";
-                outString += "\t\tField& currentField = currentClass->AddField(Field(\"" + field.GetFieldName() + "\", " + std::to_string(field.GetByteOffset()) +", ReflectionSystem::GetOrCreateType<" + field.GetFieldType() + ">(\"" + field.GetFieldType() + "\"), " + (field.GetIsPointer() ? "true" : "false") + ", " + (field.GetIsReference() ? "true" : "false") + "));\n";
+                outString += "\t\tField& currentField = currentClass->AddField(Field(\"" + field.GetFieldName() + "\", " + offsetString +", ReflectionSystem::GetOrCreateType<" + field.GetFieldType() + ">(\"" + field.GetFieldType() + "\"), " + (field.GetIsPointer() ? "true" : "false") + ", " + (field.GetIsReference() ? "true" : "false") + "));\n";
                 for (const std::string& metadata : field.GetFieldMetadata())
                 {
                     outString += "\t\tcurrentField.AddMetadata(R\"delim(" + metadata + ")delim\");\n";
