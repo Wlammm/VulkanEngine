@@ -48,6 +48,7 @@ public:
     }
 
     void RemoveActor(Actor* inActor);
+    void RemoveAllActors();
 
     const List<UniquePtr<Actor>>& GetAllActors() const;
 
@@ -63,6 +64,17 @@ public:
     
     DirectionalLightComponent* GetDirectionalLight() const;
 
+    template<typename ActorType>
+    ActorType* FindActorOfType() const
+    {
+        for (const UniquePtr<Actor>& actor : myActors)
+        {
+            if (actor.IsA<ActorType>())
+                return static_cast<ActorType*>(actor.Get());
+        }
+        return nullptr;
+    }
+    
     template <typename SystemType>
     SystemType& GetWorldSystem() const
     {
@@ -86,7 +98,7 @@ protected:
 
     List<Actor*> myActorsToDelete{};
 
-    DirectionalLightActor* myDirectionalLightActor;
+    mutable DirectionalLightActor* myCachedDirectionalLightActor;
 
     CameraComponent* myMainCamera = nullptr;
 };

@@ -83,14 +83,6 @@ Engine::~Engine()
 
 void Engine::Tick()
 {
-	/*World* world = new GameWorld();
-	world->Init();
-	world->SaveToFile("Test/World.test");
-
-	World* world2 = new GameWorld();
-	world2->LoadFromFile("Test/World.test");
-	int a  = 10;
-*/	
 #if 0 // Serialization testing.
 	BinarySerializer serializer("SomeFile.format", BinarySerializer::Mode::Write);
 	TestClass testClass;

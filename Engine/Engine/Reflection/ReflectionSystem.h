@@ -1,5 +1,10 @@
 ﻿#pragma once
 #include "Type.h"
+// #include "Engine/Core/UniquePtr.h"
+
+class IUniquePtr;
+template <typename T> class UniquePtr;
+template <typename PtrType, typename... Args> UniquePtr<PtrType> MakeUnique(Args&&... inArgs);
 
 class ReflectionSystem 
 {
@@ -66,17 +71,27 @@ private:
                 return sizeof(std::remove_reference_t<ClassType>);
         }();
 
-        // Make sure we dont have duplicate classes.//
+        // Make sure we dont have duplicate classes.
         for (const Type* entry : myTypes)
         {
             check(entry->myFullName != inFullName);
+        }
+
+        Delegate<void(IUniquePtr*)> uniquePtrFactory = nullptr;
+        if constexpr (!std::is_abstract_v<ClassType> && std::is_default_constructible_v<ClassType> && !std::is_const_v<ClassType> && !std::is_array_v<ClassType>)
+        {
+            uniquePtrFactory = [](IUniquePtr* inPtr)
+            {
+                UniquePtr<ClassType>* castedPtr = static_cast<UniquePtr<ClassType>*>(inPtr);
+                *castedPtr = MakeUnique<ClassType>();
+            };
         }
 
         if constexpr (std::is_default_constructible_v<ClassType> && !std::is_abstract_v<ClassType>)
         {
             myTypes.Add(new Type(inTypeName, inFullName, classSize, std::is_trivially_copyable_v<ClassType>,
                 []() -> void* { return new typename std::remove_const<ClassType>::type(); },
-                [](void* destination){ new (destination) typename std::remove_const<ClassType>::type(); }));
+                [](void* destination){ new (destination) typename std::remove_const<ClassType>::type(); }, uniquePtrFactory));
         }
         else
         {
@@ -89,7 +104,7 @@ private:
             [](void*)
                 {
                     check(false && "PlacementNew not supported for this type!");
-                }));
+                }, uniquePtrFactory));
         }
     }
 

@@ -7,169 +7,171 @@
 // BEGIN INCLUDES FOR REFLECTED TYPES
 
 #include "../Engine/EnginePch.h"
-#include "../Engine/Vulkan/VulkanDescriptorSet.h"
-#include "../Engine/Math/Color.h"
-#include "../Engine/Core/Random.h"
-#include "../Engine/Assets/Texture.h"
-#include "../Engine/Reflection/Method.h"
-#include "../Engine/Math/LinearColor.h"
-#include "../Engine/Core/Console.h"
-#include "../Engine/Core/UniqueID.h"
-#include "../Engine/Utils/OnScopeExit.h"
-#include "../Engine/Rendering/Vertex.hpp"
-#include "../Engine/Core/UniquePtr.h"
-#include "../Engine/EngineProperties.hpp"
-#include "../Engine/Containers/List.hpp"
-#include "../Engine/Containers/ContainerTypes.hpp"
-#include "../Editor/Toolbar/File/SaveLoadToolbar.h"
-#include "../Engine/Animation/Skeleton.h"
 #include "../Engine/Utils/String.hpp"
 #include "../Engine/Components/SphereColliderComponent.h"
-#include "../Engine/Engine.h"
-#include "../Engine/Coroutines/Coroutine.h"
-#include "../Engine/Components/PointLightComponent.h"
-#include "../Engine/AssetRegistry/Asset.h"
+#include "../Editor/Actors/EditorCameraActor.h"
+#include "../Editor/Toolbar/File/SaveLoadToolbar.h"
+#include "../Engine/Animation/Skeleton.h"
+#include "../Editor/Editor.h"
+#include "../Editor/EditorSystem/EditorSystem.h"
+#include "../Editor/Windows/HierarchyWindow.h"
+#include "../Editor/EditorSystem/ImGuiDemoSystem.h"
+#include "../Editor/EditorPch.h"
+#include "../Engine/Components/EditorCameraMovementComponent.h"
+#include "../Editor/EditorSystem/EditorToolbar.h"
+#include "../Editor/EditorSystem/SelectionSystem.h"
+#include "../Editor/Toolbar/Themes/EditorThemes.h"
+#include "../Engine/Components/CapsuleColliderComponent.h"
+#include "../Engine/ComponentSystem/Actors/LandscapeActor.h"
+#include "../Editor/Utils/EditorConfirmPrompt.h"
+#include "../Engine/Components/SinWaveMovementComponent.h"
+#include "../Editor/Utils/ImGuiTextureUtils.h"
+#include "../Editor/Windows/ContentBrowserWindow.h"
+#include "../Editor/Windows/InspectorWindow.h"
+#include "../Editor/Windows/EditorWindow.h"
+#include "../Engine/ComponentSystem/Actors/StaticMeshActor.h"
+#include "../Editor/Windows/ImGuiPropertyDrawer.h"
+#include "../Editor/World/EditorWorld.h"
+#include "../Editor/Windows/Viewport.h"
 #include "../Engine/Core/Filewatcher.h"
-#include "../Engine/AssetRegistry/AssetContainer.h"
+#include "../Engine/AssetRegistry/Asset.h"
 #include "../Engine/Assets/Model.h"
-#include "../Engine/Core/ThreadPool.h"
-#include "../Engine/Assets/TextureCube.h"
-#include "../Engine/Serialization/TypeSerializers/GlmSerializer.h"
-#include "../Engine/Utils/ThreadUtils.hpp"
-#include "../Engine/AssetRegistry/AssetRegistry.h"
+#include "../Engine/AssetRegistry/AssetContainer.h"
+#include "../Engine/AssetRegistry/AssetRef.h"
+#include "../Engine/Core/Console.h"
 #include "../Engine/Rendering/SkyboxPipeline.h"
 #include "../Engine/Components/ConvexColliderComponent.h"
 #include "../Engine/ComponentSystem/Actors/PointLightActor.h"
+#include "../Engine/AssetRegistry/AssetRegistry.h"
+#include "../Engine/Containers/MutexList.hpp"
 #include "../Engine/Assets/JsonAsset.h"
-#include "../Engine/Vulkan/VulkanAllocator.h"
-#include "../Engine/Delegates/MulticastDelegate.hpp"
-#include "../Engine/Vulkan/VulkanBuffer.h"
-#include "../Engine/System/System.h"
-#include "../Engine/Components/StaticMeshComponent.h"
-#include "../Engine/Delegates/Internal/LambdaFuncCtor.hpp"
-#include "../Engine/Rendering/RenderSystem.h"
-#include "../Engine/Components/DirectionalLightComponent.h"
-#include "../Engine/Utils/MathUtils.hpp"
-#include "../Engine/Vulkan/VulkanDynamicBuffer.hpp"
 #include "../Engine/Assets/Material.h"
 #include "../Engine/Assets/Shader.h"
-#include "../Engine/ComponentSystem/Component.h"
-#include "../Engine/Components/TransformComponent.h"
-#include "../Engine/Core/Input.h"
-#include "../Engine/Components/CharacterControllerComponent.h"
-#include "../Engine/Components/RigidbodyComponent.h"
-#include "../Engine/Vulkan/GPUSceneSystem.h"
-#include "../Engine/Components/ColliderComponent.h"
-#include "../Engine/Components/BoxColliderComponent.h"
-#include "../Engine/Components/LandscapeRenderComponent.h"
-#include "../Engine/Components/CameraComponent.h"
-#include "../Editor/Toolbar/Themes/EditorThemes.h"
-#include "../Engine/Components/CapsuleColliderComponent.h"
-#include "../Editor/EditorPch.h"
-#include "../Engine/Components/EditorCameraMovementComponent.h"
-#include "../Engine/Containers/SegmentedList.h"
-#include "../Engine/System/WorldSystem.h"
-#include "../Engine/Components/LandscapeColliderComponent.h"
-#include "../Engine/Physics/PhysicsSystem.h"
-#include "../Engine/Math/Heightfield.h"
-#include "../Engine/Serialization/TypeSerializers/TypeSerializer.h"
-#include "../Engine/Components/MeshColliderComponent.h"
-#include "../Engine/Components/SinWaveMovementComponent.h"
+#include "../Engine/Reflection/Method.h"
+#include "../Engine/Assets/Texture.h"
+#include "../Engine/Assets/TextureCube.h"
+#include "../Engine/Core/EngineDefines.hpp"
 #include "../Engine/ComponentSystem/Actor.h"
 #include "../Engine/ComponentSystem/Actors/DirectionalLightActor.h"
-#include "../Engine/ComponentSystem/Actors/LandscapeActor.h"
 #include "../Engine/ComponentSystem/Actors/PhysicsCubeActor.h"
-#include "../Engine/ComponentSystem/Actors/StaticMeshActor.h"
+#include "../Engine/Components/TransformComponent.h"
+#include "../Engine/ComponentSystem/Component.h"
+#include "../Engine/ComponentSystem/GameObjectTag.hpp"
+#include "../Engine/Components/LandscapeRenderComponent.h"
+#include "../Engine/Components/BoxColliderComponent.h"
+#include "../Engine/Components/CameraComponent.h"
+#include "../Engine/Vulkan/GPUSceneSystem.h"
+#include "../Engine/Components/RigidbodyComponent.h"
+#include "../Engine/Components/CharacterControllerComponent.h"
+#include "../Engine/Components/ColliderComponent.h"
+#include "../Engine/Components/DirectionalLightComponent.h"
+#include "../Engine/System/WorldSystem.h"
+#include "../Engine/Components/LandscapeColliderComponent.h"
+#include "../Engine/Containers/SegmentedList.h"
+#include "../Engine/Serialization/TypeSerializers/TypeSerializer.h"
+#include "../Engine/Components/MeshColliderComponent.h"
+#include "../Engine/Coroutines/Coroutine.h"
+#include "../Engine/Components/PointLightComponent.h"
+#include "../Engine/Components/StaticMeshComponent.h"
+#include "../Engine/Containers/ContainerTypes.hpp"
+#include "../Engine/Containers/List.hpp"
 #include "../Engine/Core/AutoInit.h"
 #include "../Engine/Core/AutoInitManager.h"
+#include "../Engine/Core/CheckDefine.hpp"
+#include "../Engine/Core/Input.h"
+#include "../Engine/Core/Random.h"
+#include "../Engine/Core/SharedPtr.h"
+#include "../Engine/Core/ThreadPool.h"
 #include "../Engine/Core/Time.h"
+#include "../Engine/Core/UniqueID.h"
+#include "../Engine/Core/UniquePtr.h"
 #include "../Engine/Coroutines/Awaitable.h"
 #include "../Engine/Coroutines/CoroutineManager.h"
+#include "../Engine/Reflection/Field.h"
+#include "../Engine/Delegates/Delegate.hpp"
+#include "../Engine/Delegates/Internal/ConstMemberFuncCtor.hpp"
+#include "../Engine/Delegates/Internal/FreeFuncCtor.hpp"
+#include "../Engine/Delegates/Internal/FuncCtor.hpp"
+#include "../Engine/Rendering/RenderSystem.h"
+#include "../Engine/Delegates/Internal/LambdaFuncCtor.hpp"
+#include "../Engine/Delegates/Internal/MemberFuncCtor.hpp"
+#include "../Engine/Delegates/MulticastDelegate.hpp"
+#include "../Engine/Engine.h"
+#include "../Engine/EnginePch.h"
+#include "../Engine/EngineProperties.hpp"
+#include "../Engine/Math/Color.h"
+#include "../Engine/Math/GlmUtils.hpp"
+#include "../Engine/Physics/PhysicsSystem.h"
+#include "../Engine/Math/Heightfield.h"
+#include "../Engine/Math/LinearColor.h"
+#include "../Engine/Physics/PhysXInclude.h"
 #include "../Engine/Physics/PhysicsErrorCallback.h"
 #include "../Engine/Physics/PhysicsListener.h"
 #include "../Engine/Physics/PhysicsQueryStructs.h"
-#include "../Engine/Reflection/Field.h"
-#include "../Engine/Delegates/Delegate.hpp"
-#include "../Engine/Reflection/Type.h"
 #include "../Engine/Reflection/ReflectionSystem.h"
+#include "../Engine/Reflection/Type.h"
 #include "../Engine/Rendering/DebugPipeline.h"
 #include "../Engine/Rendering/FullscreenPipeline.h"
 #include "../Engine/Rendering/GDRPipeline.h"
 #include "../Engine/Rendering/IndexBufferHandle.h"
-#include "../Engine/Shaders/MeshStructs.hpp"
 #include "../Engine/Rendering/IndexBufferSystem.h"
 #include "../Engine/Rendering/Mesh.h"
 #include "../Engine/Rendering/MeshSystem.h"
-#include "../Engine/Rendering/MeshUtils.h"
 #include "../Engine/Rendering/VertexBufferHandle.h"
+#include "../Engine/Rendering/MeshUtils.h"
 #include "../Engine/Rendering/TextureSystem.h"
-#include "../Engine/Vulkan/ResizableBuffer.h"
+#include "../Engine/Rendering/Vertex.hpp"
 #include "../Engine/Rendering/VertexBufferSystem.h"
 #include "../Engine/Serialization/BinarySerializer.h"
+#include "../Engine/Serialization/TypeSerializers/AssetSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/FileTimeSerializer.h"
+#include "../Engine/Utils/ThreadUtils.hpp"
+#include "../Engine/Serialization/TypeSerializers/GlmSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/ListSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/MapSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/PathSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/PrimitiveSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/StringSerializer.h"
-#include "../Engine/Serialization/TypeSerializers/UniquePtrSerializer.h"
 #include "../Game/Components/Player/PlayerCameraControllerComponent.h"
+#include "../Engine/Serialization/TypeSerializers/UniquePtrSerializer.h"
+#include "../Engine/Shaders/MeshStructs.hpp"
+#include "../Engine/System/System.h"
+#include "../Engine/System/SystemManager.hpp"
 #include "../Engine/Systems/LandscapeSystem.h"
-#include "../Engine/Systems/PointLightSystem.h"
 #include "../Engine/Vulkan/VulkanUtils.hpp"
+#include "../Engine/Systems/PointLightSystem.h"
 #include "../Engine/Utils/BinaryUtils.hpp"
+#include "../Engine/Utils/CommonMacros.h"
 #include "../Engine/Utils/Debug.h"
-#include "../Engine/Vulkan/Aftermath/ShaderDatabase.h"
+#include "../Engine/Utils/HashUtils.hpp"
+#include "../Engine/Utils/MathUtils.hpp"
+#include "../Engine/Utils/OnScopeExit.h"
+#include "../Engine/Utils/StdIncludes.hpp"
 #include "../Engine/Vulkan/Aftermath/NvidiaAftermathTracker.h"
+#include "../Engine/Vulkan/Aftermath/ShaderDatabase.h"
+#include "../Engine/Vulkan/ResizableBuffer.h"
 #include "../Engine/Vulkan/Staging/StagingBuffer.h"
-#include "../Engine/Vulkan/VulkanContext.h"
-#include "../Engine/Vulkan/Staging/StagingSystem.h"
 #include "../Game/Actors/PlayerCameraActor.h"
+#include "../Engine/Vulkan/Staging/StagingSystem.h"
+#include "../Engine/Vulkan/VulkanAllocator.h"
+#include "../Engine/Vulkan/VulkanBuffer.h"
 #include "../Engine/Vulkan/VulkanCommandBuffer.h"
+#include "../Engine/Vulkan/VulkanContext.h"
+#include "../Engine/Vulkan/VulkanDescriptorSet.h"
 #include "../Engine/Vulkan/VulkanDevice.h"
-#include "../Engine/Vulkan/VulkanImage.h"
+#include "../Engine/Vulkan/VulkanDynamicBuffer.hpp"
 #include "../Engine/Vulkan/VulkanImGui.h"
+#include "../Engine/Vulkan/VulkanImage.h"
 #include "../Engine/Vulkan/VulkanPhysicalDevice.h"
 #include "../Engine/Vulkan/VulkanShaderIncluder.h"
 #include "../Engine/Vulkan/VulkanSwapChain.h"
 #include "../Engine/Windows/WindowHandler.h"
-#include "../Engine/World/World.h"
 #include "../Engine/World/GameWorld.h"
-#include "../Editor/Actors/EditorCameraActor.h"
-#include "../Editor/Editor.h"
-#include "../Editor/EditorSystem/EditorSystem.h"
-#include "../Editor/Windows/HierarchyWindow.h"
-#include "../Editor/EditorSystem/EditorToolbar.h"
-#include "../Editor/EditorSystem/ImGuiDemoSystem.h"
-#include "../Editor/EditorSystem/SelectionSystem.h"
-#include "../Editor/World/EditorWorld.h"
-#include "../Editor/Utils/EditorConfirmPrompt.h"
-#include "../Editor/Utils/ImGuiTextureUtils.h"
-#include "../Editor/Windows/EditorWindow.h"
-#include "../Editor/Windows/ContentBrowserWindow.h"
-#include "../Editor/Windows/ImGuiPropertyDrawer.h"
-#include "../Editor/Windows/InspectorWindow.h"
-#include "../Editor/Windows/Viewport.h"
-#include "../Game/Components/Player/PlayerComponent.h"
+#include "../Engine/World/World.h"
 #include "../Game/Actors/PlayerActor.h"
+#include "../Game/Components/Player/PlayerComponent.h"
 #include "../Game/Components/SpringArmComponent.h"
 #include "../Game/Game.h"
-#include "../Engine/ComponentSystem/GameObjectTag.hpp"
-#include "../Engine/Containers/MutexList.hpp"
-#include "../Engine/Core/CheckDefine.hpp"
-#include "../Engine/Core/EngineDefines.hpp"
-#include "../Engine/Core/SharedPtr.h"
-#include "../Engine/Delegates/Internal/ConstMemberFuncCtor.hpp"
-#include "../Engine/Delegates/Internal/FreeFuncCtor.hpp"
-#include "../Engine/Delegates/Internal/FuncCtor.hpp"
-#include "../Engine/Delegates/Internal/MemberFuncCtor.hpp"
-#include "../Engine/EnginePch.h"
-#include "../Engine/Math/GlmUtils.hpp"
-#include "../Engine/Physics/PhysXInclude.h"
-#include "../Engine/System/SystemManager.hpp"
-#include "../Engine/Utils/CommonMacros.h"
-#include "../Engine/Utils/HashUtils.hpp"
-#include "../Engine/Utils/StdIncludes.hpp"
 #include "../Game/GamePch.h"
 #include "../Game/GameTags.h"
 
@@ -202,39 +204,85 @@ public:
 	{
 		// Create all classes.
 		{
-		    ReflectionSystem::AddType<VulkanDescriptorSet>("VulkanDescriptorSet", typeid(VulkanDescriptorSet).name());
-ReflectionSystem::AddType<Color>("Color", typeid(Color).name());
-ReflectionSystem::AddType<Random>("Random", typeid(Random).name());
-ReflectionSystem::AddType<ImageData>("ImageData", typeid(ImageData).name());
-ReflectionSystem::AddType<Texture>("Texture", typeid(Texture).name());
+		    ReflectionSystem::AddType<String>("String", typeid(String).name());
+ReflectionSystem::AddType<SphereColliderComponent>("SphereColliderComponent", typeid(SphereColliderComponent).name());
+ReflectionSystem::AddType<EditorCameraActor>("EditorCameraActor", typeid(EditorCameraActor).name());
+ReflectionSystem::AddType<SaveLoadToolbar>("SaveLoadToolbar", typeid(SaveLoadToolbar).name());
+ReflectionSystem::AddType<Skeleton>("Skeleton", typeid(Skeleton).name());
+ReflectionSystem::AddType<Skeleton::Bone>("Skeleton::Bone", typeid(Skeleton::Bone).name());
+ReflectionSystem::AddType<Editor>("Editor", typeid(Editor).name());
+ReflectionSystem::AddType<EditorSystem>("EditorSystem", typeid(EditorSystem).name());
+ReflectionSystem::AddType<HierarchyWindow>("HierarchyWindow", typeid(HierarchyWindow).name());
+ReflectionSystem::AddType<ImGuiDemoSystem>("ImGuiDemoSystem", typeid(ImGuiDemoSystem).name());
+ReflectionSystem::AddType<EditorCameraMovementComponent>("EditorCameraMovementComponent", typeid(EditorCameraMovementComponent).name());
+ReflectionSystem::AddType<EditorToolbar>("EditorToolbar", typeid(EditorToolbar).name());
+ReflectionSystem::AddType<SelectionSystem>("SelectionSystem", typeid(SelectionSystem).name());
+ReflectionSystem::AddType<EditorThemes>("EditorThemes", typeid(EditorThemes).name());
+ReflectionSystem::AddType<CapsuleColliderComponent>("CapsuleColliderComponent", typeid(CapsuleColliderComponent).name());
+ReflectionSystem::AddType<LandscapeActor>("LandscapeActor", typeid(LandscapeActor).name());
+ReflectionSystem::AddType<EditorConfirmPrompt>("EditorConfirmPrompt", typeid(EditorConfirmPrompt).name());
+ReflectionSystem::AddType<SinWaveMovementComponent>("SinWaveMovementComponent", typeid(SinWaveMovementComponent).name());
+ReflectionSystem::AddType<ImGuiTextureUtils>("ImGuiTextureUtils", typeid(ImGuiTextureUtils).name());
+ReflectionSystem::AddType<ContentBrowserItem>("ContentBrowserItem", typeid(ContentBrowserItem).name());
+ReflectionSystem::AddType<ContentBrowserWindow>("ContentBrowserWindow", typeid(ContentBrowserWindow).name());
+ReflectionSystem::AddType<InspectorWindow>("InspectorWindow", typeid(InspectorWindow).name());
+ReflectionSystem::AddType<EditorWindow>("EditorWindow", typeid(EditorWindow).name());
+ReflectionSystem::AddType<StaticMeshActor>("StaticMeshActor", typeid(StaticMeshActor).name());
+ReflectionSystem::AddType<ImGuiPropertyDrawer>("ImGuiPropertyDrawer", typeid(ImGuiPropertyDrawer).name());
+ReflectionSystem::AddType<EditorWorld>("EditorWorld", typeid(EditorWorld).name());
+ReflectionSystem::AddType<Viewport>("Viewport", typeid(Viewport).name());
+ReflectionSystem::AddType<Filewatcher>("Filewatcher", typeid(Filewatcher).name());
+ReflectionSystem::AddType<Filewatcher::CallbackHandle>("Filewatcher::CallbackHandle", typeid(Filewatcher::CallbackHandle).name());
+ReflectionSystem::AddType<Filewatcher::FileData>("Filewatcher::FileData", typeid(Filewatcher::FileData).name());
+ReflectionSystem::AddType<Asset>("Asset", typeid(Asset).name());
+ReflectionSystem::AddType<SerializationMeshData>("SerializationMeshData", typeid(SerializationMeshData).name());
+ReflectionSystem::AddType<SerializationModelData>("SerializationModelData", typeid(SerializationModelData).name());
+ReflectionSystem::AddType<Model>("Model", typeid(Model).name());
+ReflectionSystem::AddType<IAssetContainer>("IAssetContainer", typeid(IAssetContainer).name());
+ReflectionSystem::AddType<Console>("Console", typeid(Console).name());
+ReflectionSystem::AddType<SkyboxPipeline>("SkyboxPipeline", typeid(SkyboxPipeline).name());
+ReflectionSystem::AddType<ConvexColliderComponent>("ConvexColliderComponent", typeid(ConvexColliderComponent).name());
+ReflectionSystem::AddType<PointLightActor>("PointLightActor", typeid(PointLightActor).name());
+ReflectionSystem::AddType<AssetRegistry>("AssetRegistry", typeid(AssetRegistry).name());
+ReflectionSystem::AddType<JsonAsset>("JsonAsset", typeid(JsonAsset).name());
+ReflectionSystem::AddType<Material>("Material", typeid(Material).name());
+ReflectionSystem::AddType<Shader>("Shader", typeid(Shader).name());
 ReflectionSystem::AddType<MethodArgument>("MethodArgument", typeid(MethodArgument).name());
 ReflectionSystem::AddType<Method>("Method", typeid(Method).name());
-ReflectionSystem::AddType<LinearColor>("LinearColor", typeid(LinearColor).name());
-ReflectionSystem::AddType<Console>("Console", typeid(Console).name());
-ReflectionSystem::AddType<UniqueID>("UniqueID", typeid(UniqueID).name());
-ReflectionSystem::AddType<OnScopeExit>("OnScopeExit", typeid(OnScopeExit).name());
-ReflectionSystem::AddType<Vertex>("Vertex", typeid(Vertex).name());
-ReflectionSystem::AddType<IUniquePtr>("IUniquePtr", typeid(IUniquePtr).name());
-ReflectionSystem::AddType<UniquePtr<SystemManager<System>>>("UniquePtr<SystemManager<System>>", typeid(UniquePtr<SystemManager<System>>).name());
-ReflectionSystem::AddType<SystemManager<System>>("SystemManager<System>", typeid(SystemManager<System>).name());
-ReflectionSystem::AddType<UniquePtr<ThreadPool>>("UniquePtr<ThreadPool>", typeid(UniquePtr<ThreadPool>).name());
-ReflectionSystem::AddType<UniquePtr<Filewatcher>>("UniquePtr<Filewatcher>", typeid(UniquePtr<Filewatcher>).name());
-ReflectionSystem::AddType<UniquePtr<WindowHandler>>("UniquePtr<WindowHandler>", typeid(UniquePtr<WindowHandler>).name());
-ReflectionSystem::AddType<UniquePtr<VulkanContext>>("UniquePtr<VulkanContext>", typeid(UniquePtr<VulkanContext>).name());
-ReflectionSystem::AddType<UniquePtr<AssetRegistry>>("UniquePtr<AssetRegistry>", typeid(UniquePtr<AssetRegistry>).name());
-ReflectionSystem::AddType<UniquePtr<VulkanPhysicalDevice>>("UniquePtr<VulkanPhysicalDevice>", typeid(UniquePtr<VulkanPhysicalDevice>).name());
-ReflectionSystem::AddType<UniquePtr<VulkanDevice>>("UniquePtr<VulkanDevice>", typeid(UniquePtr<VulkanDevice>).name());
-ReflectionSystem::AddType<UniquePtr<VulkanAllocator>>("UniquePtr<VulkanAllocator>", typeid(UniquePtr<VulkanAllocator>).name());
-ReflectionSystem::AddType<UniquePtr<VulkanSwapChain>>("UniquePtr<VulkanSwapChain>", typeid(UniquePtr<VulkanSwapChain>).name());
-ReflectionSystem::AddType<UniquePtr<NvidiaAftermathTracker>>("UniquePtr<NvidiaAftermathTracker>", typeid(UniquePtr<NvidiaAftermathTracker>).name());
-ReflectionSystem::AddType<UniquePtr<SystemManager<WorldSystem>>>("UniquePtr<SystemManager<WorldSystem>>", typeid(UniquePtr<SystemManager<WorldSystem>>).name());
-ReflectionSystem::AddType<SystemManager<WorldSystem>>("SystemManager<WorldSystem>", typeid(SystemManager<WorldSystem>).name());
-ReflectionSystem::AddType<EngineProperties>("EngineProperties", typeid(EngineProperties).name());
+ReflectionSystem::AddType<ImageData>("ImageData", typeid(ImageData).name());
+ReflectionSystem::AddType<Texture>("Texture", typeid(Texture).name());
+ReflectionSystem::AddType<TextureCube>("TextureCube", typeid(TextureCube).name());
+ReflectionSystem::AddType<Actor>("Actor", typeid(Actor).name());
+ReflectionSystem::AddType<DirectionalLightActor>("DirectionalLightActor", typeid(DirectionalLightActor).name());
+ReflectionSystem::AddType<PhysicsCubeActor>("PhysicsCubeActor", typeid(PhysicsCubeActor).name());
+ReflectionSystem::AddType<TransformComponent>("TransformComponent", typeid(TransformComponent).name());
+ReflectionSystem::AddType<Component>("Component", typeid(Component).name());
+ReflectionSystem::AddType<LandscapeRenderComponent>("LandscapeRenderComponent", typeid(LandscapeRenderComponent).name());
+ReflectionSystem::AddType<BoxColliderComponent>("BoxColliderComponent", typeid(BoxColliderComponent).name());
+ReflectionSystem::AddType<CameraComponent>("CameraComponent", typeid(CameraComponent).name());
+ReflectionSystem::AddType<GPUSceneSystem>("GPUSceneSystem", typeid(GPUSceneSystem).name());
+ReflectionSystem::AddType<RigidbodyComponent>("RigidbodyComponent", typeid(RigidbodyComponent).name());
+ReflectionSystem::AddType<CharacterControllerComponent>("CharacterControllerComponent", typeid(CharacterControllerComponent).name());
+ReflectionSystem::AddType<ColliderComponent>("ColliderComponent", typeid(ColliderComponent).name());
+ReflectionSystem::AddType<DirectionalLightComponent>("DirectionalLightComponent", typeid(DirectionalLightComponent).name());
+ReflectionSystem::AddType<WorldSystem>("WorldSystem", typeid(WorldSystem).name());
+ReflectionSystem::AddType<LandscapeColliderComponent>("LandscapeColliderComponent", typeid(LandscapeColliderComponent).name());
+ReflectionSystem::AddType<TypeSerializer>("TypeSerializer", typeid(TypeSerializer).name());
+ReflectionSystem::AddType<MeshColliderComponent>("MeshColliderComponent", typeid(MeshColliderComponent).name());
+ReflectionSystem::AddType<PromiseReturnTypeImplementation<void>>("PromiseReturnTypeImplementation<void>", typeid(PromiseReturnTypeImplementation<void>).name());
+ReflectionSystem::AddType<PointLightComponent>("PointLightComponent", typeid(PointLightComponent).name());
+ReflectionSystem::AddType<StaticMeshComponent>("StaticMeshComponent", typeid(StaticMeshComponent).name());
+ReflectionSystem::AddType<IsCopyable<int>>("IsCopyable<int>", typeid(IsCopyable<int>).name());
 ReflectionSystem::AddType<IList>("IList", typeid(IList).name());
+ReflectionSystem::AddType<List<std::basic_string<char>>>("List<std::basic_string<char>>", typeid(List<std::basic_string<char>>).name());
+ReflectionSystem::AddType<List<MethodArgument>>("List<MethodArgument>", typeid(List<MethodArgument>).name());
+ReflectionSystem::AddType<List<const Type *>>("List<const Type *>", typeid(List<const Type *>).name());
+ReflectionSystem::AddType<List<Field>>("List<Field>", typeid(List<Field>).name());
+ReflectionSystem::AddType<List<Method>>("List<Method>", typeid(List<Method>).name());
+ReflectionSystem::AddType<List<TypeTemplateArgument>>("List<TypeTemplateArgument>", typeid(List<TypeTemplateArgument>).name());
 ReflectionSystem::AddType<List<Skeleton::Bone>>("List<Skeleton::Bone>", typeid(List<Skeleton::Bone>).name());
 ReflectionSystem::AddType<List<std::thread>>("List<std::thread>", typeid(List<std::thread>).name());
 ReflectionSystem::AddType<List<UniquePtr<IAssetContainer>>>("List<UniquePtr<IAssetContainer>>", typeid(List<UniquePtr<IAssetContainer>>).name());
-ReflectionSystem::AddType<UniquePtr<IAssetContainer>>("UniquePtr<IAssetContainer>", typeid(UniquePtr<IAssetContainer>).name());
 ReflectionSystem::AddType<List<vk::Framebuffer>>("List<vk::Framebuffer>", typeid(List<vk::Framebuffer>).name());
 ReflectionSystem::AddType<List<Vertex>>("List<Vertex>", typeid(List<Vertex>).name());
 ReflectionSystem::AddType<List<unsigned int>>("List<unsigned int>", typeid(List<unsigned int>).name());
@@ -242,20 +290,11 @@ ReflectionSystem::AddType<List<SerializationMeshData>>("List<SerializationMeshDa
 ReflectionSystem::AddType<List<Mesh *>>("List<Mesh *>", typeid(List<Mesh *>).name());
 ReflectionSystem::AddType<List<Filewatcher::CallbackHandle>>("List<Filewatcher::CallbackHandle>", typeid(List<Filewatcher::CallbackHandle>).name());
 ReflectionSystem::AddType<List<std::function<void ()>>>("List<std::function<void ()>>", typeid(List<std::function<void ()>>).name());
-ReflectionSystem::AddType<std::function<void ()>>("std::function<void ()>", typeid(std::function<void ()>).name());
 ReflectionSystem::AddType<List<unsigned char>>("List<unsigned char>", typeid(List<unsigned char>).name());
 ReflectionSystem::AddType<List<Material *>>("List<Material *>", typeid(List<Material *>).name());
 ReflectionSystem::AddType<List<TransformComponent *>>("List<TransformComponent *>", typeid(List<TransformComponent *>).name());
 ReflectionSystem::AddType<List<Component *>>("List<Component *>", typeid(List<Component *>).name());
 ReflectionSystem::AddType<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>("List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>", typeid(List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>).name());
-ReflectionSystem::AddType<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>("Delegate<void (physx::PxPhysics *, physx::PxScene *)>", typeid(Delegate<void (physx::PxPhysics *, physx::PxScene *)>).name());
-ReflectionSystem::AddType<List<std::basic_string<char>>>("List<std::basic_string<char>>", typeid(List<std::basic_string<char>>).name());
-ReflectionSystem::AddType<std::basic_string<char>>("std::basic_string<char>", typeid(std::basic_string<char>).name());
-ReflectionSystem::AddType<List<MethodArgument>>("List<MethodArgument>", typeid(List<MethodArgument>).name());
-ReflectionSystem::AddType<List<const Type *>>("List<const Type *>", typeid(List<const Type *>).name());
-ReflectionSystem::AddType<List<Field>>("List<Field>", typeid(List<Field>).name());
-ReflectionSystem::AddType<List<Method>>("List<Method>", typeid(List<Method>).name());
-ReflectionSystem::AddType<List<TypeTemplateArgument>>("List<TypeTemplateArgument>", typeid(List<TypeTemplateArgument>).name());
 ReflectionSystem::AddType<List<IndexBufferHandle *>>("List<IndexBufferHandle *>", typeid(List<IndexBufferHandle *>).name());
 ReflectionSystem::AddType<List<IndexBufferData>>("List<IndexBufferData>", typeid(List<IndexBufferData>).name());
 ReflectionSystem::AddType<List<VertexBufferHandle *>>("List<VertexBufferHandle *>", typeid(List<VertexBufferHandle *>).name());
@@ -268,7 +307,6 @@ ReflectionSystem::AddType<List<vk::Image>>("List<vk::Image>", typeid(List<vk::Im
 ReflectionSystem::AddType<List<vk::ImageView>>("List<vk::ImageView>", typeid(List<vk::ImageView>).name());
 ReflectionSystem::AddType<List<vk::CommandBuffer>>("List<vk::CommandBuffer>", typeid(List<vk::CommandBuffer>).name());
 ReflectionSystem::AddType<List<UniquePtr<Actor>>>("List<UniquePtr<Actor>>", typeid(List<UniquePtr<Actor>>).name());
-ReflectionSystem::AddType<UniquePtr<Actor>>("UniquePtr<Actor>", typeid(UniquePtr<Actor>).name());
 ReflectionSystem::AddType<List<Actor *>>("List<Actor *>", typeid(List<Actor *>).name());
 ReflectionSystem::AddType<List<EditorWindow *>>("List<EditorWindow *>", typeid(List<EditorWindow *>).name());
 ReflectionSystem::AddType<List<EditorSystem *>>("List<EditorSystem *>", typeid(List<EditorSystem *>).name());
@@ -276,153 +314,115 @@ ReflectionSystem::AddType<List<const Method *>>("List<const Method *>", typeid(L
 ReflectionSystem::AddType<List<std::filesystem::path>>("List<std::filesystem::path>", typeid(List<std::filesystem::path>).name());
 ReflectionSystem::AddType<List<ContentBrowserItem>>("List<ContentBrowserItem>", typeid(List<ContentBrowserItem>).name());
 ReflectionSystem::AddType<List<vk::DescriptorSet>>("List<vk::DescriptorSet>", typeid(List<vk::DescriptorSet>).name());
-ReflectionSystem::AddType<IsCopyable<int>>("IsCopyable<int>", typeid(IsCopyable<int>).name());
-ReflectionSystem::AddType<SaveLoadToolbar>("SaveLoadToolbar", typeid(SaveLoadToolbar).name());
-ReflectionSystem::AddType<Skeleton>("Skeleton", typeid(Skeleton).name());
-ReflectionSystem::AddType<Skeleton::Bone>("Skeleton::Bone", typeid(Skeleton::Bone).name());
-ReflectionSystem::AddType<String>("String", typeid(String).name());
-ReflectionSystem::AddType<SphereColliderComponent>("SphereColliderComponent", typeid(SphereColliderComponent).name());
-ReflectionSystem::AddType<TestClass>("TestClass", typeid(TestClass).name());
-ReflectionSystem::AddType<Engine>("Engine", typeid(Engine).name());
-ReflectionSystem::AddType<PromiseReturnTypeImplementation<void>>("PromiseReturnTypeImplementation<void>", typeid(PromiseReturnTypeImplementation<void>).name());
-ReflectionSystem::AddType<PointLightComponent>("PointLightComponent", typeid(PointLightComponent).name());
-ReflectionSystem::AddType<Asset>("Asset", typeid(Asset).name());
-ReflectionSystem::AddType<Filewatcher>("Filewatcher", typeid(Filewatcher).name());
-ReflectionSystem::AddType<Filewatcher::CallbackHandle>("Filewatcher::CallbackHandle", typeid(Filewatcher::CallbackHandle).name());
-ReflectionSystem::AddType<Filewatcher::FileData>("Filewatcher::FileData", typeid(Filewatcher::FileData).name());
-ReflectionSystem::AddType<IAssetContainer>("IAssetContainer", typeid(IAssetContainer).name());
-ReflectionSystem::AddType<SerializationMeshData>("SerializationMeshData", typeid(SerializationMeshData).name());
-ReflectionSystem::AddType<SerializationModelData>("SerializationModelData", typeid(SerializationModelData).name());
-ReflectionSystem::AddType<Model>("Model", typeid(Model).name());
-ReflectionSystem::AddType<ThreadPool>("ThreadPool", typeid(ThreadPool).name());
-ReflectionSystem::AddType<TextureCube>("TextureCube", typeid(TextureCube).name());
-ReflectionSystem::AddType<GlmSerializer>("GlmSerializer", typeid(GlmSerializer).name());
-ReflectionSystem::AddType<ThreadUtils>("ThreadUtils", typeid(ThreadUtils).name());
-ReflectionSystem::AddType<AssetRegistry>("AssetRegistry", typeid(AssetRegistry).name());
-ReflectionSystem::AddType<SkyboxPipeline>("SkyboxPipeline", typeid(SkyboxPipeline).name());
-ReflectionSystem::AddType<ConvexColliderComponent>("ConvexColliderComponent", typeid(ConvexColliderComponent).name());
-ReflectionSystem::AddType<PointLightActor>("PointLightActor", typeid(PointLightActor).name());
-ReflectionSystem::AddType<JsonAsset>("JsonAsset", typeid(JsonAsset).name());
-ReflectionSystem::AddType<VulkanAllocator>("VulkanAllocator", typeid(VulkanAllocator).name());
-ReflectionSystem::AddType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>", typeid(MulticastDelegate<void ()>).name());
-ReflectionSystem::AddType<VulkanBuffer>("VulkanBuffer", typeid(VulkanBuffer).name());
-ReflectionSystem::AddType<System>("System", typeid(System).name());
-ReflectionSystem::AddType<StaticMeshComponent>("StaticMeshComponent", typeid(StaticMeshComponent).name());
-ReflectionSystem::AddType<RenderSystem>("RenderSystem", typeid(RenderSystem).name());
-ReflectionSystem::AddType<DirectionalLightComponent>("DirectionalLightComponent", typeid(DirectionalLightComponent).name());
-ReflectionSystem::AddType<MathUtils>("MathUtils", typeid(MathUtils).name());
-ReflectionSystem::AddType<IVulkanDynamicBuffer>("IVulkanDynamicBuffer", typeid(IVulkanDynamicBuffer).name());
-ReflectionSystem::AddType<Material>("Material", typeid(Material).name());
-ReflectionSystem::AddType<Shader>("Shader", typeid(Shader).name());
-ReflectionSystem::AddType<Component>("Component", typeid(Component).name());
-ReflectionSystem::AddType<TransformComponent>("TransformComponent", typeid(TransformComponent).name());
-ReflectionSystem::AddType<Input>("Input", typeid(Input).name());
-ReflectionSystem::AddType<CharacterControllerComponent>("CharacterControllerComponent", typeid(CharacterControllerComponent).name());
-ReflectionSystem::AddType<RigidbodyComponent>("RigidbodyComponent", typeid(RigidbodyComponent).name());
-ReflectionSystem::AddType<GPUSceneSystem>("GPUSceneSystem", typeid(GPUSceneSystem).name());
-ReflectionSystem::AddType<ColliderComponent>("ColliderComponent", typeid(ColliderComponent).name());
-ReflectionSystem::AddType<BoxColliderComponent>("BoxColliderComponent", typeid(BoxColliderComponent).name());
-ReflectionSystem::AddType<LandscapeRenderComponent>("LandscapeRenderComponent", typeid(LandscapeRenderComponent).name());
-ReflectionSystem::AddType<CameraComponent>("CameraComponent", typeid(CameraComponent).name());
-ReflectionSystem::AddType<EditorThemes>("EditorThemes", typeid(EditorThemes).name());
-ReflectionSystem::AddType<CapsuleColliderComponent>("CapsuleColliderComponent", typeid(CapsuleColliderComponent).name());
-ReflectionSystem::AddType<EditorCameraMovementComponent>("EditorCameraMovementComponent", typeid(EditorCameraMovementComponent).name());
-ReflectionSystem::AddType<WorldSystem>("WorldSystem", typeid(WorldSystem).name());
-ReflectionSystem::AddType<LandscapeColliderComponent>("LandscapeColliderComponent", typeid(LandscapeColliderComponent).name());
-ReflectionSystem::AddType<PhysicsSystem>("PhysicsSystem", typeid(PhysicsSystem).name());
-ReflectionSystem::AddType<Heightfield>("Heightfield", typeid(Heightfield).name());
-ReflectionSystem::AddType<TypeSerializer>("TypeSerializer", typeid(TypeSerializer).name());
-ReflectionSystem::AddType<MeshColliderComponent>("MeshColliderComponent", typeid(MeshColliderComponent).name());
-ReflectionSystem::AddType<SinWaveMovementComponent>("SinWaveMovementComponent", typeid(SinWaveMovementComponent).name());
-ReflectionSystem::AddType<Actor>("Actor", typeid(Actor).name());
-ReflectionSystem::AddType<DirectionalLightActor>("DirectionalLightActor", typeid(DirectionalLightActor).name());
-ReflectionSystem::AddType<LandscapeActor>("LandscapeActor", typeid(LandscapeActor).name());
-ReflectionSystem::AddType<PhysicsCubeActor>("PhysicsCubeActor", typeid(PhysicsCubeActor).name());
-ReflectionSystem::AddType<StaticMeshActor>("StaticMeshActor", typeid(StaticMeshActor).name());
 ReflectionSystem::AddType<AutoInit>("AutoInit", typeid(AutoInit).name());
 ReflectionSystem::AddType<AutoInitManager>("AutoInitManager", typeid(AutoInitManager).name());
+ReflectionSystem::AddType<Input>("Input", typeid(Input).name());
+ReflectionSystem::AddType<Random>("Random", typeid(Random).name());
+ReflectionSystem::AddType<ThreadPool>("ThreadPool", typeid(ThreadPool).name());
 ReflectionSystem::AddType<Time>("Time", typeid(Time).name());
+ReflectionSystem::AddType<UniqueID>("UniqueID", typeid(UniqueID).name());
+ReflectionSystem::AddType<IUniquePtr>("IUniquePtr", typeid(IUniquePtr).name());
+ReflectionSystem::AddType<UniquePtr<SystemManager<System>>>("UniquePtr<SystemManager<System>>", typeid(UniquePtr<SystemManager<System>>).name());
+ReflectionSystem::AddType<UniquePtr<ThreadPool>>("UniquePtr<ThreadPool>", typeid(UniquePtr<ThreadPool>).name());
+ReflectionSystem::AddType<UniquePtr<Filewatcher>>("UniquePtr<Filewatcher>", typeid(UniquePtr<Filewatcher>).name());
+ReflectionSystem::AddType<UniquePtr<WindowHandler>>("UniquePtr<WindowHandler>", typeid(UniquePtr<WindowHandler>).name());
+ReflectionSystem::AddType<UniquePtr<VulkanContext>>("UniquePtr<VulkanContext>", typeid(UniquePtr<VulkanContext>).name());
+ReflectionSystem::AddType<UniquePtr<AssetRegistry>>("UniquePtr<AssetRegistry>", typeid(UniquePtr<AssetRegistry>).name());
+ReflectionSystem::AddType<UniquePtr<IAssetContainer>>("UniquePtr<IAssetContainer>", typeid(UniquePtr<IAssetContainer>).name());
+ReflectionSystem::AddType<UniquePtr<VulkanPhysicalDevice>>("UniquePtr<VulkanPhysicalDevice>", typeid(UniquePtr<VulkanPhysicalDevice>).name());
+ReflectionSystem::AddType<UniquePtr<VulkanDevice>>("UniquePtr<VulkanDevice>", typeid(UniquePtr<VulkanDevice>).name());
+ReflectionSystem::AddType<UniquePtr<VulkanAllocator>>("UniquePtr<VulkanAllocator>", typeid(UniquePtr<VulkanAllocator>).name());
+ReflectionSystem::AddType<UniquePtr<VulkanSwapChain>>("UniquePtr<VulkanSwapChain>", typeid(UniquePtr<VulkanSwapChain>).name());
+ReflectionSystem::AddType<UniquePtr<NvidiaAftermathTracker>>("UniquePtr<NvidiaAftermathTracker>", typeid(UniquePtr<NvidiaAftermathTracker>).name());
+ReflectionSystem::AddType<UniquePtr<SystemManager<WorldSystem>>>("UniquePtr<SystemManager<WorldSystem>>", typeid(UniquePtr<SystemManager<WorldSystem>>).name());
+ReflectionSystem::AddType<UniquePtr<Actor>>("UniquePtr<Actor>", typeid(UniquePtr<Actor>).name());
 ReflectionSystem::AddType<Awaitable>("Awaitable", typeid(Awaitable).name());
 ReflectionSystem::AddType<CoroutineManager>("CoroutineManager", typeid(CoroutineManager).name());
-ReflectionSystem::AddType<PhysicsErrorCallback>("PhysicsErrorCallback", typeid(PhysicsErrorCallback).name());
-ReflectionSystem::AddType<PhysicsListener>("PhysicsListener", typeid(PhysicsListener).name());
-ReflectionSystem::AddType<RaycastHit>("RaycastHit", typeid(RaycastHit).name());
 ReflectionSystem::AddType<Field>("Field", typeid(Field).name());
 ReflectionSystem::AddType<Delegate<void *(void *, const List<void *> &)>>("Delegate<void *(void *, const List<void *> &)>", typeid(Delegate<void *(void *, const List<void *> &)>).name());
 ReflectionSystem::AddType<Delegate<void *()>>("Delegate<void *()>", typeid(Delegate<void *()>).name());
 ReflectionSystem::AddType<Delegate<void (void *)>>("Delegate<void (void *)>", typeid(Delegate<void (void *)>).name());
+ReflectionSystem::AddType<Delegate<void (IUniquePtr *)>>("Delegate<void (IUniquePtr *)>", typeid(Delegate<void (IUniquePtr *)>).name());
+ReflectionSystem::AddType<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>("Delegate<void (physx::PxPhysics *, physx::PxScene *)>", typeid(Delegate<void (physx::PxPhysics *, physx::PxScene *)>).name());
 ReflectionSystem::AddType<Delegate<void ()>>("Delegate<void ()>", typeid(Delegate<void ()>).name());
+ReflectionSystem::AddType<RenderSystem>("RenderSystem", typeid(RenderSystem).name());
+ReflectionSystem::AddType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>", typeid(MulticastDelegate<void ()>).name());
+ReflectionSystem::AddType<TestClass>("TestClass", typeid(TestClass).name());
+ReflectionSystem::AddType<Engine>("Engine", typeid(Engine).name());
+ReflectionSystem::AddType<EngineProperties>("EngineProperties", typeid(EngineProperties).name());
+ReflectionSystem::AddType<Color>("Color", typeid(Color).name());
+ReflectionSystem::AddType<PhysicsSystem>("PhysicsSystem", typeid(PhysicsSystem).name());
+ReflectionSystem::AddType<Heightfield>("Heightfield", typeid(Heightfield).name());
+ReflectionSystem::AddType<LinearColor>("LinearColor", typeid(LinearColor).name());
+ReflectionSystem::AddType<PhysicsErrorCallback>("PhysicsErrorCallback", typeid(PhysicsErrorCallback).name());
+ReflectionSystem::AddType<PhysicsListener>("PhysicsListener", typeid(PhysicsListener).name());
+ReflectionSystem::AddType<RaycastHit>("RaycastHit", typeid(RaycastHit).name());
+ReflectionSystem::AddType<ReflectionSystem>("ReflectionSystem", typeid(ReflectionSystem).name());
 ReflectionSystem::AddType<TypeTemplateArgument>("TypeTemplateArgument", typeid(TypeTemplateArgument).name());
 ReflectionSystem::AddType<Type>("Type", typeid(Type).name());
-ReflectionSystem::AddType<ReflectionSystem>("ReflectionSystem", typeid(ReflectionSystem).name());
 ReflectionSystem::AddType<DebugPipeline>("DebugPipeline", typeid(DebugPipeline).name());
 ReflectionSystem::AddType<FullscreenPipeline>("FullscreenPipeline", typeid(FullscreenPipeline).name());
 ReflectionSystem::AddType<GDRPipeline>("GDRPipeline", typeid(GDRPipeline).name());
 ReflectionSystem::AddType<IndexBufferHandle>("IndexBufferHandle", typeid(IndexBufferHandle).name());
-ReflectionSystem::AddType<MeshData>("MeshData", typeid(MeshData).name());
-ReflectionSystem::AddType<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
-ReflectionSystem::AddType<IndexBufferData>("IndexBufferData", typeid(IndexBufferData).name());
-ReflectionSystem::AddType<MeshInstanceData>("MeshInstanceData", typeid(MeshInstanceData).name());
-ReflectionSystem::AddType<PerDrawData>("PerDrawData", typeid(PerDrawData).name());
-ReflectionSystem::AddType<PointLightData>("PointLightData", typeid(PointLightData).name());
 ReflectionSystem::AddType<IndexBufferSystem>("IndexBufferSystem", typeid(IndexBufferSystem).name());
 ReflectionSystem::AddType<Mesh>("Mesh", typeid(Mesh).name());
 ReflectionSystem::AddType<MeshSystem>("MeshSystem", typeid(MeshSystem).name());
-ReflectionSystem::AddType<MeshUtils>("MeshUtils", typeid(MeshUtils).name());
 ReflectionSystem::AddType<VertexBufferHandle>("VertexBufferHandle", typeid(VertexBufferHandle).name());
+ReflectionSystem::AddType<MeshUtils>("MeshUtils", typeid(MeshUtils).name());
 ReflectionSystem::AddType<TextureSystem>("TextureSystem", typeid(TextureSystem).name());
-ReflectionSystem::AddType<ResizableBuffer>("ResizableBuffer", typeid(ResizableBuffer).name());
+ReflectionSystem::AddType<Vertex>("Vertex", typeid(Vertex).name());
 ReflectionSystem::AddType<VertexBufferSystem>("VertexBufferSystem", typeid(VertexBufferSystem).name());
 ReflectionSystem::AddType<BinarySerializer>("BinarySerializer", typeid(BinarySerializer).name());
+ReflectionSystem::AddType<AssetSerializer>("AssetSerializer", typeid(AssetSerializer).name());
 ReflectionSystem::AddType<FileTimeSerializer>("FileTimeSerializer", typeid(FileTimeSerializer).name());
+ReflectionSystem::AddType<ThreadUtils>("ThreadUtils", typeid(ThreadUtils).name());
+ReflectionSystem::AddType<GlmSerializer>("GlmSerializer", typeid(GlmSerializer).name());
 ReflectionSystem::AddType<ListSerializer>("ListSerializer", typeid(ListSerializer).name());
 ReflectionSystem::AddType<MapSerializer>("MapSerializer", typeid(MapSerializer).name());
 ReflectionSystem::AddType<PathSerializer>("PathSerializer", typeid(PathSerializer).name());
 ReflectionSystem::AddType<PrimitiveSerializer>("PrimitiveSerializer", typeid(PrimitiveSerializer).name());
 ReflectionSystem::AddType<StringSerializer>("StringSerializer", typeid(StringSerializer).name());
 ReflectionSystem::AddType<WStringSerializer>("WStringSerializer", typeid(WStringSerializer).name());
-ReflectionSystem::AddType<UniquePtrSerializer>("UniquePtrSerializer", typeid(UniquePtrSerializer).name());
 ReflectionSystem::AddType<PlayerCameraControllerComponent>("PlayerCameraControllerComponent", typeid(PlayerCameraControllerComponent).name());
+ReflectionSystem::AddType<UniquePtrSerializer>("UniquePtrSerializer", typeid(UniquePtrSerializer).name());
+ReflectionSystem::AddType<MeshData>("MeshData", typeid(MeshData).name());
+ReflectionSystem::AddType<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
+ReflectionSystem::AddType<IndexBufferData>("IndexBufferData", typeid(IndexBufferData).name());
+ReflectionSystem::AddType<MeshInstanceData>("MeshInstanceData", typeid(MeshInstanceData).name());
+ReflectionSystem::AddType<PerDrawData>("PerDrawData", typeid(PerDrawData).name());
+ReflectionSystem::AddType<PointLightData>("PointLightData", typeid(PointLightData).name());
+ReflectionSystem::AddType<System>("System", typeid(System).name());
 ReflectionSystem::AddType<LandscapeSystem>("LandscapeSystem", typeid(LandscapeSystem).name());
-ReflectionSystem::AddType<PointLightSystem>("PointLightSystem", typeid(PointLightSystem).name());
 ReflectionSystem::AddType<VulkanUtils>("VulkanUtils", typeid(VulkanUtils).name());
+ReflectionSystem::AddType<PointLightSystem>("PointLightSystem", typeid(PointLightSystem).name());
 ReflectionSystem::AddType<BinaryUtils>("BinaryUtils", typeid(BinaryUtils).name());
 ReflectionSystem::AddType<Debug>("Debug", typeid(Debug).name());
 ReflectionSystem::AddType<Debug::DrawLineInfos>("Debug::DrawLineInfos", typeid(Debug::DrawLineInfos).name());
-ReflectionSystem::AddType<ShaderDatabase>("ShaderDatabase", typeid(ShaderDatabase).name());
+ReflectionSystem::AddType<MathUtils>("MathUtils", typeid(MathUtils).name());
+ReflectionSystem::AddType<OnScopeExit>("OnScopeExit", typeid(OnScopeExit).name());
 ReflectionSystem::AddType<NvidiaAftermathTracker>("NvidiaAftermathTracker", typeid(NvidiaAftermathTracker).name());
+ReflectionSystem::AddType<ShaderDatabase>("ShaderDatabase", typeid(ShaderDatabase).name());
+ReflectionSystem::AddType<ResizableBuffer>("ResizableBuffer", typeid(ResizableBuffer).name());
 ReflectionSystem::AddType<StagingBuffer>("StagingBuffer", typeid(StagingBuffer).name());
-ReflectionSystem::AddType<VulkanContext>("VulkanContext", typeid(VulkanContext).name());
-ReflectionSystem::AddType<StagingSystem>("StagingSystem", typeid(StagingSystem).name());
 ReflectionSystem::AddType<PlayerCameraActor>("PlayerCameraActor", typeid(PlayerCameraActor).name());
+ReflectionSystem::AddType<StagingSystem>("StagingSystem", typeid(StagingSystem).name());
+ReflectionSystem::AddType<VulkanAllocator>("VulkanAllocator", typeid(VulkanAllocator).name());
+ReflectionSystem::AddType<VulkanBuffer>("VulkanBuffer", typeid(VulkanBuffer).name());
 ReflectionSystem::AddType<VulkanCommandBuffer>("VulkanCommandBuffer", typeid(VulkanCommandBuffer).name());
+ReflectionSystem::AddType<VulkanContext>("VulkanContext", typeid(VulkanContext).name());
+ReflectionSystem::AddType<VulkanDescriptorSet>("VulkanDescriptorSet", typeid(VulkanDescriptorSet).name());
 ReflectionSystem::AddType<VulkanDevice>("VulkanDevice", typeid(VulkanDevice).name());
-ReflectionSystem::AddType<VulkanImage>("VulkanImage", typeid(VulkanImage).name());
+ReflectionSystem::AddType<IVulkanDynamicBuffer>("IVulkanDynamicBuffer", typeid(IVulkanDynamicBuffer).name());
 ReflectionSystem::AddType<VulkanImGui>("VulkanImGui", typeid(VulkanImGui).name());
+ReflectionSystem::AddType<VulkanImage>("VulkanImage", typeid(VulkanImage).name());
 ReflectionSystem::AddType<VulkanPhysicalDevice>("VulkanPhysicalDevice", typeid(VulkanPhysicalDevice).name());
 ReflectionSystem::AddType<VulkanShaderIncluder>("VulkanShaderIncluder", typeid(VulkanShaderIncluder).name());
 ReflectionSystem::AddType<VulkanSwapChain>("VulkanSwapChain", typeid(VulkanSwapChain).name());
 ReflectionSystem::AddType<WindowHandler>("WindowHandler", typeid(WindowHandler).name());
-ReflectionSystem::AddType<World>("World", typeid(World).name());
 ReflectionSystem::AddType<GameWorld>("GameWorld", typeid(GameWorld).name());
-ReflectionSystem::AddType<EditorCameraActor>("EditorCameraActor", typeid(EditorCameraActor).name());
-ReflectionSystem::AddType<Editor>("Editor", typeid(Editor).name());
-ReflectionSystem::AddType<EditorSystem>("EditorSystem", typeid(EditorSystem).name());
-ReflectionSystem::AddType<HierarchyWindow>("HierarchyWindow", typeid(HierarchyWindow).name());
-ReflectionSystem::AddType<EditorToolbar>("EditorToolbar", typeid(EditorToolbar).name());
-ReflectionSystem::AddType<ImGuiDemoSystem>("ImGuiDemoSystem", typeid(ImGuiDemoSystem).name());
-ReflectionSystem::AddType<SelectionSystem>("SelectionSystem", typeid(SelectionSystem).name());
-ReflectionSystem::AddType<EditorWorld>("EditorWorld", typeid(EditorWorld).name());
-ReflectionSystem::AddType<EditorConfirmPrompt>("EditorConfirmPrompt", typeid(EditorConfirmPrompt).name());
-ReflectionSystem::AddType<ImGuiTextureUtils>("ImGuiTextureUtils", typeid(ImGuiTextureUtils).name());
-ReflectionSystem::AddType<EditorWindow>("EditorWindow", typeid(EditorWindow).name());
-ReflectionSystem::AddType<ContentBrowserItem>("ContentBrowserItem", typeid(ContentBrowserItem).name());
-ReflectionSystem::AddType<ContentBrowserWindow>("ContentBrowserWindow", typeid(ContentBrowserWindow).name());
-ReflectionSystem::AddType<ImGuiPropertyDrawer>("ImGuiPropertyDrawer", typeid(ImGuiPropertyDrawer).name());
-ReflectionSystem::AddType<InspectorWindow>("InspectorWindow", typeid(InspectorWindow).name());
-ReflectionSystem::AddType<Viewport>("Viewport", typeid(Viewport).name());
-ReflectionSystem::AddType<PlayerComponent>("PlayerComponent", typeid(PlayerComponent).name());
+ReflectionSystem::AddType<World>("World", typeid(World).name());
 ReflectionSystem::AddType<PlayerActor>("PlayerActor", typeid(PlayerActor).name());
+ReflectionSystem::AddType<PlayerComponent>("PlayerComponent", typeid(PlayerComponent).name());
 ReflectionSystem::AddType<SpringArmComponent>("SpringArmComponent", typeid(SpringArmComponent).name());
 ReflectionSystem::AddType<Game>("Game", typeid(Game).name());
 
@@ -431,978 +431,6 @@ ReflectionSystem::AddType<Game>("Game", typeid(Game).name());
         // Add all fields & add base classes.
         {
             { 
-	Type* currentClass = ReflectionSystem::GetMutableType<VulkanDescriptorSet>();
-	{
-		Field& currentField = currentClass->AddField(Field("myUsesSharedLayout", 72, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myLayout", 80, ReflectionSystem::GetOrCreateType<vk::DescriptorSetLayout>("vk::DescriptorSetLayout"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySet", 88, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
-static thread_local vk::DescriptorSetLayout result = instance->GetLayout();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetLayout", ReflectionSystem::GetOrCreateType<vk::DescriptorSetLayout>("vk::DescriptorSetLayout"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
-static thread_local vk::DescriptorSet result = instance->GetSet();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetSet", ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
-const VulkanBuffer * arg0 = (const VulkanBuffer*)inArguments[0];
-vk::Flags<vk::ShaderStageFlagBits>& arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
-unsigned int& arg2 = *(unsigned int*)inArguments[2];
-vk::DescriptorType& arg3 = *(vk::DescriptorType*)inArguments[3];
-instance->BindBuffer(arg0, arg1, arg2, arg3);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<const VulkanBuffer *>("const VulkanBuffer *")));
-arguments.Add(MethodArgument("inShaderStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::ShaderStageFlagBits>>("vk::Flags<vk::ShaderStageFlagBits>")));
-arguments.Add(MethodArgument("inBindingIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-arguments.Add(MethodArgument("inDescriptorType", ReflectionSystem::GetOrCreateType<vk::DescriptorType>("vk::DescriptorType")));
-Method& currentMethod = currentClass->AddMethod(Method("BindBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
-const ResizableBuffer * arg0 = (const ResizableBuffer*)inArguments[0];
-vk::Flags<vk::ShaderStageFlagBits>& arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
-unsigned int& arg2 = *(unsigned int*)inArguments[2];
-vk::DescriptorType& arg3 = *(vk::DescriptorType*)inArguments[3];
-instance->BindBuffer(arg0, arg1, arg2, arg3);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *")));
-arguments.Add(MethodArgument("inShaderStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::ShaderStageFlagBits>>("vk::Flags<vk::ShaderStageFlagBits>")));
-arguments.Add(MethodArgument("inBindingIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-arguments.Add(MethodArgument("inDescriptorType", ReflectionSystem::GetOrCreateType<vk::DescriptorType>("vk::DescriptorType")));
-Method& currentMethod = currentClass->AddMethod(Method("BindBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
-const VulkanImage * arg0 = (const VulkanImage*)inArguments[0];
-const vk::Sampler& arg1 = *(const vk::Sampler*)inArguments[1];
-const unsigned int& arg2 = *(const unsigned int*)inArguments[2];
-const vk::Flags<vk::ShaderStageFlagBits>& arg3 = *(const vk::Flags<vk::ShaderStageFlagBits>*)inArguments[3];
-const vk::ImageLayout& arg4 = *(const vk::ImageLayout*)inArguments[4];
-instance->BindImage(arg0, arg1, arg2, arg3, arg4);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inImage", ReflectionSystem::GetOrCreateType<const VulkanImage *>("const VulkanImage *")));
-arguments.Add(MethodArgument("inSampler", ReflectionSystem::GetOrCreateType<const vk::Sampler>("const vk::Sampler")));
-arguments.Add(MethodArgument("inBinding", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-arguments.Add(MethodArgument("inShaderFlags", ReflectionSystem::GetOrCreateType<const vk::Flags<vk::ShaderStageFlagBits>>("const vk::Flags<vk::ShaderStageFlagBits>")));
-arguments.Add(MethodArgument("inImageLayout", ReflectionSystem::GetOrCreateType<const vk::ImageLayout>("const vk::ImageLayout")));
-Method& currentMethod = currentClass->AddMethod(Method("BindImage", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
-instance->Build();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Build", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
-instance->Rebuild();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Rebuild", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Color>();
-	{
-		Field& currentField = currentClass->AddField(Field("myR", 0, ReflectionSystem::GetOrCreateType<unsigned char>("unsigned char"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myG", 1, ReflectionSystem::GetOrCreateType<unsigned char>("unsigned char"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myB", 2, ReflectionSystem::GetOrCreateType<unsigned char>("unsigned char"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myA", 3, ReflectionSystem::GetOrCreateType<unsigned char>("unsigned char"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Color* instance = static_cast<Color*>(inInstance);
-static thread_local LinearColor result = instance->ToLinearColor();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("ToLinearColor", ReflectionSystem::GetOrCreateType<LinearColor>("LinearColor"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Color* instance = static_cast<Color*>(inInstance);
-static thread_local std::basic_string<char> result = instance->ToString();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("ToString", ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Color* instance = static_cast<Color*>(inInstance);
-static thread_local Color result = instance->White();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("White", ReflectionSystem::GetOrCreateType<Color>("Color"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Color* instance = static_cast<Color*>(inInstance);
-static thread_local Color result = instance->Black();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Black", ReflectionSystem::GetOrCreateType<Color>("Color"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Color* instance = static_cast<Color*>(inInstance);
-static thread_local Color result = instance->Red();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Red", ReflectionSystem::GetOrCreateType<Color>("Color"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Color* instance = static_cast<Color*>(inInstance);
-static thread_local Color result = instance->Green();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Green", ReflectionSystem::GetOrCreateType<Color>("Color"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Color* instance = static_cast<Color*>(inInstance);
-static thread_local Color result = instance->Blue();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Blue", ReflectionSystem::GetOrCreateType<Color>("Color"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Random>();
-	{
-		Field& currentField = currentClass->AddField(Field("myEngine", 0, ReflectionSystem::GetOrCreateType<std::mersenne_twister_engine<unsigned int, 32, 624, 397, 31, 2567483615, 11, 4294967295, 7, 2636928640, 15, 4022730752, 18, 1812433253>>("std::mersenne_twister_engine<unsigned int, 32, 624, 397, 31, 2567483615, 11, 4294967295, 7, 2636928640, 15, 4022730752, 18, 1812433253>"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<ImageData>();
-	{
-		Field& currentField = currentClass->AddField(Field("mySourceFile", offsetof(ImageData, mySourceFile), ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myLastSourceWriteTime", offsetof(ImageData, myLastSourceWriteTime), ReflectionSystem::GetOrCreateType<std::chrono::time_point<std::filesystem::_File_time_clock>>("std::chrono::time_point<std::filesystem::_File_time_clock>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myWidth", offsetof(ImageData, myWidth), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myHeight", offsetof(ImageData, myHeight), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myChannels", offsetof(ImageData, myChannels), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNumMipLevels", offsetof(ImageData, myNumMipLevels), ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPixelData", offsetof(ImageData, myPixelData), ReflectionSystem::GetOrCreateType<List<unsigned char>>("List<unsigned char>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Texture>();
-	{
-		Field& currentField = currentClass->AddField(Field("myImage", 64, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myBindlessIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Texture* instance = static_cast<Texture*>(inInstance);
-const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
-static thread_local Coroutine<void, void, false> result = instance->Load(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inPath", ReflectionSystem::GetOrCreateType<const std::filesystem::path>("const std::filesystem::path")));
-Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem::GetOrCreateType<Coroutine<void, void, false>>("Coroutine<void, void, false>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Texture* instance = static_cast<Texture*>(inInstance);
-instance->Unload();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Unload", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Texture* instance = static_cast<Texture*>(inInstance);
-VulkanImage * result = instance->GetImage();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetImage", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Texture* instance = static_cast<Texture*>(inInstance);
-static thread_local vk::ImageView result = instance->GetImageView();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetImageView", ReflectionSystem::GetOrCreateType<vk::ImageView>("vk::ImageView"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Texture* instance = static_cast<Texture*>(inInstance);
-static thread_local unsigned int result = instance->GetBindlessIndex();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetBindlessIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<MethodArgument>();
-	{
-		Field& currentField = currentClass->AddField(Field("myArgumentName", 0, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myArgumentType", 40, ReflectionSystem::GetOrCreateType<const Type>("const Type"), true, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-MethodArgument* instance = static_cast<MethodArgument*>(inInstance);
-const std::basic_string<char> & result = instance->GetArgumentName();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetArgumentName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-MethodArgument* instance = static_cast<MethodArgument*>(inInstance);
-const Type * result = instance->GetArgumentType();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetArgumentType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Method>();
-	{
-		Field& currentField = currentClass->AddField(Field("myMethodName", 0, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myReturnType", 40, ReflectionSystem::GetOrCreateType<const Type>("const Type"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myArguments", 48, ReflectionSystem::GetOrCreateType<List<MethodArgument>>("List<MethodArgument>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMetadata", 72, ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myInvoker", 96, ReflectionSystem::GetOrCreateType<Delegate<void *(void *, const List<void *> &)>>("Delegate<void *(void *, const List<void *> &)>"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Method* instance = static_cast<Method*>(inInstance);
-const std::basic_string<char> & result = instance->GetMethodName();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetMethodName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Method* instance = static_cast<Method*>(inInstance);
-const List<std::basic_string<char>> & result = instance->GetMetadata();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetMetadata", ReflectionSystem::GetOrCreateType<const List<std::basic_string<char>> &>("const List<std::basic_string<char>> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Method* instance = static_cast<Method*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-static thread_local bool result = instance->HasMetadata(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMetadata", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("HasMetadata", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Method* instance = static_cast<Method*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-static thread_local List<std::basic_string<char>> result = instance->GetMetadataArgs(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMetadata", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("GetMetadataArgs", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<LinearColor>();
-	{
-		Field& currentField = currentClass->AddField(Field("myR", 0, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myG", 4, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myB", 8, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myA", 12, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-LinearColor* instance = static_cast<LinearColor*>(inInstance);
-static thread_local Color result = instance->ToColor();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("ToColor", ReflectionSystem::GetOrCreateType<Color>("Color"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Console>();
-	{
-		Field& currentField = currentClass->AddField(Field("myConsoleHandle", 0, ReflectionSystem::GetOrCreateType<void>("void"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myLogToFileEnabled", 8, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myLogToFileStream", 16, ReflectionSystem::GetOrCreateType<std::basic_ofstream<char>>("std::basic_ofstream<char>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCoutBuffer", 280, ReflectionSystem::GetOrCreateType<std::basic_streambuf<char>>("std::basic_streambuf<char>"), true, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Console* instance = static_cast<Console*>(inInstance);
-Console & result = instance->Get();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Get", ReflectionSystem::GetOrCreateType<Console &>("Console &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Console* instance = static_cast<Console*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-instance->Log(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inString", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("Log", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Console* instance = static_cast<Console*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-instance->LogWarning(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inString", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("LogWarning", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Console* instance = static_cast<Console*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-instance->LogError(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inString", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("LogError", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniqueID>();
-	{
-		Field& currentField = currentClass->AddField(Field("myA", offsetof(UniqueID, myA), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myB", offsetof(UniqueID, myB), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myC", offsetof(UniqueID, myC), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myD", offsetof(UniqueID, myD), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-UniqueID* instance = static_cast<UniqueID*>(inInstance);
-static thread_local UniqueID result = instance->GenerateUniqueID();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GenerateUniqueID", ReflectionSystem::GetOrCreateType<UniqueID>("UniqueID"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-UniqueID* instance = static_cast<UniqueID*>(inInstance);
-const UniqueID & arg0 = *(const UniqueID*)inArguments[0];
-static thread_local bool result = instance->operator==(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const UniqueID &>("const UniqueID &")));
-Method& currentMethod = currentClass->AddMethod(Method("operator==", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<OnScopeExit>();
-	{
-		Field& currentField = currentClass->AddField(Field("myOnScopeExit", 0, ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Vertex>();
-	{
-		Field& currentField = currentClass->AddField(Field("myPosition", offsetof(Vertex, myPosition), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myColor", offsetof(Vertex, myColor), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNormal", offsetof(Vertex, myNormal), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myTangents", offsetof(Vertex, myTangents), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myBinormals", offsetof(Vertex, myBinormals), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myTexCoords", offsetof(Vertex, myTexCoords), ReflectionSystem::GetOrCreateType<glm::vec<2, float>[2]>("glm::vec<2, float>[2]"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Vertex* instance = static_cast<Vertex*>(inInstance);
-const glm::vec<4, float> & arg0 = *(const glm::vec<4, float>*)inArguments[0];
-instance->PackColor(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inColor", ReflectionSystem::GetOrCreateType<const glm::vec<4, float> &>("const glm::vec<4, float> &")));
-Method& currentMethod = currentClass->AddMethod(Method("PackColor", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Vertex* instance = static_cast<Vertex*>(inInstance);
-List<vk::VertexInputBindingDescription> & result = instance->GetBindingDescriptions();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetBindingDescriptions", ReflectionSystem::GetOrCreateType<List<vk::VertexInputBindingDescription> &>("List<vk::VertexInputBindingDescription> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Vertex* instance = static_cast<Vertex*>(inInstance);
-List<vk::VertexInputAttributeDescription> & result = instance->GetAttributeDescriptions();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAttributeDescriptions", ReflectionSystem::GetOrCreateType<List<vk::VertexInputAttributeDescription> &>("List<vk::VertexInputAttributeDescription> &"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<IUniquePtr>();
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<SystemManager<System>>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<SystemManager<System>>("SystemManager<System>"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<SystemManager<System>>();
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<ThreadPool>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<ThreadPool>("ThreadPool"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<Filewatcher>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Filewatcher>("Filewatcher"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<WindowHandler>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<WindowHandler>("WindowHandler"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanContext>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanContext>("VulkanContext"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<AssetRegistry>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<AssetRegistry>("AssetRegistry"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanPhysicalDevice>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanPhysicalDevice>("VulkanPhysicalDevice"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanDevice>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanDevice>("VulkanDevice"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanAllocator>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanAllocator>("VulkanAllocator"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanSwapChain>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanSwapChain>("VulkanSwapChain"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<NvidiaAftermathTracker>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<NvidiaAftermathTracker>("NvidiaAftermathTracker"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<SystemManager<WorldSystem>>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<SystemManager<WorldSystem>>("SystemManager<WorldSystem>"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<SystemManager<WorldSystem>>();
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<EngineProperties>();
-	{
-		Field& currentField = currentClass->AddField(Field("Title", 0, ReflectionSystem::GetOrCreateType<std::basic_string<wchar_t>>("std::basic_string<wchar_t>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("WindowWidth", 40, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("WindowHeight", 44, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("WindowX", 48, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("WindowY", 52, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("StartupArguments", 56, ReflectionSystem::GetOrCreateType<std::unordered_set<std::basic_string<char>>>("std::unordered_set<std::basic_string<char>>"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EngineProperties* instance = static_cast<EngineProperties*>(inInstance);
-int& arg0 = *(int*)inArguments[0];
-char ** arg1 = (char **)inArguments[1];
-instance->AddStartupArguments(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inArgC", ReflectionSystem::GetOrCreateType<int>("int")));
-arguments.Add(MethodArgument("inArgv", ReflectionSystem::GetOrCreateType<char **>("char **")));
-Method& currentMethod = currentClass->AddMethod(Method("AddStartupArguments", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EngineProperties* instance = static_cast<EngineProperties*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-instance->AddStartupArgument(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inArg", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("AddStartupArgument", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EngineProperties* instance = static_cast<EngineProperties*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-static thread_local bool result = instance->HasStartupArgument(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inArg", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("HasStartupArgument", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<IList>();
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<Skeleton::Bone>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Skeleton::Bone>("Skeleton::Bone"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<std::thread>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::thread>("std::thread"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<UniquePtr<IAssetContainer>>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<UniquePtr<IAssetContainer>>("UniquePtr<IAssetContainer>"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<IAssetContainer>>();
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Framebuffer>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Framebuffer>("vk::Framebuffer"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<Vertex>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Vertex>("Vertex"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<unsigned int>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<SerializationMeshData>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<SerializationMeshData>("SerializationMeshData"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<Mesh *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Mesh>("Mesh"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<Filewatcher::CallbackHandle>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Filewatcher::CallbackHandle>("Filewatcher::CallbackHandle"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<std::function<void ()>>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<std::function<void ()>>();
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<unsigned char>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<unsigned char>("unsigned char"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<Material *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Material>("Material"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<TransformComponent *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<TransformComponent>("TransformComponent"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<Component *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Component>("Component"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>("Delegate<void (physx::PxPhysics *, physx::PxScene *)>"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>();
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<std::basic_string<char>>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<std::basic_string<char>>();
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<MethodArgument>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<MethodArgument>("MethodArgument"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<const Type *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<const Type>("const Type"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<Field>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Field>("Field"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<Method>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Method>("Method"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<TypeTemplateArgument>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<TypeTemplateArgument>("TypeTemplateArgument"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<IndexBufferHandle *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IndexBufferHandle>("IndexBufferHandle"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<IndexBufferData>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IndexBufferData>("IndexBufferData"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<VertexBufferHandle *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VertexBufferHandle>("VertexBufferHandle"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<VertexBufferData>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VertexBufferData>("VertexBufferData"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<const char *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<const char>("const char"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::QueueFamilyProperties>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::QueueFamilyProperties>("vk::QueueFamilyProperties"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Fence>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Fence>("vk::Fence"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Semaphore>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Semaphore>("vk::Semaphore"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Image>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Image>("vk::Image"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::ImageView>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::ImageView>("vk::ImageView"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::CommandBuffer>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<UniquePtr<Actor>>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<UniquePtr<Actor>>("UniquePtr<Actor>"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<Actor>>();
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<Actor *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Actor>("Actor"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<EditorWindow *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<EditorWindow>("EditorWindow"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<EditorSystem *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<EditorSystem>("EditorSystem"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<const Method *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<const Method>("const Method"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<std::filesystem::path>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<ContentBrowserItem>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<ContentBrowserItem>("ContentBrowserItem"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::DescriptorSet>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<IsCopyable<int>>();
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<int>("int"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<SaveLoadToolbar>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-SaveLoadToolbar* instance = static_cast<SaveLoadToolbar*>(inInstance);
-instance->Save();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Save", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-currentMethod.AddMetadata(R"delim(EditorMenuItem("File/Save"))delim");
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-SaveLoadToolbar* instance = static_cast<SaveLoadToolbar*>(inInstance);
-instance->Load();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-currentMethod.AddMetadata(R"delim(EditorMenuItem("File/Load"))delim");
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Skeleton>();
-	{
-		Field& currentField = currentClass->AddField(Field("myJoints", 0, ReflectionSystem::GetOrCreateType<List<Skeleton::Bone>>("List<Skeleton::Bone>"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Skeleton::Bone>();
-	{
-		Field& currentField = currentClass->AddField(Field("myBindPosition", 0, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myBindRotation", 12, ReflectionSystem::GetOrCreateType<glm::qua<float>>("glm::qua<float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myBindScale", 28, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIndexToParent", 40, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-	}
-}
-{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<String>();
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -1556,238 +584,18 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRadius", ReflectionSy
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<TestClass>();
+	Type* currentClass = ReflectionSystem::GetMutableType<EditorCameraActor>();
 	{
-		Field& currentField = currentClass->AddField(Field("SomeFloat", offsetof(TestClass, SomeFloat), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
+		Field& currentField = currentClass->AddField(Field("myCamera", 496, ReflectionSystem::GetOrCreateType<CameraComponent>("CameraComponent"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("SomeField", offsetof(TestClass, SomeField), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
+		Field& currentField = currentClass->AddField(Field("myMovementComponent", 600, ReflectionSystem::GetOrCreateType<EditorCameraMovementComponent>("EditorCameraMovementComponent"), false, false));
 	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Engine>();
-	{
-		Field& currentField = currentClass->AddField(Field("myFrameIndex", 0, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIsRunning", 4, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myEngineProperties", 8, ReflectionSystem::GetOrCreateType<EngineProperties>("EngineProperties"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySystemManager", 144, ReflectionSystem::GetOrCreateType<UniquePtr<SystemManager<System>>>("UniquePtr<SystemManager<System>>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myThreadPool", 168, ReflectionSystem::GetOrCreateType<UniquePtr<ThreadPool>>("UniquePtr<ThreadPool>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFilewatcher", 192, ReflectionSystem::GetOrCreateType<UniquePtr<Filewatcher>>("UniquePtr<Filewatcher>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myWindowHandler", 216, ReflectionSystem::GetOrCreateType<UniquePtr<WindowHandler>>("UniquePtr<WindowHandler>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myVulkanContext", 240, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanContext>>("UniquePtr<VulkanContext>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 264, ReflectionSystem::GetOrCreateType<UniquePtr<AssetRegistry>>("UniquePtr<AssetRegistry>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myWorld", 288, ReflectionSystem::GetOrCreateType<std::shared_ptr<World>>("std::shared_ptr<World>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myExternalTickFunction", 304, ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false));
-	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Engine* instance = static_cast<Engine*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-static thread_local bool result = instance->ShouldRun();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("ShouldRun", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-static thread_local unsigned int result = instance->GetFrameIndex();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetFrameIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-const bool& arg0 = *(const bool*)inArguments[0];
-instance->SetIsRunning(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inIsRunning", ReflectionSystem::GetOrCreateType<const bool>("const bool")));
-Method& currentMethod = currentClass->AddMethod(Method("SetIsRunning", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-const EngineProperties & result = instance->GetEngineProperties();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetEngineProperties", ReflectionSystem::GetOrCreateType<const EngineProperties &>("const EngineProperties &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-const WindowHandler & result = instance->GetWindowHandler();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetWindowHandler", ReflectionSystem::GetOrCreateType<const WindowHandler &>("const WindowHandler &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-AssetRegistry & result = instance->GetAssetRegistry();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAssetRegistry", ReflectionSystem::GetOrCreateType<AssetRegistry &>("AssetRegistry &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-ThreadPool & result = instance->GetThreadPool();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetThreadPool", ReflectionSystem::GetOrCreateType<ThreadPool &>("ThreadPool &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-Filewatcher & result = instance->GetFilewatcher();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetFilewatcher", ReflectionSystem::GetOrCreateType<Filewatcher &>("Filewatcher &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-static thread_local std::shared_ptr<World> result = instance->GetWorld();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetWorld", ReflectionSystem::GetOrCreateType<std::shared_ptr<World>>("std::shared_ptr<World>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-static thread_local std::weak_ptr<World> result = instance->GetWeakWorld();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetWeakWorld", ReflectionSystem::GetOrCreateType<std::weak_ptr<World>>("std::weak_ptr<World>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-std::shared_ptr<World>& arg0 = *(std::shared_ptr<World>*)inArguments[0];
-instance->SetWorld(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inWorld", ReflectionSystem::GetOrCreateType<std::shared_ptr<World>>("std::shared_ptr<World>")));
-Method& currentMethod = currentClass->AddMethod(Method("SetWorld", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-static thread_local glm::vec<2, float> result = instance->GetRenderResolution();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetRenderResolution", ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Engine* instance = static_cast<Engine*>(inInstance);
-const std::function<void ()>& arg0 = *(const std::function<void ()>*)inArguments[0];
-instance->SetExternalTickFunction(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inExternalTickFunction", ReflectionSystem::GetOrCreateType<const std::function<void ()>>("const std::function<void ()>")));
-Method& currentMethod = currentClass->AddMethod(Method("SetExternalTickFunction", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PromiseReturnTypeImplementation<void>>();
-	{
-		Field& currentField = currentClass->AddField(Field("myReturnValue", 0, ReflectionSystem::GetOrCreateType<char>("char"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myHasReturnValue", 1, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void>("void"), false, false);
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PromiseReturnTypeImplementation<void>* instance = static_cast<PromiseReturnTypeImplementation<void>*>(inInstance);
-instance->return_void();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("return_void", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PointLightComponent>();
-	{
-		Field& currentField = currentClass->AddField(Field("myColor", offsetof(PointLightComponent, myColor), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-		currentField.AddMetadata(R"delim(ExposeAsColor)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIntensity", offsetof(PointLightComponent, myIntensity), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRange", offsetof(PointLightComponent, myRange), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
+EditorCameraActor* instance = static_cast<EditorCameraActor*>(inInstance);
 instance->OnCreate();
 return nullptr;
 });
@@ -1797,110 +605,804 @@ Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSys
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
-instance->TEMP_SendToGPU();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("TEMP_SendToGPU", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
-const glm::vec<3, float> & result = instance->GetColor();
+EditorCameraActor* instance = static_cast<EditorCameraActor*>(inInstance);
+static thread_local bool result = instance->IsTransientActor();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetColor", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("IsTransientActor", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
-const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
-instance->SetColor(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inColor", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
-Method& currentMethod = currentClass->AddMethod(Method("SetColor", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
-static thread_local float result = instance->GetIntensity();
+EditorCameraActor* instance = static_cast<EditorCameraActor*>(inInstance);
+EditorCameraMovementComponent & result = instance->GetMovementComponent();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetIntensity", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetMovementComponent", ReflectionSystem::GetOrCreateType<EditorCameraMovementComponent &>("EditorCameraMovementComponent &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
-const float& arg0 = *(const float*)inArguments[0];
-instance->SetIntensity(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inIntensity", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("SetIntensity", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
-static thread_local float result = instance->GetRange();
+EditorCameraActor* instance = static_cast<EditorCameraActor*>(inInstance);
+CameraComponent & result = instance->GetCameraComponent();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetRange", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
-const float& arg0 = *(const float*)inArguments[0];
-instance->SetRange(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inRange", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("SetRange", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetCameraComponent", ReflectionSystem::GetOrCreateType<CameraComponent &>("CameraComponent &"), invoker, arguments));
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<Asset>();
-	{
-		Field& currentField = currentClass->AddField(Field("myPath", 8, ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIsValid", 48, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 56, ReflectionSystem::GetOrCreateType<AssetRegistry>("AssetRegistry"), true, false));
-	}
+	Type* currentClass = ReflectionSystem::GetMutableType<SaveLoadToolbar>();
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Asset* instance = static_cast<Asset*>(inInstance);
-static thread_local bool result = instance->IsValid();
-return (void*)&result;
+SaveLoadToolbar* instance = static_cast<SaveLoadToolbar*>(inInstance);
+instance->Save();
+return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("IsValid", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("Save", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+currentMethod.AddMetadata(R"delim(EditorMenuItem("File/Save"))delim");
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Asset* instance = static_cast<Asset*>(inInstance);
-static thread_local const std::filesystem::path result = instance->GetPath();
+SaveLoadToolbar* instance = static_cast<SaveLoadToolbar*>(inInstance);
+instance->Load();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+currentMethod.AddMetadata(R"delim(EditorMenuItem("File/Load"))delim");
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Skeleton>();
+	{
+		Field& currentField = currentClass->AddField(Field("myJoints", 0, ReflectionSystem::GetOrCreateType<List<Skeleton::Bone>>("List<Skeleton::Bone>"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Skeleton::Bone>();
+	{
+		Field& currentField = currentClass->AddField(Field("myBindPosition", 0, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBindRotation", 12, ReflectionSystem::GetOrCreateType<glm::qua<float>>("glm::qua<float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBindScale", 28, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIndexToParent", 40, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Editor>();
+	{
+		Field& currentField = currentClass->AddField(Field("myWindows", 0, ReflectionSystem::GetOrCreateType<List<EditorWindow *>>("List<EditorWindow *>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySystems", 24, ReflectionSystem::GetOrCreateType<List<EditorSystem *>>("List<EditorSystem *>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNextID", 48, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myGameTickFunction", 56, ReflectionSystem::GetOrCreateType<Delegate<void ()>>("Delegate<void ()>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 64, ReflectionSystem::GetOrCreateType<AssetRegistry>("AssetRegistry"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsPIE", 72, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Editor* instance = static_cast<Editor*>(inInstance);
+instance->StaticTick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("StaticTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Editor* instance = static_cast<Editor*>(inInstance);
+AssetRegistry * result = instance->GetAssetRegistry();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAssetRegistry", ReflectionSystem::GetOrCreateType<AssetRegistry *>("AssetRegistry *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Editor* instance = static_cast<Editor*>(inInstance);
+EditorWindow * arg0 = (EditorWindow*)inArguments[0];
+instance->RemoveWindow(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inEditorWindow", ReflectionSystem::GetOrCreateType<EditorWindow *>("EditorWindow *")));
+Method& currentMethod = currentClass->AddMethod(Method("RemoveWindow", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Editor* instance = static_cast<Editor*>(inInstance);
+const Delegate<void ()> & arg0 = *(const Delegate<void ()>*)inArguments[0];
+instance->SetGameTickFunction(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTickFunction", ReflectionSystem::GetOrCreateType<const Delegate<void ()> &>("const Delegate<void ()> &")));
+Method& currentMethod = currentClass->AddMethod(Method("SetGameTickFunction", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Editor* instance = static_cast<Editor*>(inInstance);
+instance->TogglePIE();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("TogglePIE", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Editor* instance = static_cast<Editor*>(inInstance);
+static thread_local bool result = instance->IsPIE();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetPath", ReflectionSystem::GetOrCreateType<const std::filesystem::path>("const std::filesystem::path"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("IsPIE", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Editor* instance = static_cast<Editor*>(inInstance);
+instance->StartPIE();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("StartPIE", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Editor* instance = static_cast<Editor*>(inInstance);
+instance->StopPIE();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("StopPIE", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<EditorSystem>();
+	{
+		Field& currentField = currentClass->AddField(Field("myID", 8, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<HierarchyWindow>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+HierarchyWindow* instance = static_cast<HierarchyWindow*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+HierarchyWindow* instance = static_cast<HierarchyWindow*>(inInstance);
+instance->TickInput();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("TickInput", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ImGuiDemoSystem>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorSystem>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ImGuiDemoSystem* instance = static_cast<ImGuiDemoSystem*>(inInstance);
+instance->OpenImGuiDemoWindow();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OpenImGuiDemoWindow", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+currentMethod.AddMetadata(R"delim(EditorMenuItem("ImGui Demo"))delim");
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ImGuiDemoSystem* instance = static_cast<ImGuiDemoSystem*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<EditorCameraMovementComponent>();
+	{
+		Field& currentField = currentClass->AddField(Field("myResetMouseDelta", 16, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMouseDelta", 20, ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myYaw", 28, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPitch", 32, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMovementSpeed", 36, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShiftMultiplier", 40, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myScrollMultiplier", 44, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorCameraMovementComponent* instance = static_cast<EditorCameraMovementComponent*>(inInstance);
+instance->ViewportTick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("ViewportTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorCameraMovementComponent* instance = static_cast<EditorCameraMovementComponent*>(inInstance);
+instance->ResetMouseDelta();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("ResetMouseDelta", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<EditorToolbar>();
+	{
+		Field& currentField = currentClass->AddField(Field("myToolbarMethods", 16, ReflectionSystem::GetOrCreateType<List<const Method *>>("List<const Method *>"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorSystem>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorToolbar* instance = static_cast<EditorToolbar*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorToolbar* instance = static_cast<EditorToolbar*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+const Delegate<void ()> & arg1 = *(const Delegate<void ()>*)inArguments[1];
+instance->AddToolbarButton(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inPath", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+arguments.Add(MethodArgument("inCallback", ReflectionSystem::GetOrCreateType<const Delegate<void ()> &>("const Delegate<void ()> &")));
+Method& currentMethod = currentClass->AddMethod(Method("AddToolbarButton", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<SelectionSystem>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
+const List<Actor *> & result = instance->GetSelectedObjects();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetSelectedObjects", ReflectionSystem::GetOrCreateType<const List<Actor *> &>("const List<Actor *> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+static thread_local bool result = instance->IsObjectSelected(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("IsObjectSelected", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->SelectObject(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("SelectObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->DeselectObject(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("DeselectObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
+instance->ClearSelection();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("ClearSelection", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<EditorThemes>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorThemes* instance = static_cast<EditorThemes*>(inInstance);
+instance->DefaultTheme();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DefaultTheme", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+currentMethod.AddMetadata(R"delim(EditorMenuItem("Themes/Default"))delim");
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<CapsuleColliderComponent>();
+	{
+		Field& currentField = currentClass->AddField(Field("myRadius", offsetof(CapsuleColliderComponent, myRadius), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHeight", offsetof(CapsuleColliderComponent, myHeight), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ColliderComponent>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
+instance->OnCreate();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
+const float& arg0 = *(const float*)inArguments[0];
+instance->SetRadius(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inRadius", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("SetRadius", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
+const float& arg0 = *(const float*)inArguments[0];
+instance->SetHeight(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inHeight", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("SetHeight", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<LandscapeActor>();
+	{
+		Field& currentField = currentClass->AddField(Field("myLandscapeRenderComponent", 496, ReflectionSystem::GetOrCreateType<LandscapeRenderComponent>("LandscapeRenderComponent"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLandscapeColliderComponent", 816, ReflectionSystem::GetOrCreateType<LandscapeColliderComponent>("LandscapeColliderComponent"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<EditorConfirmPrompt>();
+	{
+		Field& currentField = currentClass->AddField(Field("myTitle", 0, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBody", 40, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCallback", 80, ReflectionSystem::GetOrCreateType<Delegate<void ()>>("Delegate<void ()>"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorConfirmPrompt* instance = static_cast<EditorConfirmPrompt*>(inInstance);
+instance->Show();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Show", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorConfirmPrompt* instance = static_cast<EditorConfirmPrompt*>(inInstance);
+instance->Update();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Update", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<SinWaveMovementComponent>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+SinWaveMovementComponent* instance = static_cast<SinWaveMovementComponent*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ImGuiTextureUtils>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ImGuiTextureUtils* instance = static_cast<ImGuiTextureUtils*>(inInstance);
+const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
+static thread_local vk::DescriptorSet result = instance->CreateDescriptorSetForTexture(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inPath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
+Method& currentMethod = currentClass->AddMethod(Method("CreateDescriptorSetForTexture", ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ContentBrowserItem>();
+	{
+		Field& currentField = currentClass->AddField(Field("myPath", 0, ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTexture", 40, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsSelected", 48, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsDirectory", 49, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ContentBrowserWindow>();
+	{
+		Field& currentField = currentClass->AddField(Field("myTooltipProgress", 56, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTooltipDuration", 60, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCanSeeTooltip", 64, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRoot", 72, ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCurrentPath", 112, ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySelectedTreePath", 152, ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySearchString", 192, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySearchPaths", 232, ReflectionSystem::GetOrCreateType<List<std::filesystem::path>>("List<std::filesystem::path>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirectories", 256, ReflectionSystem::GetOrCreateType<std::map<std::filesystem::path, List<std::filesystem::path>>>("std::map<std::filesystem::path, List<std::filesystem::path>>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myItems", 280, ReflectionSystem::GetOrCreateType<List<ContentBrowserItem>>("List<ContentBrowserItem>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHistory", 304, ReflectionSystem::GetOrCreateType<std::deque<std::filesystem::path>>("std::deque<std::filesystem::path>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myForwardHistory", 344, ReflectionSystem::GetOrCreateType<std::deque<std::filesystem::path>>("std::deque<std::filesystem::path>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFolderIcons", 384, ReflectionSystem::GetOrCreateType<std::array<vk::DescriptorSet, 2>>("std::array<vk::DescriptorSet, 2>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myExcludedExtensions", 400, ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDragDropPath", 424, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySelectedItem", 464, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenamingItem", 468, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNewFileName", 472, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenamingInProgress", 512, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySearchBarOpenedThisFrame", 513, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTextureSize", 516, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTextureSizeMin", 520, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTextureSizeMax", 524, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFocusedResult", 528, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myConfirmPrompt", 536, ReflectionSystem::GetOrCreateType<EditorConfirmPrompt>("EditorConfirmPrompt"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ContentBrowserWindow* instance = static_cast<ContentBrowserWindow*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ContentBrowserWindow* instance = static_cast<ContentBrowserWindow*>(inInstance);
+instance->ReloadDirectory();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("ReloadDirectory", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<InspectorWindow>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+InspectorWindow* instance = static_cast<InspectorWindow*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<EditorWindow>();
+	{
+		Field& currentField = currentClass->AddField(Field("myWindowName", 8, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsClosable", 48, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myID", 52, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorWindow* instance = static_cast<EditorWindow*>(inInstance);
+instance->DoTick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DoTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorWindow* instance = static_cast<EditorWindow*>(inInstance);
+instance->TickInput();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("TickInput", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<StaticMeshActor>();
+	{
+		Field& currentField = currentClass->AddField(Field("myStaticMeshComponent", offsetof(StaticMeshActor, myStaticMeshComponent), ReflectionSystem::GetOrCreateType<StaticMeshComponent>("StaticMeshComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshActor* instance = static_cast<StaticMeshActor*>(inInstance);
+StaticMeshComponent & result = instance->GetStaticMeshComponent();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetStaticMeshComponent", ReflectionSystem::GetOrCreateType<StaticMeshComponent &>("StaticMeshComponent &"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ImGuiPropertyDrawer>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ImGuiPropertyDrawer* instance = static_cast<ImGuiPropertyDrawer*>(inInstance);
+instance->RegisterDrawers();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("RegisterDrawers", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ImGuiPropertyDrawer* instance = static_cast<ImGuiPropertyDrawer*>(inInstance);
+const Field & arg0 = *(const Field*)inArguments[0];
+void * arg1 = (void*)inArguments[1];
+static thread_local bool result = instance->DrawProperty(arg0, arg1);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inField", ReflectionSystem::GetOrCreateType<const Field &>("const Field &")));
+arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
+Method& currentMethod = currentClass->AddMethod(Method("DrawProperty", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<EditorWorld>();
+	{
+		Field& currentField = currentClass->AddField(Field("myShouldTickComponents", 136, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myEditorCamera", 144, ReflectionSystem::GetOrCreateType<EditorCameraActor>("EditorCameraActor"), true, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<World>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorWorld* instance = static_cast<EditorWorld*>(inInstance);
+instance->Init();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Init", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorWorld* instance = static_cast<EditorWorld*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorWorld* instance = static_cast<EditorWorld*>(inInstance);
+EditorCameraActor * result = instance->GetEditorCamera();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetEditorCamera", ReflectionSystem::GetOrCreateType<EditorCameraActor *>("EditorCameraActor *"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Viewport>();
+	{
+		Field& currentField = currentClass->AddField(Field("myPreviewActor", 56, ReflectionSystem::GetOrCreateType<StaticMeshActor>("StaticMeshActor"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPlayButtonTexture", 64, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myStopButtonTexture", 72, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDescriptorSets", 80, ReflectionSystem::GetOrCreateType<List<vk::DescriptorSet>>("List<vk::DescriptorSet>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySampler", 104, ReflectionSystem::GetOrCreateType<vk::Sampler>("vk::Sampler"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myP0", 112, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myP1", 120, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Viewport* instance = static_cast<Viewport*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Viewport* instance = static_cast<Viewport*>(inInstance);
+instance->TickInput();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("TickInput", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Viewport* instance = static_cast<Viewport*>(inInstance);
+static thread_local glm::vec<2, float> result = instance->GetNormalizedMousePositionInViewport();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetNormalizedMousePositionInViewport", ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), invoker, arguments));
 }
 }
 { 
@@ -2002,7 +1504,37 @@ Method& currentMethod = currentClass->AddMethod(Method("operator==", ReflectionS
 	}
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<IAssetContainer>();
+	Type* currentClass = ReflectionSystem::GetMutableType<Asset>();
+	{
+		Field& currentField = currentClass->AddField(Field("myPath", offsetof(Asset, myPath), ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsValid", offsetof(Asset, myIsValid), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAssetRegistry", offsetof(Asset, myAssetRegistry), ReflectionSystem::GetOrCreateType<AssetRegistry>("AssetRegistry"), true, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Asset* instance = static_cast<Asset*>(inInstance);
+static thread_local bool result = instance->IsValid();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsValid", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Asset* instance = static_cast<Asset*>(inInstance);
+static thread_local const std::filesystem::path result = instance->GetPath();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetPath", ReflectionSystem::GetOrCreateType<const std::filesystem::path>("const std::filesystem::path"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<SerializationMeshData>();
@@ -2104,187 +1636,67 @@ Method& currentMethod = currentClass->AddMethod(Method("GetSerializationDataForM
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<ThreadPool>();
-	{
-		Field& currentField = currentClass->AddField(Field("myThreads", 0, ReflectionSystem::GetOrCreateType<List<std::thread>>("List<std::thread>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myLookingForTaskMutex", 24, ReflectionSystem::GetOrCreateType<std::mutex>("std::mutex"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myWaitingForTaskCondition", 104, ReflectionSystem::GetOrCreateType<std::condition_variable>("std::condition_variable"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myShouldExit", 176, ReflectionSystem::GetOrCreateType<std::atomic<bool>>("std::atomic<bool>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myTasks", 184, ReflectionSystem::GetOrCreateType<std::queue<std::function<void ()>>>("std::queue<std::function<void ()>>"), false, false));
-	}
+	Type* currentClass = ReflectionSystem::GetMutableType<IAssetContainer>();
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<TextureCube>();
+	Type* currentClass = ReflectionSystem::GetMutableType<Console>();
 	{
-		Field& currentField = currentClass->AddField(Field("myImage", 64, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+		Field& currentField = currentClass->AddField(Field("myConsoleHandle", 0, ReflectionSystem::GetOrCreateType<void>("void"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myBindlessIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-TextureCube* instance = static_cast<TextureCube*>(inInstance);
-const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
-static thread_local Coroutine<void, void, false> result = instance->Load(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inPath", ReflectionSystem::GetOrCreateType<const std::filesystem::path>("const std::filesystem::path")));
-Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem::GetOrCreateType<Coroutine<void, void, false>>("Coroutine<void, void, false>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-TextureCube* instance = static_cast<TextureCube*>(inInstance);
-instance->Unload();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Unload", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-TextureCube* instance = static_cast<TextureCube*>(inInstance);
-static thread_local vk::ImageView result = instance->GetImageView();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetImageView", ReflectionSystem::GetOrCreateType<vk::ImageView>("vk::ImageView"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-TextureCube* instance = static_cast<TextureCube*>(inInstance);
-static thread_local unsigned int result = instance->GetBindlessIndex();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetBindlessIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<GlmSerializer>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<TypeSerializer>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-GlmSerializer* instance = static_cast<GlmSerializer*>(inInstance);
-const Type * arg0 = (const Type*)inArguments[0];
-static thread_local bool result = instance->SerializesType(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inClass", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
-Method& currentMethod = currentClass->AddMethod(Method("SerializesType", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-GlmSerializer* instance = static_cast<GlmSerializer*>(inInstance);
-void * arg0 = (void*)inArguments[0];
-const Type * arg1 = (const Type*)inArguments[1];
-BinarySerializer * arg2 = (BinarySerializer*)inArguments[2];
-instance->Serialize(arg0, arg1, arg2);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
-arguments.Add(MethodArgument("inClass", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
-arguments.Add(MethodArgument("inSerializer", ReflectionSystem::GetOrCreateType<BinarySerializer *>("BinarySerializer *")));
-Method& currentMethod = currentClass->AddMethod(Method("Serialize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<ThreadUtils>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ThreadUtils* instance = static_cast<ThreadUtils*>(inInstance);
-std::thread & arg0 = *(std::thread*)inArguments[0];
-const std::basic_string<wchar_t> & arg1 = *(const std::basic_string<wchar_t>*)inArguments[1];
-instance->NameThread(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inThread", ReflectionSystem::GetOrCreateType<std::thread &>("std::thread &")));
-arguments.Add(MethodArgument("inString", ReflectionSystem::GetOrCreateType<const std::basic_string<wchar_t> &>("const std::basic_string<wchar_t> &")));
-Method& currentMethod = currentClass->AddMethod(Method("NameThread", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ThreadUtils* instance = static_cast<ThreadUtils*>(inInstance);
-void * arg0 = (void*)inArguments[0];
-const std::basic_string<wchar_t> & arg1 = *(const std::basic_string<wchar_t>*)inArguments[1];
-instance->NameThread(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inThreadHandle", ReflectionSystem::GetOrCreateType<void *>("void *")));
-arguments.Add(MethodArgument("inString", ReflectionSystem::GetOrCreateType<const std::basic_string<wchar_t> &>("const std::basic_string<wchar_t> &")));
-Method& currentMethod = currentClass->AddMethod(Method("NameThread", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ThreadUtils* instance = static_cast<ThreadUtils*>(inInstance);
-instance->RegisterThisThreadAsMainThread();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("RegisterThisThreadAsMainThread", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ThreadUtils* instance = static_cast<ThreadUtils*>(inInstance);
-static thread_local bool result = instance->IsOnMainThread();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("IsOnMainThread", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<AssetRegistry>();
-	{
-		Field& currentField = currentClass->AddField(Field("myMutex", 0, ReflectionSystem::GetOrCreateType<std::recursive_mutex>("std::recursive_mutex"), false, false));
+		Field& currentField = currentClass->AddField(Field("myLogToFileEnabled", 8, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myContainers", 80, ReflectionSystem::GetOrCreateType<List<UniquePtr<IAssetContainer>>>("List<UniquePtr<IAssetContainer>>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myLogToFileStream", 16, ReflectionSystem::GetOrCreateType<std::basic_ofstream<char>>("std::basic_ofstream<char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCoutBuffer", 280, ReflectionSystem::GetOrCreateType<std::basic_streambuf<char>>("std::basic_streambuf<char>"), true, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-AssetRegistry* instance = static_cast<AssetRegistry*>(inInstance);
-instance->ScanAssetsFolder();
-return nullptr;
+Console* instance = static_cast<Console*>(inInstance);
+Console & result = instance->Get();
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("ScanAssetsFolder", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("Get", ReflectionSystem::GetOrCreateType<Console &>("Console &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-AssetRegistry* instance = static_cast<AssetRegistry*>(inInstance);
+Console* instance = static_cast<Console*>(inInstance);
 const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-static thread_local std::filesystem::path result = instance->GetPathFromAssetName(arg0);
-return (void*)&result;
+instance->Log(arg0);
+return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inAssetName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("GetPathFromAssetName", ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), invoker, arguments));
+arguments.Add(MethodArgument("inString", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("Log", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Console* instance = static_cast<Console*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+instance->LogWarning(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inString", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("LogWarning", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Console* instance = static_cast<Console*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+instance->LogError(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inString", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("LogError", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -2383,6 +1795,37 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointLightComponent",
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<AssetRegistry>();
+	{
+		Field& currentField = currentClass->AddField(Field("myMutex", 0, ReflectionSystem::GetOrCreateType<std::recursive_mutex>("std::recursive_mutex"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myContainers", 80, ReflectionSystem::GetOrCreateType<List<UniquePtr<IAssetContainer>>>("List<UniquePtr<IAssetContainer>>"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+AssetRegistry* instance = static_cast<AssetRegistry*>(inInstance);
+instance->ScanAssetsFolder();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("ScanAssetsFolder", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+AssetRegistry* instance = static_cast<AssetRegistry*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local std::filesystem::path result = instance->GetPathFromAssetName(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inAssetName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetPathFromAssetName", ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), invoker, arguments));
+}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<JsonAsset>();
 	{
 		Field& currentField = currentClass->AddField(Field("myJson", 64, ReflectionSystem::GetOrCreateType<nlohmann::basic_json<>>("nlohmann::basic_json<>"), false, false));
@@ -2420,749 +1863,6 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetJson", ReflectionSystem::GetOrCreateType<const nlohmann::basic_json<> &>("const nlohmann::basic_json<> &"), invoker, arguments));
 }
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<VulkanAllocator>();
-	{
-		Field& currentField = currentClass->AddField(Field("myAllocator", 0, ReflectionSystem::GetOrCreateType<VmaAllocator>("VmaAllocator"), true, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-const vk::BufferCreateInfo & arg1 = *(const vk::BufferCreateInfo*)inArguments[1];
-VmaMemoryUsage& arg2 = *(VmaMemoryUsage*)inArguments[2];
-bool& arg3 = *(bool*)inArguments[3];
-VulkanBuffer * result = instance->AllocateBuffer_TS(arg0, arg1, arg2, arg3);
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-arguments.Add(MethodArgument("inCreateInfo", ReflectionSystem::GetOrCreateType<const vk::BufferCreateInfo &>("const vk::BufferCreateInfo &")));
-arguments.Add(MethodArgument("inUsage", ReflectionSystem::GetOrCreateType<VmaMemoryUsage>("VmaMemoryUsage")));
-arguments.Add(MethodArgument("inMappable", ReflectionSystem::GetOrCreateType<bool>("bool")));
-Method& currentMethod = currentClass->AddMethod(Method("AllocateBuffer_TS", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
-VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
-instance->DestroyBuffer_TS(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *")));
-Method& currentMethod = currentClass->AddMethod(Method("DestroyBuffer_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
-ResizableBuffer * arg0 = (ResizableBuffer*)inArguments[0];
-instance->DestroyBuffer_TS(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<ResizableBuffer *>("ResizableBuffer *")));
-Method& currentMethod = currentClass->AddMethod(Method("DestroyBuffer_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
-const Delegate<void ()> & arg0 = *(const Delegate<void ()>*)inArguments[0];
-instance->QueueDestroyCommand(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inCommand", ReflectionSystem::GetOrCreateType<const Delegate<void ()> &>("const Delegate<void ()> &")));
-Method& currentMethod = currentClass->AddMethod(Method("QueueDestroyCommand", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-const vk::ImageCreateInfo & arg1 = *(const vk::ImageCreateInfo*)inArguments[1];
-VmaMemoryUsage& arg2 = *(VmaMemoryUsage*)inArguments[2];
-VulkanImage * result = instance->AllocateImage_TS(arg0, arg1, arg2);
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-arguments.Add(MethodArgument("inCreateInfo", ReflectionSystem::GetOrCreateType<const vk::ImageCreateInfo &>("const vk::ImageCreateInfo &")));
-arguments.Add(MethodArgument("inUsage", ReflectionSystem::GetOrCreateType<VmaMemoryUsage>("VmaMemoryUsage")));
-Method& currentMethod = currentClass->AddMethod(Method("AllocateImage_TS", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
-VulkanImage * arg0 = (VulkanImage*)inArguments[0];
-instance->DestroyImage_TS(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inImage", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *")));
-Method& currentMethod = currentClass->AddMethod(Method("DestroyImage_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
-VmaAllocator_T * result = instance->GetVMAAllocator();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetVMAAllocator", ReflectionSystem::GetOrCreateType<VmaAllocator_T *>("VmaAllocator_T *"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<MulticastDelegate<void ()>>();
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void ()>("void ()"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<VulkanBuffer>();
-	{
-		Field& currentField = currentClass->AddField(Field("myAllocation", 0, ReflectionSystem::GetOrCreateType<VmaAllocation>("VmaAllocation"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myBuffer", 8, ReflectionSystem::GetOrCreateType<vk::Buffer>("vk::Buffer"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCreateInfo", 16, ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMemoryUsage", 72, ReflectionSystem::GetOrCreateType<VmaMemoryUsage>("VmaMemoryUsage"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIsMappingAllowed", 76, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPtr", 80, ReflectionSystem::GetOrCreateType<void>("void"), true, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-unsigned int& arg0 = *(unsigned int*)inArguments[0];
-static thread_local vk::BufferCreateInfo result = instance->StagingCreateInfo(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("StagingCreateInfo", ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-const List<Vertex> & arg0 = *(const List<Vertex>*)inArguments[0];
-static thread_local vk::BufferCreateInfo result = instance->VertexBufferCreateInfo(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inVertices", ReflectionSystem::GetOrCreateType<const List<Vertex> &>("const List<Vertex> &")));
-Method& currentMethod = currentClass->AddMethod(Method("VertexBufferCreateInfo", ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-const List<unsigned int> & arg0 = *(const List<unsigned int>*)inArguments[0];
-static thread_local vk::BufferCreateInfo result = instance->IndexBufferCreateInfo(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inIndices", ReflectionSystem::GetOrCreateType<const List<unsigned int> &>("const List<unsigned int> &")));
-Method& currentMethod = currentClass->AddMethod(Method("IndexBufferCreateInfo", ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-unsigned int& arg0 = *(unsigned int*)inArguments[0];
-static thread_local vk::BufferCreateInfo result = instance->UniformBufferCreateInfo(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("UniformBufferCreateInfo", ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-unsigned int& arg0 = *(unsigned int*)inArguments[0];
-static thread_local vk::BufferCreateInfo result = instance->StorageBufferCreateInfo(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("StorageBufferCreateInfo", ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-unsigned int& arg0 = *(unsigned int*)inArguments[0];
-static thread_local vk::BufferCreateInfo result = instance->ResizableStorageBufferCreateInfo(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("ResizableStorageBufferCreateInfo", ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-static thread_local vk::Buffer result = instance->GetAPIResource();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", ReflectionSystem::GetOrCreateType<vk::Buffer>("vk::Buffer"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
-const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
-unsigned int& arg2 = *(unsigned int*)inArguments[2];
-instance->CopyDataFromBuffer(arg0, arg1, arg2);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inStagingBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *")));
-arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-arguments.Add(MethodArgument("inOffset", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("CopyDataFromBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-const void * arg0 = (const void*)inArguments[0];
-const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
-unsigned int& arg2 = *(unsigned int*)inArguments[2];
-instance->SetData(arg0, arg1, arg2);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inData", ReflectionSystem::GetOrCreateType<const void *>("const void *")));
-arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-arguments.Add(MethodArgument("inOffset", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("SetData", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-static thread_local unsigned int result = instance->GetSize();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetSize", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-const vk::BufferCreateInfo & result = instance->GetCreateInfo();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetCreateInfo", ReflectionSystem::GetOrCreateType<const vk::BufferCreateInfo &>("const vk::BufferCreateInfo &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-static thread_local VmaMemoryUsage result = instance->GetVmaMemoryUsage();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetVmaMemoryUsage", ReflectionSystem::GetOrCreateType<VmaMemoryUsage>("VmaMemoryUsage"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-static thread_local bool result = instance->IsMappable();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("IsMappable", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-static thread_local std::basic_string<char> result = instance->GetName();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetName", ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
-void * result = instance->GetPtr();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetPtr", ReflectionSystem::GetOrCreateType<void *>("void *"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<System>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-System* instance = static_cast<System*>(inInstance);
-instance->Init();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Init", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<StaticMeshComponent>();
-	{
-		Field& currentField = currentClass->AddField(Field("myPath", offsetof(StaticMeshComponent, myPath), ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMaterials", offsetof(StaticMeshComponent, myMaterials), ReflectionSystem::GetOrCreateType<List<Material *>>("List<Material *>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myModel", offsetof(StaticMeshComponent, myModel), ReflectionSystem::GetOrCreateType<Model>("Model"), true, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMeshInstances", offsetof(StaticMeshComponent, myMeshInstances), ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myShouldWriteDepth", offsetof(StaticMeshComponent, myShouldWriteDepth), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
-instance->OnCreate();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
-Model * arg0 = (Model*)inArguments[0];
-instance->SetModel(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inModel", ReflectionSystem::GetOrCreateType<Model *>("Model *")));
-Method& currentMethod = currentClass->AddMethod(Method("SetModel", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
-Model * result = instance->GetModel();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetModel", ReflectionSystem::GetOrCreateType<Model *>("Model *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
-const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
-const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
-instance->SetMaterialAsync(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMaterialPath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
-arguments.Add(MethodArgument("inIndex", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("SetMaterialAsync", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
-Material * arg0 = (Material*)inArguments[0];
-const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
-instance->SetMaterial(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMaterial", ReflectionSystem::GetOrCreateType<Material *>("Material *")));
-arguments.Add(MethodArgument("inIndex", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("SetMaterial", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
-const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
-const Material * result = instance->GetMaterial(arg0);
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inIndex", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("GetMaterial", ReflectionSystem::GetOrCreateType<const Material *>("const Material *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
-Material * arg0 = (Material*)inArguments[0];
-Mesh * arg1 = (Mesh*)inArguments[1];
-instance->SetMaterialForMesh(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMaterial", ReflectionSystem::GetOrCreateType<Material *>("Material *")));
-arguments.Add(MethodArgument("inMesh", ReflectionSystem::GetOrCreateType<Mesh *>("Mesh *")));
-Method& currentMethod = currentClass->AddMethod(Method("SetMaterialForMesh", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
-Mesh * arg0 = (Mesh*)inArguments[0];
-const Material * result = instance->GetMaterialForMesh(arg0);
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMesh", ReflectionSystem::GetOrCreateType<Mesh *>("Mesh *")));
-Method& currentMethod = currentClass->AddMethod(Method("GetMaterialForMesh", ReflectionSystem::GetOrCreateType<const Material *>("const Material *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
-instance->OnRenderStateDirty();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnRenderStateDirty", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
-const bool& arg0 = *(const bool*)inArguments[0];
-instance->SetDepthWriteEnabled(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inEnabled", ReflectionSystem::GetOrCreateType<const bool>("const bool")));
-Method& currentMethod = currentClass->AddMethod(Method("SetDepthWriteEnabled", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<RenderSystem>();
-	{
-		Field& currentField = currentClass->AddField(Field("myIsUsingGPUDrivenRendering", 8, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCopyPipeline", 16, ReflectionSystem::GetOrCreateType<FullscreenPipeline>("FullscreenPipeline"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDebugPipeline", 24, ReflectionSystem::GetOrCreateType<DebugPipeline>("DebugPipeline"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myGDRPipeline", 32, ReflectionSystem::GetOrCreateType<GDRPipeline>("GDRPipeline"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySkyboxPipeline", 40, ReflectionSystem::GetOrCreateType<SkyboxPipeline>("SkyboxPipeline"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRenderPass", 48, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainRenderPass", 56, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myVkFrameBuffer", 64, ReflectionSystem::GetOrCreateType<vk::Framebuffer>("vk::Framebuffer"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainFrameBuffers", 72, ReflectionSystem::GetOrCreateType<List<vk::Framebuffer>>("List<vk::Framebuffer>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myClearValues", 96, ReflectionSystem::GetOrCreateType<vk::ClearValue[2]>("vk::ClearValue[2]"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDepthBuffer", 128, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRenderTexture", 136, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myResolvedRenderTexture", 144, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myResolvedDepthTexture", 152, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDirectionalLightShadowMap", 160, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-instance->Init();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Init", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-vk::RenderPass & result = instance->GetRenderPass();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetRenderPass", ReflectionSystem::GetOrCreateType<vk::RenderPass &>("vk::RenderPass &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-vk::RenderPass & result = instance->GetImGuiRenderPass();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetImGuiRenderPass", ReflectionSystem::GetOrCreateType<vk::RenderPass &>("vk::RenderPass &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-VulkanImage * result = instance->GetRenderTexture();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetRenderTexture", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-VulkanImage * result = instance->GetResolvedRenderTexture();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetResolvedRenderTexture", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-VulkanImage * result = instance->GetDepthTexture();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetDepthTexture", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-VulkanImage * result = instance->GetDirectionalLightShadowMap();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetDirectionalLightShadowMap", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-instance->OnSwapChainResize();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnSwapChainResize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
-static thread_local float result = instance->ReadDepthAtScreenPos(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
-Method& currentMethod = currentClass->AddMethod(Method("ReadDepthAtScreenPos", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-VulkanCommandBuffer * result = instance->CreateUploadCommandBuffer_TS();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("CreateUploadCommandBuffer_TS", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-VulkanCommandBuffer * arg0 = (VulkanCommandBuffer*)inArguments[0];
-instance->QueueCommandBufferForUpload_TS(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("commandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *")));
-Method& currentMethod = currentClass->AddMethod(Method("QueueCommandBufferForUpload_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-const GDRPipeline & result = instance->GetGDRPipeline();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetGDRPipeline", ReflectionSystem::GetOrCreateType<const GDRPipeline &>("const GDRPipeline &"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<DirectionalLightComponent>();
-	{
-		Field& currentField = currentClass->AddField(Field("myIsShadowsEnabled", offsetof(DirectionalLightComponent, myIsShadowsEnabled), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myColor", offsetof(DirectionalLightComponent, myColor), ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-		currentField.AddMetadata(R"delim(ExposeAsColor)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myLightProjection", offsetof(DirectionalLightComponent, myLightProjection), ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
-const glm::vec<4, float> & arg0 = *(const glm::vec<4, float>*)inArguments[0];
-instance->SetColor(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inColor", ReflectionSystem::GetOrCreateType<const glm::vec<4, float> &>("const glm::vec<4, float> &")));
-Method& currentMethod = currentClass->AddMethod(Method("SetColor", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
-const float& arg0 = *(const float*)inArguments[0];
-instance->SetIntensity(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inValue", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("SetIntensity", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
-const glm::vec<4, float> & result = instance->GetColor();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetColor", ReflectionSystem::GetOrCreateType<const glm::vec<4, float> &>("const glm::vec<4, float> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
-const glm::mat<4, 4, float> & result = instance->GetLightProjection();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetLightProjection", ReflectionSystem::GetOrCreateType<const glm::mat<4, 4, float> &>("const glm::mat<4, 4, float> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
-static thread_local bool result = instance->IsShadowsEnabled();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("IsShadowsEnabled", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
-instance->EnableShadows();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("EnableShadows", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<MathUtils>();
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<IVulkanDynamicBuffer>();
-	{
-		Field& currentField = currentClass->AddField(Field("OnBufferRecreated", 8, ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
-	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<Material>();
@@ -3306,14 +2006,278 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", Reflect
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<Component>();
+	Type* currentClass = ReflectionSystem::GetMutableType<MethodArgument>();
 	{
-		Field& currentField = currentClass->AddField(Field("myActor", 8, ReflectionSystem::GetOrCreateType<Actor>("Actor"), true, false));
+		Field& currentField = currentClass->AddField(Field("myArgumentName", 0, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myArgumentType", 40, ReflectionSystem::GetOrCreateType<const Type>("const Type"), true, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
+MethodArgument* instance = static_cast<MethodArgument*>(inInstance);
+const std::basic_string<char> & result = instance->GetArgumentName();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetArgumentName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+MethodArgument* instance = static_cast<MethodArgument*>(inInstance);
+const Type * result = instance->GetArgumentType();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetArgumentType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Method>();
+	{
+		Field& currentField = currentClass->AddField(Field("myMethodName", 0, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myReturnType", 40, ReflectionSystem::GetOrCreateType<const Type>("const Type"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myArguments", 48, ReflectionSystem::GetOrCreateType<List<MethodArgument>>("List<MethodArgument>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMetadata", 72, ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myInvoker", 96, ReflectionSystem::GetOrCreateType<Delegate<void *(void *, const List<void *> &)>>("Delegate<void *(void *, const List<void *> &)>"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Method* instance = static_cast<Method*>(inInstance);
+const std::basic_string<char> & result = instance->GetMethodName();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetMethodName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Method* instance = static_cast<Method*>(inInstance);
+const List<std::basic_string<char>> & result = instance->GetMetadata();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetMetadata", ReflectionSystem::GetOrCreateType<const List<std::basic_string<char>> &>("const List<std::basic_string<char>> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Method* instance = static_cast<Method*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local bool result = instance->HasMetadata(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMetadata", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("HasMetadata", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Method* instance = static_cast<Method*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local List<std::basic_string<char>> result = instance->GetMetadataArgs(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMetadata", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetMetadataArgs", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ImageData>();
+	{
+		Field& currentField = currentClass->AddField(Field("mySourceFile", offsetof(ImageData, mySourceFile), ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLastSourceWriteTime", offsetof(ImageData, myLastSourceWriteTime), ReflectionSystem::GetOrCreateType<std::chrono::time_point<std::filesystem::_File_time_clock>>("std::chrono::time_point<std::filesystem::_File_time_clock>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myWidth", offsetof(ImageData, myWidth), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHeight", offsetof(ImageData, myHeight), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myChannels", offsetof(ImageData, myChannels), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNumMipLevels", offsetof(ImageData, myNumMipLevels), ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPixelData", offsetof(ImageData, myPixelData), ReflectionSystem::GetOrCreateType<List<unsigned char>>("List<unsigned char>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Texture>();
+	{
+		Field& currentField = currentClass->AddField(Field("myImage", 64, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBindlessIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Texture* instance = static_cast<Texture*>(inInstance);
+const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
+static thread_local Coroutine<void, void, false> result = instance->Load(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inPath", ReflectionSystem::GetOrCreateType<const std::filesystem::path>("const std::filesystem::path")));
+Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem::GetOrCreateType<Coroutine<void, void, false>>("Coroutine<void, void, false>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Texture* instance = static_cast<Texture*>(inInstance);
+instance->Unload();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Unload", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Texture* instance = static_cast<Texture*>(inInstance);
+VulkanImage * result = instance->GetImage();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetImage", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Texture* instance = static_cast<Texture*>(inInstance);
+static thread_local vk::ImageView result = instance->GetImageView();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetImageView", ReflectionSystem::GetOrCreateType<vk::ImageView>("vk::ImageView"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Texture* instance = static_cast<Texture*>(inInstance);
+static thread_local unsigned int result = instance->GetBindlessIndex();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetBindlessIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<TextureCube>();
+	{
+		Field& currentField = currentClass->AddField(Field("myImage", 64, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBindlessIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+TextureCube* instance = static_cast<TextureCube*>(inInstance);
+const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
+static thread_local Coroutine<void, void, false> result = instance->Load(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inPath", ReflectionSystem::GetOrCreateType<const std::filesystem::path>("const std::filesystem::path")));
+Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem::GetOrCreateType<Coroutine<void, void, false>>("Coroutine<void, void, false>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+TextureCube* instance = static_cast<TextureCube*>(inInstance);
+instance->Unload();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Unload", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+TextureCube* instance = static_cast<TextureCube*>(inInstance);
+static thread_local vk::ImageView result = instance->GetImageView();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetImageView", ReflectionSystem::GetOrCreateType<vk::ImageView>("vk::ImageView"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+TextureCube* instance = static_cast<TextureCube*>(inInstance);
+static thread_local unsigned int result = instance->GetBindlessIndex();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetBindlessIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Actor>();
+	{
+		Field& currentField = currentClass->AddField(Field("myTransform", offsetof(Actor, myTransform), ReflectionSystem::GetOrCreateType<TransformComponent>("TransformComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myName", offsetof(Actor, myName), ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myComponents", offsetof(Actor, myComponents), ReflectionSystem::GetOrCreateType<List<Component *>>("List<Component *>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myWorld", offsetof(Actor, myWorld), ReflectionSystem::GetOrCreateType<World>("World"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTagMask", offsetof(Actor, myTagMask), ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenderStateDirty", offsetof(Actor, myRenderStateDirty), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+instance->DoOnCreate();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DoOnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
 instance->OnCreate();
 return nullptr;
 });
@@ -3323,27 +2287,17 @@ Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSys
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
-instance->OnDestroy();
+Actor* instance = static_cast<Actor*>(inInstance);
+instance->DoTick();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnDestroy", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("DoTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
-instance->EditorTick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("EditorTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Component* instance = static_cast<Component*>(inInstance);
+Actor* instance = static_cast<Actor*>(inInstance);
 instance->Tick();
 return nullptr;
 });
@@ -3353,7 +2307,37 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
+Actor* instance = static_cast<Actor*>(inInstance);
+instance->DoEditorTick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DoEditorTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+instance->TickRenderState();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("TickRenderState", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+instance->DoTickPhysics();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DoTickPhysics", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
 instance->TickPhysics();
 return nullptr;
 });
@@ -3363,27 +2347,29 @@ Method& currentMethod = currentClass->AddMethod(Method("TickPhysics", Reflection
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
-instance->MarkRenderStateDirty();
-return nullptr;
+Actor* instance = static_cast<Actor*>(inInstance);
+static thread_local bool result = instance->IsTransientActor();
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("MarkRenderStateDirty", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("IsTransientActor", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
-instance->OnRenderStateDirty();
+Actor* instance = static_cast<Actor*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->DoOnTriggerEnter(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnRenderStateDirty", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("DoOnTriggerEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
+Actor* instance = static_cast<Actor*>(inInstance);
 Actor * arg0 = (Actor*)inArguments[0];
 instance->OnTriggerEnter(arg0);
 return nullptr;
@@ -3395,7 +2381,19 @@ Method& currentMethod = currentClass->AddMethod(Method("OnTriggerEnter", Reflect
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
+Actor* instance = static_cast<Actor*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->DoOnTrigger(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("DoOnTrigger", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
 Actor * arg0 = (Actor*)inArguments[0];
 instance->OnTrigger(arg0);
 return nullptr;
@@ -3407,7 +2405,19 @@ Method& currentMethod = currentClass->AddMethod(Method("OnTrigger", ReflectionSy
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
+Actor* instance = static_cast<Actor*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->DoOnTriggerExit(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("DoOnTriggerExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
 Actor * arg0 = (Actor*)inArguments[0];
 instance->OnTriggerExit(arg0);
 return nullptr;
@@ -3419,7 +2429,19 @@ Method& currentMethod = currentClass->AddMethod(Method("OnTriggerExit", Reflecti
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
+Actor* instance = static_cast<Actor*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->DoOnCollisionEnter(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("DoOnCollisionEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
 Actor * arg0 = (Actor*)inArguments[0];
 instance->OnCollisionEnter(arg0);
 return nullptr;
@@ -3431,7 +2453,19 @@ Method& currentMethod = currentClass->AddMethod(Method("OnCollisionEnter", Refle
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
+Actor* instance = static_cast<Actor*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->DoOnCollision(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("DoOnCollision", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
 Actor * arg0 = (Actor*)inArguments[0];
 instance->OnCollision(arg0);
 return nullptr;
@@ -3443,7 +2477,19 @@ Method& currentMethod = currentClass->AddMethod(Method("OnCollision", Reflection
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
+Actor* instance = static_cast<Actor*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->DoOnCollisionExit(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("DoOnCollisionExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
 Actor * arg0 = (Actor*)inArguments[0];
 instance->OnCollisionExit(arg0);
 return nullptr;
@@ -3455,7 +2501,7 @@ Method& currentMethod = currentClass->AddMethod(Method("OnCollisionExit", Reflec
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
+Actor* instance = static_cast<Actor*>(inInstance);
 TransformComponent & result = instance->GetTransform();
 return (void*)&result;
 });
@@ -3465,23 +2511,163 @@ Method& currentMethod = currentClass->AddMethod(Method("GetTransform", Reflectio
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Component* instance = static_cast<Component*>(inInstance);
-Actor * result = instance->GetActor();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Component* instance = static_cast<Component*>(inInstance);
+Actor* instance = static_cast<Actor*>(inInstance);
 World * result = instance->GetWorld();
 return (void*)result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetWorld", ReflectionSystem::GetOrCreateType<World *>("World *"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
+instance->AddTags(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTagMask", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("AddTags", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
+instance->RemoveTags(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTags", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("RemoveTags", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+instance->ClearTags();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("ClearTags", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
+static thread_local bool result = instance->HasAllTags(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTags", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("HasAllTags", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+static thread_local unsigned int result = instance->GetTags();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetTags", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
+static thread_local bool result = instance->HasAnyTag(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTags", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("HasAnyTag", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+instance->MarkRenderStateDirty();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("MarkRenderStateDirty", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+instance->SetName(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("SetName", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+const std::basic_string<char> & result = instance->GetName();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+instance->Destroy();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Destroy", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+static thread_local List<Component *> result = instance->GetAllComponents();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAllComponents", ReflectionSystem::GetOrCreateType<List<Component *>>("List<Component *>"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<DirectionalLightActor>();
+	{
+		Field& currentField = currentClass->AddField(Field("myDirectionalLight", 496, ReflectionSystem::GetOrCreateType<DirectionalLightComponent>("DirectionalLightComponent"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+DirectionalLightActor* instance = static_cast<DirectionalLightActor*>(inInstance);
+DirectionalLightComponent & result = instance->GetDirectionalLightComponent();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetDirectionalLightComponent", ReflectionSystem::GetOrCreateType<DirectionalLightComponent &>("DirectionalLightComponent &"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PhysicsCubeActor>();
+	{
+		Field& currentField = currentClass->AddField(Field("myMesh", 496, ReflectionSystem::GetOrCreateType<StaticMeshComponent>("StaticMeshComponent"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCollider", 616, ReflectionSystem::GetOrCreateType<BoxColliderComponent>("BoxColliderComponent"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRigidbody", 688, ReflectionSystem::GetOrCreateType<RigidbodyComponent>("RigidbodyComponent"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<TransformComponent>();
@@ -4110,237 +3296,14 @@ currentMethod.AddMetadata(R"delim(AllowPrivateAccess)delim");
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<Input>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-const int& arg0 = *(const int*)inArguments[0];
-static thread_local bool result = instance->IsKeyDown(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("aKeyCode", ReflectionSystem::GetOrCreateType<const int>("const int")));
-Method& currentMethod = currentClass->AddMethod(Method("IsKeyDown", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-const Input::KeyCode& arg0 = *(const Input::KeyCode*)inArguments[0];
-static thread_local bool result = instance->IsKeyDown(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("aKeyCode", ReflectionSystem::GetOrCreateType<const Input::KeyCode>("const Input::KeyCode")));
-Method& currentMethod = currentClass->AddMethod(Method("IsKeyDown", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-const Input::MouseButton& arg0 = *(const Input::MouseButton*)inArguments[0];
-static thread_local bool result = instance->IsKeyDown(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("aMouseButton", ReflectionSystem::GetOrCreateType<const Input::MouseButton>("const Input::MouseButton")));
-Method& currentMethod = currentClass->AddMethod(Method("IsKeyDown", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-const int& arg0 = *(const int*)inArguments[0];
-static thread_local bool result = instance->IsKeyUp(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("aKeyCode", ReflectionSystem::GetOrCreateType<const int>("const int")));
-Method& currentMethod = currentClass->AddMethod(Method("IsKeyUp", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-const Input::KeyCode& arg0 = *(const Input::KeyCode*)inArguments[0];
-static thread_local bool result = instance->IsKeyUp(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("aKeyCode", ReflectionSystem::GetOrCreateType<const Input::KeyCode>("const Input::KeyCode")));
-Method& currentMethod = currentClass->AddMethod(Method("IsKeyUp", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-const Input::MouseButton& arg0 = *(const Input::MouseButton*)inArguments[0];
-static thread_local bool result = instance->IsKeyUp(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("aMouseButton", ReflectionSystem::GetOrCreateType<const Input::MouseButton>("const Input::MouseButton")));
-Method& currentMethod = currentClass->AddMethod(Method("IsKeyUp", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-const int& arg0 = *(const int*)inArguments[0];
-static thread_local bool result = instance->IsKeyPressed(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("aKeyCode", ReflectionSystem::GetOrCreateType<const int>("const int")));
-Method& currentMethod = currentClass->AddMethod(Method("IsKeyPressed", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-const Input::KeyCode& arg0 = *(const Input::KeyCode*)inArguments[0];
-static thread_local bool result = instance->IsKeyPressed(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("aKeyCode", ReflectionSystem::GetOrCreateType<const Input::KeyCode>("const Input::KeyCode")));
-Method& currentMethod = currentClass->AddMethod(Method("IsKeyPressed", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-const Input::MouseButton& arg0 = *(const Input::MouseButton*)inArguments[0];
-static thread_local bool result = instance->IsKeyPressed(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("aMouseButton", ReflectionSystem::GetOrCreateType<const Input::MouseButton>("const Input::MouseButton")));
-Method& currentMethod = currentClass->AddMethod(Method("IsKeyPressed", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-const glm::vec<2, float> & result = instance->GetMousePosition();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetMousePosition", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-const glm::vec<2, float> & result = instance->GetMousePositionClientRelative();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetMousePositionClientRelative", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-static thread_local const glm::vec<2, float> result = instance->GetMouseDelta();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetMouseDelta", ReflectionSystem::GetOrCreateType<const glm::vec<2, float>>("const glm::vec<2, float>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-static thread_local const glm::vec<2, float> result = instance->GetMouseDeltaClientRelative();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetMouseDeltaClientRelative", ReflectionSystem::GetOrCreateType<const glm::vec<2, float>>("const glm::vec<2, float>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-unsigned int& arg0 = *(unsigned int*)inArguments[0];
-unsigned long long& arg1 = *(unsigned long long*)inArguments[1];
-long long& arg2 = *(long long*)inArguments[2];
-static thread_local bool result = instance->UpdateEvents(arg0, arg1, arg2);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("message", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-arguments.Add(MethodArgument("wParam", ReflectionSystem::GetOrCreateType<unsigned long long>("unsigned long long")));
-arguments.Add(MethodArgument("lParam", ReflectionSystem::GetOrCreateType<long long>("long long")));
-Method& currentMethod = currentClass->AddMethod(Method("UpdateEvents", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Input* instance = static_cast<Input*>(inInstance);
-instance->EndFrame();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<CharacterControllerComponent>();
+	Type* currentClass = ReflectionSystem::GetMutableType<Component>();
 	{
-		Field& currentField = currentClass->AddField(Field("myController", offsetof(CharacterControllerComponent, myController), ReflectionSystem::GetOrCreateType<physx::PxController>("physx::PxController"), true, false));
+		Field& currentField = currentClass->AddField(Field("myActor", 8, ReflectionSystem::GetOrCreateType<Actor>("Actor"), true, false));
 	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCollisionFlags", offsetof(CharacterControllerComponent, myCollisionFlags), ReflectionSystem::GetOrCreateType<physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>>("physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFilter", offsetof(CharacterControllerComponent, myFilter), ReflectionSystem::GetOrCreateType<physx::PxControllerFilters>("physx::PxControllerFilters"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myHeight", offsetof(CharacterControllerComponent, myHeight), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRadius", offsetof(CharacterControllerComponent, myRadius), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySlopeLimitDegrees", offsetof(CharacterControllerComponent, mySlopeLimitDegrees), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMinDist", offsetof(CharacterControllerComponent, myMinDist), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myStepOffset", offsetof(CharacterControllerComponent, myStepOffset), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myUseGravity", offsetof(CharacterControllerComponent, myUseGravity), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDownVelocity", offsetof(CharacterControllerComponent, myDownVelocity), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myGravity", offsetof(CharacterControllerComponent, myGravity), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myTerminalVelocity", offsetof(CharacterControllerComponent, myTerminalVelocity), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDisplacement", offsetof(CharacterControllerComponent, myDisplacement), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPositionOffset", offsetof(CharacterControllerComponent, myPositionOffset), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+Component* instance = static_cast<Component*>(inInstance);
 instance->OnCreate();
 return nullptr;
 });
@@ -4350,7 +3313,7 @@ Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSys
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+Component* instance = static_cast<Component*>(inInstance);
 instance->OnDestroy();
 return nullptr;
 });
@@ -4360,29 +3323,27 @@ Method& currentMethod = currentClass->AddMethod(Method("OnDestroy", ReflectionSy
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
-instance->OnPositionChanged();
+Component* instance = static_cast<Component*>(inInstance);
+instance->EditorTick();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnPositionChanged", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("EditorTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
-const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
-instance->Move(arg0);
+Component* instance = static_cast<Component*>(inInstance);
+instance->Tick();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMovement", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
-Method& currentMethod = currentClass->AddMethod(Method("Move", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+Component* instance = static_cast<Component*>(inInstance);
 instance->TickPhysics();
 return nullptr;
 });
@@ -4392,80 +3353,469 @@ Method& currentMethod = currentClass->AddMethod(Method("TickPhysics", Reflection
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
-static thread_local float result = instance->GetHeight();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetHeight", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
-const float& arg0 = *(const float*)inArguments[0];
-instance->SetHeight(arg0);
+Component* instance = static_cast<Component*>(inInstance);
+instance->MarkRenderStateDirty();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inHeight", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("SetHeight", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("MarkRenderStateDirty", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
-static thread_local float result = instance->GetRadius();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetRadius", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
-const float& arg0 = *(const float*)inArguments[0];
-instance->SetRadius(arg0);
+Component* instance = static_cast<Component*>(inInstance);
+instance->OnRenderStateDirty();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inRadius", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("SetRadius", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("OnRenderStateDirty", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
-static thread_local bool result = instance->IsGrounded();
+Component* instance = static_cast<Component*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->OnTriggerEnter(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("OnTriggerEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Component* instance = static_cast<Component*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->OnTrigger(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("OnTrigger", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Component* instance = static_cast<Component*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->OnTriggerExit(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("OnTriggerExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Component* instance = static_cast<Component*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->OnCollisionEnter(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("OnCollisionEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Component* instance = static_cast<Component*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->OnCollision(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("OnCollision", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Component* instance = static_cast<Component*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->OnCollisionExit(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("OnCollisionExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Component* instance = static_cast<Component*>(inInstance);
+TransformComponent & result = instance->GetTransform();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("IsGrounded", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetTransform", ReflectionSystem::GetOrCreateType<TransformComponent &>("TransformComponent &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+Component* instance = static_cast<Component*>(inInstance);
+Actor * result = instance->GetActor();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Component* instance = static_cast<Component*>(inInstance);
+World * result = instance->GetWorld();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetWorld", ReflectionSystem::GetOrCreateType<World *>("World *"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<LandscapeRenderComponent>();
+	{
+		Field& currentField = currentClass->AddField(Field("myHeightfield", 16, ReflectionSystem::GetOrCreateType<Heightfield>("Heightfield"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexBuffer", 280, ReflectionSystem::GetOrCreateType<VertexBufferHandle>("VertexBufferHandle"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIndexBuffer", 288, ReflectionSystem::GetOrCreateType<IndexBufferHandle>("IndexBufferHandle"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMesh", 296, ReflectionSystem::GetOrCreateType<Mesh>("Mesh"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMeshInstance", 304, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterial", 312, ReflectionSystem::GetOrCreateType<Material>("Material"), true, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+LandscapeRenderComponent* instance = static_cast<LandscapeRenderComponent*>(inInstance);
+instance->OnCreate();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+LandscapeRenderComponent* instance = static_cast<LandscapeRenderComponent*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+LandscapeRenderComponent* instance = static_cast<LandscapeRenderComponent*>(inInstance);
+instance->OnRenderStateDirty();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnRenderStateDirty", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+LandscapeRenderComponent* instance = static_cast<LandscapeRenderComponent*>(inInstance);
+const Heightfield & result = instance->GetHeightfield();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetHeightfield", ReflectionSystem::GetOrCreateType<const Heightfield &>("const Heightfield &"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<BoxColliderComponent>();
+	{
+		Field& currentField = currentClass->AddField(Field("myHalfSize", offsetof(BoxColliderComponent, myHalfSize), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ColliderComponent>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+BoxColliderComponent* instance = static_cast<BoxColliderComponent*>(inInstance);
+instance->OnCreate();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+BoxColliderComponent* instance = static_cast<BoxColliderComponent*>(inInstance);
 const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
-instance->SetPositionOffset(arg0);
+instance->SetHalfSize(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOffset", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
-Method& currentMethod = currentClass->AddMethod(Method("SetPositionOffset", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+arguments.Add(MethodArgument("inHalfSize", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("SetHalfSize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<CameraComponent>();
+	{
+		Field& currentField = currentClass->AddField(Field("myResolution", offsetof(CameraComponent, myResolution), ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myProjection", offsetof(CameraComponent, myProjection), ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFov", offsetof(CameraComponent, myFov), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNearPlane", offsetof(CameraComponent, myNearPlane), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFarPlane", offsetof(CameraComponent, myFarPlane), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsOrthographic", offsetof(CameraComponent, myIsOrthographic), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const glm::mat<4, 4, float> & result = instance->GetProjection();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetProjection", ReflectionSystem::GetOrCreateType<const glm::mat<4, 4, float> &>("const glm::mat<4, 4, float> &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
-const float& arg0 = *(const float*)inArguments[0];
-instance->Jump(arg0);
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
+const float& arg1 = *(const float*)inArguments[1];
+const float& arg2 = *(const float*)inArguments[2];
+instance->CreateOrthographic(arg0, arg1, arg2);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inJumpForce", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("Jump", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+arguments.Add(MethodArgument("inResolution", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
+arguments.Add(MethodArgument("inNearPlane", ReflectionSystem::GetOrCreateType<const float>("const float")));
+arguments.Add(MethodArgument("inFarPlane", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("CreateOrthographic", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
+const float& arg1 = *(const float*)inArguments[1];
+const float& arg2 = *(const float*)inArguments[2];
+const float& arg3 = *(const float*)inArguments[3];
+instance->CreatePerspective(arg0, arg1, arg2, arg3);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inResolution", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
+arguments.Add(MethodArgument("inFov", ReflectionSystem::GetOrCreateType<const float>("const float")));
+arguments.Add(MethodArgument("inNearPlane", ReflectionSystem::GetOrCreateType<const float>("const float")));
+arguments.Add(MethodArgument("inFarPlane", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("CreatePerspective", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+instance->SetAsMainCamera();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("SetAsMainCamera", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
+glm::vec<3, float> & arg1 = *(glm::vec<3, float>*)inArguments[1];
+static thread_local bool result = instance->ScreenToWorldPos(arg0, arg1);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
+arguments.Add(MethodArgument("outWorldPos", ReflectionSystem::GetOrCreateType<glm::vec<3, float> &>("glm::vec<3, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("ScreenToWorldPos", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
+static thread_local glm::vec<3, float> result = instance->ScreenToNearPlane(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("ScreenToNearPlane", ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
+static thread_local glm::vec<3, float> result = instance->ScreenToFarPlane(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("ScreenToFarPlane", ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
+static thread_local glm::vec<3, float> result = instance->GetRayDirectionFromScreen(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetRayDirectionFromScreen", ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const float& arg0 = *(const float*)inArguments[0];
+static thread_local float result = instance->ToLinearDepth(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNonLinearDepth", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("ToLinearDepth", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+const float& arg0 = *(const float*)inArguments[0];
+static thread_local float result = instance->ToNormalizedLinearDepth(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNDCDepth", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("ToNormalizedLinearDepth", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<GPUSceneSystem>();
+	{
+		Field& currentField = currentClass->AddField(Field("myFreeSparseIndices", 8, ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNextFreeSparseIndex", 32, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySparseBuffer", 40, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNumGPUObjectUpdatesThisFrame", 48, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDenseBuffer", 56, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDenseBufferCPURepresentation", 64, ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
+const MeshInstanceData & arg0 = *(const MeshInstanceData*)inArguments[0];
+static thread_local unsigned int result = instance->AddMeshInstance(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMeshInstanceData", ReflectionSystem::GetOrCreateType<const MeshInstanceData &>("const MeshInstanceData &")));
+Method& currentMethod = currentClass->AddMethod(Method("AddMeshInstance", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
+const MeshInstanceData & arg1 = *(const MeshInstanceData*)inArguments[1];
+instance->UpdateMeshInstance(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMeshIndex", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+arguments.Add(MethodArgument("inMeshInstanceData", ReflectionSystem::GetOrCreateType<const MeshInstanceData &>("const MeshInstanceData &")));
+Method& currentMethod = currentClass->AddMethod(Method("UpdateMeshInstance", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
+instance->RemoveMeshInstance(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMeshInstance", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("RemoveMeshInstance", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
+const ResizableBuffer * result = instance->GetSparseBuffer();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetSparseBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
+const ResizableBuffer * result = instance->GetDenseBuffer();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetDenseBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
+static thread_local unsigned int result = instance->GetNumObjects();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetNumObjects", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
 }
 }
 { 
@@ -4715,103 +4065,185 @@ Method& currentMethod = currentClass->AddMethod(Method("SetRotationConstraint", 
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<GPUSceneSystem>();
+	Type* currentClass = ReflectionSystem::GetMutableType<CharacterControllerComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myFreeSparseIndices", 8, ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myController", offsetof(CharacterControllerComponent, myController), ReflectionSystem::GetOrCreateType<physx::PxController>("physx::PxController"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myNextFreeSparseIndex", 32, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		Field& currentField = currentClass->AddField(Field("myCollisionFlags", offsetof(CharacterControllerComponent, myCollisionFlags), ReflectionSystem::GetOrCreateType<physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>>("physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySparseBuffer", 40, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myFilter", offsetof(CharacterControllerComponent, myFilter), ReflectionSystem::GetOrCreateType<physx::PxControllerFilters>("physx::PxControllerFilters"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myNumGPUObjectUpdatesThisFrame", 48, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		Field& currentField = currentClass->AddField(Field("myHeight", offsetof(CharacterControllerComponent, myHeight), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDenseBuffer", 56, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myRadius", offsetof(CharacterControllerComponent, myRadius), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDenseBufferCPURepresentation", 64, ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySlopeLimitDegrees", offsetof(CharacterControllerComponent, mySlopeLimitDegrees), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
+	{
+		Field& currentField = currentClass->AddField(Field("myMinDist", offsetof(CharacterControllerComponent, myMinDist), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myStepOffset", offsetof(CharacterControllerComponent, myStepOffset), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myUseGravity", offsetof(CharacterControllerComponent, myUseGravity), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDownVelocity", offsetof(CharacterControllerComponent, myDownVelocity), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myGravity", offsetof(CharacterControllerComponent, myGravity), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTerminalVelocity", offsetof(CharacterControllerComponent, myTerminalVelocity), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDisplacement", offsetof(CharacterControllerComponent, myDisplacement), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPositionOffset", offsetof(CharacterControllerComponent, myPositionOffset), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-instance->Tick();
+CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+instance->OnCreate();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-const MeshInstanceData & arg0 = *(const MeshInstanceData*)inArguments[0];
-static thread_local unsigned int result = instance->AddMeshInstance(arg0);
+CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+instance->OnDestroy();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnDestroy", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+instance->OnPositionChanged();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnPositionChanged", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
+instance->Move(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMovement", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("Move", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+instance->TickPhysics();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("TickPhysics", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+static thread_local float result = instance->GetHeight();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMeshInstanceData", ReflectionSystem::GetOrCreateType<const MeshInstanceData &>("const MeshInstanceData &")));
-Method& currentMethod = currentClass->AddMethod(Method("AddMeshInstance", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetHeight", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
-const MeshInstanceData & arg1 = *(const MeshInstanceData*)inArguments[1];
-instance->UpdateMeshInstance(arg0, arg1);
+CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+const float& arg0 = *(const float*)inArguments[0];
+instance->SetHeight(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMeshIndex", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-arguments.Add(MethodArgument("inMeshInstanceData", ReflectionSystem::GetOrCreateType<const MeshInstanceData &>("const MeshInstanceData &")));
-Method& currentMethod = currentClass->AddMethod(Method("UpdateMeshInstance", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+arguments.Add(MethodArgument("inHeight", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("SetHeight", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
-instance->RemoveMeshInstance(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMeshInstance", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("RemoveMeshInstance", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-const ResizableBuffer * result = instance->GetSparseBuffer();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetSparseBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-const ResizableBuffer * result = instance->GetDenseBuffer();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetDenseBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-static thread_local unsigned int result = instance->GetNumObjects();
+CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+static thread_local float result = instance->GetRadius();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetNumObjects", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetRadius", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+const float& arg0 = *(const float*)inArguments[0];
+instance->SetRadius(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inRadius", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("SetRadius", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+static thread_local bool result = instance->IsGrounded();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsGrounded", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
+instance->SetPositionOffset(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOffset", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("SetPositionOffset", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CharacterControllerComponent* instance = static_cast<CharacterControllerComponent*>(inInstance);
+const float& arg0 = *(const float*)inArguments[0];
+instance->Jump(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inJumpForce", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("Jump", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -4907,70 +4339,25 @@ Method& currentMethod = currentClass->AddMethod(Method("SetLocalShapeRotation", 
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<BoxColliderComponent>();
+	Type* currentClass = ReflectionSystem::GetMutableType<DirectionalLightComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myHalfSize", offsetof(BoxColliderComponent, myHalfSize), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myIsShadowsEnabled", offsetof(DirectionalLightComponent, myIsShadowsEnabled), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ColliderComponent>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-BoxColliderComponent* instance = static_cast<BoxColliderComponent*>(inInstance);
-instance->OnCreate();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-BoxColliderComponent* instance = static_cast<BoxColliderComponent*>(inInstance);
-const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
-instance->SetHalfSize(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inHalfSize", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
-Method& currentMethod = currentClass->AddMethod(Method("SetHalfSize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<LandscapeRenderComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myHeightfield", 16, ReflectionSystem::GetOrCreateType<Heightfield>("Heightfield"), false, false));
+		Field& currentField = currentClass->AddField(Field("myColor", offsetof(DirectionalLightComponent, myColor), ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+		currentField.AddMetadata(R"delim(ExposeAsColor)delim");
+		currentField.AddMetadata(R"delim(OnInspectorChangedEvent(OnColorChanged))delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myVertexBuffer", 280, ReflectionSystem::GetOrCreateType<VertexBufferHandle>("VertexBufferHandle"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIndexBuffer", 288, ReflectionSystem::GetOrCreateType<IndexBufferHandle>("IndexBufferHandle"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMesh", 296, ReflectionSystem::GetOrCreateType<Mesh>("Mesh"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMeshInstance", 304, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMaterial", 312, ReflectionSystem::GetOrCreateType<Material>("Material"), true, false));
+		Field& currentField = currentClass->AddField(Field("myLightProjection", offsetof(DirectionalLightComponent, myLightProjection), ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-LandscapeRenderComponent* instance = static_cast<LandscapeRenderComponent*>(inInstance);
-instance->OnCreate();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-LandscapeRenderComponent* instance = static_cast<LandscapeRenderComponent*>(inInstance);
+DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
 instance->Tick();
 return nullptr;
 });
@@ -4980,280 +4367,77 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-LandscapeRenderComponent* instance = static_cast<LandscapeRenderComponent*>(inInstance);
-instance->OnRenderStateDirty();
+DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
+const glm::vec<4, float> & arg0 = *(const glm::vec<4, float>*)inArguments[0];
+instance->SetColor(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnRenderStateDirty", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+arguments.Add(MethodArgument("inColor", ReflectionSystem::GetOrCreateType<const glm::vec<4, float> &>("const glm::vec<4, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("SetColor", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-LandscapeRenderComponent* instance = static_cast<LandscapeRenderComponent*>(inInstance);
-const Heightfield & result = instance->GetHeightfield();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetHeightfield", ReflectionSystem::GetOrCreateType<const Heightfield &>("const Heightfield &"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<CameraComponent>();
-	{
-		Field& currentField = currentClass->AddField(Field("myResolution", offsetof(CameraComponent, myResolution), ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myProjection", offsetof(CameraComponent, myProjection), ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFov", offsetof(CameraComponent, myFov), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNearPlane", offsetof(CameraComponent, myNearPlane), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFarPlane", offsetof(CameraComponent, myFarPlane), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIsOrthographic", offsetof(CameraComponent, myIsOrthographic), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
-const glm::mat<4, 4, float> & result = instance->GetProjection();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetProjection", ReflectionSystem::GetOrCreateType<const glm::mat<4, 4, float> &>("const glm::mat<4, 4, float> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
-const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
-const float& arg1 = *(const float*)inArguments[1];
-const float& arg2 = *(const float*)inArguments[2];
-instance->CreateOrthographic(arg0, arg1, arg2);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inResolution", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
-arguments.Add(MethodArgument("inNearPlane", ReflectionSystem::GetOrCreateType<const float>("const float")));
-arguments.Add(MethodArgument("inFarPlane", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("CreateOrthographic", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
-const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
-const float& arg1 = *(const float*)inArguments[1];
-const float& arg2 = *(const float*)inArguments[2];
-const float& arg3 = *(const float*)inArguments[3];
-instance->CreatePerspective(arg0, arg1, arg2, arg3);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inResolution", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
-arguments.Add(MethodArgument("inFov", ReflectionSystem::GetOrCreateType<const float>("const float")));
-arguments.Add(MethodArgument("inNearPlane", ReflectionSystem::GetOrCreateType<const float>("const float")));
-arguments.Add(MethodArgument("inFarPlane", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("CreatePerspective", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
-instance->SetAsMainCamera();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("SetAsMainCamera", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
-const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
-glm::vec<3, float> & arg1 = *(glm::vec<3, float>*)inArguments[1];
-static thread_local bool result = instance->ScreenToWorldPos(arg0, arg1);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
-arguments.Add(MethodArgument("outWorldPos", ReflectionSystem::GetOrCreateType<glm::vec<3, float> &>("glm::vec<3, float> &")));
-Method& currentMethod = currentClass->AddMethod(Method("ScreenToWorldPos", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
-const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
-static thread_local glm::vec<3, float> result = instance->ScreenToNearPlane(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
-Method& currentMethod = currentClass->AddMethod(Method("ScreenToNearPlane", ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
-const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
-static thread_local glm::vec<3, float> result = instance->ScreenToFarPlane(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
-Method& currentMethod = currentClass->AddMethod(Method("ScreenToFarPlane", ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
-const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
-static thread_local glm::vec<3, float> result = instance->GetRayDirectionFromScreen(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
-Method& currentMethod = currentClass->AddMethod(Method("GetRayDirectionFromScreen", ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
+DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
 const float& arg0 = *(const float*)inArguments[0];
-static thread_local float result = instance->ToLinearDepth(arg0);
+instance->SetIntensity(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inValue", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("SetIntensity", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
+const glm::vec<4, float> & result = instance->GetColor();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inNonLinearDepth", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("ToLinearDepth", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetColor", ReflectionSystem::GetOrCreateType<const glm::vec<4, float> &>("const glm::vec<4, float> &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CameraComponent* instance = static_cast<CameraComponent*>(inInstance);
-const float& arg0 = *(const float*)inArguments[0];
-static thread_local float result = instance->ToNormalizedLinearDepth(arg0);
+DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
+const glm::mat<4, 4, float> & result = instance->GetLightProjection();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inNDCDepth", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("ToNormalizedLinearDepth", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<EditorThemes>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EditorThemes* instance = static_cast<EditorThemes*>(inInstance);
-instance->DefaultTheme();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("DefaultTheme", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-currentMethod.AddMetadata(R"delim(EditorMenuItem("Themes/Default"))delim");
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<CapsuleColliderComponent>();
-	{
-		Field& currentField = currentClass->AddField(Field("myRadius", offsetof(CapsuleColliderComponent, myRadius), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myHeight", offsetof(CapsuleColliderComponent, myHeight), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ColliderComponent>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
-instance->OnCreate();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetLightProjection", ReflectionSystem::GetOrCreateType<const glm::mat<4, 4, float> &>("const glm::mat<4, 4, float> &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
-const float& arg0 = *(const float*)inArguments[0];
-instance->SetRadius(arg0);
-return nullptr;
+DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
+static thread_local bool result = instance->IsShadowsEnabled();
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inRadius", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("SetRadius", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("IsShadowsEnabled", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-CapsuleColliderComponent* instance = static_cast<CapsuleColliderComponent*>(inInstance);
-const float& arg0 = *(const float*)inArguments[0];
-instance->SetHeight(arg0);
+DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
+instance->EnableShadows();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inHeight", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("SetHeight", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<EditorCameraMovementComponent>();
-	{
-		Field& currentField = currentClass->AddField(Field("myResetMouseDelta", 16, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMouseDelta", 20, ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myYaw", 28, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPitch", 32, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMovementSpeed", 36, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myShiftMultiplier", 40, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myScrollMultiplier", 44, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EditorCameraMovementComponent* instance = static_cast<EditorCameraMovementComponent*>(inInstance);
-instance->ViewportTick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("ViewportTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("EnableShadows", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-EditorCameraMovementComponent* instance = static_cast<EditorCameraMovementComponent*>(inInstance);
-instance->ResetMouseDelta();
+DirectionalLightComponent* instance = static_cast<DirectionalLightComponent*>(inInstance);
+instance->OnColorChanged();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("ResetMouseDelta", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("OnColorChanged", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+currentMethod.AddMetadata(R"delim(AllowPrivateAccess)delim");
 }
 }
 { 
@@ -5318,6 +4502,1652 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("OnScaleChanged", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<TypeSerializer>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+TypeSerializer* instance = static_cast<TypeSerializer*>(inInstance);
+const Type * arg0 = (const Type*)inArguments[0];
+TypeSerializer * result = instance->GetSerializer(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+Method& currentMethod = currentClass->AddMethod(Method("GetSerializer", ReflectionSystem::GetOrCreateType<TypeSerializer *>("TypeSerializer *"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<MeshColliderComponent>();
+	{
+		Field& currentField = currentClass->AddField(Field("myModel", 56, ReflectionSystem::GetOrCreateType<Model>("Model"), true, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ColliderComponent>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+MeshColliderComponent* instance = static_cast<MeshColliderComponent*>(inInstance);
+instance->OnCreate();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+MeshColliderComponent* instance = static_cast<MeshColliderComponent*>(inInstance);
+instance->OnScaleChanged();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnScaleChanged", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+MeshColliderComponent* instance = static_cast<MeshColliderComponent*>(inInstance);
+Model * arg0 = (Model*)inArguments[0];
+instance->SetModel(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inModel", ReflectionSystem::GetOrCreateType<Model *>("Model *")));
+Method& currentMethod = currentClass->AddMethod(Method("SetModel", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PromiseReturnTypeImplementation<void>>();
+	{
+		Field& currentField = currentClass->AddField(Field("myReturnValue", 0, ReflectionSystem::GetOrCreateType<char>("char"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHasReturnValue", 1, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void>("void"), false, false);
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PromiseReturnTypeImplementation<void>* instance = static_cast<PromiseReturnTypeImplementation<void>*>(inInstance);
+instance->return_void();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("return_void", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PointLightComponent>();
+	{
+		Field& currentField = currentClass->AddField(Field("myColor", offsetof(PointLightComponent, myColor), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+		currentField.AddMetadata(R"delim(ExposeAsColor)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIntensity", offsetof(PointLightComponent, myIntensity), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRange", offsetof(PointLightComponent, myRange), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
+instance->OnCreate();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
+instance->TEMP_SendToGPU();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("TEMP_SendToGPU", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
+const glm::vec<3, float> & result = instance->GetColor();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetColor", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
+const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
+instance->SetColor(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inColor", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("SetColor", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
+static thread_local float result = instance->GetIntensity();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetIntensity", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
+const float& arg0 = *(const float*)inArguments[0];
+instance->SetIntensity(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inIntensity", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("SetIntensity", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
+static thread_local float result = instance->GetRange();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetRange", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
+const float& arg0 = *(const float*)inArguments[0];
+instance->SetRange(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inRange", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("SetRange", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<StaticMeshComponent>();
+	{
+		Field& currentField = currentClass->AddField(Field("myPath", offsetof(StaticMeshComponent, myPath), ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterials", offsetof(StaticMeshComponent, myMaterials), ReflectionSystem::GetOrCreateType<List<Material *>>("List<Material *>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myModel", offsetof(StaticMeshComponent, myModel), ReflectionSystem::GetOrCreateType<Model>("Model"), true, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMeshInstances", offsetof(StaticMeshComponent, myMeshInstances), ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShouldWriteDepth", offsetof(StaticMeshComponent, myShouldWriteDepth), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
+instance->OnCreate();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
+Model * arg0 = (Model*)inArguments[0];
+instance->SetModel(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inModel", ReflectionSystem::GetOrCreateType<Model *>("Model *")));
+Method& currentMethod = currentClass->AddMethod(Method("SetModel", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
+Model * result = instance->GetModel();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetModel", ReflectionSystem::GetOrCreateType<Model *>("Model *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
+const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+instance->SetMaterialAsync(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMaterialPath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
+arguments.Add(MethodArgument("inIndex", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("SetMaterialAsync", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
+Material * arg0 = (Material*)inArguments[0];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+instance->SetMaterial(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMaterial", ReflectionSystem::GetOrCreateType<Material *>("Material *")));
+arguments.Add(MethodArgument("inIndex", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("SetMaterial", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
+const Material * result = instance->GetMaterial(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inIndex", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("GetMaterial", ReflectionSystem::GetOrCreateType<const Material *>("const Material *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
+Material * arg0 = (Material*)inArguments[0];
+Mesh * arg1 = (Mesh*)inArguments[1];
+instance->SetMaterialForMesh(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMaterial", ReflectionSystem::GetOrCreateType<Material *>("Material *")));
+arguments.Add(MethodArgument("inMesh", ReflectionSystem::GetOrCreateType<Mesh *>("Mesh *")));
+Method& currentMethod = currentClass->AddMethod(Method("SetMaterialForMesh", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
+Mesh * arg0 = (Mesh*)inArguments[0];
+const Material * result = instance->GetMaterialForMesh(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMesh", ReflectionSystem::GetOrCreateType<Mesh *>("Mesh *")));
+Method& currentMethod = currentClass->AddMethod(Method("GetMaterialForMesh", ReflectionSystem::GetOrCreateType<const Material *>("const Material *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
+instance->OnRenderStateDirty();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnRenderStateDirty", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshComponent* instance = static_cast<StaticMeshComponent*>(inInstance);
+const bool& arg0 = *(const bool*)inArguments[0];
+instance->SetDepthWriteEnabled(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inEnabled", ReflectionSystem::GetOrCreateType<const bool>("const bool")));
+Method& currentMethod = currentClass->AddMethod(Method("SetDepthWriteEnabled", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<IsCopyable<int>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<int>("int"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<IList>();
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<std::basic_string<char>>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<MethodArgument>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<MethodArgument>("MethodArgument"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<const Type *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<const Type>("const Type"), true, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<Field>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Field>("Field"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<Method>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Method>("Method"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<TypeTemplateArgument>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<TypeTemplateArgument>("TypeTemplateArgument"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<Skeleton::Bone>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Skeleton::Bone>("Skeleton::Bone"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<std::thread>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::thread>("std::thread"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<UniquePtr<IAssetContainer>>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<UniquePtr<IAssetContainer>>("UniquePtr<IAssetContainer>"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Framebuffer>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Framebuffer>("vk::Framebuffer"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<Vertex>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Vertex>("Vertex"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<unsigned int>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<SerializationMeshData>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<SerializationMeshData>("SerializationMeshData"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<Mesh *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Mesh>("Mesh"), true, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<Filewatcher::CallbackHandle>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Filewatcher::CallbackHandle>("Filewatcher::CallbackHandle"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<std::function<void ()>>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<unsigned char>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<unsigned char>("unsigned char"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<Material *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Material>("Material"), true, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<TransformComponent *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<TransformComponent>("TransformComponent"), true, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<Component *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Component>("Component"), true, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>("Delegate<void (physx::PxPhysics *, physx::PxScene *)>"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<IndexBufferHandle *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IndexBufferHandle>("IndexBufferHandle"), true, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<IndexBufferData>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IndexBufferData>("IndexBufferData"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<VertexBufferHandle *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VertexBufferHandle>("VertexBufferHandle"), true, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<VertexBufferData>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VertexBufferData>("VertexBufferData"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<const char *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<const char>("const char"), true, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::QueueFamilyProperties>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::QueueFamilyProperties>("vk::QueueFamilyProperties"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Fence>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Fence>("vk::Fence"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Semaphore>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Semaphore>("vk::Semaphore"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Image>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Image>("vk::Image"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::ImageView>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::ImageView>("vk::ImageView"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::CommandBuffer>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<UniquePtr<Actor>>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<UniquePtr<Actor>>("UniquePtr<Actor>"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<Actor *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Actor>("Actor"), true, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<EditorWindow *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<EditorWindow>("EditorWindow"), true, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<EditorSystem *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<EditorSystem>("EditorSystem"), true, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<const Method *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<const Method>("const Method"), true, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<std::filesystem::path>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<ContentBrowserItem>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<ContentBrowserItem>("ContentBrowserItem"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::DescriptorSet>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<AutoInit>();
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<AutoInitManager>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+AutoInitManager* instance = static_cast<AutoInitManager*>(inInstance);
+AutoInit * arg0 = (AutoInit*)inArguments[0];
+instance->AddInitObject(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<AutoInit *>("AutoInit *")));
+Method& currentMethod = currentClass->AddMethod(Method("AddInitObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+AutoInitManager* instance = static_cast<AutoInitManager*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Input>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+const int& arg0 = *(const int*)inArguments[0];
+static thread_local bool result = instance->IsKeyDown(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("aKeyCode", ReflectionSystem::GetOrCreateType<const int>("const int")));
+Method& currentMethod = currentClass->AddMethod(Method("IsKeyDown", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+const Input::KeyCode& arg0 = *(const Input::KeyCode*)inArguments[0];
+static thread_local bool result = instance->IsKeyDown(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("aKeyCode", ReflectionSystem::GetOrCreateType<const Input::KeyCode>("const Input::KeyCode")));
+Method& currentMethod = currentClass->AddMethod(Method("IsKeyDown", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+const Input::MouseButton& arg0 = *(const Input::MouseButton*)inArguments[0];
+static thread_local bool result = instance->IsKeyDown(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("aMouseButton", ReflectionSystem::GetOrCreateType<const Input::MouseButton>("const Input::MouseButton")));
+Method& currentMethod = currentClass->AddMethod(Method("IsKeyDown", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+const int& arg0 = *(const int*)inArguments[0];
+static thread_local bool result = instance->IsKeyUp(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("aKeyCode", ReflectionSystem::GetOrCreateType<const int>("const int")));
+Method& currentMethod = currentClass->AddMethod(Method("IsKeyUp", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+const Input::KeyCode& arg0 = *(const Input::KeyCode*)inArguments[0];
+static thread_local bool result = instance->IsKeyUp(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("aKeyCode", ReflectionSystem::GetOrCreateType<const Input::KeyCode>("const Input::KeyCode")));
+Method& currentMethod = currentClass->AddMethod(Method("IsKeyUp", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+const Input::MouseButton& arg0 = *(const Input::MouseButton*)inArguments[0];
+static thread_local bool result = instance->IsKeyUp(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("aMouseButton", ReflectionSystem::GetOrCreateType<const Input::MouseButton>("const Input::MouseButton")));
+Method& currentMethod = currentClass->AddMethod(Method("IsKeyUp", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+const int& arg0 = *(const int*)inArguments[0];
+static thread_local bool result = instance->IsKeyPressed(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("aKeyCode", ReflectionSystem::GetOrCreateType<const int>("const int")));
+Method& currentMethod = currentClass->AddMethod(Method("IsKeyPressed", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+const Input::KeyCode& arg0 = *(const Input::KeyCode*)inArguments[0];
+static thread_local bool result = instance->IsKeyPressed(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("aKeyCode", ReflectionSystem::GetOrCreateType<const Input::KeyCode>("const Input::KeyCode")));
+Method& currentMethod = currentClass->AddMethod(Method("IsKeyPressed", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+const Input::MouseButton& arg0 = *(const Input::MouseButton*)inArguments[0];
+static thread_local bool result = instance->IsKeyPressed(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("aMouseButton", ReflectionSystem::GetOrCreateType<const Input::MouseButton>("const Input::MouseButton")));
+Method& currentMethod = currentClass->AddMethod(Method("IsKeyPressed", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+const glm::vec<2, float> & result = instance->GetMousePosition();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetMousePosition", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+const glm::vec<2, float> & result = instance->GetMousePositionClientRelative();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetMousePositionClientRelative", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+static thread_local const glm::vec<2, float> result = instance->GetMouseDelta();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetMouseDelta", ReflectionSystem::GetOrCreateType<const glm::vec<2, float>>("const glm::vec<2, float>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+static thread_local const glm::vec<2, float> result = instance->GetMouseDeltaClientRelative();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetMouseDeltaClientRelative", ReflectionSystem::GetOrCreateType<const glm::vec<2, float>>("const glm::vec<2, float>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
+unsigned long long& arg1 = *(unsigned long long*)inArguments[1];
+long long& arg2 = *(long long*)inArguments[2];
+static thread_local bool result = instance->UpdateEvents(arg0, arg1, arg2);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("message", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+arguments.Add(MethodArgument("wParam", ReflectionSystem::GetOrCreateType<unsigned long long>("unsigned long long")));
+arguments.Add(MethodArgument("lParam", ReflectionSystem::GetOrCreateType<long long>("long long")));
+Method& currentMethod = currentClass->AddMethod(Method("UpdateEvents", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Input* instance = static_cast<Input*>(inInstance);
+instance->EndFrame();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Random>();
+	{
+		Field& currentField = currentClass->AddField(Field("myEngine", 0, ReflectionSystem::GetOrCreateType<std::mersenne_twister_engine<unsigned int, 32, 624, 397, 31, 2567483615, 11, 4294967295, 7, 2636928640, 15, 4022730752, 18, 1812433253>>("std::mersenne_twister_engine<unsigned int, 32, 624, 397, 31, 2567483615, 11, 4294967295, 7, 2636928640, 15, 4022730752, 18, 1812433253>"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ThreadPool>();
+	{
+		Field& currentField = currentClass->AddField(Field("myThreads", 0, ReflectionSystem::GetOrCreateType<List<std::thread>>("List<std::thread>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLookingForTaskMutex", 24, ReflectionSystem::GetOrCreateType<std::mutex>("std::mutex"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myWaitingForTaskCondition", 104, ReflectionSystem::GetOrCreateType<std::condition_variable>("std::condition_variable"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShouldExit", 176, ReflectionSystem::GetOrCreateType<std::atomic<bool>>("std::atomic<bool>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTasks", 184, ReflectionSystem::GetOrCreateType<std::queue<std::function<void ()>>>("std::queue<std::function<void ()>>"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Time>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
+static thread_local float result = instance->GetDeltaTime();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetDeltaTime", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
+static thread_local float result = instance->GetUnscaledDeltaTime();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetUnscaledDeltaTime", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
+const float& arg0 = *(const float*)inArguments[0];
+instance->SetTimeScale(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTimeScale", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("SetTimeScale", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
+static thread_local double result = instance->GetSeconds();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetSeconds", ReflectionSystem::GetOrCreateType<double>("double"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Time* instance = static_cast<Time*>(inInstance);
+static thread_local float result = instance->GetTimeSinceStart();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetTimeSinceStart", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniqueID>();
+	{
+		Field& currentField = currentClass->AddField(Field("myA", offsetof(UniqueID, myA), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myB", offsetof(UniqueID, myB), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myC", offsetof(UniqueID, myC), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myD", offsetof(UniqueID, myD), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+UniqueID* instance = static_cast<UniqueID*>(inInstance);
+static thread_local UniqueID result = instance->GenerateUniqueID();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GenerateUniqueID", ReflectionSystem::GetOrCreateType<UniqueID>("UniqueID"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+UniqueID* instance = static_cast<UniqueID*>(inInstance);
+const UniqueID & arg0 = *(const UniqueID*)inArguments[0];
+static thread_local bool result = instance->operator==(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<const UniqueID &>("const UniqueID &")));
+Method& currentMethod = currentClass->AddMethod(Method("operator==", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<IUniquePtr>();
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<SystemManager<System>>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<SystemManager<System>>("SystemManager<System>"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<ThreadPool>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<ThreadPool>("ThreadPool"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<Filewatcher>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Filewatcher>("Filewatcher"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<WindowHandler>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<WindowHandler>("WindowHandler"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanContext>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanContext>("VulkanContext"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<AssetRegistry>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<AssetRegistry>("AssetRegistry"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<IAssetContainer>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IAssetContainer>("IAssetContainer"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanPhysicalDevice>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanPhysicalDevice>("VulkanPhysicalDevice"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanDevice>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanDevice>("VulkanDevice"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanAllocator>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanAllocator>("VulkanAllocator"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<VulkanSwapChain>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VulkanSwapChain>("VulkanSwapChain"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<NvidiaAftermathTracker>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<NvidiaAftermathTracker>("NvidiaAftermathTracker"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<SystemManager<WorldSystem>>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<SystemManager<WorldSystem>>("SystemManager<WorldSystem>"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtr<Actor>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IUniquePtr>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Actor>("Actor"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Awaitable>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Awaitable* instance = static_cast<Awaitable*>(inInstance);
+static thread_local bool result = instance->await_ready();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("await_ready", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Awaitable* instance = static_cast<Awaitable*>(inInstance);
+std::coroutine_handle<void>& arg0 = *(std::coroutine_handle<void>*)inArguments[0];
+instance->await_suspend(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCoroutineHandle", ReflectionSystem::GetOrCreateType<std::coroutine_handle<void>>("std::coroutine_handle<void>")));
+Method& currentMethod = currentClass->AddMethod(Method("await_suspend", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Awaitable* instance = static_cast<Awaitable*>(inInstance);
+instance->await_resume();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("await_resume", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<CoroutineManager>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+CoroutineManager* instance = static_cast<CoroutineManager*>(inInstance);
+static thread_local Coroutine<void, void> result = instance->Load();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem::GetOrCreateType<Coroutine<void, void>>("Coroutine<void, void>"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Field>();
+	{
+		Field& currentField = currentClass->AddField(Field("myName", 0, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", 40, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myType", 48, ReflectionSystem::GetOrCreateType<const Type>("const Type"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsPointer", 56, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsReference", 57, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMetadata", 64, ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+const std::basic_string<char> & result = instance->GetName();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+static thread_local unsigned int result = instance->GetOffset();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetOffset", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+const Type * result = instance->GetType();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+const List<std::basic_string<char>> & result = instance->GetMetadata();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetMetadata", ReflectionSystem::GetOrCreateType<const List<std::basic_string<char>> &>("const List<std::basic_string<char>> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local bool result = instance->HasMetadata(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMetadata", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("HasMetadata", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+static thread_local bool result = instance->IsPointer();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsPointer", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+static thread_local bool result = instance->IsReference();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsReference", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local List<std::basic_string<char>> result = instance->GetMetadataArgs(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMetadata", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetMetadataArgs", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Field* instance = static_cast<Field*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+void * result = instance->GetPointerToValue(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
+Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", ReflectionSystem::GetOrCreateType<void *>("void *"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void *(void *, const List<void *> &)>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void *(void *, const List<void *> &)>("void *(void *, const List<void *> &)"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void *()>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void *()>("void *()"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void (void *)>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void (void *)>("void (void *)"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void (IUniquePtr *)>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void (IUniquePtr *)>("void (IUniquePtr *)"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void (physx::PxPhysics *, physx::PxScene *)>("void (physx::PxPhysics *, physx::PxScene *)"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void ()>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void ()>("void ()"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<RenderSystem>();
+	{
+		Field& currentField = currentClass->AddField(Field("myIsUsingGPUDrivenRendering", 8, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCopyPipeline", 16, ReflectionSystem::GetOrCreateType<FullscreenPipeline>("FullscreenPipeline"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDebugPipeline", 24, ReflectionSystem::GetOrCreateType<DebugPipeline>("DebugPipeline"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myGDRPipeline", 32, ReflectionSystem::GetOrCreateType<GDRPipeline>("GDRPipeline"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySkyboxPipeline", 40, ReflectionSystem::GetOrCreateType<SkyboxPipeline>("SkyboxPipeline"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenderPass", 48, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainRenderPass", 56, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVkFrameBuffer", 64, ReflectionSystem::GetOrCreateType<vk::Framebuffer>("vk::Framebuffer"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainFrameBuffers", 72, ReflectionSystem::GetOrCreateType<List<vk::Framebuffer>>("List<vk::Framebuffer>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myClearValues", 96, ReflectionSystem::GetOrCreateType<vk::ClearValue[2]>("vk::ClearValue[2]"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDepthBuffer", 128, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenderTexture", 136, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myResolvedRenderTexture", 144, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myResolvedDepthTexture", 152, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirectionalLightShadowMap", 160, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+instance->Init();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Init", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+vk::RenderPass & result = instance->GetRenderPass();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetRenderPass", ReflectionSystem::GetOrCreateType<vk::RenderPass &>("vk::RenderPass &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+vk::RenderPass & result = instance->GetImGuiRenderPass();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetImGuiRenderPass", ReflectionSystem::GetOrCreateType<vk::RenderPass &>("vk::RenderPass &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+VulkanImage * result = instance->GetRenderTexture();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetRenderTexture", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+VulkanImage * result = instance->GetResolvedRenderTexture();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetResolvedRenderTexture", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+VulkanImage * result = instance->GetDepthTexture();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetDepthTexture", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+VulkanImage * result = instance->GetDirectionalLightShadowMap();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetDirectionalLightShadowMap", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+instance->OnSwapChainResize();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnSwapChainResize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+const glm::vec<2, float> & arg0 = *(const glm::vec<2, float>*)inArguments[0];
+static thread_local float result = instance->ReadDepthAtScreenPos(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inNormalizedScreenPos", ReflectionSystem::GetOrCreateType<const glm::vec<2, float> &>("const glm::vec<2, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("ReadDepthAtScreenPos", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+VulkanCommandBuffer * result = instance->CreateUploadCommandBuffer_TS();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("CreateUploadCommandBuffer_TS", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+VulkanCommandBuffer * arg0 = (VulkanCommandBuffer*)inArguments[0];
+instance->QueueCommandBufferForUpload_TS(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("commandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *")));
+Method& currentMethod = currentClass->AddMethod(Method("QueueCommandBufferForUpload_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+const GDRPipeline & result = instance->GetGDRPipeline();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetGDRPipeline", ReflectionSystem::GetOrCreateType<const GDRPipeline &>("const GDRPipeline &"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<MulticastDelegate<void ()>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void ()>("void ()"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<TestClass>();
+	{
+		Field& currentField = currentClass->AddField(Field("SomeFloat", offsetof(TestClass, SomeFloat), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("SomeField", offsetof(TestClass, SomeField), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Engine>();
+	{
+		Field& currentField = currentClass->AddField(Field("myFrameIndex", 0, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsRunning", 4, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myEngineProperties", 8, ReflectionSystem::GetOrCreateType<EngineProperties>("EngineProperties"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySystemManager", 144, ReflectionSystem::GetOrCreateType<UniquePtr<SystemManager<System>>>("UniquePtr<SystemManager<System>>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myThreadPool", 176, ReflectionSystem::GetOrCreateType<UniquePtr<ThreadPool>>("UniquePtr<ThreadPool>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFilewatcher", 208, ReflectionSystem::GetOrCreateType<UniquePtr<Filewatcher>>("UniquePtr<Filewatcher>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myWindowHandler", 240, ReflectionSystem::GetOrCreateType<UniquePtr<WindowHandler>>("UniquePtr<WindowHandler>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVulkanContext", 272, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanContext>>("UniquePtr<VulkanContext>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 304, ReflectionSystem::GetOrCreateType<UniquePtr<AssetRegistry>>("UniquePtr<AssetRegistry>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myWorld", 336, ReflectionSystem::GetOrCreateType<std::shared_ptr<World>>("std::shared_ptr<World>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myExternalTickFunction", 352, ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+static thread_local bool result = instance->ShouldRun();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("ShouldRun", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+static thread_local unsigned int result = instance->GetFrameIndex();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetFrameIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+const bool& arg0 = *(const bool*)inArguments[0];
+instance->SetIsRunning(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inIsRunning", ReflectionSystem::GetOrCreateType<const bool>("const bool")));
+Method& currentMethod = currentClass->AddMethod(Method("SetIsRunning", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+const EngineProperties & result = instance->GetEngineProperties();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetEngineProperties", ReflectionSystem::GetOrCreateType<const EngineProperties &>("const EngineProperties &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+const WindowHandler & result = instance->GetWindowHandler();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetWindowHandler", ReflectionSystem::GetOrCreateType<const WindowHandler &>("const WindowHandler &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+AssetRegistry & result = instance->GetAssetRegistry();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAssetRegistry", ReflectionSystem::GetOrCreateType<AssetRegistry &>("AssetRegistry &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+ThreadPool & result = instance->GetThreadPool();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetThreadPool", ReflectionSystem::GetOrCreateType<ThreadPool &>("ThreadPool &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+Filewatcher & result = instance->GetFilewatcher();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetFilewatcher", ReflectionSystem::GetOrCreateType<Filewatcher &>("Filewatcher &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+static thread_local std::shared_ptr<World> result = instance->GetWorld();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetWorld", ReflectionSystem::GetOrCreateType<std::shared_ptr<World>>("std::shared_ptr<World>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+static thread_local std::weak_ptr<World> result = instance->GetWeakWorld();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetWeakWorld", ReflectionSystem::GetOrCreateType<std::weak_ptr<World>>("std::weak_ptr<World>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+std::shared_ptr<World>& arg0 = *(std::shared_ptr<World>*)inArguments[0];
+instance->SetWorld(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inWorld", ReflectionSystem::GetOrCreateType<std::shared_ptr<World>>("std::shared_ptr<World>")));
+Method& currentMethod = currentClass->AddMethod(Method("SetWorld", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+static thread_local glm::vec<2, float> result = instance->GetRenderResolution();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetRenderResolution", ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+const std::function<void ()>& arg0 = *(const std::function<void ()>*)inArguments[0];
+instance->SetExternalTickFunction(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inExternalTickFunction", ReflectionSystem::GetOrCreateType<const std::function<void ()>>("const std::function<void ()>")));
+Method& currentMethod = currentClass->AddMethod(Method("SetExternalTickFunction", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<EngineProperties>();
+	{
+		Field& currentField = currentClass->AddField(Field("Title", 0, ReflectionSystem::GetOrCreateType<std::basic_string<wchar_t>>("std::basic_string<wchar_t>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("WindowWidth", 40, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("WindowHeight", 44, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("WindowX", 48, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("WindowY", 52, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("StartupArguments", 56, ReflectionSystem::GetOrCreateType<std::unordered_set<std::basic_string<char>>>("std::unordered_set<std::basic_string<char>>"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EngineProperties* instance = static_cast<EngineProperties*>(inInstance);
+int& arg0 = *(int*)inArguments[0];
+char ** arg1 = (char **)inArguments[1];
+instance->AddStartupArguments(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inArgC", ReflectionSystem::GetOrCreateType<int>("int")));
+arguments.Add(MethodArgument("inArgv", ReflectionSystem::GetOrCreateType<char **>("char **")));
+Method& currentMethod = currentClass->AddMethod(Method("AddStartupArguments", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EngineProperties* instance = static_cast<EngineProperties*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+instance->AddStartupArgument(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inArg", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("AddStartupArgument", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EngineProperties* instance = static_cast<EngineProperties*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local bool result = instance->HasStartupArgument(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inArg", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("HasStartupArgument", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Color>();
+	{
+		Field& currentField = currentClass->AddField(Field("myR", 0, ReflectionSystem::GetOrCreateType<unsigned char>("unsigned char"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myG", 1, ReflectionSystem::GetOrCreateType<unsigned char>("unsigned char"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myB", 2, ReflectionSystem::GetOrCreateType<unsigned char>("unsigned char"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myA", 3, ReflectionSystem::GetOrCreateType<unsigned char>("unsigned char"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Color* instance = static_cast<Color*>(inInstance);
+static thread_local LinearColor result = instance->ToLinearColor();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("ToLinearColor", ReflectionSystem::GetOrCreateType<LinearColor>("LinearColor"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Color* instance = static_cast<Color*>(inInstance);
+static thread_local std::basic_string<char> result = instance->ToString();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("ToString", ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Color* instance = static_cast<Color*>(inInstance);
+static thread_local Color result = instance->White();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("White", ReflectionSystem::GetOrCreateType<Color>("Color"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Color* instance = static_cast<Color*>(inInstance);
+static thread_local Color result = instance->Black();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Black", ReflectionSystem::GetOrCreateType<Color>("Color"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Color* instance = static_cast<Color*>(inInstance);
+static thread_local Color result = instance->Red();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Red", ReflectionSystem::GetOrCreateType<Color>("Color"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Color* instance = static_cast<Color*>(inInstance);
+static thread_local Color result = instance->Green();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Green", ReflectionSystem::GetOrCreateType<Color>("Color"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Color* instance = static_cast<Color*>(inInstance);
+static thread_local Color result = instance->Blue();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Blue", ReflectionSystem::GetOrCreateType<Color>("Color"), invoker, arguments));
 }
 }
 { 
@@ -5462,654 +6292,28 @@ Method& currentMethod = currentClass->AddMethod(Method("GetHeight", ReflectionSy
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<TypeSerializer>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-TypeSerializer* instance = static_cast<TypeSerializer*>(inInstance);
-const Type * arg0 = (const Type*)inArguments[0];
-TypeSerializer * result = instance->GetSerializer(arg0);
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
-Method& currentMethod = currentClass->AddMethod(Method("GetSerializer", ReflectionSystem::GetOrCreateType<TypeSerializer *>("TypeSerializer *"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<MeshColliderComponent>();
+	Type* currentClass = ReflectionSystem::GetMutableType<LinearColor>();
 	{
-		Field& currentField = currentClass->AddField(Field("myModel", 56, ReflectionSystem::GetOrCreateType<Model>("Model"), true, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ColliderComponent>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-MeshColliderComponent* instance = static_cast<MeshColliderComponent*>(inInstance);
-instance->OnCreate();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-MeshColliderComponent* instance = static_cast<MeshColliderComponent*>(inInstance);
-instance->OnScaleChanged();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnScaleChanged", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-MeshColliderComponent* instance = static_cast<MeshColliderComponent*>(inInstance);
-Model * arg0 = (Model*)inArguments[0];
-instance->SetModel(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inModel", ReflectionSystem::GetOrCreateType<Model *>("Model *")));
-Method& currentMethod = currentClass->AddMethod(Method("SetModel", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<SinWaveMovementComponent>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-SinWaveMovementComponent* instance = static_cast<SinWaveMovementComponent*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Actor>();
-	{
-		Field& currentField = currentClass->AddField(Field("myTransform", 8, ReflectionSystem::GetOrCreateType<TransformComponent>("TransformComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myR", 0, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myName", 416, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myG", 4, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myComponents", 456, ReflectionSystem::GetOrCreateType<List<Component *>>("List<Component *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myB", 8, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myWorld", 480, ReflectionSystem::GetOrCreateType<World>("World"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myTagMask", 488, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRenderStateDirty", 492, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myA", 12, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Actor* instance = static_cast<Actor*>(inInstance);
-instance->DoOnCreate();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("DoOnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-instance->OnCreate();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-instance->DoTick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("DoTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-instance->DoEditorTick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("DoEditorTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-instance->TickRenderState();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("TickRenderState", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-instance->DoTickPhysics();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("DoTickPhysics", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-instance->TickPhysics();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("TickPhysics", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->DoOnTriggerEnter(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("DoOnTriggerEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->OnTriggerEnter(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("OnTriggerEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->DoOnTrigger(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("DoOnTrigger", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->OnTrigger(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("OnTrigger", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->DoOnTriggerExit(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("DoOnTriggerExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->OnTriggerExit(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("OnTriggerExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->DoOnCollisionEnter(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("DoOnCollisionEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->OnCollisionEnter(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("OnCollisionEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->DoOnCollision(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("DoOnCollision", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->OnCollision(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("OnCollision", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->DoOnCollisionExit(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("DoOnCollisionExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->OnCollisionExit(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("OnCollisionExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-TransformComponent & result = instance->GetTransform();
+LinearColor* instance = static_cast<LinearColor*>(inInstance);
+static thread_local Color result = instance->ToColor();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetTransform", ReflectionSystem::GetOrCreateType<TransformComponent &>("TransformComponent &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-World * result = instance->GetWorld();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetWorld", ReflectionSystem::GetOrCreateType<World *>("World *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
-instance->AddTags(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inTagMask", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("AddTags", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-unsigned int& arg0 = *(unsigned int*)inArguments[0];
-instance->RemoveTags(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inTags", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("RemoveTags", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-instance->ClearTags();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("ClearTags", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-unsigned int& arg0 = *(unsigned int*)inArguments[0];
-static thread_local bool result = instance->HasAllTags(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inTags", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("HasAllTags", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-static thread_local unsigned int result = instance->GetTags();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetTags", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
-static thread_local bool result = instance->HasAnyTag(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inTags", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("HasAnyTag", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-instance->MarkRenderStateDirty();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("MarkRenderStateDirty", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-instance->SetName(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("SetName", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-const std::basic_string<char> & result = instance->GetName();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-instance->Destroy();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Destroy", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Actor* instance = static_cast<Actor*>(inInstance);
-static thread_local List<Component *> result = instance->GetAllComponents();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAllComponents", ReflectionSystem::GetOrCreateType<List<Component *>>("List<Component *>"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<DirectionalLightActor>();
-	{
-		Field& currentField = currentClass->AddField(Field("myDirectionalLight", 496, ReflectionSystem::GetOrCreateType<DirectionalLightComponent>("DirectionalLightComponent"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-DirectionalLightActor* instance = static_cast<DirectionalLightActor*>(inInstance);
-DirectionalLightComponent & result = instance->GetDirectionalLightComponent();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetDirectionalLightComponent", ReflectionSystem::GetOrCreateType<DirectionalLightComponent &>("DirectionalLightComponent &"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<LandscapeActor>();
-	{
-		Field& currentField = currentClass->AddField(Field("myLandscapeRenderComponent", 496, ReflectionSystem::GetOrCreateType<LandscapeRenderComponent>("LandscapeRenderComponent"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myLandscapeColliderComponent", 816, ReflectionSystem::GetOrCreateType<LandscapeColliderComponent>("LandscapeColliderComponent"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PhysicsCubeActor>();
-	{
-		Field& currentField = currentClass->AddField(Field("myMesh", 496, ReflectionSystem::GetOrCreateType<StaticMeshComponent>("StaticMeshComponent"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCollider", 616, ReflectionSystem::GetOrCreateType<BoxColliderComponent>("BoxColliderComponent"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRigidbody", 688, ReflectionSystem::GetOrCreateType<RigidbodyComponent>("RigidbodyComponent"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<StaticMeshActor>();
-	{
-		Field& currentField = currentClass->AddField(Field("myStaticMeshComponent", 496, ReflectionSystem::GetOrCreateType<StaticMeshComponent>("StaticMeshComponent"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StaticMeshActor* instance = static_cast<StaticMeshActor*>(inInstance);
-StaticMeshComponent & result = instance->GetStaticMeshComponent();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetStaticMeshComponent", ReflectionSystem::GetOrCreateType<StaticMeshComponent &>("StaticMeshComponent &"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<AutoInit>();
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<AutoInitManager>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-AutoInitManager* instance = static_cast<AutoInitManager*>(inInstance);
-AutoInit * arg0 = (AutoInit*)inArguments[0];
-instance->AddInitObject(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<AutoInit *>("AutoInit *")));
-Method& currentMethod = currentClass->AddMethod(Method("AddInitObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-AutoInitManager* instance = static_cast<AutoInitManager*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Time>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Time* instance = static_cast<Time*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Time* instance = static_cast<Time*>(inInstance);
-static thread_local float result = instance->GetDeltaTime();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetDeltaTime", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Time* instance = static_cast<Time*>(inInstance);
-static thread_local float result = instance->GetUnscaledDeltaTime();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetUnscaledDeltaTime", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Time* instance = static_cast<Time*>(inInstance);
-const float& arg0 = *(const float*)inArguments[0];
-instance->SetTimeScale(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inTimeScale", ReflectionSystem::GetOrCreateType<const float>("const float")));
-Method& currentMethod = currentClass->AddMethod(Method("SetTimeScale", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Time* instance = static_cast<Time*>(inInstance);
-static thread_local double result = instance->GetSeconds();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetSeconds", ReflectionSystem::GetOrCreateType<double>("double"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Time* instance = static_cast<Time*>(inInstance);
-static thread_local float result = instance->GetTimeSinceStart();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetTimeSinceStart", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Awaitable>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Awaitable* instance = static_cast<Awaitable*>(inInstance);
-static thread_local bool result = instance->await_ready();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("await_ready", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Awaitable* instance = static_cast<Awaitable*>(inInstance);
-std::coroutine_handle<void>& arg0 = *(std::coroutine_handle<void>*)inArguments[0];
-instance->await_suspend(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inCoroutineHandle", ReflectionSystem::GetOrCreateType<std::coroutine_handle<void>>("std::coroutine_handle<void>")));
-Method& currentMethod = currentClass->AddMethod(Method("await_suspend", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Awaitable* instance = static_cast<Awaitable*>(inInstance);
-instance->await_resume();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("await_resume", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<CoroutineManager>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-CoroutineManager* instance = static_cast<CoroutineManager*>(inInstance);
-static thread_local Coroutine<void, void> result = instance->Load();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem::GetOrCreateType<Coroutine<void, void>>("Coroutine<void, void>"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("ToColor", ReflectionSystem::GetOrCreateType<Color>("Color"), invoker, arguments));
 }
 }
 { 
@@ -6346,137 +6550,41 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 	}
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<Field>();
-	{
-		Field& currentField = currentClass->AddField(Field("myName", 0, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myOffset", 40, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myType", 48, ReflectionSystem::GetOrCreateType<const Type>("const Type"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIsPointer", 56, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIsReference", 57, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMetadata", 64, ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), false, false));
-	}
+	Type* currentClass = ReflectionSystem::GetMutableType<ReflectionSystem>();
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Field* instance = static_cast<Field*>(inInstance);
-const std::basic_string<char> & result = instance->GetName();
+ReflectionSystem* instance = static_cast<ReflectionSystem*>(inInstance);
+const List<Type *> & result = instance->GetAllTypes();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetAllTypes", ReflectionSystem::GetOrCreateType<const List<Type *> &>("const List<Type *> &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Field* instance = static_cast<Field*>(inInstance);
-static thread_local unsigned int result = instance->GetOffset();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetOffset", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Field* instance = static_cast<Field*>(inInstance);
-const Type * result = instance->GetType();
+ReflectionSystem* instance = static_cast<ReflectionSystem*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+const Type * result = instance->GetTypeByName(arg0);
 return (void*)result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *"), invoker, arguments));
+arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetTypeByName", ReflectionSystem::GetOrCreateType<const Type *>("const Type *"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-Field* instance = static_cast<Field*>(inInstance);
-const List<std::basic_string<char>> & result = instance->GetMetadata();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetMetadata", ReflectionSystem::GetOrCreateType<const List<std::basic_string<char>> &>("const List<std::basic_string<char>> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Field* instance = static_cast<Field*>(inInstance);
+ReflectionSystem* instance = static_cast<ReflectionSystem*>(inInstance);
 const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-static thread_local bool result = instance->HasMetadata(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMetadata", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("HasMetadata", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Field* instance = static_cast<Field*>(inInstance);
-static thread_local bool result = instance->IsPointer();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("IsPointer", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Field* instance = static_cast<Field*>(inInstance);
-static thread_local bool result = instance->IsReference();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("IsReference", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Field* instance = static_cast<Field*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-static thread_local List<std::basic_string<char>> result = instance->GetMetadataArgs(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMetadata", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("GetMetadataArgs", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Field* instance = static_cast<Field*>(inInstance);
-void * arg0 = (void*)inArguments[0];
-void * result = instance->GetPointerToValue(arg0);
+const Type * result = instance->GetTypeByFullName(arg0);
 return (void*)result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
-Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", ReflectionSystem::GetOrCreateType<void *>("void *"), invoker, arguments));
+arguments.Add(MethodArgument("inFullName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetTypeByFullName", ReflectionSystem::GetOrCreateType<const Type *>("const Type *"), invoker, arguments));
 }
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void *(void *, const List<void *> &)>>();
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void *(void *, const List<void *> &)>("void *(void *, const List<void *> &)"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void *()>>();
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void *()>("void *()"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void (void *)>>();
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void (void *)>("void (void *)"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void ()>>();
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void ()>("void ()"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<TypeTemplateArgument>();
@@ -6511,19 +6619,22 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", Refl
 		Field& currentField = currentClass->AddField(Field("myPlacementFactoryFunction", 96, ReflectionSystem::GetOrCreateType<Delegate<void (void *)>>("Delegate<void (void *)>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myBaseTypes", 104, ReflectionSystem::GetOrCreateType<List<const Type *>>("List<const Type *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myUniquePtrFactoryFunction", 104, ReflectionSystem::GetOrCreateType<Delegate<void (IUniquePtr *)>>("Delegate<void (IUniquePtr *)>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDerivedTypes", 128, ReflectionSystem::GetOrCreateType<List<const Type *>>("List<const Type *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myBaseTypes", 112, ReflectionSystem::GetOrCreateType<List<const Type *>>("List<const Type *>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFields", 152, ReflectionSystem::GetOrCreateType<List<Field>>("List<Field>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDerivedTypes", 136, ReflectionSystem::GetOrCreateType<List<const Type *>>("List<const Type *>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMethods", 176, ReflectionSystem::GetOrCreateType<List<Method>>("List<Method>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myFields", 160, ReflectionSystem::GetOrCreateType<List<Field>>("List<Field>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myTemplateArguments", 200, ReflectionSystem::GetOrCreateType<List<TypeTemplateArgument>>("List<TypeTemplateArgument>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMethods", 184, ReflectionSystem::GetOrCreateType<List<Method>>("List<Method>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTemplateArguments", 208, ReflectionSystem::GetOrCreateType<List<TypeTemplateArgument>>("List<TypeTemplateArgument>"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -6623,6 +6734,18 @@ Method& currentMethod = currentClass->AddMethod(Method("FindFieldByName", Reflec
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Type* instance = static_cast<Type*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+const Field * result = instance->FindFieldByNameRecursive(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inFieldName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("FindFieldByNameRecursive", ReflectionSystem::GetOrCreateType<const Field *>("const Field *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Type* instance = static_cast<Type*>(inInstance);
 static thread_local bool result = instance->IsCopyable();
 return (void*)&result;
 });
@@ -6640,6 +6763,18 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inMetadata", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("GetFieldsWithMetadata", ReflectionSystem::GetOrCreateType<List<Field>>("List<Field>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Type* instance = static_cast<Type*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local List<Field> result = instance->GetFieldsWithMetadataRecursive(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMetadata", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetFieldsWithMetadataRecursive", ReflectionSystem::GetOrCreateType<List<Field>>("List<Field>"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -6713,6 +6848,18 @@ Method& currentMethod = currentClass->AddMethod(Method("PlacementNew", Reflectio
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Type* instance = static_cast<Type*>(inInstance);
+IUniquePtr * arg0 = (IUniquePtr*)inArguments[0];
+instance->CreateUniquePtr(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inUniquePtr", ReflectionSystem::GetOrCreateType<IUniquePtr *>("IUniquePtr *")));
+Method& currentMethod = currentClass->AddMethod(Method("CreateUniquePtr", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Type* instance = static_cast<Type*>(inInstance);
 const Type * arg0 = (const Type*)inArguments[0];
 const bool& arg1 = *(const bool*)inArguments[1];
 const bool& arg2 = *(const bool*)inArguments[2];
@@ -6724,43 +6871,6 @@ arguments.Add(MethodArgument("inTemplateArgumentType", ReflectionSystem::GetOrCr
 arguments.Add(MethodArgument("inIsPointer", ReflectionSystem::GetOrCreateType<const bool>("const bool")));
 arguments.Add(MethodArgument("inIsReference", ReflectionSystem::GetOrCreateType<const bool>("const bool")));
 Method& currentMethod = currentClass->AddMethod(Method("AddTemplateArgument", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<ReflectionSystem>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ReflectionSystem* instance = static_cast<ReflectionSystem*>(inInstance);
-const List<Type *> & result = instance->GetAllTypes();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAllTypes", ReflectionSystem::GetOrCreateType<const List<Type *> &>("const List<Type *> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ReflectionSystem* instance = static_cast<ReflectionSystem*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-const Type * result = instance->GetTypeByName(arg0);
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("GetTypeByName", ReflectionSystem::GetOrCreateType<const Type *>("const Type *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ReflectionSystem* instance = static_cast<ReflectionSystem*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-const Type * result = instance->GetTypeByFullName(arg0);
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inFullName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("GetTypeByFullName", ReflectionSystem::GetOrCreateType<const Type *>("const Type *"), invoker, arguments));
 }
 }
 { 
@@ -6955,90 +7065,6 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
 }
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<MeshData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myBoundingSphereModelSpace", 0, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myVertexIndex", 16, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIndexDataIndex", 20, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 24, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<VertexBufferData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myOffset", 0, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<IndexBufferData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myOffset", 0, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCount", 4, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<MeshInstanceData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myToWorld", 0, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMeshIndex", 64, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", 68, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNormalIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 76, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDepthWriteEnabled", 80, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PerDrawData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myToWorld", 0, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", 64, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNormalIndex", 68, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("padding", 76, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PointLightData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myColor", 0, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPosition", 16, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRange", 28, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIntensity", 32, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<IndexBufferSystem>();
@@ -7269,21 +7295,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSy
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<MeshUtils>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-MeshUtils* instance = static_cast<MeshUtils*>(inInstance);
-const List<Vertex> & arg0 = *(const List<Vertex>*)inArguments[0];
-static thread_local glm::vec<4, float> result = instance->CalculateSphereBounds(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inVertices", ReflectionSystem::GetOrCreateType<const List<Vertex> &>("const List<Vertex> &")));
-Method& currentMethod = currentClass->AddMethod(Method("CalculateSphereBounds", ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), invoker, arguments));
-}
-}
-{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<VertexBufferHandle>();
 	{
 		Field& currentField = currentClass->AddField(Field("myIndex", 0, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
@@ -7297,6 +7308,21 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<MeshUtils>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+MeshUtils* instance = static_cast<MeshUtils*>(inInstance);
+const List<Vertex> & arg0 = *(const List<Vertex>*)inArguments[0];
+static thread_local glm::vec<4, float> result = instance->CalculateSphereBounds(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inVertices", ReflectionSystem::GetOrCreateType<const List<Vertex> &>("const List<Vertex> &")));
+Method& currentMethod = currentClass->AddMethod(Method("CalculateSphereBounds", ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), invoker, arguments));
 }
 }
 { 
@@ -7385,100 +7411,62 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDescriptorLayout", Re
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<ResizableBuffer>();
+	Type* currentClass = ReflectionSystem::GetMutableType<Vertex>();
 	{
-		Field& currentField = currentClass->AddField(Field("OnBufferResized", 0, ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPosition", offsetof(Vertex, myPosition), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myHasActiveUpload", 104, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myColor", offsetof(Vertex, myColor), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myHasRegisteredForTick", 105, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myNormal", offsetof(Vertex, myNormal), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myBuffer", 112, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myTangents", offsetof(Vertex, myTangents), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBinormals", offsetof(Vertex, myBinormals), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTexCoords", offsetof(Vertex, myTexCoords), ReflectionSystem::GetOrCreateType<glm::vec<2, float>[2]>("glm::vec<2, float>[2]"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
-VulkanBuffer * result = instance->GetBuffer();
-return (void*)result;
+Vertex* instance = static_cast<Vertex*>(inInstance);
+const glm::vec<4, float> & arg0 = *(const glm::vec<4, float>*)inArguments[0];
+instance->PackColor(arg0);
+return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *"), invoker, arguments));
+arguments.Add(MethodArgument("inColor", ReflectionSystem::GetOrCreateType<const glm::vec<4, float> &>("const glm::vec<4, float> &")));
+Method& currentMethod = currentClass->AddMethod(Method("PackColor", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
-VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
-const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
-unsigned int& arg2 = *(unsigned int*)inArguments[2];
-instance->CopyDataFromBuffer(arg0, arg1, arg2);
-return nullptr;
+Vertex* instance = static_cast<Vertex*>(inInstance);
+List<vk::VertexInputBindingDescription> & result = instance->GetBindingDescriptions();
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inStagingBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *")));
-arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-arguments.Add(MethodArgument("inOffset", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("CopyDataFromBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetBindingDescriptions", ReflectionSystem::GetOrCreateType<List<vk::VertexInputBindingDescription> &>("List<vk::VertexInputBindingDescription> &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
-const void * arg0 = (const void*)inArguments[0];
-const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
-unsigned int& arg2 = *(unsigned int*)inArguments[2];
-instance->SetData(arg0, arg1, arg2);
-return nullptr;
+Vertex* instance = static_cast<Vertex*>(inInstance);
+List<vk::VertexInputAttributeDescription> & result = instance->GetAttributeDescriptions();
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inData", ReflectionSystem::GetOrCreateType<const void *>("const void *")));
-arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-arguments.Add(MethodArgument("inOffset", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("SetData", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
-const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
-const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
-const unsigned int& arg2 = *(const unsigned int*)inArguments[2];
-instance->MoveData(arg0, arg1, arg2);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inSourceOffset", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-arguments.Add(MethodArgument("inDstOffset", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("MoveData", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
-const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
-instance->Resize(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inRequiredSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("Resize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
-const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
-instance->CheckCapacity(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inRequiredSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("CheckCapacity", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetAttributeDescriptions", ReflectionSystem::GetOrCreateType<List<vk::VertexInputAttributeDescription> &>("List<vk::VertexInputAttributeDescription> &"), invoker, arguments));
 }
 }
 { 
@@ -7696,6 +7684,38 @@ Method& currentMethod = currentClass->AddMethod(Method("SerializeBinaryData", Re
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<AssetSerializer>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<TypeSerializer>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+AssetSerializer* instance = static_cast<AssetSerializer*>(inInstance);
+const Type * arg0 = (const Type*)inArguments[0];
+static thread_local bool result = instance->SerializesType(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+Method& currentMethod = currentClass->AddMethod(Method("SerializesType", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+AssetSerializer* instance = static_cast<AssetSerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Type * arg1 = (const Type*)inArguments[1];
+BinarySerializer * arg2 = (BinarySerializer*)inArguments[2];
+instance->Serialize(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
+arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+arguments.Add(MethodArgument("inSerializer", ReflectionSystem::GetOrCreateType<BinarySerializer *>("BinarySerializer *")));
+Method& currentMethod = currentClass->AddMethod(Method("Serialize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<FileTimeSerializer>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<TypeSerializer>());
 {
@@ -7714,6 +7734,89 @@ Method& currentMethod = currentClass->AddMethod(Method("SerializesType", Reflect
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 FileTimeSerializer* instance = static_cast<FileTimeSerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Type * arg1 = (const Type*)inArguments[1];
+BinarySerializer * arg2 = (BinarySerializer*)inArguments[2];
+instance->Serialize(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
+arguments.Add(MethodArgument("inClass", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+arguments.Add(MethodArgument("inSerializer", ReflectionSystem::GetOrCreateType<BinarySerializer *>("BinarySerializer *")));
+Method& currentMethod = currentClass->AddMethod(Method("Serialize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ThreadUtils>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ThreadUtils* instance = static_cast<ThreadUtils*>(inInstance);
+std::thread & arg0 = *(std::thread*)inArguments[0];
+const std::basic_string<wchar_t> & arg1 = *(const std::basic_string<wchar_t>*)inArguments[1];
+instance->NameThread(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inThread", ReflectionSystem::GetOrCreateType<std::thread &>("std::thread &")));
+arguments.Add(MethodArgument("inString", ReflectionSystem::GetOrCreateType<const std::basic_string<wchar_t> &>("const std::basic_string<wchar_t> &")));
+Method& currentMethod = currentClass->AddMethod(Method("NameThread", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ThreadUtils* instance = static_cast<ThreadUtils*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const std::basic_string<wchar_t> & arg1 = *(const std::basic_string<wchar_t>*)inArguments[1];
+instance->NameThread(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inThreadHandle", ReflectionSystem::GetOrCreateType<void *>("void *")));
+arguments.Add(MethodArgument("inString", ReflectionSystem::GetOrCreateType<const std::basic_string<wchar_t> &>("const std::basic_string<wchar_t> &")));
+Method& currentMethod = currentClass->AddMethod(Method("NameThread", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ThreadUtils* instance = static_cast<ThreadUtils*>(inInstance);
+instance->RegisterThisThreadAsMainThread();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("RegisterThisThreadAsMainThread", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ThreadUtils* instance = static_cast<ThreadUtils*>(inInstance);
+static thread_local bool result = instance->IsOnMainThread();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsOnMainThread", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<GlmSerializer>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<TypeSerializer>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GlmSerializer* instance = static_cast<GlmSerializer*>(inInstance);
+const Type * arg0 = (const Type*)inArguments[0];
+static thread_local bool result = instance->SerializesType(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inClass", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+Method& currentMethod = currentClass->AddMethod(Method("SerializesType", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GlmSerializer* instance = static_cast<GlmSerializer*>(inInstance);
 void * arg0 = (void*)inArguments[0];
 const Type * arg1 = (const Type*)inArguments[1];
 BinarySerializer * arg2 = (BinarySerializer*)inArguments[2];
@@ -7920,38 +8023,6 @@ Method& currentMethod = currentClass->AddMethod(Method("Serialize", ReflectionSy
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtrSerializer>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<TypeSerializer>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-UniquePtrSerializer* instance = static_cast<UniquePtrSerializer*>(inInstance);
-const Type * arg0 = (const Type*)inArguments[0];
-static thread_local bool result = instance->SerializesType(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
-Method& currentMethod = currentClass->AddMethod(Method("SerializesType", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-UniquePtrSerializer* instance = static_cast<UniquePtrSerializer*>(inInstance);
-void * arg0 = (void*)inArguments[0];
-const Type * arg1 = (const Type*)inArguments[1];
-BinarySerializer * arg2 = (BinarySerializer*)inArguments[2];
-instance->Serialize(arg0, arg1, arg2);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
-arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
-arguments.Add(MethodArgument("inSerializer", ReflectionSystem::GetOrCreateType<BinarySerializer *>("BinarySerializer *")));
-Method& currentMethod = currentClass->AddMethod(Method("Serialize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<PlayerCameraControllerComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myMouseSensitivity", offsetof(PlayerCameraControllerComponent, myMouseSensitivity), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
@@ -7997,42 +8068,137 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<LandscapeSystem>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<WorldSystem>());
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PointLightSystem>();
-	{
-		Field& currentField = currentClass->AddField(Field("myBuffer", 8, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNumPointLights", 16, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
+	Type* currentClass = ReflectionSystem::GetMutableType<UniquePtrSerializer>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<TypeSerializer>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-PointLightSystem* instance = static_cast<PointLightSystem*>(inInstance);
-const ResizableBuffer * result = instance->GetBuffer();
-return (void*)result;
+UniquePtrSerializer* instance = static_cast<UniquePtrSerializer*>(inInstance);
+const Type * arg0 = (const Type*)inArguments[0];
+static thread_local bool result = instance->SerializesType(arg0);
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
+arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+Method& currentMethod = currentClass->AddMethod(Method("SerializesType", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-PointLightSystem* instance = static_cast<PointLightSystem*>(inInstance);
-TransformComponent & arg0 = *(TransformComponent*)inArguments[0];
-PointLightComponent * arg1 = (PointLightComponent*)inArguments[1];
-instance->AddLight(arg0, arg1);
+UniquePtrSerializer* instance = static_cast<UniquePtrSerializer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Type * arg1 = (const Type*)inArguments[1];
+BinarySerializer * arg2 = (BinarySerializer*)inArguments[2];
+instance->Serialize(arg0, arg1, arg2);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inTransform", ReflectionSystem::GetOrCreateType<TransformComponent &>("TransformComponent &")));
-arguments.Add(MethodArgument("inLight", ReflectionSystem::GetOrCreateType<PointLightComponent *>("PointLightComponent *")));
-Method& currentMethod = currentClass->AddMethod(Method("AddLight", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
+arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+arguments.Add(MethodArgument("inSerializer", ReflectionSystem::GetOrCreateType<BinarySerializer *>("BinarySerializer *")));
+Method& currentMethod = currentClass->AddMethod(Method("Serialize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<MeshData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myBoundingSphereModelSpace", 0, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexIndex", 16, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIndexDataIndex", 20, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 24, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<VertexBufferData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", 0, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<IndexBufferData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", 0, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCount", 4, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<MeshInstanceData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myToWorld", 0, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMeshIndex", 64, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", 68, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormalIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 76, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDepthWriteEnabled", 80, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PerDrawData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myToWorld", 0, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", 64, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormalIndex", 68, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("padding", 76, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PointLightData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myColor", 0, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPosition", 16, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRange", 28, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIntensity", 32, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<System>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+System* instance = static_cast<System*>(inInstance);
+instance->Init();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Init", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<LandscapeSystem>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<WorldSystem>());
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<VulkanUtils>();
@@ -8067,6 +8233,40 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("DestroySamplers", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PointLightSystem>();
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffer", 8, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNumPointLights", 16, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightSystem* instance = static_cast<PointLightSystem*>(inInstance);
+const ResizableBuffer * result = instance->GetBuffer();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightSystem* instance = static_cast<PointLightSystem*>(inInstance);
+TransformComponent & arg0 = *(TransformComponent*)inArguments[0];
+PointLightComponent * arg1 = (PointLightComponent*)inArguments[1];
+instance->AddLight(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTransform", ReflectionSystem::GetOrCreateType<TransformComponent &>("TransformComponent &")));
+arguments.Add(MethodArgument("inLight", ReflectionSystem::GetOrCreateType<PointLightComponent *>("PointLightComponent *")));
+Method& currentMethod = currentClass->AddMethod(Method("AddLight", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -8178,41 +8378,13 @@ Method& currentMethod = currentClass->AddMethod(Method("ClearDrawInfos", Reflect
 	}
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<ShaderDatabase>();
-	{
-		Field& currentField = currentClass->AddField(Field("m_shaderBinaries", 0, ReflectionSystem::GetOrCreateType<std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>>("std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("m_shaderBinariesWithDebugInfo", 24, ReflectionSystem::GetOrCreateType<std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>>("std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ShaderDatabase* instance = static_cast<ShaderDatabase*>(inInstance);
-const GFSDK_Aftermath_ShaderBinaryHash & arg0 = *(const GFSDK_Aftermath_ShaderBinaryHash*)inArguments[0];
-std::vector<unsigned char> & arg1 = *(std::vector<unsigned char>*)inArguments[1];
-static thread_local bool result = instance->FindShaderBinary(arg0, arg1);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("shaderHash", ReflectionSystem::GetOrCreateType<const GFSDK_Aftermath_ShaderBinaryHash &>("const GFSDK_Aftermath_ShaderBinaryHash &")));
-arguments.Add(MethodArgument("shader", ReflectionSystem::GetOrCreateType<std::vector<unsigned char> &>("std::vector<unsigned char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("FindShaderBinary", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+	Type* currentClass = ReflectionSystem::GetMutableType<MathUtils>();
 }
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ShaderDatabase* instance = static_cast<ShaderDatabase*>(inInstance);
-const GFSDK_Aftermath_ShaderDebugName & arg0 = *(const GFSDK_Aftermath_ShaderDebugName*)inArguments[0];
-std::vector<unsigned char> & arg1 = *(std::vector<unsigned char>*)inArguments[1];
-static thread_local bool result = instance->FindShaderBinaryWithDebugData(arg0, arg1);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("shaderDebugName", ReflectionSystem::GetOrCreateType<const GFSDK_Aftermath_ShaderDebugName &>("const GFSDK_Aftermath_ShaderDebugName &")));
-arguments.Add(MethodArgument("shader", ReflectionSystem::GetOrCreateType<std::vector<unsigned char> &>("std::vector<unsigned char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("FindShaderBinaryWithDebugData", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<OnScopeExit>();
+	{
+		Field& currentField = currentClass->AddField(Field("myOnScopeExit", 0, ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false));
+	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<NvidiaAftermathTracker>();
@@ -8253,6 +8425,140 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetAftermathFlags", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ShaderDatabase>();
+	{
+		Field& currentField = currentClass->AddField(Field("m_shaderBinaries", 0, ReflectionSystem::GetOrCreateType<std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>>("std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("m_shaderBinariesWithDebugInfo", 24, ReflectionSystem::GetOrCreateType<std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>>("std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ShaderDatabase* instance = static_cast<ShaderDatabase*>(inInstance);
+const GFSDK_Aftermath_ShaderBinaryHash & arg0 = *(const GFSDK_Aftermath_ShaderBinaryHash*)inArguments[0];
+std::vector<unsigned char> & arg1 = *(std::vector<unsigned char>*)inArguments[1];
+static thread_local bool result = instance->FindShaderBinary(arg0, arg1);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("shaderHash", ReflectionSystem::GetOrCreateType<const GFSDK_Aftermath_ShaderBinaryHash &>("const GFSDK_Aftermath_ShaderBinaryHash &")));
+arguments.Add(MethodArgument("shader", ReflectionSystem::GetOrCreateType<std::vector<unsigned char> &>("std::vector<unsigned char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("FindShaderBinary", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ShaderDatabase* instance = static_cast<ShaderDatabase*>(inInstance);
+const GFSDK_Aftermath_ShaderDebugName & arg0 = *(const GFSDK_Aftermath_ShaderDebugName*)inArguments[0];
+std::vector<unsigned char> & arg1 = *(std::vector<unsigned char>*)inArguments[1];
+static thread_local bool result = instance->FindShaderBinaryWithDebugData(arg0, arg1);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("shaderDebugName", ReflectionSystem::GetOrCreateType<const GFSDK_Aftermath_ShaderDebugName &>("const GFSDK_Aftermath_ShaderDebugName &")));
+arguments.Add(MethodArgument("shader", ReflectionSystem::GetOrCreateType<std::vector<unsigned char> &>("std::vector<unsigned char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("FindShaderBinaryWithDebugData", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ResizableBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("OnBufferResized", 0, ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHasActiveUpload", 104, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHasRegisteredForTick", 105, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffer", 112, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
+VulkanBuffer * result = instance->GetBuffer();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
+VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
+instance->CopyDataFromBuffer(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inStagingBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *")));
+arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+arguments.Add(MethodArgument("inOffset", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("CopyDataFromBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
+const void * arg0 = (const void*)inArguments[0];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
+instance->SetData(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inData", ReflectionSystem::GetOrCreateType<const void *>("const void *")));
+arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+arguments.Add(MethodArgument("inOffset", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("SetData", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+const unsigned int& arg2 = *(const unsigned int*)inArguments[2];
+instance->MoveData(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSourceOffset", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+arguments.Add(MethodArgument("inDstOffset", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("MoveData", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
+instance->Resize(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inRequiredSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("Resize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ResizableBuffer* instance = static_cast<ResizableBuffer*>(inInstance);
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
+instance->CheckCapacity(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inRequiredSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("CheckCapacity", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -8312,6 +8618,377 @@ Method& currentMethod = currentClass->AddMethod(Method("GetUnderlyingBuffer", Re
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<PlayerCameraActor>();
+	{
+		Field& currentField = currentClass->AddField(Field("myCamera", 496, ReflectionSystem::GetOrCreateType<CameraComponent>("CameraComponent"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPlayerCameraController", 600, ReflectionSystem::GetOrCreateType<PlayerCameraControllerComponent>("PlayerCameraControllerComponent"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySpringArmComponent", 656, ReflectionSystem::GetOrCreateType<SpringArmComponent>("SpringArmComponent"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PlayerCameraActor* instance = static_cast<PlayerCameraActor*>(inInstance);
+instance->OnCreate();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<StagingSystem>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StagingSystem* instance = static_cast<StagingSystem*>(inInstance);
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
+static thread_local StagingBuffer result = instance->GetStagingBufferWithSize_TS(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("GetStagingBufferWithSize_TS", ReflectionSystem::GetOrCreateType<StagingBuffer>("StagingBuffer"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StagingSystem* instance = static_cast<StagingSystem*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<VulkanAllocator>();
+	{
+		Field& currentField = currentClass->AddField(Field("myAllocator", 0, ReflectionSystem::GetOrCreateType<VmaAllocator>("VmaAllocator"), true, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+const vk::BufferCreateInfo & arg1 = *(const vk::BufferCreateInfo*)inArguments[1];
+VmaMemoryUsage& arg2 = *(VmaMemoryUsage*)inArguments[2];
+bool& arg3 = *(bool*)inArguments[3];
+VulkanBuffer * result = instance->AllocateBuffer_TS(arg0, arg1, arg2, arg3);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+arguments.Add(MethodArgument("inCreateInfo", ReflectionSystem::GetOrCreateType<const vk::BufferCreateInfo &>("const vk::BufferCreateInfo &")));
+arguments.Add(MethodArgument("inUsage", ReflectionSystem::GetOrCreateType<VmaMemoryUsage>("VmaMemoryUsage")));
+arguments.Add(MethodArgument("inMappable", ReflectionSystem::GetOrCreateType<bool>("bool")));
+Method& currentMethod = currentClass->AddMethod(Method("AllocateBuffer_TS", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
+VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
+instance->DestroyBuffer_TS(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *")));
+Method& currentMethod = currentClass->AddMethod(Method("DestroyBuffer_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
+ResizableBuffer * arg0 = (ResizableBuffer*)inArguments[0];
+instance->DestroyBuffer_TS(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<ResizableBuffer *>("ResizableBuffer *")));
+Method& currentMethod = currentClass->AddMethod(Method("DestroyBuffer_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
+const Delegate<void ()> & arg0 = *(const Delegate<void ()>*)inArguments[0];
+instance->QueueDestroyCommand(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommand", ReflectionSystem::GetOrCreateType<const Delegate<void ()> &>("const Delegate<void ()> &")));
+Method& currentMethod = currentClass->AddMethod(Method("QueueDestroyCommand", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+const vk::ImageCreateInfo & arg1 = *(const vk::ImageCreateInfo*)inArguments[1];
+VmaMemoryUsage& arg2 = *(VmaMemoryUsage*)inArguments[2];
+VulkanImage * result = instance->AllocateImage_TS(arg0, arg1, arg2);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+arguments.Add(MethodArgument("inCreateInfo", ReflectionSystem::GetOrCreateType<const vk::ImageCreateInfo &>("const vk::ImageCreateInfo &")));
+arguments.Add(MethodArgument("inUsage", ReflectionSystem::GetOrCreateType<VmaMemoryUsage>("VmaMemoryUsage")));
+Method& currentMethod = currentClass->AddMethod(Method("AllocateImage_TS", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
+VulkanImage * arg0 = (VulkanImage*)inArguments[0];
+instance->DestroyImage_TS(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inImage", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *")));
+Method& currentMethod = currentClass->AddMethod(Method("DestroyImage_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
+VmaAllocator_T * result = instance->GetVMAAllocator();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetVMAAllocator", ReflectionSystem::GetOrCreateType<VmaAllocator_T *>("VmaAllocator_T *"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<VulkanBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("myAllocation", 0, ReflectionSystem::GetOrCreateType<VmaAllocation>("VmaAllocation"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffer", 8, ReflectionSystem::GetOrCreateType<vk::Buffer>("vk::Buffer"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCreateInfo", 16, ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMemoryUsage", 72, ReflectionSystem::GetOrCreateType<VmaMemoryUsage>("VmaMemoryUsage"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsMappingAllowed", 76, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPtr", 80, ReflectionSystem::GetOrCreateType<void>("void"), true, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
+static thread_local vk::BufferCreateInfo result = instance->StagingCreateInfo(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("StagingCreateInfo", ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+const List<Vertex> & arg0 = *(const List<Vertex>*)inArguments[0];
+static thread_local vk::BufferCreateInfo result = instance->VertexBufferCreateInfo(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inVertices", ReflectionSystem::GetOrCreateType<const List<Vertex> &>("const List<Vertex> &")));
+Method& currentMethod = currentClass->AddMethod(Method("VertexBufferCreateInfo", ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+const List<unsigned int> & arg0 = *(const List<unsigned int>*)inArguments[0];
+static thread_local vk::BufferCreateInfo result = instance->IndexBufferCreateInfo(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inIndices", ReflectionSystem::GetOrCreateType<const List<unsigned int> &>("const List<unsigned int> &")));
+Method& currentMethod = currentClass->AddMethod(Method("IndexBufferCreateInfo", ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
+static thread_local vk::BufferCreateInfo result = instance->UniformBufferCreateInfo(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("UniformBufferCreateInfo", ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
+static thread_local vk::BufferCreateInfo result = instance->StorageBufferCreateInfo(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("StorageBufferCreateInfo", ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
+static thread_local vk::BufferCreateInfo result = instance->ResizableStorageBufferCreateInfo(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("ResizableStorageBufferCreateInfo", ReflectionSystem::GetOrCreateType<vk::BufferCreateInfo>("vk::BufferCreateInfo"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+static thread_local vk::Buffer result = instance->GetAPIResource();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", ReflectionSystem::GetOrCreateType<vk::Buffer>("vk::Buffer"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
+instance->CopyDataFromBuffer(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inStagingBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *")));
+arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+arguments.Add(MethodArgument("inOffset", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("CopyDataFromBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+const void * arg0 = (const void*)inArguments[0];
+const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
+instance->SetData(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inData", ReflectionSystem::GetOrCreateType<const void *>("const void *")));
+arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+arguments.Add(MethodArgument("inOffset", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("SetData", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+static thread_local unsigned int result = instance->GetSize();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetSize", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+const vk::BufferCreateInfo & result = instance->GetCreateInfo();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetCreateInfo", ReflectionSystem::GetOrCreateType<const vk::BufferCreateInfo &>("const vk::BufferCreateInfo &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+static thread_local VmaMemoryUsage result = instance->GetVmaMemoryUsage();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetVmaMemoryUsage", ReflectionSystem::GetOrCreateType<VmaMemoryUsage>("VmaMemoryUsage"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+static thread_local bool result = instance->IsMappable();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsMappable", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+static thread_local std::basic_string<char> result = instance->GetName();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetName", ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanBuffer* instance = static_cast<VulkanBuffer*>(inInstance);
+void * result = instance->GetPtr();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetPtr", ReflectionSystem::GetOrCreateType<void *>("void *"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<VulkanCommandBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("myCommandBuffer", 0, ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCommandPool", 8, ReflectionSystem::GetOrCreateType<vk::CommandPool>("vk::CommandPool"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanCommandBuffer* instance = static_cast<VulkanCommandBuffer*>(inInstance);
+static thread_local vk::CommandBuffer result = instance->GetAPIResource();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), invoker, arguments));
+}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<VulkanContext>();
 	{
 		Field& currentField = currentClass->AddField(Field("myVulkanInstance", 0, ReflectionSystem::GetOrCreateType<vk::Instance>("vk::Instance"), false, false));
@@ -8326,28 +9003,28 @@ Method& currentMethod = currentClass->AddMethod(Method("GetUnderlyingBuffer", Re
 		Field& currentField = currentClass->AddField(Field("myPhysicalDevice", 24, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanPhysicalDevice>>("UniquePtr<VulkanPhysicalDevice>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDevice", 48, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanDevice>>("UniquePtr<VulkanDevice>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDevice", 56, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanDevice>>("UniquePtr<VulkanDevice>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myAllocator", 72, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanAllocator>>("UniquePtr<VulkanAllocator>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myAllocator", 88, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanAllocator>>("UniquePtr<VulkanAllocator>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySwapChain", 96, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanSwapChain>>("UniquePtr<VulkanSwapChain>"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySwapChain", 120, ReflectionSystem::GetOrCreateType<UniquePtr<VulkanSwapChain>>("UniquePtr<VulkanSwapChain>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("markerMap", 120, ReflectionSystem::GetOrCreateType<std::array<std::map<unsigned long long, std::basic_string<char>>, 4>>("std::array<std::map<unsigned long long, std::basic_string<char>>, 4>"), false, false));
+		Field& currentField = currentClass->AddField(Field("markerMap", 152, ReflectionSystem::GetOrCreateType<std::array<std::map<unsigned long long, std::basic_string<char>>, 4>>("std::array<std::map<unsigned long long, std::basic_string<char>>, 4>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myNvidiaAftermathDebugger", 216, ReflectionSystem::GetOrCreateType<UniquePtr<NvidiaAftermathTracker>>("UniquePtr<NvidiaAftermathTracker>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myNvidiaAftermathDebugger", 248, ReflectionSystem::GetOrCreateType<UniquePtr<NvidiaAftermathTracker>>("UniquePtr<NvidiaAftermathTracker>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDescriptorPool", 240, ReflectionSystem::GetOrCreateType<vk::DescriptorPool>("vk::DescriptorPool"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDescriptorPool", 280, ReflectionSystem::GetOrCreateType<vk::DescriptorPool>("vk::DescriptorPool"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myExtensions", 248, ReflectionSystem::GetOrCreateType<const List<const char *>>("const List<const char *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myExtensions", 288, ReflectionSystem::GetOrCreateType<const List<const char *>>("const List<const char *>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myLayers", 272, ReflectionSystem::GetOrCreateType<const List<const char *>>("const List<const char *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myLayers", 312, ReflectionSystem::GetOrCreateType<const List<const char *>>("const List<const char *>"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8461,71 +9138,111 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDescriptorPool", Refl
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<StagingSystem>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
+	Type* currentClass = ReflectionSystem::GetMutableType<VulkanDescriptorSet>();
+	{
+		Field& currentField = currentClass->AddField(Field("myUsesSharedLayout", 72, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLayout", 80, ReflectionSystem::GetOrCreateType<vk::DescriptorSetLayout>("vk::DescriptorSetLayout"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySet", 88, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
+	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-StagingSystem* instance = static_cast<StagingSystem*>(inInstance);
-const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
-static thread_local StagingBuffer result = instance->GetStagingBufferWithSize_TS(arg0);
+VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
+static thread_local vk::DescriptorSetLayout result = instance->GetLayout();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inSize", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("GetStagingBufferWithSize_TS", ReflectionSystem::GetOrCreateType<StagingBuffer>("StagingBuffer"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetLayout", ReflectionSystem::GetOrCreateType<vk::DescriptorSetLayout>("vk::DescriptorSetLayout"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-StagingSystem* instance = static_cast<StagingSystem*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PlayerCameraActor>();
-	{
-		Field& currentField = currentClass->AddField(Field("myCamera", 496, ReflectionSystem::GetOrCreateType<CameraComponent>("CameraComponent"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPlayerCameraController", 600, ReflectionSystem::GetOrCreateType<PlayerCameraControllerComponent>("PlayerCameraControllerComponent"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySpringArmComponent", 656, ReflectionSystem::GetOrCreateType<SpringArmComponent>("SpringArmComponent"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PlayerCameraActor* instance = static_cast<PlayerCameraActor*>(inInstance);
-instance->OnCreate();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<VulkanCommandBuffer>();
-	{
-		Field& currentField = currentClass->AddField(Field("myCommandBuffer", 0, ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCommandPool", 8, ReflectionSystem::GetOrCreateType<vk::CommandPool>("vk::CommandPool"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanCommandBuffer* instance = static_cast<VulkanCommandBuffer*>(inInstance);
-static thread_local vk::CommandBuffer result = instance->GetAPIResource();
+VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
+static thread_local vk::DescriptorSet result = instance->GetSet();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetSet", ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
+const VulkanBuffer * arg0 = (const VulkanBuffer*)inArguments[0];
+vk::Flags<vk::ShaderStageFlagBits>& arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
+vk::DescriptorType& arg3 = *(vk::DescriptorType*)inArguments[3];
+instance->BindBuffer(arg0, arg1, arg2, arg3);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<const VulkanBuffer *>("const VulkanBuffer *")));
+arguments.Add(MethodArgument("inShaderStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::ShaderStageFlagBits>>("vk::Flags<vk::ShaderStageFlagBits>")));
+arguments.Add(MethodArgument("inBindingIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+arguments.Add(MethodArgument("inDescriptorType", ReflectionSystem::GetOrCreateType<vk::DescriptorType>("vk::DescriptorType")));
+Method& currentMethod = currentClass->AddMethod(Method("BindBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
+const ResizableBuffer * arg0 = (const ResizableBuffer*)inArguments[0];
+vk::Flags<vk::ShaderStageFlagBits>& arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
+vk::DescriptorType& arg3 = *(vk::DescriptorType*)inArguments[3];
+instance->BindBuffer(arg0, arg1, arg2, arg3);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *")));
+arguments.Add(MethodArgument("inShaderStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::ShaderStageFlagBits>>("vk::Flags<vk::ShaderStageFlagBits>")));
+arguments.Add(MethodArgument("inBindingIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+arguments.Add(MethodArgument("inDescriptorType", ReflectionSystem::GetOrCreateType<vk::DescriptorType>("vk::DescriptorType")));
+Method& currentMethod = currentClass->AddMethod(Method("BindBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
+const VulkanImage * arg0 = (const VulkanImage*)inArguments[0];
+const vk::Sampler& arg1 = *(const vk::Sampler*)inArguments[1];
+const unsigned int& arg2 = *(const unsigned int*)inArguments[2];
+const vk::Flags<vk::ShaderStageFlagBits>& arg3 = *(const vk::Flags<vk::ShaderStageFlagBits>*)inArguments[3];
+const vk::ImageLayout& arg4 = *(const vk::ImageLayout*)inArguments[4];
+instance->BindImage(arg0, arg1, arg2, arg3, arg4);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inImage", ReflectionSystem::GetOrCreateType<const VulkanImage *>("const VulkanImage *")));
+arguments.Add(MethodArgument("inSampler", ReflectionSystem::GetOrCreateType<const vk::Sampler>("const vk::Sampler")));
+arguments.Add(MethodArgument("inBinding", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+arguments.Add(MethodArgument("inShaderFlags", ReflectionSystem::GetOrCreateType<const vk::Flags<vk::ShaderStageFlagBits>>("const vk::Flags<vk::ShaderStageFlagBits>")));
+arguments.Add(MethodArgument("inImageLayout", ReflectionSystem::GetOrCreateType<const vk::ImageLayout>("const vk::ImageLayout")));
+Method& currentMethod = currentClass->AddMethod(Method("BindImage", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
+instance->Build();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Build", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
+instance->Rebuild();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Rebuild", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -8652,6 +9369,57 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffers", ReflectionSystem::GetOrCreateType<const List<VulkanCommandBuffer *> &>("const List<VulkanCommandBuffer *> &")));
 Method& currentMethod = currentClass->AddMethod(Method("FlushSecondaryCommandBuffers", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<IVulkanDynamicBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("OnBufferRecreated", 8, ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<VulkanImGui>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
+instance->Start();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Start", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
+instance->Destroy();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Destroy", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
+instance->BeginFrame();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("BeginFrame", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
+instance->Render(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+Method& currentMethod = currentClass->AddMethod(Method("Render", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -8808,51 +9576,6 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetNumMSAASamples", ReflectionSystem::GetOrCreateType<vk::SampleCountFlagBits>("vk::SampleCountFlagBits"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<VulkanImGui>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
-instance->Start();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Start", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
-instance->Destroy();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Destroy", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
-instance->BeginFrame();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("BeginFrame", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
-vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
-instance->Render(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
-Method& currentMethod = currentClass->AddMethod(Method("Render", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -9255,6 +9978,30 @@ Method& currentMethod = currentClass->AddMethod(Method("GetHInstance", Reflectio
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<GameWorld>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<World>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GameWorld* instance = static_cast<GameWorld*>(inInstance);
+instance->Init();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Init", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GameWorld* instance = static_cast<GameWorld*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<World>();
 	{
 		Field& currentField = currentClass->AddField(Field("myAssetRegistry", offsetof(World, myAssetRegistry), ReflectionSystem::GetOrCreateType<UniquePtr<AssetRegistry>>("UniquePtr<AssetRegistry>"), false, false));
@@ -9270,7 +10017,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetHInstance", Reflectio
 		Field& currentField = currentClass->AddField(Field("myActorsToDelete", offsetof(World, myActorsToDelete), ReflectionSystem::GetOrCreateType<List<Actor *>>("List<Actor *>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDirectionalLightActor", offsetof(World, myDirectionalLightActor), ReflectionSystem::GetOrCreateType<DirectionalLightActor>("DirectionalLightActor"), true, false));
+		Field& currentField = currentClass->AddField(Field("myCachedDirectionalLightActor", offsetof(World, myCachedDirectionalLightActor), ReflectionSystem::GetOrCreateType<DirectionalLightActor>("DirectionalLightActor"), true, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMainCamera", offsetof(World, myMainCamera), ReflectionSystem::GetOrCreateType<CameraComponent>("CameraComponent"), true, false));
@@ -9395,6 +10142,16 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
 Method& currentMethod = currentClass->AddMethod(Method("RemoveActor", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+instance->RemoveAllActors();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("RemoveAllActors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -9534,636 +10291,26 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMainCamera", Reflecti
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<GameWorld>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<World>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-GameWorld* instance = static_cast<GameWorld*>(inInstance);
-instance->Init();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Init", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-GameWorld* instance = static_cast<GameWorld*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<EditorCameraActor>();
+	Type* currentClass = ReflectionSystem::GetMutableType<PlayerActor>();
 	{
-		Field& currentField = currentClass->AddField(Field("myCamera", 496, ReflectionSystem::GetOrCreateType<CameraComponent>("CameraComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myStaticMesh", 496, ReflectionSystem::GetOrCreateType<StaticMeshComponent>("StaticMeshComponent"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMovementComponent", 600, ReflectionSystem::GetOrCreateType<EditorCameraMovementComponent>("EditorCameraMovementComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPlayerComponent", 616, ReflectionSystem::GetOrCreateType<PlayerComponent>("PlayerComponent"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCharacterController", 648, ReflectionSystem::GetOrCreateType<CharacterControllerComponent>("CharacterControllerComponent"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-EditorCameraActor* instance = static_cast<EditorCameraActor*>(inInstance);
-EditorCameraMovementComponent & result = instance->GetMovementComponent();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetMovementComponent", ReflectionSystem::GetOrCreateType<EditorCameraMovementComponent &>("EditorCameraMovementComponent &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EditorCameraActor* instance = static_cast<EditorCameraActor*>(inInstance);
-CameraComponent & result = instance->GetCameraComponent();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetCameraComponent", ReflectionSystem::GetOrCreateType<CameraComponent &>("CameraComponent &"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Editor>();
-	{
-		Field& currentField = currentClass->AddField(Field("myWindows", 0, ReflectionSystem::GetOrCreateType<List<EditorWindow *>>("List<EditorWindow *>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySystems", 24, ReflectionSystem::GetOrCreateType<List<EditorSystem *>>("List<EditorSystem *>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNextID", 48, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myGameTickFunction", 56, ReflectionSystem::GetOrCreateType<Delegate<void ()>>("Delegate<void ()>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myAssetRegistry", 64, ReflectionSystem::GetOrCreateType<AssetRegistry>("AssetRegistry"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIsPIE", 72, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Editor* instance = static_cast<Editor*>(inInstance);
-instance->StaticTick();
+PlayerActor* instance = static_cast<PlayerActor*>(inInstance);
+instance->OnCreate();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("StaticTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Editor* instance = static_cast<Editor*>(inInstance);
-AssetRegistry * result = instance->GetAssetRegistry();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAssetRegistry", ReflectionSystem::GetOrCreateType<AssetRegistry *>("AssetRegistry *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Editor* instance = static_cast<Editor*>(inInstance);
-EditorWindow * arg0 = (EditorWindow*)inArguments[0];
-instance->RemoveWindow(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inEditorWindow", ReflectionSystem::GetOrCreateType<EditorWindow *>("EditorWindow *")));
-Method& currentMethod = currentClass->AddMethod(Method("RemoveWindow", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Editor* instance = static_cast<Editor*>(inInstance);
-const Delegate<void ()> & arg0 = *(const Delegate<void ()>*)inArguments[0];
-instance->SetGameTickFunction(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inTickFunction", ReflectionSystem::GetOrCreateType<const Delegate<void ()> &>("const Delegate<void ()> &")));
-Method& currentMethod = currentClass->AddMethod(Method("SetGameTickFunction", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Editor* instance = static_cast<Editor*>(inInstance);
-instance->TogglePIE();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("TogglePIE", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Editor* instance = static_cast<Editor*>(inInstance);
-static thread_local bool result = instance->IsPIE();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("IsPIE", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Editor* instance = static_cast<Editor*>(inInstance);
-instance->StartPIE();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("StartPIE", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Editor* instance = static_cast<Editor*>(inInstance);
-instance->StopPIE();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("StopPIE", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<EditorSystem>();
-	{
-		Field& currentField = currentClass->AddField(Field("myID", 8, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<HierarchyWindow>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-HierarchyWindow* instance = static_cast<HierarchyWindow*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-HierarchyWindow* instance = static_cast<HierarchyWindow*>(inInstance);
-instance->TickInput();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("TickInput", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<EditorToolbar>();
-	{
-		Field& currentField = currentClass->AddField(Field("myToolbarMethods", 16, ReflectionSystem::GetOrCreateType<List<const Method *>>("List<const Method *>"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorSystem>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EditorToolbar* instance = static_cast<EditorToolbar*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EditorToolbar* instance = static_cast<EditorToolbar*>(inInstance);
-const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
-const Delegate<void ()> & arg1 = *(const Delegate<void ()>*)inArguments[1];
-instance->AddToolbarButton(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inPath", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-arguments.Add(MethodArgument("inCallback", ReflectionSystem::GetOrCreateType<const Delegate<void ()> &>("const Delegate<void ()> &")));
-Method& currentMethod = currentClass->AddMethod(Method("AddToolbarButton", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<ImGuiDemoSystem>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorSystem>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ImGuiDemoSystem* instance = static_cast<ImGuiDemoSystem*>(inInstance);
-instance->OpenImGuiDemoWindow();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OpenImGuiDemoWindow", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-currentMethod.AddMetadata(R"delim(EditorMenuItem("ImGui Demo"))delim");
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ImGuiDemoSystem* instance = static_cast<ImGuiDemoSystem*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<SelectionSystem>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
-const List<Actor *> & result = instance->GetSelectedObjects();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetSelectedObjects", ReflectionSystem::GetOrCreateType<const List<Actor *> &>("const List<Actor *> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-static thread_local bool result = instance->IsObjectSelected(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("IsObjectSelected", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->SelectObject(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("SelectObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->DeselectObject(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("DeselectObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-SelectionSystem* instance = static_cast<SelectionSystem*>(inInstance);
-instance->ClearSelection();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("ClearSelection", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<EditorWorld>();
-	{
-		Field& currentField = currentClass->AddField(Field("myShouldTickComponents", 120, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myEditorCamera", 128, ReflectionSystem::GetOrCreateType<EditorCameraActor>("EditorCameraActor"), true, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<World>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EditorWorld* instance = static_cast<EditorWorld*>(inInstance);
-instance->Init();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Init", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EditorWorld* instance = static_cast<EditorWorld*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EditorWorld* instance = static_cast<EditorWorld*>(inInstance);
-EditorCameraActor * result = instance->GetEditorCamera();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetEditorCamera", ReflectionSystem::GetOrCreateType<EditorCameraActor *>("EditorCameraActor *"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<EditorConfirmPrompt>();
-	{
-		Field& currentField = currentClass->AddField(Field("myTitle", 0, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myBody", 40, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCallback", 80, ReflectionSystem::GetOrCreateType<Delegate<void ()>>("Delegate<void ()>"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EditorConfirmPrompt* instance = static_cast<EditorConfirmPrompt*>(inInstance);
-instance->Show();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Show", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EditorConfirmPrompt* instance = static_cast<EditorConfirmPrompt*>(inInstance);
-instance->Update();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Update", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<ImGuiTextureUtils>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ImGuiTextureUtils* instance = static_cast<ImGuiTextureUtils*>(inInstance);
-const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
-static thread_local vk::DescriptorSet result = instance->CreateDescriptorSetForTexture(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inPath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
-Method& currentMethod = currentClass->AddMethod(Method("CreateDescriptorSetForTexture", ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<EditorWindow>();
-	{
-		Field& currentField = currentClass->AddField(Field("myWindowName", 8, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIsClosable", 48, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myID", 52, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EditorWindow* instance = static_cast<EditorWindow*>(inInstance);
-instance->DoTick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("DoTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-EditorWindow* instance = static_cast<EditorWindow*>(inInstance);
-instance->TickInput();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("TickInput", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<ContentBrowserItem>();
-	{
-		Field& currentField = currentClass->AddField(Field("myPath", 0, ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myTexture", 40, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIsSelected", 48, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIsDirectory", 49, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<ContentBrowserWindow>();
-	{
-		Field& currentField = currentClass->AddField(Field("myTooltipProgress", 56, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myTooltipDuration", 60, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCanSeeTooltip", 64, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRoot", 72, ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCurrentPath", 112, ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySelectedTreePath", 152, ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySearchString", 192, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySearchPaths", 232, ReflectionSystem::GetOrCreateType<List<std::filesystem::path>>("List<std::filesystem::path>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDirectories", 256, ReflectionSystem::GetOrCreateType<std::map<std::filesystem::path, List<std::filesystem::path>>>("std::map<std::filesystem::path, List<std::filesystem::path>>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myItems", 280, ReflectionSystem::GetOrCreateType<List<ContentBrowserItem>>("List<ContentBrowserItem>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myHistory", 304, ReflectionSystem::GetOrCreateType<std::deque<std::filesystem::path>>("std::deque<std::filesystem::path>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myForwardHistory", 344, ReflectionSystem::GetOrCreateType<std::deque<std::filesystem::path>>("std::deque<std::filesystem::path>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFolderIcons", 384, ReflectionSystem::GetOrCreateType<std::array<vk::DescriptorSet, 2>>("std::array<vk::DescriptorSet, 2>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myExcludedExtensions", 400, ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDragDropPath", 424, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySelectedItem", 464, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRenamingItem", 468, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNewFileName", 472, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRenamingInProgress", 512, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySearchBarOpenedThisFrame", 513, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myTextureSize", 516, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myTextureSizeMin", 520, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myTextureSizeMax", 524, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFocusedResult", 528, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myConfirmPrompt", 536, ReflectionSystem::GetOrCreateType<EditorConfirmPrompt>("EditorConfirmPrompt"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ContentBrowserWindow* instance = static_cast<ContentBrowserWindow*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ContentBrowserWindow* instance = static_cast<ContentBrowserWindow*>(inInstance);
-instance->ReloadDirectory();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("ReloadDirectory", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<ImGuiPropertyDrawer>();
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ImGuiPropertyDrawer* instance = static_cast<ImGuiPropertyDrawer*>(inInstance);
-instance->RegisterDrawers();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("RegisterDrawers", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ImGuiPropertyDrawer* instance = static_cast<ImGuiPropertyDrawer*>(inInstance);
-const Field & arg0 = *(const Field*)inArguments[0];
-void * arg1 = (void*)inArguments[1];
-static thread_local bool result = instance->DrawProperty(arg0, arg1);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inField", ReflectionSystem::GetOrCreateType<const Field &>("const Field &")));
-arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
-Method& currentMethod = currentClass->AddMethod(Method("DrawProperty", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<InspectorWindow>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-InspectorWindow* instance = static_cast<InspectorWindow*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Viewport>();
-	{
-		Field& currentField = currentClass->AddField(Field("myPreviewActor", 56, ReflectionSystem::GetOrCreateType<StaticMeshActor>("StaticMeshActor"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPlayButtonTexture", 64, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myStopButtonTexture", 72, ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDescriptorSets", 80, ReflectionSystem::GetOrCreateType<List<vk::DescriptorSet>>("List<vk::DescriptorSet>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySampler", 104, ReflectionSystem::GetOrCreateType<vk::Sampler>("vk::Sampler"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myP0", 112, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myP1", 120, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Viewport* instance = static_cast<Viewport*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Viewport* instance = static_cast<Viewport*>(inInstance);
-instance->TickInput();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("TickInput", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Viewport* instance = static_cast<Viewport*>(inInstance);
-static thread_local glm::vec<2, float> result = instance->GetNormalizedMousePositionInViewport();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetNormalizedMousePositionInViewport", ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -10190,29 +10337,6 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("TickPhysics", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PlayerActor>();
-	{
-		Field& currentField = currentClass->AddField(Field("myStaticMesh", 496, ReflectionSystem::GetOrCreateType<StaticMeshComponent>("StaticMeshComponent"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPlayerComponent", 616, ReflectionSystem::GetOrCreateType<PlayerComponent>("PlayerComponent"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCharacterController", 648, ReflectionSystem::GetOrCreateType<CharacterControllerComponent>("CharacterControllerComponent"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PlayerActor* instance = static_cast<PlayerActor*>(inInstance);
-instance->OnCreate();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 

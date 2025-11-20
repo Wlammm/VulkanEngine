@@ -106,7 +106,26 @@ void BinarySerializer::ReadType(void* outInstance, const Type* inType, const boo
     int fieldCount = 0;
     ReadCopyable(fieldCount);
 
-    const List<Field> serializableFields = inType->GetFieldsWithMetadata("SerializeField");
+    bool hasSerializer;
+    ReadCopyable(hasSerializer);
+
+    if (hasSerializer)
+    {
+        int fieldSize;
+        ReadCopyable(fieldSize);
+        if (TypeSerializer* customSerializer = TypeSerializer::GetSerializer(inType))
+        {
+            customSerializer->Serialize(outInstance, inType, this);
+        }
+        else
+        {
+            LOG_WARNING("Type: %s was serialized with type serializer but it does not exists anymore. Skipping", inType->GetName().c_str());
+            myReadOffset += fieldSize;
+        }
+        return;
+    }
+    
+    const List<Field> serializableFields = inType->GetFieldsWithMetadataRecursive("SerializeField");
     // Not all serializable fields were saved.
     if (serializableFields.size() != fieldCount)
         myWasLastTypeSerializationFullyComplete = false;
@@ -122,7 +141,7 @@ void BinarySerializer::ReadType(void* outInstance, const Type* inType, const boo
         int fieldSize = 0;
         ReadCopyable(fieldSize);
 
-        const Field* field = inType->FindFieldByName(fieldName);
+        const Field* field = inType->FindFieldByNameRecursive(fieldName);
 
         if (!field || field->GetType()->GetName() != fieldTypeName)
         {
@@ -158,10 +177,30 @@ void BinarySerializer::WriteType(void* inInstance, const Type* inType, const boo
 {
     check(inType);
     
-    const List<Field> fieldsToSerialize = inType->GetFieldsWithMetadata("SerializeField");
+    const List<Field> fieldsToSerialize = inType->GetFieldsWithMetadataRecursive("SerializeField");
     int fieldCount = fieldsToSerialize.size();
     WriteCopyable(fieldCount);
 
+    bool hasSerializer = false;
+    TypeSerializer* customSerializer = TypeSerializer::GetSerializer(inType);
+
+    if (customSerializer)
+        hasSerializer = true;
+
+    WriteCopyable(hasSerializer);
+
+    if (hasSerializer)
+    {
+        std::ostringstream fieldBufferStream;
+        BinarySerializer tempSerializer(fieldBufferStream);
+        customSerializer->Serialize(inInstance, inType, &tempSerializer);
+        std::string fieldBytes = fieldBufferStream.str();
+        int fieldSize = static_cast<int>(fieldBytes.size());
+        WriteCopyable(fieldSize);
+        myOutputStream->write(fieldBytes.data(), fieldSize);
+        return;
+    }
+    
     if (fieldCount == 0 && !missingTypesAlreadyWarnedAbout.Contains(inType->GetName()) && inType->GetName() != "")
     {
         missingTypesAlreadyWarnedAbout.Add(std::string(inType->GetName()));

@@ -316,4 +316,5 @@ void Viewport::UpdatePreviewMesh()
 void Viewport::RemovePreviewMesh()
 {
 	myPreviewActor->Destroy();
+	myPreviewActor = nullptr;
 }

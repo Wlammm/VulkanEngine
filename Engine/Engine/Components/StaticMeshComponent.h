@@ -35,9 +35,10 @@ private:
     void RemoveFromGPUScene();
     
 private:
+    META(SerializeField)
     std::filesystem::path myPath = "";
 
-    META(SerializeField)
+    // META(SerializeField)
     List<Material*> myMaterials{};
 
     META(SerializeField)

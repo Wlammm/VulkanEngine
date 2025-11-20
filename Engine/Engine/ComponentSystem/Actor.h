@@ -24,6 +24,9 @@ public:
     void DoTickPhysics();
     virtual void TickPhysics() {}
 
+    // Override this method and return true if you dont want this actor to be saved in serialization.
+    virtual bool IsTransientActor() const { return false;}
+
     void DoOnTriggerEnter(Actor* inOther);
     virtual void OnTriggerEnter(Actor* inOther) {}
     void DoOnTrigger(Actor* inOther);
@@ -78,8 +81,10 @@ private:
     void RegisterComponentsForType(const Type* inType);
     
 private:
+    META(SerializeField)
     TransformComponent myTransform;
 
+    META(SerializeField)
     std::string myName = "Default Actor";
     
     // list of all components including those inside derived types.
@@ -87,6 +92,7 @@ private:
 
     World* myWorld = nullptr;
 
+    META(SerializeField)
     TagMask myTagMask = 0;
 
     bool myRenderStateDirty = false;

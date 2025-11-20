@@ -18,8 +18,10 @@ public:
 protected:
     friend class AssetRegistry;
     AssetRegistry* GetAssetRegistry() const;
-    
+
+    META(SerializeField)
     std::filesystem::path myPath;
+    
     bool myIsValid = false;
 
 private:

@@ -27,9 +27,9 @@ World::World()
 	mySystemManager = MakeUnique<SystemManager<WorldSystem>>();
 	CreateWorldSystems();
 
-	myDirectionalLightActor = SpawnActor<DirectionalLightActor>("DirectionalLight");
-	myDirectionalLightActor->GetTransform().SetRotationDeg(321, 314, -50);
-	myDirectionalLightActor->GetDirectionalLightComponent().SetColor({1, 168/255.0, 120/255.0, 1});
+	myCachedDirectionalLightActor = SpawnActor<DirectionalLightActor>("DirectionalLight");
+	myCachedDirectionalLightActor->GetTransform().SetRotationDeg(321, 314, -50);
+	myCachedDirectionalLightActor->GetDirectionalLightComponent().SetColor({1, 168/255.0, 120/255.0, 1});
 }
 
 World::~World()
@@ -41,7 +41,7 @@ World::~World()
 void World::Init()
 {
 	// World objects.
-
+	return;
 	{
 		StaticMeshActor* sponza = SpawnActor<StaticMeshActor>("Sponza", "Assets/Sponza/Sponza.gltf");
 		sponza->GetTransform().SetPositionY(2000);
@@ -106,9 +106,29 @@ void World::SaveToFile(const std::filesystem::path& inPath)
 
 void World::LoadFromFile(const std::filesystem::path& inPath)
 {
+	RemoveAllActors();
+	TickActorDeletes();
+
+	myCachedDirectionalLightActor = nullptr;
+	myMainCamera = nullptr;
+	
 	BinarySerializer writer(inPath, BinarySerializer::Mode::Read);
 	writer.SerializeType(*this);
 	writer.Close();
+
+	for (const UniquePtr<Actor>& actor : myActors)
+	{
+		actor->myWorld = this;
+		actor->RegisterComponents();
+	}
+
+	for (const UniquePtr<Actor>& actor : myActors)
+	{
+		actor->DoOnCreate();
+		
+		if (actor->IsTransientActor())
+			RemoveActor(actor.Get());
+	}
 }
 
 bool World::Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, RaycastHit& outHit, const float inMaxDistance, const TagMask inExcludedTags, bool inIgnoreTriggers)
@@ -203,6 +223,14 @@ void World::RemoveActor(Actor* inActor)
 	myActorsToDelete.Emplace(inActor);
 }
 
+void World::RemoveAllActors()
+{
+	for (const UniquePtr<Actor>& actor : myActors)
+	{
+		RemoveActor(actor.Get());
+	}
+}
+
 const List<UniquePtr<Actor>>& World::GetAllActors() const
 {
 	return myActors;
@@ -251,7 +279,14 @@ void World::OnCollisionExit(Actor* inFirst, Actor* inOther)
 
 DirectionalLightComponent* World::GetDirectionalLight() const
 {
-	return &myDirectionalLightActor->GetDirectionalLightComponent();
+	if (!myCachedDirectionalLightActor)
+	{
+		myCachedDirectionalLightActor = FindActorOfType<DirectionalLightActor>();
+		if (!myCachedDirectionalLightActor)
+			return nullptr;
+	}
+	
+	return &myCachedDirectionalLightActor->GetDirectionalLightComponent();
 }
 
 void World::SetMainCamera(CameraComponent* inCamera)

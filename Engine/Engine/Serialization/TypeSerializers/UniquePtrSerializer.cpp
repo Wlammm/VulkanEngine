@@ -14,11 +14,20 @@ void UniquePtrSerializer::Serialize(void* inInstance, const Type* inType, Binary
 
     IUniquePtr* uniquePtr = static_cast<IUniquePtr*>(inInstance);
 
+    const Type* type = nullptr;
+    std::string concreteTypeFullName;
+    if (inSerializer->IsWriting())
+    {
+        type = uniquePtr->GetConcreteType();
+        concreteTypeFullName = type->GetFullName();
+    }
+    inSerializer->SerializeString(concreteTypeFullName);
+
     if (inSerializer->IsReading())
     {
-        // Create object instance somehow here...
-        
+        type = ReflectionSystem::GetTypeByFullName(concreteTypeFullName);
+        type->CreateUniquePtr(uniquePtr);
     }
     
-    inSerializer->SerializeType(uniquePtr->GetVoidPtr(), typeTemplateArgument.myType, typeTemplateArgument.myIsPointer);
+    inSerializer->SerializeType(uniquePtr->GetVoidPtr(), type, typeTemplateArgument.myIsPointer);
 }

@@ -610,6 +610,12 @@ void GDRPipeline::BuildDirectionalLightBuffer() const
 	DirectionalLightBuffer buffer = {};
 
 	DirectionalLightComponent* light = Engine::GetWorld()->GetDirectionalLight();
+
+	if (!light)
+	{
+		LOG_WARNING("GDRPipeline::BuildDirectionalLightBuffer - No directional light.");
+		return;
+	}
 	
 	TransformComponent& transform = light->GetTransform();
 	buffer.myColor = light->GetColor();

@@ -8,6 +8,18 @@ EditorCameraActor::EditorCameraActor()
     myCamera.CreatePerspective(Engine::GetRenderResolution());
 }
 
+void EditorCameraActor::OnCreate()
+{
+    Actor::OnCreate();
+    
+    myCamera.SetAsMainCamera();
+}
+
+bool EditorCameraActor::IsTransientActor() const
+{
+    return true;
+}
+
 EditorCameraMovementComponent& EditorCameraActor::GetMovementComponent()
 {
     return myMovementComponent;

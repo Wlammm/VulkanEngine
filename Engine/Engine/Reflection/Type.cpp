@@ -59,6 +59,20 @@ const Field* Type::FindFieldByName(const std::string& inFieldName) const
     return nullptr;
 }
 
+const Field* Type::FindFieldByNameRecursive(const std::string& inFieldName) const
+{
+    if (const Field* field = FindFieldByName(inFieldName))
+        return field;
+
+    for (const Type* base : myBaseTypes)
+    {
+        if (const Field* field = base->FindFieldByNameRecursive(inFieldName))
+            return field;
+    }
+    
+    return nullptr;
+}
+
 bool Type::IsCopyable() const
 {
     return myIsCopyable;
@@ -72,6 +86,18 @@ List<Field> Type::GetFieldsWithMetadata(const std::string& inMetadata) const
     {
         if (field.HasMetadata(inMetadata))
             fields.Add(field);
+    }
+    return fields;
+}
+
+List<Field> Type::GetFieldsWithMetadataRecursive(const std::string& inMetadata) const
+{
+    List<Field> fields;
+
+    fields.AddRange(GetFieldsWithMetadata(inMetadata));
+    for (const Type* type : myBaseTypes)
+    {
+        fields.AddRange(type->GetFieldsWithMetadataRecursive(inMetadata));
     }
     return fields;
 }
@@ -202,7 +228,7 @@ List<std::string> SplitTemplateArgs(const std::string& input)
     return result;
 }
 
-Type::Type(const std::string& inTypeName, const std::string& inFullName, const unsigned int inSize, const bool inIsCopyable,  const Delegate<void*()>& inFactoryFunction, const Delegate<void(void*)>& inPlacementFactoryFunction)
-    : myTypeName(inTypeName), myFullName(inFullName), myByteSize(inSize), myIsCopyable(inIsCopyable), myFactoryFunction(inFactoryFunction), myPlacementFactoryFunction(inPlacementFactoryFunction)
+Type::Type(const std::string& inTypeName, const std::string& inFullName, const unsigned int inSize, const bool inIsCopyable,  const Delegate<void*()>& inFactoryFunction, const Delegate<void(void*)>& inPlacementFactoryFunction, const Delegate<void(IUniquePtr*)>& inUniquePtrFactoryFunction)
+    : myTypeName(inTypeName), myFullName(inFullName), myByteSize(inSize), myIsCopyable(inIsCopyable), myFactoryFunction(inFactoryFunction), myPlacementFactoryFunction(inPlacementFactoryFunction), myUniquePtrFactoryFunction(inUniquePtrFactoryFunction)
 {
 }

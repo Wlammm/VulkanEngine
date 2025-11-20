@@ -19,11 +19,15 @@ public:
     bool IsShadowsEnabled() const;
     void EnableShadows();
 
+    
 private:
+    META(AllowPrivateAccess)
+    void OnColorChanged();
+
     META(SerializeField)
     bool myIsShadowsEnabled = false;
 
-    META(SerializeField, ExposeAsColor)
+    META(SerializeField, ExposeAsColor, OnInspectorChangedEvent(OnColorChanged))
     glm::vec4 myColor = {1, 1, 1, 1};
     glm::mat4 myLightProjection;
 };

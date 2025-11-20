@@ -27,10 +27,17 @@ public:
     unsigned int GetSize() const;
 
     const Field* FindFieldByName(const std::string& inFieldName) const;
+
+    // Searches for field in this type or its base type.
+    const Field* FindFieldByNameRecursive(const std::string& inFieldName) const;
     
     bool IsCopyable() const;
 
     List<Field> GetFieldsWithMetadata(const std::string& inMetadata) const;
+    
+    // Gets all fields in this type and its base types fields.
+    List<Field> GetFieldsWithMetadataRecursive(const std::string& inMetadata) const;
+    
     List<const Method*> GetMethodsWithMetadata(const std::string& inMetadata) const;
     
     const Method* GetMethod(const std::string& inMethodName) const;
@@ -69,6 +76,14 @@ public:
 
     void PlacementNew(void* destination) const;
 
+    void CreateUniquePtr(class IUniquePtr* inUniquePtr) const
+    {
+        check(myUniquePtrFactoryFunction != nullptr);
+        check(inUniquePtr != nullptr);
+        
+        return myUniquePtrFactoryFunction(inUniquePtr);
+    }
+
     void AddTemplateArgument(const Type* inTemplateArgumentType, const bool inIsPointer, const bool inIsReference)
     {
         myTemplateArguments.Add({ inTemplateArgumentType, inIsPointer, inIsReference });
@@ -83,7 +98,7 @@ private:
     void AddBaseType(Type* inBaseType);
     
     Type() = delete;
-    Type(const std::string& inTypeName, const std::string& inFullName, const unsigned int inSize, const bool inIsCopyable,  const Delegate<void*()>& inFactoryFunction, const Delegate<void(void*)>& inPlacementFactoryFunction);
+    Type(const std::string& inTypeName, const std::string& inFullName, const unsigned int inSize, const bool inIsCopyable,  const Delegate<void*()>& inFactoryFunction, const Delegate<void(void*)>& inPlacementFactoryFunction, const Delegate<void(class IUniquePtr*)>& inUniquePtrFactoryFunction);
     
     // This is the full name which matches what you get when using typeid(ClassType).name()
     std::string myFullName = "";
@@ -98,6 +113,9 @@ private:
     // This is a callback that creates an instance of this type.
     Delegate<void*()> myFactoryFunction;
     Delegate<void(void* destination)> myPlacementFactoryFunction;
+
+    // Only valid if this type is a uniqueptr.
+    Delegate<void(IUniquePtr*)> myUniquePtrFactoryFunction;
     
     List<const Type*> myBaseTypes{};
     List<const Type*> myDerivedTypes{};

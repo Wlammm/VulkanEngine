@@ -90,89 +90,7 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
     CXCursorKind kind = clang_getCursorKind(inCurrentCursor);
     if (kind == CXCursor_StructDecl || kind == CXCursor_ClassDecl)
     {
-        const std::string className = GetDisplayName(inCurrentCursor);
-
-        const CXSourceLocation location = clang_getCursorLocation(inCurrentCursor);
-        if (clang_Location_isInSystemHeader(location))
-            return CXChildVisit_Continue;
-
-        if (!clang_isCursorDefinition(inCurrentCursor))
-            return CXChildVisit_Continue;
-
-        CX_CXXAccessSpecifier accessSpecifier = clang_getCXXAccessSpecifier(inCurrentCursor);
-        if (accessSpecifier != CX_CXXPublic && accessSpecifier != CX_CXXInvalidAccessSpecifier)
-            return CXChildVisit_Continue;
-
-        // Detect if this class is a template specialization
-        CXCursor templateCursor = clang_getSpecializedCursorTemplate(inCurrentCursor);
-        bool isTemplateSpecialization = templateCursor.kind != CXCursor_InvalidFile;
-
-        const std::string fileName = GetFileName(location);
-        std::string fullClassName = GetSpelling(clang_getCursorType(inCurrentCursor)); // gets "List<int>" etc.
-
-        ReflectedClass* currentClass = nullptr;
-        
-        if (clientData.self->HasAlreadyParsedClass(fullClassName))
-        {
-            currentClass = clientData.self->FindClass(fullClassName);
-        }
-       else
-       {
-            currentClass = &clientData.self->AddClass(fileName, ReflectedClass(fullClassName));
-            clientData.self->MarkClassAsParsed(fullClassName);
-       }
-
-        // Extract template arguments
-        if (isTemplateSpecialization)
-        {
-            CXType specializedType = clang_getCanonicalType(clang_getCursorType(inCurrentCursor));
-            int numTemplateArgs = clang_Type_getNumTemplateArguments(specializedType);
-            for (int i = 0; i < numTemplateArgs; ++i)
-            {
-                CXType argType = clang_getCanonicalType(clang_Type_getTemplateArgumentAsType(specializedType, i));
-                if (argType.kind != CXType_Invalid)
-                {
-                    std::string templateArgTypeName = GetSpelling(argType);
-
-                    const bool isPointer = argType.kind == CXType_Pointer;
-                    const bool isReference = argType.kind == CXType_LValueReference;
-                    
-                    if (isPointer)
-                        templateArgTypeName = GetSpelling(clang_getPointeeType(argType));
-                    if (isReference)
-                        templateArgTypeName = GetSpelling(clang_getNonReferenceType(argType));
-
-                    currentClass->AddTemplateArgument(i, templateArgTypeName, isPointer, isReference);
-
-                    bool isTemplateArgTemplateSpecialization = clang_Type_getNumTemplateArguments(argType) > 0;
-                    
-                    // Only add other template specializations here as they won't otherwise be registered as types themselves.
-                    if (!clientData.self->HasAlreadyParsedClass(templateArgTypeName) && isTemplateArgTemplateSpecialization)
-                    {
-                        clientData.self->AddClass(fileName, ReflectedClass(templateArgTypeName));
-                    }
-                    // currentClass->AddTemplateArgument(i, GetTemplateArgSpelling(argType));
-                }
-            }
-
-            // Manually walk base classes for template specializations
-            clang_visitChildren(templateCursor, [](CXCursor baseCursor, CXCursor, CXClientData clientData) {
-                if (clang_getCursorKind(baseCursor) == CXCursor_CXXBaseSpecifier)
-                {
-                    CXType baseType = clang_getCanonicalType(clang_getCursorType(baseCursor));
-                    std::string baseName = GetSpelling(baseType);
-                    auto* currentClass = static_cast<ReflectedClass*>(clientData);
-                    currentClass->AddBaseClass(baseName);
-                }
-                return CXChildVisit_Continue;
-            }, currentClass);
-        }
-
-        clientData.classStack.emplace_back(currentClass);
-        clang_visitChildren(inCurrentCursor, &ReflectionParser::TraverseAST, inClientData);
-        clientData.classStack.pop_back();
-
-        return CXChildVisit_Continue;
+        return clientData.self->HandleClassDeclaration(inCurrentCursor, inClientData);
     }
 
     if (kind == CXCursor_CXXBaseSpecifier)
@@ -604,6 +522,87 @@ ReflectedClass* ReflectionParser::FindClass(const std::string& inClassName)
     }
     
     return nullptr;
+}
+
+CXChildVisitResult ReflectionParser::HandleClassDeclaration(CXCursor inCurrentCursor, CXClientData inClientData)
+{
+    const std::string className = GetDisplayName(inCurrentCursor);
+
+    const CXSourceLocation location = clang_getCursorLocation(inCurrentCursor);
+    if (clang_Location_isInSystemHeader(location))
+        return CXChildVisit_Continue;
+
+    if (!clang_isCursorDefinition(inCurrentCursor))
+        return CXChildVisit_Continue;
+
+    CX_CXXAccessSpecifier accessSpecifier = clang_getCXXAccessSpecifier(inCurrentCursor);
+    if (accessSpecifier != CX_CXXPublic && accessSpecifier != CX_CXXInvalidAccessSpecifier)
+        return CXChildVisit_Continue;
+
+    // Detect if this class is a template specialization
+    CXCursor templateCursor = clang_getSpecializedCursorTemplate(inCurrentCursor);
+    bool isTemplateSpecialization = templateCursor.kind != CXCursor_InvalidFile;
+
+    const std::string fileName = GetFileName(location);
+    std::string fullClassName = GetSpelling(clang_getCursorType(inCurrentCursor)); // gets "List<int>" etc.
+
+    ReflectedClass* currentClass = nullptr;
+    
+    if (clientData.self->HasAlreadyParsedClass(fullClassName))
+        return CXChildVisit_Continue;
+    
+    currentClass = &clientData.self->AddClass(fileName, ReflectedClass(fullClassName));
+    clientData.self->MarkClassAsParsed(fullClassName);
+
+    // Extract template arguments
+    if (isTemplateSpecialization)
+    {
+        CXType specializedType = clang_getCanonicalType(clang_getCursorType(inCurrentCursor));
+        int numTemplateArgs = clang_Type_getNumTemplateArguments(specializedType);
+        for (int i = 0; i < numTemplateArgs; ++i)
+        {
+            CXType templateArgType = clang_getCanonicalType(clang_Type_getTemplateArgumentAsType(specializedType, i));
+            if (templateArgType.kind != CXType_Invalid)
+            {
+                std::string templateArgTypeName = GetSpelling(templateArgType);
+
+                const bool isPointer = templateArgType.kind == CXType_Pointer;
+                const bool isReference = templateArgType.kind == CXType_LValueReference;
+                
+                if (isPointer)
+                    templateArgTypeName = GetSpelling(clang_getPointeeType(templateArgType));
+                if (isReference)
+                    templateArgTypeName = GetSpelling(clang_getNonReferenceType(templateArgType));
+
+                currentClass->AddTemplateArgument(i, templateArgTypeName, isPointer, isReference);
+
+                bool isTemplateArgTemplateSpecialization = clang_Type_getNumTemplateArguments(templateArgType) > 0;
+
+                // We only need to parse other template specializations here as "normal" classes will get parsed on their own later.
+                if (!clientData.self->HasAlreadyParsedClass(templateArgTypeName) && isTemplateArgTemplateSpecialization)
+                {
+                    HandleClassDeclaration(clang_getCursorDefinition(clang_getTypeDeclaration(templateArgType)), inClientData);
+                }
+            }
+        }
+        
+        clang_visitChildren(templateCursor, [](CXCursor baseCursor, CXCursor, CXClientData clientData) {
+            if (clang_getCursorKind(baseCursor) == CXCursor_CXXBaseSpecifier)
+            {
+                CXType baseType = clang_getCanonicalType(clang_getCursorType(baseCursor));
+                std::string baseName = GetSpelling(baseType);
+                auto* currentClass = static_cast<ReflectedClass*>(clientData);
+                currentClass->AddBaseClass(baseName);
+            }
+            return CXChildVisit_Continue;
+        }, currentClass);
+        
+    }
+    
+    clientData.classStack.emplace_back(currentClass);
+    clang_visitChildren(inCurrentCursor, &ReflectionParser::TraverseAST, inClientData);
+    clientData.classStack.pop_back();
+    return CXChildVisit_Continue;
 }
 
 std::string ReflectionParser::ReplaceBadTypeNames(const std::string& inTypeName)

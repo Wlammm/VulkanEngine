@@ -48,3 +48,8 @@ void DirectionalLightComponent::EnableShadows()
 {
     myIsShadowsEnabled = true;
 }
+
+void DirectionalLightComponent::OnColorChanged()
+{
+    MarkRenderStateDirty();
+}

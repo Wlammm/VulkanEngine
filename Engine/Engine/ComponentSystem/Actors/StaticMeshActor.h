@@ -12,5 +12,6 @@ public:
     StaticMeshComponent& GetStaticMeshComponent();
 
 private:
+    META(SerializeField)
     StaticMeshComponent myStaticMeshComponent;
 };

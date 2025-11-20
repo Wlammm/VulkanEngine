@@ -7,6 +7,10 @@ class EditorCameraActor : public Actor
 {
 public:
     EditorCameraActor();
+
+    void OnCreate() override;
+    
+    bool IsTransientActor() const override;
     
     EditorCameraMovementComponent& GetMovementComponent();
     CameraComponent& GetCameraComponent();

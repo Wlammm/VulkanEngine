@@ -90,7 +90,7 @@ bool Model::TryLoadModelDataFromCache(const CachePath& inPath, SerializationMode
 	SerializationModelData modelData;
 	serializer.SerializeType(modelData);
 
-	// Structure has failed and some fields failed to serialize correctly. 
+	// Structure has changed and some fields failed to serialize correctly. 
 	if (!serializer.WasLastTypeSerializationFullyComplete())
 		return false;
 
