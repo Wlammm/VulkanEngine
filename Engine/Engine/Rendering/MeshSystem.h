@@ -15,6 +15,8 @@ public:
 
     Mesh* UploadMesh(VertexBufferHandle* inVertexBuffer, IndexBufferHandle* inIndexBuffer, const glm::vec4& inBoundingSphere);
 
+    void RemoveMesh(Mesh* inMesh);
+    
     ResizableBuffer* GetBuffer() const;
     
 private:

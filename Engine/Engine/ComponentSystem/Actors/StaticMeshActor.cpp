@@ -6,7 +6,7 @@ StaticMeshActor::StaticMeshActor(const std::filesystem::path& inPath)
 {
 }
 
-StaticMeshActor::StaticMeshActor(Model* inModel)
+StaticMeshActor::StaticMeshActor(SharedPtr<Model> inModel)
 {
     myStaticMeshComponent.SetModel(inModel);
 }

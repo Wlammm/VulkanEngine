@@ -23,6 +23,8 @@ TextureSystem::TextureSystem()
 
 TextureSystem::~TextureSystem()
 {
+    LOG_WARNING("TextureSystem::~TextureSystem is waiting for GPU idle!");
+    VulkanContext::GetDevice()->waitIdle();
     VulkanContext::GetDevice()->destroyDescriptorSetLayout(myDescriptorLayout);
     VulkanContext::GetDevice()->destroyDescriptorPool(myDescriptorPool);
     myDescriptorSet = nullptr;

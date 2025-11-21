@@ -24,14 +24,14 @@ void MeshColliderComponent::OnCreate()
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
     physicsSystem.QueuePhysicsCommand([this, &physicsSystem, scale](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
-        // TODO: Cache cooked physics shapes to improve startup time.
-        const SerializationModelData modelData = Model::GetSerializationDataForModel(myModel);
+        // TODO: Cache cooked physics shapes to improve startup time. Same here as convex collider.
+        const List<SerializationMeshData>& meshDatas = myModel->GetSerializationMeshDatas();
 
         List<physx::PxVec3> vertices;
         List<uint> indices;
         std::unordered_map<glm::vec3, int> indexMap;
         int index = 0;
-        for(const SerializationMeshData& mesh : modelData.myMeshDatas)
+        for(const SerializationMeshData& mesh : meshDatas)
         {
             check(mesh.myIndices.size() % 3 == 0);
             index++;

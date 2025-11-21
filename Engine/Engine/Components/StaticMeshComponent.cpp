@@ -27,10 +27,7 @@ void StaticMeshComponent::OnCreate()
 
     if (!myPath.empty())
     {
-        GetWorld()->GetAssetRegistry().GetAssetAsync<Model>(myPath, [this](Model* inModel)
-        {
-            SetModel(inModel);
-        });
+        SetModel(Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Model>(myPath));
     }
 }
 
@@ -42,7 +39,7 @@ StaticMeshComponent::~StaticMeshComponent()
     RemoveFromGPUScene(); 
 }
 
-void StaticMeshComponent::SetModel(Model* inModel)
+void StaticMeshComponent::SetModel(SharedPtr<Model> inModel)
 {
     if(myModel == inModel)
         return;
@@ -89,7 +86,7 @@ void StaticMeshComponent::SetModel(Model* inModel)
     MarkRenderStateDirty();
 }
 
-Model* StaticMeshComponent::GetModel() const
+SharedPtr<Model> StaticMeshComponent::GetModel() const
 {
     return myModel;
 }

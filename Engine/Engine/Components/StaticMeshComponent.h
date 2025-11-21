@@ -17,8 +17,8 @@ public:
     void OnCreate() override;
     ~StaticMeshComponent();
 
-    void SetModel(Model* inModel);
-    Model* GetModel() const;
+    void SetModel(SharedPtr<Model> inModel);
+    SharedPtr<Model> GetModel() const;
 
     void SetMaterialAsync(const std::filesystem::path& inMaterialPath, const uint inIndex);
     void SetMaterial(Material* inMaterial, const uint inIndex);
@@ -42,7 +42,7 @@ private:
     List<Material*> myMaterials{};
 
     META(SerializeField)
-    Model* myModel = nullptr;
+    SharedPtr<Model> myModel = nullptr;
 
     List<MeshInstanceIndex> myMeshInstances{};
 

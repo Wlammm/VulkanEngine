@@ -10,6 +10,7 @@
 
 #include "World/World.h"
 #include "AssetRegistry/AssetRegistry.h"
+#include "AssetRegistry/AssetRegistry2.h"
 #include "Core/ThreadPool.h"
 #include "Core/Filewatcher.h"
 #include "Utils/ThreadUtils.hpp"
@@ -210,6 +211,7 @@ void Engine::SetExternalTickFunction(const std::function<void()> inExternalTickF
 
 void Engine::CreateSystems()
 {
+	mySystemManager->AddSystem<AssetRegistry2>();
 	mySystemManager->AddSystem<StagingSystem>();
 	mySystemManager->AddSystem<RenderSystem>();
 	mySystemManager->AddSystem<TextureSystem>();

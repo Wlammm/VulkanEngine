@@ -5,46 +5,162 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-#include "Engine/Engine.h"
-#include "Engine/Coroutines/Awaitable.h"
-#include "Engine/Reflection/Type.h"
-#include "Engine/Reflection/ReflectionSystem.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
 #include "Engine/Rendering/Mesh.h"
 #include "Engine/Rendering/MeshSystem.h"
 #include "Engine/Rendering/MeshUtils.h"
 #include "Engine/Rendering/VertexBufferSystem.h"
-#include "Engine/Serialization/BinarySerializer.h"
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
-#include "Engine/Vulkan/VulkanContext.h"
 
-Coroutine<void, void, false> Model::Load(const std::filesystem::path inPath)
+void Model::PostPropertiesSerialized()
 {
-	SerializationModelData modelData;
+	Asset2::PostPropertiesSerialized();
+
+	for(SerializationMeshData& meshData : myMeshDatas)
 	{
-		ZoneScoped;
-		const CachePath cachedPath = ConvertToCachePath(inPath);
-		if (!TryLoadModelDataFromCache(cachedPath, modelData))
-		{
-			modelData = LoadModelDataFromSourceFile(inPath);
-			SaveModelDataToCache(cachedPath, modelData);
-		}
+		// Upload data to staging buffers.
+		const uint vertexSize = meshData.myVertices.size() * sizeof(Vertex);
+		VulkanBuffer* stagingVertexBuffer = VulkanAllocator::AllocateBuffer_TS(
+			"ModelVertexBufferStaging", VulkanBuffer::StagingCreateInfo(vertexSize), VMA_MEMORY_USAGE_AUTO, true);
+		stagingVertexBuffer->SetData(meshData.myVertices.data(), vertexSize);
+
+		const uint indexSize = meshData.myIndices.size() * sizeof(uint);
+		VulkanBuffer* stagingIndexBuffer = VulkanAllocator::AllocateBuffer_TS(
+			"ModelIndexBufferStaging", VulkanBuffer::StagingCreateInfo(indexSize), VMA_MEMORY_USAGE_AUTO, true);
+		stagingIndexBuffer->SetData(meshData.myIndices.data(), indexSize);
+
+		// Copy data from staging buffers to global buffers and queue destruction of staging buffers.
+		VertexBufferHandle* vertexBuffer = Engine::GetEngineSystem<VertexBufferSystem>().UploadVertexBuffer(stagingVertexBuffer, meshData.myVertices.size());
+		VulkanAllocator::DestroyBuffer_TS(stagingVertexBuffer);
+		
+		IndexBufferHandle* indexBuffer = Engine::GetEngineSystem<IndexBufferSystem>().UploadIndexBuffer(stagingIndexBuffer, meshData.myIndices.size());
+		VulkanAllocator::DestroyBuffer_TS(stagingIndexBuffer);
+
+		
+		const glm::vec4 boudingSphere = meshData.mySphereCenterBounds;
+
+		myMeshes.Add(Engine::GetEngineSystem<MeshSystem>().UploadMesh(vertexBuffer, indexBuffer, boudingSphere));
+		myMeshes.Last()->myAlbedoPath = meshData.myAlbedoPath;
+		myMeshes.Last()->myNormalPath = meshData.myNormalPath;
+		myMeshes.Last()->myMaterialPath = meshData.myMaterialPath;
 	}
-	InitializeStagingBuffers(modelData);
+}
+
+void Model::LoadPropertiesFromSource()
+{
+	Asset2::LoadPropertiesFromSource();
+
+	static thread_local Assimp::Importer myImporter{};
 	
-	co_await Awaitables::SwitchToThread(ThreadType::Main);
+	uint flags = aiProcessPreset_TargetRealtime_MaxQuality |
+		//aiProcess_ConvertToLeftHanded |
+		aiProcess_Triangulate |
+		aiProcess_CalcTangentSpace |
+		aiProcess_SortByPType |
+		aiProcess_PreTransformVertices;// |
+		// aiProcess_FlipWindingOrder;
+	flags &= ~aiProcess_JoinIdenticalVertices;
+
+	myImporter.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
+	const aiScene* scene = myImporter.ReadFile(GetSourcePath().string(), flags);
+
+	if (!scene)
 	{
-		ZoneScoped;
-		InitializeFromMeshData(modelData);
+		LOG_ERROR("Failed to load model: %s", GetSourcePath().string().c_str());
+		return;
 	}
 
-	co_await Awaitables::SwitchToThread(ThreadType::Worker);
+	const uint numMeshes = scene->mNumMeshes;
+	if (numMeshes == 0)
+	{
+		LOG_ERROR("FBX does not contain any meshes: %s", GetSourcePath().string().c_str());
+		return;
+	}
+	
+	for (uint meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
+	{
+		SerializationMeshData& meshData = myMeshDatas.Emplace();
+
+		const aiMesh* aiMesh = scene->mMeshes[meshIndex];
+		
+		uint numVertices = aiMesh->mNumVertices;
+		uint numIndices = aiMesh->mNumFaces * 3;
+
+		for (uint vertexIndex = 0; vertexIndex < numVertices; ++vertexIndex)
+		{
+			Vertex vertex{};
+
+			vertex.myPosition = { aiMesh->mVertices[vertexIndex].x, aiMesh->mVertices[vertexIndex].y, aiMesh->mVertices[vertexIndex].z };
+
+			if (aiMesh->GetNumColorChannels() > 0)
+			{
+				vertex.PackColor({aiMesh->mColors[0][vertexIndex].r, aiMesh->mColors[0][vertexIndex].g, aiMesh->mColors[0][vertexIndex].b, aiMesh->mColors[0][vertexIndex].a});
+			}
+			
+			if (aiMesh->mNormals)
+				vertex.myNormal = { aiMesh->mNormals[vertexIndex].x, aiMesh->mNormals[vertexIndex].y, aiMesh->mNormals[vertexIndex].z };
+
+			if (aiMesh->mTangents)
+				vertex.myTangents = { aiMesh->mTangents[vertexIndex].x, aiMesh->mTangents[vertexIndex].y, aiMesh->mTangents[vertexIndex].z };
+
+			if (aiMesh->mBitangents)
+				vertex.myBinormals = { aiMesh->mBitangents[vertexIndex].x, aiMesh->mBitangents[vertexIndex].y, aiMesh->mBitangents[vertexIndex].z };
+
+			for (uint texCoordIndex = 0; texCoordIndex < 2; ++texCoordIndex)
+			{
+				if (aiMesh->mTextureCoords[texCoordIndex])
+					vertex.myTexCoords[texCoordIndex] = { aiMesh->mTextureCoords[texCoordIndex][vertexIndex].x, -aiMesh->mTextureCoords[texCoordIndex][vertexIndex].y };
+			}
+
+			meshData.myVertices.Add(vertex);
+		}
+
+		uint faceIndex = 0;
+		for (uint indicesIndex = 0; indicesIndex < numIndices;)
+		{
+			for (uint index = 0; index < 3; ++index)
+			{
+				meshData.myIndices.Add(aiMesh->mFaces[faceIndex].mIndices[index]);
+				indicesIndex++;
+			}
+			faceIndex++;
+		}
+
+		// Get the material for the mesh
+		if (aiMesh->mMaterialIndex >= 0)
+		{
+			aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
+
+			aiString albedoPath;
+			material->GetTexture(aiTextureType_BASE_COLOR, 0, &albedoPath);
+			aiString normalPath;
+			material->GetTexture(aiTextureType_NORMALS, 0, &normalPath);
+			aiString materialPath;
+			material->GetTexture(aiTextureType_METALNESS, 0, &materialPath);
+
+			meshData.myAlbedoPath = albedoPath.C_Str();
+			meshData.myNormalPath = normalPath.C_Str();
+			meshData.myMaterialPath = materialPath.C_Str();
+		}
+		
+		meshData.mySphereCenterBounds = MeshUtils::CalculateSphereBounds(meshData.myVertices);
+	}
+
+	myImporter.FreeScene();
 }
 
 void Model::Unload()
 {
-	//ZoneScoped;
+	Asset2::Unload();
+
+	for (Mesh* mesh : myMeshes)
+	{
+		Engine::GetEngineSystem<IndexBufferSystem>().RemoveIndexBuffer(mesh->GetIndexBuffer());
+		Engine::GetEngineSystem<VertexBufferSystem>().RemoveVertexBuffer(mesh->GetVertexBuffer());
+		Engine::GetEngineSystem<MeshSystem>().RemoveMesh(mesh);
+	}
+	myMeshes.Clear();
 }
 
 const List<Mesh*>& Model::GetMeshes() const
@@ -52,6 +168,12 @@ const List<Mesh*>& Model::GetMeshes() const
 	return myMeshes;
 }
 
+const List<SerializationMeshData>& Model::GetSerializationMeshDatas() const
+{
+	return myMeshDatas;
+}
+
+/*
 SerializationModelData Model::GetSerializationDataForModel(Model* inModel)
 {
 	ZoneScoped;
@@ -259,4 +381,4 @@ uint Model::GetRequiredVertexBufferSize(const SerializationModelData& inModelDat
 		requiredSize += sizeof(Vertex) * meshData.myVertices.size();
 	}
 	return requiredSize;
-}
+}*/

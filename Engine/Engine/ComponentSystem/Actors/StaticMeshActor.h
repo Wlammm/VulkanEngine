@@ -7,7 +7,7 @@ class StaticMeshActor : public Actor
 public:
     StaticMeshActor() = default;
     StaticMeshActor(const std::filesystem::path& inPath);
-    StaticMeshActor(Model* inModel);
+    StaticMeshActor(SharedPtr<Model> inModel);
     
     StaticMeshComponent& GetStaticMeshComponent();
 

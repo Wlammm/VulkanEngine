@@ -17,11 +17,11 @@ void ConvexColliderComponent::OnCreate()
     PhysicsSystem& physicsSystem = GetWorld()->GetWorldSystem<PhysicsSystem>();
     physicsSystem.QueuePhysicsCommand([this, &physicsSystem](physx::PxPhysics* inPhysics, physx::PxScene* inScene)
     {
-        // TODO: Cache cooked physics shapes to improve startup time.
-        const SerializationModelData modelData = Model::GetSerializationDataForModel(myModel);
+        // TODO: Cache cooked physics shapes to improve startup time. Maybe build the physics shapes whenever we're caching the model so we dont need this data loaded at all times..
+        const List<SerializationMeshData>& meshDatas = myModel->GetSerializationMeshDatas();
 
         List<glm::vec3> vertices;
-        for(const SerializationMeshData& mesh : modelData.myMeshDatas)
+        for(const SerializationMeshData& mesh : meshDatas)
         {
             for(const Vertex& vertex : mesh.myVertices)
             {

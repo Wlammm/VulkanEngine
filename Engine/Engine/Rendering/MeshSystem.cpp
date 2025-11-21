@@ -44,6 +44,11 @@ Mesh* MeshSystem::UploadMesh(VertexBufferHandle* inVertexBuffer, IndexBufferHand
     return mesh;
 }
 
+void MeshSystem::RemoveMesh(Mesh* inMesh)
+{
+    LOG_WARNING("MeshSystem::RemoveMesh not implemented!");
+}
+
 ResizableBuffer* MeshSystem::GetBuffer() const
 {
     return myBuffer;

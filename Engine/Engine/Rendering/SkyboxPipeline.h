@@ -41,6 +41,6 @@ private:
     };
     VulkanBuffer* myFrameDataBuffer;
 
-    Model* mySkyboxModel = nullptr;
+    SharedPtr<Model> mySkyboxModel = nullptr;
     Texture* mySkybox = nullptr;
 };

@@ -26,10 +26,7 @@ SkyboxPipeline::SkyboxPipeline()
 		mySkybox = inCubemap;
 	});
 
-	Engine::GetAssetRegistry().GetAssetAsync<Model>("Assets/Primitives/Sphere.fbx", [this](Model* inModel)
-	{
-		mySkyboxModel = inModel;
-	});
+	mySkyboxModel = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Model>("Assets/Primitives/Sphere.fbx");
 	
 	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
 		"FrameDataBuffer",

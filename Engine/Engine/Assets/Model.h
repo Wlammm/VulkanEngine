@@ -1,8 +1,11 @@
 #pragma once
 
 #include "Engine/AssetRegistry/Asset.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Rendering/Vertex.hpp"
 
+class IndexBufferHandle;
+class VertexBufferHandle;
 class VulkanBuffer;
 class Mesh;
 
@@ -13,58 +16,40 @@ struct SerializationMeshData
 {
 	META(SerializeField)
 	List<Vertex> myVertices{};
+
 	META(SerializeField)
 	List<uint> myIndices{};
+
 	META(SerializeField)
 	glm::vec4 mySphereCenterBounds{};
-	VulkanBuffer* myStagingVertexBuffer = nullptr;
-	VulkanBuffer* myStagingIndexBuffer = nullptr;
+
 	META(SerializeField)
 	std::string myAlbedoPath;
+
 	META(SerializeField)
 	std::string myNormalPath;
+
 	META(SerializeField)
 	std::string myMaterialPath;
 };
 
-struct SerializationModelData
+class Model : public Asset2
 {
-	META(SerializeField)
-	std::wstring mySourceFilePath;
-
-	META(SerializeField)
-	std::filesystem::file_time_type myLastCachedWriteTime;
-	
-	META(SerializeField)
-	List<SerializationMeshData> myMeshDatas{};
-};
-
-class Model : public Asset
-{
-	static constexpr uint BinaryVersion = 1;
-	
 public:
-	Coroutine<void, void, false> Load(const std::filesystem::path inPath) override;
+	void PostPropertiesSerialized() override;
+
+	void LoadPropertiesFromSource() override;
+	
 	void Unload() override;
 
 	const List<Mesh*>& GetMeshes() const;
-
-	// Used to query vertex information about a model.
-	static SerializationModelData GetSerializationDataForModel(Model* inModel);
 	
-private:
-	static CachePath ConvertToCachePath(const SourcePath& inPath);
-	static bool IsCached(const CachePath& inPath);
+	// TODO: We currently have mesh datas always loaded. But in the future it might cost too much memory so find solution to load on demand instead. This is needed for mesh colliders.
+	const List<SerializationMeshData>& GetSerializationMeshDatas() const;
 
-	static bool TryLoadModelDataFromCache(const CachePath& inPath, SerializationModelData& outModelData);
-	static void SaveModelDataToCache(const CachePath& inPath, SerializationModelData& inModelData);
-	
-	static SerializationModelData LoadModelDataFromSourceFile(const SourcePath& inPath);
-
-	void InitializeFromMeshData(const SerializationModelData& inModelData);
-	void InitializeStagingBuffers(SerializationModelData& inModelData);
-	uint GetRequiredVertexBufferSize(const SerializationModelData& inModelData);
-	
 private:
 	List<Mesh*> myMeshes{};
+
+	META(SerializeField)
+	List<SerializationMeshData> myMeshDatas{};
 };

@@ -4,6 +4,7 @@
 #include "../Engine/AssetRegistry\AssetContainer.h"
 #include "../Engine/AssetRegistry\AssetRef.h"
 #include "../Engine/AssetRegistry\AssetRegistry.h"
+#include "../Engine/AssetRegistry\AssetRegistry2.h"
 #include "../Engine/Assets\JsonAsset.h"
 #include "../Engine/Assets\Material.h"
 #include "../Engine/Assets\Model.h"
