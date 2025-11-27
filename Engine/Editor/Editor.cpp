@@ -38,7 +38,7 @@ Editor::~Editor()
 {
     for (int i = (int)myWindows.size() - 1; i >= 0; --i)
     {
-        RemoveWindow(myWindows[i]);
+        RemoveWindow(myWindows[i], true);
     }
 
     del(myAssetRegistry);
@@ -75,13 +75,21 @@ void Editor::Tick()
     ImGui::End();
 }
 
-void Editor::RemoveWindow(EditorWindow* inEditorWindow)
+void Editor::RemoveWindow(EditorWindow* inEditorWindow, const bool inIsShutdown)
 {
-    Engine::TickNextFrame.Bind([inEditorWindow]()
+    if (!inIsShutdown)
     {
-        myInstance->myWindows.Remove(inEditorWindow);
-        delete inEditorWindow;
-    });
+        Engine::TickNextFrame.Bind([inEditorWindow]()
+        {
+            myInstance->myWindows.Remove(inEditorWindow);
+            delete inEditorWindow;
+        });
+        
+        return;
+    }
+    
+    myInstance->myWindows.Remove(inEditorWindow);
+    delete inEditorWindow;
 }
 
 void Editor::SetGameTickFunction(const Delegate<void()>& inTickFunction)

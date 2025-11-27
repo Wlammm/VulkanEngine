@@ -18,11 +18,13 @@ TextureSystem::TextureSystem()
     CreateDescriptorSet();
 
     check(!myMissingMaterialTexture && "This variable is static so make sure we dont create multiple in case we ever create multiple instances of this system.");
-    myMissingMaterialTexture = Engine::GetAssetRegistry().GetAssetSynchronous<Texture>("MissingTexture.png");
+    myMissingMaterialTexture = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("MissingTexture.png");
 }
 
 TextureSystem::~TextureSystem()
 {
+    myMissingMaterialTexture = nullptr;
+    
     LOG_WARNING("TextureSystem::~TextureSystem is waiting for GPU idle!");
     VulkanContext::GetDevice()->waitIdle();
     VulkanContext::GetDevice()->destroyDescriptorSetLayout(myDescriptorLayout);
@@ -102,21 +104,24 @@ void TextureSystem::RemoveTexture_TS(Texture* inTexture)
     if (inTexture->myBindlessIndex == UINT32_MAX)
         return;
 
-    vk::DescriptorImageInfo imageInfo = {};
-    imageInfo.imageLayout = vk::ImageLayout::eReadOnlyOptimal;
-    imageInfo.imageView = myMissingMaterialTexture->GetImageView();
-    imageInfo.sampler = VulkanUtils::GetSampler(SamplerMode::Wrap);
+    if (myMissingMaterialTexture)
+    {
+        vk::DescriptorImageInfo imageInfo = {};
+        imageInfo.imageLayout = vk::ImageLayout::eReadOnlyOptimal;
+        imageInfo.imageView = myMissingMaterialTexture->GetImageView();
+        imageInfo.sampler = VulkanUtils::GetSampler(SamplerMode::Wrap);
 
-    const vk::WriteDescriptorSet write = vk::WriteDescriptorSet()
-        .setDescriptorCount(1)
-        .setDstArrayElement(inTexture->myBindlessIndex)
-        .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-        .setDstSet(myDescriptorSet)
-        .setDstBinding(BINDLESS_BINDING)
-        .setImageInfo(imageInfo);
+        const vk::WriteDescriptorSet write = vk::WriteDescriptorSet()
+            .setDescriptorCount(1)
+            .setDstArrayElement(inTexture->myBindlessIndex)
+            .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+            .setDstSet(myDescriptorSet)
+            .setDstBinding(BINDLESS_BINDING)
+            .setImageInfo(imageInfo);
 
-    VulkanContext::GetDevice()->updateDescriptorSets({write}, {});
-
+        VulkanContext::GetDevice()->updateDescriptorSets({write}, {});
+    }
+    
     myFreeIndices.Add(inTexture->myBindlessIndex);
     inTexture->myBindlessIndex = UINT32_MAX;
 

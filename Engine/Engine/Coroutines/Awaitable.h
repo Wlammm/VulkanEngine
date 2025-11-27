@@ -2,6 +2,7 @@
 #include <coroutine>
 
 #include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 
 class Awaitable
 {
@@ -49,6 +50,27 @@ namespace Awaitables
     
     private:
         float mySeconds;
+    };
+    
+    template<typename AssetType>
+    class WaitForAsset2 : public Awaitable
+    {
+    public:
+        WaitForAsset2(const SourcePath& inSourcePath, SharedPtr<AssetType>& outAsset)
+            : myOutAssetPointer(outAsset)
+        {
+            mySourcePath = inSourcePath;
+        }
+        
+        void OnAwait(std::coroutine_handle<> inCoroutineHandle) override
+        {
+            myOutAssetPointer = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<AssetType>(mySourcePath);
+            inCoroutineHandle.resume();
+        }
+        
+    private:
+        SourcePath mySourcePath;
+        SharedPtr<AssetType>& myOutAssetPointer;
     };
 
     template<typename AssetType>

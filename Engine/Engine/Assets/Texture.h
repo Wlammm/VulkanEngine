@@ -1,18 +1,10 @@
 ﻿#pragma once
-#include "Engine/AssetRegistry/Asset.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 
 class VulkanImage;
 
-using CachePath = std::filesystem::path;
-
 struct ImageData
 {
-    META(SerializeField)
-    std::filesystem::path mySourceFile;
-    
-    META(SerializeField)
-    std::filesystem::file_time_type myLastSourceWriteTime;
-    
     META(SerializeField)
     int myWidth;
 
@@ -29,29 +21,23 @@ struct ImageData
     List<unsigned char> myPixelData;
 };
 
-constexpr int FileVersion = 1;
-class Texture : public Asset
+class Texture : public Asset2
 {
 public:
-    Coroutine<void, void, false> Load(const std::filesystem::path inPath) override;
-    void Unload() override;
+    ~Texture();
+    
+    void LoadPropertiesFromSource() override;
+    
+    void PostPropertiesSerialized() override;
 
+    static constexpr bool IsExternalAsset() { return true; }
+    
     VulkanImage* GetImage() const;
     vk::ImageView GetImageView() const;
 
     uint GetBindlessIndex() const;
 
 private:
-    static bool IsCached(const std::filesystem::path& inPath);
-    static CachePath ConvertToCachedPath(const std::filesystem::path& inFilePath);
-    
-    static ImageData LoadImageDataFromSourceFile(const std::filesystem::path& inPath);
-    static bool TryLoadImageDataFromCache(const CachePath& inPath, ImageData& outData);
-    static void SaveImageDataToCache(const CachePath& inPath, const ImageData& inData);
-    
-
-    void InitializeFromImageData(const ImageData& inImageData);
-
     void GenerateMipLevels(vk::CommandBuffer inCommandBuffer);
     
 private:
@@ -59,4 +45,7 @@ private:
     
     friend class TextureSystem;
     uint myBindlessIndex;
+    
+    META(SerializeField)
+    ImageData myImageData;
 };

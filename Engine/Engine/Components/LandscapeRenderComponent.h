@@ -37,5 +37,5 @@ private:
     
     MeshInstanceIndex myMeshInstance = -1;
     
-    Material* myMaterial = nullptr;
+    SharedPtr<Material> myMaterial = nullptr;
 };

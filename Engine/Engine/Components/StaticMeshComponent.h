@@ -21,11 +21,14 @@ public:
     SharedPtr<Model> GetModel() const;
 
     void SetMaterialAsync(const std::filesystem::path& inMaterialPath, const uint inIndex);
-    void SetMaterial(Material* inMaterial, const uint inIndex);
-    const Material* GetMaterial(const uint inIndex) const;
+    
+    void SetMaterial(SharedPtr<Material> inMaterial, const uint inIndex);
+    void SetMaterial(const std::filesystem::path& inMaterialPath, const uint inIndex);
+    
+    SharedPtr<Material> GetMaterial(const uint inIndex) const;
 
-    void SetMaterialForMesh(Material* inMaterial, Mesh* inMesh);
-    const Material* GetMaterialForMesh(Mesh* inMesh) const;
+    void SetMaterialForMesh(SharedPtr<Material> inMaterial, Mesh* inMesh);
+    SharedPtr<Material> GetMaterialForMesh(Mesh* inMesh) const;
 
     void OnRenderStateDirty() override;
 
@@ -39,7 +42,7 @@ private:
     std::filesystem::path myPath = "";
 
     // META(SerializeField)
-    List<Material*> myMaterials{};
+    List<SharedPtr<Material>> myMaterials{};
 
     META(SerializeField)
     SharedPtr<Model> myModel = nullptr;

@@ -23,7 +23,8 @@ class ContentBrowserWindow : public EditorWindow
     
 public:
     ContentBrowserWindow();
-
+    ~ContentBrowserWindow();
+    
     void Tick() override;
 
     void ReloadDirectory();
@@ -79,7 +80,8 @@ private:
     std::deque<std::filesystem::path> myHistory;
     std::deque<std::filesystem::path> myForwardHistory;
     
-    std::array<vk::DescriptorSet, eFileType::FILETYPE_COUNT> myFolderIcons;
+    std::array<SharedPtr<Texture>, eFileType::FILETYPE_COUNT> myContentBrowserTextures;
+    std::array<vk::DescriptorSet, eFileType::FILETYPE_COUNT> myContentBrowserTextureDescriptors;
     List<std::string> myExcludedExtensions = { ".dll", ".exe", ".pdb", ".ini" };
     
     std::string myDragDropPath = "";

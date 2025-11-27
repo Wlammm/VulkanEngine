@@ -10,11 +10,22 @@
 ContentBrowserWindow::ContentBrowserWindow()
     : EditorWindow("Content Browser", true)
 {
-	myFolderIcons[FILETYPE_FOLDER] = ImGuiTextureUtils::CreateDescriptorSetForTexture("Editor/ContentBrowserIcons/Folder.png");
-	myFolderIcons[FILETYPE_FILE] = ImGuiTextureUtils::CreateDescriptorSetForTexture("Editor/ContentBrowserIcons/File.png");
+	myContentBrowserTextures[FILETYPE_FOLDER] = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("Editor/ContentBrowserIcons/Folder.png");
+	myContentBrowserTextureDescriptors[FILETYPE_FOLDER] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_FOLDER]);
+	
+	myContentBrowserTextures[FILETYPE_FILE] = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("Editor/ContentBrowserIcons/File.png");
+	myContentBrowserTextureDescriptors[FILETYPE_FILE] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_FILE]);
 
 	LoadAllDirectories(myRoot);
 	LoadDirectory(myRoot);
+}
+
+ContentBrowserWindow::~ContentBrowserWindow()
+{
+	for (int i = 0; i < eFileType::FILETYPE_COUNT; ++i)
+	{
+		ImGui_ImplVulkan_RemoveTexture(myContentBrowserTextureDescriptors[i]);
+	}
 }
 
 void ContentBrowserWindow::Tick()
@@ -707,7 +718,7 @@ void ContentBrowserWindow::LoadDirectory(const std::filesystem::path& inPath)
 	{
 		if (entry.is_directory())
 		{
-			myItems.Add({ entry.path(), myFolderIcons[FILETYPE_FOLDER] });
+			myItems.Add({ entry.path(), myContentBrowserTextureDescriptors[FILETYPE_FOLDER] });
 			myItems.Last().myIsDirectory = true;
 		}
 	}
@@ -738,7 +749,7 @@ void ContentBrowserWindow::LoadDirectories(const List<std::filesystem::path>& in
 		}
 		else
 		{
-			myItems.Add({ path, myFolderIcons[FILETYPE_FOLDER] });
+			myItems.Add({ path, myContentBrowserTextureDescriptors[FILETYPE_FOLDER] });
 			myItems.Last().myIsDirectory = true;
 		}
 	}
@@ -801,7 +812,7 @@ bool ContentBrowserWindow::IsExcludedPath(const std::filesystem::path& inPath)
 vk::DescriptorSet ContentBrowserWindow::GetIconFromPath(const std::filesystem::path& inPath) const
 {
 	if (std::filesystem::is_directory(inPath))
-		return myFolderIcons[FILETYPE_FOLDER];
+		return myContentBrowserTextureDescriptors[FILETYPE_FOLDER];
 
-	return myFolderIcons[FILETYPE_FILE];
+	return myContentBrowserTextureDescriptors[FILETYPE_FILE];
 }

@@ -34,6 +34,11 @@ void Asset2::SetAssetRegistry(AssetRegistry2* inAssetRegistry)
     myAssetRegistry = inAssetRegistry;
 }
 
+void Asset2::ResaveAsset()
+{
+    myAssetRegistry->SaveAssetToCache(shared_from_this());
+}
+
 CachePath AssetRegistry2::SourceToCachePath(const SourcePath& inSourcePath) const
 {
     return "AssetCache/" + inSourcePath.string() + ".cache";

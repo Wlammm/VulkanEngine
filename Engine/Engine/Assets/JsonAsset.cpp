@@ -2,14 +2,14 @@
 #include "JsonAsset.h"
 #include <nlohmann/json.hpp>
 
-Coroutine<void, void, false> JsonAsset::Load(const std::filesystem::path inPath)
+void JsonAsset::LoadPropertiesFromSource()
 {
-    check(std::filesystem::exists(inPath));
-
+    Asset2::LoadPropertiesFromSource();
+    
     try
     {
         std::ifstream file;
-        file.open(inPath);
+        file.open(GetSourcePath());
         file >> myJson;
         file.close();
     }
@@ -18,13 +18,6 @@ Coroutine<void, void, false> JsonAsset::Load(const std::filesystem::path inPath)
         LOG_ERROR("Failed to parse json: %s", exception.what());
         check(false);
     }
-    
-    co_return;
-}
-
-void JsonAsset::Unload()
-{
-    
 }
 
 const nlohmann::json& JsonAsset::GetJson() const

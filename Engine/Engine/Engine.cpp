@@ -213,12 +213,12 @@ void Engine::CreateSystems()
 {
 	mySystemManager->AddSystem<AssetRegistry2>();
 	mySystemManager->AddSystem<StagingSystem>();
-	mySystemManager->AddSystem<RenderSystem>();
 	mySystemManager->AddSystem<TextureSystem>();
 	mySystemManager->AddSystem<MeshSystem>();
 	mySystemManager->AddSystem<GPUSceneSystem>();
 	mySystemManager->AddSystem<IndexBufferSystem>();
 	mySystemManager->AddSystem<VertexBufferSystem>();
+	mySystemManager->AddSystem<RenderSystem>();
 	mySystemManager->AddSystem<PointLightSystem>();
 
 	mySystemManager->InitAllSystems();

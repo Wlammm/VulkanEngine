@@ -39,7 +39,7 @@ private:
     inline static MutexList<TextureCube*> myTextureCubes;
     inline static MutexList<uint> myFreeCubeIndices;
 
-    inline static Texture* myMissingMaterialTexture = nullptr;
+    inline static SharedPtr<Texture> myMissingMaterialTexture = nullptr;
     
     vk::DescriptorPool myDescriptorPool;
     

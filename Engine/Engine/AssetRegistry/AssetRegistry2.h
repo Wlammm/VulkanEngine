@@ -5,38 +5,55 @@
 class AssetRegistry2;
 
 
-// Used to indicate paths to the source file. Say .fbx, .png, etc
-using SourcePath = std::filesystem::path;
+/*
+ * Internal asset: An asset that is made in engine and modified in engine. No external files are managed for this asset type.
+ * 
+ * External asset: These are assets that are imported to the engine. Most of the time they are converted to a binary format the 
+ * engine can read faster but it also stores the last modification time so if the asset gets modified outside the engine, we will automatically reimport it next time.
+ */
 
-// Used to indicate to a path inside the cache.
+// This is the path to the internal asset on disk, or cached version of external asset.
 using CachePath = std::filesystem::path;
 
-class Asset2
+// This would be the path to the external asset if it is such, otherwise it is just a unique identified to the internal asset, usually just the name of the asset.
+using SourcePath = std::filesystem::path;
+
+class Asset2 : std::enable_shared_from_this<Asset2>
 {
 public:
-    ~Asset2();
+    // Remove any resources used by this asset.
+    virtual ~Asset2();
     
     // This will be called once all properties on the asset have been serialized. Either via the cache or via Asset::LoadPropertiesFromSource.
     // We can remove all data not required for runtime in here as it would've already been serialized to cache before this.
     virtual void PostPropertiesSerialized() {};
 
-    // This will get called if there is no cached version of this asset or the source asset has been updated.
+    // This will get called if there is no cached version of this asset or the source asset has been updated. This will only be called if IsExternalAsset() returns true.
     virtual void LoadPropertiesFromSource() {};
 
-    // Remove any resources used by this asset.
-    virtual void Unload() {};
-
+    // Override this and return false if this asset should always load from source.
+    static constexpr bool CanAssetBeCached() { return true; }
+    
+    // If this is true we have an external source asset to track and invalidate cache when it becomes invalid. 
+    // This is useful for models, textures, audio files etc, but will not be used for in engine assets such as materials, animation graph etc.
+    static constexpr bool IsExternalAsset() { return false; }
+    
     void DoFirstTimeAssetInitialization(const SourcePath& inAssetPath);
 
     const SourcePath& GetSourcePath();
 
     const std::filesystem::file_time_type& GetSourceLastModifiedTime() const;
 
+    bool IsValid() const { return myIsValid;}
+    
     // Should only be called from the AssetRegistry class when its finished loading.
     void SetIsValid(const bool inIsValid);
     
     // Should only be called form the AssetRegistry class when the asset has loaded successfully.
     void SetAssetRegistry(AssetRegistry2* inAssetRegistry);
+    
+    // This will resave the asset to file.
+    void ResaveAsset();
     
 private:
     META(SerializeField)
@@ -60,18 +77,21 @@ public:
         if (asset != nullptr)
             return asset;
 
-        asset = LoadAsset<AssetType>(inSourcePath);
+        if constexpr (AssetType::IsExternalAsset())
+            asset = LoadExternalAsset<AssetType>(inSourcePath);
+        else
+            asset = LoadInternalAsset<AssetType>(inSourcePath);
         return asset;
     }
 
     template<typename AssetType>
-    SharedPtr<AssetType> LoadAsset(const SourcePath& inSourcePath)
+    SharedPtr<AssetType> LoadExternalAsset(const SourcePath& inSourcePath)
     {
         SharedPtr<AssetType> asset = std::make_shared<AssetType>();
 
         const CachePath cachePath = SourceToCachePath(inSourcePath);
-
-        if (std::filesystem::exists(cachePath))
+        
+        if (std::filesystem::exists(cachePath) && AssetType::CanAssetBeCached())
         {
             bool isCachedFileValid = true;
             
@@ -107,6 +127,36 @@ public:
         AddLoadedAsset(asset);
         return asset;
     }
+    
+    template<typename AssetType>
+    SharedPtr<AssetType> LoadInternalAsset(const SourcePath& inSourcePath)
+    {
+        if (!std::filesystem::exists(inSourcePath))
+            return nullptr;
+            
+        SharedPtr<AssetType> asset = std::make_shared<AssetType>();
+        
+        BinarySerializer serializer(inSourcePath, BinarySerializer::Mode::Read);
+        serializer.SerializeType(*asset.get());
+
+        if (!serializer.WasLastTypeSerializationFullyComplete())
+            LOG_WARNING("LoadInternalAsset: Not all properties was loaded correctly on %s", inSourcePath.string().c_str());
+            
+        serializer.Close();
+        
+        asset->PostPropertiesSerialized();
+        AddLoadedAsset(asset);
+        return asset;
+    }
+    
+    template<typename AssetType>
+    SharedPtr<AssetType> CreateNewAsset(const SourcePath& inSourcePath)
+    {
+        static_assert(!AssetType::IsExternalAsset() && "We cannot create new external assets.");
+        SharedPtr<AssetType> asset = std::make_shared<AssetType>();
+        AddLoadedAsset(asset);
+        return asset;
+    }
 
     CachePath SourceToCachePath(const SourcePath& inSourcePath) const;
 
@@ -124,11 +174,6 @@ public:
         return nullptr;
     }
 
-    void OnAssetRemoved(Asset2* inAsset);
-
-private:
-    void AddLoadedAsset(SharedPtr<Asset2> inAsset);
-
     template<typename AssetType>
     void SaveAssetToCache(SharedPtr<AssetType> inAsset)
     {
@@ -136,6 +181,11 @@ private:
         BinarySerializer serializer(cachePath, BinarySerializer::Mode::Write);
         serializer.SerializeType(*inAsset.get());
     }
+    
+    void OnAssetRemoved(Asset2* inAsset);
+
+private:
+    void AddLoadedAsset(SharedPtr<Asset2> inAsset);
 
 private:
     std::mutex myMutex{};

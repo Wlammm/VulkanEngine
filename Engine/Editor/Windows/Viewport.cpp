@@ -31,9 +31,11 @@ Viewport::Viewport()
 	myDescriptorSets.Emplace();
 	myDescriptorSets.Emplace();
 
-	myPlayButtonTexture = ImGuiTextureUtils::CreateDescriptorSetForTexture("Editor/Viewport/PlayButton.png");
-	myStopButtonTexture = ImGuiTextureUtils::CreateDescriptorSetForTexture("Editor/Viewport/StopButton.png");
+	myPlayButtonTexture = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("Editor/Viewport/PlayButton.png");
+	myPlayButtonDescriptor = ImGuiTextureUtils::CreateDescriptorSetForTexture(myPlayButtonTexture);
 	
+	myStopButtonTexture = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("Editor/Viewport/StopButton.png");
+	myStopButtonDescriptor = ImGuiTextureUtils::CreateDescriptorSetForTexture(myStopButtonTexture);
 }
 
 Viewport::~Viewport()
@@ -41,6 +43,8 @@ Viewport::~Viewport()
 	LOG_WARNING("Viewport::~Viewport waits device idle");
 	VulkanContext::GetDevice()->waitIdle();
 
+	ImGui_ImplVulkan_RemoveTexture(myPlayButtonDescriptor);
+	ImGui_ImplVulkan_RemoveTexture(myStopButtonDescriptor);
 	for(uint i  = 0; i < 3; ++i)
 	{
 		if (myDescriptorSets[i])
@@ -181,7 +185,7 @@ void Viewport::DrawPIEHUD()
 	pos.y -= 5;
 	ImGui::SetCursorPos(pos);
 	
-	if (ImGui::ImageButton(myPlayButtonTexture, {20, 20}))
+	if (ImGui::ImageButton(myPlayButtonDescriptor, {20, 20}))
 	{
 		if (!Editor::IsPIE())
 			Editor::TogglePIE();
@@ -189,7 +193,7 @@ void Viewport::DrawPIEHUD()
 
 	ImGui::SameLine();
 
-	if (ImGui::ImageButton(myStopButtonTexture, {20, 20}))
+	if (ImGui::ImageButton(myStopButtonDescriptor, {20, 20}))
 	{
 		if (Editor::IsPIE())
 			Editor::TogglePIE();

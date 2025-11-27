@@ -1,15 +1,15 @@
 ﻿#pragma once
 #include <nlohmann/json.hpp>
 
-#include "Engine/AssetRegistry/Asset.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 
-class JsonAsset : public Asset
+class JsonAsset : public Asset2
 {
 public:
-    Coroutine<void, void, false> Load(const std::filesystem::path inPath) override;
-
-    void Unload() override;
+    static constexpr bool CanAssetBeCached() { return false; };
     
+    void LoadPropertiesFromSource() override;
+
     const nlohmann::json& GetJson() const;
     
 private:

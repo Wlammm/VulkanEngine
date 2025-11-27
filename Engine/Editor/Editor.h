@@ -14,7 +14,7 @@ public:
 
 	static AssetRegistry* GetAssetRegistry();
 	
-	static void RemoveWindow(class EditorWindow* inEditorWindow);
+	static void RemoveWindow(class EditorWindow* inEditorWindow, const bool inIsShutdown = false);
 
 	void SetGameTickFunction(const Delegate<void()>& inTickFunction);
 
@@ -28,7 +28,7 @@ public:
 	static void OpenEditorWindow()
 	{
 		WindowType* window = new WindowType();
-		window->myID = myInstance->myNextID++;;
+		window->myID = myInstance->myNextID++;
 		myInstance->myWindows.Add(window);
 	}
 

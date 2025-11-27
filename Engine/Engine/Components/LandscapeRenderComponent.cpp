@@ -35,11 +35,9 @@ LandscapeRenderComponent::~LandscapeRenderComponent()
 
 void LandscapeRenderComponent::OnCreate()
 {
-    GetWorld()->GetAssetRegistry().GetAssetAsync<Material>("Assets/Materials/LandscapeGrass/LandscapeGrass.mat", [this](Material* inMaterial)
-    {
-        myMaterial = inMaterial;
-        MarkRenderStateDirty();
-    });
+    myMaterial = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Material>("Assets/Materials/LandscapeGrass/LandscapeGrass.mat");
+    MarkRenderStateDirty();
+    
     CreateLandscapeMesh();
 }
 

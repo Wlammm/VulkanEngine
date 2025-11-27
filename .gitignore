@@ -4,6 +4,7 @@ Engine/JSON
 Engine/packages
 Bin/Assets/Sponza
 Bin/Cache/
+Bin/AssetCache/
 
 *.sln
 *.vcxproj

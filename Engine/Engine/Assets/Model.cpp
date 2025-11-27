@@ -13,6 +13,17 @@
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
 
+Model::~Model()
+{
+	for (Mesh* mesh : myMeshes)
+	{
+		Engine::GetEngineSystem<IndexBufferSystem>().RemoveIndexBuffer(mesh->GetIndexBuffer());
+		Engine::GetEngineSystem<VertexBufferSystem>().RemoveVertexBuffer(mesh->GetVertexBuffer());
+		Engine::GetEngineSystem<MeshSystem>().RemoveMesh(mesh);
+	}
+	myMeshes.Clear();
+}
+
 void Model::PostPropertiesSerialized()
 {
 	Asset2::PostPropertiesSerialized();
@@ -148,19 +159,6 @@ void Model::LoadPropertiesFromSource()
 	}
 
 	myImporter.FreeScene();
-}
-
-void Model::Unload()
-{
-	Asset2::Unload();
-
-	for (Mesh* mesh : myMeshes)
-	{
-		Engine::GetEngineSystem<IndexBufferSystem>().RemoveIndexBuffer(mesh->GetIndexBuffer());
-		Engine::GetEngineSystem<VertexBufferSystem>().RemoveVertexBuffer(mesh->GetVertexBuffer());
-		Engine::GetEngineSystem<MeshSystem>().RemoveMesh(mesh);
-	}
-	myMeshes.Clear();
 }
 
 const List<Mesh*>& Model::GetMeshes() const

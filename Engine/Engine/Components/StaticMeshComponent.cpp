@@ -59,21 +59,19 @@ void StaticMeshComponent::SetModel(SharedPtr<Model> inModel)
         {
             const std::string generatedString = GENERATED_MATERIAL_PREFIX + albedoPath.string() + normalPath.string() + materialPath.string();
 
-            if(GetWorld()->GetAssetRegistry().HasAsset<Material>(generatedString))
+            if(SharedPtr<Material> material = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Material>(generatedString))
             {
-                GetWorld()->GetAssetRegistry().GetAssetAsync<Material>(generatedString, [this, meshIndex](Material* inMaterial)
-                {
-                    myMaterials[meshIndex] = inMaterial;
-                    MarkRenderStateDirty();
-                });                
+                myMaterials[meshIndex] = material;
+                MarkRenderStateDirty();
             }
             else
             {
-                GetWorld()->GetAssetRegistry().GetAssetAsync<Material>(generatedString, [this, meshIndex](Material* inMaterial)
-                {
-                    myMaterials[meshIndex] = inMaterial;
-                    MarkRenderStateDirty();
-                }, albedoPath, normalPath, materialPath);
+                SharedPtr<Material> newMaterial = Engine::GetEngineSystem<AssetRegistry2>().CreateNewAsset<Material>(generatedString);
+                newMaterial->SetAlbedo(albedoPath);
+                newMaterial->SetNormal(normalPath);
+                newMaterial->SetMaterial(materialPath);
+                myMaterials[meshIndex] = newMaterial;
+                MarkRenderStateDirty();
             }
         }
         else
@@ -93,20 +91,27 @@ SharedPtr<Model> StaticMeshComponent::GetModel() const
 
 void StaticMeshComponent::SetMaterialAsync(const std::filesystem::path& inMaterialPath, const uint inIndex)
 {
-    GetWorld()->GetAssetRegistry().GetAssetAsync<Material>(inMaterialPath, [this, inIndex](Material* inMaterial)
-    {
-        SetMaterial(inMaterial, inIndex);
-    });
+    LOG_WARNING("StaticMeshComponent::SetMaterialAsync isnt async right now. FIXX");
+    SetMaterial(inMaterialPath, inIndex);
+    //GetWorld()->GetAssetRegistry().GetAssetAsync<Material>(inMaterialPath, [this, inIndex](Material* inMaterial)
+    //{
+    //    SetMaterial(inMaterial, inIndex);
+    //});
 }
 
-void StaticMeshComponent::SetMaterial(Material* inMaterial, const uint inIndex)
+void StaticMeshComponent::SetMaterial(SharedPtr<Material> inMaterial, const uint inIndex)
 {
-    // TODO: This might in some rare occations happen before the mesh has loaded. We should probably add checks for that.
+    // TODO: This might in some rare occasions happen before the mesh has loaded. We should probably add checks for that.
     myMaterials[inIndex] = inMaterial;
     MarkRenderStateDirty();
 }
 
-const Material* StaticMeshComponent::GetMaterial(const uint inIndex) const
+void StaticMeshComponent::SetMaterial(const std::filesystem::path& inMaterialPath, const uint inIndex)
+{
+    SetMaterial(Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Material>(inMaterialPath), inIndex);
+}
+
+SharedPtr<Material> StaticMeshComponent::GetMaterial(const uint inIndex) const
 {
     if(!myMaterials.IsValidIndex(inIndex))
         return nullptr;
@@ -114,14 +119,14 @@ const Material* StaticMeshComponent::GetMaterial(const uint inIndex) const
     return myMaterials[inIndex];
 }
 
-void StaticMeshComponent::SetMaterialForMesh(Material* inMaterial, Mesh* inMesh)
+void StaticMeshComponent::SetMaterialForMesh(SharedPtr<Material> inMaterial, Mesh* inMesh)
 {
     uint index = myModel->GetMeshes().FindIndex(inMesh);
     check(index != -1 && "Mesh is not part of the model.");
     SetMaterial(inMaterial, index);
 }
 
-const Material* StaticMeshComponent::GetMaterialForMesh(Mesh* inMesh) const
+SharedPtr<Material> StaticMeshComponent::GetMaterialForMesh(Mesh* inMesh) const
 {
     uint index = myModel->GetMeshes().FindIndex(inMesh);
     check(index != -1 && "Mesh is not part of the model.");

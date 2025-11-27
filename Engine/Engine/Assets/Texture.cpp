@@ -18,124 +18,57 @@
 
 const vk::Format IMAGE_FORMAT = vk::Format::eR8G8B8A8Unorm;
 
-Coroutine<void, void, false> Texture::Load(const std::filesystem::path inPath)
-{
-    ImageData imageData{};
 
-    if (!TryLoadImageDataFromCache(ConvertToCachedPath(inPath), imageData))
-    {
-        imageData = LoadImageDataFromSourceFile(inPath);
-        SaveImageDataToCache(ConvertToCachedPath(inPath), imageData);
-    }
-
-    InitializeFromImageData(imageData);
-
-    co_return;
-}
-
-void Texture::Unload()
+Texture::~Texture()
 {
     TextureSystem::RemoveTexture_TS(this);
     VulkanAllocator::DestroyImage_TS(myImage);
     myImage = nullptr;
 }
 
-VulkanImage* Texture::GetImage() const
-{
-    return myImage;
-}
-
-vk::ImageView Texture::GetImageView() const
-{
-    return myImage->GetImageView();
-}
-
-uint Texture::GetBindlessIndex() const
-{
-    return myBindlessIndex;
-}
-
-bool Texture::IsCached(const std::filesystem::path& inPath)
-{
-    return std::filesystem::exists(ConvertToCachedPath(inPath));
-}
-
-CachePath Texture::ConvertToCachedPath(const std::filesystem::path& inFilePath)
-{
-    return L"Cache/ImageCache/" + inFilePath.filename().wstring() + L".image";
-}
-
-ImageData Texture::LoadImageDataFromSourceFile(const std::filesystem::path& inPath)
+void Texture::LoadPropertiesFromSource()
 {
     ZoneScoped;
-    check(std::filesystem::exists(inPath));
 
-    ImageData imageData{};
-    imageData.mySourceFile = inPath;
-    imageData.myLastSourceWriteTime = std::filesystem::last_write_time(inPath);
-    
-    stbi_uc* pixels = stbi_load(inPath.string().c_str(), &imageData.myWidth, &imageData.myHeight, &imageData.myChannels,
+    Asset2::LoadPropertiesFromSource();
+
+    stbi_uc* pixels = stbi_load(GetSourcePath().string().c_str(), &myImageData.myWidth, &myImageData.myHeight, &myImageData.myChannels,
                                 STBI_rgb_alpha);
     check(pixels);
-    check(imageData.myWidth != 0 && imageData.myHeight != 0);
+    check(myImageData.myWidth != 0 && myImageData.myHeight != 0);
 
-    imageData.myNumMipLevels = static_cast<uint>(std::floor(std::log2(std::max(imageData.myHeight, imageData.myWidth))))
+    myImageData.myNumMipLevels = static_cast<uint>(std::floor(std::log2(std::max(myImageData.myHeight, myImageData.myWidth))))
         + 1;
 
-    imageData.myPixelData.Resize(imageData.myWidth * imageData.myHeight * 4);
-    memcpy(imageData.myPixelData.data(), pixels, imageData.myPixelData.size());
+    myImageData.myPixelData.Resize(myImageData.myWidth * myImageData.myHeight * 4);
+    memcpy(myImageData.myPixelData.data(), pixels, myImageData.myPixelData.size());
     stbi_image_free(pixels);
-    return imageData;
 }
 
-bool Texture::TryLoadImageDataFromCache(const CachePath& inPath, ImageData& outData)
+void Texture::PostPropertiesSerialized()
 {
-    if (!std::filesystem::exists(inPath))
-        return false;
-
-    ImageData data;
-    BinarySerializer serializer(inPath, BinarySerializer::Mode::Read);
-    serializer.SerializeType(data);
-
-    if (!serializer.WasLastTypeSerializationFullyComplete())
-        return false;
-
-    std::filesystem::file_time_type sourceWriteTime = std::filesystem::last_write_time(data.mySourceFile);
-    if (sourceWriteTime != data.myLastSourceWriteTime)
-        return false;
-
-    outData = std::move(data);
-    return true;
-}
-
-void Texture::SaveImageDataToCache(const CachePath& inPath, const ImageData& inData)
-{
-    BinarySerializer serializer(inPath, BinarySerializer::Mode::Write);
-    serializer.SerializeType(inData);
-}
-
-void Texture::InitializeFromImageData(const ImageData& inImageData)
-{
-    ZoneScoped;
+    Asset2::PostPropertiesSerialized();
+    
+     ZoneScoped;
     vk::BufferCreateInfo stagingCreateInfo = vk::BufferCreateInfo()
-                                             .setSize(sizeof(size_t) * inImageData.myWidth * inImageData.myHeight)
+                                             .setSize(sizeof(size_t) * myImageData.myWidth * myImageData.myHeight)
                                              .setUsage(vk::BufferUsageFlagBits::eTransferSrc)
                                              .setSharingMode(vk::SharingMode::eExclusive);
     VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("Texture staging buffer", stagingCreateInfo,
                                                                      VMA_MEMORY_USAGE_AUTO, true);
 
     void* ptr = stagingBuffer->GetPtr();
-    //check(inImageData.myChannels == 4); // Make sure channels is 4. We dont support anything else atm.
-    memcpy(ptr, inImageData.myPixelData.data(), inImageData.myWidth * inImageData.myHeight * 4);
+    //check(myImageData.myChannels == 4); // Make sure channels is 4. We dont support anything else atm.
+    memcpy(ptr, myImageData.myPixelData.data(), myImageData.myWidth * myImageData.myHeight * 4);
 
     vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
                                      .setImageType(vk::ImageType::e2D)
                                      .setFormat(IMAGE_FORMAT)
                                      .setExtent({
-                                         static_cast<uint32_t>(inImageData.myWidth),
-                                         static_cast<uint32_t>(inImageData.myHeight), 1
+                                         static_cast<uint32_t>(myImageData.myWidth),
+                                         static_cast<uint32_t>(myImageData.myHeight), 1
                                      })
-                                     .setMipLevels(inImageData.myNumMipLevels)
+                                     .setMipLevels(myImageData.myNumMipLevels)
                                      .setArrayLayers(1)
                                      .setSamples(vk::SampleCountFlagBits::e1)
                                      .setTiling(vk::ImageTiling::eOptimal)
@@ -145,7 +78,7 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
                                      .setSharingMode(vk::SharingMode::eExclusive)
                                      .setInitialLayout(vk::ImageLayout::eUndefined);
 
-    std::string imageName = "VulkanImage - " + inImageData.mySourceFile.string();
+    std::string imageName = "VulkanImage - " + GetSourcePath().string();
     myImage = VulkanAllocator::AllocateImage_TS(imageName, createInfo, VMA_MEMORY_USAGE_AUTO);
 
 #if DEBUG
@@ -153,7 +86,7 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
                                                            .setObjectHandle(
                                                                VulkanContext::GetVulkanHandle(
                                                                    myImage->GetAPIResource()))
-                                                           .setPObjectName(inImageData.mySourceFile.string().c_str())
+                                                           .setPObjectName(GetSourcePath().string().c_str())
                                                            .setObjectType(vk::ObjectType::eImage));
 #endif
     myImage->CreateView(vk::ImageViewType::e2D);
@@ -163,7 +96,7 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
     vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
                                                  .setAspectMask(vk::ImageAspectFlagBits::eColor)
                                                  .setBaseMipLevel(0)
-                                                 .setLevelCount(inImageData.myNumMipLevels)
+                                                 .setLevelCount(myImageData.myNumMipLevels)
                                                  .setLayerCount(1);
 
     vk::ImageMemoryBarrier imageMemoryBarrier = vk::ImageMemoryBarrier()
@@ -185,8 +118,8 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
                     .setBaseArrayLayer(0)
                     .setLayerCount(1);
     bufferCopyRegion.imageExtent
-                    .setWidth(inImageData.myWidth)
-                    .setHeight(inImageData.myHeight)
+                    .setWidth(myImageData.myWidth)
+                    .setHeight(myImageData.myHeight)
                     .setDepth(1);
     bufferCopyRegion.setBufferOffset(0);
 
@@ -213,10 +146,28 @@ void Texture::InitializeFromImageData(const ImageData& inImageData)
     VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
                                                            .setObjectHandle(
                                                                VulkanContext::GetVulkanHandle(myImage->GetImageView()))
-                                                           .setPObjectName(inImageData.mySourceFile.string().c_str())
+                                                           .setPObjectName(GetSourcePath().string().c_str())
                                                            .setObjectType(vk::ObjectType::eImageView));
 #endif
     TextureSystem::RegisterTexture_TS(this);
+    
+    // Reset image data here to save memory as it's not needed anymore.
+    myImageData = {};
+}
+
+VulkanImage* Texture::GetImage() const
+{
+    return myImage;
+}
+
+vk::ImageView Texture::GetImageView() const
+{
+    return myImage->GetImageView();
+}
+
+uint Texture::GetBindlessIndex() const
+{
+    return myBindlessIndex;
 }
 
 void Texture::GenerateMipLevels(vk::CommandBuffer inCommandBuffer)

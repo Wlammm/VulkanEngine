@@ -9,9 +9,6 @@ class VertexBufferHandle;
 class VulkanBuffer;
 class Mesh;
 
-using CachePath = std::filesystem::path;
-using SourcePath = std::filesystem::path;
-
 struct SerializationMeshData
 {
 	META(SerializeField)
@@ -36,12 +33,14 @@ struct SerializationMeshData
 class Model : public Asset2
 {
 public:
+	~Model();
+	
 	void PostPropertiesSerialized() override;
 
 	void LoadPropertiesFromSource() override;
 	
-	void Unload() override;
-
+	static constexpr bool IsExternalAsset() { return true; };
+	
 	const List<Mesh*>& GetMeshes() const;
 	
 	// TODO: We currently have mesh datas always loaded. But in the future it might cost too much memory so find solution to load on demand instead. This is needed for mesh colliders.

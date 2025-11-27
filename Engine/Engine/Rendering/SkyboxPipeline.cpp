@@ -21,10 +21,8 @@
 
 SkyboxPipeline::SkyboxPipeline()
 {
-	Engine::GetAssetRegistry().GetAssetAsync<Texture>("Assets/Cubemaps/sunflowers_puresky_4k.hdr", [this](Texture* inCubemap)
-	{
-		mySkybox = inCubemap;
-	});
+	
+	mySkybox = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("Assets/Cubemaps/sunflowers_puresky_4k.hdr");
 
 	mySkyboxModel = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Model>("Assets/Primitives/Sphere.fbx");
 	

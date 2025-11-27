@@ -1,6 +1,7 @@
 #pragma once
 #include "EditorWindow.h"
 
+class Texture;
 class StaticMeshActor;
 class GameObject;
 class EditorCameraMovementComponent;
@@ -41,8 +42,10 @@ private:
 private:
 	StaticMeshActor* myPreviewActor = nullptr;
 	
-	vk::DescriptorSet myPlayButtonTexture;
-	vk::DescriptorSet myStopButtonTexture;
+	SharedPtr<Texture> myPlayButtonTexture;
+	vk::DescriptorSet myPlayButtonDescriptor;
+	SharedPtr<Texture> myStopButtonTexture;
+	vk::DescriptorSet myStopButtonDescriptor;
 
 	List<vk::DescriptorSet> myDescriptorSets;
 	vk::Sampler mySampler;

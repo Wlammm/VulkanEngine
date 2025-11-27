@@ -1,29 +1,44 @@
 #pragma once
-#include "Engine/AssetRegistry/Asset.h"
-#include "Engine/Vulkan/VulkanDescriptorSet.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 
 class Texture;
-class VulkanShader;
 
-class Material : public Asset
+class Material : public Asset2
 {
 public:
-	Coroutine<void, void, false> Load(const std::filesystem::path inPath) override;
+	void PostPropertiesSerialized() override;
+	
+	static constexpr bool IsExternalAsset() { return false; }
+	
+	SharedPtr<Texture> GetAlbedo() const;
+	SharedPtr<Texture> GetNormal() const;
+	SharedPtr<Texture> GetMaterial() const;
 
-	Coroutine<void, void, false> Load(const std::filesystem::path inPath, const std::filesystem::path inAlbedo, const std::filesystem::path inNormal, const std::filesystem::path inMaterial);
+	void SetAlbedo(SharedPtr<Texture> inTexture);
+	void SetAlbedo(const SourcePath& inSourcePath);
 	
-	Material() = default;
+	void SetNormal(SharedPtr<Texture> inTexture);
+	void SetNormal(const SourcePath& inSourcePath);
 	
-	void Unload() override;
+	void SetMaterial(SharedPtr<Texture> inTexture);
+	void SetMaterial(const SourcePath& inSourcePath);
 	
-	Texture* GetAlbedo() const;
-	Texture* GetNormal() const;
-	Texture* GetMaterial() const;
+	bool GetDepthWriteEnabled() const;
 
 private:
-	Texture* myAlbedoTexture = nullptr;
-	Texture* myNormalTexture = nullptr;
-	Texture* myMaterialTexture = nullptr;
+	META(SerializeField)
+	SourcePath myAlbedoPath;
+	
+	META(SerializeField)
+	SourcePath myMaterialPath;
+	
+	META(SerializeField)
+	SourcePath myNormalPath;
+	
+	SharedPtr<Texture> myAlbedoTexture = nullptr;
+	SharedPtr<Texture> myNormalTexture = nullptr;
+	SharedPtr<Texture> myMaterialTexture = nullptr;
 
+	META(SerializeField)
 	bool myDepthWriteEnabled = true;
 };
