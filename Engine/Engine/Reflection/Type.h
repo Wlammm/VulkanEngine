@@ -1,8 +1,12 @@
 ﻿#pragma once
 #include "Field.h"
 #include "Method.h"
+#include "Engine/Core/SharedPtr.h"
+#include "Engine/AssetRegistry/AssetDefines.h"
 #include "Engine/Containers/List.hpp"
 #include "Engine/Delegates/Delegate.hpp"
+
+class Asset2;
 
 struct TypeTemplateArgument
 {
@@ -48,11 +52,9 @@ public:
     static std::string GetTypeNameWithoutForwardDeclares(const std::string& inTypeName);
     
     template<typename ClassType>
-    bool IsA() const
+    bool DerivesFrom() const
     {
         const std::string fullName = typeid(ClassType).name();
-        if (fullName == myFullName)
-            return true;
 
         for (const Type* baseType : myBaseTypes)
         {
@@ -63,6 +65,16 @@ public:
                 return true;
         }
         return false;
+    }
+    
+    template<typename ClassType>
+    bool IsA() const
+    {
+        const std::string fullName = typeid(ClassType).name();
+        if (fullName == myFullName)
+            return true;
+
+        return DerivesFrom<ClassType>();
     }
     
     // TODO: Support sending constructor arguments here. This can be done but we need to parse the arguments via the reflection generator first.
@@ -83,6 +95,15 @@ public:
         
         return myUniquePtrFactoryFunction(inUniquePtr);
     }
+    
+    template<typename ClassType>
+    SharedPtr<ClassType> CreateSharedPtr() const
+    {
+        check(mySharedPtrFactoryFunction != nullptr);
+        check(IsA<ClassType>());
+        
+        return std::static_pointer_cast<ClassType>(mySharedPtrFactoryFunction());
+    }
 
     void AddTemplateArgument(const Type* inTemplateArgumentType, const bool inIsPointer, const bool inIsReference)
     {
@@ -98,7 +119,14 @@ private:
     void AddBaseType(Type* inBaseType);
     
     Type() = delete;
-    Type(const std::string& inTypeName, const std::string& inFullName, const unsigned int inSize, const bool inIsCopyable,  const Delegate<void*()>& inFactoryFunction, const Delegate<void(void*)>& inPlacementFactoryFunction, const Delegate<void(class IUniquePtr*)>& inUniquePtrFactoryFunction);
+    Type(
+        const std::string& inTypeName, 
+        const std::string& inFullName, 
+        const unsigned int inSize, const bool inIsCopyable, 
+        const Delegate<void*()>& inFactoryFunction, 
+        const Delegate<void(void*)>& inPlacementFactoryFunction, 
+        const Delegate<void(class IUniquePtr*)>& inUniquePtrFactoryFunction,
+        const Delegate<SharedPtr<void>()>& inSharedPtrFactoryFunction);
     
     // This is the full name which matches what you get when using typeid(ClassType).name()
     std::string myFullName = "";
@@ -114,8 +142,9 @@ private:
     Delegate<void*()> myFactoryFunction;
     Delegate<void(void* destination)> myPlacementFactoryFunction;
 
-    // Only valid if this type is a uniqueptr.
     Delegate<void(IUniquePtr*)> myUniquePtrFactoryFunction;
+    
+    Delegate<SharedPtr<void>()> mySharedPtrFactoryFunction;
     
     List<const Type*> myBaseTypes{};
     List<const Type*> myDerivedTypes{};

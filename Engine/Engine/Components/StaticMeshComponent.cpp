@@ -4,13 +4,13 @@
 #include "Engine/Engine.h"
 #include "TransformComponent.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Material.h"
 #include "Engine/Assets/Model.h"
 #include "Engine/Assets/Texture.h"
 #include "Engine/Rendering/Mesh.h"
 #include "Engine/Shaders/MeshStructs.hpp"
 #include "Engine/Vulkan/GPUSceneSystem.h"
-#include "Engine/World/World.h"
 
 StaticMeshComponent::StaticMeshComponent()
 {

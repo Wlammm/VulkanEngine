@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Type.h"
-// #include "Engine/Core/UniquePtr.h"
 
 class IUniquePtr;
 template <typename T> class UniquePtr;
@@ -86,16 +85,52 @@ private:
                 *castedPtr = MakeUnique<ClassType>();
             };
         }
+        
+        Delegate<SharedPtr<void>()> sharedPtrFactory = nullptr;
+        if constexpr (!std::is_abstract_v<ClassType> && std::is_default_constructible_v<ClassType>)
+        {
+            if constexpr (std::is_const_v<ClassType>)
+            {
+                sharedPtrFactory = []() -> SharedPtr<void>
+                {
+                    return std::static_pointer_cast<void>(MakeShared<std::remove_const_t<ClassType>>());
+                };
+            }
+            else
+            {
+                sharedPtrFactory = []() -> SharedPtr<void>
+                {
+                    return std::static_pointer_cast<void>(MakeShared<ClassType>());
+                };
+            }
+            
+        }
 
         if constexpr (std::is_default_constructible_v<ClassType> && !std::is_abstract_v<ClassType>)
         {
-            myTypes.Add(new Type(inTypeName, inFullName, classSize, std::is_trivially_copyable_v<ClassType>,
-                []() -> void* { return new typename std::remove_const<ClassType>::type(); },
-                [](void* destination){ new (destination) typename std::remove_const<ClassType>::type(); }, uniquePtrFactory));
+            myTypes.Add(new Type(
+                inTypeName, 
+                inFullName, 
+                classSize, 
+                std::is_trivially_copyable_v<ClassType>,
+                []() -> void*
+                {
+                    return new typename std::remove_const<ClassType>::type();
+                },
+                [](void* destination)
+                {
+                    new (destination) typename std::remove_const<ClassType>::type();
+                }, 
+                uniquePtrFactory, 
+                sharedPtrFactory));
         }
         else
         {
-            myTypes.Add(new Type(inTypeName, inFullName, classSize, std::is_trivially_copyable_v<ClassType>,
+            myTypes.Add(new Type(
+                inTypeName, 
+                inFullName, 
+                classSize, 
+                std::is_trivially_copyable_v<ClassType>,
                 []() -> void*
                 {
                     check(false && "Class is not default constructible or abstract. Make sure you have implemented an empty constructor and all pure virtual methods!");
@@ -104,7 +139,9 @@ private:
             [](void*)
                 {
                     check(false && "PlacementNew not supported for this type!");
-                }, uniquePtrFactory));
+                }, 
+                uniquePtrFactory, 
+                sharedPtrFactory));
         }
     }
 

@@ -18,7 +18,7 @@ void UniquePtrSerializer::Serialize(void* inInstance, const Type* inType, Binary
     std::string concreteTypeFullName;
     if (inSerializer->IsWriting())
     {
-        type = uniquePtr->GetConcreteType();
+        type = ReflectionSystem::GetTypeByFullName(uniquePtr->GetConcreteFullName());
         concreteTypeFullName = type->GetFullName();
     }
     inSerializer->SerializeString(concreteTypeFullName);

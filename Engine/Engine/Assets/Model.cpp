@@ -5,6 +5,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#include "Engine/Engine.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
 #include "Engine/Rendering/Mesh.h"
 #include "Engine/Rendering/MeshSystem.h"

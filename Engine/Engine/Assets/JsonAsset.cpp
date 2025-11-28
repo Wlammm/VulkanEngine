@@ -2,6 +2,8 @@
 #include "JsonAsset.h"
 #include <nlohmann/json.hpp>
 
+#include "Engine/AssetRegistry/Asset2.h"
+
 void JsonAsset::LoadPropertiesFromSource()
 {
     Asset2::LoadPropertiesFromSource();

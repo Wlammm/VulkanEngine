@@ -2,6 +2,7 @@
 #include "TextureSystem.h"
 
 #include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Texture.h"
 #include "Engine/Assets/TextureCube.h"
 #include "Engine/Vulkan/VulkanContext.h"

@@ -8,6 +8,7 @@
 #include "Engine/Vulkan/VulkanUtils.hpp"
 #include "Engine/Vulkan/VulkanImage.h"
 #include "Engine/Engine.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Rendering/RenderSystem.h"
 #include "Engine/World/World.h"
@@ -15,8 +16,6 @@
 #include "Engine/Components/StaticMeshComponent.h"
 #include "Engine/Components/TransformComponent.h"
 #include "Engine/ComponentSystem/Actors/StaticMeshActor.h"
-#include "Engine/Core/Input.h"
-#include "Engine/Utils/Debug.h"
 #include "Utils/ImGuiTextureUtils.h"
 #include "World/EditorWorld.h"
 

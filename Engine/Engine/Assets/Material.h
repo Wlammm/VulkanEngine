@@ -1,14 +1,12 @@
 #pragma once
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/Asset2.h"
 
 class Texture;
 
 class Material : public Asset2
 {
 public:
-	void PostPropertiesSerialized() override;
-	
-	static constexpr bool IsExternalAsset() { return false; }
+	virtual constexpr bool IsExternalAsset() override { return false; }
 	
 	SharedPtr<Texture> GetAlbedo() const;
 	SharedPtr<Texture> GetNormal() const;
@@ -27,16 +25,12 @@ public:
 
 private:
 	META(SerializeField)
-	SourcePath myAlbedoPath;
-	
-	META(SerializeField)
-	SourcePath myMaterialPath;
-	
-	META(SerializeField)
-	SourcePath myNormalPath;
-	
 	SharedPtr<Texture> myAlbedoTexture = nullptr;
+	
+	META(SerializeField)
 	SharedPtr<Texture> myNormalTexture = nullptr;
+	
+	META(SerializeField)
 	SharedPtr<Texture> myMaterialTexture = nullptr;
 
 	META(SerializeField)

@@ -60,6 +60,10 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 
 //#define TRACY_FIBERS
 
+using uint = unsigned int;
+
+static constexpr float FLOAT_MAX = 3.402823466e+38f;
+
 #include "Engine/Utils/StdIncludes.hpp"
 
 #define VK_USE_PLATFORM_WIN32_KHR
@@ -83,6 +87,8 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 #include <imgui_impl_win32.h>
 #include <imgui_impl_vulkan.h>
 
+#include "Engine/Core/SharedPtr.h"
+
 #include "Engine/Core/EngineDefines.hpp"
 #include "Engine/Utils/HashUtils.hpp"
 #include "Engine/Math/Color.h"
@@ -91,14 +97,9 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 #include "Engine/Core/Console.h"
 #include "Engine/Core/UniqueID.h"
 #include "Engine/Core/UniquePtr.h"
-#include "Engine/Core/SharedPtr.h"
 
 #include "Engine/Containers/List.hpp"
 #include "Engine/Containers/MutexList.hpp"
 
 #include "Engine/Utils/OnScopeExit.h"
 #include "Engine/Utils/CommonMacros.h"
-
-using uint = unsigned int;
-
-static constexpr float FLOAT_MAX = 3.402823466e+38f;

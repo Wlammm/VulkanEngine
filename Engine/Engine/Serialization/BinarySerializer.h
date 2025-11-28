@@ -1,8 +1,5 @@
 ﻿#pragma once
-#include "Engine/Engine.h"
-#include "Engine/Reflection/Type.h"
-#include "Engine/Reflection/ReflectionSystem.h"
-#include "TypeSerializers/TypeSerializer.h"
+#include "Engine/Containers/MutexList.hpp"
 
 class BinarySerializer
 {
@@ -56,16 +53,13 @@ private:
     void SerializeTypeInternal(ClassType& inOutInstance)
     {
         void* instance = (void*)&inOutInstance;
-        const Type* type = ReflectionSystem::GetType<std::remove_pointer_t<ClassType>>();
-        check(type && "Failed to find class type.");
         bool isPointer = std::is_pointer<ClassType>::value;
-
         static_assert(!std::is_reference_v<ClassType> && "SerializeClass does not support reference types.");
-
-        SerializeTypeInternal(instance, type, isPointer);
+        SerializeTypeInternal(instance, typeid(std::remove_pointer_t<ClassType>).name(), isPointer);
     }
 
-    void SerializeTypeInternal(void* inOutInstance, const Type* inType, const bool inIsPointer);
+    // This is using std::string and typeID instead of Type* because we need to break circular include with asset registry and reflection system.
+    void SerializeTypeInternal(void* inOutInstance, const std::string& inTypeId, const bool inIsPointer);
     
     void ReadType(void* outInstance, const Type* inType, const bool inIsPointer);
     void WriteType(void* inInstance, const Type* inType, const bool inIsPointer);

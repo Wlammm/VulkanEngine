@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/Asset2.h"
 
 class VulkanImage;
 
@@ -30,7 +30,7 @@ public:
     
     void PostPropertiesSerialized() override;
 
-    static constexpr bool IsExternalAsset() { return true; }
+    virtual constexpr bool IsExternalAsset() override { return true; }
     
     VulkanImage* GetImage() const;
     vk::ImageView GetImageView() const;

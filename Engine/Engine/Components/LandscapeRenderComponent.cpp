@@ -4,7 +4,7 @@
 #include "Engine/Engine.h"
 #include "TransformComponent.h"
 
-#include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Material.h"
 #include "Engine/Assets/Texture.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
@@ -17,7 +17,6 @@
 #include "Engine/Vulkan/VulkanBuffer.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanSwapChain.h"
-#include "Engine/World/World.h"
 
 LandscapeRenderComponent::LandscapeRenderComponent()
 {

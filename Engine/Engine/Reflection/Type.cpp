@@ -1,9 +1,6 @@
 ﻿#include "EnginePch.h"
 #include "Type.h"
 
-#include "ReflectionSystem.h"
-#include "Engine/Engine.h"
-
 const std::string& Type::GetName() const
 {
     return myTypeName;
@@ -228,7 +225,21 @@ List<std::string> SplitTemplateArgs(const std::string& input)
     return result;
 }
 
-Type::Type(const std::string& inTypeName, const std::string& inFullName, const unsigned int inSize, const bool inIsCopyable,  const Delegate<void*()>& inFactoryFunction, const Delegate<void(void*)>& inPlacementFactoryFunction, const Delegate<void(IUniquePtr*)>& inUniquePtrFactoryFunction)
-    : myTypeName(inTypeName), myFullName(inFullName), myByteSize(inSize), myIsCopyable(inIsCopyable), myFactoryFunction(inFactoryFunction), myPlacementFactoryFunction(inPlacementFactoryFunction), myUniquePtrFactoryFunction(inUniquePtrFactoryFunction)
-{
-}
+Type::Type(
+    const std::string& inTypeName, 
+    const std::string& inFullName, 
+    const unsigned int inSize, 
+    const bool inIsCopyable,  
+    const Delegate<void*()>& inFactoryFunction,
+    const Delegate<void(void*)>& inPlacementFactoryFunction, 
+    const Delegate<void(IUniquePtr*)>& inUniquePtrFactoryFunction,
+    const Delegate<SharedPtr<void>()>& inSharedPtrFactoryFunction)
+    :   myTypeName(inTypeName), 
+        myFullName(inFullName), 
+        myByteSize(inSize), 
+        myIsCopyable(inIsCopyable), 
+        myFactoryFunction(inFactoryFunction), 
+        myPlacementFactoryFunction(inPlacementFactoryFunction), 
+        myUniquePtrFactoryFunction(inUniquePtrFactoryFunction),
+        mySharedPtrFactoryFunction(inSharedPtrFactoryFunction)
+{ }

@@ -3,6 +3,7 @@
 
 #include "Editor/Utils/ImGuiTextureUtils.h"
 #include "Engine/Engine.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Texture.h"
 #include "Engine/Core/Input.h"
 #include "Engine/Core/Time.h"

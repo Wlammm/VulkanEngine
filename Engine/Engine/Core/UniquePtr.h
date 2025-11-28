@@ -1,7 +1,5 @@
 ﻿#pragma once
 #include "Engine/Delegates/Delegate.hpp"
-#include "Engine/Reflection/ReflectionSystem.h"
-
 
 class Type;
 
@@ -9,7 +7,7 @@ class IUniquePtr
 {
 public:
     virtual void* GetVoidPtr() const = 0;
-    virtual const Type* GetConcreteType() const = 0;
+    virtual const std::string& GetConcreteFullName() const = 0;
 };
 
 template <typename ClassType>
@@ -32,15 +30,8 @@ public:
 
     template<typename OtherType>
     UniquePtr(UniquePtr<OtherType>&& inOther, typename std::enable_if<std::is_convertible<OtherType*, ClassType*>::value>::type* = nullptr)
-        : myObject(inOther.myObject), myDeleter(std::move(inOther.myDeleter))
+        : myObject(inOther.myObject), myDeleter(std::move(inOther.myDeleter)), myConcreteTypeFullName(std::move(inOther.myConcreteTypeFullName))
     {
-        if (inOther.myGetConcreteTypeDelegate.IsValid())
-        {
-            myGetConcreteTypeDelegate = [d = std::move(inOther.myGetConcreteTypeDelegate)](ClassType* instance) -> const Type* {
-                return d(static_cast<OtherType*>(instance));
-            };
-        }
-        
         inOther.Release();
     }
     
@@ -48,7 +39,7 @@ public:
     {
         myObject = inOther.myObject;
         myDeleter = inOther.myDeleter;
-        myGetConcreteTypeDelegate = inOther.myGetConcreteTypeDelegate;
+        myConcreteTypeFullName = inOther.myConcreteTypeFullName;
         inOther.Release();
     }
 
@@ -59,7 +50,7 @@ public:
             Reset();
             myObject = inOther.myObject;
             myDeleter = inOther.myDeleter;
-            myGetConcreteTypeDelegate = inOther.myGetConcreteTypeDelegate;
+            myConcreteTypeFullName = inOther.myConcreteTypeFullName;
             inOther.Release();
         }
         return *this;
@@ -88,14 +79,14 @@ public:
         return myObject;
     }
 
+    const std::string& GetConcreteFullName() const override
+    {
+        return myConcreteTypeFullName;
+    }
+    
     void* GetVoidPtr() const override
     {
         return myObject;
-    }
-
-    const Type* GetConcreteType() const override
-    {
-        return myGetConcreteTypeDelegate(myObject);
     }
 
     void Reset()
@@ -110,7 +101,6 @@ public:
     {
         myObject = nullptr;
         myDeleter = nullptr;
-        myGetConcreteTypeDelegate = nullptr;
     }
 
     operator bool() const
@@ -138,7 +128,7 @@ private:
     
     ClassType* myObject = nullptr;
     Delegate<void(void* inPtr)> myDeleter = nullptr;
-    Delegate<const Type*(ClassType* inInstance)> myGetConcreteTypeDelegate = nullptr;
+    std::string myConcreteTypeFullName = "";
 };
 
 template<typename PtrType, typename... Args>
@@ -153,15 +143,11 @@ UniquePtr<PtrType> MakeUnique(Args&&... inArgs)
         ::operator delete(object);
     };
 
-    Delegate<const Type*(PtrType* inInstance)> getConcreteTypeDelegate = [](PtrType* inInstance)
-    {
-       return ReflectionSystem::GetType(inInstance); 
-    };
 
     UniquePtr<PtrType> ptr;
     ptr.myObject = object;
     ptr.myDeleter = deleter;
-    ptr.myGetConcreteTypeDelegate = getConcreteTypeDelegate;
+    ptr.myConcreteTypeFullName = typeid(PtrType).name();
     return ptr;
 }
 

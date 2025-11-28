@@ -21,3 +21,4 @@
 #include <set>
 #include <string>
 #include <cstdlib>
+#include <memory>

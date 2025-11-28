@@ -21,6 +21,9 @@ const vk::Format IMAGE_FORMAT = vk::Format::eR8G8B8A8Unorm;
 
 Texture::~Texture()
 {
+    if (!IsValid())
+        return;
+    
     TextureSystem::RemoveTexture_TS(this);
     VulkanAllocator::DestroyImage_TS(myImage);
     myImage = nullptr;

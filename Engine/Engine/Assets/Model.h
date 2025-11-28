@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Engine/AssetRegistry/Asset.h"
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/Asset2.h"
 #include "Engine/Rendering/Vertex.hpp"
 
 class IndexBufferHandle;
@@ -39,7 +38,7 @@ public:
 
 	void LoadPropertiesFromSource() override;
 	
-	static constexpr bool IsExternalAsset() { return true; };
+	virtual constexpr bool IsExternalAsset() override { return true; };
 	
 	const List<Mesh*>& GetMeshes() const;
 	

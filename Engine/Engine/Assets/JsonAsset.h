@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include <nlohmann/json.hpp>
 
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/Asset2.h"
 
 class JsonAsset : public Asset2
 {
 public:
-    static constexpr bool CanAssetBeCached() { return false; };
+    virtual constexpr bool CanAssetBeCached() override { return false; };
     
     void LoadPropertiesFromSource() override;
 

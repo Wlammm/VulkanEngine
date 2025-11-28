@@ -1,5 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "BinarySerializer.h"
+#include "Engine/Reflection/ReflectionSystem.h"
+#include "TypeSerializers/TypeSerializer.h"
 
 BinarySerializer::BinarySerializer(const std::filesystem::path& inPath, const Mode inMode)
 {
@@ -63,18 +65,19 @@ void BinarySerializer::Close()
     myIsStreamOpen = false;
 }
 
-void BinarySerializer::SerializeTypeInternal(void* inOutInstance, const Type* inType, const bool inIsPointer)
+void BinarySerializer::SerializeTypeInternal(void* inOutInstance, const std::string& inTypeId, const bool inIsPointer)
 {
+    const Type* type = ReflectionSystem::GetTypeByFullName(inTypeId);
     if (IsReading())
-        ReadType(inOutInstance, inType, inIsPointer);
+        ReadType(inOutInstance, type, inIsPointer);
     else
-        WriteType(inOutInstance, inType, inIsPointer);
+        WriteType(inOutInstance, type, inIsPointer);
 }
 
 void BinarySerializer::SerializeType(void* inOutInstance, const Type* inType, const bool inIsPointer)
 {
     myWasLastTypeSerializationFullyComplete = true;
-    SerializeTypeInternal(inOutInstance, inType, inIsPointer);
+    SerializeTypeInternal(inOutInstance, inType->GetFullName(), inIsPointer);
 }
 
 bool BinarySerializer::WasLastTypeSerializationFullyComplete() const
@@ -168,7 +171,7 @@ void BinarySerializer::ReadType(void* outInstance, const Type* inType, const boo
         }
         else
         {
-            SerializeTypeInternal(fieldPtr, fieldClass, field->IsPointer());
+            SerializeTypeInternal(fieldPtr, fieldClass->GetFullName(), field->IsPointer());
         }
     }
 }
@@ -227,7 +230,7 @@ void BinarySerializer::WriteType(void* inInstance, const Type* inType, const boo
         }
         else
         {
-            tempSerializer.SerializeTypeInternal(fieldPtr, fieldClass, field.IsPointer());
+            tempSerializer.SerializeTypeInternal(fieldPtr, fieldClass->GetFullName(), field.IsPointer());
         }
 
         std::string fieldBytes = fieldBufferStream.str();

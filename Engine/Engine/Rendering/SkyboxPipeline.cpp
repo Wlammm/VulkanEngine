@@ -5,13 +5,12 @@
 #include "IndexBufferSystem.h"
 #include "Mesh.h"
 #include "TextureSystem.h"
-#include "VertexBufferHandle.h"
 #include "VertexBufferSystem.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Model.h"
 #include "Engine/Assets/Shader.h"
 #include "Engine/Assets/Texture.h"
-#include "Engine/Assets/TextureCube.h"
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Components/TransformComponent.h"
 #include "Engine/Vulkan/VulkanContext.h"
@@ -21,7 +20,6 @@
 
 SkyboxPipeline::SkyboxPipeline()
 {
-	
 	mySkybox = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("Assets/Cubemaps/sunflowers_puresky_4k.hdr");
 
 	mySkyboxModel = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Model>("Assets/Primitives/Sphere.fbx");
