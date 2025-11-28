@@ -6,7 +6,7 @@
 class JsonAsset : public Asset2
 {
 public:
-    virtual constexpr bool CanAssetBeCached() override { return false; };
+    bool IsCacheValid() const override { return false; };
     
     void LoadPropertiesFromSource() override;
 

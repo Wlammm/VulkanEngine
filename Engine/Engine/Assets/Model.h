@@ -38,7 +38,7 @@ public:
 
 	void LoadPropertiesFromSource() override;
 	
-	virtual constexpr bool IsExternalAsset() override { return true; };
+	virtual constexpr bool IsExternalAsset() const override { return true; };
 	
 	const List<Mesh*>& GetMeshes() const;
 	

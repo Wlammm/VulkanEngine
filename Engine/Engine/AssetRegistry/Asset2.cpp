@@ -9,6 +9,17 @@ Asset2::~Asset2()
         myAssetRegistry->OnAssetRemoved(this);
 }
 
+bool Asset2::IsCacheValid() const
+{
+    std::filesystem::file_time_type sourceWriteTime = std::filesystem::last_write_time(GetSourcePath());
+        
+    // Check if source has been modified since the cache was last written.
+    if (GetSourceLastModifiedTime() != sourceWriteTime)
+        return false;
+        
+    return true;
+}
+
 void Asset2::DoFirstTimeAssetInitialization(const std::filesystem::path& inAssetPath)
 {
     check(std::filesystem::exists(inAssetPath) && "Invalid asset path sent into");
@@ -16,7 +27,7 @@ void Asset2::DoFirstTimeAssetInitialization(const std::filesystem::path& inAsset
     mySourceLastModifiedTime = std::filesystem::last_write_time(inAssetPath);
 }
 
-const SourcePath& Asset2::GetSourcePath()
+const SourcePath& Asset2::GetSourcePath() const
 {
     return myAssetPath;
 }

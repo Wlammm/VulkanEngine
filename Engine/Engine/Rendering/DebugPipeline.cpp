@@ -3,6 +3,7 @@
 
 #include "Engine/Engine.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Shader.h"
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Components/TransformComponent.h"
@@ -16,10 +17,10 @@
 
 DebugPipeline::DebugPipeline()
 {
-	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("Debug.vert");
+	myVertexShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/Debug.vert");
 	myVertexShader->OnShaderRecompiled.Bind(&DebugPipeline::OnShaderRecompiled, this);
 
-	myFragmentShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("Debug.frag");
+	myFragmentShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/Debug.frag");
 	myFragmentShader->OnShaderRecompiled.Bind(&DebugPipeline::OnShaderRecompiled, this);
 
 	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(

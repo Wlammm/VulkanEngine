@@ -3,7 +3,7 @@
 
 #include "Engine/Components/PointLightComponent.h"
 #include "Engine/Components/TransformComponent.h"
-#include "Engine/Shaders/MeshStructs.hpp"
+#include "Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
 #include "Engine/Vulkan/ResizableBuffer.h"
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"

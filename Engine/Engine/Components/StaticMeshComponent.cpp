@@ -9,7 +9,7 @@
 #include "Engine/Assets/Model.h"
 #include "Engine/Assets/Texture.h"
 #include "Engine/Rendering/Mesh.h"
-#include "Engine/Shaders/MeshStructs.hpp"
+#include "Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
 #include "Engine/Vulkan/GPUSceneSystem.h"
 
 StaticMeshComponent::StaticMeshComponent()

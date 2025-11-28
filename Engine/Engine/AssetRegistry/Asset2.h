@@ -16,16 +16,16 @@ public:
     // This will get called if there is no cached version of this asset or the source asset has been updated. This will only be called if IsExternalAsset() returns true.
     virtual void LoadPropertiesFromSource() {};
 
-    // Override this and return false if this asset should always load from source.
-    virtual constexpr bool CanAssetBeCached() { return true; }
+    // Only checked for external assets. Internal assets are required to be backwards compatible. If this function returns false, external assets will be forced to load from source.
+    virtual bool IsCacheValid() const;
     
-    // If this is true we have an external source asset to track and invalidate cache when it becomes invalid. 
+    // If this is true we have an external source asset to track and invalidate cache when it becomes invalid. s
     // This is useful for models, textures, audio files etc, but will not be used for in engine assets such as materials, animation graph etc.
-    virtual constexpr bool IsExternalAsset() { return false; }
+    virtual constexpr bool IsExternalAsset() const { return false; }
     
     void DoFirstTimeAssetInitialization(const SourcePath& inAssetPath);
 
-    const SourcePath& GetSourcePath();
+    const SourcePath& GetSourcePath() const;
 
     const std::filesystem::file_time_type& GetSourceLastModifiedTime() const;
 
@@ -37,7 +37,7 @@ public:
     // Should only be called form the AssetRegistry class when the asset has loaded successfully.
     void SetAssetRegistry(AssetRegistry2* inAssetRegistry);
     
-    // This will resave the asset to file.
+    // This will resave the asset to cache.
     void ResaveAsset();
     
 private:

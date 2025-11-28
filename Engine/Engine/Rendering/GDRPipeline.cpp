@@ -7,13 +7,14 @@
 #include "TextureSystem.h"
 #include "VertexBufferSystem.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Shader.h"
 #include "Engine/Assets/TextureCube.h"
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Components/DirectionalLightComponent.h"
 #include "Engine/Components/PointLightComponent.h"
 #include "Engine/Components/TransformComponent.h"
-#include "Engine/Shaders/MeshStructs.hpp"
+#include "Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
 #include "Engine/Systems/PointLightSystem.h"
 #include "Engine/Vulkan/GPUSceneSystem.h"
 #include "Engine/Vulkan/ResizableBuffer.h"
@@ -28,8 +29,8 @@
 
 GDRPipeline::GDRPipeline()
 {
-    myCullShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("IndirectCulling.comp");
-    myPrePassShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("PrePass.comp");
+    myCullShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/IndirectCulling.comp");
+    myPrePassShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/PrePass.comp");
 
     CreateBuffers();
     CreatePrePassResources();
@@ -429,9 +430,9 @@ void GDRPipeline::CreateCullPassResources()
 void GDRPipeline::CreateDrawPassResources()
 {
 	// Shaders
-	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("IndirectVertexShader.vert");
+	myVertexShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/IndirectVertexShader.vert");
 	myVertexShader->OnShaderRecompiled.Bind(&GDRPipeline::OnShaderRecompiled, this);
-	myFragmentShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("IndirectFragmentShader.frag");
+	myFragmentShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/IndirectFragmentShader.frag");
 	myFragmentShader->OnShaderRecompiled.Bind(&GDRPipeline::OnShaderRecompiled, this);
 	
     // Descriptor sets

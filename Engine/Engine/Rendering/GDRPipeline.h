@@ -50,8 +50,8 @@ private:
     void OnTransformMarkedDirty(TransformComponent* inTransform);
     
 private:
-    Shader* myPrePassShader = nullptr;
-    Shader* myCullShader = nullptr;
+    SharedPtr<Shader> myPrePassShader = nullptr;
+    SharedPtr<Shader> myCullShader = nullptr;
 
     TextureCube* myCubemap = nullptr;
 
@@ -71,8 +71,8 @@ private:
     vk::PipelineLayout myPipelineLayout;
     vk::Pipeline myPipeline;
     
-    Shader* myVertexShader;
-    Shader* myFragmentShader;
+    SharedPtr<Shader> myVertexShader;
+    SharedPtr<Shader> myFragmentShader;
 
     // FrameDescriptorSet.
     struct FrameData

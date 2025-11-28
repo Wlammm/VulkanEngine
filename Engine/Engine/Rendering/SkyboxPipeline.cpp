@@ -84,10 +84,10 @@ void SkyboxPipeline::OnShaderRecompiled()
 
 void SkyboxPipeline::CreateDrawResources()
 {
-    myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("Skybox.vert");
+    myVertexShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/Skybox.vert");
     myVertexShader->OnShaderRecompiled.Bind(&SkyboxPipeline::OnShaderRecompiled, this);
     
-    myFragmentShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("Skybox.frag");
+    myFragmentShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/Skybox.frag");
     myFragmentShader->OnShaderRecompiled.Bind(&SkyboxPipeline::OnShaderRecompiled, this);
     
     // Descriptor sets

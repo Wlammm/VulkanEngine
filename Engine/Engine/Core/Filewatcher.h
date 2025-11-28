@@ -17,6 +17,11 @@ public:
 		{
 			myID = inID;
 		}
+		
+		bool IsValid() const
+		{
+			return myID != -1;
+		}
 
 		bool operator==(const CallbackHandle& inOther) const { return myID == inOther.myID; }
 	};

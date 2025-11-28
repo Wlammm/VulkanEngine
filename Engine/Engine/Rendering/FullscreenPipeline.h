@@ -6,7 +6,7 @@ class Shader;
 class FullscreenPipeline
 {
 public:
-	FullscreenPipeline(Shader* inFragmentShader, class VulkanImage* inSource,vk::RenderPass inRenderPass);
+	FullscreenPipeline(SharedPtr<Shader> inFragmentShader, class VulkanImage* inSource,vk::RenderPass inRenderPass);
 	~FullscreenPipeline();
 
 	void AddFullscreenPass(const vk::CommandBuffer inCommandBuffer);
@@ -18,8 +18,8 @@ private:
 	void OnShaderRecompiled();
 
 private:
-	Shader* myVertexShader = nullptr;
-	Shader* myFragmentShader = nullptr;
+	SharedPtr<Shader> myVertexShader = nullptr;
+	SharedPtr<Shader> myFragmentShader = nullptr;
 
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;

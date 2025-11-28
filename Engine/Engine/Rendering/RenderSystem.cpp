@@ -9,6 +9,7 @@
 #include "SkyboxPipeline.h"
 #include "VertexBufferSystem.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Shader.h"
 #include "Engine/Components/StaticMeshComponent.h"
 #include "Engine/Core/Input.h"
@@ -414,7 +415,7 @@ void RenderSystem::CreatePipelines()
 	myGDRPipeline = new GDRPipeline();
 	mySkyboxPipeline = new SkyboxPipeline();
 	myDebugPipeline = new DebugPipeline();
-	myCopyPipeline = new FullscreenPipeline(Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FullscreenCopy.frag"), myResolvedRenderTexture, myCopyToSwapchainRenderPass);
+	myCopyPipeline = new FullscreenPipeline(Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/FullscreenCopy.frag"), myResolvedRenderTexture, myCopyToSwapchainRenderPass);
 }
 
 void RenderSystem::CreateRenderTextures()

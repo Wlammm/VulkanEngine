@@ -23,8 +23,8 @@ private:
 	void UpdateFrameBuffer();
 
 private:
-	Shader* myVertexShader;
-	Shader* myFragmentShader;
+	SharedPtr<Shader> myVertexShader;
+	SharedPtr<Shader> myFragmentShader;
 
 	vk::Pipeline myPipeline;
 	vk::PipelineLayout myPipelineLayout;

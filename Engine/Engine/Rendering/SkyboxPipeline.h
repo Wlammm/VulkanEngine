@@ -23,8 +23,8 @@ private:
     void BuildFrameBuffer();
     
 private:
-    Shader* myVertexShader = nullptr;
-    Shader* myFragmentShader = nullptr;
+    SharedPtr<Shader> myVertexShader = nullptr;
+    SharedPtr<Shader> myFragmentShader = nullptr;
 
     // ==== Draw resources ====
     VulkanDescriptorSet myFrameDescriptorSet{};

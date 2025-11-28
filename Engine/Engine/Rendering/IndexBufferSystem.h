@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Engine/Shaders/MeshStructs.hpp"
+#include "Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
 #include "Engine/System/System.h"
 
 class ResizableBuffer;

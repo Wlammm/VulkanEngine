@@ -61,7 +61,7 @@ public:
 
         const CachePath cachePath = SourceToCachePath(inSourcePath);
         
-        if (std::filesystem::exists(cachePath) && asset->CanAssetBeCached())
+        if (std::filesystem::exists(cachePath))
         {
             bool isCachedFileValid = true;
             
@@ -71,11 +71,8 @@ public:
             if (!serializer.WasLastTypeSerializationFullyComplete())
                 isCachedFileValid = false;
             serializer.Close();
-
-            std::filesystem::file_time_type sourceWriteTime = std::filesystem::last_write_time(inSourcePath);
-
-            // Check if source has been modified since the cache was last written.
-            if (asset->GetSourceLastModifiedTime() != sourceWriteTime)
+            
+            if (!asset->IsCacheValid())
                 isCachedFileValid = false;
 
             if (isCachedFileValid)

@@ -2,15 +2,16 @@
 #include "FullscreenPipeline.h"
 #include "Engine/Engine.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Shader.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
 #include "Engine/Vulkan/VulkanPhysicalDevice.h"
 #include "Engine/Vulkan/VulkanUtils.hpp"
 
-FullscreenPipeline::FullscreenPipeline(Shader* inFragmentShader, VulkanImage* inSource, vk::RenderPass inRenderPass)
+FullscreenPipeline::FullscreenPipeline(SharedPtr<Shader> inFragmentShader, VulkanImage* inSource, vk::RenderPass inRenderPass)
 {
-	myVertexShader = Engine::GetAssetRegistry().GetAssetSynchronous<Shader>("FullscreenVS.vert");
+	myVertexShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/FullscreenVS.vert");
 	myVertexShader->OnShaderRecompiled.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
 
 	myFragmentShader = inFragmentShader;

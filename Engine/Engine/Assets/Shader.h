@@ -1,27 +1,44 @@
 ﻿#pragma once
-#include "Engine/AssetRegistry/Asset.h"
+#include "Engine/AssetRegistry/Asset2.h"
 #include "Engine/Core/Filewatcher.h"
 #include "Engine/Delegates/MulticastDelegate.hpp"
 
+struct IncludeData
+{
+    META(SerializeField)
+    SourcePath myIncludePath;
+    
+    META(SerializeField)
+    std::filesystem::file_time_type myLastWriteTime;
+    
+    Filewatcher::CallbackHandle myCallbackHandle;
+};
+
 class VulkanShader;
-class Shader : public Asset
+class Shader : public Asset2
 {
 public:
-    Coroutine<void, void, false> Load(const std::filesystem::path inPath) override;
-    void Unload() override;
+    ~Shader() override;
+    
+    void LoadPropertiesFromSource() override;
+    void PostPropertiesSerialized() override;
 
-    void Compile();
+    bool IsExternalAsset() const override { return true;};
+    
+    bool IsCacheValid() const override;
+    
+    void Recompile();
 
     vk::ShaderModule GetAPIResource() const;
 
+    // Called whenever the shader gets hot reloaded due to the the file being changed.
     MulticastDelegate<void()> OnShaderRecompiled;
     
 private:
-    void CreateFilewatcherCallbacks(const List<std::filesystem::path>& inIncludePaths);
+    void CreateFilewatcherCallbacks(const List<IncludeData>& inIncludePaths);
     void RemoveFilewatcherCallbacks();
 
-    void InitFromFile();
-    void InitFromBinary(const std::vector<uint32_t>& inData);
+    void InitFromBinary(const List<uint32_t>& inData);
 
     
 private:
@@ -29,10 +46,9 @@ private:
 
     Filewatcher::CallbackHandle myCallbackHandle;
     
-    struct IncludeFileData
-    {
-        std::filesystem::path myPath;
-        Filewatcher::CallbackHandle myCallbackHandle;
-    };
-    List<IncludeFileData> myIncludeFiles;
+    META(SerializeField)
+    List<uint32_t> myShaderBinary;
+    
+    META(SerializeField)
+    List<IncludeData> myIncludes;
 };

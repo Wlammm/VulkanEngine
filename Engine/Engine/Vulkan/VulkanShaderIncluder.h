@@ -14,6 +14,8 @@ public:
 	virtual void ReleaseInclude(shaderc_include_result* inData) override final;
 
 	List<std::filesystem::path> GetIncludedFiles() const;
+	
+	std::filesystem::path ResolvePath(const char* inRequestedSource);
 private:
 	struct IncludeData
 	{
@@ -31,4 +33,10 @@ private:
 	};
 
 	List<IncludeData> myActiveIncludes{};
+	
+	const List<std::filesystem::path> myExternalIncludePaths 
+	{
+		"./Shaders/",
+		"../Engine/Engine/Rendering/SharedWithShaders/"
+	};
 };

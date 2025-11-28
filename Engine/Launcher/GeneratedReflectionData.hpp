@@ -123,6 +123,7 @@
 #include "../Engine/Rendering/MeshSystem.h"
 #include "../Engine/Rendering/VertexBufferHandle.h"
 #include "../Engine/Rendering/MeshUtils.h"
+#include "../Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
 #include "../Engine/Rendering/TextureSystem.h"
 #include "../Engine/Rendering/Vertex.hpp"
 #include "../Engine/Rendering/VertexBufferSystem.h"
@@ -138,7 +139,6 @@
 #include "../Engine/Serialization/TypeSerializers/StringSerializer.h"
 #include "../Game/Components/Player/PlayerCameraControllerComponent.h"
 #include "../Engine/Serialization/TypeSerializers/UniquePtrSerializer.h"
-#include "../Engine/Shaders/MeshStructs.hpp"
 #include "../Engine/System/System.h"
 #include "../Engine/System/SystemManager.hpp"
 #include "../Engine/Systems/LandscapeSystem.h"
@@ -262,6 +262,7 @@ ReflectionSystem::AddType<List<Mesh *>>("List<Mesh *>", typeid(List<Mesh *>).nam
 ReflectionSystem::AddType<List<SerializationMeshData>>("List<SerializationMeshData>", typeid(List<SerializationMeshData>).name());
 ReflectionSystem::AddType<List<Filewatcher::CallbackHandle>>("List<Filewatcher::CallbackHandle>", typeid(List<Filewatcher::CallbackHandle>).name());
 ReflectionSystem::AddType<List<std::function<void ()>>>("List<std::function<void ()>>", typeid(List<std::function<void ()>>).name());
+ReflectionSystem::AddType<List<IncludeData>>("List<IncludeData>", typeid(List<IncludeData>).name());
 ReflectionSystem::AddType<List<std::shared_ptr<Material>>>("List<std::shared_ptr<Material>>", typeid(List<std::shared_ptr<Material>>).name());
 ReflectionSystem::AddType<List<TransformComponent *>>("List<TransformComponent *>", typeid(List<TransformComponent *>).name());
 ReflectionSystem::AddType<List<Component *>>("List<Component *>", typeid(List<Component *>).name());
@@ -273,6 +274,7 @@ ReflectionSystem::AddType<List<VertexBufferHandle *>>("List<VertexBufferHandle *
 ReflectionSystem::AddType<List<VertexBufferData>>("List<VertexBufferData>", typeid(List<VertexBufferData>).name());
 ReflectionSystem::AddType<List<const char *>>("List<const char *>", typeid(List<const char *>).name());
 ReflectionSystem::AddType<List<vk::QueueFamilyProperties>>("List<vk::QueueFamilyProperties>", typeid(List<vk::QueueFamilyProperties>).name());
+ReflectionSystem::AddType<List<std::filesystem::path>>("List<std::filesystem::path>", typeid(List<std::filesystem::path>).name());
 ReflectionSystem::AddType<List<vk::Fence>>("List<vk::Fence>", typeid(List<vk::Fence>).name());
 ReflectionSystem::AddType<List<vk::Semaphore>>("List<vk::Semaphore>", typeid(List<vk::Semaphore>).name());
 ReflectionSystem::AddType<List<vk::Image>>("List<vk::Image>", typeid(List<vk::Image>).name());
@@ -283,12 +285,12 @@ ReflectionSystem::AddType<List<Actor *>>("List<Actor *>", typeid(List<Actor *>).
 ReflectionSystem::AddType<List<EditorWindow *>>("List<EditorWindow *>", typeid(List<EditorWindow *>).name());
 ReflectionSystem::AddType<List<EditorSystem *>>("List<EditorSystem *>", typeid(List<EditorSystem *>).name());
 ReflectionSystem::AddType<List<const Method *>>("List<const Method *>", typeid(List<const Method *>).name());
-ReflectionSystem::AddType<List<std::filesystem::path>>("List<std::filesystem::path>", typeid(List<std::filesystem::path>).name());
 ReflectionSystem::AddType<List<ContentBrowserItem>>("List<ContentBrowserItem>", typeid(List<ContentBrowserItem>).name());
 ReflectionSystem::AddType<List<vk::DescriptorSet>>("List<vk::DescriptorSet>", typeid(List<vk::DescriptorSet>).name());
 ReflectionSystem::AddType<AssetRegistry2>("AssetRegistry2", typeid(AssetRegistry2).name());
 ReflectionSystem::AddType<JsonAsset>("JsonAsset", typeid(JsonAsset).name());
 ReflectionSystem::AddType<Material>("Material", typeid(Material).name());
+ReflectionSystem::AddType<IncludeData>("IncludeData", typeid(IncludeData).name());
 ReflectionSystem::AddType<Shader>("Shader", typeid(Shader).name());
 ReflectionSystem::AddType<MethodArgument>("MethodArgument", typeid(MethodArgument).name());
 ReflectionSystem::AddType<Method>("Method", typeid(Method).name());
@@ -375,6 +377,12 @@ ReflectionSystem::AddType<Mesh>("Mesh", typeid(Mesh).name());
 ReflectionSystem::AddType<MeshSystem>("MeshSystem", typeid(MeshSystem).name());
 ReflectionSystem::AddType<VertexBufferHandle>("VertexBufferHandle", typeid(VertexBufferHandle).name());
 ReflectionSystem::AddType<MeshUtils>("MeshUtils", typeid(MeshUtils).name());
+ReflectionSystem::AddType<MeshData>("MeshData", typeid(MeshData).name());
+ReflectionSystem::AddType<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
+ReflectionSystem::AddType<IndexBufferData>("IndexBufferData", typeid(IndexBufferData).name());
+ReflectionSystem::AddType<MeshInstanceData>("MeshInstanceData", typeid(MeshInstanceData).name());
+ReflectionSystem::AddType<PerDrawData>("PerDrawData", typeid(PerDrawData).name());
+ReflectionSystem::AddType<PointLightData>("PointLightData", typeid(PointLightData).name());
 ReflectionSystem::AddType<TextureSystem>("TextureSystem", typeid(TextureSystem).name());
 ReflectionSystem::AddType<Vertex>("Vertex", typeid(Vertex).name());
 ReflectionSystem::AddType<VertexBufferSystem>("VertexBufferSystem", typeid(VertexBufferSystem).name());
@@ -391,12 +399,6 @@ ReflectionSystem::AddType<StringSerializer>("StringSerializer", typeid(StringSer
 ReflectionSystem::AddType<WStringSerializer>("WStringSerializer", typeid(WStringSerializer).name());
 ReflectionSystem::AddType<PlayerCameraControllerComponent>("PlayerCameraControllerComponent", typeid(PlayerCameraControllerComponent).name());
 ReflectionSystem::AddType<UniquePtrSerializer>("UniquePtrSerializer", typeid(UniquePtrSerializer).name());
-ReflectionSystem::AddType<MeshData>("MeshData", typeid(MeshData).name());
-ReflectionSystem::AddType<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
-ReflectionSystem::AddType<IndexBufferData>("IndexBufferData", typeid(IndexBufferData).name());
-ReflectionSystem::AddType<MeshInstanceData>("MeshInstanceData", typeid(MeshInstanceData).name());
-ReflectionSystem::AddType<PerDrawData>("PerDrawData", typeid(PerDrawData).name());
-ReflectionSystem::AddType<PointLightData>("PointLightData", typeid(PointLightData).name());
 ReflectionSystem::AddType<System>("System", typeid(System).name());
 ReflectionSystem::AddType<LandscapeSystem>("LandscapeSystem", typeid(LandscapeSystem).name());
 ReflectionSystem::AddType<VulkanUtils>("VulkanUtils", typeid(VulkanUtils).name());
@@ -963,11 +965,11 @@ Method& currentMethod = currentClass->AddMethod(Method("LoadPropertiesFromSource
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Asset2* instance = static_cast<Asset2*>(inInstance);
-static thread_local bool result = instance->CanAssetBeCached();
+static thread_local bool result = instance->IsCacheValid();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("CanAssetBeCached", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("IsCacheValid", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -1788,28 +1790,28 @@ Method& currentMethod = currentClass->AddMethod(Method("LogError", ReflectionSys
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<SkyboxPipeline>();
 	{
-		Field& currentField = currentClass->AddField(Field("myVertexShader", 0, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+		Field& currentField = currentClass->AddField(Field("myVertexShader", 0, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFragmentShader", 8, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+		Field& currentField = currentClass->AddField(Field("myFragmentShader", 16, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", 16, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
+		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", 32, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 112, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 128, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPipeline", 120, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPipeline", 136, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", 128, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", 144, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySkyboxModel", 136, ReflectionSystem::GetOrCreateType<std::shared_ptr<Model>>("std::shared_ptr<Model>"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySkyboxModel", 152, ReflectionSystem::GetOrCreateType<std::shared_ptr<Model>>("std::shared_ptr<Model>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySkybox", 152, ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySkybox", 168, ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -1995,6 +1997,11 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPathFromAssetName", R
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false);
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<IncludeData>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IncludeData>("IncludeData"), false, false);
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<std::shared_ptr<Material>>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::shared_ptr<Material>>("std::shared_ptr<Material>"), false, false);
@@ -2050,6 +2057,11 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPathFromAssetName", R
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::QueueFamilyProperties>("vk::QueueFamilyProperties"), false, false);
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<std::filesystem::path>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false);
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Fence>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Fence>("vk::Fence"), false, false);
@@ -2098,11 +2110,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPathFromAssetName", R
 	Type* currentClass = ReflectionSystem::GetMutableType<List<const Method *>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<const Method>("const Method"), true, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<std::filesystem::path>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<ContentBrowserItem>>();
@@ -2222,11 +2229,11 @@ Method& currentMethod = currentClass->AddMethod(Method("OnAssetRemoved", Reflect
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 JsonAsset* instance = static_cast<JsonAsset*>(inInstance);
-static thread_local bool result = instance->CanAssetBeCached();
+static thread_local bool result = instance->IsCacheValid();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("CanAssetBeCached", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("IsCacheValid", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -2392,48 +2399,88 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDepthWriteEnabled", R
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<IncludeData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myIncludePath", offsetof(IncludeData, myIncludePath), ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLastWriteTime", offsetof(IncludeData, myLastWriteTime), ReflectionSystem::GetOrCreateType<std::chrono::time_point<std::filesystem::_File_time_clock>>("std::chrono::time_point<std::filesystem::_File_time_clock>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCallbackHandle", offsetof(IncludeData, myCallbackHandle), ReflectionSystem::GetOrCreateType<Filewatcher::CallbackHandle>("Filewatcher::CallbackHandle"), false, false));
+	}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<Shader>();
 	{
-		Field& currentField = currentClass->AddField(Field("OnShaderRecompiled", 64, ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
+		Field& currentField = currentClass->AddField(Field("OnShaderRecompiled", offsetof(Shader, OnShaderRecompiled), ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myShaderModule", 168, ReflectionSystem::GetOrCreateType<vk::ShaderModule>("vk::ShaderModule"), false, false));
+		Field& currentField = currentClass->AddField(Field("myShaderModule", offsetof(Shader, myShaderModule), ReflectionSystem::GetOrCreateType<vk::ShaderModule>("vk::ShaderModule"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCallbackHandle", 176, ReflectionSystem::GetOrCreateType<Filewatcher::CallbackHandle>("Filewatcher::CallbackHandle"), false, false));
+		Field& currentField = currentClass->AddField(Field("myCallbackHandle", offsetof(Shader, myCallbackHandle), ReflectionSystem::GetOrCreateType<Filewatcher::CallbackHandle>("Filewatcher::CallbackHandle"), false, false));
 	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
+	{
+		Field& currentField = currentClass->AddField(Field("myShaderBinary", offsetof(Shader, myShaderBinary), ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIncludes", offsetof(Shader, myIncludes), ReflectionSystem::GetOrCreateType<List<IncludeData>>("List<IncludeData>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset2>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Shader* instance = static_cast<Shader*>(inInstance);
-const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
-static thread_local Coroutine<void, void, false> result = instance->Load(arg0);
+instance->LoadPropertiesFromSource();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("LoadPropertiesFromSource", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Shader* instance = static_cast<Shader*>(inInstance);
+instance->PostPropertiesSerialized();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("PostPropertiesSerialized", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Shader* instance = static_cast<Shader*>(inInstance);
+static thread_local bool result = instance->IsExternalAsset();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inPath", ReflectionSystem::GetOrCreateType<const std::filesystem::path>("const std::filesystem::path")));
-Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem::GetOrCreateType<Coroutine<void, void, false>>("Coroutine<void, void, false>"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("IsExternalAsset", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Shader* instance = static_cast<Shader*>(inInstance);
-instance->Unload();
-return nullptr;
+static thread_local bool result = instance->IsCacheValid();
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Unload", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("IsCacheValid", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Shader* instance = static_cast<Shader*>(inInstance);
-instance->Compile();
+instance->Recompile();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Compile", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("Recompile", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -5390,6 +5437,16 @@ Method& currentMethod = currentClass->AddMethod(Method("FlushChanges", Reflectio
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Filewatcher::CallbackHandle* instance = static_cast<Filewatcher::CallbackHandle*>(inInstance);
+static thread_local bool result = instance->IsValid();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsValid", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Filewatcher::CallbackHandle* instance = static_cast<Filewatcher::CallbackHandle*>(inInstance);
 const Filewatcher::CallbackHandle & arg0 = *(const Filewatcher::CallbackHandle*)inArguments[0];
 static thread_local bool result = instance->operator==(arg0);
 return (void*)&result;
@@ -7230,22 +7287,22 @@ Method& currentMethod = currentClass->AddMethod(Method("AddTemplateArgument", Re
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<DebugPipeline>();
 	{
-		Field& currentField = currentClass->AddField(Field("myVertexShader", 0, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+		Field& currentField = currentClass->AddField(Field("myVertexShader", 0, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFragmentShader", 8, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+		Field& currentField = currentClass->AddField(Field("myFragmentShader", 16, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPipeline", 16, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPipeline", 32, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 24, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 40, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", 32, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
+		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", 48, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", 128, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", 144, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -7263,22 +7320,22 @@ Method& currentMethod = currentClass->AddMethod(Method("AddDrawCommands", Reflec
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<FullscreenPipeline>();
 	{
-		Field& currentField = currentClass->AddField(Field("myVertexShader", 0, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+		Field& currentField = currentClass->AddField(Field("myVertexShader", 0, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFragmentShader", 8, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+		Field& currentField = currentClass->AddField(Field("myFragmentShader", 16, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPipeline", 16, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPipeline", 32, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 24, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 40, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myRenderPass", 32, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
+		Field& currentField = currentClass->AddField(Field("myRenderPass", 48, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDescriptorSet", 40, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDescriptorSet", 56, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -7296,58 +7353,58 @@ Method& currentMethod = currentClass->AddMethod(Method("AddFullscreenPass", Refl
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<GDRPipeline>();
 	{
-		Field& currentField = currentClass->AddField(Field("myPrePassShader", 0, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+		Field& currentField = currentClass->AddField(Field("myPrePassShader", 0, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCullShader", 8, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+		Field& currentField = currentClass->AddField(Field("myCullShader", 16, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCubemap", 16, ReflectionSystem::GetOrCreateType<TextureCube>("TextureCube"), true, false));
+		Field& currentField = currentClass->AddField(Field("myCubemap", 32, ReflectionSystem::GetOrCreateType<TextureCube>("TextureCube"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myIndirectCommandsBuffer", 88, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myIndirectCommandsBuffer", 104, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myIndirectCommandsBufferNoDepth", 96, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myIndirectCommandsBufferNoDepth", 112, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCountBuffer", 104, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myCountBuffer", 120, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCountNoDepthBuffer", 112, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myCountNoDepthBuffer", 128, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPerDrawDataBuffer", 120, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myPerDrawDataBuffer", 136, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPerDrawDataNoDepthBuffer", 128, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myPerDrawDataNoDepthBuffer", 144, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", 136, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
+		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", 152, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFrameNoDepthDescriptorSet", 232, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
+		Field& currentField = currentClass->AddField(Field("myFrameNoDepthDescriptorSet", 248, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 328, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPipelineLayout", 344, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPipeline", 336, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPipeline", 352, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myVertexShader", 344, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+		Field& currentField = currentClass->AddField(Field("myVertexShader", 360, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFragmentShader", 352, ReflectionSystem::GetOrCreateType<Shader>("Shader"), true, false));
+		Field& currentField = currentClass->AddField(Field("myFragmentShader", 376, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", 360, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", 392, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDirectionalLightBuffer", 368, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myDirectionalLightBuffer", 400, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDirtyTransforms", 376, ReflectionSystem::GetOrCreateType<List<TransformComponent *>>("List<TransformComponent *>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDirtyTransforms", 408, ReflectionSystem::GetOrCreateType<List<TransformComponent *>>("List<TransformComponent *>"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -7690,6 +7747,90 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inVertices", ReflectionSystem::GetOrCreateType<const List<Vertex> &>("const List<Vertex> &")));
 Method& currentMethod = currentClass->AddMethod(Method("CalculateSphereBounds", ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), invoker, arguments));
 }
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<MeshData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myBoundingSphereModelSpace", 0, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexIndex", 16, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIndexDataIndex", 20, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 24, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<VertexBufferData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", 0, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<IndexBufferData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", 0, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCount", 4, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<MeshInstanceData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myToWorld", 0, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMeshIndex", 64, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", 68, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormalIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 76, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDepthWriteEnabled", 80, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PerDrawData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myToWorld", 0, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", 64, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormalIndex", 68, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("padding", 76, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PointLightData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myColor", 0, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPosition", 16, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRange", 28, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIntensity", 32, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<TextureSystem>();
@@ -8464,90 +8605,6 @@ arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const T
 arguments.Add(MethodArgument("inSerializer", ReflectionSystem::GetOrCreateType<BinarySerializer *>("BinarySerializer *")));
 Method& currentMethod = currentClass->AddMethod(Method("Serialize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<MeshData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myBoundingSphereModelSpace", 0, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myVertexIndex", 16, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIndexDataIndex", 20, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 24, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<VertexBufferData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myOffset", 0, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<IndexBufferData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myOffset", 0, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCount", 4, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<MeshInstanceData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myToWorld", 0, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMeshIndex", 64, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", 68, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNormalIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 76, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDepthWriteEnabled", 80, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PerDrawData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myToWorld", 0, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", 64, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNormalIndex", 68, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMaterialIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("padding", 76, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PointLightData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myColor", 0, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPosition", 16, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRange", 28, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIntensity", 32, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<System>();
@@ -10044,6 +10101,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPhysicalDevice", Refl
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<VulkanShaderIncluder>();
+	{
+		Field& currentField = currentClass->AddField(Field("myExternalIncludePaths", 32, ReflectionSystem::GetOrCreateType<const List<std::filesystem::path>>("const List<std::filesystem::path>"), false, false));
+	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<shaderc::CompileOptions::IncluderInterface>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -10084,6 +10144,18 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetIncludedFiles", ReflectionSystem::GetOrCreateType<List<std::filesystem::path>>("List<std::filesystem::path>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanShaderIncluder* instance = static_cast<VulkanShaderIncluder*>(inInstance);
+const char * arg0 = (const char*)inArguments[0];
+static thread_local std::filesystem::path result = instance->ResolvePath(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inRequestedSource", ReflectionSystem::GetOrCreateType<const char *>("const char *")));
+Method& currentMethod = currentClass->AddMethod(Method("ResolvePath", ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), invoker, arguments));
 }
 }
 { 

@@ -6,7 +6,7 @@ class Texture;
 class Material : public Asset2
 {
 public:
-	virtual constexpr bool IsExternalAsset() override { return false; }
+	virtual constexpr bool IsExternalAsset() const override { return false; }
 	
 	SharedPtr<Texture> GetAlbedo() const;
 	SharedPtr<Texture> GetNormal() const;

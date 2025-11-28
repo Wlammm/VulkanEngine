@@ -21,36 +21,17 @@ shaderc_shader_kind GetKindFromExtension(const std::string& inExtension)
     return shaderc_vertex_shader;
 }
 
-Coroutine<void, void, false> Shader::Load(const std::filesystem::path inPath)
+Shader::~Shader()
 {
-    ZoneScoped;
-    std::filesystem::path path = "../Engine/Engine/Shaders/";
-    path += inPath;
-    myPath = path;
-    if (!std::filesystem::exists(myPath))
-    {
-        LOG_ERROR("SHADER COMPILE ERROR [%s]: FILE DOES NOT EXISTS.", myPath.filename().string().c_str());
-        co_return;
-    }
-
-    Compile();
+    if (IsValid())
+        VulkanContext::GetDevice()->destroyShaderModule(myShaderModule);
 }
 
-void Shader::Unload()
+void Shader::LoadPropertiesFromSource()
 {
-    VulkanContext::GetDevice()->destroyShaderModule(myShaderModule);
-}
-
-void Shader::Compile()
-{
-    ZoneScoped;
-    if (!std::filesystem::exists(myPath))
-    {
-        LOG_ERROR("SHADER COMPILE ERROR [%s]: FILE DOES NOT EXISTS.", myPath.filename().string().c_str());
-        return;
-    }
-
-    std::ifstream stream(myPath);
+    Asset2::LoadPropertiesFromSource();
+    
+    std::ifstream stream(GetSourcePath());
     std::stringstream ss;
     ss << stream.rdbuf();
     stream.close();
@@ -68,26 +49,59 @@ void Shader::Compile()
     VulkanShaderIncluder* includer = uniqueIncluder.get();
     options.SetIncluder(std::move(uniqueIncluder));
 	
-    shaderc::SpvCompilationResult result = compiler.CompileGlslToSpv(shaderSource, GetKindFromExtension(myPath.extension().string()), myPath.filename().string().c_str(), options);
+    shaderc::SpvCompilationResult result = compiler.CompileGlslToSpv(shaderSource, GetKindFromExtension(GetSourcePath().extension().string()), GetSourcePath().filename().string().c_str(), options);
 
     if (result.GetCompilationStatus() != shaderc_compilation_status_success)
     {
-        LOG_ERROR("SHADER COMPILE ERROR [%s]: ", myPath.filename().string().c_str());
+        LOG_ERROR("SHADER COMPILE ERROR [%s]: ", GetSourcePath().filename().string().c_str());
         LOG_ERROR("%s", result.GetErrorMessage().c_str());
 
         // Throw error if we dont already have a valid shader module from previously.
         check(myShaderModule);
         return;
     }
+    
+    // TODO: Maybe we should add support for iterator initialization to lists so we dont have to do this extra copy.
+    myShaderBinary = std::vector<uint32_t>{result.cbegin(), result.cend() };
+    
+    myIncludes.Clear();
+    for (const SourcePath& includePath : includer->GetIncludedFiles())
+    {
+        myIncludes.Add({includePath, std::filesystem::last_write_time(includePath) });
+    }
+}
 
+void Shader::PostPropertiesSerialized()
+{
+    Asset2::PostPropertiesSerialized();
+    
     // Recreate filewatcher callbacks incase we have new includes.
     RemoveFilewatcherCallbacks();
-    CreateFilewatcherCallbacks(includer->GetIncludedFiles());
+    CreateFilewatcherCallbacks(myIncludes);
 
-    std::vector<uint32_t> binary = { result.cbegin(), result.cend() };
-    InitFromBinary(binary);
+    InitFromBinary(myShaderBinary);
 
     OnShaderRecompiled();
+}
+
+bool Shader::IsCacheValid() const
+{
+    // Check if any included files has been modified as that forces us to recompile the shader also.
+    for (const IncludeData& includeFile : myIncludes)
+    {
+        std::filesystem::file_time_type sourceWriteTime = std::filesystem::last_write_time(includeFile.myIncludePath);
+        
+        if (includeFile.myLastWriteTime != sourceWriteTime)
+            return false;
+    }
+    
+    return Asset2::IsCacheValid();
+}
+
+void Shader::Recompile()
+{
+    LoadPropertiesFromSource();
+    PostPropertiesSerialized();
 }
 
 vk::ShaderModule Shader::GetAPIResource() const
@@ -95,42 +109,27 @@ vk::ShaderModule Shader::GetAPIResource() const
     return myShaderModule;
 }
 
-void Shader::CreateFilewatcherCallbacks(const List<std::filesystem::path>& inIncludePaths)
+void Shader::CreateFilewatcherCallbacks(const List<IncludeData>& inIncludePaths)
 {
-    myCallbackHandle = Engine::GetFilewatcher().InsertWatch_TS(myPath, std::bind(&Shader::Compile, this));
+    myCallbackHandle = Engine::GetFilewatcher().InsertWatch_TS(GetSourcePath(), std::bind(&Shader::Recompile, this));
 
-    for(const std::filesystem::path& path : inIncludePaths)
+    for(IncludeData& includeData : inIncludePaths)
     {
-        IncludeFileData& data = myIncludeFiles.Emplace();
-        data.myPath = path;
-        data.myCallbackHandle = Engine::GetFilewatcher().InsertWatch_TS(path, std::bind(&Shader::Compile, this));
+        includeData.myCallbackHandle = Engine::GetFilewatcher().InsertWatch_TS(includeData.myIncludePath, std::bind(&Shader::Recompile, this));
     }
 }
 
 void Shader::RemoveFilewatcherCallbacks()
 {
-    Engine::GetFilewatcher().RemoveWatch_TS(myPath, myCallbackHandle);
-    for(const IncludeFileData& data : myIncludeFiles)
+    Engine::GetFilewatcher().RemoveWatch_TS(GetSourcePath(), myCallbackHandle);
+    for(const IncludeData& data : myIncludes)
     {
-        Engine::GetFilewatcher().RemoveWatch_TS(data.myPath, data.myCallbackHandle);
+        if (data.myCallbackHandle.IsValid())
+            Engine::GetFilewatcher().RemoveWatch_TS(data.myIncludePath, data.myCallbackHandle);
     }
-    myIncludeFiles.Clear();
 }
 
-void Shader::InitFromFile()
-{
-    ZoneScoped;
-    const std::filesystem::path path = "CompiledShaders/" + myPath.string() + ".spv";
-    check(std::filesystem::exists(path) && "Invalid path");
-
-    std::ifstream stream(path, std::ios::binary);
-    std::string data = { std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>() };
-    stream.close();
-
-    check(false);
-}
-
-void Shader::InitFromBinary(const std::vector<uint32_t>& inData)
+void Shader::InitFromBinary(const List<uint32_t>& inData)
 {
     ZoneScoped;
 
@@ -146,7 +145,7 @@ void Shader::InitFromBinary(const std::vector<uint32_t>& inData)
 #if DEBUG
     VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
                                                            .setObjectHandle(VulkanContext::GetVulkanHandle(myShaderModule))
-                                                           .setPObjectName(myPath.string().c_str())
+                                                           .setPObjectName(GetSourcePath().string().c_str())
                                                            .setObjectType(vk::ObjectType::eShaderModule));
 #endif    
 }

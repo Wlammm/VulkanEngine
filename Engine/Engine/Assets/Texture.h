@@ -30,7 +30,7 @@ public:
     
     void PostPropertiesSerialized() override;
 
-    virtual constexpr bool IsExternalAsset() override { return true; }
+    virtual constexpr bool IsExternalAsset() const override { return true; }
     
     VulkanImage* GetImage() const;
     vk::ImageView GetImageView() const;
