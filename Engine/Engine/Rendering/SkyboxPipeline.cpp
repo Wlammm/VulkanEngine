@@ -6,7 +6,6 @@
 #include "Mesh.h"
 #include "TextureSystem.h"
 #include "VertexBufferSystem.h"
-#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Model.h"
 #include "Engine/Assets/Shader.h"

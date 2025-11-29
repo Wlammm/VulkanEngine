@@ -3,8 +3,8 @@
 
 #include "Engine/Engine.h"
 #include "TransformComponent.h"
-#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/AssetUtils.h"
 #include "Engine/Assets/Material.h"
 #include "Engine/Assets/Model.h"
 #include "Engine/Assets/Texture.h"
@@ -51,9 +51,9 @@ void StaticMeshComponent::SetModel(SharedPtr<Model> inModel)
     for(int meshIndex = 0; meshIndex < myModel->GetMeshes().size(); meshIndex++)
     {
         const Mesh* mesh = myModel->GetMeshes()[meshIndex];
-        std::filesystem::path albedoPath = AssetRegistry::GetPathFromAssetName(mesh->GetAlbedoPath());
-        std::filesystem::path normalPath = AssetRegistry::GetPathFromAssetName(mesh->GetNormalPath());
-        std::filesystem::path materialPath = AssetRegistry::GetPathFromAssetName(mesh->GetMaterialPath());
+        std::filesystem::path albedoPath = AssetUtils::GetSourcePathFromAssetName(mesh->GetAlbedoPath());
+        std::filesystem::path normalPath = AssetUtils::GetSourcePathFromAssetName(mesh->GetNormalPath());
+        std::filesystem::path materialPath = AssetUtils::GetSourcePathFromAssetName(mesh->GetMaterialPath());
 
         if(std::filesystem::exists(albedoPath) && std::filesystem::exists(normalPath) && std::filesystem::exists(materialPath))
         {

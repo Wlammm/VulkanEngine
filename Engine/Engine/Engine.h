@@ -34,7 +34,6 @@ public:
 
 	static const EngineProperties& GetEngineProperties();
 	static const class WindowHandler& GetWindowHandler();
-	static class AssetRegistry& GetAssetRegistry();
 	static class ThreadPool& GetThreadPool();
 	static class Filewatcher& GetFilewatcher();
 
@@ -74,9 +73,6 @@ private:
 	UniquePtr<Filewatcher> myFilewatcher = nullptr;
 	UniquePtr<WindowHandler> myWindowHandler = nullptr;
 	UniquePtr<class VulkanContext> myVulkanContext = nullptr;
-
-	// This asset registry holds engine related data. If you need a game resource, use the worlds asset registry instead.
-	UniquePtr<AssetRegistry> myAssetRegistry = nullptr;
 
 	SharedPtr<World> myWorld = nullptr;
 

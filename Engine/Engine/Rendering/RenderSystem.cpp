@@ -8,11 +8,8 @@
 #include "IndexBufferSystem.h"
 #include "SkyboxPipeline.h"
 #include "VertexBufferSystem.h"
-#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Shader.h"
-#include "Engine/Components/StaticMeshComponent.h"
-#include "Engine/Core/Input.h"
 #include "Engine/Systems/PointLightSystem.h"
 #include "Engine/Vulkan/VulkanCommandBuffer.h"
 #include "Engine/Vulkan/VulkanContext.h"
@@ -21,7 +18,6 @@
 #include "Engine/Vulkan/VulkanImGui.h"
 #include "Engine/Vulkan/VulkanPhysicalDevice.h"
 #include "Engine/Vulkan/VulkanSwapChain.h"
-#include "Engine/World/World.h"
 
 RenderSystem::RenderSystem()
 {

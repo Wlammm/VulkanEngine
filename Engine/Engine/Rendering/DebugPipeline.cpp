@@ -2,7 +2,6 @@
 #include "DebugPipeline.h"
 
 #include "Engine/Engine.h"
-#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Shader.h"
 #include "Engine/Components/CameraComponent.h"

@@ -5,10 +5,8 @@
 #include <PxScene.h>
 
 #include "Engine/Engine.h"
-#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Components/DirectionalLightComponent.h"
 #include "Engine/Components/PointLightComponent.h"
-#include "Engine/Components/StaticMeshComponent.h"
 #include "Engine/Components/TransformComponent.h"
 #include "Engine/ComponentSystem/Actor.h"
 #include "Engine/ComponentSystem/GameObjectTag.hpp"
@@ -23,7 +21,6 @@
 
 World::World()
 {
-	myAssetRegistry = MakeUnique<AssetRegistry>();
 	mySystemManager = MakeUnique<SystemManager<WorldSystem>>();
 	CreateWorldSystems();
 
@@ -35,7 +32,6 @@ World::World()
 World::~World()
 {
 	mySystemManager.Reset();
-	myAssetRegistry.Reset();
 }
 
 void World::Init()
@@ -234,11 +230,6 @@ void World::RemoveAllActors()
 const List<UniquePtr<Actor>>& World::GetAllActors() const
 {
 	return myActors;
-}
-
-AssetRegistry& World::GetAssetRegistry() const
-{
-	return *myAssetRegistry;
 }
 
 void World::OnTriggerEnter(Actor* inFirst, Actor* inOther)

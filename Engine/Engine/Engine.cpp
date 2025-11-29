@@ -9,8 +9,8 @@
 #include "Vulkan/VulkanSwapChain.h"
 
 #include "World/World.h"
-#include "AssetRegistry/AssetRegistry.h"
 #include "AssetRegistry/AssetRegistry2.h"
+#include "AssetRegistry/AssetUtils.h"
 #include "Core/ThreadPool.h"
 #include "Core/Filewatcher.h"
 #include "Utils/ThreadUtils.hpp"
@@ -18,7 +18,6 @@
 #include "Tracy/tracy/Tracy.hpp"
 #include "Core/AutoInitManager.h"
 #include "Physics/PhysicsSystem.h"
-#include "Reflection/ReflectionSystem.h"
 #include "Rendering/IndexBufferSystem.h"
 #include "Rendering/MeshSystem.h"
 #include "Rendering/RenderSystem.h"
@@ -28,7 +27,6 @@
 #include "Systems/PointLightSystem.h"
 #include "Vulkan/GPUSceneSystem.h"
 #include "Vulkan/Staging/StagingSystem.h"
-#include "World/GameWorld.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -48,7 +46,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 		__debugbreak();
 	}
 
-	AssetRegistry::ScanAssetsFolder();
+	AssetUtils::ScanAssetDirectory();
 	
 	PhysicsSystem::CreateStaticObjects();
 
@@ -58,7 +56,6 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	myFilewatcher = MakeUnique<Filewatcher>();
 	myWindowHandler = MakeUnique<WindowHandler>();
 	myVulkanContext = MakeUnique<VulkanContext>();
-	myAssetRegistry = MakeUnique<AssetRegistry>();
 	mySystemManager = MakeUnique<SystemManager<System>>();
 	CreateSystems();
 
@@ -71,7 +68,6 @@ Engine::~Engine()
 {
 	myWorld.reset();
 	mySystemManager.Reset();
-	myAssetRegistry.Reset();
 	myVulkanContext.Reset();
 	myWindowHandler.Reset();
 	myFilewatcher.Reset();
@@ -167,11 +163,6 @@ const EngineProperties& Engine::GetEngineProperties()
 const WindowHandler& Engine::GetWindowHandler()
 {
 	return *myInstance->myWindowHandler;
-}
-
-AssetRegistry& Engine::GetAssetRegistry()
-{
-	return *myInstance->myAssetRegistry;
 }
 
 ThreadPool& Engine::GetThreadPool()

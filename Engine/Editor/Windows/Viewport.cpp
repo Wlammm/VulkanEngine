@@ -1,6 +1,7 @@
 #include "EditorPch.h"
 #include "Viewport.h"
 
+#include "Editor.h"
 #include "Actors/EditorCameraActor.h"
 #include "EditorSystem/SelectionSystem.h"
 #include "Engine/Vulkan/VulkanContext.h"

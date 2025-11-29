@@ -52,8 +52,6 @@ public:
 
     const List<UniquePtr<Actor>>& GetAllActors() const;
 
-    class AssetRegistry& GetAssetRegistry() const;
-
     void OnTriggerEnter(Actor* inFirst, Actor* inOther);
     void OnTrigger(Actor* inFirst, Actor* inOther);
     void OnTriggerExit(Actor* inFirst, Actor* inOther);
@@ -61,10 +59,10 @@ public:
     void OnCollisionEnter(Actor* inFirst, Actor* inOther);
     void OnCollision(Actor* inFirst, Actor* inOther);
     void OnCollisionExit(Actor* inFirst, Actor* inOther);
-    
+
     DirectionalLightComponent* GetDirectionalLight() const;
 
-    template<typename ActorType>
+    template <typename ActorType>
     ActorType* FindActorOfType() const
     {
         for (const UniquePtr<Actor>& actor : myActors)
@@ -74,7 +72,7 @@ public:
         }
         return nullptr;
     }
-    
+
     template <typename SystemType>
     SystemType& GetWorldSystem() const
     {
@@ -90,7 +88,6 @@ private:
     void TickActorDeletes();
 
 protected:
-    UniquePtr<class AssetRegistry> myAssetRegistry = nullptr;
     UniquePtr<SystemManager<WorldSystem>> mySystemManager = nullptr;
 
     META(SerializeField)

@@ -1,6 +1,4 @@
 ﻿#pragma once
-#include "Editor/Editor.h"
-#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Assets/Texture.h"
 #include "Engine/Vulkan/VulkanDescriptorSet.h"
 #include "Engine/Vulkan/VulkanImage.h"

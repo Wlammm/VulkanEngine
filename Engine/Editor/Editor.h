@@ -12,8 +12,6 @@ public:
 
 	static void StaticTick();
 
-	static AssetRegistry* GetAssetRegistry();
-	
 	static void RemoveWindow(class EditorWindow* inEditorWindow, const bool inIsShutdown = false);
 
 	void SetGameTickFunction(const Delegate<void()>& inTickFunction);
@@ -59,8 +57,6 @@ private:
 	int myNextID = 1;
 
 	Delegate<void()> myGameTickFunction;
-
-	AssetRegistry* myAssetRegistry = nullptr;
 
 	bool myIsPIE = false;
 	

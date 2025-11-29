@@ -1,9 +1,6 @@
 ﻿#pragma once
 #include <coroutine>
 
-#include "Engine/AssetRegistry/AssetRegistry.h"
-#include "Engine/AssetRegistry/AssetRegistry2.h"
-
 class Awaitable
 {
 public:
@@ -51,64 +48,4 @@ namespace Awaitables
     private:
         float mySeconds;
     };
-    
-    template<typename AssetType>
-    class WaitForAsset2 : public Awaitable
-    {
-    public:
-        WaitForAsset2(const SourcePath& inSourcePath, SharedPtr<AssetType>& outAsset)
-            : myOutAssetPointer(outAsset)
-        {
-            mySourcePath = inSourcePath;
-        }
-        
-        void OnAwait(std::coroutine_handle<> inCoroutineHandle) override
-        {
-            myOutAssetPointer = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<AssetType>(mySourcePath);
-            inCoroutineHandle.resume();
-        }
-        
-    private:
-        SourcePath mySourcePath;
-        SharedPtr<AssetType>& myOutAssetPointer;
-    };
-
-    template<typename AssetType>
-    class WaitForAsset : public Awaitable
-    {
-    public:
-        WaitForAsset(const std::filesystem::path inPath, AssetRegistry* inAssetRegistry, AssetType*& outAsset)
-            : myOutAsset{ outAsset }
-        {
-            myPath = inPath;
-            myAssetRegistry = inAssetRegistry;
-            myContinueOnMainThread = ThreadUtils::IsOnMainThread();
-        }
-
-        void OnAwait(std::coroutine_handle<> inCoroutineHandle) override
-        {
-            myAssetRegistry->GetAssetAsync<AssetType>(myPath, [inCoroutineHandle, this](AssetType* inAsset)
-            {
-                myOutAsset = inAsset;
-                if(myContinueOnMainThread)
-                {
-                    inCoroutineHandle.resume();
-                }
-                else
-                {
-                    Engine::GetThreadPool().QueueTask([inCoroutineHandle]()
-                    {
-                        inCoroutineHandle.resume();
-                    });
-                }
-            });
-        }
-
-    private:
-        std::filesystem::path myPath;
-        AssetRegistry* myAssetRegistry = nullptr;
-        AssetType*& myOutAsset;
-        bool myContinueOnMainThread = false;
-    };
-
 }

@@ -13,7 +13,8 @@ class AssetRegistry2 : public System
 {
     inline static AssetRegistry2* mySingleton;
 public:
-    static AssetRegistry2* Get() { return mySingleton;}
+    static AssetRegistry2* Get() { return mySingleton; }
+    
     AssetRegistry2();
     ~AssetRegistry2() override;
     
@@ -22,17 +23,6 @@ public:
     {
         const Type* type = ReflectionSystem::GetType<AssetType>();
         return std::static_pointer_cast<AssetType>(GetAsset(inSourcePath, type));
-        /*
-        SharedPtr<AssetType> asset = std::static_pointer_cast<AssetType>(TryGetLoadedAsset(inSourcePath));
-        if (asset != nullptr)
-            return asset;
-
-        if constexpr (AssetType::IsExternalAsset())
-            asset = LoadExternalAsset<AssetType>(inSourcePath);
-        else
-            asset = LoadInternalAsset<AssetType>(inSourcePath);
-        return asset;
-        */
     }
     
     SharedPtr<Asset2> GetAsset(const SourcePath& inSourcePath, const Type* inType)

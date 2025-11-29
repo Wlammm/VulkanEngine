@@ -1,12 +1,10 @@
 #include "EnginePch.h"
 #include "FullscreenPipeline.h"
 #include "Engine/Engine.h"
-#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/AssetRegistry/AssetRegistry2.h"
 #include "Engine/Assets/Shader.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
-#include "Engine/Vulkan/VulkanPhysicalDevice.h"
 #include "Engine/Vulkan/VulkanUtils.hpp"
 
 FullscreenPipeline::FullscreenPipeline(SharedPtr<Shader> inFragmentShader, VulkanImage* inSource, vk::RenderPass inRenderPass)

@@ -1,28 +1,7 @@
 ﻿#include "EnginePch.h"
-#include "AssetRegistry.h"
+#include "AssetUtils.h"
 
-#include "Asset.h"
-#include "Engine/Engine.h"
-#include "Engine/Core/ThreadPool.h"
-
-AssetRegistry::AssetRegistry()
-{
-    
-}
-
-AssetRegistry::~AssetRegistry()
-{
-    myMutex.lock();
-
-    for(const UniquePtr<IAssetContainer>& container : myContainers)
-    {
-        container->UnloadAllAssets();
-    }
-    
-    myMutex.unlock();
-}
-
-void AssetRegistry::ScanAssetsFolder()
+void AssetUtils::ScanAssetDirectory()
 {
     for(const std::filesystem::path& path : std::filesystem::recursive_directory_iterator("./"))
     {
@@ -36,7 +15,7 @@ void AssetRegistry::ScanAssetsFolder()
     LOG("AssetRegistry - Scanned %i files", myFilenameToPathLUT.size());
 }
 
-std::filesystem::path AssetRegistry::GetPathFromAssetName(const std::string& inAssetName)
+SourcePath AssetUtils::GetSourcePathFromAssetName(const std::string& inAssetName)
 {
     if(inAssetName == "")
         return "";
