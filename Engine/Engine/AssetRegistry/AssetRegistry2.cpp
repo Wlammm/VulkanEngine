@@ -22,7 +22,6 @@ CachePath AssetRegistry2::SourceToCachePath(const SourcePath& inSourcePath) cons
 void AssetRegistry2::OnAssetRemoved(Asset2* inAsset)
 {
     std::scoped_lock lock(myMutex);
-    LOG("Locked in AssetRegistry2::OnAssetRemoved");
     myLoadedAssets.erase(inAsset->GetSourcePath());
 }
 
@@ -32,7 +31,6 @@ void AssetRegistry2::AddLoadedAsset(SharedPtr<Asset2> inAsset)
     inAsset->SetAssetRegistry(this);
     
     std::scoped_lock lock(myMutex);
-    LOG("Locked in AssetRegistry2::AddLoadedAsset");
 
     myLoadedAssets.insert({ inAsset->GetSourcePath(), inAsset });
 }

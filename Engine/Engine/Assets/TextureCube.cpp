@@ -15,13 +15,32 @@
 // TODO: Do we need full 32 bit resolution here? 
 const vk::Format IMAGE_FORMAT = vk::Format::eR32G32B32A32Sfloat;
 
-Coroutine<void, void, false> TextureCube::Load(const std::filesystem::path inPath)
+TextureCube::~TextureCube()
 {
-    int width, height, numComponents;
-    float* data = stbi_loadf(inPath.string().c_str(), &width, &height, &numComponents, 0);
+    if (!IsValid())
+        return;
+    
+    TextureSystem::RemoveTextureCube_TS(this);
+    VulkanAllocator::DestroyImage_TS(myImage);
+    myImage = nullptr;
+}
 
+void TextureCube::LoadPropertiesFromSource()
+{
+    Asset2::LoadPropertiesFromSource();
+    
+    float* data = stbi_loadf(GetSourcePath().string().c_str(), &myImageData.myWidth, &myImageData.myHeight, &myImageData.myChannels, 0);
+    myImageData.myPixelData.Resize(myImageData.myWidth * myImageData.myHeight * 4);
+    memcpy(myImageData.myPixelData.data(), data, myImageData.myPixelData.size());
+    stbi_image_free(data);
+}
+
+void TextureCube::PostPropertiesSerialized()
+{
+    Asset2::PostPropertiesSerialized();
+    
     vk::BufferCreateInfo stagingCreateInfo = vk::BufferCreateInfo()
-            .setSize(sizeof(float) * width * height * numComponents)
+            .setSize(sizeof(float) * myImageData.myWidth * myImageData.myHeight * myImageData.myChannels)
             .setUsage(vk::BufferUsageFlagBits::eTransferSrc)
             .setSharingMode(vk::SharingMode::eExclusive);
     VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("Texture staging buffer", stagingCreateInfo, VMA_MEMORY_USAGE_AUTO, true);
@@ -29,7 +48,7 @@ Coroutine<void, void, false> TextureCube::Load(const std::filesystem::path inPat
     vk::ImageCreateInfo createInfo = vk::ImageCreateInfo()
         .setImageType(vk::ImageType::e2D)
         .setFormat(IMAGE_FORMAT)
-        .setExtent({ static_cast<uint32_t>(width), static_cast<uint32_t>(height), 1 })
+        .setExtent({ static_cast<uint32_t>(myImageData.myWidth), static_cast<uint32_t>(myImageData.myHeight), 1 })
         .setMipLevels(1)
         .setArrayLayers(1)
         .setSamples(vk::SampleCountFlagBits::e1)
@@ -38,13 +57,13 @@ Coroutine<void, void, false> TextureCube::Load(const std::filesystem::path inPat
         .setSharingMode(vk::SharingMode::eExclusive)
         .setInitialLayout(vk::ImageLayout::eUndefined);
 
-    std::string imageName = "TextureCube - " + inPath.string();
+    std::string imageName = "TextureCube - " + GetSourcePath().string();
     myImage = VulkanAllocator::AllocateImage_TS(imageName, createInfo, VMA_MEMORY_USAGE_AUTO);
 
 #if DEBUG
     VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
                                                            .setObjectHandle(VulkanContext::GetVulkanHandle(myImage->GetAPIResource()))
-                                                           .setPObjectName(inPath.string().c_str())
+                                                           .setPObjectName(GetSourcePath().string().c_str())
                                                            .setObjectType(vk::ObjectType::eImage));
 #endif
 
@@ -76,8 +95,8 @@ Coroutine<void, void, false> TextureCube::Load(const std::filesystem::path inPat
         .setBaseArrayLayer(0)
         .setLayerCount(1);
     bufferCopyRegion.imageExtent
-        .setWidth(width)
-        .setHeight(height)
+        .setWidth(myImageData.myWidth)
+        .setHeight(myImageData.myHeight)
         .setDepth(1);
     bufferCopyRegion.setBufferOffset(0);
 	
@@ -86,15 +105,6 @@ Coroutine<void, void, false> TextureCube::Load(const std::filesystem::path inPat
 	VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 
     TextureSystem::RegisterTextureCube_TS(this);
-    
-    co_return;
-}
-
-void TextureCube::Unload()
-{
-    TextureSystem::RemoveTextureCube_TS(this);
-    VulkanAllocator::DestroyImage_TS(myImage);
-    myImage = nullptr;
 }
 
 vk::ImageView TextureCube::GetImageView() const

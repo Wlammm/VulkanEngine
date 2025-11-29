@@ -263,6 +263,7 @@ ReflectionSystem::AddType<List<SerializationMeshData>>("List<SerializationMeshDa
 ReflectionSystem::AddType<List<Filewatcher::CallbackHandle>>("List<Filewatcher::CallbackHandle>", typeid(List<Filewatcher::CallbackHandle>).name());
 ReflectionSystem::AddType<List<std::function<void ()>>>("List<std::function<void ()>>", typeid(List<std::function<void ()>>).name());
 ReflectionSystem::AddType<List<IncludeData>>("List<IncludeData>", typeid(List<IncludeData>).name());
+ReflectionSystem::AddType<List<float>>("List<float>", typeid(List<float>).name());
 ReflectionSystem::AddType<List<std::shared_ptr<Material>>>("List<std::shared_ptr<Material>>", typeid(List<std::shared_ptr<Material>>).name());
 ReflectionSystem::AddType<List<TransformComponent *>>("List<TransformComponent *>", typeid(List<TransformComponent *>).name());
 ReflectionSystem::AddType<List<Component *>>("List<Component *>", typeid(List<Component *>).name());
@@ -296,6 +297,7 @@ ReflectionSystem::AddType<MethodArgument>("MethodArgument", typeid(MethodArgumen
 ReflectionSystem::AddType<Method>("Method", typeid(Method).name());
 ReflectionSystem::AddType<ImageData>("ImageData", typeid(ImageData).name());
 ReflectionSystem::AddType<Texture>("Texture", typeid(Texture).name());
+ReflectionSystem::AddType<ImageCubeData>("ImageCubeData", typeid(ImageCubeData).name());
 ReflectionSystem::AddType<TextureCube>("TextureCube", typeid(TextureCube).name());
 ReflectionSystem::AddType<Actor>("Actor", typeid(Actor).name());
 ReflectionSystem::AddType<DirectionalLightActor>("DirectionalLightActor", typeid(DirectionalLightActor).name());
@@ -2002,6 +2004,11 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPathFromAssetName", R
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IncludeData>("IncludeData"), false, false);
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<float>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<float>("float"), false, false);
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<std::shared_ptr<Material>>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::shared_ptr<Material>>("std::shared_ptr<Material>"), false, false);
@@ -2682,35 +2689,70 @@ Method& currentMethod = currentClass->AddMethod(Method("GetBindlessIndex", Refle
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<ImageCubeData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myWidth", offsetof(ImageCubeData, myWidth), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myHeight", offsetof(ImageCubeData, myHeight), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myChannels", offsetof(ImageCubeData, myChannels), ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNumMipLevels", offsetof(ImageCubeData, myNumMipLevels), ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPixelData", offsetof(ImageCubeData, myPixelData), ReflectionSystem::GetOrCreateType<List<float>>("List<float>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<TextureCube>();
 	{
-		Field& currentField = currentClass->AddField(Field("myImage", 64, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+		Field& currentField = currentClass->AddField(Field("myImage", offsetof(TextureCube, myImage), ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myBindlessIndex", 72, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		Field& currentField = currentClass->AddField(Field("myBindlessIndex", offsetof(TextureCube, myBindlessIndex), ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
+	{
+		Field& currentField = currentClass->AddField(Field("myImageData", offsetof(TextureCube, myImageData), ReflectionSystem::GetOrCreateType<ImageCubeData>("ImageCubeData"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset2>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TextureCube* instance = static_cast<TextureCube*>(inInstance);
-const std::filesystem::path& arg0 = *(const std::filesystem::path*)inArguments[0];
-static thread_local Coroutine<void, void, false> result = instance->Load(arg0);
+static thread_local bool result = instance->IsExternalAsset();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inPath", ReflectionSystem::GetOrCreateType<const std::filesystem::path>("const std::filesystem::path")));
-Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem::GetOrCreateType<Coroutine<void, void, false>>("Coroutine<void, void, false>"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("IsExternalAsset", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 TextureCube* instance = static_cast<TextureCube*>(inInstance);
-instance->Unload();
+instance->LoadPropertiesFromSource();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Unload", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("LoadPropertiesFromSource", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+TextureCube* instance = static_cast<TextureCube*>(inInstance);
+instance->PostPropertiesSerialized();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("PostPropertiesSerialized", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

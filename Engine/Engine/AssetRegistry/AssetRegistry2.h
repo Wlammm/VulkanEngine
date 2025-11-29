@@ -67,7 +67,7 @@ public:
             
             // Try load cached version.
             BinarySerializer serializer(cachePath, BinarySerializer::Mode::Read);
-            serializer.SerializeType(*asset.get());
+            serializer.SerializeType(asset.get(), ReflectionSystem::GetType(asset.get()), false);
             if (!serializer.WasLastTypeSerializationFullyComplete())
                 isCachedFileValid = false;
             serializer.Close();
@@ -103,7 +103,7 @@ public:
         SharedPtr<Asset2> asset = inType->CreateSharedPtr<Asset2>();
         
         BinarySerializer serializer(inSourcePath, BinarySerializer::Mode::Read);
-        serializer.SerializeType(*asset.get());
+        serializer.SerializeType(asset.get(), ReflectionSystem::GetType(asset.get()), false);
 
         if (!serializer.WasLastTypeSerializationFullyComplete())
             LOG_WARNING("LoadInternalAsset: Not all properties was loaded correctly on %s", inSourcePath.string().c_str());
@@ -129,7 +129,6 @@ public:
     SharedPtr<Asset2> TryGetLoadedAsset(const SourcePath& inSourcePath)
     {
         std::scoped_lock lock(myMutex);
-        LOG("Locked in TryGetLoadedAsset");
 
         if (myLoadedAssets.find(inSourcePath) != myLoadedAssets.end())
         {
