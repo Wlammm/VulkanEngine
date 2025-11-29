@@ -3,7 +3,7 @@
 #include "Engine/Engine.h"
 
 #include "Texture.h"
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 
 SharedPtr<Texture> Material::GetAlbedo() const
 {
@@ -27,7 +27,7 @@ void Material::SetAlbedo(SharedPtr<Texture> inTexture)
 
 void Material::SetAlbedo(const SourcePath& inSourcePath)
 {
-	myAlbedoTexture = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>(inSourcePath);
+	myAlbedoTexture = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>(inSourcePath);
 }
 
 void Material::SetNormal(SharedPtr<Texture> inTexture)
@@ -37,7 +37,7 @@ void Material::SetNormal(SharedPtr<Texture> inTexture)
 
 void Material::SetNormal(const SourcePath& inSourcePath)
 {
-	myNormalTexture = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>(inSourcePath);
+	myNormalTexture = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>(inSourcePath);
 }
 
 void Material::SetMaterial(SharedPtr<Texture> inTexture)
@@ -47,7 +47,7 @@ void Material::SetMaterial(SharedPtr<Texture> inTexture)
 
 void Material::SetMaterial(const SourcePath& inSourcePath)
 {
-	myMaterialTexture = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>(inSourcePath);
+	myMaterialTexture = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>(inSourcePath);
 }
 
 bool Material::GetDepthWriteEnabled() const

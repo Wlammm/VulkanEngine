@@ -1,9 +1,9 @@
 #pragma once
-#include "Engine/AssetRegistry/Asset2.h"
+#include "Engine/AssetRegistry/Asset.h"
 
 class Texture;
 
-class Material : public Asset2
+class Material : public Asset
 {
 public:
 	virtual constexpr bool IsExternalAsset() const override { return false; }

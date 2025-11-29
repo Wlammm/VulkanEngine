@@ -1,8 +1,9 @@
 ﻿#include "EnginePch.h"
 #include "TextureSystem.h"
 
+#include "Engine/Engine.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Assets/Texture.h"
 #include "Engine/Assets/TextureCube.h"
 #include "Engine/Vulkan/VulkanContext.h"
@@ -19,7 +20,7 @@ TextureSystem::TextureSystem()
     CreateDescriptorSet();
 
     check(!myMissingMaterialTexture && "This variable is static so make sure we dont create multiple in case we ever create multiple instances of this system.");
-    myMissingMaterialTexture = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("MissingTexture.png");
+    myMissingMaterialTexture = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("MissingTexture.png");
 }
 
 TextureSystem::~TextureSystem()

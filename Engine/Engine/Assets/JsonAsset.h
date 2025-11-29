@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include <nlohmann/json.hpp>
 
-#include "Engine/AssetRegistry/Asset2.h"
+#include "Engine/AssetRegistry/Asset.h"
 
-class JsonAsset : public Asset2
+class JsonAsset : public Asset
 {
 public:
     bool IsCacheValid() const override { return false; };

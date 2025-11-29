@@ -33,7 +33,7 @@ void Texture::LoadPropertiesFromSource()
 {
     ZoneScoped;
 
-    Asset2::LoadPropertiesFromSource();
+    Asset::LoadPropertiesFromSource();
 
     stbi_uc* pixels = stbi_load(GetSourcePath().string().c_str(), &myImageData.myWidth, &myImageData.myHeight, &myImageData.myChannels,
                                 STBI_rgb_alpha);
@@ -50,7 +50,7 @@ void Texture::LoadPropertiesFromSource()
 
 void Texture::PostPropertiesSerialized()
 {
-    Asset2::PostPropertiesSerialized();
+    Asset::PostPropertiesSerialized();
     
      ZoneScoped;
     vk::BufferCreateInfo stagingCreateInfo = vk::BufferCreateInfo()

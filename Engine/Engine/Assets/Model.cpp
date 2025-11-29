@@ -27,7 +27,7 @@ Model::~Model()
 
 void Model::PostPropertiesSerialized()
 {
-	Asset2::PostPropertiesSerialized();
+	Asset::PostPropertiesSerialized();
 
 	for(SerializationMeshData& meshData : myMeshDatas)
 	{
@@ -61,7 +61,7 @@ void Model::PostPropertiesSerialized()
 
 void Model::LoadPropertiesFromSource()
 {
-	Asset2::LoadPropertiesFromSource();
+	Asset::LoadPropertiesFromSource();
 
 	static thread_local Assimp::Importer myImporter{};
 	

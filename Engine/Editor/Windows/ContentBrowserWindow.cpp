@@ -3,7 +3,7 @@
 
 #include "Editor/Utils/ImGuiTextureUtils.h"
 #include "Engine/Engine.h"
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Assets/Texture.h"
 #include "Engine/Core/Input.h"
 #include "Engine/Core/Time.h"
@@ -11,10 +11,10 @@
 ContentBrowserWindow::ContentBrowserWindow()
     : EditorWindow("Content Browser", true)
 {
-	myContentBrowserTextures[FILETYPE_FOLDER] = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("Editor/ContentBrowserIcons/Folder.png");
+	myContentBrowserTextures[FILETYPE_FOLDER] = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/ContentBrowserIcons/Folder.png");
 	myContentBrowserTextureDescriptors[FILETYPE_FOLDER] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_FOLDER]);
 	
-	myContentBrowserTextures[FILETYPE_FILE] = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("Editor/ContentBrowserIcons/File.png");
+	myContentBrowserTextures[FILETYPE_FILE] = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/ContentBrowserIcons/File.png");
 	myContentBrowserTextureDescriptors[FILETYPE_FILE] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_FILE]);
 
 	LoadAllDirectories(myRoot);

@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Engine/AssetRegistry/Asset2.h"
+#include "Engine/AssetRegistry/Asset.h"
 #include "Engine/Core/Filewatcher.h"
 #include "Engine/Delegates/MulticastDelegate.hpp"
 
@@ -15,7 +15,7 @@ struct IncludeData
 };
 
 class VulkanShader;
-class Shader : public Asset2
+class Shader : public Asset
 {
 public:
     ~Shader() override;

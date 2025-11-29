@@ -1,22 +1,22 @@
 ﻿#pragma once
-#include "Asset2.h"
+#include "Asset.h"
 #include "AssetDefines.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 #include "Engine/Reflection/Type.h"
 #include "Engine/Serialization/BinarySerializer.h"
 #include "Engine/System/System.h"
 
-class Asset2;
-class AssetRegistry2;
+class Asset;
+class AssetRegistry;
 
-class AssetRegistry2 : public System
+class AssetRegistry : public System
 {
-    inline static AssetRegistry2* mySingleton;
+    inline static AssetRegistry* mySingleton;
 public:
-    static AssetRegistry2* Get() { return mySingleton; }
+    static AssetRegistry* Get() { return mySingleton; }
     
-    AssetRegistry2();
-    ~AssetRegistry2() override;
+    AssetRegistry();
+    ~AssetRegistry() override;
     
     template<typename AssetType>
     SharedPtr<AssetType> GetAsset(const SourcePath& inSourcePath)
@@ -25,13 +25,13 @@ public:
         return std::static_pointer_cast<AssetType>(GetAsset(inSourcePath, type));
     }
     
-    SharedPtr<Asset2> GetAsset(const SourcePath& inSourcePath, const Type* inType)
+    SharedPtr<Asset> GetAsset(const SourcePath& inSourcePath, const Type* inType)
     {
-        SharedPtr<Asset2> asset = TryGetLoadedAsset(inSourcePath);
+        SharedPtr<Asset> asset = TryGetLoadedAsset(inSourcePath);
         if (asset != nullptr)
             return asset;
 
-        asset = inType->CreateSharedPtr<Asset2>();
+        asset = inType->CreateSharedPtr<Asset>();
         
         if (asset->IsExternalAsset())
         {
@@ -45,9 +45,9 @@ public:
         return asset;
     }
 
-    SharedPtr<Asset2> LoadExternalAsset(const SourcePath& inSourcePath, const Type* inType)
+    SharedPtr<Asset> LoadExternalAsset(const SourcePath& inSourcePath, const Type* inType)
     {
-        SharedPtr<Asset2> asset = inType->CreateSharedPtr<Asset2>();
+        SharedPtr<Asset> asset = inType->CreateSharedPtr<Asset>();
 
         const CachePath cachePath = SourceToCachePath(inSourcePath);
         
@@ -74,7 +74,7 @@ public:
         }
 
         // Cache is not valid. Reset the asset and initialize it from source.
-        asset = inType->CreateSharedPtr<Asset2>();
+        asset = inType->CreateSharedPtr<Asset>();
         
         asset->DoFirstTimeAssetInitialization(inSourcePath);
         asset->LoadPropertiesFromSource();
@@ -85,12 +85,12 @@ public:
         return asset;
     }
     
-    SharedPtr<Asset2> LoadInternalAsset(const SourcePath& inSourcePath, const Type* inType)
+    SharedPtr<Asset> LoadInternalAsset(const SourcePath& inSourcePath, const Type* inType)
     {
         if (!std::filesystem::exists(inSourcePath))
             return nullptr;
             
-        SharedPtr<Asset2> asset = inType->CreateSharedPtr<Asset2>();
+        SharedPtr<Asset> asset = inType->CreateSharedPtr<Asset>();
         
         BinarySerializer serializer(inSourcePath, BinarySerializer::Mode::Read);
         serializer.SerializeType(asset.get(), ReflectionSystem::GetType(asset.get()), false);
@@ -116,13 +116,13 @@ public:
 
     CachePath SourceToCachePath(const SourcePath& inSourcePath) const;
 
-    SharedPtr<Asset2> TryGetLoadedAsset(const SourcePath& inSourcePath)
+    SharedPtr<Asset> TryGetLoadedAsset(const SourcePath& inSourcePath)
     {
         std::scoped_lock lock(myMutex);
 
         if (myLoadedAssets.find(inSourcePath) != myLoadedAssets.end())
         {
-            SharedPtr<Asset2> asset = myLoadedAssets.at(inSourcePath).lock();
+            SharedPtr<Asset> asset = myLoadedAssets.at(inSourcePath).lock();
             check(asset != nullptr);
             return asset;
         }
@@ -137,12 +137,12 @@ public:
         serializer.SerializeType(inAsset.get(), ReflectionSystem::GetType(inAsset.get()), false);
     }
     
-    void OnAssetRemoved(Asset2* inAsset);
+    void OnAssetRemoved(Asset* inAsset);
 
 private:
-    void AddLoadedAsset(SharedPtr<Asset2> inAsset);
+    void AddLoadedAsset(SharedPtr<Asset> inAsset);
 
 private:
     std::mutex myMutex{};
-    std::unordered_map<SourcePath, std::weak_ptr<Asset2>> myLoadedAssets;
+    std::unordered_map<SourcePath, std::weak_ptr<Asset>> myLoadedAssets;
 };

@@ -3,7 +3,7 @@
 
 #include "Engine/Engine.h"
 #include "TransformComponent.h"
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/AssetRegistry/AssetUtils.h"
 #include "Engine/Assets/Material.h"
 #include "Engine/Assets/Model.h"
@@ -27,7 +27,7 @@ void StaticMeshComponent::OnCreate()
 
     if (!myPath.empty())
     {
-        SetModel(Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Model>(myPath));
+        SetModel(Engine::GetEngineSystem<AssetRegistry>().GetAsset<Model>(myPath));
     }
 }
 
@@ -59,14 +59,14 @@ void StaticMeshComponent::SetModel(SharedPtr<Model> inModel)
         {
             const std::string generatedString = GENERATED_MATERIAL_PREFIX + albedoPath.string() + normalPath.string() + materialPath.string();
 
-            if(SharedPtr<Material> material = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Material>(generatedString))
+            if(SharedPtr<Material> material = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Material>(generatedString))
             {
                 myMaterials[meshIndex] = material;
                 MarkRenderStateDirty();
             }
             else
             {
-                SharedPtr<Material> newMaterial = Engine::GetEngineSystem<AssetRegistry2>().CreateNewAsset<Material>(generatedString);
+                SharedPtr<Material> newMaterial = Engine::GetEngineSystem<AssetRegistry>().CreateNewAsset<Material>(generatedString);
                 newMaterial->SetAlbedo(albedoPath);
                 newMaterial->SetNormal(normalPath);
                 newMaterial->SetMaterial(materialPath);
@@ -108,7 +108,7 @@ void StaticMeshComponent::SetMaterial(SharedPtr<Material> inMaterial, const uint
 
 void StaticMeshComponent::SetMaterial(const std::filesystem::path& inMaterialPath, const uint inIndex)
 {
-    SetMaterial(Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Material>(inMaterialPath), inIndex);
+    SetMaterial(Engine::GetEngineSystem<AssetRegistry>().GetAsset<Material>(inMaterialPath), inIndex);
 }
 
 SharedPtr<Material> StaticMeshComponent::GetMaterial(const uint inIndex) const

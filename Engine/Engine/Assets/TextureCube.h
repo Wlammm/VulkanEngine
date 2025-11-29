@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Engine/AssetRegistry/Asset2.h"
+#include "Engine/AssetRegistry/Asset.h"
 
 class VulkanImage;
 
@@ -21,7 +21,7 @@ struct ImageCubeData
     List<float> myPixelData;
 };
 
-class TextureCube : public Asset2
+class TextureCube : public Asset
 {
 public:
     ~TextureCube() override;

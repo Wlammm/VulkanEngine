@@ -1,15 +1,15 @@
 ﻿#include "EnginePch.h"
-#include "Asset2.h"
+#include "Asset.h"
 
-#include "AssetRegistry2.h"
+#include "AssetRegistry.h"
 
-Asset2::~Asset2()
+Asset::~Asset()
 {
     if (myIsValid)
         myAssetRegistry->OnAssetRemoved(this);
 }
 
-bool Asset2::IsCacheValid() const
+bool Asset::IsCacheValid() const
 {
     std::filesystem::file_time_type sourceWriteTime = std::filesystem::last_write_time(GetSourcePath());
         
@@ -20,34 +20,34 @@ bool Asset2::IsCacheValid() const
     return true;
 }
 
-void Asset2::DoFirstTimeAssetInitialization(const std::filesystem::path& inAssetPath)
+void Asset::DoFirstTimeAssetInitialization(const std::filesystem::path& inAssetPath)
 {
     check(std::filesystem::exists(inAssetPath) && "Invalid asset path sent into");
     myAssetPath = inAssetPath;
     mySourceLastModifiedTime = std::filesystem::last_write_time(inAssetPath);
 }
 
-const SourcePath& Asset2::GetSourcePath() const
+const SourcePath& Asset::GetSourcePath() const
 {
     return myAssetPath;
 }
 
-const std::filesystem::file_time_type& Asset2::GetSourceLastModifiedTime() const
+const std::filesystem::file_time_type& Asset::GetSourceLastModifiedTime() const
 {
     return mySourceLastModifiedTime;
 }
 
-void Asset2::SetIsValid(const bool inIsValid)
+void Asset::SetIsValid(const bool inIsValid)
 {
     myIsValid = inIsValid;
 }
 
-void Asset2::SetAssetRegistry(AssetRegistry2* inAssetRegistry)
+void Asset::SetAssetRegistry(AssetRegistry* inAssetRegistry)
 {
     myAssetRegistry = inAssetRegistry;
 }
 
-void Asset2::ResaveAsset()
+void Asset::ResaveAsset()
 {
     myAssetRegistry->SaveAssetToCache(shared_from_this());
 }

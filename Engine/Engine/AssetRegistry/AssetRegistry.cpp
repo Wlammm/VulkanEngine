@@ -1,31 +1,31 @@
 ﻿#include "EnginePch.h"
-#include "AssetRegistry2.h"
+#include "AssetRegistry.h"
 
-#include "Asset2.h"
+#include "Asset.h"
 
-AssetRegistry2::AssetRegistry2()
+AssetRegistry::AssetRegistry()
 {
     check(!mySingleton);
     mySingleton = this;
 }
 
-AssetRegistry2::~AssetRegistry2()
+AssetRegistry::~AssetRegistry()
 {
     mySingleton = nullptr;
 }
 
-CachePath AssetRegistry2::SourceToCachePath(const SourcePath& inSourcePath) const
+CachePath AssetRegistry::SourceToCachePath(const SourcePath& inSourcePath) const
 {
     return "AssetCache/" + inSourcePath.string() + ".cache";
 }
 
-void AssetRegistry2::OnAssetRemoved(Asset2* inAsset)
+void AssetRegistry::OnAssetRemoved(Asset* inAsset)
 {
     std::scoped_lock lock(myMutex);
     myLoadedAssets.erase(inAsset->GetSourcePath());
 }
 
-void AssetRegistry2::AddLoadedAsset(SharedPtr<Asset2> inAsset)
+void AssetRegistry::AddLoadedAsset(SharedPtr<Asset> inAsset)
 {
     inAsset->SetIsValid(true);
     inAsset->SetAssetRegistry(this);

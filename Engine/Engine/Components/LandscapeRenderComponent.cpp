@@ -4,7 +4,7 @@
 #include "Engine/Engine.h"
 #include "TransformComponent.h"
 
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Assets/Material.h"
 #include "Engine/Assets/Texture.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
@@ -34,7 +34,7 @@ LandscapeRenderComponent::~LandscapeRenderComponent()
 
 void LandscapeRenderComponent::OnCreate()
 {
-    myMaterial = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Material>("Assets/Materials/LandscapeGrass/LandscapeGrass.mat");
+    myMaterial = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Material>("Assets/Materials/LandscapeGrass/LandscapeGrass.mat");
     MarkRenderStateDirty();
     
     CreateLandscapeMesh();

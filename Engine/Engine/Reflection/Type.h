@@ -6,7 +6,7 @@
 #include "Engine/Containers/List.hpp"
 #include "Engine/Delegates/Delegate.hpp"
 
-class Asset2;
+class Asset;
 
 struct TypeTemplateArgument
 {

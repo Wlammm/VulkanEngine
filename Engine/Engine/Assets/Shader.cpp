@@ -29,7 +29,7 @@ Shader::~Shader()
 
 void Shader::LoadPropertiesFromSource()
 {
-    Asset2::LoadPropertiesFromSource();
+    Asset::LoadPropertiesFromSource();
     
     std::ifstream stream(GetSourcePath());
     std::stringstream ss;
@@ -73,7 +73,7 @@ void Shader::LoadPropertiesFromSource()
 
 void Shader::PostPropertiesSerialized()
 {
-    Asset2::PostPropertiesSerialized();
+    Asset::PostPropertiesSerialized();
     
     // Recreate filewatcher callbacks incase we have new includes.
     RemoveFilewatcherCallbacks();
@@ -95,7 +95,7 @@ bool Shader::IsCacheValid() const
             return false;
     }
     
-    return Asset2::IsCacheValid();
+    return Asset::IsCacheValid();
 }
 
 void Shader::Recompile()

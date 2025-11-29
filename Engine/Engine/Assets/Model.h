@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/AssetRegistry/Asset2.h"
+#include "Engine/AssetRegistry/Asset.h"
 #include "Engine/Rendering/Vertex.hpp"
 
 class IndexBufferHandle;
@@ -29,7 +29,7 @@ struct SerializationMeshData
 	std::string myMaterialPath;
 };
 
-class Model : public Asset2
+class Model : public Asset
 {
 public:
 	~Model();

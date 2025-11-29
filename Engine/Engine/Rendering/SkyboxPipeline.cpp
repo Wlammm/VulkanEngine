@@ -6,7 +6,7 @@
 #include "Mesh.h"
 #include "TextureSystem.h"
 #include "VertexBufferSystem.h"
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Assets/Model.h"
 #include "Engine/Assets/Shader.h"
 #include "Engine/Assets/Texture.h"
@@ -19,9 +19,9 @@
 
 SkyboxPipeline::SkyboxPipeline()
 {
-	mySkybox = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("Assets/Cubemaps/sunflowers_puresky_4k.hdr");
+	mySkybox = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Assets/Cubemaps/sunflowers_puresky_4k.hdr");
 
-	mySkyboxModel = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Model>("Assets/Primitives/Sphere.fbx");
+	mySkyboxModel = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Model>("Assets/Primitives/Sphere.fbx");
 	
 	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
 		"FrameDataBuffer",
@@ -83,10 +83,10 @@ void SkyboxPipeline::OnShaderRecompiled()
 
 void SkyboxPipeline::CreateDrawResources()
 {
-    myVertexShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/Skybox.vert");
+    myVertexShader = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Shader>("Shaders/Skybox.vert");
     myVertexShader->OnShaderRecompiled.Bind(&SkyboxPipeline::OnShaderRecompiled, this);
     
-    myFragmentShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/Skybox.frag");
+    myFragmentShader = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Shader>("Shaders/Skybox.frag");
     myFragmentShader->OnShaderRecompiled.Bind(&SkyboxPipeline::OnShaderRecompiled, this);
     
     // Descriptor sets

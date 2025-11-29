@@ -9,7 +9,7 @@
 #include "Vulkan/VulkanSwapChain.h"
 
 #include "World/World.h"
-#include "AssetRegistry/AssetRegistry2.h"
+#include "AssetRegistry/AssetRegistry.h"
 #include "AssetRegistry/AssetUtils.h"
 #include "Core/ThreadPool.h"
 #include "Core/Filewatcher.h"
@@ -202,7 +202,7 @@ void Engine::SetExternalTickFunction(const std::function<void()> inExternalTickF
 
 void Engine::CreateSystems()
 {
-	mySystemManager->AddSystem<AssetRegistry2>();
+	mySystemManager->AddSystem<AssetRegistry>();
 	mySystemManager->AddSystem<StagingSystem>();
 	mySystemManager->AddSystem<TextureSystem>();
 	mySystemManager->AddSystem<MeshSystem>();

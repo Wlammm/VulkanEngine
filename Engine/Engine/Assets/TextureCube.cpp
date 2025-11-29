@@ -27,7 +27,7 @@ TextureCube::~TextureCube()
 
 void TextureCube::LoadPropertiesFromSource()
 {
-    Asset2::LoadPropertiesFromSource();
+    Asset::LoadPropertiesFromSource();
     
     float* data = stbi_loadf(GetSourcePath().string().c_str(), &myImageData.myWidth, &myImageData.myHeight, &myImageData.myChannels, 0);
     myImageData.myPixelData.Resize(myImageData.myWidth * myImageData.myHeight * 4);
@@ -37,7 +37,7 @@ void TextureCube::LoadPropertiesFromSource()
 
 void TextureCube::PostPropertiesSerialized()
 {
-    Asset2::PostPropertiesSerialized();
+    Asset::PostPropertiesSerialized();
     
     vk::BufferCreateInfo stagingCreateInfo = vk::BufferCreateInfo()
             .setSize(sizeof(float) * myImageData.myWidth * myImageData.myHeight * myImageData.myChannels)

@@ -1,7 +1,7 @@
 #include "EnginePch.h"
 #include "FullscreenPipeline.h"
 #include "Engine/Engine.h"
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Assets/Shader.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
@@ -9,7 +9,7 @@
 
 FullscreenPipeline::FullscreenPipeline(SharedPtr<Shader> inFragmentShader, VulkanImage* inSource, vk::RenderPass inRenderPass)
 {
-	myVertexShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/FullscreenVS.vert");
+	myVertexShader = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Shader>("Shaders/FullscreenVS.vert");
 	myVertexShader->OnShaderRecompiled.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
 
 	myFragmentShader = inFragmentShader;

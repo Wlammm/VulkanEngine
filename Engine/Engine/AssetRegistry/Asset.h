@@ -1,13 +1,13 @@
 ﻿#pragma once
 #include "AssetDefines.h"
 
-class AssetRegistry2;
+class AssetRegistry;
 
-class Asset2 : std::enable_shared_from_this<Asset2>
+class Asset : std::enable_shared_from_this<Asset>
 {
 public:
     // Remove any resources used by this asset.
-    virtual ~Asset2();
+    virtual ~Asset();
     
     // This will be called once all properties on the asset have been serialized. Either via the cache or via Asset::LoadPropertiesFromSource.
     // We can remove all data not required for runtime in here as it would've already been serialized to cache before this.
@@ -35,7 +35,7 @@ public:
     void SetIsValid(const bool inIsValid);
     
     // Should only be called form the AssetRegistry class when the asset has loaded successfully.
-    void SetAssetRegistry(AssetRegistry2* inAssetRegistry);
+    void SetAssetRegistry(AssetRegistry* inAssetRegistry);
     
     // This will resave the asset to cache.
     void ResaveAsset();
@@ -47,7 +47,7 @@ private:
     META(SerializeField)
     std::filesystem::file_time_type mySourceLastModifiedTime;
 
-    AssetRegistry2* myAssetRegistry = nullptr;
+    AssetRegistry* myAssetRegistry = nullptr;
     
     bool myIsValid = false;
 };

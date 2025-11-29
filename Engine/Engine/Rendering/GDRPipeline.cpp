@@ -6,7 +6,7 @@
 #include "MeshSystem.h"
 #include "TextureSystem.h"
 #include "VertexBufferSystem.h"
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Assets/Shader.h"
 #include "Engine/Assets/TextureCube.h"
 #include "Engine/Components/CameraComponent.h"
@@ -26,8 +26,8 @@
 
 GDRPipeline::GDRPipeline()
 {
-    myCullShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/IndirectCulling.comp");
-    myPrePassShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/PrePass.comp");
+    myCullShader = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Shader>("Shaders/IndirectCulling.comp");
+    myPrePassShader = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Shader>("Shaders/PrePass.comp");
 
     CreateBuffers();
     CreatePrePassResources();
@@ -427,9 +427,9 @@ void GDRPipeline::CreateCullPassResources()
 void GDRPipeline::CreateDrawPassResources()
 {
 	// Shaders
-	myVertexShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/IndirectVertexShader.vert");
+	myVertexShader = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Shader>("Shaders/IndirectVertexShader.vert");
 	myVertexShader->OnShaderRecompiled.Bind(&GDRPipeline::OnShaderRecompiled, this);
-	myFragmentShader = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Shader>("Shaders/IndirectFragmentShader.frag");
+	myFragmentShader = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Shader>("Shaders/IndirectFragmentShader.frag");
 	myFragmentShader->OnShaderRecompiled.Bind(&GDRPipeline::OnShaderRecompiled, this);
 	
     // Descriptor sets

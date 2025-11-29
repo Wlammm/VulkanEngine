@@ -2,11 +2,11 @@
 #include "JsonAsset.h"
 #include <nlohmann/json.hpp>
 
-#include "Engine/AssetRegistry/Asset2.h"
+#include "Engine/AssetRegistry/Asset.h"
 
 void JsonAsset::LoadPropertiesFromSource()
 {
-    Asset2::LoadPropertiesFromSource();
+    Asset::LoadPropertiesFromSource();
     
     try
     {

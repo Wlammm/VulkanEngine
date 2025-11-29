@@ -1,7 +1,6 @@
 #pragma once
 #include "Engine/Delegates/Delegate.hpp"
 
-class AssetRegistry;
 class Type;
 
 class Editor

@@ -9,7 +9,7 @@
 #include "Engine/Vulkan/VulkanUtils.hpp"
 #include "Engine/Vulkan/VulkanImage.h"
 #include "Engine/Engine.h"
-#include "Engine/AssetRegistry/AssetRegistry2.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Rendering/RenderSystem.h"
 #include "Engine/World/World.h"
@@ -31,10 +31,10 @@ Viewport::Viewport()
 	myDescriptorSets.Emplace();
 	myDescriptorSets.Emplace();
 
-	myPlayButtonTexture = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("Editor/Viewport/PlayButton.png");
+	myPlayButtonTexture = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/Viewport/PlayButton.png");
 	myPlayButtonDescriptor = ImGuiTextureUtils::CreateDescriptorSetForTexture(myPlayButtonTexture);
 	
-	myStopButtonTexture = Engine::GetEngineSystem<AssetRegistry2>().GetAsset<Texture>("Editor/Viewport/StopButton.png");
+	myStopButtonTexture = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/Viewport/StopButton.png");
 	myStopButtonDescriptor = ImGuiTextureUtils::CreateDescriptorSetForTexture(myStopButtonTexture);
 }
 
