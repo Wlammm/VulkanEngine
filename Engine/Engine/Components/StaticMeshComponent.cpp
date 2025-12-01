@@ -46,40 +46,7 @@ void StaticMeshComponent::SetModel(SharedPtr<Model> inModel)
 
     myModel = inModel;
 
-    // Update materials for the new mesh.
-    myMaterials.Resize(myModel->GetMeshes().size());
-    for(int meshIndex = 0; meshIndex < myModel->GetMeshes().size(); meshIndex++)
-    {
-        const Mesh* mesh = myModel->GetMeshes()[meshIndex];
-        std::filesystem::path albedoPath = AssetUtils::GetSourcePathFromAssetName(mesh->GetAlbedoPath());
-        std::filesystem::path normalPath = AssetUtils::GetSourcePathFromAssetName(mesh->GetNormalPath());
-        std::filesystem::path materialPath = AssetUtils::GetSourcePathFromAssetName(mesh->GetMaterialPath());
-
-        if(std::filesystem::exists(albedoPath) && std::filesystem::exists(normalPath) && std::filesystem::exists(materialPath))
-        {
-            const std::string generatedString = GENERATED_MATERIAL_PREFIX + albedoPath.string() + normalPath.string() + materialPath.string();
-
-            if(SharedPtr<Material> material = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Material>(generatedString))
-            {
-                myMaterials[meshIndex] = material;
-                MarkRenderStateDirty();
-            }
-            else
-            {
-                SharedPtr<Material> newMaterial = Engine::GetEngineSystem<AssetRegistry>().CreateNewAsset<Material>(generatedString);
-                newMaterial->SetAlbedo(albedoPath);
-                newMaterial->SetNormal(normalPath);
-                newMaterial->SetMaterial(materialPath);
-                myMaterials[meshIndex] = newMaterial;
-                MarkRenderStateDirty();
-            }
-        }
-        else
-        {
-            // TODO: This should be default material.
-            myMaterials[meshIndex] = nullptr;
-        }
-    }
+    UpdateMaterialsForNewMesh();
     
     MarkRenderStateDirty();
 }
@@ -146,10 +113,13 @@ void StaticMeshComponent::OnRenderStateDirty()
     }
 
     // Remove all mesh instances that are more than the mesh count.
-    for(int instanceIndex = myModel->GetMeshes().size(); instanceIndex < myMeshInstances.size(); instanceIndex++)
+    for(int i = myModel->GetMeshes().size(); i < myMeshInstances.size(); i++)
     {
-        Engine::GetEngineSystem<GPUSceneSystem>().RemoveMeshInstance(instanceIndex);
+        Engine::GetEngineSystem<GPUSceneSystem>().RemoveMeshInstance(myMeshInstances[i]);
     }
+    
+    if (myMeshInstances.size() > myModel->GetMeshes().size())
+        myMeshInstances.Resize(myModel->GetMeshes().size());
     
     for(int meshIndex = 0; meshIndex < myModel->GetMeshes().size(); ++meshIndex)
     {
@@ -193,4 +163,48 @@ void StaticMeshComponent::RemoveFromGPUScene()
         Engine::GetEngineSystem<GPUSceneSystem>().RemoveMeshInstance(instanceIndex);
     }
     myMeshInstances.Clear();
+}
+
+void StaticMeshComponent::UpdateMaterialsForNewMesh()
+{
+    // Update materials for the new mesh.
+    myMaterials.Resize(myModel->GetMeshes().size());
+    for(int meshIndex = 0; meshIndex < myModel->GetMeshes().size(); meshIndex++)
+    {
+        const Mesh* mesh = myModel->GetMeshes()[meshIndex];
+        std::filesystem::path albedoPath = AssetUtils::GetSourcePathFromAssetName(mesh->GetAlbedoPath());
+        std::filesystem::path normalPath = AssetUtils::GetSourcePathFromAssetName(mesh->GetNormalPath());
+        std::filesystem::path materialPath = AssetUtils::GetSourcePathFromAssetName(mesh->GetMaterialPath());
+
+        if(std::filesystem::exists(albedoPath) && std::filesystem::exists(normalPath) && std::filesystem::exists(materialPath))
+        {
+            const std::string generatedString = GENERATED_MATERIAL_PREFIX + albedoPath.string() + normalPath.string() + materialPath.string();
+
+            if(SharedPtr<Material> material = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Material>(generatedString))
+            {
+                myMaterials[meshIndex] = material;
+                MarkRenderStateDirty();
+            }
+            else
+            {
+                SharedPtr<Material> newMaterial = Engine::GetEngineSystem<AssetRegistry>().CreateNewAsset<Material>(generatedString);
+                newMaterial->SetAlbedo(albedoPath);
+                newMaterial->SetNormal(normalPath);
+                newMaterial->SetMaterial(materialPath);
+                myMaterials[meshIndex] = newMaterial;
+                MarkRenderStateDirty();
+            }
+        }
+        else
+        {
+            // TODO: This should be default material.
+            myMaterials[meshIndex] = nullptr;
+        }
+    }
+}
+
+void StaticMeshComponent::OnModelChangedFromInspector()
+{
+    MarkRenderStateDirty();
+    UpdateMaterialsForNewMesh();
 }

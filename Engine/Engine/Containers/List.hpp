@@ -64,6 +64,8 @@ public:
 			{
 				myPtr[i] = inCopy[i];
 			}
+
+			mySize = inCopy.size();
 		}
 	}
 
@@ -154,6 +156,19 @@ public:
 		if(mySize == inSize)
 			return;
 		
+		if (inSize < mySize)
+		{
+			if constexpr (!std::is_trivially_destructible_v<ElementType>)
+			{
+				for (ListSizeType i = inSize; i < mySize; ++i)
+				{
+					myPtr[i].~ElementType();
+				}
+			}
+
+			mySize = inSize;
+		}
+
 		Grow(inSize);
 		mySize = inSize;
 	}
@@ -256,7 +271,11 @@ public:
 
 		if constexpr (CanCopy)
 		{
-			memcpy(&myPtr[inIndex], &myPtr[inIndex + 1], sizeof(ElementType) * (mySize - inIndex));
+			const size_t elementsToMove = mySize - inIndex - 1;
+			if (elementsToMove > 0)
+			{
+				memcpy(&myPtr[inIndex], &myPtr[inIndex + 1], sizeof(ElementType) * elementsToMove);
+			}
 		}
 		else
 		{

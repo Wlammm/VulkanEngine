@@ -527,9 +527,12 @@ ReflectedClass* ReflectionParser::FindClass(const std::string& inClassName)
 CXChildVisitResult ReflectionParser::HandleClassDeclaration(CXCursor inCurrentCursor, CXClientData inClientData)
 {
     const std::string className = GetDisplayName(inCurrentCursor);
-
+    
+    const bool isSharedPtr = className.contains("shared_ptr");
     const CXSourceLocation location = clang_getCursorLocation(inCurrentCursor);
-    if (clang_Location_isInSystemHeader(location))
+    
+    // We need shared_ptr's to be added as we use them for the asset registry. Their template arguments are needed.
+    if (clang_Location_isInSystemHeader(location) && !isSharedPtr)
         return CXChildVisit_Continue;
 
     if (!clang_isCursorDefinition(inCurrentCursor))
@@ -586,17 +589,21 @@ CXChildVisitResult ReflectionParser::HandleClassDeclaration(CXCursor inCurrentCu
             }
         }
         
-        clang_visitChildren(templateCursor, [](CXCursor baseCursor, CXCursor, CXClientData clientData) {
-            if (clang_getCursorKind(baseCursor) == CXCursor_CXXBaseSpecifier)
-            {
-                CXType baseType = clang_getCanonicalType(clang_getCursorType(baseCursor));
-                std::string baseName = GetSpelling(baseType);
-                auto* currentClass = static_cast<ReflectedClass*>(clientData);
-                currentClass->AddBaseClass(baseName);
-            }
-            return CXChildVisit_Continue;
-        }, currentClass);
-        
+        // TODO: Fix this hacky solution for shared pointer.
+        // We dont want to register the base class of shared_ptr's as we're only interested in their template arguments.
+        if (!isSharedPtr)
+        {
+            clang_visitChildren(templateCursor, [](CXCursor baseCursor, CXCursor, CXClientData clientData) {
+                if (clang_getCursorKind(baseCursor) == CXCursor_CXXBaseSpecifier)
+                {
+                    CXType baseType = clang_getCanonicalType(clang_getCursorType(baseCursor));
+                    std::string baseName = GetSpelling(baseType);
+                    auto* currentClass = static_cast<ReflectedClass*>(clientData);
+                    currentClass->AddBaseClass(baseName);
+                }
+                return CXChildVisit_Continue;
+            }, currentClass);
+        }
     }
     
     clientData.classStack.emplace_back(currentClass);

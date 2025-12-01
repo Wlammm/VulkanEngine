@@ -25,3 +25,17 @@ SourcePath AssetUtils::GetSourcePathFromAssetName(const std::string& inAssetName
     
     return myFilenameToPathLUT.at(inAssetName);    
 }
+
+List<SourcePath> AssetUtils::GetAllSourcePathsWithExtensions(const List<std::string>& inExtensions)
+{
+    List<SourcePath> result;
+    for (const std::pair<const std::string, std::filesystem::path>& entry : myFilenameToPathLUT)
+    {
+        for (const std::string& extension : inExtensions)
+        {
+            if (entry.second.extension() == extension)
+                result.Add(entry.second);
+        }
+    }
+    return result;
+}

@@ -29,6 +29,6 @@ void AssetSerializer::Serialize(void* inInstance, const Type* inType, BinarySeri
     
     if (inSerializer->IsReading())
     {
-        *asset = Engine::GetEngineSystem<AssetRegistry>().GetAsset(sourcePath,assetType);
+        *asset = Engine::GetEngineSystem<AssetRegistry>().GetAsset(sourcePath, assetType);
     }
 }

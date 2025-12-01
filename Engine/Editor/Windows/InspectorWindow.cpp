@@ -1,7 +1,6 @@
 ﻿#include "EditorPch.h"
 #include "InspectorWindow.h"
 
-#include "ImGuiPropertyDrawer.h"
 #include "Editor/EditorSystem/SelectionSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/Components/TransformComponent.h"
@@ -9,6 +8,7 @@
 #include "Engine/ComponentSystem/Component.h"
 #include "Engine/Reflection/Type.h"
 #include "Engine/Reflection/ReflectionSystem.h"
+#include "ImGui/ImGuiPropertyDrawer.h"
 
 InspectorWindow::InspectorWindow()
     : EditorWindow("Inspector", true)
@@ -71,7 +71,7 @@ void InspectorWindow::DrawComponentProperties(Component* inComponent)
                 {
                     // If you crash here it's because you've forgotten to add a methodName to your OnInspectorChangedEvent or the method is private and missing AllowPrivateAccess tag.
                     const std::string methodName = field.GetMetadataArgs("OnInspectorChangedEvent").First();
-                    componentClass->GetMethod(methodName)->Invoke(inComponent);                    
+                    componentClass->GetMethodRecursive(methodName)->Invoke(inComponent);                    
                 }
             }
         }

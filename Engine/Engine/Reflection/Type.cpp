@@ -122,6 +122,19 @@ const Method* Type::GetMethod(const std::string& inMethodName) const
     return nullptr;
 }
 
+const Method* Type::GetMethodRecursive(const std::string& inMethodName) const
+{
+    if (const Method* method = GetMethod(inMethodName))
+        return method;
+
+    for (const Type* base : myBaseTypes)
+    {
+        if (const Method* method = base->GetMethodRecursive(inMethodName))
+            return method;
+    }
+    return nullptr;
+}
+
 bool Type::IsTemplateSpecialization() const
 {
     return !myTemplateArguments.IsEmpty();

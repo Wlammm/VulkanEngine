@@ -8,6 +8,8 @@ public:
     
     static SourcePath GetSourcePathFromAssetName(const std::string& inAssetName);
     
+    static List<SourcePath> GetAllSourcePathsWithExtensions(const List<std::string>& inExtensions);
+    
 private:
     inline static std::unordered_map<std::string, std::filesystem::path> myFilenameToPathLUT{};
 };

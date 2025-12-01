@@ -7,13 +7,9 @@
 #include "Engine/Engine.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 #include "Engine/World/GameWorld.h"
-#include "Engine/World/World.h"
+#include "ImGui/ImGuiPropertyDrawer.h"
 #include "Toolbar/Themes/EditorThemes.h"
 #include "Windows/EditorWindow.h"
-#include "Windows/HierarchyWindow.h"
-#include "Windows/ImGuiPropertyDrawer.h"
-#include "Windows/InspectorWindow.h"
-#include "Windows/Viewport.h"
 #include "World/EditorWorld.h"
 
 Editor::Editor()

@@ -50,8 +50,15 @@ local ReflectionGeneratorScriptPath = path.join(path.getabsolute("../Reflection-
 workspace "Engine"
     configurations 
 	{ 
-		"Game Debug", "Game Release", "Editor Debug", "Editor Release", 
-		"PROFILE Game Debug", "PROFILE Game Release", "PROFILE Editor Debug", "PROFILE Editor Release" 
+		"Game Debug", 
+		"Game Release", 
+		"Editor Debug", 
+		"Editor Release", 
+		"PROFILE Game Debug", 
+		"PROFILE Game Release",
+		"PROFILE Editor Debug", 
+		"PROFILE Editor Release",
+		"Editor ASan Debug"
 	}
 	platforms { "Win64" }
     location "../"
@@ -89,6 +96,14 @@ workspace "Engine"
 		symbols "On"
 		runtime "Debug"
 		staticruntime "on"
+	filter "configurations:Editor ASan Debug"
+		defines { "DEBUG", "EDITOR" }
+		symbols "On"
+		runtime "Debug"
+		staticruntime "on"          -- ASan requires dynamic CRT
+		buildoptions { "/fsanitize=address" }
+		linkoptions  { "/fsanitize=address" }
+		editandcontinue "Off"
 	filter "configurations:Editor Release"
 		defines { "EDITOR", "NDEBUG" }
 		optimize "On"

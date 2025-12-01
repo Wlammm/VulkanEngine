@@ -45,6 +45,7 @@ public:
     List<const Method*> GetMethodsWithMetadata(const std::string& inMetadata) const;
     
     const Method* GetMethod(const std::string& inMethodName) const;
+    const Method* GetMethodRecursive(const std::string& inMethodName) const;
 
     bool IsTemplateSpecialization() const;
     const List<TypeTemplateArgument>& GetTemplateArguments() const;

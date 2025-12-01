@@ -37,6 +37,11 @@ public:
 private:
     void RemoveFromGPUScene();
     
+    void UpdateMaterialsForNewMesh();
+    
+    META(AllowPrivateAccess)
+    void OnModelChangedFromInspector();
+    
 private:
     META(SerializeField)
     std::filesystem::path myPath = "";
@@ -44,7 +49,7 @@ private:
     // META(SerializeField)
     List<SharedPtr<Material>> myMaterials{};
 
-    META(SerializeField)
+    META(SerializeField, OnInspectorChangedEvent(OnModelChangedFromInspector))
     SharedPtr<Model> myModel = nullptr;
 
     List<MeshInstanceIndex> myMeshInstances{};

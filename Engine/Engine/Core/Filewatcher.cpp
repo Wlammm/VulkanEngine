@@ -47,6 +47,9 @@ void Filewatcher::RemoveWatch_TS(const std::filesystem::path& inPath, const Call
 
 	int index = myFilesToWatch[inPath].myCallbackIDIndexList.FindIndex(inHandle);
 
+	if (index == -1)
+		return;
+	
 	myFilesToWatch[inPath].myCallbacks.RemoveIndex(index);
 	myFilesToWatch[inPath].myCallbackIDIndexList.RemoveIndex(index);
 
