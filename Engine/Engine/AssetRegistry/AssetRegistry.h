@@ -110,6 +110,10 @@ public:
     {
         SharedPtr<AssetType> asset = std::make_shared<AssetType>();
         check(!asset->IsExternalAsset() && "We cannot create a new external asset.");
+        
+        check(asset->GetAssetExtensions().Contains(inSourcePath.extension().string()) && "New assets must follow the allowed extensions.");
+        
+        asset->DoFirstTimeAssetInitialization(inSourcePath);
         AddLoadedAsset(asset);
         return asset;
     }

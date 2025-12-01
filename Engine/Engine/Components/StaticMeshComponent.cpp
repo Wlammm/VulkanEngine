@@ -130,9 +130,12 @@ void StaticMeshComponent::OnRenderStateDirty()
         check(myMaterials.IsValidIndex(meshIndex));
         if(myMaterials[meshIndex] && myMaterials[meshIndex]->IsValid())
         {
-            data.myAlbedoIndex = myMaterials[meshIndex]->GetAlbedo()->GetBindlessIndex();
-            data.myNormalIndex = myMaterials[meshIndex]->GetNormal()->GetBindlessIndex();
-            data.myMaterialIndex = myMaterials[meshIndex]->GetMaterial()->GetBindlessIndex();
+            if (myMaterials[meshIndex]->GetAlbedo())
+                data.myAlbedoIndex = myMaterials[meshIndex]->GetAlbedo()->GetBindlessIndex();
+            if (myMaterials[meshIndex]->GetNormal())
+                data.myNormalIndex = myMaterials[meshIndex]->GetNormal()->GetBindlessIndex();
+            if (myMaterials[meshIndex]->GetMaterial())
+                data.myMaterialIndex = myMaterials[meshIndex]->GetMaterial()->GetBindlessIndex();
         }
         
         // If we already have a mesh instance we can just update that instead of adding a new one which is cheaper
@@ -178,7 +181,7 @@ void StaticMeshComponent::UpdateMaterialsForNewMesh()
 
         if(std::filesystem::exists(albedoPath) && std::filesystem::exists(normalPath) && std::filesystem::exists(materialPath))
         {
-            const std::string generatedString = GENERATED_MATERIAL_PREFIX + albedoPath.string() + normalPath.string() + materialPath.string();
+            const std::string generatedString = GENERATED_MATERIAL_PREFIX + albedoPath.string() + normalPath.string() + materialPath.string() + ".mat";
 
             if(SharedPtr<Material> material = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Material>(generatedString))
             {

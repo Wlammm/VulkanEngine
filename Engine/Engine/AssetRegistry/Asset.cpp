@@ -22,9 +22,13 @@ bool Asset::IsCacheValid() const
 
 void Asset::DoFirstTimeAssetInitialization(const std::filesystem::path& inAssetPath)
 {
-    check(std::filesystem::exists(inAssetPath) && "Invalid asset path sent into");
     myAssetPath = inAssetPath;
-    mySourceLastModifiedTime = std::filesystem::last_write_time(inAssetPath);
+    
+    if (IsExternalAsset())
+    {
+        check(std::filesystem::exists(inAssetPath));
+        mySourceLastModifiedTime = std::filesystem::last_write_time(inAssetPath);
+    }
 }
 
 const SourcePath& Asset::GetSourcePath() const

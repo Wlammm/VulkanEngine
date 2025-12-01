@@ -12,6 +12,10 @@ public:
     // This will be called once all properties on the asset have been serialized. Either via the cache or via Asset::LoadPropertiesFromSource.
     // We can remove all data not required for runtime in here as it would've already been serialized to cache before this.
     virtual void PostPropertiesSerialized() {};
+    
+    // Override this and add a list of all accepted extensions for a given asset. Example: { ".fbx", ".gltf" } or { ".mat" }
+    // for internal assets you should ignore the final .cache extension.
+    virtual List<std::string> GetAssetExtensions() const = 0;
 
     // This will get called if there is no cached version of this asset or the source asset has been updated. This will only be called if IsExternalAsset() returns true.
     virtual void LoadPropertiesFromSource() {};

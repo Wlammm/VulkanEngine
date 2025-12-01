@@ -26,6 +26,8 @@ class TextureCube : public Asset
 public:
     ~TextureCube() override;
     
+    List<std::string> GetAssetExtensions() const override { return { ".png", ".hdr"}; }
+
     bool IsExternalAsset() const override { return true; }
     
     void LoadPropertiesFromSource() override;

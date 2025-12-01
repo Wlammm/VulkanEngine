@@ -7,13 +7,26 @@ class Asset;
 
 namespace ImGui
 {
-    template<typename AssetType>
-    static bool AssetPicker(SharedPtr<AssetType>& inOutAsset)
+    static bool AssetPicker(SharedPtr<Asset>& inOutAsset, const Type* inAssetType)
     {
         ImGui::PushID("AssetPicker");
         ON_SCOPE_EXIT([](){ ImGui::PopID(); });
         
-        const List<SourcePath> assets = AssetUtils::GetAllSourcePathsWithExtensions({".fbx", ".gltf"});
+        // If inOutAsset is nullptr we need a way to call the virtual function that is in the asset to figure out the associated extensions. Thats why we create a temporary instance.
+        // TODO: Fix this hacky create instance solution.
+        List<std::string> associatedExtensions;
+        if (inOutAsset)
+        {
+            associatedExtensions = inAssetType->GetMethod("GetAssetExtensions")->Invoke<List<std::string>>(inOutAsset.get());
+        }
+        else
+        {
+            Asset* instance = inAssetType->CreateInstance<Asset>();
+            associatedExtensions = inAssetType->GetMethod("GetAssetExtensions")->Invoke<List<std::string>>(instance);
+            del(instance);
+        }
+        
+        const List<SourcePath> assets = AssetUtils::GetAllSourcePathsWithExtensions(associatedExtensions);
         
         std::string assetName = "None";
         if (inOutAsset)
@@ -22,6 +35,20 @@ namespace ImGui
         if (ImGui::Button(assetName.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 0)))
         {
             ImGui::OpenPopup("AssetPicker");
+        }
+        
+        if (ImGui::BeginDragDropTarget())
+        {
+            ON_SCOPE_EXIT([](){ ImGui::EndDragDropTarget(); });
+            for (const std::string& extension : associatedExtensions)
+            {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(extension.c_str()))
+                {
+                    const SourcePath assetPath = *(std::string*)payload->Data;
+                    inOutAsset = AssetRegistry::Get()->GetAsset(assetPath, inAssetType);
+                    return true;
+                }
+            }
         }
         
         if (ImGui::BeginPopupContextItem("AssetPicker"))
@@ -46,14 +73,12 @@ namespace ImGui
                 
                 if (ImGui::Selectable(asset.filename().string().c_str(), (inOutAsset ? inOutAsset->GetSourcePath() : "") == asset))
                 {
-                    inOutAsset = AssetRegistry::Get()->GetAsset(asset, ReflectionSystem::GetType(inOutAsset.get()));
+                    inOutAsset = AssetRegistry::Get()->GetAsset(asset, inAssetType);
                     return true;
                 }
             }
         }
         
-        
-        //Or click this button
         return false;
     }
 };

@@ -2402,6 +2402,16 @@ Method& currentMethod = currentClass->AddMethod(Method("IsCacheValid", Reflectio
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 JsonAsset* instance = static_cast<JsonAsset*>(inInstance);
+static thread_local List<std::basic_string<char>> result = instance->GetAssetExtensions();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAssetExtensions", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+JsonAsset* instance = static_cast<JsonAsset*>(inInstance);
 instance->LoadPropertiesFromSource();
 return nullptr;
 });
@@ -2447,6 +2457,16 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("IsExternalAsset", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+static thread_local List<std::basic_string<char>> result = instance->GetAssetExtensions();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAssetExtensions", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -2602,6 +2622,16 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDepthWriteEnabled", R
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Model* instance = static_cast<Model*>(inInstance);
+static thread_local List<std::basic_string<char>> result = instance->GetAssetExtensions();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAssetExtensions", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Model* instance = static_cast<Model*>(inInstance);
 instance->PostPropertiesSerialized();
 return nullptr;
 });
@@ -2683,6 +2713,16 @@ Method& currentMethod = currentClass->AddMethod(Method("GetSerializationMeshData
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Shader* instance = static_cast<Shader*>(inInstance);
+static thread_local List<std::basic_string<char>> result = instance->GetAssetExtensions();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAssetExtensions", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
+}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
@@ -2875,6 +2915,16 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMetadataArgs", Reflec
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Texture* instance = static_cast<Texture*>(inInstance);
+static thread_local List<std::basic_string<char>> result = instance->GetAssetExtensions();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAssetExtensions", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Texture* instance = static_cast<Texture*>(inInstance);
 instance->LoadPropertiesFromSource();
 return nullptr;
 });
@@ -2968,6 +3018,16 @@ Method& currentMethod = currentClass->AddMethod(Method("GetBindlessIndex", Refle
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+TextureCube* instance = static_cast<TextureCube*>(inInstance);
+static thread_local List<std::basic_string<char>> result = instance->GetAssetExtensions();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAssetExtensions", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
+}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {

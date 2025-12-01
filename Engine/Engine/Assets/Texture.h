@@ -26,6 +26,8 @@ class Texture : public Asset
 public:
     ~Texture();
     
+    List<std::string> GetAssetExtensions() const override { return { ".png", ".hdr"}; }
+    
     void LoadPropertiesFromSource() override;
     
     void PostPropertiesSerialized() override;

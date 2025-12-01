@@ -34,6 +34,8 @@ class Model : public Asset
 public:
 	~Model();
 	
+	List<std::string> GetAssetExtensions() const override { return {".fbx", ".gltf" }; }
+	
 	void PostPropertiesSerialized() override;
 
 	void LoadPropertiesFromSource() override;

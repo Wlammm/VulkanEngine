@@ -19,5 +19,7 @@ bool AssetPropertyDrawer::DrawsType(const Type* inType) const
 bool AssetPropertyDrawer::Draw(void* inInstance, const Field& inField) const
 {
     SharedPtr<Asset>* asset = static_cast<SharedPtr<Asset>*>(inInstance);
-    return ImGui::AssetPicker(*asset);
+    
+    const Type* assetType = inField.GetType()->GetTemplateArguments().First().myType;
+    return ImGui::AssetPicker(*asset, assetType);
 }
