@@ -71,7 +71,7 @@ void InspectorWindow::DrawComponentProperties(Component* inComponent)
                 {
                     // If you crash here it's because you've forgotten to add a methodName to your OnInspectorChangedEvent or the method is private and missing AllowPrivateAccess tag.
                     const std::string methodName = field.GetMetadataArgs("OnInspectorChangedEvent").First();
-                    componentClass->GetMethodRecursive(methodName)->Invoke(inComponent);                    
+                    componentClass->GetMethodRecursive(methodName)->Invoke(inComponent);
                 }
             }
         }

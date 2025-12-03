@@ -31,9 +31,19 @@ void Asset::DoFirstTimeAssetInitialization(const std::filesystem::path& inAssetP
     }
 }
 
+void Asset::SetAssetPath(const SourcePath& inSourcePath)
+{
+    myAssetPath = inSourcePath;
+}
+
 const SourcePath& Asset::GetSourcePath() const
 {
     return myAssetPath;
+}
+
+std::string Asset::GetName() const
+{
+    return myAssetPath.stem().string();
 }
 
 const std::filesystem::file_time_type& Asset::GetSourceLastModifiedTime() const
@@ -53,5 +63,5 @@ void Asset::SetAssetRegistry(AssetRegistry* inAssetRegistry)
 
 void Asset::ResaveAsset()
 {
-    myAssetRegistry->SaveAssetToCache(shared_from_this());
+    myAssetRegistry->SaveAsset(shared_from_this());
 }

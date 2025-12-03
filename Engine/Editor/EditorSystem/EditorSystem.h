@@ -3,6 +3,7 @@
 class EditorSystem
 {
 public:
+    virtual ~EditorSystem() = default;
     virtual void Tick() = 0;
 
 private:

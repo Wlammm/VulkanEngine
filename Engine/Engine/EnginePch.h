@@ -3,7 +3,7 @@
 #if REFLECTION_GENERATION == 1
 #define META(...) __attribute__((annotate(#__VA_ARGS__)))
 #define AllowPrivateAccess
-#define HideInInspector
+#define HideInEditor
 #define SerializeField
 #else
 #define EXPAND(x) x
@@ -42,7 +42,8 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 // Use this to serialize the field to disk in case the class is being serialized.
 #define SerializeField friend class GeneratedReflectionData;
 
-#define HideInInspector
+// Hides this property from editors and inspectors.
+#define HideInEditor
 #endif
 
 // Called whenever the field was modified in the inspector

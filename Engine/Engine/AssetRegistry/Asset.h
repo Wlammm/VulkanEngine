@@ -28,8 +28,13 @@ public:
     virtual constexpr bool IsExternalAsset() const { return false; }
     
     void DoFirstTimeAssetInitialization(const SourcePath& inAssetPath);
+    
+    // Changes the internal assets path. This shouldnt be used by itself. Use AssetUtils::Rename function if you want to move the asset.
+    void SetAssetPath(const SourcePath& inSourcePath);
 
     const SourcePath& GetSourcePath() const;
+    
+    std::string GetName() const;
 
     const std::filesystem::file_time_type& GetSourceLastModifiedTime() const;
 
@@ -45,10 +50,10 @@ public:
     void ResaveAsset();
     
 private:
-    META(SerializeField)
+    META(SerializeField, HideInEditor)
     SourcePath myAssetPath;
 
-    META(SerializeField)
+    META(SerializeField, HideInEditor)
     std::filesystem::file_time_type mySourceLastModifiedTime;
 
     AssetRegistry* myAssetRegistry = nullptr;

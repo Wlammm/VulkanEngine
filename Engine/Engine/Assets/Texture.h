@@ -26,7 +26,7 @@ class Texture : public Asset
 public:
     ~Texture();
     
-    List<std::string> GetAssetExtensions() const override { return { ".png", ".hdr"}; }
+    List<std::string> GetAssetExtensions() const override { return { ".png", ".hdr", ".tga"}; }
     
     void LoadPropertiesFromSource() override;
     

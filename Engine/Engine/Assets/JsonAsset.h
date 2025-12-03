@@ -10,6 +10,8 @@ public:
     
     List<std::string> GetAssetExtensions() const override { return {".json"}; }
     
+    bool IsExternalAsset() const override { return true; }
+    
     void LoadPropertiesFromSource() override;
 
     const nlohmann::json& GetJson() const;

@@ -30,9 +30,9 @@ public:
 	}
 
 	template<typename SystemType>
-	SystemType* GetSystem() const
+	static SystemType* GetSystem()
 	{
-		for (EditorSystem* system : mySystems)
+		for (EditorSystem* system : myInstance->mySystems)
 		{
 			if (SystemType* castedSystem = dynamic_cast<SystemType*>(system))
 				return castedSystem;

@@ -46,7 +46,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 		__debugbreak();
 	}
 
-	AssetUtils::ScanAssetDirectory();
+	AssetUtils::Start();
 	
 	PhysicsSystem::CreateStaticObjects();
 

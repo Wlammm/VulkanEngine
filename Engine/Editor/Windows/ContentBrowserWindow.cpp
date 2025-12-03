@@ -1,9 +1,12 @@
 ﻿#include "EditorPch.h"
 #include "ContentBrowserWindow.h"
 
+#include "Editor.h"
+#include "AssetEditors/AssetEditorSystem.h"
 #include "Editor/Utils/ImGuiTextureUtils.h"
 #include "Engine/Engine.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/AssetRegistry/AssetUtils.h"
 #include "Engine/Assets/Texture.h"
 #include "Engine/Core/Input.h"
 #include "Engine/Core/Time.h"
@@ -570,6 +573,31 @@ void ContentBrowserWindow::UpdateRightClickMenu()
 			}
 
 			ImGui::Separator();
+			
+			for (const Type* assetType : AssetUtils::GetAllInternalAssetTypes())
+			{
+				if (ImGui::MenuItem(assetType->GetName().c_str()))
+				{
+					std::filesystem::path path = myCurrentPath;
+					path.append("new " + assetType->GetName() + AssetUtils::GetExtensionForInternalType(assetType));
+					
+					SharedPtr<Asset> asset = AssetRegistry::Get()->CreateNewAsset(path, assetType);
+					AssetRegistry::Get()->SaveAsset(asset);
+					
+					LoadDirectory(myCurrentPath);
+					
+					for (int i = 0; i < myItems.size(); ++i)
+					{
+						if (myItems[i].myPath == path)
+						{
+							mySelectedItem = i;
+							BeginRenaming();
+							break;
+						}
+					}
+				}
+			}
+			
 			/*
 			if (ImGui::MenuItem("Material"))
 			{
@@ -671,7 +699,7 @@ void ContentBrowserWindow::UpdateRenaming()
 			myNewFileName.append(extension);
 			newPath.append(myNewFileName);
 
-			std::filesystem::rename(myItems[myRenamingItem].myPath, newPath);
+			AssetUtils::RenameAsset(myItems[myRenamingItem].myPath, newPath);
 
 			myItems[myRenamingItem].myPath = newPath;
 			myRenamingItem = -1;
@@ -700,7 +728,9 @@ void ContentBrowserWindow::DeleteItem()
 
 void ContentBrowserWindow::HandleDoubleClick(const ContentBrowserItem& inClickedItem)
 {
-	check(false && "Not implemented yet.");
+	const Type* assetType = AssetUtils::GetAssetTypeFromFileExtension(inClickedItem.myPath.extension().string());
+	SharedPtr<Asset> asset = AssetRegistry::Get()->GetAsset(inClickedItem.myPath, assetType);
+	Editor::GetSystem<AssetEditorSystem>()->OpenAssetEditor(asset, assetType);
 }
 
 std::string ContentBrowserWindow::GetPayloadType(const std::filesystem::path& inPath)

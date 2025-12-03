@@ -27,7 +27,7 @@ void AssetSerializer::Serialize(void* inInstance, const Type* inType, BinarySeri
     std::string sourcePath;
     if (inSerializer->IsWriting())
     {
-        if (asset)
+        if (asset->get())
             sourcePath = asset->get()->GetSourcePath().string();
     }
     inSerializer->SerializeString(sourcePath);

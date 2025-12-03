@@ -68,6 +68,9 @@ void ImGuiPropertyDrawer::RegisterDrawers()
 
 bool ImGuiPropertyDrawer::DrawProperty(const Field& inField, void* inInstance)
 {
+    if (inField.HasMetadata("HideInEditor"))
+        return false;
+    
     ImGui::PushID(inInstance);
     
     // Remove the my prefix on member variables.

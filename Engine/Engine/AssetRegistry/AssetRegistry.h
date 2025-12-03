@@ -78,7 +78,7 @@ public:
         
         asset->DoFirstTimeAssetInitialization(inSourcePath);
         asset->LoadPropertiesFromSource();
-        SaveAssetToCache(asset);
+        SaveAsset(asset);
         
         asset->PostPropertiesSerialized();
         AddLoadedAsset(asset);
@@ -108,7 +108,12 @@ public:
     template<typename AssetType>
     SharedPtr<AssetType> CreateNewAsset(const SourcePath& inSourcePath)
     {
-        SharedPtr<AssetType> asset = std::make_shared<AssetType>();
+        return std::static_pointer_cast<AssetType>(CreateNewAsset(inSourcePath, ReflectionSystem::GetType<AssetType>()));
+    }
+    
+    SharedPtr<Asset> CreateNewAsset(const SourcePath& inSourcePath, const Type* inType)
+    {
+        SharedPtr<Asset> asset = inType->CreateSharedPtr<Asset>();
         check(!asset->IsExternalAsset() && "We cannot create a new external asset.");
         
         check(asset->GetAssetExtensions().Contains(inSourcePath.extension().string()) && "New assets must follow the allowed extensions.");
@@ -134,15 +139,20 @@ public:
     }
 
     template<typename AssetType>
-    void SaveAssetToCache(SharedPtr<AssetType> inAsset)
+    void SaveAsset(SharedPtr<AssetType> inAsset)
     {
-        CachePath cachePath = SourceToCachePath(inAsset->GetSourcePath());
-        BinarySerializer serializer(cachePath, BinarySerializer::Mode::Write);
+        CachePath savePath;
+        if (inAsset->IsExternalAsset())
+            savePath = SourceToCachePath(inAsset->GetSourcePath());
+        else
+            savePath = inAsset->GetSourcePath();
+        
+        BinarySerializer serializer(savePath, BinarySerializer::Mode::Write);
         serializer.SerializeType(inAsset.get(), ReflectionSystem::GetType(inAsset.get()), false);
     }
     
     void OnAssetRemoved(Asset* inAsset);
-
+    
 private:
     void AddLoadedAsset(SharedPtr<Asset> inAsset);
 
