@@ -92,7 +92,7 @@ protected:
 
     META(SerializeField)
     List<UniquePtr<Actor>> myActors{};
-
+    
     List<Actor*> myActorsToDelete{};
 
     mutable DirectionalLightActor* myCachedDirectionalLightActor;

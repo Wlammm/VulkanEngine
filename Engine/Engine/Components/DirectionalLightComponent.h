@@ -18,10 +18,8 @@ public:
 
     bool IsShadowsEnabled() const;
     void EnableShadows();
-
     
 private:
-    META(AllowPrivateAccess)
     void OnColorChanged();
 
     META(SerializeField)

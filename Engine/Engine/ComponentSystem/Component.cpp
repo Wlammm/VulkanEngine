@@ -5,7 +5,8 @@
 
 void Component::MarkRenderStateDirty()
 {
-    myActor->MarkRenderStateDirty();
+    if (myActor)
+        myActor->MarkRenderStateDirty();
 }
 
 TransformComponent& Component::GetTransform() const

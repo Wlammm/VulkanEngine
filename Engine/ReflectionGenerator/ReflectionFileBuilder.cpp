@@ -66,7 +66,9 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
                 }
                 else
                 {
-                    offsetString = std::to_string(field.GetByteOffset());
+                    // This cant be trusted. If needed we will have to look into another solution for this.
+                    offsetString = std::to_string(-1);
+                    // offsetString = std::to_string(field.GetByteOffset());
                 }
                 
                 outString += "\t{\n";
@@ -91,6 +93,9 @@ void ReflectionFileBuilder::BuildClassContentDeclarations(const ReflectionCache&
 
             for (const ReflectedMethod& method : reflectedClass.GetMethods())
             {
+                if (!method.IsPublic() && !reflectedClass.GetHasGenerationFileHasAccessToPrivateMembers())
+                    continue;
+                
                 /*
                     *Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void* 
                     {

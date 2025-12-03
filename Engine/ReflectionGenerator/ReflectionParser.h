@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include <atomic>
 #include <list>
 #include <memory>
 #include <string>
 #include <vector>
-#include <clang-c/Index.h>
+
+#include "Clang/ClangIndexInclude.h"
 
 #include "ReflectedClass.h"
 #include "IncludePaths.h"
@@ -50,7 +50,7 @@ private:
     static uint32_t GetByteOffsetOfField(const CXCursor& inCurrentCursor, const std::string& inFieldName);
 
     static bool IsTypePublicRecursive(CXType inType);
-    static std::vector<std::string> GetMetadata(const CXCursor& inCursor);
+    static std::vector<std::string> GetMetadata(const CXCursor& inCursor, bool& outHasMetaTag);
 
     ReflectedClass& AddClass(const std::string& inFile, const ReflectedClass& inClass);
 

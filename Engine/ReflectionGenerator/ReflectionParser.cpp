@@ -1,7 +1,7 @@
 ﻿#include "ReflectionParser.h"
 
 #include <iostream>
-#include <clang-c/Index.h>
+#include "Clang/ClangIndexInclude.h"
 
 #include "IncludePaths.h"
 #include "PathUtils.hpp"
@@ -73,16 +73,6 @@ const IncludePaths& ReflectionParser::GetIncludePaths() const
     return myIncludePaths;
 }
 
-bool HasAllowPrivateAccessMetadata(const std::vector<std::string>& inMetadata)
-{
-    for (const std::string& metadata: inMetadata)
-    {
-        if (metadata.contains("AllowPrivateAccess"))
-            return true;
-    }
-    return false;
-}
-
 CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCursor inParentCursor, CXClientData inClientData)
 {
     ClientData& clientData = *static_cast<ClientData*>(inClientData);
@@ -102,10 +92,13 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
 
     if (kind == CXCursor_CXXMethod)
     {
-        const std::vector<std::string> metadata = GetMetadata(inCurrentCursor);
+        bool hasMetaTag = false;
+        const std::vector<std::string> metadata = GetMetadata(inCurrentCursor, hasMetaTag);
+        if (hasMetaTag)
+            clientData.classStack.back()->SetGenerationFileHasAccessToPrivateMembers(true);
+        
         CX_CXXAccessSpecifier accessSpecifier = clang_getCXXAccessSpecifier(inCurrentCursor);
-        if (accessSpecifier != CX_CXXPublic && !HasAllowPrivateAccessMetadata(metadata))
-            return CXChildVisit_Continue;
+        const bool isPublic = accessSpecifier == CX_CXXPublic;
         
         const std::string methodName = GetSpelling(inCurrentCursor);
         const CXType returnType = clang_getCanonicalType(clang_getCursorResultType(inCurrentCursor));
@@ -130,7 +123,7 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
             clang_CXXConstructor_isMoveConstructor(inCurrentCursor))
                 return CXChildVisit_Continue;
 
-        ReflectedMethod method(methodName, returnTypeName, isConst, isStatic, isReturnTypePtr, isReturnTypeRef, metadata);
+        ReflectedMethod method(methodName, returnTypeName, isConst, isStatic, isPublic, isReturnTypePtr, isReturnTypeRef, metadata);
 
         const int numArgs = clang_Cursor_getNumArguments(inCurrentCursor);
         for (int i = 0; i < numArgs; ++i)
@@ -201,22 +194,13 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
 
         // Reflect the field like normal
         uint32_t byteOffset = GetByteOffsetOfField(inCurrentCursor, fieldName);
-        std::vector<std::string> fieldMetaData = GetMetadata(inCurrentCursor);
+        bool hasMetaTag = false;
+        std::vector<std::string> fieldMetaData = GetMetadata(inCurrentCursor, hasMetaTag);
+        
+        if (hasMetaTag)
+            clientData.classStack.back()->SetGenerationFileHasAccessToPrivateMembers(true);
         
         typeName = ReplaceBadTypeNames(typeName);
-
-        bool hasFriendDeclaringMetaData = false;
-        for (const std::string& string : fieldMetaData)
-        {
-            if (string == "SerializeField" || string == "AllowPrivateAccess")
-            {
-                hasFriendDeclaringMetaData = true;
-                break;
-            }
-        }
-
-        if (hasFriendDeclaringMetaData)
-            clientData.classStack.back()->SetGenerationFileHasAccessToPrivateMembers(true);
         
         ReflectedField& field = clientData.classStack.back()->AddField(
             ReflectedField(fieldName, typeName, byteOffset, fieldMetaData, isPointer, isReference)
@@ -459,16 +443,21 @@ std::string GetSourceText(CXSourceRange range, CXTranslationUnit translationUnit
     return std::string(fileContents + startOffset, endOffset - startOffset);
 }
 
-std::vector<std::string> ReflectionParser::GetMetadata(const CXCursor& fieldCursor)
+std::vector<std::string> ReflectionParser::GetMetadata(const CXCursor& fieldCursor, bool& outHasMetaTag)
 {
-    std::vector<std::string> metaData;
+    struct ClientData
+    {
+        std::vector<std::string> metaData;
+        bool& hasMetaTag;
+    } clientData({}, outHasMetaTag);
     
     clang_visitChildren(fieldCursor,
         [](CXCursor cursor, CXCursor /*parent*/, CXClientData clientData) -> CXChildVisitResult {
-            auto* metaVec = static_cast<std::vector<std::string>*>(clientData);
+            ClientData* localClientData = static_cast<ClientData*>(clientData);
             
             if (clang_getCursorKind(cursor) == CXCursor_AnnotateAttr)
             {
+                localClientData->hasMetaTag = true;
                 std::string annotation = GetSpelling(cursor);
                 std::istringstream iss(annotation);
                 std::string token;
@@ -477,15 +466,15 @@ std::vector<std::string> ReflectionParser::GetMetadata(const CXCursor& fieldCurs
                     token.erase(0, token.find_first_not_of(" \t"));
                     token.erase(token.find_last_not_of(" \t") + 1);
                     if (!token.empty())
-                        metaVec->push_back(token);
+                        localClientData->metaData.push_back(token);
                 }
             }
             return CXChildVisit_Recurse;
         },
-        &metaData
+        &clientData
     );
     
-    return metaData;
+    return clientData.metaData;
 }
 
 ReflectedClass& ReflectionParser::AddClass(const std::string& inFile, const ReflectedClass& inClass)
@@ -527,6 +516,11 @@ ReflectedClass* ReflectionParser::FindClass(const std::string& inClassName)
 CXChildVisitResult ReflectionParser::HandleClassDeclaration(CXCursor inCurrentCursor, CXClientData inClientData)
 {
     const std::string className = GetDisplayName(inCurrentCursor);
+    
+    if (className.contains("UniquePtr<Actor>"))
+    {
+        int a = 10;
+    }
     
     const bool isSharedPtr = className.contains("shared_ptr");
     const CXSourceLocation location = clang_getCursorLocation(inCurrentCursor);
@@ -593,9 +587,12 @@ CXChildVisitResult ReflectionParser::HandleClassDeclaration(CXCursor inCurrentCu
         // We dont want to register the base class of shared_ptr's as we're only interested in their template arguments.
         if (!isSharedPtr)
         {
+            // Manually walk base classes for template specializations
             clang_visitChildren(templateCursor, [](CXCursor baseCursor, CXCursor, CXClientData clientData) {
+                std::string typeString = GetSpelling(clang_getCursorKind(baseCursor));
                 if (clang_getCursorKind(baseCursor) == CXCursor_CXXBaseSpecifier)
                 {
+                    
                     CXType baseType = clang_getCanonicalType(clang_getCursorType(baseCursor));
                     std::string baseName = GetSpelling(baseType);
                     auto* currentClass = static_cast<ReflectedClass*>(clientData);

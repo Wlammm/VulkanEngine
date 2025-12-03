@@ -18,17 +18,12 @@ StaticMeshComponent::StaticMeshComponent()
 
 StaticMeshComponent::StaticMeshComponent(const std::filesystem::path& inPath)
 {
-    myPath = inPath;
+    SetModel(Engine::GetEngineSystem<AssetRegistry>().GetAsset<Model>(inPath));
 }
 
 void StaticMeshComponent::OnCreate()
 {
     Component::OnCreate();
-
-    if (!myPath.empty())
-    {
-        SetModel(Engine::GetEngineSystem<AssetRegistry>().GetAsset<Model>(myPath));
-    }
 }
 
 StaticMeshComponent::~StaticMeshComponent()
@@ -120,6 +115,10 @@ void StaticMeshComponent::OnRenderStateDirty()
     
     if (myMeshInstances.size() > myModel->GetMeshes().size())
         myMeshInstances.Resize(myModel->GetMeshes().size());
+    
+    // TODO: This might reset materials when reloading scenes..
+    if (myMaterials.size() != myModel->GetMeshes().size())
+        UpdateMaterialsForNewMesh();
     
     for(int meshIndex = 0; meshIndex < myModel->GetMeshes().size(); ++meshIndex)
     {

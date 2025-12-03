@@ -6,6 +6,7 @@ class Type;
 class IUniquePtr
 {
 public:
+    virtual ~IUniquePtr() = default;
     virtual void* GetVoidPtr() const = 0;
     virtual const std::string& GetConcreteFullName() const = 0;
 };

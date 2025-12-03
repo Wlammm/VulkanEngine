@@ -23,7 +23,7 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 #define META_CHOOSER1(count) META_CHOOSER2(count)
 #define META_CHOOSER(...) META_CHOOSER1(COUNT_ARGS(__VA_ARGS__))
 
-#define META(...) EXPAND(META_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
+#define META(...) friend class GeneratedReflectionData; EXPAND(META_CHOOSER(__VA_ARGS__)(__VA_ARGS__))
 
 #define META0()
 #define META1(a) a
@@ -38,9 +38,6 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 
 // Disable warning about empty macro arguments. 
 #pragma warning(disable : 4003)
-
-// This is only needed if you want the reflection system to recognize private methods. Private fields are always reflected.
-#define AllowPrivateAccess friend class GeneratedReflectionData;
 
 // Use this to serialize the field to disk in case the class is being serialized.
 #define SerializeField friend class GeneratedReflectionData;

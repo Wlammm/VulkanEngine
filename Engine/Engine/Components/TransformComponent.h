@@ -61,7 +61,7 @@ public:
     glm::vec3 GetRotationRad() const;
     glm::vec3 GetRotationDeg() const;
 
-    META(AllowPrivateAccess)
+    META()
     glm::vec3 GetScale() const;
 
     TransformComponent* GetParent() const;
@@ -86,7 +86,7 @@ public:
     bool IsScaleDirty() const;
 
 private:
-    META(AllowPrivateAccess)
+    META()
     void MarkDirtyFromInspector();
     
     void MarkDirty(bool inPosition, bool inRotation, bool inScale);

@@ -62,12 +62,13 @@ ReflectedMethod::ReflectedMethod()
 {
 }
 
-ReflectedMethod::ReflectedMethod(const std::string& inMethodName, const std::string& inReturnTypeName, const bool inIsConst, const bool inIsStatic, const bool inIsReturnTypePointer, const bool inIsReturnTypeReference, const std::vector<std::string>& inMetadata)
+ReflectedMethod::ReflectedMethod(const std::string& inMethodName, const std::string& inReturnTypeName, const bool inIsConst, const bool inIsStatic, const bool inIsPublic, const bool inIsReturnTypePointer, const bool inIsReturnTypeReference, const std::vector<std::string>& inMetadata)
 {
     myMethodName = inMethodName;
     myReturnTypeName = inReturnTypeName;
     myIsConst = inIsConst;
     myIsStatic = inIsStatic;
+    myIsPublic = inIsPublic;
     myIsReturnTypePointer = inIsReturnTypePointer;
     myIsReturnTypeReference = inIsReturnTypeReference;
     myMetadata = inMetadata;
@@ -156,4 +157,9 @@ bool ReflectedMethod::IsConst() const
 bool ReflectedMethod::IsStatic() const
 {
     return myIsStatic;
+}
+
+bool ReflectedMethod::IsPublic() const
+{
+    return myIsPublic;
 }

@@ -31,7 +31,7 @@ class ReflectedMethod
 {
 public:
     ReflectedMethod();
-    ReflectedMethod(const std::string& inMethodName, const std::string& inReturnTypeName, const bool inIsConst, const bool inIsStatic, const bool inIsReturnTypePointer, const bool inIsReturnTypeReference, const std::vector<std::string>& inMetadata);
+    ReflectedMethod(const std::string& inMethodName, const std::string& inReturnTypeName, const bool inIsConst, const bool inIsStatic, const bool inIsPublic, const bool inIsReturnTypePointer, const bool inIsReturnTypeReference, const std::vector<std::string>& inMetadata);
 
     void AddArgument(const ReflectedMethodArgument& inArgument);
 
@@ -41,6 +41,7 @@ public:
 
     const bool IsReturnTypePointer() const;
     const bool IsReturnTypeReference() const;
+    
 
     const std::vector<std::string>& GetMetadata() const;
 
@@ -51,6 +52,7 @@ public:
 
     bool IsConst() const;
     bool IsStatic() const;
+    bool IsPublic() const;
     
 private:
     std::string myMethodName;
@@ -58,6 +60,7 @@ private:
 
     bool myIsReturnTypePointer = false;
     bool myIsReturnTypeReference = false;
+    bool myIsPublic = false;
     
     bool myIsConst = false;
     bool myIsStatic = false;

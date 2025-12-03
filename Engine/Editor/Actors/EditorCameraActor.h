@@ -16,6 +16,7 @@ public:
     CameraComponent& GetCameraComponent();
 
 private:
+    META()
     CameraComponent myCamera;
     EditorCameraMovementComponent myMovementComponent;
 };

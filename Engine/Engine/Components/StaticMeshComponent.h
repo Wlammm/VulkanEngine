@@ -39,13 +39,10 @@ private:
     
     void UpdateMaterialsForNewMesh();
     
-    META(AllowPrivateAccess)
+    META()
     void OnModelChangedFromInspector();
     
 private:
-    META(SerializeField)
-    std::filesystem::path myPath = "";
-
     // META(SerializeField)
     List<SharedPtr<Material>> myMaterials{};
 

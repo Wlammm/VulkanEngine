@@ -77,7 +77,10 @@ int main(int argc, char* argv[])
     
         reflectionCache.UpdateCacheFromParser(parser);
         reflectionCache.UpdateCacheFromUnityFile(unityFile);
-        reflectionCache.SaveCache();
+        
+        // Only save to cache for actual runs. We dont want it when debugging.
+        if (argc > 1)
+            reflectionCache.SaveCache();
     
         ReflectionFileBuilder fileBuilder(reflectionCache);
     }

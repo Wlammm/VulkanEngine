@@ -69,7 +69,11 @@ void ImGuiPropertyDrawer::RegisterDrawers()
 bool ImGuiPropertyDrawer::DrawProperty(const Field& inField, void* inInstance)
 {
     ImGui::PushID(inInstance);
-    ImGui::Text(inField.GetName().c_str());
+    
+    // Remove the my prefix on member variables.
+    const std::string prettifiedFieldName = inField.GetName().starts_with("my") ? inField.GetName().substr(2) : inField.GetName();
+    
+    ImGui::Text(prettifiedFieldName.c_str());
 
     float windowWidth = ImGui::GetWindowSize().x;
     

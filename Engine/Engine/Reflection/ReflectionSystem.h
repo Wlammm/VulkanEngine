@@ -1,9 +1,6 @@
 ﻿#pragma once
 #include "Type.h"
-
-class IUniquePtr;
-template <typename T> class UniquePtr;
-template <typename PtrType, typename... Args> UniquePtr<PtrType> MakeUnique(Args&&... inArgs);
+#include "Engine/Core/UniquePtr.h"
 
 class ReflectionSystem 
 {

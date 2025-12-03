@@ -5,9 +5,9 @@
 class DirectionalLightActor : public Actor
 {
 public:
-
     DirectionalLightComponent& GetDirectionalLightComponent();
     
 private:
+    META(SerializeField)
     DirectionalLightComponent myDirectionalLight;
 };

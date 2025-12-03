@@ -9,6 +9,7 @@ class Type;
 class Actor
 {
 public:
+    friend class Editor;
     Actor();
 
     void DoOnCreate();
@@ -95,5 +96,5 @@ private:
     META(SerializeField)
     TagMask myTagMask = 0;
 
-    bool myRenderStateDirty = false;
+    bool myRenderStateDirty = true;
 };

@@ -24,11 +24,19 @@ void AssetSerializer::Serialize(void* inInstance, const Type* inType, BinarySeri
     
     const Type* assetType = templateArguments.First().myType;
     
-    std::string sourcePath = asset->get()->GetSourcePath().string();
+    std::string sourcePath;
+    if (inSerializer->IsWriting())
+    {
+        if (asset)
+            sourcePath = asset->get()->GetSourcePath().string();
+    }
     inSerializer->SerializeString(sourcePath);
     
     if (inSerializer->IsReading())
     {
+        if (sourcePath == "")
+            return;
+        
         *asset = Engine::GetEngineSystem<AssetRegistry>().GetAsset(sourcePath, assetType);
     }
 }

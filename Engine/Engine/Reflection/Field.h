@@ -31,6 +31,7 @@ public:
 
     void* GetPointerToValue(void* inInstance) const
     {
+        check(myOffset != -1 && "If this hits, make sure the class you're trying to get the field from has at least one META() tag. The meta macro can be empty but does not have to.");
         char* charPtr = (char*)inInstance;
         return (void*)(charPtr + myOffset);
     }
