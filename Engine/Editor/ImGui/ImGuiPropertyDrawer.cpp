@@ -2,6 +2,7 @@
 #include "ImGuiPropertyDrawer.h"
 
 #include "AdvancedDrawers/AssetPropertyDrawer.h"
+#include "AdvancedDrawers/ListPropertyDrawer.h"
 #include "Engine/Engine.h"
 #include "Engine/Reflection/Type.h"
 #include "Engine/Reflection/ReflectionSystem.h"
@@ -64,6 +65,7 @@ void ImGuiPropertyDrawer::RegisterDrawers()
     });
     
     RegisterAdvancedDrawer<AssetPropertyDrawer>();
+    RegisterAdvancedDrawer<ListPropertyDrawer>();
 }
 
 bool ImGuiPropertyDrawer::DrawProperty(const Field& inField, void* inInstance)

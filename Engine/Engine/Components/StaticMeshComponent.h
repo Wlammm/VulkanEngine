@@ -43,9 +43,11 @@ private:
     void OnModelChangedFromInspector();
     
 private:
-    // META(SerializeField)
+    META(SerializeField, OnInspectorChangedEvent(OnModelChangedFromInspector))
     List<SharedPtr<Material>> myMaterials{};
 
+    SharedPtr<Material> mat;
+    
     META(SerializeField, OnInspectorChangedEvent(OnModelChangedFromInspector))
     SharedPtr<Model> myModel = nullptr;
 

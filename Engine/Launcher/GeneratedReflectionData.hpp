@@ -29,6 +29,9 @@
 #include "../Editor/EditorSystem/SelectionSystem.h"
 #include "../Engine/Serialization/TypeSerializers/PathSerializer.h"
 #include "../Editor/ImGui/AdvancedDrawers/AssetPropertyDrawer.h"
+#include "../Engine/ComponentSystem/Actors/StaticMeshActor.h"
+#include "../Engine/Vulkan/VulkanCommandBuffer.h"
+#include "../Editor/ImGui/AdvancedDrawers/ListPropertyDrawer.h"
 #include "../Engine/Components/CameraComponent.h"
 #include "../Editor/ImGui/AssetPicker.h"
 #include "../Engine/Coroutines/Coroutine.h"
@@ -64,7 +67,6 @@
 #include "../Engine/ComponentSystem/Actor.h"
 #include "../Engine/ComponentSystem/Actors/DirectionalLightActor.h"
 #include "../Engine/ComponentSystem/Actors/PhysicsCubeActor.h"
-#include "../Engine/ComponentSystem/Actors/StaticMeshActor.h"
 #include "../Engine/Components/TransformComponent.h"
 #include "../Engine/ComponentSystem/Component.h"
 #include "../Engine/ComponentSystem/GameObjectTag.hpp"
@@ -162,7 +164,6 @@
 #include "../Engine/Vulkan/Staging/StagingSystem.h"
 #include "../Engine/Vulkan/VulkanAllocator.h"
 #include "../Engine/Vulkan/VulkanBuffer.h"
-#include "../Engine/Vulkan/VulkanCommandBuffer.h"
 #include "../Engine/Vulkan/VulkanContext.h"
 #include "../Engine/Vulkan/VulkanDescriptorSet.h"
 #include "../Engine/Vulkan/VulkanDevice.h"
@@ -179,7 +180,6 @@
 #include "../Game/Game.h"
 #include "../Game/GamePch.h"
 #include "../Game/GameTags.h"
-#include "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/include/array"
 #include "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/include/memory"
 
 
@@ -234,6 +234,9 @@ ReflectionSystem::AddType<ImGuiDemoSystem>("ImGuiDemoSystem", typeid(ImGuiDemoSy
 ReflectionSystem::AddType<SelectionSystem>("SelectionSystem", typeid(SelectionSystem).name());
 ReflectionSystem::AddType<PathSerializer>("PathSerializer", typeid(PathSerializer).name());
 ReflectionSystem::AddType<AssetPropertyDrawer>("AssetPropertyDrawer", typeid(AssetPropertyDrawer).name());
+ReflectionSystem::AddType<StaticMeshActor>("StaticMeshActor", typeid(StaticMeshActor).name());
+ReflectionSystem::AddType<VulkanCommandBuffer>("VulkanCommandBuffer", typeid(VulkanCommandBuffer).name());
+ReflectionSystem::AddType<ListPropertyDrawer>("ListPropertyDrawer", typeid(ListPropertyDrawer).name());
 ReflectionSystem::AddType<CameraComponent>("CameraComponent", typeid(CameraComponent).name());
 ReflectionSystem::AddType<PromiseReturnTypeImplementation<void>>("PromiseReturnTypeImplementation<void>", typeid(PromiseReturnTypeImplementation<void>).name());
 ReflectionSystem::AddType<PointLightComponent>("PointLightComponent", typeid(PointLightComponent).name());
@@ -272,7 +275,6 @@ ReflectionSystem::AddType<TextureCube>("TextureCube", typeid(TextureCube).name()
 ReflectionSystem::AddType<Actor>("Actor", typeid(Actor).name());
 ReflectionSystem::AddType<DirectionalLightActor>("DirectionalLightActor", typeid(DirectionalLightActor).name());
 ReflectionSystem::AddType<PhysicsCubeActor>("PhysicsCubeActor", typeid(PhysicsCubeActor).name());
-ReflectionSystem::AddType<StaticMeshActor>("StaticMeshActor", typeid(StaticMeshActor).name());
 ReflectionSystem::AddType<TransformComponent>("TransformComponent", typeid(TransformComponent).name());
 ReflectionSystem::AddType<Component>("Component", typeid(Component).name());
 ReflectionSystem::AddType<LandscapeRenderComponent>("LandscapeRenderComponent", typeid(LandscapeRenderComponent).name());
@@ -424,7 +426,6 @@ ReflectionSystem::AddType<PlayerCameraActor>("PlayerCameraActor", typeid(PlayerC
 ReflectionSystem::AddType<StagingSystem>("StagingSystem", typeid(StagingSystem).name());
 ReflectionSystem::AddType<VulkanAllocator>("VulkanAllocator", typeid(VulkanAllocator).name());
 ReflectionSystem::AddType<VulkanBuffer>("VulkanBuffer", typeid(VulkanBuffer).name());
-ReflectionSystem::AddType<VulkanCommandBuffer>("VulkanCommandBuffer", typeid(VulkanCommandBuffer).name());
 ReflectionSystem::AddType<VulkanContext>("VulkanContext", typeid(VulkanContext).name());
 ReflectionSystem::AddType<VulkanDescriptorSet>("VulkanDescriptorSet", typeid(VulkanDescriptorSet).name());
 ReflectionSystem::AddType<VulkanDevice>("VulkanDevice", typeid(VulkanDevice).name());
@@ -439,7 +440,6 @@ ReflectionSystem::AddType<PlayerActor>("PlayerActor", typeid(PlayerActor).name()
 ReflectionSystem::AddType<PlayerComponent>("PlayerComponent", typeid(PlayerComponent).name());
 ReflectionSystem::AddType<SpringArmComponent>("SpringArmComponent", typeid(SpringArmComponent).name());
 ReflectionSystem::AddType<Game>("Game", typeid(Game).name());
-ReflectionSystem::AddType<std::array<std::shared_ptr<Texture>, 2>>("std::array<std::shared_ptr<Texture>, 2>", typeid(std::array<std::shared_ptr<Texture>, 2>).name());
 ReflectionSystem::AddType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>", typeid(std::shared_ptr<Texture>).name());
 ReflectionSystem::AddType<std::shared_ptr<Material>>("std::shared_ptr<Material>", typeid(std::shared_ptr<Material>).name());
 ReflectionSystem::AddType<std::shared_ptr<Model>>("std::shared_ptr<Model>", typeid(std::shared_ptr<Model>).name());
@@ -1861,6 +1861,73 @@ Method& currentMethod = currentClass->AddMethod(Method("DrawsType", ReflectionSy
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 AssetPropertyDrawer* instance = static_cast<AssetPropertyDrawer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Field & arg1 = *(const Field*)inArguments[1];
+static thread_local bool result = instance->Draw(arg0, arg1);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
+arguments.Add(MethodArgument("inField", ReflectionSystem::GetOrCreateType<const Field &>("const Field &")));
+Method& currentMethod = currentClass->AddMethod(Method("Draw", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<StaticMeshActor>();
+	{
+		Field& currentField = currentClass->AddField(Field("myStaticMeshComponent", offsetof(StaticMeshActor, myStaticMeshComponent), ReflectionSystem::GetOrCreateType<StaticMeshComponent>("StaticMeshComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+StaticMeshActor* instance = static_cast<StaticMeshActor*>(inInstance);
+StaticMeshComponent & result = instance->GetStaticMeshComponent();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetStaticMeshComponent", ReflectionSystem::GetOrCreateType<StaticMeshComponent &>("StaticMeshComponent &"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<VulkanCommandBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("myCommandBuffer", -1, ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCommandPool", -1, ReflectionSystem::GetOrCreateType<vk::CommandPool>("vk::CommandPool"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanCommandBuffer* instance = static_cast<VulkanCommandBuffer*>(inInstance);
+static thread_local vk::CommandBuffer result = instance->GetAPIResource();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ListPropertyDrawer>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<AdvancedPropertyDrawer>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ListPropertyDrawer* instance = static_cast<ListPropertyDrawer*>(inInstance);
+const Type * arg0 = (const Type*)inArguments[0];
+static thread_local bool result = instance->DrawsType(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+Method& currentMethod = currentClass->AddMethod(Method("DrawsType", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ListPropertyDrawer* instance = static_cast<ListPropertyDrawer*>(inInstance);
 void * arg0 = (void*)inArguments[0];
 const Field & arg1 = *(const Field*)inArguments[1];
 static thread_local bool result = instance->Draw(arg0, arg1);
@@ -4361,24 +4428,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDirectionalLightCompo
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<StaticMeshActor>();
-	{
-		Field& currentField = currentClass->AddField(Field("myStaticMeshComponent", offsetof(StaticMeshActor, myStaticMeshComponent), ReflectionSystem::GetOrCreateType<StaticMeshComponent>("StaticMeshComponent"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-StaticMeshActor* instance = static_cast<StaticMeshActor*>(inInstance);
-StaticMeshComponent & result = instance->GetStaticMeshComponent();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetStaticMeshComponent", ReflectionSystem::GetOrCreateType<StaticMeshComponent &>("StaticMeshComponent &"), invoker, arguments));
-}
-}
-{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<TransformComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("OnPositionChanged", offsetof(TransformComponent, OnPositionChanged), ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
@@ -5613,6 +5662,11 @@ Method& currentMethod = currentClass->AddMethod(Method("SetModel", ReflectionSys
 	Type* currentClass = ReflectionSystem::GetMutableType<StaticMeshComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myMaterials", offsetof(StaticMeshComponent, myMaterials), ReflectionSystem::GetOrCreateType<List<std::shared_ptr<Material>>>("List<std::shared_ptr<Material>>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+		currentField.AddMetadata(R"delim(OnInspectorChangedEvent(OnModelChangedFromInspector))delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mat", offsetof(StaticMeshComponent, mat), ReflectionSystem::GetOrCreateType<std::shared_ptr<Material>>("std::shared_ptr<Material>"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myModel", offsetof(StaticMeshComponent, myModel), ReflectionSystem::GetOrCreateType<std::shared_ptr<Model>>("std::shared_ptr<Model>"), false, false));
@@ -5880,6 +5934,7 @@ Method& currentMethod = currentClass->AddMethod(Method("OnModelChangedFromInspec
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<std::shared_ptr<Material>>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::shared_ptr<Material>>("std::shared_ptr<Material>"), false, false);
 }
 { 
@@ -10093,25 +10148,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPtr", ReflectionSyste
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<VulkanCommandBuffer>();
-	{
-		Field& currentField = currentClass->AddField(Field("myCommandBuffer", -1, ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCommandPool", -1, ReflectionSystem::GetOrCreateType<vk::CommandPool>("vk::CommandPool"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanCommandBuffer* instance = static_cast<VulkanCommandBuffer*>(inInstance);
-static thread_local vk::CommandBuffer result = instance->GetAPIResource();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), invoker, arguments));
-}
-}
-{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<VulkanContext>();
 	{
 		Field& currentField = currentClass->AddField(Field("myVulkanInstance", -1, ReflectionSystem::GetOrCreateType<vk::Instance>("vk::Instance"), false, false));
@@ -11375,10 +11411,6 @@ return nullptr;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<std::array<std::shared_ptr<Texture>, 2>>();
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<std::shared_ptr<Texture>>();

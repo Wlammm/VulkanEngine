@@ -78,6 +78,9 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
     ClientData& clientData = *static_cast<ClientData*>(inClientData);
     
     CXCursorKind kind = clang_getCursorKind(inCurrentCursor);
+    
+    std::string name = GetDisplayName(inCurrentCursor);
+    
     if (kind == CXCursor_StructDecl || kind == CXCursor_ClassDecl)
     {
         return clientData.self->HandleClassDeclaration(inCurrentCursor, inClientData);
@@ -522,7 +525,7 @@ CXChildVisitResult ReflectionParser::HandleClassDeclaration(CXCursor inCurrentCu
         int a = 10;
     }
     
-    const bool isSharedPtr = className.contains("shared_ptr");
+    const bool isSharedPtr = className.starts_with("shared_ptr") || className.starts_with("std::shared_ptr");
     const CXSourceLocation location = clang_getCursorLocation(inCurrentCursor);
     
     // We need shared_ptr's to be added as we use them for the asset registry. Their template arguments are needed.
@@ -592,7 +595,6 @@ CXChildVisitResult ReflectionParser::HandleClassDeclaration(CXCursor inCurrentCu
                 std::string typeString = GetSpelling(clang_getCursorKind(baseCursor));
                 if (clang_getCursorKind(baseCursor) == CXCursor_CXXBaseSpecifier)
                 {
-                    
                     CXType baseType = clang_getCanonicalType(clang_getCursorType(baseCursor));
                     std::string baseName = GetSpelling(baseType);
                     auto* currentClass = static_cast<ReflectedClass*>(clientData);

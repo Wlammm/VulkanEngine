@@ -151,6 +151,7 @@
 #include "../Editor/EditorSystem\ImGuiDemoSystem.h"
 #include "../Editor/EditorSystem\SelectionSystem.h"
 #include "../Editor/ImGui\AdvancedDrawers\AssetPropertyDrawer.h"
+#include "../Editor/ImGui\AdvancedDrawers\ListPropertyDrawer.h"
 #include "../Editor/ImGui\AssetPicker.h"
 #include "../Editor/ImGui\ImGuiPropertyDrawer.h"
 #include "../Editor/Toolbar\File\SaveLoadToolbar.h"

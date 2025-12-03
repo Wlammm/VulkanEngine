@@ -36,11 +36,11 @@ public:
         return (void*)(charPtr + myOffset);
     }
 
+    Field(const std::string& inName, const uint32_t inOffset, const Type* inType, const bool inIsPointer, const bool inIsReference);
+
 private:
     friend class GeneratedReflectionData;
     Field() = delete;
-    Field(const std::string& inName, const uint32_t inOffset, const Type* inType, const bool inIsPointer, const bool inIsReference);
-
     void AddMetadata(const std::string& inMetadata);
     
     std::string myName = "";
