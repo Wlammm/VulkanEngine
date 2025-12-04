@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Editor/EditorSystem/SelectionSystem.h"
 #include "Editor/World/EditorWorld.h"
 #include "Engine/Engine.h"
 #include "Engine/World/World.h"
@@ -15,6 +16,8 @@ public:
     META(EditorMenuItem("File/Load"))    
     static void Load()
     {
+        SelectionSystem::ClearSelection();
+        
         Engine::SetWorld(MakeShared<EditorWorld>());
 
         Engine::GetWorld()->LoadFromFile("Worlds/WorldSave.world");

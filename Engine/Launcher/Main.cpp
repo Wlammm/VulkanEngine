@@ -13,48 +13,32 @@
 int main(int argc, char** argv)
 {
 	Console console{argc, argv};
-	try
-	{
-		EngineProperties properties{};
-		properties.Title = L"Engine";
-		properties.AddStartupArguments(argc, argv);
+	 
+	EngineProperties properties{};
+	properties.Title = L"Engine";
+	properties.AddStartupArguments(argc, argv);
 
-		GeneratedReflectionData::RegisterReflectionData();
-		Engine engine{ properties };
-		
-		Game game{};
-		
+	GeneratedReflectionData::RegisterReflectionData();
+	Engine engine{ properties };
+	
+	Game game{};
+	
 #if EDITOR
-		Editor editor{};
-		editor.SetGameTickFunction(Game::StaticTick);
-		Engine::SetExternalTickFunction(Editor::StaticTick);
+	Editor editor{};
+	editor.SetGameTickFunction(Game::StaticTick);
+	Engine::SetExternalTickFunction(Editor::StaticTick);
 #else
-		Engine::SetExternalTickFunction(Game::StaticTick);
+	Engine::SetExternalTickFunction(Game::StaticTick);
 #endif
 
-		bool isRunning = true;
-		while (isRunning)
-		{
-			engine.Tick();
-
-			if (!engine.ShouldRun())
-				isRunning = false;
-		}
-
-		return 0;
-	}
-	catch(...)
+	bool isRunning = true;
+	while (isRunning)
 	{
-		std::exception_ptr eptr = std::current_exception();
-		try
-		{
-			if (eptr)
-				std::rethrow_exception(eptr);
-		}
-		catch(const std::exception& e)
-		{
-			LOG("Caught exception: %s", e.what());
-			return 1;
-		}
+		engine.Tick();
+
+		if (!engine.ShouldRun())
+			isRunning = false;
 	}
+
+	return 0;
 }
