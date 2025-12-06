@@ -20,8 +20,8 @@ public:
 			samplerMode = vk::SamplerAddressMode::eClampToEdge;
 
 			const auto samplerInfo = vk::SamplerCreateInfo()
-				.setMagFilter(vk::Filter::eNearest)
-				.setMinFilter(vk::Filter::eNearest)
+				.setMagFilter(vk::Filter::eLinear)
+				.setMinFilter(vk::Filter::eLinear)
 				.setMipmapMode(vk::SamplerMipmapMode::eLinear)
 				.setAddressModeU(samplerMode)
 				.setAddressModeV(samplerMode)
@@ -44,8 +44,8 @@ public:
 			samplerMode = vk::SamplerAddressMode::eRepeat;
 
 			const auto samplerInfo = vk::SamplerCreateInfo()
-				.setMagFilter(vk::Filter::eNearest)
-				.setMinFilter(vk::Filter::eNearest)
+				.setMagFilter(vk::Filter::eLinear)
+				.setMinFilter(vk::Filter::eLinear)
 				.setMipmapMode(vk::SamplerMipmapMode::eLinear)
 				.setAddressModeU(samplerMode)
 				.setAddressModeV(samplerMode)

@@ -11256,13 +11256,16 @@ Method& currentMethod = currentClass->AddMethod(Method("TickActorDeletes", Refle
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<PlayerActor>();
 	{
-		Field& currentField = currentClass->AddField(Field("myStaticMesh", -1, ReflectionSystem::GetOrCreateType<StaticMeshComponent>("StaticMeshComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myStaticMesh", offsetof(PlayerActor, myStaticMesh), ReflectionSystem::GetOrCreateType<StaticMeshComponent>("StaticMeshComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPlayerComponent", -1, ReflectionSystem::GetOrCreateType<PlayerComponent>("PlayerComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPlayerComponent", offsetof(PlayerActor, myPlayerComponent), ReflectionSystem::GetOrCreateType<PlayerComponent>("PlayerComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCharacterController", -1, ReflectionSystem::GetOrCreateType<CharacterControllerComponent>("CharacterControllerComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myCharacterController", offsetof(PlayerActor, myCharacterController), ReflectionSystem::GetOrCreateType<CharacterControllerComponent>("CharacterControllerComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
 {

@@ -12,7 +12,12 @@ public:
     void OnCreate() override;
 
 private:
+    META(SerializeField)
     StaticMeshComponent myStaticMesh;
+    
+    META(SerializeField)
     PlayerComponent myPlayerComponent;
+    
+    META(SerializeField)
     CharacterControllerComponent myCharacterController;
 };
