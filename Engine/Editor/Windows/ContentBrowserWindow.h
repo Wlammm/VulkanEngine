@@ -58,6 +58,9 @@ private:
     {
         FILETYPE_FOLDER,
         FILETYPE_FILE,
+        FILETYPE_MODEL,
+        FILETYPE_TEXTURE,
+        FILETYPE_MATERIAL,
         FILETYPE_COUNT
     };
     

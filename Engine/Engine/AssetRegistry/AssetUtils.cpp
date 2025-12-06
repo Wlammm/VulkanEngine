@@ -85,6 +85,9 @@ const List<const Type*>& AssetUtils::GetAllExternalAssetTypes()
 
 const Type* AssetUtils::GetAssetTypeFromFileExtension(const std::string& inFileExtension)
 {
+    if (myFileExtensionToTypeLUT.find(inFileExtension) == myFileExtensionToTypeLUT.end())
+        return nullptr;
+    
     return myFileExtensionToTypeLUT.at(inFileExtension);
 }
 

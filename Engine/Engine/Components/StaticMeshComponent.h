@@ -6,9 +6,6 @@
 class Mesh;
 class Model;
 
-// Use GENERATED_MATERIAL_PREFIX + albedoPath.string() + normalPath.string() + materialPath.string() for asset registry insertion.
-constexpr const char* GENERATED_MATERIAL_PREFIX = "GENERATED_STATICMESHMATERIAL_";
-
 class StaticMeshComponent : public Component
 {
 public:
@@ -45,8 +42,6 @@ private:
 private:
     META(SerializeField, OnInspectorChangedEvent(OnModelChangedFromInspector))
     List<SharedPtr<Material>> myMaterials{};
-
-    SharedPtr<Material> mat;
     
     META(SerializeField, OnInspectorChangedEvent(OnModelChangedFromInspector))
     SharedPtr<Model> myModel = nullptr;

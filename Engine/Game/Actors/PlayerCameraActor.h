@@ -12,7 +12,12 @@ public:
     void OnCreate() override;
     
 private:
+    META(SerializeField)
     CameraComponent myCamera;
+    
+    META(SerializeField)
     PlayerCameraControllerComponent myPlayerCameraController;
+    
+    META(SerializeField)
     SpringArmComponent mySpringArmComponent;
 };

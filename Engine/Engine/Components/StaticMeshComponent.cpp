@@ -176,24 +176,26 @@ void StaticMeshComponent::UpdateMaterialsForNewMesh()
         const Mesh* mesh = myModel->GetMeshes()[meshIndex];
         std::filesystem::path albedoPath = AssetUtils::GetSourcePathFromAssetName(mesh->GetAlbedoPath());
         std::filesystem::path normalPath = AssetUtils::GetSourcePathFromAssetName(mesh->GetNormalPath());
-        std::filesystem::path materialPath = AssetUtils::GetSourcePathFromAssetName(mesh->GetMaterialPath());
+        std::filesystem::path materialTexturePath = AssetUtils::GetSourcePathFromAssetName(mesh->GetMaterialPath());
 
-        if(std::filesystem::exists(albedoPath) && std::filesystem::exists(normalPath) && std::filesystem::exists(materialPath))
+        if(std::filesystem::exists(albedoPath) && std::filesystem::exists(normalPath) && std::filesystem::exists(materialTexturePath))
         {
-            const std::string generatedString = GENERATED_MATERIAL_PREFIX + albedoPath.string() + normalPath.string() + materialPath.string() + ".mat";
+            SourcePath materialPath = myModel->GetSourcePath().parent_path();
+            materialPath.append(myModel->GetName() + "_Material" + std::to_string(meshIndex) +".mat");
 
-            if(SharedPtr<Material> material = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Material>(generatedString))
+            if(SharedPtr<Material> material = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Material>(materialPath))
             {
                 myMaterials[meshIndex] = material;
                 MarkRenderStateDirty();
             }
             else
             {
-                SharedPtr<Material> newMaterial = Engine::GetEngineSystem<AssetRegistry>().CreateNewAsset<Material>(generatedString);
+                SharedPtr<Material> newMaterial = Engine::GetEngineSystem<AssetRegistry>().CreateNewAsset<Material>(materialPath);
                 newMaterial->SetAlbedo(albedoPath);
                 newMaterial->SetNormal(normalPath);
-                newMaterial->SetMaterial(materialPath);
+                newMaterial->SetMaterial(materialTexturePath);
                 myMaterials[meshIndex] = newMaterial;
+                Engine::GetEngineSystem<AssetRegistry>().SaveAsset(newMaterial);
                 MarkRenderStateDirty();
             }
         }

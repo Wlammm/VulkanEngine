@@ -618,9 +618,11 @@ Method& currentMethod = currentClass->AddMethod(Method("OnScaleChanged", Reflect
 	Type* currentClass = ReflectionSystem::GetMutableType<EditorCameraActor>();
 	{
 		Field& currentField = currentClass->AddField(Field("myCamera", offsetof(EditorCameraActor, myCamera), ReflectionSystem::GetOrCreateType<CameraComponent>("CameraComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myMovementComponent", offsetof(EditorCameraActor, myMovementComponent), ReflectionSystem::GetOrCreateType<EditorCameraMovementComponent>("EditorCameraMovementComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
 {
@@ -1632,10 +1634,10 @@ Method& currentMethod = currentClass->AddMethod(Method("DrawAssetEditor", Reflec
 		Field& currentField = currentClass->AddField(Field("myForwardHistory", -1, ReflectionSystem::GetOrCreateType<std::deque<std::filesystem::path>>("std::deque<std::filesystem::path>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myContentBrowserTextures", -1, ReflectionSystem::GetOrCreateType<std::array<std::shared_ptr<Texture>, 2>>("std::array<std::shared_ptr<Texture>, 2>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myContentBrowserTextures", -1, ReflectionSystem::GetOrCreateType<std::array<std::shared_ptr<Texture>, 5>>("std::array<std::shared_ptr<Texture>, 5>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myContentBrowserTextureDescriptors", -1, ReflectionSystem::GetOrCreateType<std::array<vk::DescriptorSet, 2>>("std::array<vk::DescriptorSet, 2>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myContentBrowserTextureDescriptors", -1, ReflectionSystem::GetOrCreateType<std::array<vk::DescriptorSet, 5>>("std::array<vk::DescriptorSet, 5>"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myExcludedExtensions", -1, ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), false, false));
@@ -2330,10 +2332,12 @@ Method& currentMethod = currentClass->AddMethod(Method("OnScaleChanged", Reflect
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<LandscapeActor>();
 	{
-		Field& currentField = currentClass->AddField(Field("myLandscapeRenderComponent", -1, ReflectionSystem::GetOrCreateType<LandscapeRenderComponent>("LandscapeRenderComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myLandscapeRenderComponent", offsetof(LandscapeActor, myLandscapeRenderComponent), ReflectionSystem::GetOrCreateType<LandscapeRenderComponent>("LandscapeRenderComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myLandscapeColliderComponent", -1, ReflectionSystem::GetOrCreateType<LandscapeColliderComponent>("LandscapeColliderComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myLandscapeColliderComponent", offsetof(LandscapeActor, myLandscapeColliderComponent), ReflectionSystem::GetOrCreateType<LandscapeColliderComponent>("LandscapeColliderComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
 }
@@ -2829,7 +2833,8 @@ Method& currentMethod = currentClass->AddMethod(Method("SetModel", ReflectionSys
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<PointLightActor>();
 	{
-		Field& currentField = currentClass->AddField(Field("myPointLight", -1, ReflectionSystem::GetOrCreateType<PointLightComponent>("PointLightComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPointLight", offsetof(PointLightActor, myPointLight), ReflectionSystem::GetOrCreateType<PointLightComponent>("PointLightComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
 {
@@ -4417,13 +4422,16 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDirectionalLightCompo
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<PhysicsCubeActor>();
 	{
-		Field& currentField = currentClass->AddField(Field("myMesh", -1, ReflectionSystem::GetOrCreateType<StaticMeshComponent>("StaticMeshComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMesh", offsetof(PhysicsCubeActor, myMesh), ReflectionSystem::GetOrCreateType<StaticMeshComponent>("StaticMeshComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCollider", -1, ReflectionSystem::GetOrCreateType<BoxColliderComponent>("BoxColliderComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myCollider", offsetof(PhysicsCubeActor, myCollider), ReflectionSystem::GetOrCreateType<BoxColliderComponent>("BoxColliderComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myRigidbody", -1, ReflectionSystem::GetOrCreateType<RigidbodyComponent>("RigidbodyComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myRigidbody", offsetof(PhysicsCubeActor, myRigidbody), ReflectionSystem::GetOrCreateType<RigidbodyComponent>("RigidbodyComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
 }
@@ -4455,10 +4463,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDirectionalLightCompo
 	{
 		Field& currentField = currentClass->AddField(Field("myRotation", offsetof(TransformComponent, myRotation), ReflectionSystem::GetOrCreateType<glm::qua<float>>("glm::qua<float>"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
+		currentField.AddMetadata(R"delim(OnInspectorChangedEvent(MarkDirtyFromInspector))delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myScale", offsetof(TransformComponent, myScale), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
+		currentField.AddMetadata(R"delim(OnInspectorChangedEvent(MarkDirtyFromInspector))delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySkipPhysicsUpdate", offsetof(TransformComponent, mySkipPhysicsUpdate), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
@@ -5664,9 +5674,6 @@ Method& currentMethod = currentClass->AddMethod(Method("SetModel", ReflectionSys
 		Field& currentField = currentClass->AddField(Field("myMaterials", offsetof(StaticMeshComponent, myMaterials), ReflectionSystem::GetOrCreateType<List<std::shared_ptr<Material>>>("List<std::shared_ptr<Material>>"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 		currentField.AddMetadata(R"delim(OnInspectorChangedEvent(OnModelChangedFromInspector))delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mat", offsetof(StaticMeshComponent, mat), ReflectionSystem::GetOrCreateType<std::shared_ptr<Material>>("std::shared_ptr<Material>"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myModel", offsetof(StaticMeshComponent, myModel), ReflectionSystem::GetOrCreateType<std::shared_ptr<Model>>("std::shared_ptr<Model>"), false, false));
@@ -9798,13 +9805,16 @@ Method& currentMethod = currentClass->AddMethod(Method("GetUnderlyingBuffer", Re
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<PlayerCameraActor>();
 	{
-		Field& currentField = currentClass->AddField(Field("myCamera", -1, ReflectionSystem::GetOrCreateType<CameraComponent>("CameraComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myCamera", offsetof(PlayerCameraActor, myCamera), ReflectionSystem::GetOrCreateType<CameraComponent>("CameraComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPlayerCameraController", -1, ReflectionSystem::GetOrCreateType<PlayerCameraControllerComponent>("PlayerCameraControllerComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPlayerCameraController", offsetof(PlayerCameraActor, myPlayerCameraController), ReflectionSystem::GetOrCreateType<PlayerCameraControllerComponent>("PlayerCameraControllerComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySpringArmComponent", -1, ReflectionSystem::GetOrCreateType<SpringArmComponent>("SpringArmComponent"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySpringArmComponent", offsetof(PlayerCameraActor, mySpringArmComponent), ReflectionSystem::GetOrCreateType<SpringArmComponent>("SpringArmComponent"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Actor>());
 {

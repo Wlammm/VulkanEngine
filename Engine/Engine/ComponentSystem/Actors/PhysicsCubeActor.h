@@ -9,7 +9,12 @@ public:
     PhysicsCubeActor();
 
 private:
+    META(SerializeField)
     StaticMeshComponent myMesh;
+    
+    META(SerializeField)
     BoxColliderComponent myCollider;
+    
+    META(SerializeField)
     RigidbodyComponent myRigidbody;
 };

@@ -97,9 +97,11 @@ private:
 
     META(SerializeField, OnInspectorChangedEvent(MarkDirtyFromInspector))
     glm::vec3 myPosition { 0, 0, 0 };
-    META(SerializeField)
+    
+    META(SerializeField, OnInspectorChangedEvent(MarkDirtyFromInspector))
     glm::quat myRotation = glm::identity<glm::quat>();
-    META(SerializeField)
+    
+    META(SerializeField, OnInspectorChangedEvent(MarkDirtyFromInspector))
     glm::vec3 myScale { 1, 1, 1 };
 
     // This bool is set to true whenever we get an update from physics.

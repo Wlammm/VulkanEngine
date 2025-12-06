@@ -8,5 +8,6 @@ public:
     PointLightComponent& GetPointLightComponent();
 
 private:
+    META(SerializeField)
     PointLightComponent myPointLight;
 };

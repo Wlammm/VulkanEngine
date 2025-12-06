@@ -16,7 +16,9 @@ public:
     CameraComponent& GetCameraComponent();
 
 private:
-    META()
+    META(SerializeField)
     CameraComponent myCamera;
+
+    META(SerializeField)
     EditorCameraMovementComponent myMovementComponent;
 };

@@ -19,6 +19,15 @@ ContentBrowserWindow::ContentBrowserWindow()
 	
 	myContentBrowserTextures[FILETYPE_FILE] = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/ContentBrowserIcons/File.png");
 	myContentBrowserTextureDescriptors[FILETYPE_FILE] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_FILE]);
+	
+	myContentBrowserTextures[FILETYPE_MODEL] = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/ContentBrowserIcons/Model.png");
+	myContentBrowserTextureDescriptors[FILETYPE_MODEL] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_MODEL]);
+	
+	myContentBrowserTextures[FILETYPE_TEXTURE] = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/ContentBrowserIcons/Texture.png");
+	myContentBrowserTextureDescriptors[FILETYPE_TEXTURE] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_TEXTURE]);
+	
+	myContentBrowserTextures[FILETYPE_MATERIAL] = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/ContentBrowserIcons/Material.png");
+	myContentBrowserTextureDescriptors[FILETYPE_MATERIAL] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_MATERIAL]);
 
 	LoadAllDirectories(myRoot);
 	LoadDirectory(myRoot);
@@ -845,5 +854,17 @@ vk::DescriptorSet ContentBrowserWindow::GetIconFromPath(const std::filesystem::p
 	if (std::filesystem::is_directory(inPath))
 		return myContentBrowserTextureDescriptors[FILETYPE_FOLDER];
 
+	const std::string extension = String::ToLowerCopy(inPath.extension().string());
+
+	// TODO: This should probably be integrated with the asset system later...
+	if (extension == ".gltf" || extension == ".fbx")
+		return myContentBrowserTextureDescriptors[FILETYPE_MODEL];
+	
+	if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".tga")
+		return myContentBrowserTextureDescriptors[FILETYPE_TEXTURE];
+	
+	if (extension == ".mat")
+		return myContentBrowserTextureDescriptors[FILETYPE_MATERIAL];
+	
 	return myContentBrowserTextureDescriptors[FILETYPE_FILE];
 }

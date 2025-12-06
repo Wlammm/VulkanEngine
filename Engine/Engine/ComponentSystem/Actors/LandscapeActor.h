@@ -9,6 +9,9 @@ public:
     
 
 private:
+    META(SerializeField)
     LandscapeRenderComponent myLandscapeRenderComponent;
+
+    META(SerializeField)
     LandscapeColliderComponent myLandscapeColliderComponent;
 };
