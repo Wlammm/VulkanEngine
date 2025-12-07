@@ -187,7 +187,9 @@ WeakPtr<World> Engine::GetWeakWorld()
 
 void Engine::SetWorld(SharedPtr<World> inWorld)
 {
+	SharedPtr<World> previousWorld = myInstance->myWorld;
 	myInstance->myWorld = inWorld;
+	OnWorldChangedDelegate.Invoke(previousWorld);
 }
 
 glm::vec2 Engine::GetRenderResolution()

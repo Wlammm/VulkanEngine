@@ -14,7 +14,7 @@ public:
     {
         if (SharedPtr<World> world = Engine::GetWorld())
         {
-            if (world->GetSourcePath() == "NewWorld.world")
+            if (world->GetSourcePath() == World::EmptyWorldPath)
             {
                 SourcePath path = FileDialog::SaveFileDialog("World (.world)\0*.world;");
                 

@@ -25,7 +25,7 @@ Editor::Editor()
 
     EditorThemes::DefaultTheme();
 
-    Engine::SetWorld(AssetRegistry::Get()->CreateNewAsset<EditorWorld>("NewWorld.world"));
+    Engine::SetWorld(AssetRegistry::Get()->CreateNewAsset<EditorWorld>(World::EmptyWorldPath));
 }
 
 Editor::~Editor()
@@ -34,6 +34,12 @@ Editor::~Editor()
     {
         RemoveWindow(myWindows[i], true);
     }
+    
+    for (int i = mySystems.size() - 1; i >= 0; --i)
+    {
+        del(mySystems[i]);
+    }
+    mySystems.Clear();
 
     myInstance = nullptr;
 }

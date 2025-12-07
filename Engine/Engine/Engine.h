@@ -57,6 +57,8 @@ public:
 	inline static MulticastDelegate<void()> TickNextFrame;
 
 	static void SetExternalTickFunction(const std::function<void()> inExternalTickFunction);
+	
+	inline static MulticastDelegate<void(SharedPtr<World> inPreviousWorld)> OnWorldChangedDelegate;
 
 private:
 	void CreateSystems();

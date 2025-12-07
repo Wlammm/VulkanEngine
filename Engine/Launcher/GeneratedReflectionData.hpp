@@ -26,6 +26,8 @@
 #include "../Editor/Windows/ContentBrowserWindow.h"
 #include "../Editor/EditorSystem/EditorToolbar.h"
 #include "../Editor/EditorSystem/ImGuiDemoSystem.h"
+#include "../Editor/EditorSystem/PreviousWorldsSystem.h"
+#include "../Engine/Assets/Material.h"
 #include "../Editor/EditorSystem/SelectionSystem.h"
 #include "../Engine/Serialization/TypeSerializers/PathSerializer.h"
 #include "../Editor/ImGui/AdvancedDrawers/AssetPropertyDrawer.h"
@@ -57,9 +59,7 @@
 #include "../Engine/AssetRegistry/AssetRegistry.h"
 #include "../Engine/Vulkan/VulkanSwapChain.h"
 #include "../Engine/AssetRegistry/AssetUtils.h"
-#include "../Engine/Containers/MutexList.hpp"
 #include "../Engine/Assets/JsonAsset.h"
-#include "../Engine/Assets/Material.h"
 #include "../Engine/Assets/Model.h"
 #include "../Engine/Assets/Shader.h"
 #include "../Engine/Reflection/Method.h"
@@ -83,6 +83,7 @@
 #include "../Engine/Components/StaticMeshComponent.h"
 #include "../Engine/Containers/ContainerTypes.hpp"
 #include "../Engine/Containers/List.hpp"
+#include "../Engine/Containers/MutexList.hpp"
 #include "../Engine/Core/AutoInit.h"
 #include "../Engine/Core/AutoInitManager.h"
 #include "../Engine/Core/CheckDefine.hpp"
@@ -232,6 +233,8 @@ ReflectionSystem::AddType<ContentBrowserItem>("ContentBrowserItem", typeid(Conte
 ReflectionSystem::AddType<ContentBrowserWindow>("ContentBrowserWindow", typeid(ContentBrowserWindow).name());
 ReflectionSystem::AddType<EditorToolbar>("EditorToolbar", typeid(EditorToolbar).name());
 ReflectionSystem::AddType<ImGuiDemoSystem>("ImGuiDemoSystem", typeid(ImGuiDemoSystem).name());
+ReflectionSystem::AddType<PreviousWorldsSystem>("PreviousWorldsSystem", typeid(PreviousWorldsSystem).name());
+ReflectionSystem::AddType<Material>("Material", typeid(Material).name());
 ReflectionSystem::AddType<SelectionSystem>("SelectionSystem", typeid(SelectionSystem).name());
 ReflectionSystem::AddType<PathSerializer>("PathSerializer", typeid(PathSerializer).name());
 ReflectionSystem::AddType<AssetPropertyDrawer>("AssetPropertyDrawer", typeid(AssetPropertyDrawer).name());
@@ -263,7 +266,6 @@ ReflectionSystem::AddType<AssetRegistry>("AssetRegistry", typeid(AssetRegistry).
 ReflectionSystem::AddType<VulkanSwapChain>("VulkanSwapChain", typeid(VulkanSwapChain).name());
 ReflectionSystem::AddType<AssetUtils>("AssetUtils", typeid(AssetUtils).name());
 ReflectionSystem::AddType<JsonAsset>("JsonAsset", typeid(JsonAsset).name());
-ReflectionSystem::AddType<Material>("Material", typeid(Material).name());
 ReflectionSystem::AddType<SerializationMeshData>("SerializationMeshData", typeid(SerializationMeshData).name());
 ReflectionSystem::AddType<Model>("Model", typeid(Model).name());
 ReflectionSystem::AddType<IncludeData>("IncludeData", typeid(IncludeData).name());
@@ -1753,6 +1755,181 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PreviousWorldsSystem>();
+	{
+		Field& currentField = currentClass->AddField(Field("mySavePath", -1, ReflectionSystem::GetOrCreateType<const std::basic_string<char>>("const std::basic_string<char>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaxWorldsSaved", -1, ReflectionSystem::GetOrCreateType<const int>("const int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPreviousWorlds", -1, ReflectionSystem::GetOrCreateType<List<std::filesystem::path>>("List<std::filesystem::path>"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorSystem>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PreviousWorldsSystem* instance = static_cast<PreviousWorldsSystem*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<Material>();
+	{
+		Field& currentField = currentClass->AddField(Field("myAlbedoTexture", offsetof(Material, myAlbedoTexture), ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormalTexture", offsetof(Material, myNormalTexture), ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialTexture", offsetof(Material, myMaterialTexture), ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDepthWriteEnabled", offsetof(Material, myDepthWriteEnabled), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+static thread_local bool result = instance->IsExternalAsset();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsExternalAsset", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+static thread_local List<std::basic_string<char>> result = instance->GetAssetExtensions();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAssetExtensions", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+static thread_local std::shared_ptr<Texture> result = instance->GetAlbedo();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAlbedo", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+static thread_local std::shared_ptr<Texture> result = instance->GetNormal();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetNormal", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+static thread_local std::shared_ptr<Texture> result = instance->GetMaterial();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetMaterial", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+std::shared_ptr<Texture>& arg0 = *(std::shared_ptr<Texture>*)inArguments[0];
+instance->SetAlbedo(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTexture", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>")));
+Method& currentMethod = currentClass->AddMethod(Method("SetAlbedo", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
+instance->SetAlbedo(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSourcePath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
+Method& currentMethod = currentClass->AddMethod(Method("SetAlbedo", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+std::shared_ptr<Texture>& arg0 = *(std::shared_ptr<Texture>*)inArguments[0];
+instance->SetNormal(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTexture", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>")));
+Method& currentMethod = currentClass->AddMethod(Method("SetNormal", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
+instance->SetNormal(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSourcePath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
+Method& currentMethod = currentClass->AddMethod(Method("SetNormal", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+std::shared_ptr<Texture>& arg0 = *(std::shared_ptr<Texture>*)inArguments[0];
+instance->SetMaterial(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTexture", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>")));
+Method& currentMethod = currentClass->AddMethod(Method("SetMaterial", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
+instance->SetMaterial(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSourcePath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
+Method& currentMethod = currentClass->AddMethod(Method("SetMaterial", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Material* instance = static_cast<Material*>(inInstance);
+static thread_local bool result = instance->GetDepthWriteEnabled();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetDepthWriteEnabled", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 }
 { 
@@ -3323,158 +3500,6 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetJson", ReflectionSystem::GetOrCreateType<const nlohmann::basic_json<> &>("const nlohmann::basic_json<> &"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<Material>();
-	{
-		Field& currentField = currentClass->AddField(Field("myAlbedoTexture", offsetof(Material, myAlbedoTexture), ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNormalTexture", offsetof(Material, myNormalTexture), ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMaterialTexture", offsetof(Material, myMaterialTexture), ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDepthWriteEnabled", offsetof(Material, myDepthWriteEnabled), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Material* instance = static_cast<Material*>(inInstance);
-static thread_local bool result = instance->IsExternalAsset();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("IsExternalAsset", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Material* instance = static_cast<Material*>(inInstance);
-static thread_local List<std::basic_string<char>> result = instance->GetAssetExtensions();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAssetExtensions", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Material* instance = static_cast<Material*>(inInstance);
-static thread_local std::shared_ptr<Texture> result = instance->GetAlbedo();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAlbedo", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Material* instance = static_cast<Material*>(inInstance);
-static thread_local std::shared_ptr<Texture> result = instance->GetNormal();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetNormal", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Material* instance = static_cast<Material*>(inInstance);
-static thread_local std::shared_ptr<Texture> result = instance->GetMaterial();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetMaterial", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Material* instance = static_cast<Material*>(inInstance);
-std::shared_ptr<Texture>& arg0 = *(std::shared_ptr<Texture>*)inArguments[0];
-instance->SetAlbedo(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inTexture", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>")));
-Method& currentMethod = currentClass->AddMethod(Method("SetAlbedo", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Material* instance = static_cast<Material*>(inInstance);
-const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
-instance->SetAlbedo(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inSourcePath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
-Method& currentMethod = currentClass->AddMethod(Method("SetAlbedo", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Material* instance = static_cast<Material*>(inInstance);
-std::shared_ptr<Texture>& arg0 = *(std::shared_ptr<Texture>*)inArguments[0];
-instance->SetNormal(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inTexture", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>")));
-Method& currentMethod = currentClass->AddMethod(Method("SetNormal", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Material* instance = static_cast<Material*>(inInstance);
-const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
-instance->SetNormal(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inSourcePath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
-Method& currentMethod = currentClass->AddMethod(Method("SetNormal", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Material* instance = static_cast<Material*>(inInstance);
-std::shared_ptr<Texture>& arg0 = *(std::shared_ptr<Texture>*)inArguments[0];
-instance->SetMaterial(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inTexture", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>")));
-Method& currentMethod = currentClass->AddMethod(Method("SetMaterial", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Material* instance = static_cast<Material*>(inInstance);
-const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
-instance->SetMaterial(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inSourcePath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
-Method& currentMethod = currentClass->AddMethod(Method("SetMaterial", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-Material* instance = static_cast<Material*>(inInstance);
-static thread_local bool result = instance->GetDepthWriteEnabled();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetDepthWriteEnabled", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 }
 { 

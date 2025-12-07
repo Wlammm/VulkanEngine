@@ -149,6 +149,7 @@
 #include "../Editor/EditorSystem\EditorSystem.h"
 #include "../Editor/EditorSystem\EditorToolbar.h"
 #include "../Editor/EditorSystem\ImGuiDemoSystem.h"
+#include "../Editor/EditorSystem\PreviousWorldsSystem.h"
 #include "../Editor/EditorSystem\SelectionSystem.h"
 #include "../Editor/ImGui\AdvancedDrawers\AssetPropertyDrawer.h"
 #include "../Editor/ImGui\AdvancedDrawers\ListPropertyDrawer.h"

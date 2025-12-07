@@ -17,6 +17,8 @@ struct DirectionalLight;
 class World : public Asset
 {
 public:
+    inline static constexpr const char* EmptyWorldPath = "NewWorld.world";
+    
     World();
     ~World();
 
