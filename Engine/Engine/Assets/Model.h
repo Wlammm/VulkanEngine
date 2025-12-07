@@ -34,13 +34,13 @@ class Model : public Asset
 public:
 	~Model();
 	
-	List<std::string> GetAssetExtensions() const override { return {".fbx", ".gltf" }; }
+	static List<std::string> GetAssetExtensions() { return {".fbx", ".gltf" }; }
 	
 	void PostPropertiesSerialized() override;
 
 	void LoadPropertiesFromSource() override;
 	
-	virtual constexpr bool IsExternalAsset() const override { return true; };
+	static constexpr bool IsExternalAsset() { return true; };
 	
 	const List<Mesh*>& GetMeshes() const;
 	

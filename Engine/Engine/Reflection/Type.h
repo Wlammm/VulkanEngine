@@ -44,6 +44,26 @@ public:
     
     List<const Method*> GetMethodsWithMetadata(const std::string& inMetadata) const;
     
+    
+    template<typename ReturnType = void, typename... Args>
+    ReturnType CallStaticMethod(const std::string& inMethodName, Args&&... inArgs) const
+    {
+        const Method* method = GetMethod(inMethodName);
+        check(method && "Method does not exists");
+        
+        return method->Invoke<ReturnType>(nullptr, std::forward<Args>(inArgs)...);
+    }
+    
+    template<typename ReturnType = void, typename... Args>
+    ReturnType CallStaticMethodRecursive(const std::string& inMethodName, Args&&... inArgs) const
+    {
+        const Method* method = GetMethodRecursive(inMethodName);
+        check(method && "Method does not exists");
+        
+        return method->Invoke<ReturnType>(nullptr, std::forward<Args>(inArgs)...);
+        
+    }
+    
     const Method* GetMethod(const std::string& inMethodName) const;
     const Method* GetMethodRecursive(const std::string& inMethodName) const;
 

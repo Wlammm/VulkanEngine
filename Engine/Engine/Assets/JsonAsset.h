@@ -8,9 +8,9 @@ class JsonAsset : public Asset
 public:
     bool IsCacheValid() const override { return false; };
     
-    List<std::string> GetAssetExtensions() const override { return {".json"}; }
+    static List<std::string> GetAssetExtensions() { return {".json"}; }
     
-    bool IsExternalAsset() const override { return true; }
+    static bool IsExternalAsset() { return true; }
     
     void LoadPropertiesFromSource() override;
 

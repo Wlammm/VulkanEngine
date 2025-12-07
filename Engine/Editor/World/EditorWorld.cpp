@@ -8,8 +8,6 @@
 
 void EditorWorld::Init()
 {
-    World::Init();
-
     myEditorCamera = SpawnActor<EditorCameraActor>("EditorCamera");
     SetMainCamera(&myEditorCamera->GetCameraComponent());
 }

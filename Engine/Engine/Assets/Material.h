@@ -6,9 +6,9 @@ class Texture;
 class Material : public Asset
 {
 public:
-	virtual constexpr bool IsExternalAsset() const override { return false; }
+	static constexpr bool IsExternalAsset() { return false; }
 	
-	List<std::string> GetAssetExtensions() const override { return { ".mat" }; }
+	static List<std::string> GetAssetExtensions() { return { ".mat" }; }
 	
 	SharedPtr<Texture> GetAlbedo() const;
 	SharedPtr<Texture> GetNormal() const;

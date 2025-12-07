@@ -34,42 +34,22 @@ World::~World()
 	mySystemManager.Reset();
 }
 
-void World::Init()
+void World::PostPropertiesSerialized()
 {
-	// World objects.
-	return;
+	Asset::PostPropertiesSerialized();
+	
+	for (const UniquePtr<Actor>& actor : myActors)
 	{
-		StaticMeshActor* sponza = SpawnActor<StaticMeshActor>("Sponza", "Assets/Sponza/Sponza.gltf");
-		sponza->GetTransform().SetPositionY(2000);
-		sponza->GetTransform().SetScale(100.0f);
+		actor->myWorld = this;
+		actor->RegisterComponents();
 	}
 
-	
+	for (const UniquePtr<Actor>& actor : myActors)
 	{
-		StaticMeshActor* sponza = SpawnActor<StaticMeshActor>("Sponza2", "Assets/Sponza/Sponza.gltf");
-		sponza->GetTransform().SetPosition(5000, 2000, 0);
-		sponza->GetTransform().SetScale(100.0f);
-	}
-	
-	LandscapeActor* landscape = SpawnActor<LandscapeActor>("Landscape");
-
-	for (int i =0; i < 50; ++i)
-	{
-		PhysicsCubeActor* cube = SpawnActor<PhysicsCubeActor>("Cube");
-		cube->GetTransform().SetPosition(glm::vec3{(float)i * 100, 10000, 0});
-	}
-	
-	glm::vec3 startPosition = glm::vec3(-800.0f, 50.0f, -35.0f);
-	for (int i = 0; i < 5; i++)
-	{
-		PointLightActor* pointLightObject = SpawnActor<PointLightActor>("PointLight");
-		TransformComponent& transform = pointLightObject->GetTransform();
-		transform.SetPosition(startPosition);
-		transform.Move(glm::right() * (i * 400.0f));
-
-		pointLightObject->GetPointLightComponent().SetIntensity(40000.0f);
-		pointLightObject->GetPointLightComponent().SetRange(600.0f);
-		pointLightObject->GetPointLightComponent().TEMP_SendToGPU();
+		actor->DoOnCreate();
+		
+		if (actor->IsTransientActor())
+			RemoveActor(actor.Get());
 	}
 }
 
@@ -90,40 +70,6 @@ void World::TickPhysics()
 	for (const UniquePtr<Actor>& actor : myActors)
 	{
 		actor->DoTickPhysics();
-	}
-}
-
-void World::SaveToFile(const std::filesystem::path& inPath)
-{
-	BinarySerializer writer(inPath, BinarySerializer::Mode::Write);
-	writer.SerializeType(*this);
-	writer.Close();
-}
-
-void World::LoadFromFile(const std::filesystem::path& inPath)
-{
-	RemoveAllActors();
-	TickActorDeletes();
-
-	myCachedDirectionalLightActor = nullptr;
-	myMainCamera = nullptr;
-	
-	BinarySerializer writer(inPath, BinarySerializer::Mode::Read);
-	writer.SerializeType(*this);
-	writer.Close();
-
-	for (const UniquePtr<Actor>& actor : myActors)
-	{
-		actor->myWorld = this;
-		actor->RegisterComponents();
-	}
-
-	for (const UniquePtr<Actor>& actor : myActors)
-	{
-		actor->DoOnCreate();
-		
-		if (actor->IsTransientActor())
-			RemoveActor(actor.Get());
 	}
 }
 

@@ -3,7 +3,7 @@
 
 class EditorCameraActor;
 
-class EditorWorld : public World
+class EditorWorld : public World, public AutoInit
 {
 public:
     void Init() override;

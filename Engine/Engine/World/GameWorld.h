@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "World.h"
 
-class GameWorld : public World
+class GameWorld : public World, public AutoInit
 {
 public:
     void Init() override;

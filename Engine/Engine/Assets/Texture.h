@@ -26,13 +26,13 @@ class Texture : public Asset
 public:
     ~Texture();
     
-    List<std::string> GetAssetExtensions() const override { return { ".png", ".hdr", ".tga"}; }
+    static List<std::string> GetAssetExtensions() { return { ".png", ".hdr", ".tga"}; }
     
     void LoadPropertiesFromSource() override;
     
     void PostPropertiesSerialized() override;
 
-    virtual constexpr bool IsExternalAsset() const override { return true; }
+    static constexpr bool IsExternalAsset() { return true; }
     
     VulkanImage* GetImage() const;
     vk::ImageView GetImageView() const;

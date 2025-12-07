@@ -33,6 +33,7 @@ void Asset::DoFirstTimeAssetInitialization(const std::filesystem::path& inAssetP
 
 void Asset::SetAssetPath(const SourcePath& inSourcePath)
 {
+    // TODO: Tell the asset registry that we've changed paths. Otherwise we can get assets loaded twice.
     myAssetPath = inSourcePath;
 }
 

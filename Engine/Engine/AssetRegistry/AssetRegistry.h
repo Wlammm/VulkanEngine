@@ -33,7 +33,7 @@ public:
 
         asset = inType->CreateSharedPtr<Asset>();
         
-        if (asset->IsExternalAsset())
+        if (inType->CallStaticMethodRecursive<bool>("IsExternalAsset"))
         {
             asset = LoadExternalAsset(inSourcePath, inType);
         }
@@ -114,9 +114,8 @@ public:
     SharedPtr<Asset> CreateNewAsset(const SourcePath& inSourcePath, const Type* inType)
     {
         SharedPtr<Asset> asset = inType->CreateSharedPtr<Asset>();
-        check(!asset->IsExternalAsset() && "We cannot create a new external asset.");
-        
-        check(asset->GetAssetExtensions().Contains(inSourcePath.extension().string()) && "New assets must follow the allowed extensions.");
+        check(!inType->CallStaticMethodRecursive<bool>("IsExternalAsset") && "We cannot create a new external asset.");
+        check(inType->CallStaticMethodRecursive<List<std::string>>("GetAssetExtensions").Contains(inSourcePath.extension().string()) && "New assets must follow the allowed extensions.");
         
         asset->DoFirstTimeAssetInitialization(inSourcePath);
         AddLoadedAsset(asset);

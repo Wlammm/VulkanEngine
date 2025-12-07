@@ -402,8 +402,8 @@ void ContentBrowserWindow::RenderFilewatcher()
 			}
 			else
 			{
-				ImGui::InputText("##renamingfilecontentbrowser", &myNewFileName);
 				ImGui::SetKeyboardFocusHere(0);
+				ImGui::InputText("##renamingfilecontentbrowser", &myNewFileName);
 			}
 
 			ImGui::NextColumn();
@@ -437,8 +437,6 @@ void ContentBrowserWindow::UpdateSearch()
 		glm::vec2 windowPosition{displaySize.x * .5f - windowSize.x * .5f, displaySize.y * .5f - windowSize.y * .5f};
 		ImGui::SetWindowPos({windowPosition.x, windowPosition.y});
 
-		// FIXME(Ajlin): This line causes mouse clicking selectables to fail
-		// but I kept it because it immediately lets us write in the search bar
 		ImGui::SetKeyboardFocusHere();
 
 		if(ImGui::InputTextWithHint("##SearchBar", "Search", &mySearchString))
@@ -708,8 +706,11 @@ void ContentBrowserWindow::UpdateRenaming()
 			myNewFileName.append(extension);
 			newPath.append(myNewFileName);
 
-			AssetUtils::RenameAsset(myItems[myRenamingItem].myPath, newPath);
-
+			if (std::filesystem::is_directory(myItems[myRenamingItem].myPath))
+				std::filesystem::rename(myItems[myRenamingItem].myPath, newPath);
+			else
+				AssetUtils::RenameAsset(myItems[myRenamingItem].myPath, newPath);
+			
 			myItems[myRenamingItem].myPath = newPath;
 			myRenamingItem = -1;
 			myRenamingInProgress = false;

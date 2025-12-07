@@ -9,8 +9,6 @@
 
 void GameWorld::Init()
 {
-    World::Init();
-    
     PlayerActor* player = SpawnActor<PlayerActor>("Player");
     player->GetTransform().SetPosition(glm::vec3{0, 5000, 0});
     player->GetTransform().SetRotationDeg(glm::vec3{0, 0, 0});

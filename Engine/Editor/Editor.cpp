@@ -5,6 +5,7 @@
 #include "EditorSystem/EditorToolbar.h"
 #include "EditorSystem/SelectionSystem.h"
 #include "Engine/Engine.h"
+#include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 #include "Engine/World/GameWorld.h"
 #include "ImGui/ImGuiPropertyDrawer.h"
@@ -24,7 +25,7 @@ Editor::Editor()
 
     EditorThemes::DefaultTheme();
 
-    Engine::SetWorld(MakeShared<EditorWorld>());
+    Engine::SetWorld(AssetRegistry::Get()->CreateNewAsset<EditorWorld>("NewWorld.world"));
 }
 
 Editor::~Editor()

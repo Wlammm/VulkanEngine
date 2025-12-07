@@ -1,4 +1,5 @@
 #pragma once
+#include "Engine/AssetRegistry/Asset.h"
 #include "Engine/ComponentSystem/GameObjectTag.hpp"
 #include "Engine/Core/AutoInit.h"
 #include "Engine/System/SystemManager.hpp"
@@ -12,22 +13,21 @@ class DirectionalLightComponent;
 class ECSRegistry;
 struct DirectionalLight;
 
-class World : public AutoInit
+// I am not sure I am fully comfortable with the world being an asset... I have a feeling I'll come back to this :)
+class World : public Asset
 {
 public:
     World();
     ~World();
 
-    void Init() override;
-
+    void PostPropertiesSerialized() override;
+    static List<std::string> GetAssetExtensions() { return {".world" }; }
+    
     void DoTick();
     virtual void Tick() = 0;
     void Destroy();
 
     void TickPhysics();
-
-    void SaveToFile(const std::filesystem::path& inPath);
-    void LoadFromFile(const std::filesystem::path& inPath);
 
     bool Raycast(const glm::vec3& inOrigin, const glm::vec3& inDirection, RaycastHit& outHit,
                  const float inMaxDistance = FLOAT_MAX, const TagMask inExcludedTags = 0, bool inIgnoreTriggers = true);

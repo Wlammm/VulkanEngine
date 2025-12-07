@@ -20,12 +20,12 @@ class Shader : public Asset
 public:
     ~Shader() override;
     
-    List<std::string> GetAssetExtensions() const override { return {".vert", ".frag", ".comp" }; }
+    static List<std::string> GetAssetExtensions() { return {".vert", ".frag", ".comp" }; }
     
     void LoadPropertiesFromSource() override;
     void PostPropertiesSerialized() override;
 
-    bool IsExternalAsset() const override { return true;};
+    static bool IsExternalAsset() { return true;};
     
     bool IsCacheValid() const override;
     

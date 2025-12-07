@@ -157,6 +157,7 @@
 #include "../Editor/Toolbar\File\SaveLoadToolbar.h"
 #include "../Editor/Toolbar\Themes\EditorThemes.h"
 #include "../Editor/Utils\EditorConfirmPrompt.h"
+#include "../Editor/Utils\FileDialog.h"
 #include "../Editor/Utils\ImGuiTextureUtils.h"
 #include "../Editor/Windows\ContentBrowserWindow.h"
 #include "../Editor/Windows\EditorWindow.h"

@@ -3,6 +3,7 @@
 
 #include "Asset.h"
 #include "AssetRegistry.h"
+#include "Engine/Engine.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 
 void AssetUtils::Start()
@@ -15,21 +16,19 @@ void AssetUtils::BuildAssetLUTs()
 {
     myFileExtensionToTypeLUT.clear();
     const Type* assetType = ReflectionSystem::GetType<Asset>();
-    
     for (const Type* derivedAssetType : assetType->GetDerivedTypes())
     {
-        Asset* instance = derivedAssetType->CreateInstance<Asset>();
-        for (const std::string& extension : instance->GetAssetExtensions())
+        const List<std::string> assetExtensions = derivedAssetType->CallStaticMethodRecursive<List<std::string>>("GetAssetExtensions");
+        for (const std::string& extension : assetExtensions)
         {
             myFileExtensionToTypeLUT.insert({extension, derivedAssetType});
         }
         
-        if (instance->IsExternalAsset())
+        if (derivedAssetType->CallStaticMethodRecursive<bool>("IsExternalAsset"))
             myExternalAssetTypes.Add(derivedAssetType);
         else
             myInternalAssetTypes.Add(derivedAssetType);
         
-        del(instance);
     }
 }
 
