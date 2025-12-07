@@ -30,7 +30,7 @@ PreviousWorldsSystem::~PreviousWorldsSystem()
 
 void PreviousWorldsSystem::Tick()
 {
-    if (ImGui::BeginPopupModal("Open Previous Scene", nullptr))
+    if (ImGui::BeginPopupModal("Open Previous World", nullptr))
     {
         ON_SCOPE_EXIT([](){ImGui::EndPopup();});
         
@@ -53,7 +53,7 @@ void PreviousWorldsSystem::Tick()
     
     DO_ONCE(
         if (myPreviousWorlds.size() > 0)
-            ImGui::OpenPopup("Open Previous Scene");
+            ImGui::OpenPopup("Open Previous World");
     );
 }
 
