@@ -6111,6 +6111,9 @@ Method& currentMethod = currentClass->AddMethod(Method("OnModelChangedFromInspec
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<AutoInit>();
+	{
+		Field& currentField = currentClass->AddField(Field("myHasInited", -1, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<AutoInitManager>();
@@ -6125,6 +6128,18 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<AutoInit *>("AutoInit *")));
 Method& currentMethod = currentClass->AddMethod(Method("AddInitObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+AutoInitManager* instance = static_cast<AutoInitManager*>(inInstance);
+AutoInit * arg0 = (AutoInit*)inArguments[0];
+instance->RemoveInitObject(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inObject", ReflectionSystem::GetOrCreateType<AutoInit *>("AutoInit *")));
+Method& currentMethod = currentClass->AddMethod(Method("RemoveInitObject", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

@@ -16,11 +16,15 @@ public:
         {
             if (world->GetSourcePath() == "NewWorld.world")
             {
-                SourcePath path = FileDialog::SaveFileDialog("Scene (.scene)\0*.scene;");
+                SourcePath path = FileDialog::SaveFileDialog("World (.world)\0*.world;");
+                
+                if (!path.has_extension())
+                    path += ".world";
+                
                 world->SetAssetPath(path);
             }
             
-            Engine::GetWorld()->ResaveAsset();
+            AssetRegistry::Get()->SaveAsset(world);
         }
     }
 
@@ -29,7 +33,7 @@ public:
     {
         SelectionSystem::ClearSelection();
 
-        SourcePath path = FileDialog::OpenFileDialog("Scene (.scene)\0*.scene");
+        SourcePath path = FileDialog::OpenFileDialog("World (.world)\0*.world");
         
         if (!std::filesystem::exists(path))
             return;

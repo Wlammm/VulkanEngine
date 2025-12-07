@@ -6,3 +6,9 @@ AutoInit::AutoInit()
 {
 	AutoInitManager::AddInitObject(this);
 }
+
+AutoInit::~AutoInit()
+{
+	if (!myHasInited)
+		AutoInitManager::RemoveInitObject(this);
+}
