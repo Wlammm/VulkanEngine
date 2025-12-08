@@ -41,7 +41,7 @@ void TextureSystem::Tick()
 
 void TextureSystem::RegisterTexture_TS(Texture* inTexture)
 {
-    vk::Sampler sampler = VulkanUtils::GetSampler(SamplerMode::Wrap);
+    vk::Sampler sampler = VulkanUtils::GetSampler(SamplerMode::LinearWrap);
     
     uint handle;
     myFreeIndices.Lock();
@@ -78,7 +78,7 @@ void TextureSystem::RegisterTexture_TS(Texture* inTexture)
 
 void TextureSystem::RegisterTextureCube_TS(TextureCube* inTexture)
 {
-    vk::Sampler sampler = VulkanUtils::GetSampler(SamplerMode::Wrap);
+    vk::Sampler sampler = VulkanUtils::GetSampler(SamplerMode::LinearWrap);
     uint handle = myNextArrayIndex++;
     const vk::DescriptorImageInfo imageInfo = vk::DescriptorImageInfo()
         .setSampler(sampler)
@@ -111,7 +111,7 @@ void TextureSystem::RemoveTexture_TS(Texture* inTexture)
         vk::DescriptorImageInfo imageInfo = {};
         imageInfo.imageLayout = vk::ImageLayout::eReadOnlyOptimal;
         imageInfo.imageView = myMissingMaterialTexture->GetImageView();
-        imageInfo.sampler = VulkanUtils::GetSampler(SamplerMode::Wrap);
+        imageInfo.sampler = VulkanUtils::GetSampler(SamplerMode::LinearWrap);
 
         const vk::WriteDescriptorSet write = vk::WriteDescriptorSet()
             .setDescriptorCount(1)
@@ -138,7 +138,7 @@ void TextureSystem::RemoveTextureCube_TS(TextureCube* inTexture)
     vk::DescriptorImageInfo nullImageInfo = {};
     nullImageInfo.imageLayout = vk::ImageLayout::eReadOnlyOptimal;
     nullImageInfo.imageView = myMissingMaterialTexture->GetImageView();
-    nullImageInfo.sampler = VulkanUtils::GetSampler(SamplerMode::Wrap);
+    nullImageInfo.sampler = VulkanUtils::GetSampler(SamplerMode::LinearWrap);
 
     const vk::WriteDescriptorSet write = vk::WriteDescriptorSet()
         .setDescriptorCount(1)
@@ -181,7 +181,7 @@ void TextureSystem::RegisterAllQueuedTextures()
 
 void TextureSystem::RegisterTexture(Texture* inTexture)
 {
-    vk::Sampler sampler = VulkanUtils::GetSampler(SamplerMode::Clamp);
+    vk::Sampler sampler = VulkanUtils::GetSampler(SamplerMode::LinearClamp);
     uint handle = ++myNextArrayIndex;
     const vk::DescriptorImageInfo imageInfo = vk::DescriptorImageInfo()
         .setSampler(sampler)

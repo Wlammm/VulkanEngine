@@ -113,6 +113,6 @@ void FullscreenPipeline::CreatePipeline()
 
 void FullscreenPipeline::CreateDescriptors(VulkanImage* inSource)
 {
-	myDescriptorSet.BindImage(inSource, VulkanUtils::GetSampler(SamplerMode::Wrap), 0, vk::ShaderStageFlagBits::eFragment);
+	myDescriptorSet.BindImage(inSource, VulkanUtils::GetSampler(SamplerMode::LinearWrap), 0, vk::ShaderStageFlagBits::eFragment);
 	myDescriptorSet.Build();
 }

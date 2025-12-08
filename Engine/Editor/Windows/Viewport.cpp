@@ -26,7 +26,7 @@ class EditorWorld;
 Viewport::Viewport()
 	: EditorWindow("Viewport", true)
 {
-	mySampler = VulkanUtils::GetSampler(SamplerMode::Clamp);
+	mySampler = VulkanUtils::GetSampler(SamplerMode::LinearClamp);
 
 	myDescriptorSets.Emplace();
 	myDescriptorSets.Emplace();

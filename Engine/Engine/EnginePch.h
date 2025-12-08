@@ -80,6 +80,7 @@ static constexpr float FLOAT_MAX = 3.402823466e+38f;
 
 #include <entt/entt.hpp>
 
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <imgui_stdlib.h>
 #include <imgui_impl_win32.h>

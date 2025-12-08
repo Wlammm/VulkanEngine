@@ -30,7 +30,11 @@ PreviousWorldsSystem::~PreviousWorldsSystem()
 
 void PreviousWorldsSystem::Tick()
 {
-    if (ImGui::BeginPopupModal("Open Previous World", nullptr))
+    ImGui::SetNextWindowSize(ImVec2(500, 200));
+    const glm::vec2 windowPos = Engine::GetRenderResolution() * 0.5 - glm::vec2(250, 100);
+    
+    ImGui::SetNextWindowPos(ImVec2(windowPos.x, windowPos.y));
+    if (ImGui::BeginCenteredTitlePopupModal("Open Previous World", nullptr, ImGuiWindowFlags_NoResize))
     {
         ON_SCOPE_EXIT([](){ImGui::EndPopup();});
         
@@ -42,12 +46,13 @@ void PreviousWorldsSystem::Tick()
         
         for (int i = myPreviousWorlds.size() - 1; i >= 0; --i)
         {
-            if (ImGui::Selectable(myPreviousWorlds[i].stem().string().c_str()))
+            if (ImGui::CenteredSelectable(myPreviousWorlds[i].stem().string().c_str(), false, 0, ImVec2(500, 40)))
             {        
                 Engine::SetWorld(AssetRegistry::Get()->GetAsset<EditorWorld>(myPreviousWorlds[i]));
                 ImGui::CloseCurrentPopup();
                 return;
             }
+            ImGui::Separator();
         }
     }
     

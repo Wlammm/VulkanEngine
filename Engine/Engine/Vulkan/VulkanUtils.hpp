@@ -5,8 +5,10 @@
 
 enum class SamplerMode
 {
-	Clamp,
-	Wrap,
+	LinearClamp,
+	LinearWrap,
+	PointClamp,
+	PointWrap,
 	Count
 };
 
@@ -36,7 +38,31 @@ public:
 				.setBorderColor(vk::BorderColor::eFloatOpaqueWhite)
 				.setUnnormalizedCoordinates(VK_FALSE);
 
-			mySamplers[SamplerMode::Clamp] = VulkanContext::GetDevice()->createSampler(samplerInfo);
+			mySamplers[SamplerMode::LinearClamp] = VulkanContext::GetDevice()->createSampler(samplerInfo);
+		}
+		
+		{
+			vk::SamplerAddressMode samplerMode;
+			samplerMode = vk::SamplerAddressMode::eClampToEdge;
+
+			const auto samplerInfo = vk::SamplerCreateInfo()
+				.setMagFilter(vk::Filter::eNearest)
+				.setMinFilter(vk::Filter::eNearest)
+				.setMipmapMode(vk::SamplerMipmapMode::eNearest)
+				.setAddressModeU(samplerMode)
+				.setAddressModeV(samplerMode)
+				.setAddressModeW(samplerMode)
+				.setMipLodBias(0.0f)
+				.setAnisotropyEnable(VK_FALSE)
+				.setMaxAnisotropy(1)
+				.setCompareEnable(VK_FALSE)
+				.setCompareOp(vk::CompareOp::eNever)
+				.setMinLod(0.0f)
+				.setMaxLod(VK_LOD_CLAMP_NONE)
+				.setBorderColor(vk::BorderColor::eFloatOpaqueWhite)
+				.setUnnormalizedCoordinates(VK_FALSE);
+
+			mySamplers[SamplerMode::PointClamp] = VulkanContext::GetDevice()->createSampler(samplerInfo);
 		}
 
 		{
@@ -60,7 +86,31 @@ public:
 				.setBorderColor(vk::BorderColor::eFloatOpaqueWhite)
 				.setUnnormalizedCoordinates(VK_FALSE);
 
-			mySamplers[SamplerMode::Wrap] = VulkanContext::GetDevice()->createSampler(samplerInfo);
+			mySamplers[SamplerMode::LinearWrap] = VulkanContext::GetDevice()->createSampler(samplerInfo);
+		}
+		
+		{
+			vk::SamplerAddressMode samplerMode;
+			samplerMode = vk::SamplerAddressMode::eRepeat;
+
+			const auto samplerInfo = vk::SamplerCreateInfo()
+				.setMagFilter(vk::Filter::eNearest)
+				.setMinFilter(vk::Filter::eNearest)
+				.setMipmapMode(vk::SamplerMipmapMode::eNearest)
+				.setAddressModeU(samplerMode)
+				.setAddressModeV(samplerMode)
+				.setAddressModeW(samplerMode)
+				.setMipLodBias(0.0f)
+				.setAnisotropyEnable(VK_FALSE)
+				.setMaxAnisotropy(1)
+				.setCompareEnable(VK_FALSE)
+				.setCompareOp(vk::CompareOp::eNever)
+				.setMinLod(0.0f)
+				.setMaxLod(VK_LOD_CLAMP_NONE)
+				.setBorderColor(vk::BorderColor::eFloatOpaqueWhite)
+				.setUnnormalizedCoordinates(VK_FALSE);
+
+			mySamplers[SamplerMode::PointWrap] = VulkanContext::GetDevice()->createSampler(samplerInfo);
 		}
 	}
 

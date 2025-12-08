@@ -454,7 +454,7 @@ void GDRPipeline::CreateDrawPassResources()
 
 		myFrameDescriptorSet.BindImage(
 			Engine::GetEngineSystem<RenderSystem>().GetDirectionalLightShadowMap(), 
-			VulkanUtils::GetSampler(SamplerMode::Clamp), 
+			VulkanUtils::GetSampler(SamplerMode::LinearClamp), 
 			3, 
 			vk::ShaderStageFlagBits::eFragment,
 			vk::ImageLayout::eDepthStencilReadOnlyOptimal);
@@ -489,7 +489,7 @@ void GDRPipeline::CreateDrawPassResources()
 
 		myFrameNoDepthDescriptorSet.BindImage(
 			Engine::GetEngineSystem<RenderSystem>().GetDirectionalLightShadowMap(), 
-			VulkanUtils::GetSampler(SamplerMode::Clamp), 
+			VulkanUtils::GetSampler(SamplerMode::LinearClamp), 
 			3, 
 			vk::ShaderStageFlagBits::eFragment,
 			vk::ImageLayout::eDepthStencilReadOnlyOptimal);
