@@ -3,6 +3,7 @@
 
 #include "Editor.h"
 #include "Actors/EditorCameraActor.h"
+#include "EditorSystem/GuizmoSystem.h"
 #include "EditorSystem/SelectionSystem.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanSwapChain.h"
@@ -94,21 +95,23 @@ void Viewport::UpdateViewportImageSize()
 	constexpr ImVec2 viewportOffset = ImVec2(8, 18);
 
 	ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-	ImVec2 size = ClampToAspectRatio(viewportPanelSize, ImVec2(16, 9));
+	myViewportSize = ClampToAspectRatio(viewportPanelSize, ImVec2(16, 9));
 
-	myP0 = { (viewportPanelSize.x - size.x) * 0.5f, (viewportPanelSize.y - size.y) * 0.5f };
+	myP0 = { (viewportPanelSize.x - myViewportSize.x) * 0.5f, (viewportPanelSize.y - myViewportSize.y) * 0.5f };
 
 	myP0.x += viewportOffset.x;
 	myP0.y += viewportOffset.y + 8.0f;
 	
 	ImGui::SetCursorPos(myP0);
-	ImGui::Image(GetCurrentDescriptorSet(), size);
+	ImGui::Image(GetCurrentDescriptorSet(), myViewportSize);
 
 	ImVec2 windowPos = ImGui::GetWindowPos();
 	myP0.x += windowPos.x;
 	myP0.y += windowPos.y;
 
-	myP1 = { myP0.x + size.x, myP0.y + size.y };
+	myP1 = { myP0.x + myViewportSize.x, myP0.y + myViewportSize.y };
+	
+	Editor::GetSystem<GuizmoSystem>()->DrawGuizmo();
 }
 
 void Viewport::UpdateCaptureMouse()
@@ -321,4 +324,14 @@ void Viewport::RemovePreviewMesh()
 {
 	myPreviewActor->Destroy();
 	myPreviewActor = nullptr;
+}
+
+const ImVec2& Viewport::GetViewportPos() const
+{
+	return myP0;
+}
+
+const ImVec2& Viewport::GetViewportSize() const
+{
+	return myViewportSize;
 }

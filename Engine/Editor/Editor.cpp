@@ -123,6 +123,11 @@ void Editor::StopPIE()
     Engine::SetWorld(MakeShared<EditorWorld>());
 }
 
+SharedPtr<EditorWorld> Editor::GetEditorWorld()
+{
+    return std::static_pointer_cast<EditorWorld>(Engine::GetWorld());
+}
+
 void Editor::BeginMainDockSpace()
 {
     static bool open = true;

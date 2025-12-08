@@ -25,6 +25,7 @@
 #include "../Editor/AssetEditors/DefaultAssetEditor.h"
 #include "../Editor/Windows/ContentBrowserWindow.h"
 #include "../Editor/EditorSystem/EditorToolbar.h"
+#include "../Editor/EditorSystem/GuizmoSystem.h"
 #include "../Editor/EditorSystem/ImGuiDemoSystem.h"
 #include "../Editor/EditorSystem/PreviousWorldsSystem.h"
 #include "../Engine/Assets/Material.h"
@@ -232,6 +233,7 @@ ReflectionSystem::AddType<DefaultAssetEditor>("DefaultAssetEditor", typeid(Defau
 ReflectionSystem::AddType<ContentBrowserItem>("ContentBrowserItem", typeid(ContentBrowserItem).name());
 ReflectionSystem::AddType<ContentBrowserWindow>("ContentBrowserWindow", typeid(ContentBrowserWindow).name());
 ReflectionSystem::AddType<EditorToolbar>("EditorToolbar", typeid(EditorToolbar).name());
+ReflectionSystem::AddType<GuizmoSystem>("GuizmoSystem", typeid(GuizmoSystem).name());
 ReflectionSystem::AddType<ImGuiDemoSystem>("ImGuiDemoSystem", typeid(ImGuiDemoSystem).name());
 ReflectionSystem::AddType<PreviousWorldsSystem>("PreviousWorldsSystem", typeid(PreviousWorldsSystem).name());
 ReflectionSystem::AddType<Material>("Material", typeid(Material).name());
@@ -1557,6 +1559,16 @@ return nullptr;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("StopPIE", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Editor* instance = static_cast<Editor*>(inInstance);
+static thread_local std::shared_ptr<EditorWorld> result = instance->GetEditorWorld();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetEditorWorld", ReflectionSystem::GetOrCreateType<std::shared_ptr<EditorWorld>>("std::shared_ptr<EditorWorld>"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<DefaultAssetEditor>();
@@ -1730,6 +1742,36 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inPath", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
 arguments.Add(MethodArgument("inCallback", ReflectionSystem::GetOrCreateType<const Delegate<void ()> &>("const Delegate<void ()> &")));
 Method& currentMethod = currentClass->AddMethod(Method("AddToolbarButton", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<GuizmoSystem>();
+	{
+		Field& currentField = currentClass->AddField(Field("myOperation", -1, ReflectionSystem::GetOrCreateType<ImGuizmo::OPERATION>("ImGuizmo::OPERATION"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("mySpace", -1, ReflectionSystem::GetOrCreateType<ImGuizmo::MODE>("ImGuizmo::MODE"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorSystem>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GuizmoSystem* instance = static_cast<GuizmoSystem*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GuizmoSystem* instance = static_cast<GuizmoSystem*>(inInstance);
+instance->DrawGuizmo();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DrawGuizmo", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -2622,6 +2664,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetEditorCamera", Reflec
 	{
 		Field& currentField = currentClass->AddField(Field("myP1", -1, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myViewportSize", -1, ReflectionSystem::GetOrCreateType<ImVec2>("ImVec2"), false, false));
+	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -2652,6 +2697,26 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetNormalizedMousePositionInViewport", ReflectionSystem::GetOrCreateType<glm::vec<2, float>>("glm::vec<2, float>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Viewport* instance = static_cast<Viewport*>(inInstance);
+const ImVec2 & result = instance->GetViewportPos();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetViewportPos", ReflectionSystem::GetOrCreateType<const ImVec2 &>("const ImVec2 &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Viewport* instance = static_cast<Viewport*>(inInstance);
+const ImVec2 & result = instance->GetViewportSize();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetViewportSize", ReflectionSystem::GetOrCreateType<const ImVec2 &>("const ImVec2 &"), invoker, arguments));
 }
 }
 { 

@@ -16,6 +16,9 @@ public:
 	void TickInput() override;
 
 	glm::vec2 GetNormalizedMousePositionInViewport() const;
+	
+	const ImVec2& GetViewportPos() const;
+	const ImVec2& GetViewportSize() const;
 
 private:
 	void TickEditorCamera();
@@ -39,6 +42,7 @@ private:
 	void UpdatePreviewMesh();
 	void RemovePreviewMesh();
 	
+	
 private:
 	StaticMeshActor* myPreviewActor = nullptr;
 	
@@ -53,4 +57,6 @@ private:
 	// image size
 	ImVec2 myP0;
 	ImVec2 myP1;
+	
+	ImVec2 myViewportSize;
 };

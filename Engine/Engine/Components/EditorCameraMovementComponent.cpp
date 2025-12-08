@@ -7,6 +7,9 @@
 
 void EditorCameraMovementComponent::ViewportTick()
 {
+    if (!Input::IsKeyPressed(MouseButton::Right))
+        return;
+    
     UpdateMovement();
     UpdateRotation();
 }
