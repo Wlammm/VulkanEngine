@@ -16,40 +16,46 @@ enum class NotificationType
 
 namespace ImGui
 {
+	static ImVec2 GetNextWindowSize()
+	{
+		// TODO: Maybe this doesnt work if we havent called it before hand....
+		ImGuiContext& g = *GImGui;
+		return g.NextWindowData.SizeVal;
+	}
+	
 	static void BeginCenteredTitle(const char* title, ImGuiWindowFlags flags = 0)
 	{
-		// Compute the centered title by prepending spaces
-		// until the rendered text width is visually centered.
 		ImVec2 titleSize = ImGui::CalcTextSize(title);
 
-		float windowWidth = ImGui::GetMainViewport()->Size.x; // or use your own width
+		float windowWidth = ImGui::GetMainViewport()->Size.x;
 		float offset = (windowWidth - titleSize.x) * 0.5f;
 
-		// Convert offset to number of spaces (approximate)
 		int spaces = int(offset / ImGui::CalcTextSize(" ").x);
 
-		// Build a buffer with the required spaces
 		std::string centered = std::string(spaces, ' ') + title;
 
 		ImGui::Begin(centered.c_str(), nullptr, flags);
 	}
 	
-	static bool BeginCenteredTitlePopupModal(const char* name, bool* p_open, ImGuiWindowFlags flags = 0)
+	static std::string GetCenteredWindowName(const char* name)
 	{
-		// Compute the centered title by prepending spaces
-		// until the rendered text width is visually centered.
-		ImVec2 titleSize = ImGui::CalcTextSize(name);
+		float windowWidth = GetNextWindowSize().x;
+		
+		float textWidth = ImGui::CalcTextSize(name).x;
 
-		float windowWidth = ImGui::GetMainViewport()->Size.x; // or use your own width
-		float offset = (windowWidth - titleSize.x) * 0.5f;
+		// Dont ask me why 0.625.. It works for the test usecase ok?
+		float textStartX = (windowWidth - textWidth) * 0.625f;
 
-		// Convert offset to number of spaces (approximate)
-		int spaces = int(offset / ImGui::CalcTextSize(" ").x);
+		float styleOffset = ImGui::GetStyle().ItemInnerSpacing.x + ImGui::GetFontSize();
+		textStartX -= styleOffset;
+		
+		if (textStartX < 0.0f) textStartX = 0.0f;
 
-		// Build a buffer with the required spaces
+		float spaceWidth = ImGui::CalcTextSize(" ").x;
+		int spaces = int(textStartX / spaceWidth);
+
 		std::string centered = std::string(spaces, ' ') + name;
-
-		return ImGui::BeginPopupModal(centered.c_str(), p_open, flags);
+		return centered;
 	}
 	
 	static bool CenteredSelectable(const char* label, bool selected, ImGuiSelectableFlags flags = 0, ImVec2 size = ImVec2(0,0))

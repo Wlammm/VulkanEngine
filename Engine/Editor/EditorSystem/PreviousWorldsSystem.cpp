@@ -34,7 +34,9 @@ void PreviousWorldsSystem::Tick()
     const glm::vec2 windowPos = Engine::GetRenderResolution() * 0.5 - glm::vec2(250, 100);
     
     ImGui::SetNextWindowPos(ImVec2(windowPos.x, windowPos.y));
-    if (ImGui::BeginCenteredTitlePopupModal("Open Previous World", nullptr, ImGuiWindowFlags_NoResize))
+    std::string popupName = ImGui::GetCenteredWindowName("Open Previous World");
+    
+    if (ImGui::BeginPopupModal(popupName.c_str(), nullptr, ImGuiWindowFlags_NoResize))
     {
         ON_SCOPE_EXIT([](){ImGui::EndPopup();});
         
@@ -58,7 +60,7 @@ void PreviousWorldsSystem::Tick()
     
     DO_ONCE(
         if (myPreviousWorlds.size() > 0)
-            ImGui::OpenPopup("Open Previous World");
+            ImGui::OpenPopup(popupName.c_str());
     );
 }
 
