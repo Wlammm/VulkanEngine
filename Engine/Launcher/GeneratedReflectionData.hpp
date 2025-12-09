@@ -10380,6 +10380,20 @@ Method& currentMethod = currentClass->AddMethod(Method("RaycastAll", ReflectionS
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 World* instance = static_cast<World*>(inInstance);
+const Type * arg0 = (const Type*)inArguments[0];
+const std::basic_string<char> & arg1 = *(const std::basic_string<char>*)inArguments[1];
+Actor * result = instance->SpawnActor(arg0, arg1);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inActorType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("SpawnActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
 Actor * arg0 = (Actor*)inArguments[0];
 instance->RemoveActor(arg0);
 return nullptr;
@@ -10543,6 +10557,20 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("TickActorDeletes", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+const std::basic_string<char> & arg1 = *(const std::basic_string<char>*)inArguments[1];
+instance->InitActor(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("InitActor", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 

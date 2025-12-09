@@ -16,6 +16,7 @@
 #include "Engine/ComponentSystem/Actors/PointLightActor.h"
 #include "Engine/ComponentSystem/Actors/StaticMeshActor.h"
 #include "Engine/Physics/PhysicsSystem.h"
+#include "Engine/Reflection/Type.h"
 #include "Engine/Serialization/BinarySerializer.h"
 #include "Engine/Systems/LandscapeSystem.h"
 
@@ -160,6 +161,16 @@ bool World::RaycastAll(const glm::vec3& inOrigin, const glm::vec3& inDirection, 
 	return !outHits.IsEmpty();
 }
 
+Actor* World::SpawnActor(const Type* inActorType, const std::string& inName)
+{
+	myActors.Emplace();
+	IUniquePtr* actorPtr = &myActors.Last();
+	inActorType->CreateUniquePtr(actorPtr);
+	Actor* actor = myActors.Last().Get();
+	InitActor(actor, inName);
+	return actor;
+}
+
 void World::RemoveActor(Actor* inActor)
 {
 	myActorsToDelete.Emplace(inActor);
@@ -260,4 +271,12 @@ void World::TickActorDeletes()
 		}
 	}
 	myActorsToDelete.Clear();
+}
+
+void World::InitActor(Actor* inActor, const std::string& inName)
+{
+	inActor->myWorld = this;
+	inActor->SetName(inName);
+	inActor->RegisterComponents();
+	inActor->DoOnCreate();
 }

@@ -10,6 +10,7 @@ PointLightComponent::PointLightComponent()
 }
 void PointLightComponent::OnCreate()
 {
+    TEMP_SendToGPU();
 }
 
 void PointLightComponent::TEMP_SendToGPU()

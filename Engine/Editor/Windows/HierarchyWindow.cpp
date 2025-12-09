@@ -1,6 +1,7 @@
 ﻿#include "EditorPch.h"
 #include "HierarchyWindow.h"
 
+#include "Editor.h"
 #include "Editor/EditorSystem/SelectionSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/ComponentSystem/Actor.h"
@@ -8,6 +9,7 @@
 #include "Engine/Reflection/ReflectionSystem.h"
 #include "Engine/Utils/String.hpp"
 #include "Engine/World/World.h"
+#include "World/EditorWorld.h"
 
 HierarchyWindow::HierarchyWindow()
     : EditorWindow("Hierarchy", true)
@@ -44,6 +46,11 @@ void HierarchyWindow::Tick()
             else
                 SelectionSystem::SelectObject(actor);
         }
+        
+        if (ImGui::IsWindowHovered() && ImGui::GetIO().MouseClicked[1])
+        {
+            ImGui::OpenPopup("##HierarchyRightclickPopup");
+        }
 
         const Type* objectType = ReflectionSystem::GetType(actor);
 
@@ -54,6 +61,8 @@ void HierarchyWindow::Tick()
         ImGui::TextUnformatted(objectType->GetName().c_str());
         ImGui::PopStyleColor();
     }
+    
+    DrawPopups();
 }
 
 void HierarchyWindow::TickInput()
@@ -67,4 +76,41 @@ void HierarchyWindow::TickInput()
         SelectionSystem::ClearSelection();
     }
     
+}
+
+void HierarchyWindow::DrawPopups()
+{
+    if (ImGui::BeginPopup("##HierarchyRightclickPopup"))
+    {
+        ON_SCOPE_EXIT([](){ ImGui::EndPopup(); });
+        
+        if (ImGui::BeginMenu("New"))
+        {
+            ON_SCOPE_EXIT([](){ ImGui::EndMenu(); });
+            
+            if (ImGui::Selectable("Empty Actor"))
+            {
+                Actor* actor = Editor::GetEditorWorld()->SpawnActor<Actor>("New Actor");
+                SelectionSystem::ClearSelection();
+                SelectionSystem::SelectObject(actor);
+            }
+            
+            if (ImGui::BeginMenu("New Actor"))
+            {
+                ON_SCOPE_EXIT([](){ ImGui::EndMenu(); });
+
+                const Type* baseActorType = ReflectionSystem::GetType<Actor>();
+                
+                for (const Type* actorType : baseActorType->GetDerivedTypes())
+                {
+                    if (ImGui::Selectable(actorType->GetName().c_str()))
+                    {
+                        Actor* actor = Editor::GetEditorWorld()->SpawnActor(actorType, "New " + actorType->GetName());
+                        SelectionSystem::ClearSelection();
+                        SelectionSystem::SelectObject(actor);
+                    }
+                }
+            }
+        }
+    }
 }

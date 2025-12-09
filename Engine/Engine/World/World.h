@@ -42,12 +42,11 @@ public:
     {
         myActors.Add(MakeUnique<ActorType>(std::forward<Args>(inArgs)...));
         ActorType* actor = static_cast<ActorType*>(myActors.Last().Get());
-        actor->myWorld = this;
-        actor->SetName(inName);
-        actor->RegisterComponents();
-        actor->DoOnCreate();
+        InitActor(actor, inName);
         return actor;
     }
+
+    Actor* SpawnActor(const Type* inActorType, const std::string& inName);
 
     void RemoveActor(Actor* inActor);
     void RemoveAllActors();
@@ -88,6 +87,8 @@ private:
     void CreateWorldSystems();
 
     void TickActorDeletes();
+    
+    void InitActor(Actor* inActor, const std::string& inName);
 
 protected:
     UniquePtr<SystemManager<WorldSystem>> mySystemManager = nullptr;
