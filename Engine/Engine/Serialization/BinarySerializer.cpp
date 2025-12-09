@@ -10,9 +10,11 @@ BinarySerializer::BinarySerializer(const std::filesystem::path& inPath, const Mo
 
     if (IsWriting())
     {
+        const std::filesystem::path parentPath = inPath.parent_path();
+        if (!std::filesystem::exists(parentPath))
+            std::filesystem::create_directories(parentPath);
+        
         myIsStreamOpen = true;
-        if (!std::filesystem::exists(inPath.parent_path()))
-            std::filesystem::create_directories(inPath.parent_path());
         myOutputStream = new std::ofstream(myPath,std::ios::binary);
     }
     else

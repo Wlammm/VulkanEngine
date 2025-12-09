@@ -15,6 +15,12 @@ PreviousWorldsSystem::PreviousWorldsSystem()
         serializer.SerializeType(myPreviousWorlds);
         serializer.Close();
     }
+
+    for (int i = myPreviousWorlds.size() - 1; i >= 0; --i)
+    {
+        if (!std::filesystem::exists(myPreviousWorlds[i]))
+            myPreviousWorlds.RemoveIndex(i);
+    }
     
     Engine::OnWorldChangedDelegate.Bind(&PreviousWorldsSystem::OnWorldChanged, this);
 }

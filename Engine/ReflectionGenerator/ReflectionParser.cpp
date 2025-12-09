@@ -172,8 +172,8 @@ CXChildVisitResult ReflectionParser::TraverseAST(CXCursor inCurrentCursor, CXCur
         const bool isReference = type.kind == CXType_LValueReference;
 
         const CXSourceLocation location = clang_getCursorLocation(inCurrentCursor);
-        const bool isInSystemHeader = clang_Location_isInSystemHeader(location);
-
+        const bool isInSystemHeader = IsSystemsHeader(location);
+        
         // We dont want to force libraries's to be fully included as this can cause issues with header only libraries. So allow them to stay as pointers.
         if (!isInSystemHeader && isPointer)
             typeName = GetSpelling(clang_getPointeeType(type));
@@ -322,6 +322,9 @@ std::string ReflectionParser::GetFileName(const CXSourceLocation& inLocation)
     unsigned int line, column, offset;
 
     clang_getExpansionLocation(inLocation, &file, &line, &column, &offset);
+    
+    if (file == nullptr)
+        return "";
 
     const CXString clangFilename = clang_getFileName(file);
     std::string filename = clang_getCString(clangFilename);
@@ -528,10 +531,27 @@ CXChildVisitResult ReflectionParser::HandleClassDeclaration(CXCursor inCurrentCu
     const bool isSharedPtr = className.starts_with("shared_ptr") || className.starts_with("std::shared_ptr");
     const CXSourceLocation location = clang_getCursorLocation(inCurrentCursor);
     
+    // TODO: Make a better system for handling edge cases. This is getting ridiculous lol
+    // Nlohmann's json file redefines char_traits which causes compilation issues if we include that reflection information in our own project.
+    const bool isJsonHeader = GetFileName(location).contains("json.hpp");
+    if (isJsonHeader)
+        return CXChildVisit_Continue;
+    
+    std::string filename = GetFileName(location);
+    if (filename.contains("Microsoft"))
+    {
+        int a = 10;
+    }
+    
     // We need shared_ptr's to be added as we use them for the asset registry. Their template arguments are needed.
-    if (clang_Location_isInSystemHeader(location) && !isSharedPtr)
+    if (IsSystemsHeader(location) && !isSharedPtr)
         return CXChildVisit_Continue;
 
+    if (className.contains("hash"))
+    {
+         int a =1;
+    }
+    
     if (!clang_isCursorDefinition(inCurrentCursor))
         return CXChildVisit_Continue;
 
@@ -609,6 +629,17 @@ CXChildVisitResult ReflectionParser::HandleClassDeclaration(CXCursor inCurrentCu
     clang_visitChildren(inCurrentCursor, &ReflectionParser::TraverseAST, inClientData);
     clientData.classStack.pop_back();
     return CXChildVisit_Continue;
+}
+
+bool ReflectionParser::IsSystemsHeader(CXSourceLocation inSourceLocation)
+{
+    if (clang_Location_isInSystemHeader(inSourceLocation))
+        return true;
+
+    std::string filePath = GetFileName(inSourceLocation);
+    
+    // Hardcoded as libclang doesnt recognize all systems headers correctly. 
+    return filePath.contains(")VC/Tools/MSVC");
 }
 
 std::string ReflectionParser::ReplaceBadTypeNames(const std::string& inTypeName)

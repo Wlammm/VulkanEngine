@@ -1,4 +1,16 @@
 // This always needs to be at the top
+#ifdef _Char_traits
+#pragma message("FOUND: _Char_traits macro")
+#endif
+
+#ifdef _WChar_traits
+#pragma message("FOUND: _WChar_traits macro")
+#endif
+
+#ifdef char_traits
+#pragma message("FOUND: char_traits macro")
+#endif
+
 #include "GeneratedReflectionData.hpp"
 
 #include "Engine/Engine.h"

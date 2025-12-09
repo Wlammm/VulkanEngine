@@ -62,6 +62,8 @@ private:
     CXChildVisitResult HandleClassDeclaration(CXCursor inCursor, CXClientData inClientData);
     
 
+    static bool IsSystemsHeader(CXSourceLocation inSourceLocation);
+    
     // This function is used to replace typenames with other ones as some header only libraries doesnt want to get included correctly. Example: Replacing VmaAllocation_T with VmaAllocation
     static std::string ReplaceBadTypeNames(const std::string& inTypeName);
     

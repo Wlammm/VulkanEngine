@@ -68,7 +68,7 @@ public:
             if (isCachedFileValid)
             {
                 asset->PostPropertiesSerialized();
-                AddLoadedAsset(asset);
+                AddLoadedAsset(asset, inType);
                 return asset;
             }
         }
@@ -78,10 +78,11 @@ public:
         
         asset->DoFirstTimeAssetInitialization(inSourcePath);
         asset->LoadPropertiesFromSource();
+        asset->SetType(inType);
         SaveAsset(asset);
         
         asset->PostPropertiesSerialized();
-        AddLoadedAsset(asset);
+        AddLoadedAsset(asset, inType);
         return asset;
     }
     
@@ -101,7 +102,7 @@ public:
         serializer.Close();
         
         asset->PostPropertiesSerialized();
-        AddLoadedAsset(asset);
+        AddLoadedAsset(asset, inType);
         return asset;
     }
     
@@ -118,7 +119,7 @@ public:
         check(inType->CallStaticMethodRecursive<List<std::string>>("GetAssetExtensions").Contains(inSourcePath.extension().string()) && "New assets must follow the allowed extensions.");
         
         asset->DoFirstTimeAssetInitialization(inSourcePath);
-        AddLoadedAsset(asset);
+        AddLoadedAsset(asset, inType);
         return asset;
     }
 
@@ -141,7 +142,7 @@ public:
     void SaveAsset(SharedPtr<AssetType> inAsset)
     {
         CachePath savePath;
-        if (inAsset->IsExternalAsset())
+        if (inAsset->GetType()->CallStaticMethodRecursive<bool>("IsExternalAsset"))
             savePath = SourceToCachePath(inAsset->GetSourcePath());
         else
             savePath = inAsset->GetSourcePath();
@@ -153,7 +154,7 @@ public:
     void OnAssetRemoved(Asset* inAsset);
     
 private:
-    void AddLoadedAsset(SharedPtr<Asset> inAsset);
+    void AddLoadedAsset(SharedPtr<Asset> inAsset, const Type* inType);
 
 private:
     std::mutex myMutex{};

@@ -31,7 +31,6 @@ public:
     // Only checked for external assets. Internal assets are required to be backwards compatible. If this function returns false, external assets will be forced to load from source.
     virtual bool IsCacheValid() const;
     
-    
     void DoFirstTimeAssetInitialization(const SourcePath& inAssetPath);
     
     // Changes the internal assets path. This shouldnt be used by itself. Use AssetUtils::Rename function if you want to move the asset.
@@ -51,6 +50,11 @@ public:
     // Should only be called form the AssetRegistry class when the asset has loaded successfully.
     void SetAssetRegistry(AssetRegistry* inAssetRegistry);
     
+    // Should only be called from the AssetRegistry when the asset is being loaded.
+    void SetType(const Type* inType);
+    
+    const Type* GetType() const;
+    
     // This will resave the asset to cache.
     void ResaveAsset();
     
@@ -62,6 +66,7 @@ private:
     std::filesystem::file_time_type mySourceLastModifiedTime;
 
     AssetRegistry* myAssetRegistry = nullptr;
+    const Type* myType = nullptr;
     
     bool myIsValid = false;
 };

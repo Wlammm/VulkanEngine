@@ -62,6 +62,16 @@ void Asset::SetAssetRegistry(AssetRegistry* inAssetRegistry)
     myAssetRegistry = inAssetRegistry;
 }
 
+void Asset::SetType(const Type* inType)
+{
+    myType = inType;
+}
+
+const Type* Asset::GetType() const
+{
+    return myType;
+}
+
 void Asset::ResaveAsset()
 {
     myAssetRegistry->SaveAsset(shared_from_this());

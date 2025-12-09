@@ -25,10 +25,11 @@ void AssetRegistry::OnAssetRemoved(Asset* inAsset)
     myLoadedAssets.erase(inAsset->GetSourcePath());
 }
 
-void AssetRegistry::AddLoadedAsset(SharedPtr<Asset> inAsset)
+void AssetRegistry::AddLoadedAsset(SharedPtr<Asset> inAsset, const Type* inType)
 {
     inAsset->SetIsValid(true);
     inAsset->SetAssetRegistry(this);
+    inAsset->SetType(inType);
     
     std::scoped_lock lock(myMutex);
 
