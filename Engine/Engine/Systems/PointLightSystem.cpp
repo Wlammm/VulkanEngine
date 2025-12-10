@@ -10,34 +10,21 @@
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanSwapChain.h"
 
-PointLightSystem::PointLightSystem()
+PointLightSystem::PointLightSystem() : myPointLightBuffer(VulkanBuffer::ResizableStorageBufferCreateInfo(
+                                                                          sizeof(PointLightData) * 16), "PointLightBuffer", VMA_MEMORY_USAGE_AUTO, 16)
+{ }
+
+PointLightInstanceIndex PointLightSystem::AddLight(const PointLightData& inPointLightData)
 {
-    myBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("PointLightBuffer", VulkanBuffer::ResizableStorageBufferCreateInfo(sizeof(PointLightData) * 16), VMA_MEMORY_USAGE_AUTO, false));
+    return myPointLightBuffer.Add(inPointLightData);
 }
 
-PointLightSystem::~PointLightSystem()
+void PointLightSystem::UpdateLight(const PointLightInstanceIndex inLightInstance, const PointLightData& inPointLightData)
 {
-    VulkanAllocator::DestroyBuffer_TS(myBuffer);    
+    myPointLightBuffer.Update(inPointLightData, inLightInstance);
 }
 
-const ResizableBuffer* PointLightSystem::GetBuffer() const
+void PointLightSystem::RemoveLight(const PointLightInstanceIndex inLightInstance)
 {
-    return myBuffer;    
-}
-
-void PointLightSystem::AddLight(TransformComponent& inTransform, PointLightComponent* inLight)
-{
-    PointLightData pointLightData{};
-    pointLightData.myColor = glm::vec4(inLight->GetColor(), 1.0f);
-    pointLightData.myRange = inLight->GetRange();
-    pointLightData.myIntensity = inLight->GetIntensity();
-    pointLightData.myPosition = inTransform.GetPosition();
-    
-    constexpr int lengthByteOffset = 32;
-    myBuffer->SetData(&pointLightData, sizeof(PointLightData), lengthByteOffset + sizeof(PointLightData) * myNumPointLights);
-    
-    myNumPointLights++;
-    myBuffer->SetData(&myNumPointLights, sizeof(uint), 0);
-
-    LOG("Adding pointlight on frame: %i", VulkanContext::GetSwapChain().GetFrameIndex());
+    myPointLightBuffer.Remove(inLightInstance);
 }

@@ -120,6 +120,8 @@
 #include "../Engine/Utils\ThreadUtils.hpp"
 #include "../Engine/Vulkan\Aftermath\NvidiaAftermathTracker.h"
 #include "../Engine/Vulkan\Aftermath\ShaderDatabase.h"
+#include "../Engine/Vulkan\Containers\GPUList.h"
+#include "../Engine/Vulkan\Containers\GPUSparseDenseBuffer.h"
 #include "../Engine/Vulkan\GPUSceneSystem.h"
 #include "../Engine/Vulkan\ResizableBuffer.h"
 #include "../Engine/Vulkan\Staging\StagingBuffer.h"

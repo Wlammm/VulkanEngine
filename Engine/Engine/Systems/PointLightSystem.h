@@ -1,20 +1,26 @@
 ﻿#pragma once
 #include "Engine/System/System.h"
+#include "Engine/Vulkan/Containers/GPUSparseDenseBuffer.h"
 
+struct PointLightData;
 class ResizableBuffer;
-class TransformComponent;
-class PointLightComponent;
+
+using PointLightInstanceIndex = uint;
+
 class PointLightSystem : public System
 {
 public:
     PointLightSystem();
-    ~PointLightSystem();
 
-    const ResizableBuffer* GetBuffer() const;
+    PointLightInstanceIndex AddLight(const PointLightData& inPointLightData);
+
+    void UpdateLight(const PointLightInstanceIndex inLightInstance, const PointLightData& inPointLightData);
     
-    void AddLight(TransformComponent& inTransform, PointLightComponent* inLight);
+    void RemoveLight(const PointLightInstanceIndex inLightInstance);
 
+    const IGPUList* GetBuffer() const { return &myPointLightBuffer; }
+    
 private:
-    ResizableBuffer* myBuffer = nullptr;
-    uint myNumPointLights = 0;
+    GPUSparseDenseBuffer<PointLightData> myPointLightBuffer;
+    
 };

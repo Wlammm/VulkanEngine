@@ -6,6 +6,7 @@
 #include "VulkanDevice.h"
 #include "VulkanImage.h"
 #include "VulkanBuffer.h"
+#include "Containers/GPUList.h"
 
 VulkanDescriptorSet::VulkanDescriptorSet()
 {
@@ -61,6 +62,20 @@ void VulkanDescriptorSet::BindBuffer(const ResizableBuffer* inBuffer, vk::Shader
 		inBuffer->OnBufferResized.Bind(&VulkanDescriptorSet::Rebuild, this);
 }
 
+void VulkanDescriptorSet::BindBuffer(const class IGPUList* inBuffer, vk::ShaderStageFlags inShaderStages,
+	uint inBindingIndex, vk::DescriptorType inDescriptorType)
+{
+	BindingData<const IGPUList*> data{};
+	data.myData = inBuffer;
+	data.myShaderStages = inShaderStages;
+	data.myBindingIndex = inBindingIndex;
+	data.myDescriptorType = inDescriptorType;
+	myResizableBuffers.Add(data);
+
+	if(!inBuffer->GetOnBufferResized().IsBound(Delegate<void()>(&VulkanDescriptorSet::Rebuild, this)))
+		inBuffer->GetOnBufferResized().Bind(&VulkanDescriptorSet::Rebuild, this);
+}
+
 void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags, const vk::ImageLayout inImageLayout)
 {
 	BindingData<const VulkanImage*> data;
@@ -78,9 +93,10 @@ void VulkanDescriptorSet::Build()
 	ZoneScoped;
 	List<vk::DescriptorSetLayoutBinding> layoutBindings{};
 	List<vk::WriteDescriptorSet> setWrites{};
+	setWrites.Reserve(16);
 	
 	List<vk::DescriptorBufferInfo> bufferInfos{};
-	bufferInfos.Reserve(myBuffers.size() + myResizableBuffer.size());
+	bufferInfos.Reserve(myBuffers.size() + myResizableBuffer.size() + myResizableBuffers.size());
 	
 	List<vk::DescriptorImageInfo> imageInfos{};
 	imageInfos.Reserve(myImages.size());
@@ -105,6 +121,25 @@ void VulkanDescriptorSet::Build()
 	}
 	
 	for(const BindingData<const ResizableBuffer*>& binding : myResizableBuffer)
+	{
+		layoutBindings.Emplace()
+		.setDescriptorCount(1)
+		.setDescriptorType(binding.myDescriptorType)
+		.setStageFlags(binding.myShaderStages)
+		.setBinding(binding.myBindingIndex);
+
+		bufferInfos.Emplace()
+			.setOffset(0)
+			.setBuffer(binding.myData->GetBuffer()->GetAPIResource())
+			.setRange(binding.myData->GetBuffer()->GetSize());
+
+		setWrites.Emplace()
+			.setDescriptorType(binding.myDescriptorType)
+			.setDstBinding(binding.myBindingIndex)
+			.setBufferInfo(bufferInfos.Last());
+	}
+	
+	for(const BindingData<const IGPUList*>& binding : myResizableBuffers)
 	{
 		layoutBindings.Emplace()
 		.setDescriptorCount(1)

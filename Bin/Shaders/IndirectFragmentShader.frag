@@ -27,7 +27,6 @@ layout(set = 0, binding = 0) uniform FrameBuffer
 layout(set = 0, binding = 1) readonly buffer PointLightBuffer
 {
     uint myNumLights;
-    vec3 padding;
     PointLightData myLights[];
 } inPointLightBuffer;
 

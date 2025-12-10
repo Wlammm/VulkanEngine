@@ -1,7 +1,9 @@
 ﻿#include "EnginePch.h"
 #include "PointLightComponent.h"
 
+#include "TransformComponent.h"
 #include "Engine/Engine.h"
+#include "Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
 #include "Engine/Systems/PointLightSystem.h"
 
 PointLightComponent::PointLightComponent()
@@ -10,12 +12,24 @@ PointLightComponent::PointLightComponent()
 }
 void PointLightComponent::OnCreate()
 {
-    TEMP_SendToGPU();
+    MarkRenderStateDirty();
 }
 
-void PointLightComponent::TEMP_SendToGPU()
+void PointLightComponent::OnRenderStateDirty()
 {
-    Engine::GetEngineSystem<PointLightSystem>().AddLight(GetTransform(), this);
+    Component::OnRenderStateDirty();
+
+    PointLightData data{};
+    // TODO: Make color be a vec3 instead and pack intensity into alpha..
+    data.myColor = glm::vec4(myColor, 1.0f);
+    data.myIntensity = myIntensity;
+    data.myRange = myRange;
+    data.myPosition = GetTransform().GetPosition();
+    
+    if (myPointLightInstanceIndex == -1)
+        myPointLightInstanceIndex = Engine::GetEngineSystem<PointLightSystem>().AddLight(data);
+    else
+        Engine::GetEngineSystem<PointLightSystem>().UpdateLight(myPointLightInstanceIndex, data);
 }
 
 const glm::vec3& PointLightComponent::GetColor() const

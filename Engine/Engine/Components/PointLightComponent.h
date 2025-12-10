@@ -7,8 +7,8 @@ public:
     PointLightComponent();
 
     void OnCreate() override;
-    
-    void TEMP_SendToGPU();
+
+    void OnRenderStateDirty() override;
 
     const glm::vec3& GetColor() const;
     void SetColor(const glm::vec3& inColor);
@@ -20,12 +20,14 @@ public:
     void SetRange(const float inRange);
     
 private:
-    META(SerializeField, ExposeAsColor)
+    META(SerializeField, ExposeAsColor, OnInspectorChangedEvent(MarkRenderStateDirty))
     glm::vec3 myColor{1, 1, 1};
 
-    META(SerializeField)
+    META(SerializeField, OnInspectorChangedEvent(MarkRenderStateDirty))
     float myIntensity = 1.0f;
 
-    META(SerializeField)
+    META(SerializeField, OnInspectorChangedEvent(MarkRenderStateDirty))
     float myRange = 100.0f;
+
+    uint myPointLightInstanceIndex = (uint)-1;
 };

@@ -120,8 +120,14 @@
 #include "../Engine/Serialization/TypeSerializers/UniquePtrSerializer.h"
 #include "../Game/Components/Player/PlayerCameraControllerComponent.h"
 #include "../Engine/Systems/LandscapeSystem.h"
+#include "../Engine/Vulkan/VulkanCommandBuffer.h"
+#include "../Editor/ImGui/AdvancedDrawers/ListPropertyDrawer.h"
+#include "../Engine/Delegates/Internal/FuncCtor.hpp"
+#include "../Engine/Vulkan/Containers/GPUList.h"
 #include "../Engine/Systems/PointLightSystem.h"
 #include "../Engine/Vulkan/VulkanUtils.hpp"
+#include "../Engine/Vulkan/Containers/GPUSparseDenseBuffer.h"
+#include "../Editor/Windows/InspectorWindow.h"
 #include "../Engine/Utils/BinaryUtils.hpp"
 #include "../Engine/Utils/Debug.h"
 #include "../Engine/Vulkan/Aftermath/ShaderDatabase.h"
@@ -130,8 +136,6 @@
 #include "../Engine/Vulkan/VulkanContext.h"
 #include "../Engine/Vulkan/Staging/StagingSystem.h"
 #include "../Game/Actors/PlayerCameraActor.h"
-#include "../Engine/Vulkan/VulkanCommandBuffer.h"
-#include "../Editor/ImGui/AdvancedDrawers/ListPropertyDrawer.h"
 #include "../Engine/Vulkan/VulkanDevice.h"
 #include "../Engine/Vulkan/VulkanImage.h"
 #include "../Engine/AssetRegistry/AssetDefines.h"
@@ -159,7 +163,6 @@
 #include "../Editor/Utils/EditorConfirmPrompt.h"
 #include "../Editor/Utils/ImGuiTextureUtils.h"
 #include "../Editor/Windows/EditorWindow.h"
-#include "../Editor/Windows/InspectorWindow.h"
 #include "../Editor/Windows/Viewport.h"
 #include "../Game/Components/Player/PlayerComponent.h"
 #include "../Game/Actors/PlayerActor.h"
@@ -172,7 +175,6 @@
 #include "../Engine/Core/SharedPtr.h"
 #include "../Engine/Delegates/Internal/ConstMemberFuncCtor.hpp"
 #include "../Engine/Delegates/Internal/FreeFuncCtor.hpp"
-#include "../Engine/Delegates/Internal/FuncCtor.hpp"
 #include "../Engine/Delegates/Internal/MemberFuncCtor.hpp"
 #include "../Engine/EnginePch.h"
 #include "../Engine/Math/GlmUtils.hpp"
@@ -405,8 +407,13 @@ ReflectionSystem::AddType<WStringSerializer>("WStringSerializer", typeid(WString
 ReflectionSystem::AddType<UniquePtrSerializer>("UniquePtrSerializer", typeid(UniquePtrSerializer).name());
 ReflectionSystem::AddType<PlayerCameraControllerComponent>("PlayerCameraControllerComponent", typeid(PlayerCameraControllerComponent).name());
 ReflectionSystem::AddType<LandscapeSystem>("LandscapeSystem", typeid(LandscapeSystem).name());
+ReflectionSystem::AddType<VulkanCommandBuffer>("VulkanCommandBuffer", typeid(VulkanCommandBuffer).name());
+ReflectionSystem::AddType<ListPropertyDrawer>("ListPropertyDrawer", typeid(ListPropertyDrawer).name());
+ReflectionSystem::AddType<IGPUList>("IGPUList", typeid(IGPUList).name());
 ReflectionSystem::AddType<PointLightSystem>("PointLightSystem", typeid(PointLightSystem).name());
 ReflectionSystem::AddType<VulkanUtils>("VulkanUtils", typeid(VulkanUtils).name());
+ReflectionSystem::AddType<GPUSparseDenseBuffer<PointLightData>>("GPUSparseDenseBuffer<PointLightData>", typeid(GPUSparseDenseBuffer<PointLightData>).name());
+ReflectionSystem::AddType<InspectorWindow>("InspectorWindow", typeid(InspectorWindow).name());
 ReflectionSystem::AddType<BinaryUtils>("BinaryUtils", typeid(BinaryUtils).name());
 ReflectionSystem::AddType<Debug>("Debug", typeid(Debug).name());
 ReflectionSystem::AddType<Debug::DrawLineInfos>("Debug::DrawLineInfos", typeid(Debug::DrawLineInfos).name());
@@ -416,8 +423,6 @@ ReflectionSystem::AddType<StagingBuffer>("StagingBuffer", typeid(StagingBuffer).
 ReflectionSystem::AddType<VulkanContext>("VulkanContext", typeid(VulkanContext).name());
 ReflectionSystem::AddType<StagingSystem>("StagingSystem", typeid(StagingSystem).name());
 ReflectionSystem::AddType<PlayerCameraActor>("PlayerCameraActor", typeid(PlayerCameraActor).name());
-ReflectionSystem::AddType<VulkanCommandBuffer>("VulkanCommandBuffer", typeid(VulkanCommandBuffer).name());
-ReflectionSystem::AddType<ListPropertyDrawer>("ListPropertyDrawer", typeid(ListPropertyDrawer).name());
 ReflectionSystem::AddType<VulkanDevice>("VulkanDevice", typeid(VulkanDevice).name());
 ReflectionSystem::AddType<VulkanImage>("VulkanImage", typeid(VulkanImage).name());
 ReflectionSystem::AddType<VulkanImGui>("VulkanImGui", typeid(VulkanImGui).name());
@@ -446,7 +451,6 @@ ReflectionSystem::AddType<FileDialog>("FileDialog", typeid(FileDialog).name());
 ReflectionSystem::AddType<EditorConfirmPrompt>("EditorConfirmPrompt", typeid(EditorConfirmPrompt).name());
 ReflectionSystem::AddType<ImGuiTextureUtils>("ImGuiTextureUtils", typeid(ImGuiTextureUtils).name());
 ReflectionSystem::AddType<EditorWindow>("EditorWindow", typeid(EditorWindow).name());
-ReflectionSystem::AddType<InspectorWindow>("InspectorWindow", typeid(InspectorWindow).name());
 ReflectionSystem::AddType<Viewport>("Viewport", typeid(Viewport).name());
 ReflectionSystem::AddType<PlayerComponent>("PlayerComponent", typeid(PlayerComponent).name());
 ReflectionSystem::AddType<PlayerActor>("PlayerActor", typeid(PlayerActor).name());
@@ -6439,14 +6443,20 @@ Method& currentMethod = currentClass->AddMethod(Method("return_void", Reflection
 		Field& currentField = currentClass->AddField(Field("myColor", offsetof(PointLightComponent, myColor), ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 		currentField.AddMetadata(R"delim(ExposeAsColor)delim");
+		currentField.AddMetadata(R"delim(OnInspectorChangedEvent(MarkRenderStateDirty))delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myIntensity", offsetof(PointLightComponent, myIntensity), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
+		currentField.AddMetadata(R"delim(OnInspectorChangedEvent(MarkRenderStateDirty))delim");
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myRange", offsetof(PointLightComponent, myRange), ReflectionSystem::GetOrCreateType<float>("float"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
+		currentField.AddMetadata(R"delim(OnInspectorChangedEvent(MarkRenderStateDirty))delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPointLightInstanceIndex", offsetof(PointLightComponent, myPointLightInstanceIndex), ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
@@ -6463,11 +6473,11 @@ Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSys
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
-instance->TEMP_SendToGPU();
+instance->OnRenderStateDirty();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("TEMP_SendToGPU", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("OnRenderStateDirty", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -7812,6 +7822,24 @@ Method& currentMethod = currentClass->AddMethod(Method("BindBuffer", ReflectionS
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
+const IGPUList * arg0 = (const IGPUList*)inArguments[0];
+vk::Flags<vk::ShaderStageFlagBits>& arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
+vk::DescriptorType& arg3 = *(vk::DescriptorType*)inArguments[3];
+instance->BindBuffer(arg0, arg1, arg2, arg3);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<const IGPUList *>("const IGPUList *")));
+arguments.Add(MethodArgument("inShaderStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::ShaderStageFlagBits>>("vk::Flags<vk::ShaderStageFlagBits>")));
+arguments.Add(MethodArgument("inBindingIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+arguments.Add(MethodArgument("inDescriptorType", ReflectionSystem::GetOrCreateType<vk::DescriptorType>("vk::DescriptorType")));
+Method& currentMethod = currentClass->AddMethod(Method("BindBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
 const VulkanImage * arg0 = (const VulkanImage*)inArguments[0];
 const vk::Sampler& arg1 = *(const vk::Sampler*)inArguments[1];
 const unsigned int& arg2 = *(const unsigned int*)inArguments[2];
@@ -9135,37 +9163,110 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<WorldSystem>());
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<PointLightSystem>();
+	Type* currentClass = ReflectionSystem::GetMutableType<VulkanCommandBuffer>();
 	{
-		Field& currentField = currentClass->AddField(Field("myBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myCommandBuffer", -1, ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myNumPointLights", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		Field& currentField = currentClass->AddField(Field("myCommandPool", -1, ReflectionSystem::GetOrCreateType<vk::CommandPool>("vk::CommandPool"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanCommandBuffer* instance = static_cast<VulkanCommandBuffer*>(inInstance);
+static thread_local vk::CommandBuffer result = instance->GetAPIResource();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ListPropertyDrawer>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<AdvancedPropertyDrawer>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ListPropertyDrawer* instance = static_cast<ListPropertyDrawer*>(inInstance);
+const Type * arg0 = (const Type*)inArguments[0];
+static thread_local bool result = instance->DrawsType(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+Method& currentMethod = currentClass->AddMethod(Method("DrawsType", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ListPropertyDrawer* instance = static_cast<ListPropertyDrawer*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+const Field & arg1 = *(const Field*)inArguments[1];
+static thread_local bool result = instance->Draw(arg0, arg1);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
+arguments.Add(MethodArgument("inField", ReflectionSystem::GetOrCreateType<const Field &>("const Field &")));
+Method& currentMethod = currentClass->AddMethod(Method("Draw", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<IGPUList>();
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PointLightSystem>();
+	{
+		Field& currentField = currentClass->AddField(Field("myPointLightBuffer", -1, ReflectionSystem::GetOrCreateType<GPUSparseDenseBuffer<PointLightData>>("GPUSparseDenseBuffer<PointLightData>"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 PointLightSystem* instance = static_cast<PointLightSystem*>(inInstance);
-const ResizableBuffer * result = instance->GetBuffer();
-return (void*)result;
+const PointLightData & arg0 = *(const PointLightData*)inArguments[0];
+static thread_local unsigned int result = instance->AddLight(arg0);
+return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
+arguments.Add(MethodArgument("inPointLightData", ReflectionSystem::GetOrCreateType<const PointLightData &>("const PointLightData &")));
+Method& currentMethod = currentClass->AddMethod(Method("AddLight", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 PointLightSystem* instance = static_cast<PointLightSystem*>(inInstance);
-TransformComponent & arg0 = *(TransformComponent*)inArguments[0];
-PointLightComponent * arg1 = (PointLightComponent*)inArguments[1];
-instance->AddLight(arg0, arg1);
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
+const PointLightData & arg1 = *(const PointLightData*)inArguments[1];
+instance->UpdateLight(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inTransform", ReflectionSystem::GetOrCreateType<TransformComponent &>("TransformComponent &")));
-arguments.Add(MethodArgument("inLight", ReflectionSystem::GetOrCreateType<PointLightComponent *>("PointLightComponent *")));
-Method& currentMethod = currentClass->AddMethod(Method("AddLight", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+arguments.Add(MethodArgument("inLightInstance", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+arguments.Add(MethodArgument("inPointLightData", ReflectionSystem::GetOrCreateType<const PointLightData &>("const PointLightData &")));
+Method& currentMethod = currentClass->AddMethod(Method("UpdateLight", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightSystem* instance = static_cast<PointLightSystem*>(inInstance);
+const unsigned int& arg0 = *(const unsigned int*)inArguments[0];
+instance->RemoveLight(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inLightInstance", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("RemoveLight", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightSystem* instance = static_cast<PointLightSystem*>(inInstance);
+const IGPUList * result = instance->GetBuffer();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<const IGPUList *>("const IGPUList *"), invoker, arguments));
 }
 }
 { 
@@ -9201,6 +9302,25 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("DestroySamplers", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<GPUSparseDenseBuffer<PointLightData>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IGPUList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<PointLightData>("PointLightData"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<InspectorWindow>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+InspectorWindow* instance = static_cast<InspectorWindow*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -9644,55 +9764,6 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<VulkanCommandBuffer>();
-	{
-		Field& currentField = currentClass->AddField(Field("myCommandBuffer", -1, ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCommandPool", -1, ReflectionSystem::GetOrCreateType<vk::CommandPool>("vk::CommandPool"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanCommandBuffer* instance = static_cast<VulkanCommandBuffer*>(inInstance);
-static thread_local vk::CommandBuffer result = instance->GetAPIResource();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<ListPropertyDrawer>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<AdvancedPropertyDrawer>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ListPropertyDrawer* instance = static_cast<ListPropertyDrawer*>(inInstance);
-const Type * arg0 = (const Type*)inArguments[0];
-static thread_local bool result = instance->DrawsType(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
-Method& currentMethod = currentClass->AddMethod(Method("DrawsType", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-ListPropertyDrawer* instance = static_cast<ListPropertyDrawer*>(inInstance);
-void * arg0 = (void*)inArguments[0];
-const Field & arg1 = *(const Field*)inArguments[1];
-static thread_local bool result = instance->Draw(arg0, arg1);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
-arguments.Add(MethodArgument("inField", ReflectionSystem::GetOrCreateType<const Field &>("const Field &")));
-Method& currentMethod = currentClass->AddMethod(Method("Draw", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 }
 { 
@@ -11372,20 +11443,6 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("TickInput", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<InspectorWindow>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-InspectorWindow* instance = static_cast<InspectorWindow*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
