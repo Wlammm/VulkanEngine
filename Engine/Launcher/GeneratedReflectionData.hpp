@@ -128,6 +128,7 @@
 #include "../Engine/Vulkan/VulkanUtils.hpp"
 #include "../Engine/Vulkan/Containers/GPUSparseDenseBuffer.h"
 #include "../Editor/Windows/InspectorWindow.h"
+#include "../Engine/Utils/ActorUtils.h"
 #include "../Engine/Utils/BinaryUtils.hpp"
 #include "../Engine/Utils/Debug.h"
 #include "../Engine/Vulkan/Aftermath/ShaderDatabase.h"
@@ -414,6 +415,7 @@ ReflectionSystem::AddType<PointLightSystem>("PointLightSystem", typeid(PointLigh
 ReflectionSystem::AddType<VulkanUtils>("VulkanUtils", typeid(VulkanUtils).name());
 ReflectionSystem::AddType<GPUSparseDenseBuffer<PointLightData>>("GPUSparseDenseBuffer<PointLightData>", typeid(GPUSparseDenseBuffer<PointLightData>).name());
 ReflectionSystem::AddType<InspectorWindow>("InspectorWindow", typeid(InspectorWindow).name());
+ReflectionSystem::AddType<ActorUtils>("ActorUtils", typeid(ActorUtils).name());
 ReflectionSystem::AddType<BinaryUtils>("BinaryUtils", typeid(BinaryUtils).name());
 ReflectionSystem::AddType<Debug>("Debug", typeid(Debug).name());
 ReflectionSystem::AddType<Debug::DrawLineInfos>("Debug::DrawLineInfos", typeid(Debug::DrawLineInfos).name());
@@ -2095,6 +2097,26 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+instance->DoOnDestroy();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DoOnDestroy", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Actor* instance = static_cast<Actor*>(inInstance);
+instance->OnDestroy();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnDestroy", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -6473,6 +6495,16 @@ Method& currentMethod = currentClass->AddMethod(Method("OnCreate", ReflectionSys
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
+instance->OnDestroy();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnDestroy", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightComponent* instance = static_cast<PointLightComponent*>(inInstance);
 instance->OnRenderStateDirty();
 return nullptr;
 });
@@ -9321,6 +9353,21 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ActorUtils>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ActorUtils* instance = static_cast<ActorUtils*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+Actor * result = instance->DuplicateActor(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("DuplicateActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *"), invoker, arguments));
 }
 }
 { 

@@ -34,11 +34,19 @@ BinarySerializer::BinarySerializer(const std::filesystem::path& inPath, const Mo
     }
 }
 
-BinarySerializer::BinarySerializer(std::ostringstream& inStringStream)
+BinarySerializer::BinarySerializer(std::ostringstream& inStringStream, const Mode inMode)
 {
-    myMode = Mode::Write;
+    myMode = inMode;
     myOutputStream = &inStringStream;
     myIsTemporary = true;
+    
+    
+    
+    if (inMode == Mode::Read)
+    {
+        std::string data = inStringStream.str();
+        myInBuffer = { std::vector<unsigned char>(data.begin(), data.end()) };
+    }
 }
 
 BinarySerializer::~BinarySerializer()

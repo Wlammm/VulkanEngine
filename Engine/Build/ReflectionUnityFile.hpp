@@ -109,6 +109,7 @@
 #include "../Engine/System\WorldSystem.h"
 #include "../Engine/Systems\LandscapeSystem.h"
 #include "../Engine/Systems\PointLightSystem.h"
+#include "../Engine/Utils\ActorUtils.h"
 #include "../Engine/Utils\BinaryUtils.hpp"
 #include "../Engine/Utils\CommonMacros.h"
 #include "../Engine/Utils\Debug.h"

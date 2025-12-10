@@ -10,6 +10,10 @@ public:
 
     void TickInput() override;
 
+    
 private:
-    void DrawPopups();    
+    void DrawPopups();
+    
+    void SpawnActor(const Type* inType);
+    
 };

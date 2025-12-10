@@ -10,9 +10,18 @@ PointLightComponent::PointLightComponent()
 {
     
 }
+
 void PointLightComponent::OnCreate()
 {
     MarkRenderStateDirty();
+}
+
+void PointLightComponent::OnDestroy()
+{
+    Component::OnDestroy();
+    
+    if (myPointLightInstanceIndex != -1)
+        Engine::GetEngineSystem<PointLightSystem>().RemoveLight(myPointLightInstanceIndex);
 }
 
 void PointLightComponent::OnRenderStateDirty()

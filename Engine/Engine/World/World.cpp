@@ -265,6 +265,7 @@ void World::TickActorDeletes()
 		{
 			if (myActors[i] == actor)
 			{
+				myActors[i]->DoOnDestroy();
 				myActors.RemoveIndex(i);
 				break;
 			}

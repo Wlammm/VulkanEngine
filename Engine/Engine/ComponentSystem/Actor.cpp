@@ -19,6 +19,16 @@ void Actor::DoOnCreate()
     OnCreate();
 }
 
+void Actor::DoOnDestroy()
+{
+    for (Component* comp : myComponents)
+    {
+        comp->OnDestroy();
+    }
+    
+    OnDestroy();
+}
+
 void Actor::DoTick()
 {
     for (Component* comp : myComponents)

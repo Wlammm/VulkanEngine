@@ -11,7 +11,7 @@ public:
     };
 
     BinarySerializer(const std::filesystem::path& inPath, const Mode inMode);
-    BinarySerializer(std::ostringstream& inStringStream);
+    BinarySerializer(std::ostringstream& inStringStream, const Mode inMode = Mode::Write);
     ~BinarySerializer();
 
     bool IsReading() const;

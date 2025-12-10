@@ -15,6 +15,9 @@ public:
     void DoOnCreate();
     virtual void OnCreate() {};
 
+    void DoOnDestroy();
+    virtual void OnDestroy() {};
+    
     void DoTick();
     virtual void Tick() {}
 

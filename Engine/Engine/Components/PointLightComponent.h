@@ -7,6 +7,7 @@ public:
     PointLightComponent();
 
     void OnCreate() override;
+    void OnDestroy() override;
 
     void OnRenderStateDirty() override;
 

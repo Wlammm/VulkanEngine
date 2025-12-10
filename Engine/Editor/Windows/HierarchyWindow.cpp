@@ -2,11 +2,13 @@
 #include "HierarchyWindow.h"
 
 #include "Editor.h"
+#include "Actors/EditorCameraActor.h"
 #include "Editor/EditorSystem/SelectionSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/ComponentSystem/Actor.h"
 #include "Engine/Core/Input.h"
 #include "Engine/Reflection/ReflectionSystem.h"
+#include "Engine/Utils/ActorUtils.h"
 #include "Engine/Utils/String.hpp"
 #include "Engine/World/World.h"
 #include "World/EditorWorld.h"
@@ -76,6 +78,14 @@ void HierarchyWindow::TickInput()
         SelectionSystem::ClearSelection();
     }
     
+    
+    if (Input::IsKeyPressed(KeyCode::LeftControl) && Input::IsKeyDown(KeyCode::D))
+    {
+        if (!SelectionSystem::GetSelectedObjects().IsEmpty())
+        {
+            ActorUtils::DuplicateActor(SelectionSystem::GetSelectedObjects().First());
+        }
+    }
 }
 
 void HierarchyWindow::DrawPopups()
@@ -90,9 +100,7 @@ void HierarchyWindow::DrawPopups()
             
             if (ImGui::Selectable("Empty Actor"))
             {
-                Actor* actor = Editor::GetEditorWorld()->SpawnActor<Actor>("New Actor");
-                SelectionSystem::ClearSelection();
-                SelectionSystem::SelectObject(actor);
+                SpawnActor(ReflectionSystem::GetType<Actor>());
             }
             
             if (ImGui::BeginMenu("New Actor"))
@@ -105,12 +113,22 @@ void HierarchyWindow::DrawPopups()
                 {
                     if (ImGui::Selectable(actorType->GetName().c_str()))
                     {
-                        Actor* actor = Editor::GetEditorWorld()->SpawnActor(actorType, "New " + actorType->GetName());
-                        SelectionSystem::ClearSelection();
-                        SelectionSystem::SelectObject(actor);
+                        SpawnActor(actorType);
                     }
                 }
             }
         }
     }
+}
+
+void HierarchyWindow::SpawnActor(const Type* inType)
+{
+    Actor* actor = Editor::GetEditorWorld()->SpawnActor(inType, "New " + inType->GetName());
+    SelectionSystem::ClearSelection();
+    SelectionSystem::SelectObject(actor);
+
+    constexpr float distanceFromCamera = 2'000;
+    TransformComponent& editorCameraTransform = Editor::GetEditorWorld()->GetEditorCamera()->GetTransform();
+    glm::vec3 newLocation = editorCameraTransform.GetPosition() + editorCameraTransform.GetForward() * distanceFromCamera;
+    actor->GetTransform().SetPosition(newLocation);
 }
