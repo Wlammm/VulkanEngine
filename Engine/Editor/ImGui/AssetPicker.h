@@ -45,7 +45,7 @@ namespace ImGui
                 if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(extension.c_str()))
                 {
                     const SourcePath assetPath = *(std::string*)payload->Data;
-                    inOutAsset = AssetRegistry::Get()->GetAsset(assetPath, inAssetType);
+                    inOutAsset = AssetRegistry::Get()->GetAssetSynchronous(assetPath, inAssetType);
                     return true;
                 }
             }
@@ -73,7 +73,7 @@ namespace ImGui
                 
                 if (ImGui::Selectable(asset.filename().string().c_str(), (inOutAsset ? inOutAsset->GetSourcePath() : "") == asset))
                 {
-                    inOutAsset = AssetRegistry::Get()->GetAsset(asset, inAssetType);
+                    inOutAsset = AssetRegistry::Get()->GetAssetSynchronous(asset, inAssetType);
                     return true;
                 }
             }

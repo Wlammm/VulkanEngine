@@ -32,10 +32,10 @@ Viewport::Viewport()
 	myDescriptorSets.Emplace();
 	myDescriptorSets.Emplace();
 
-	myPlayButtonTexture = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/Viewport/PlayButton.png");
+	myPlayButtonTexture = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Texture>("Editor/Viewport/PlayButton.png");
 	myPlayButtonDescriptor = ImGuiTextureUtils::CreateDescriptorSetForTexture(myPlayButtonTexture);
 	
-	myStopButtonTexture = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/Viewport/StopButton.png");
+	myStopButtonTexture = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Texture>("Editor/Viewport/StopButton.png");
 	myStopButtonDescriptor = ImGuiTextureUtils::CreateDescriptorSetForTexture(myStopButtonTexture);
 }
 

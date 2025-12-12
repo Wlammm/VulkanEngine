@@ -184,7 +184,7 @@ namespace ImGui
 	template<typename ...Args>
 	void NotifyInfo(const std::string& aTitle, const char* aMessage, Args&& ...someArgs)
 	{
-		ImGuiToast toast(ImGuiToastType::Info, 50000);
+		ImGuiToast toast(ImGuiToastType::Info, 5000);
 		toast.setTitle(aTitle.c_str());
 		toast.setContent(aMessage, std::forward<Args>(someArgs)...);
 		ImGui::InsertNotification(toast);

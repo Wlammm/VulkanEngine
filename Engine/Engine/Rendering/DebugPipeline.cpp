@@ -16,10 +16,10 @@
 
 DebugPipeline::DebugPipeline()
 {
-	myVertexShader = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Shader>("Shaders/Debug.vert");
+	myVertexShader = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/Debug.vert");
 	myVertexShader->OnShaderRecompiled.Bind(&DebugPipeline::OnShaderRecompiled, this);
 
-	myFragmentShader = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Shader>("Shaders/Debug.frag");
+	myFragmentShader = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/Debug.frag");
 	myFragmentShader->OnShaderRecompiled.Bind(&DebugPipeline::OnShaderRecompiled, this);
 
 	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(

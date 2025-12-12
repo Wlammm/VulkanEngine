@@ -43,13 +43,13 @@ public:
     void GetAssetAsync(const SourcePath& inSourcePath, const Type* inType, const Delegate<void(SharedPtr<Asset> inAsset)>& inOnCompleteDelegate);
     
     template<typename AssetType>
-    SharedPtr<AssetType> GetAsset(const SourcePath& inSourcePath)
+    SharedPtr<AssetType> GetAssetSynchronous(const SourcePath& inSourcePath)
     {
         const Type* type = ReflectionSystem::GetType<AssetType>();
-        return std::static_pointer_cast<AssetType>(GetAsset(inSourcePath, type));
+        return std::static_pointer_cast<AssetType>(GetAssetSynchronous(inSourcePath, type));
     }
     
-    SharedPtr<Asset> GetAsset(const SourcePath& inSourcePath, const Type* inType);
+    SharedPtr<Asset> GetAssetSynchronous(const SourcePath& inSourcePath, const Type* inType);
 
     SharedPtr<Asset> LoadExternalAsset(const SourcePath& inSourcePath, const Type* inType)
     {

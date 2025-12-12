@@ -20,7 +20,7 @@ TextureSystem::TextureSystem()
     CreateDescriptorSet();
 
     check(!myMissingMaterialTexture && "This variable is static so make sure we dont create multiple in case we ever create multiple instances of this system.");
-    myMissingMaterialTexture = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("MissingTexture.png");
+    myMissingMaterialTexture = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Texture>("MissingTexture.png");
 }
 
 TextureSystem::~TextureSystem()

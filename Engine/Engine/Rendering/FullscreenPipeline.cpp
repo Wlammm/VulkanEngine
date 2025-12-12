@@ -9,7 +9,7 @@
 
 FullscreenPipeline::FullscreenPipeline(SharedPtr<Shader> inFragmentShader, VulkanImage* inSource, vk::RenderPass inRenderPass)
 {
-	myVertexShader = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Shader>("Shaders/FullscreenVS.vert");
+	myVertexShader = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/FullscreenVS.vert");
 	myVertexShader->OnShaderRecompiled.Bind(&FullscreenPipeline::OnShaderRecompiled, this);
 
 	myFragmentShader = inFragmentShader;

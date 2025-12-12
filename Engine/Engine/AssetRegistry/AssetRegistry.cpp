@@ -27,7 +27,7 @@ void AssetRegistry::GetAssetAsync(const SourcePath& inSourcePath, const Type* in
 
     Engine::GetThreadPool().QueueTask([inSourcePath, inType, this, inOnCompleteDelegate]()
     {
-        SharedPtr<Asset> asset = GetAsset(inSourcePath, inType);
+        SharedPtr<Asset> asset = GetAssetSynchronous(inSourcePath, inType);
 
         Engine::TickNextFrame.Bind([asset, inOnCompleteDelegate]()
         {
@@ -36,7 +36,7 @@ void AssetRegistry::GetAssetAsync(const SourcePath& inSourcePath, const Type* in
     });
 }
 
-SharedPtr<Asset> AssetRegistry::GetAsset(const SourcePath& inSourcePath, const Type* inType)
+SharedPtr<Asset> AssetRegistry::GetAssetSynchronous(const SourcePath& inSourcePath, const Type* inType)
 {
     ZoneScoped;
     ZoneText(inSourcePath.filename().string().c_str(), inSourcePath.filename().string().size());

@@ -411,7 +411,7 @@ void RenderSystem::CreatePipelines()
 	myGDRPipeline = new GDRPipeline();
 	mySkyboxPipeline = new SkyboxPipeline();
 	myDebugPipeline = new DebugPipeline();
-	myCopyPipeline = new FullscreenPipeline(Engine::GetEngineSystem<AssetRegistry>().GetAsset<Shader>("Shaders/FullscreenCopy.frag"), myResolvedRenderTexture, myCopyToSwapchainRenderPass);
+	myCopyPipeline = new FullscreenPipeline(Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/FullscreenCopy.frag"), myResolvedRenderTexture, myCopyToSwapchainRenderPass);
 }
 
 void RenderSystem::CreateRenderTextures()

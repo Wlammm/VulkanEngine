@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ImGui_Wrapper.hpp"
 #include "Editor/EditorSystem/SelectionSystem.h"
 #include "Editor/World/EditorWorld.h"
 #include "Engine/Engine.h"
@@ -38,6 +39,11 @@ public:
         if (!std::filesystem::exists(path))
             return;
         
-        Engine::SetWorld(AssetRegistry::Get()->GetAsset<EditorWorld>(path));
+        AssetRegistry::Get()->GetAssetAsync<EditorWorld>(path, [](SharedPtr<EditorWorld> inWorld)
+        {
+            Engine::SetWorld(inWorld);
+        });
+        
+        ImGui::NotifyInfo("Async operation", "Loading world");
     }
 };

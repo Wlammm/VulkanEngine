@@ -7,6 +7,8 @@
 #include "Engine/Serialization/BinarySerializer.h"
 #include "Engine/World/World.h"
 #include "World/EditorWorld.h"
+#define IMSPINNER_DEMO
+#include "imspinner.h"
 
 PreviousWorldsSystem::PreviousWorldsSystem()
 {
@@ -57,10 +59,15 @@ void PreviousWorldsSystem::Tick()
         {
             if (ImGui::CenteredSelectable(myPreviousWorlds[i].stem().string().c_str(), false, 0, ImVec2(500, 40)))
             {
-                ImGui::NotifyInfo("Async operation", "Loading world %s...", myPreviousWorlds[i].c_str());
-                AssetRegistry::Get()->GetAssetAsync<EditorWorld>(myPreviousWorlds[i], [](SharedPtr<EditorWorld> inAsset)
+                ImGuiToast toast(ImGuiToastType::Loading, ImGuiToast::VeryLongTime);
+                toast.setTitle("Loading world");
+                toast.setContent("%s", myPreviousWorlds[i].filename().string().c_str());
+                int identifier = ImGui::InsertNotification(toast);
+                
+                AssetRegistry::Get()->GetAssetAsync<EditorWorld>(myPreviousWorlds[i], [identifier](SharedPtr<EditorWorld> inAsset)
                 {
                     Engine::SetWorld(inAsset);
+                    ImGui::RemoveNotification(identifier);
                 });
                 // Engine::SetWorld(AssetRegistry::Get()->GetAsset<EditorWorld>(myPreviousWorlds[i]));
                 ImGui::CloseCurrentPopup();

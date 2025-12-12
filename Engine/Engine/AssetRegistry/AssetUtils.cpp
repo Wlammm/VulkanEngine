@@ -106,7 +106,7 @@ void AssetUtils::RenameAsset(const std::filesystem::path& inCurrentPath, const s
 {
     const Type* assetType = GetAssetTypeFromFileExtension(inCurrentPath.extension().string());
     
-    SharedPtr<Asset> asset = AssetRegistry::Get()->GetAsset(inCurrentPath, assetType);
+    SharedPtr<Asset> asset = AssetRegistry::Get()->GetAssetSynchronous(inCurrentPath, assetType);
     asset->SetAssetPath(inNewPath);
     AssetRegistry::Get()->SaveAsset(asset);
     std::filesystem::remove(inCurrentPath);

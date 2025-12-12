@@ -4729,13 +4729,13 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 AssetRegistry* instance = static_cast<AssetRegistry*>(inInstance);
 const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
 const Type * arg1 = (const Type*)inArguments[1];
-static thread_local std::shared_ptr<Asset> result = instance->GetAsset(arg0, arg1);
+static thread_local std::shared_ptr<Asset> result = instance->GetAssetSynchronous(arg0, arg1);
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inSourcePath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
 arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
-Method& currentMethod = currentClass->AddMethod(Method("GetAsset", ReflectionSystem::GetOrCreateType<std::shared_ptr<Asset>>("std::shared_ptr<Asset>"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetAssetSynchronous", ReflectionSystem::GetOrCreateType<std::shared_ptr<Asset>>("std::shared_ptr<Asset>"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

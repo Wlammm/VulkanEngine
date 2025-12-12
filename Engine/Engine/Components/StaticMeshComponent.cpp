@@ -18,7 +18,10 @@ StaticMeshComponent::StaticMeshComponent()
 
 StaticMeshComponent::StaticMeshComponent(const std::filesystem::path& inPath)
 {
-    SetModel(Engine::GetEngineSystem<AssetRegistry>().GetAsset<Model>(inPath));
+    Engine::GetEngineSystem<AssetRegistry>().GetAssetAsync<Model>(inPath, [this](SharedPtr<Model> inModel)
+    {
+        SetModel(inModel);
+    });
 }
 
 void StaticMeshComponent::OnCreate()
@@ -53,12 +56,10 @@ SharedPtr<Model> StaticMeshComponent::GetModel() const
 
 void StaticMeshComponent::SetMaterialAsync(const std::filesystem::path& inMaterialPath, const uint inIndex)
 {
-    LOG_WARNING("StaticMeshComponent::SetMaterialAsync isnt async right now. FIXX");
-    SetMaterial(inMaterialPath, inIndex);
-    //GetWorld()->GetAssetRegistry().GetAssetAsync<Material>(inMaterialPath, [this, inIndex](Material* inMaterial)
-    //{
-    //    SetMaterial(inMaterial, inIndex);
-    //});
+    AssetRegistry::Get()->GetAssetAsync<Material>(inMaterialPath, [this, inIndex](SharedPtr<Material> inMaterial)
+    {
+        SetMaterial(inMaterial, inIndex);
+    });
 }
 
 void StaticMeshComponent::SetMaterial(SharedPtr<Material> inMaterial, const uint inIndex)
@@ -70,7 +71,7 @@ void StaticMeshComponent::SetMaterial(SharedPtr<Material> inMaterial, const uint
 
 void StaticMeshComponent::SetMaterial(const std::filesystem::path& inMaterialPath, const uint inIndex)
 {
-    SetMaterial(Engine::GetEngineSystem<AssetRegistry>().GetAsset<Material>(inMaterialPath), inIndex);
+    SetMaterial(Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Material>(inMaterialPath), inIndex);
 }
 
 SharedPtr<Material> StaticMeshComponent::GetMaterial(const uint inIndex) const
@@ -183,7 +184,8 @@ void StaticMeshComponent::UpdateMaterialsForNewMesh()
             SourcePath materialPath = myModel->GetSourcePath().parent_path();
             materialPath.append(myModel->GetName() + "_Material" + std::to_string(meshIndex) +".mat");
 
-            if(SharedPtr<Material> material = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Material>(materialPath))
+            // TODO: make this async.
+            if(SharedPtr<Material> material = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Material>(materialPath))
             {
                 myMaterials[meshIndex] = material;
                 MarkRenderStateDirty();

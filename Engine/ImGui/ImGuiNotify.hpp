@@ -18,6 +18,7 @@
 #include <string>
 #include <chrono>			// For the notifications timed dissmiss
 #include <functional>		// For storing the code, which executest on the button click in the notification
+#include <imspinner.h>
 
 #include "imgui.h"
 #include "imgui_internal.h"
@@ -43,12 +44,12 @@
 #define NOTIFY_FADE_IN_OUT_TIME				150			// Fade in and out duration
 #define NOTIFY_DEFAULT_DISMISS				3000		// Auto dismiss after X ms (default, applied only of no data provided in constructors)
 #define NOTIFY_OPACITY						0.8f		// 0-1 Toast opacity
-#define NOTIFY_USE_SEPARATOR 				false 		// If true, a separator will be rendered between the title and the content
-#define NOTIFY_USE_DISMISS_BUTTON			true		// If true, a dismiss button will be rendered in the top right corner of the toast
+#define NOTIFY_USE_SEPARATOR 				true 		// If true, a separator will be rendered between the title and the content
+#define NOTIFY_USE_DISMISS_BUTTON			false		// If true, a dismiss button will be rendered in the top right corner of the toast
 #define NOTIFY_RENDER_LIMIT					5			// Max number of toasts rendered at the same time. Set to 0 for unlimited
 
 // Warning: Requires ImGui docking with multi-viewport enabled
-#define NOTIFY_RENDER_OUTSIDE_MAIN_WINDOW	true		// If true, the notifications will be rendered in the corner of the monitor, otherwise in the corner of the main window
+#define NOTIFY_RENDER_OUTSIDE_MAIN_WINDOW	false		// If true, the notifications will be rendered in the corner of the monitor, otherwise in the corner of the main window
 
 /**
  * CONFIGURATION SECTION End
@@ -73,6 +74,7 @@ enum class ImGuiToastType : uint8_t
     Warning,
     Error,
     Info,
+    Loading,
     COUNT
 };
 
@@ -102,6 +104,8 @@ enum class ImGuiToastPos : uint8_t
  */
 class ImGuiToast
 {
+public:
+    inline static constexpr int VeryLongTime = 1000000000;
 private:
     ImGuiWindowFlags							flags = NOTIFY_DEFAULT_TOAST_FLAGS;
 
@@ -114,6 +118,8 @@ private:
 
     std::function<void()>						onButtonPress = nullptr; // A lambda variable, which will be executed when button in notification is pressed
     char 										buttonLabel[NOTIFY_MAX_MSG_LENGTH];
+    
+    int                                         uniqueIdentifier;
 
 private:
     // Setters
@@ -135,6 +141,16 @@ private:
 
 public:
 
+    inline int getUniqueIdentifier() const
+    {
+        return uniqueIdentifier;
+    }
+    
+    void setUniqueIdentifier(int inUniqueIdentifier)
+    {
+        uniqueIdentifier = inUniqueIdentifier;
+    }
+    
     /**
      * @brief Set the title of the toast notification.
      * 
@@ -233,6 +249,8 @@ public:
                 return "Error";
             case ImGuiToastType::Info:
                 return "Info";
+            case ImGuiToastType::Loading:
+                return "Loading";
             default:
                 return nullptr;
             }
@@ -269,6 +287,7 @@ public:
         case ImGuiToastType::Error:
             return {255, 0, 0, 255}; // Error
         case ImGuiToastType::Info:
+        case ImGuiToastType::Loading:
             return {0, 157, 255, 255}; // Blue
         default:
             return {255, 255, 255, 255}; // White
@@ -468,12 +487,27 @@ namespace ImGui
     /**
      * Inserts a new notification into the notification queue.
      * @param toast The notification to be inserted.
-     */
-    inline void InsertNotification(const ImGuiToast& toast)
+     * @return Returns a unique identifier. 
+    */
+    inline int InsertNotification(const ImGuiToast& toast)
     {
         notifications.push_back(toast);
+        notifications.back().setUniqueIdentifier(rand());
+        return notifications.back().getUniqueIdentifier();
     }
 
+    inline void RemoveNotification(const int inUniqueIdentifier)
+    {
+        for (size_t i = 0; i < notifications.size(); ++i)
+        {
+            if (notifications[i].getUniqueIdentifier() == inUniqueIdentifier)
+            {
+                notifications.erase(notifications.begin() + i);
+                return;
+            }
+        }
+    }
+    
     /**
      * @brief Removes a notification from the list of notifications.
      * 
@@ -544,6 +578,7 @@ namespace ImGui
 
                 ImGuiPlatformIO& platformIO = GetPlatformIO();
                 ImGuiPlatformMonitor& monitor = platformIO.Monitors[mainMonitorId];
+                
 
                 // Set notification window position to bottom right corner of the monitor
                 SetNextWindowPos(ImVec2(monitor.WorkPos.x + monitor.WorkSize.x - NOTIFY_PADDING_X, monitor.WorkPos.y + monitor.WorkSize.y - NOTIFY_PADDING_Y - height), ImGuiCond_Always, ImVec2(1.0f, 1.0f));
@@ -569,6 +604,8 @@ namespace ImGui
                 PushTextWrapPos(mainWindowSize.x / 3.f); // We want to support multi-line text, this will wrap the text after 1/3 of the screen width
 
                 bool wasTitleRendered = false;
+                
+                bool hasIcon = !NOTIFY_NULL_OR_EMPTY(icon) || currentToast->getType() == ImGuiToastType::Loading;
 
                 // If an icon is set
                 if (!NOTIFY_NULL_OR_EMPTY(icon))
@@ -577,12 +614,20 @@ namespace ImGui
                     TextColored(textColor, "%s", icon);
                     wasTitleRendered = true;
                 }
+                else
+                {
+                    if (currentToast->getType() == ImGuiToastType::Loading)
+                    {
+                        ImSpinner::SpinnerAngEclipse("##spinner", 7, 3);
+                        wasTitleRendered = true;
+                    }
+                }
 
                 // If a title is set
                 if (!NOTIFY_NULL_OR_EMPTY(title))
                 {
                     // If a title and an icon is set, we want to render on same line
-                    if (!NOTIFY_NULL_OR_EMPTY(icon))
+                    if (hasIcon)
                         SameLine();
 
                     Text("%s", title); // Render title text
@@ -590,7 +635,7 @@ namespace ImGui
                 } else 
                 if (!NOTIFY_NULL_OR_EMPTY(defaultTitle))
                 {
-                    if (!NOTIFY_NULL_OR_EMPTY(icon))
+                    if (hasIcon)
                         SameLine();
 
                     Text("%s", defaultTitle); // Render default title text (ImGuiToastType_Success -> "Success", etc...)

@@ -37,7 +37,7 @@ void AssetSerializer::Serialize(void* inInstance, const Type* inType, BinarySeri
         if (sourcePath == "")
             return;
         
-        *asset = AssetRegistry::Get()->GetAsset(sourcePath, assetType);
+        *asset = AssetRegistry::Get()->GetAssetSynchronous(sourcePath, assetType);
         
         // TODO: Make this async working. We'd need to be able to subscribe to events when an asset has finished loading..
         

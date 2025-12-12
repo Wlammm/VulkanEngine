@@ -14,19 +14,19 @@
 ContentBrowserWindow::ContentBrowserWindow()
     : EditorWindow("Content Browser", true)
 {
-	myContentBrowserTextures[FILETYPE_FOLDER] = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/ContentBrowserIcons/Folder.png");
+	myContentBrowserTextures[FILETYPE_FOLDER] = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Texture>("Editor/ContentBrowserIcons/Folder.png");
 	myContentBrowserTextureDescriptors[FILETYPE_FOLDER] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_FOLDER]);
 	
-	myContentBrowserTextures[FILETYPE_FILE] = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/ContentBrowserIcons/File.png");
+	myContentBrowserTextures[FILETYPE_FILE] = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Texture>("Editor/ContentBrowserIcons/File.png");
 	myContentBrowserTextureDescriptors[FILETYPE_FILE] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_FILE]);
 	
-	myContentBrowserTextures[FILETYPE_MODEL] = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/ContentBrowserIcons/Model.png");
+	myContentBrowserTextures[FILETYPE_MODEL] = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Texture>("Editor/ContentBrowserIcons/Model.png");
 	myContentBrowserTextureDescriptors[FILETYPE_MODEL] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_MODEL]);
 	
-	myContentBrowserTextures[FILETYPE_TEXTURE] = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/ContentBrowserIcons/Texture.png");
+	myContentBrowserTextures[FILETYPE_TEXTURE] = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Texture>("Editor/ContentBrowserIcons/Texture.png");
 	myContentBrowserTextureDescriptors[FILETYPE_TEXTURE] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_TEXTURE]);
 	
-	myContentBrowserTextures[FILETYPE_MATERIAL] = Engine::GetEngineSystem<AssetRegistry>().GetAsset<Texture>("Editor/ContentBrowserIcons/Material.png");
+	myContentBrowserTextures[FILETYPE_MATERIAL] = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Texture>("Editor/ContentBrowserIcons/Material.png");
 	myContentBrowserTextureDescriptors[FILETYPE_MATERIAL] = ImGuiTextureUtils::CreateDescriptorSetForTexture(myContentBrowserTextures[FILETYPE_MATERIAL]);
 
 	LoadAllDirectories(myRoot);
@@ -739,7 +739,7 @@ void ContentBrowserWindow::DeleteItem()
 void ContentBrowserWindow::HandleDoubleClick(const ContentBrowserItem& inClickedItem)
 {
 	const Type* assetType = AssetUtils::GetAssetTypeFromFileExtension(inClickedItem.myPath.extension().string());
-	SharedPtr<Asset> asset = AssetRegistry::Get()->GetAsset(inClickedItem.myPath, assetType);
+	SharedPtr<Asset> asset = AssetRegistry::Get()->GetAssetSynchronous(inClickedItem.myPath, assetType);
 	Editor::GetSystem<AssetEditorSystem>()->OpenAssetEditor(asset, assetType);
 }
 
