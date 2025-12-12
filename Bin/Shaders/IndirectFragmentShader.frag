@@ -14,8 +14,6 @@ layout(location = 6) in vec3 inTangentViewDir;
 
 layout(set = 1, binding = 0) uniform sampler2D textures[];
 
-layout(set=0, binding = 3) uniform sampler2D inDirectionalLightShadowMap;
-
 layout(set = 0, binding = 0) uniform FrameBuffer 
 {
 	mat4 myToView;

@@ -28,9 +28,6 @@ RenderSystem::~RenderSystem()
 {
 	VulkanSwapChain::OnSwapChainResized.UnBind(&RenderSystem::OnSwapChainResize,this);
 	
-	if(myDirectionalLightShadowMap)
-		VulkanAllocator::DestroyImage_TS(myDirectionalLightShadowMap);
-	
 	// Flush out remaining upload commands as there might still be buffers waiting destruction in them.
 	FlushUploadCommands();
 
@@ -42,9 +39,6 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::Init()
 {
-	myDirectionalLightShadowMap = VulkanAllocator::AllocateImage_TS("DirectionalLight ShadowMap", VulkanImage::ShadowMapCreateInfo(myShadowMapSize), VMA_MEMORY_USAGE_AUTO);
-	myDirectionalLightShadowMap->CreateDepthView();
-	
 	CreateRenderResources();
 	VulkanImGui::Start();
 }
@@ -90,11 +84,6 @@ class VulkanImage* RenderSystem::GetResolvedRenderTexture() const
 VulkanImage* RenderSystem::GetDepthTexture()
 {
 	return myDepthBuffer;
-}
-
-VulkanImage* RenderSystem::GetDirectionalLightShadowMap() const
-{
-	return myDirectionalLightShadowMap;
 }
 
 void RenderSystem::OnSwapChainResize()

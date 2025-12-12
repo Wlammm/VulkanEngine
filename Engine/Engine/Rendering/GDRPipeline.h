@@ -2,6 +2,7 @@
 #include "Engine/Vulkan/VulkanDescriptorSet.h"
 // GPU Driven Rendering Pipeline.
 
+class IRenderPass;
 class TextureCube;
 class TransformComponent;
 class Shader;
@@ -9,36 +10,42 @@ class VulkanBuffer;
 
 class GDRPipeline
 {
+    inline static GDRPipeline* myInstance = nullptr;
 public:
+    static GDRPipeline* Get() { return myInstance;};
     GDRPipeline();
     ~GDRPipeline();
 
+    template<typename RenderPassType>
+    void AddRenderPass()
+    {
+        RenderPassType* renderPass = new RenderPassType();
+        renderPass->CreateResources();
+        myRenderPasses.Add(renderPass);
+    }
+    
     void AddComputeCommands(vk::CommandBuffer inCommandBuffer);
+    void AddDepthPrepassCommands(vk::CommandBuffer inCommandBuffer);
     void AddGraphicsCommands(vk::CommandBuffer inCommandBuffer);
 
     VulkanBuffer* GetCountBuffer() const;
     VulkanBuffer* GetIndirectBuffer() const;
     ResizableBuffer* GetPerDrawDataBuffer() const;
 
+    // TODO: THESE SHOULD NOT BE PUBLIC. This is just for testing rn.
+    ResizableBuffer* myIndirectCommandsBuffer = nullptr;
+    ResizableBuffer* myIndirectCommandsBufferNoDepth = nullptr;
+    VulkanBuffer* myCountBuffer = nullptr;
+    VulkanBuffer* myCountNoDepthBuffer = nullptr;
+    ResizableBuffer* myPerDrawDataBuffer = nullptr;
+    ResizableBuffer* myPerDrawDataNoDepthBuffer = nullptr;
+    
+    
 private:
-    struct ComputePassResources
-    {
-        Shader* myShader = nullptr;
-        vk::Pipeline myPipeline;
-        vk::PipelineLayout myPipelineLayout;
-        VulkanDescriptorSet* myDescriptorSet = nullptr;
-
-        void Destroy();
-    };
-
-    void ExecuteComputePass(vk::CommandBuffer inCommandBuffer, const ComputePassResources& inComputePassResources, const glm::u32vec3& inGroupCount = glm::u32vec3(1, 1, 1));
-
     void EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer);
     
     void CreateBuffers();
 
-    void CreatePrePassResources();
-    void CreateCullPassResources();
     void CreateDrawPassResources();
 
     void OnShaderRecompiled();
@@ -50,26 +57,25 @@ private:
     void OnTransformMarkedDirty(TransformComponent* inTransform);
     
 private:
+    List<IRenderPass*> myRenderPasses;
+    
     SharedPtr<Shader> myPrePassShader = nullptr;
     SharedPtr<Shader> myCullShader = nullptr;
 
     TextureCube* myCubemap = nullptr;
 
-    ComputePassResources myPrePass;
-    ComputePassResources myCullPass;
     
-    ResizableBuffer* myIndirectCommandsBuffer = nullptr;
-    ResizableBuffer* myIndirectCommandsBufferNoDepth = nullptr;
-    VulkanBuffer* myCountBuffer = nullptr;
-    VulkanBuffer* myCountNoDepthBuffer = nullptr;
-    ResizableBuffer* myPerDrawDataBuffer = nullptr;
-    ResizableBuffer* myPerDrawDataNoDepthBuffer = nullptr;
+    
     
     // ==== Draw resources ====
     VulkanDescriptorSet myFrameDescriptorSet{};
     VulkanDescriptorSet myFrameNoDepthDescriptorSet{};
     vk::PipelineLayout myPipelineLayout;
     vk::Pipeline myPipeline;
+
+    vk::PipelineLayout myPreDepthPipelineLayout;
+    vk::Pipeline myPreDepthPipeline;
+    
     
     SharedPtr<Shader> myVertexShader;
     SharedPtr<Shader> myFragmentShader;

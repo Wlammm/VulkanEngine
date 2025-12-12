@@ -23,30 +23,28 @@
 #include "Engine/Vulkan/VulkanPhysicalDevice.h"
 #include "Engine/Vulkan/VulkanUtils.hpp"
 #include "Engine/World/World.h"
+#include "RenderingPasses/ComputePasses/IndirectCullingComputePass.h"
+#include "RenderingPasses/ComputePasses/IndirectPrePassComputePass.h"
 
 GDRPipeline::GDRPipeline()
 {
+	check(!myInstance)
+	myInstance= this;
     myCullShader = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/IndirectCulling.comp");
     myPrePassShader = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/PrePass.comp");
 
     CreateBuffers();
-    CreatePrePassResources();
-    CreateCullPassResources();
 	CreateDrawPassResources();
 	
-	//TransformComponent::OnMarkedDirty.Bind(&GDRPipeline::OnTransformMarkedDirty, this);
+	AddRenderPass<IndirectPrePassComputePass>();
+	AddRenderPass<IndirectCullingComputePass>();
 }
 
 GDRPipeline::~GDRPipeline()
 {
-	//TransformComponent::OnMarkedDirty.UnBind(&GDRPipeline::OnTransformMarkedDirty, this);
-	
 	myVertexShader->OnShaderRecompiled.UnBind(&GDRPipeline::OnShaderRecompiled, this);
 	myFragmentShader->OnShaderRecompiled.UnBind(&GDRPipeline::OnShaderRecompiled, this);
 	
-    myPrePass.Destroy();
-    myCullPass.Destroy();
-
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	
@@ -59,82 +57,35 @@ GDRPipeline::~GDRPipeline()
     VulkanAllocator::DestroyBuffer_TS(myDirectionalLightBuffer);
     VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
     myCountBuffer = nullptr;
+	
+	for (IRenderPass* renderPass : myRenderPasses)
+	{
+		renderPass->DestroyResources();
+		del(renderPass);	
+	}
+	myRenderPasses.Clear();
+	myInstance = nullptr;	
 }
 
 void GDRPipeline::AddComputeCommands(vk::CommandBuffer inCommandBuffer)
 {
 	EnsureCorrectBufferSizes(inCommandBuffer);
     
-	ExecuteComputePass(inCommandBuffer, myPrePass);
+	for (IRenderPass* renderPass : myRenderPasses)
+	{
+		renderPass->Execute(inCommandBuffer);
+	}
+}
+
+void GDRPipeline::AddDepthPrepassCommands(vk::CommandBuffer inCommandBuffer)
+{
+	GPUMARK_SCOPE(inCommandBuffer, "Depth PrePass");
+
+	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
+	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
 	
-	// Insert memory barrier to ensure that the count buffer is synchronized before cull pass
-	vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
-		.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)  // Pre-pass writes
-		.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)   // Cull pass reads & writes
-		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setBuffer(myCountBuffer->GetAPIResource())
-		.setOffset(0)
-		.setSize(VK_WHOLE_SIZE);
-
-	inCommandBuffer.pipelineBarrier(
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::DependencyFlags{},
-			nullptr,
-			barrier,
-			nullptr);
-
-	GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
-	ExecuteComputePass(inCommandBuffer, myCullPass, {std::ceil(objectSystem.GetNumObjects() / 256.0f), 1, 1});
-
-	// Memory barrier to ensure the compute shader writes are visible to subsequent draw calls
-	vk::BufferMemoryBarrier bufferMemoryBarriers[] = {
-		vk::BufferMemoryBarrier()
-			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
-			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eVertexAttributeRead)
-			.setBuffer(myIndirectCommandsBuffer->GetBuffer()->GetAPIResource())
-			.setOffset(0)
-			.setSize(VK_WHOLE_SIZE),
-		vk::BufferMemoryBarrier()
-			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
-			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eVertexAttributeRead)
-			.setBuffer(myIndirectCommandsBufferNoDepth->GetBuffer()->GetAPIResource())
-			.setOffset(0)
-			.setSize(VK_WHOLE_SIZE),
-		vk::BufferMemoryBarrier()
-			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
-			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eIndexRead)
-			.setBuffer(myPerDrawDataBuffer->GetBuffer()->GetAPIResource())
-			.setOffset(0)
-			.setSize(VK_WHOLE_SIZE),
-		vk::BufferMemoryBarrier()
-			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
-			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eIndexRead)
-			.setBuffer(myPerDrawDataNoDepthBuffer->GetBuffer()->GetAPIResource())
-			.setOffset(0)
-			.setSize(VK_WHOLE_SIZE),
-		vk::BufferMemoryBarrier()
-			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
-			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead)
-			.setBuffer(myCountBuffer->GetAPIResource())
-			.setOffset(0)
-			.setSize(VK_WHOLE_SIZE),
-		vk::BufferMemoryBarrier()
-			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
-			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead)
-			.setBuffer(myCountNoDepthBuffer->GetAPIResource())
-			.setOffset(0)
-			.setSize(VK_WHOLE_SIZE),
-	};
-
-	inCommandBuffer.pipelineBarrier(
-		vk::PipelineStageFlagBits::eComputeShader,
-		vk::PipelineStageFlagBits::eDrawIndirect | vk::PipelineStageFlagBits::eVertexInput,
-		vk::DependencyFlags{},
-		nullptr,
-		bufferMemoryBarriers,
-		nullptr);
+	inCommandBuffer.setDepthWriteEnable(true);
+	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
 }
 
 void GDRPipeline::AddGraphicsCommands(vk::CommandBuffer inCommandBuffer)
@@ -239,20 +190,6 @@ void GDRPipeline::CreateBuffers()
         VulkanBuffer::UniformBufferCreateInfo(sizeof(DirectionalLightBuffer)), 
         VMA_MEMORY_USAGE_AUTO, 
         true);
-}
-
-void GDRPipeline::ComputePassResources::Destroy()
-{
-    VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
-    VulkanContext::GetDevice()->destroyPipeline(myPipeline);
-    del(myDescriptorSet);
-}
-
-void GDRPipeline::ExecuteComputePass(vk::CommandBuffer inCommandBuffer, const ComputePassResources& inComputePassResources, const glm::u32vec3& inGroupCount)
-{
-    inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, inComputePassResources.myPipeline);
-    inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, inComputePassResources.myPipelineLayout, 0, inComputePassResources.myDescriptorSet->GetSet(), {});
-    inCommandBuffer.dispatch(inGroupCount.x, inGroupCount.y, inGroupCount.z);
 }
 
 void GDRPipeline::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
@@ -363,67 +300,6 @@ void GDRPipeline::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
     }
 }
 
-void GDRPipeline::CreatePrePassResources()
-{
-    // Create descriptors
-    MeshSystem& meshSystem = Engine::GetEngineSystem<MeshSystem>();
-    GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
-    
-    myPrePass.myDescriptorSet = new VulkanDescriptorSet();
-    myPrePass.myDescriptorSet->BindBuffer(myCountBuffer, vk::ShaderStageFlagBits::eCompute, 0, vk::DescriptorType::eStorageBuffer);
-    myPrePass.myDescriptorSet->BindBuffer(myCountNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
-    myPrePass.myDescriptorSet->Build();
-
-    // Create pipeline
-    const List<vk::DescriptorSetLayout> layouts{ myPrePass.myDescriptorSet->GetLayout() };
-    myPrePass.myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
-    
-    vk::ComputePipelineCreateInfo createInfo = vk::ComputePipelineCreateInfo();
-    createInfo.setStage(vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eCompute).setModule(myPrePassShader->GetAPIResource()).setPName("main"));
-    createInfo.setLayout(myPrePass.myPipelineLayout);
-
-    const vk::ResultValue<vk::Pipeline> result = VulkanContext::GetDevice()->createComputePipeline(VulkanContext::GetPipelineCache(), createInfo);
-
-    check(result.result == vk::Result::eSuccess);
-    myPrePass.myPipeline = result.value;
-}
-
-void GDRPipeline::CreateCullPassResources()
-{
-    // Create descriptors
-    MeshSystem& meshSystem = Engine::GetEngineSystem<MeshSystem>();
-    GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
-	VertexBufferSystem& vertexSystem = Engine::GetEngineSystem<VertexBufferSystem>();
-	IndexBufferSystem& indexSystem = Engine::GetEngineSystem<IndexBufferSystem>();
-	
-    myCullPass.myDescriptorSet = new VulkanDescriptorSet();
-    myCullPass.myDescriptorSet->BindBuffer(meshSystem.GetBuffer(), vk::ShaderStageFlagBits::eCompute, 0, vk::DescriptorType::eStorageBuffer);
-    myCullPass.myDescriptorSet->BindBuffer(vertexSystem.GetGlobalSparseVertexDataBuffer(), vk::ShaderStageFlagBits::eCompute, 6, vk::DescriptorType::eStorageBuffer);
-    myCullPass.myDescriptorSet->BindBuffer(indexSystem.GetGlobalSparseIndexDataBuffer(), vk::ShaderStageFlagBits::eCompute, 7, vk::DescriptorType::eStorageBuffer);
-    myCullPass.myDescriptorSet->BindBuffer(objectSystem.GetSparseBuffer(), vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
-    myCullPass.myDescriptorSet->BindBuffer(objectSystem.GetDenseBuffer(), vk::ShaderStageFlagBits::eCompute, 5, vk::DescriptorType::eStorageBuffer);
-    myCullPass.myDescriptorSet->BindBuffer(myIndirectCommandsBuffer, vk::ShaderStageFlagBits::eCompute, 2, vk::DescriptorType::eStorageBuffer);
-    myCullPass.myDescriptorSet->BindBuffer(myCountBuffer, vk::ShaderStageFlagBits::eCompute, 3, vk::DescriptorType::eStorageBuffer);
-    myCullPass.myDescriptorSet->BindBuffer(myPerDrawDataBuffer, vk::ShaderStageFlagBits::eCompute, 4, vk::DescriptorType::eStorageBuffer);
-    myCullPass.myDescriptorSet->BindBuffer(myPerDrawDataNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 8, vk::DescriptorType::eStorageBuffer);
-    myCullPass.myDescriptorSet->BindBuffer(myCountNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 9, vk::DescriptorType::eStorageBuffer);
-    myCullPass.myDescriptorSet->BindBuffer(myIndirectCommandsBufferNoDepth, vk::ShaderStageFlagBits::eCompute, 10, vk::DescriptorType::eStorageBuffer);
-    myCullPass.myDescriptorSet->Build();
-
-    // Create pipeline
-    const List<vk::DescriptorSetLayout> layouts{ myCullPass.myDescriptorSet->GetLayout() };
-    myCullPass.myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
-    
-    vk::ComputePipelineCreateInfo createInfo = vk::ComputePipelineCreateInfo();
-    createInfo.setStage(vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eCompute).setModule(myCullShader->GetAPIResource()).setPName("main"));
-    createInfo.setLayout(myCullPass.myPipelineLayout);
-
-    const vk::ResultValue<vk::Pipeline> result = VulkanContext::GetDevice()->createComputePipeline(VulkanContext::GetPipelineCache(), createInfo);
-
-    check(result.result == vk::Result::eSuccess);
-    myCullPass.myPipeline = result.value;
-}
-
 void GDRPipeline::CreateDrawPassResources()
 {
 	// Shaders
@@ -452,12 +328,6 @@ void GDRPipeline::CreateDrawPassResources()
 			2, 
 			vk::DescriptorType::eUniformBuffer);
 
-		myFrameDescriptorSet.BindImage(
-			Engine::GetEngineSystem<RenderSystem>().GetDirectionalLightShadowMap(), 
-			VulkanUtils::GetSampler(SamplerMode::LinearClamp), 
-			3, 
-			vk::ShaderStageFlagBits::eFragment,
-			vk::ImageLayout::eDepthStencilReadOnlyOptimal);
 
 		myFrameDescriptorSet.BindBuffer(
 			myPerDrawDataBuffer,
@@ -486,13 +356,6 @@ void GDRPipeline::CreateDrawPassResources()
 			vk::ShaderStageFlagBits::eFragment, 
 			2, 
 			vk::DescriptorType::eUniformBuffer);
-
-		myFrameNoDepthDescriptorSet.BindImage(
-			Engine::GetEngineSystem<RenderSystem>().GetDirectionalLightShadowMap(), 
-			VulkanUtils::GetSampler(SamplerMode::LinearClamp), 
-			3, 
-			vk::ShaderStageFlagBits::eFragment,
-			vk::ImageLayout::eDepthStencilReadOnlyOptimal);
 
 		myFrameNoDepthDescriptorSet.BindBuffer(
 			myPerDrawDataNoDepthBuffer,

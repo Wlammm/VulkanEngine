@@ -25,7 +25,6 @@ public:
     class VulkanImage* GetRenderTexture();
     class VulkanImage* GetResolvedRenderTexture() const;
     class VulkanImage* GetDepthTexture();
-    class VulkanImage* GetDirectionalLightShadowMap() const;
 
     void OnSwapChainResize();
 
@@ -54,10 +53,7 @@ private:
     void CreateRenderPass();
     void CreateFrameBuffers();
     void CreatePipelines();
-
-    //void UpdateFrameBuffer();
-    //void UpdateObjectBuffer(const Transform& inTransform);
-
+    
     vk::Framebuffer GetVkFrameBuffer() const;
     vk::Framebuffer GetVkCopyToSwapchainFrameBuffer() const;
 
@@ -93,7 +89,4 @@ private:
     class VulkanImage* myResolvedRenderTexture = nullptr;
     // This is used for editor depth reading as readback is not supported on multisampled textures.
     class VulkanImage* myResolvedDepthTexture = nullptr;
-
-    static constexpr glm::vec2 myShadowMapSize = glm::vec2(4096, 4096);
-    class VulkanImage* myDirectionalLightShadowMap = nullptr;
 };

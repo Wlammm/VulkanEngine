@@ -56,6 +56,7 @@
 #include "../Engine/Assets/Shader.h"
 #include "../Engine/Delegates/MulticastDelegate.hpp"
 #include "../Engine/Components/CharacterControllerComponent.h"
+#include "../Engine/Rendering/RenderingPasses/IRenderPass.h"
 #include "../Engine/Components/RigidbodyComponent.h"
 #include "../Engine/Vulkan/GPUSceneSystem.h"
 #include "../Engine/Components/ColliderComponent.h"
@@ -107,6 +108,9 @@
 #include "../Engine/Rendering/MeshSystem.h"
 #include "../Engine/Rendering/MeshUtils.h"
 #include "../Engine/Rendering/VertexBufferHandle.h"
+#include "../Engine/Rendering/RenderingPasses/ComputePass.h"
+#include "../Engine/Rendering/RenderingPasses/ComputePasses/IndirectCullingComputePass.h"
+#include "../Engine/Rendering/RenderingPasses/ComputePasses/IndirectPrePassComputePass.h"
 #include "../Engine/Rendering/TextureSystem.h"
 #include "../Engine/Vulkan/ResizableBuffer.h"
 #include "../Engine/Rendering/VertexBufferSystem.h"
@@ -267,6 +271,7 @@ ReflectionSystem::AddType<List<Component *>>("List<Component *>", typeid(List<Co
 ReflectionSystem::AddType<List<std::thread>>("List<std::thread>", typeid(List<std::thread>).name());
 ReflectionSystem::AddType<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>("List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>", typeid(List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>).name());
 ReflectionSystem::AddType<List<vk::Framebuffer>>("List<vk::Framebuffer>", typeid(List<vk::Framebuffer>).name());
+ReflectionSystem::AddType<List<IRenderPass *>>("List<IRenderPass *>", typeid(List<IRenderPass *>).name());
 ReflectionSystem::AddType<List<IndexBufferHandle *>>("List<IndexBufferHandle *>", typeid(List<IndexBufferHandle *>).name());
 ReflectionSystem::AddType<List<IndexBufferData>>("List<IndexBufferData>", typeid(List<IndexBufferData>).name());
 ReflectionSystem::AddType<List<VertexBufferHandle *>>("List<VertexBufferHandle *>", typeid(List<VertexBufferHandle *>).name());
@@ -341,6 +346,7 @@ ReflectionSystem::AddType<IncludeData>("IncludeData", typeid(IncludeData).name()
 ReflectionSystem::AddType<Shader>("Shader", typeid(Shader).name());
 ReflectionSystem::AddType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>", typeid(MulticastDelegate<void ()>).name());
 ReflectionSystem::AddType<CharacterControllerComponent>("CharacterControllerComponent", typeid(CharacterControllerComponent).name());
+ReflectionSystem::AddType<IRenderPass>("IRenderPass", typeid(IRenderPass).name());
 ReflectionSystem::AddType<RigidbodyComponent>("RigidbodyComponent", typeid(RigidbodyComponent).name());
 ReflectionSystem::AddType<GPUSceneSystem>("GPUSceneSystem", typeid(GPUSceneSystem).name());
 ReflectionSystem::AddType<ColliderComponent>("ColliderComponent", typeid(ColliderComponent).name());
@@ -394,6 +400,9 @@ ReflectionSystem::AddType<Mesh>("Mesh", typeid(Mesh).name());
 ReflectionSystem::AddType<MeshSystem>("MeshSystem", typeid(MeshSystem).name());
 ReflectionSystem::AddType<MeshUtils>("MeshUtils", typeid(MeshUtils).name());
 ReflectionSystem::AddType<VertexBufferHandle>("VertexBufferHandle", typeid(VertexBufferHandle).name());
+ReflectionSystem::AddType<ComputePass>("ComputePass", typeid(ComputePass).name());
+ReflectionSystem::AddType<IndirectCullingComputePass>("IndirectCullingComputePass", typeid(IndirectCullingComputePass).name());
+ReflectionSystem::AddType<IndirectPrePassComputePass>("IndirectPrePassComputePass", typeid(IndirectPrePassComputePass).name());
 ReflectionSystem::AddType<TextureSystem>("TextureSystem", typeid(TextureSystem).name());
 ReflectionSystem::AddType<ResizableBuffer>("ResizableBuffer", typeid(ResizableBuffer).name());
 ReflectionSystem::AddType<VertexBufferSystem>("VertexBufferSystem", typeid(VertexBufferSystem).name());
@@ -1459,6 +1468,11 @@ Method& currentMethod = currentClass->AddMethod(Method("HasStartupArgument", Ref
 	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Framebuffer>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Framebuffer>("vk::Framebuffer"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<IRenderPass *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IRenderPass>("IRenderPass"), true, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<IndexBufferHandle *>>();
@@ -5572,6 +5586,19 @@ Method& currentMethod = currentClass->AddMethod(Method("Jump", ReflectionSystem:
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<IRenderPass>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+IRenderPass* instance = static_cast<IRenderPass*>(inInstance);
+instance->OnResize();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnResize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<RigidbodyComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myActor", offsetof(RigidbodyComponent, myActor), ReflectionSystem::GetOrCreateType<physx::PxRigidDynamic>("physx::PxRigidDynamic"), true, false));
@@ -7752,9 +7779,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPtr", ReflectionSyste
 	{
 		Field& currentField = currentClass->AddField(Field("myResolvedDepthTexture", -1, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
 	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDirectionalLightShadowMap", -1, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
-	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -7825,16 +7849,6 @@ return (void*)result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetDepthTexture", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-VulkanImage * result = instance->GetDirectionalLightShadowMap();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetDirectionalLightShadowMap", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8095,15 +8109,6 @@ Method& currentMethod = currentClass->AddMethod(Method("AddFullscreenPass", Refl
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<GDRPipeline>();
 	{
-		Field& currentField = currentClass->AddField(Field("myPrePassShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCullShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCubemap", -1, ReflectionSystem::GetOrCreateType<TextureCube>("TextureCube"), true, false));
-	}
-	{
 		Field& currentField = currentClass->AddField(Field("myIndirectCommandsBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
@@ -8122,6 +8127,18 @@ Method& currentMethod = currentClass->AddMethod(Method("AddFullscreenPass", Refl
 		Field& currentField = currentClass->AddField(Field("myPerDrawDataNoDepthBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
+		Field& currentField = currentClass->AddField(Field("myRenderPasses", -1, ReflectionSystem::GetOrCreateType<List<IRenderPass *>>("List<IRenderPass *>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPrePassShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCullShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCubemap", -1, ReflectionSystem::GetOrCreateType<TextureCube>("TextureCube"), true, false));
+	}
+	{
 		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", -1, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
 	}
 	{
@@ -8132,6 +8149,12 @@ Method& currentMethod = currentClass->AddMethod(Method("AddFullscreenPass", Refl
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myPipeline", -1, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPreDepthPipelineLayout", -1, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPreDepthPipeline", -1, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myVertexShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
@@ -8152,6 +8175,16 @@ Method& currentMethod = currentClass->AddMethod(Method("AddFullscreenPass", Refl
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GDRPipeline* instance = static_cast<GDRPipeline*>(inInstance);
+GDRPipeline * result = instance->Get();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Get", ReflectionSystem::GetOrCreateType<GDRPipeline *>("GDRPipeline *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GDRPipeline* instance = static_cast<GDRPipeline*>(inInstance);
 vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
 instance->AddComputeCommands(arg0);
 return nullptr;
@@ -8159,6 +8192,18 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
 Method& currentMethod = currentClass->AddMethod(Method("AddComputeCommands", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GDRPipeline* instance = static_cast<GDRPipeline*>(inInstance);
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
+instance->AddDepthPrepassCommands(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+Method& currentMethod = currentClass->AddMethod(Method("AddDepthPrepassCommands", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8572,6 +8617,106 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<ComputePass>();
+	{
+		Field& currentField = currentClass->AddField(Field("myDescriptorSet", -1, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipelineLayout", -1, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipeline", -1, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IRenderPass>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ComputePass* instance = static_cast<ComputePass*>(inInstance);
+instance->CreateResources();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("CreateResources", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ComputePass* instance = static_cast<ComputePass*>(inInstance);
+instance->DestroyResources();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DestroyResources", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ComputePass* instance = static_cast<ComputePass*>(inInstance);
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
+instance->Execute(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<IndirectCullingComputePass>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ComputePass>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+IndirectCullingComputePass* instance = static_cast<IndirectCullingComputePass*>(inInstance);
+instance->SetupDescriptors();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+IndirectCullingComputePass* instance = static_cast<IndirectCullingComputePass*>(inInstance);
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
+instance->DispatchCall(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+Method& currentMethod = currentClass->AddMethod(Method("DispatchCall", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<IndirectPrePassComputePass>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ComputePass>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+IndirectPrePassComputePass* instance = static_cast<IndirectPrePassComputePass*>(inInstance);
+instance->SetupDescriptors();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+IndirectPrePassComputePass* instance = static_cast<IndirectPrePassComputePass*>(inInstance);
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
+instance->DispatchCall(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+Method& currentMethod = currentClass->AddMethod(Method("DispatchCall", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
