@@ -1,10 +1,13 @@
 ﻿#pragma once
 #include "Asset.h"
 #include "AssetDefines.h"
+#include "Engine/Engine.h"
+#include "Engine/Delegates/MulticastDelegate.hpp"
 #include "Engine/Reflection/ReflectionSystem.h"
 #include "Engine/Reflection/Type.h"
 #include "Engine/Serialization/BinarySerializer.h"
 #include "Engine/System/System.h"
+#include "Engine/Utils/ThreadUtils.hpp"
 
 class Asset;
 class AssetRegistry;
@@ -12,11 +15,32 @@ class AssetRegistry;
 class AssetRegistry : public System
 {
     inline static AssetRegistry* mySingleton;
+    using OnAsyncLoadCompleteDelegate = MulticastDelegate<void(SharedPtr<Asset> inOnComplete)>;
+    
 public:
     static AssetRegistry* Get() { return mySingleton; }
     
     AssetRegistry();
     ~AssetRegistry() override;
+    
+    /*
+     * inOnCompleteDelegate will always get called on the game thread. 
+     */
+    template<typename AssetType>
+    void GetAssetAsync(const SourcePath& inSourcePath, const Delegate<void(SharedPtr<AssetType> inAsset)>& inOnCompleteDelegate)
+    {
+        const Type* type = ReflectionSystem::GetType<AssetType>();
+        
+        // We need to do this as Delegate<Asset> and Delegate<DerivedAssetType> is not convertible.
+        Delegate<void(SharedPtr<Asset>)> wrapper = [inOnCompleteDelegate](SharedPtr<Asset> baseAsset)
+        {
+            SharedPtr<AssetType> derived = std::static_pointer_cast<AssetType>(baseAsset);
+            inOnCompleteDelegate(derived);
+        };
+        
+        GetAssetAsync(inSourcePath, type, wrapper);
+    }
+    void GetAssetAsync(const SourcePath& inSourcePath, const Type* inType, const Delegate<void(SharedPtr<Asset> inAsset)>& inOnCompleteDelegate);
     
     template<typename AssetType>
     SharedPtr<AssetType> GetAsset(const SourcePath& inSourcePath)
@@ -25,25 +49,7 @@ public:
         return std::static_pointer_cast<AssetType>(GetAsset(inSourcePath, type));
     }
     
-    SharedPtr<Asset> GetAsset(const SourcePath& inSourcePath, const Type* inType)
-    {
-        SharedPtr<Asset> asset = TryGetLoadedAsset(inSourcePath);
-        if (asset != nullptr)
-            return asset;
-
-        asset = inType->CreateSharedPtr<Asset>();
-        
-        if (inType->CallStaticMethodRecursive<bool>("IsExternalAsset"))
-        {
-            asset = LoadExternalAsset(inSourcePath, inType);
-        }
-        else
-        {
-            asset = LoadInternalAsset(inSourcePath, inType);
-        }
-        
-        return asset;
-    }
+    SharedPtr<Asset> GetAsset(const SourcePath& inSourcePath, const Type* inType);
 
     SharedPtr<Asset> LoadExternalAsset(const SourcePath& inSourcePath, const Type* inType)
     {
@@ -81,7 +87,17 @@ public:
         asset->SetType(inType);
         SaveAsset(asset);
         
-        asset->PostPropertiesSerialized();
+        if (ThreadUtils::IsOnMainThread())
+        {
+            asset->PostPropertiesSerialized();
+        }
+        else
+        {
+            Engine::TickNextFrame.Bind([asset]()
+            {
+                asset->PostPropertiesSerialized();
+            });     
+        }
         AddLoadedAsset(asset, inType);
         return asset;
     }
@@ -94,6 +110,7 @@ public:
         SharedPtr<Asset> asset = inType->CreateSharedPtr<Asset>();
         
         BinarySerializer serializer(inSourcePath, BinarySerializer::Mode::Read);
+        // Sleep(100);
         serializer.SerializeType(asset.get(), ReflectionSystem::GetType(asset.get()), false);
 
         if (!serializer.WasLastTypeSerializationFullyComplete())
@@ -101,7 +118,17 @@ public:
             
         serializer.Close();
         
-        asset->PostPropertiesSerialized();
+        if (ThreadUtils::IsOnMainThread())
+        {
+            asset->PostPropertiesSerialized();
+        }
+        else
+        {
+            Engine::TickNextFrame.Bind([asset]()
+            {
+                asset->PostPropertiesSerialized();
+            });
+        }
         AddLoadedAsset(asset, inType);
         return asset;
     }
@@ -127,6 +154,7 @@ public:
 
     SharedPtr<Asset> TryGetLoadedAsset(const SourcePath& inSourcePath)
     {
+        ZoneScoped;
         std::scoped_lock lock(myMutex);
 
         if (myLoadedAssets.find(inSourcePath) != myLoadedAssets.end())
@@ -141,6 +169,7 @@ public:
     template<typename AssetType>
     void SaveAsset(SharedPtr<AssetType> inAsset)
     {
+        ZoneScoped;
         CachePath savePath;
         if (inAsset->GetType()->CallStaticMethodRecursive<bool>("IsExternalAsset"))
             savePath = SourceToCachePath(inAsset->GetSourcePath());
@@ -155,8 +184,14 @@ public:
     
 private:
     void AddLoadedAsset(SharedPtr<Asset> inAsset, const Type* inType);
-
+    
+    // If the sent in asset is currently pending we will wait for it to be done.
+    SharedPtr<Asset> WaitForPendingAsset(const SourcePath& inSourcePath);
+    
 private:
-    std::mutex myMutex{};
+    mutable std::recursive_mutex myMutex{};
     std::unordered_map<SourcePath, std::weak_ptr<Asset>> myLoadedAssets;
+
+    // Assets that is currently being asynchronously loaded.
+    MutexList<SourcePath> myPendingAssets;
 };

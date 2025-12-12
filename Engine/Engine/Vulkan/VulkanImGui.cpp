@@ -1,6 +1,10 @@
 #include "EnginePch.h"
 #include "VulkanImGui.h"
 
+#include "ImGuiNotify.hpp"
+#include "IconsFontAwesome6.h"
+#include "fa_solid_900.h"
+
 #include "VulkanCommandBuffer.h"
 #include "Engine/Engine.h"
 #include "Engine/Windows/WindowHandler.h"
@@ -92,11 +96,13 @@ void VulkanImGui::BeginFrame()
 
 void VulkanImGui::Render(vk::CommandBuffer inCommandBuffer)
 {
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.f);
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(43.f / 255.f, 43.f / 255.f, 43.f / 255.f, 100.f / 255.f));
-	ImGui::PopStyleVar(1);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f); // Disable round borders
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f); // Disable borders
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.10f, 0.10f, 0.10f, 1.00f)); // Background color
+	ImGui::RenderNotifications();
+	ImGui::PopStyleVar(2);
 	ImGui::PopStyleColor(1);
-
+	
 	ImGui::Render();
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), inCommandBuffer);
 }
@@ -120,4 +126,27 @@ void VulkanImGui::LoadFonts()
 {
 	ImGuiIO& io = ImGui::GetIO();
 	SourceSansPro_Regular = io.Fonts->AddFontFromFileTTF("Editor/Fonts/SourceSansPro-Regular.ttf", 16.0f);
+	io.Fonts->AddFontDefault();
+
+
+	// ImGuiNotify init...
+	float baseFontSize = 16.0f;
+	float iconFontSize = baseFontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
+
+	// Check if FONT_ICON_FILE_NAME_FAS is a valid path
+	std::ifstream fontAwesomeFile(FONT_ICON_FILE_NAME_FAS);
+
+	if (!fontAwesomeFile.good())
+	{
+		// If it's not good, then we can't find the font and should abort
+		std::cerr << "Could not find the FontAwesome font file." << std::endl;
+		abort();
+	}
+
+	static const ImWchar iconsRanges[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
+	ImFontConfig iconsConfig;
+	iconsConfig.MergeMode = true;
+	iconsConfig.PixelSnapH = true;
+	iconsConfig.GlyphMinAdvanceX = iconFontSize;
+	io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, iconFontSize, &iconsConfig, iconsRanges);
 }

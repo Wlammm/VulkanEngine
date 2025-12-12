@@ -2,8 +2,8 @@
 
 #include <string>
 
+#include "ImGuiNotify.hpp"
 #include "imgui_internal.h"
-#include "imgui_notify.h"
 
 enum class NotificationType
 {
@@ -89,33 +89,33 @@ namespace ImGui
 	template<typename ...Args>
 	void Notification(NotificationType aType, const std::string& aTitle, const char* aMessage, Args&& ...someArgs)
 	{
-		ImGuiToastType type = ImGuiToastType_None;
+		ImGuiToastType type = ImGuiToastType::None;
 		switch (aType)
 		{
 		case NotificationType::None:
-			type = ImGuiToastType_None;
+			type = ImGuiToastType::None;
 			break;
 
 		case NotificationType::Info:
-			type = ImGuiToastType_Info;
+			type = ImGuiToastType::Info;
 			break;
 
 		case NotificationType::Success:
-			type = ImGuiToastType_Success;
+			type = ImGuiToastType::Success;
 			break;
 
 		case NotificationType::Warning:
-			type = ImGuiToastType_Warning;
+			type = ImGuiToastType::Warning;
 			break;
 
 		case NotificationType::Error:
-			type = ImGuiToastType_Error;
+			type = ImGuiToastType::Error;
 			break;
 		}
 
 		ImGuiToast toast(type, 5000);
-		toast.set_title(aTitle.c_str());
-		toast.set_content(aMessage, std::forward<Args>(someArgs)...);
+		toast.setTitle(aTitle.c_str());
+		toast.setContent(aMessage, std::forward<Args>(someArgs)...);
 
 		ImGui::InsertNotification(toast);
 	}
@@ -123,33 +123,33 @@ namespace ImGui
 	template<typename ...Args>
 	void Notification(NotificationType aType, const std::string& aTitle, const int aDuration, const char* aMessage, Args&& ...someArgs)
 	{
-		ImGuiToastType type = ImGuiToastType_None;
+		ImGuiToastType type = ImGuiToastType::None;
 		switch (aType)
 		{
 		case NotificationType::None:
-			type = ImGuiToastType_None;
+			type = ImGuiToastType::None;
 			break;
 
 		case NotificationType::Info:
-			type = ImGuiToastType_Info;
+			type = ImGuiToastType::Info;
 			break;
 
 		case NotificationType::Success:
-			type = ImGuiToastType_Success;
+			type = ImGuiToastType::Success;
 			break;
 
 		case NotificationType::Warning:
-			type = ImGuiToastType_Warning;
+			type = ImGuiToastType::Warning;
 			break;
 
 		case NotificationType::Error:
-			type = ImGuiToastType_Error;
+			type = ImGuiToastType::Error;
 			break;
 		}
 
 		ImGuiToast toast(type, aDuration);
-		toast.set_title(aTitle.c_str());
-		toast.set_content(aMessage, std::forward<Args>(someArgs)...);
+		toast.setTitle(aTitle.c_str());
+		toast.setContent(aMessage, std::forward<Args>(someArgs)...);
 
 		ImGui::InsertNotification(toast);
 	}
@@ -157,36 +157,36 @@ namespace ImGui
 	template<typename ...Args>
 	void NotifyWarning(const std::string& aTitle, const char* aMessage, Args&& ...someArgs)
 	{
-		ImGuiToast toast(ImGuiToastType_Warning, 5000);
-		toast.set_title(aTitle.c_str());
-		toast.set_content(aMessage, std::forward<Args>(someArgs)...);
+		ImGuiToast toast(ImGuiToastType::Warning, 5000);
+		toast.setTitle(aTitle.c_str());
+		toast.setContent(aMessage, std::forward<Args>(someArgs)...);
 		ImGui::InsertNotification(toast);
 	}
 
 	template<typename ...Args>
 	void NotifyError(const std::string& aTitle, const char* aMessage, Args&& ...someArgs)
 	{
-		ImGuiToast toast(ImGuiToastType_Error, 5000);
-		toast.set_title(aTitle.c_str());
-		toast.set_content(aMessage, std::forward<Args>(someArgs)...);
+		ImGuiToast toast(ImGuiToastType::Error, 5000);
+		toast.setTitle(aTitle.c_str());
+		toast.setContent(aMessage, std::forward<Args>(someArgs)...);
 		ImGui::InsertNotification(toast);
 	}
 
 	template<typename ...Args>
 	void NotifySuccess(const std::string& aTitle, const char* aMessage, Args&& ...someArgs)
 	{
-		ImGuiToast toast(ImGuiToastType_Success, 5000);
-		toast.set_title(aTitle.c_str());
-		toast.set_content(aMessage, std::forward<Args>(someArgs)...);
+		ImGuiToast toast(ImGuiToastType::Success, 5000);
+		toast.setTitle(aTitle.c_str());
+		toast.setContent(aMessage, std::forward<Args>(someArgs)...);
 		ImGui::InsertNotification(toast);
 	}
 
 	template<typename ...Args>
 	void NotifyInfo(const std::string& aTitle, const char* aMessage, Args&& ...someArgs)
 	{
-		ImGuiToast toast(ImGuiToastType_Info, 5000);
-		toast.set_title(aTitle.c_str());
-		toast.set_content(aMessage, std::forward<Args>(someArgs)...);
+		ImGuiToast toast(ImGuiToastType::Info, 50000);
+		toast.setTitle(aTitle.c_str());
+		toast.setContent(aMessage, std::forward<Args>(someArgs)...);
 		ImGui::InsertNotification(toast);
 	}
 }

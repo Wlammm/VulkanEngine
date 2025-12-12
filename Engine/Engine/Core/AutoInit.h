@@ -1,5 +1,8 @@
 #pragma once
 
+/*
+ * Be careful when using this as its always running on main thread as soon as the object is constructed. This is not necessarily what you want for assets as an example.
+ */ 
 class AutoInit
 {
 public:

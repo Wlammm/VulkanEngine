@@ -295,6 +295,9 @@ void Viewport::TickEditorCamera()
 	if (!world)
 		return;
 	
+	if (!world->GetEditorCamera())
+		return;
+	
 	EditorCameraMovementComponent& editorCameraMovementComponent = world->GetEditorCamera()->GetMovementComponent();
 	editorCameraMovementComponent.ViewportTick();
 }

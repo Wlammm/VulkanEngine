@@ -77,6 +77,7 @@ void BinarySerializer::Close()
 
 void BinarySerializer::SerializeTypeInternal(void* inOutInstance, const std::string& inTypeId, const bool inIsPointer)
 {
+    ZoneScoped;
     const Type* type = ReflectionSystem::GetTypeByFullName(inTypeId);
     if (IsReading())
         ReadType(inOutInstance, type, inIsPointer);
@@ -113,6 +114,7 @@ void BinarySerializer::SerializeBinaryData(void* inOutInstance, const int inSize
 
 void BinarySerializer::ReadType(void* outInstance, const Type* inType, const bool inIsPointer)
 {
+    ZoneScoped;
     if (inIsPointer)
         outInstance = inType->CreateInstance<void>();
 
@@ -188,6 +190,7 @@ void BinarySerializer::ReadType(void* outInstance, const Type* inType, const boo
 
 void BinarySerializer::WriteType(void* inInstance, const Type* inType, const bool inIsPointer)
 {
+    ZoneScoped;
     check(inType);
     
     const List<Field> fieldsToSerialize = inType->GetFieldsWithMetadataRecursive("SerializeField");

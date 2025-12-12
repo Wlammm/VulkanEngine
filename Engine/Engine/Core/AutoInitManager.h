@@ -12,5 +12,5 @@ public:
 	static void Tick();
 
 private:
-	inline static List<AutoInit*> myObjectsToInit;
+	inline static MutexList<AutoInit*> myObjectsToInit;
 };

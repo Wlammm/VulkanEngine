@@ -14,10 +14,14 @@ void AutoInitManager::RemoveInitObject(AutoInit* inObject)
 
 void AutoInitManager::Tick()
 {
+	myObjectsToInit.Lock();
+	
 	for(AutoInit* init : myObjectsToInit)
 	{
 		init->Init();
 		init->myHasInited = true;
 	}
 	myObjectsToInit.Clear();
+	
+	myObjectsToInit.Unlock();
 }

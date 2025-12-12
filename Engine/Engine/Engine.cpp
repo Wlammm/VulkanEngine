@@ -23,6 +23,7 @@
 #include "Rendering/RenderSystem.h"
 #include "Rendering/TextureSystem.h"
 #include "Rendering/VertexBufferSystem.h"
+#include "Serialization/TypeSerializers/TypeSerializer.h"
 #include "System/SystemManager.hpp"
 #include "Systems/PointLightSystem.h"
 #include "Vulkan/GPUSceneSystem.h"
@@ -45,6 +46,8 @@ Engine::Engine(const EngineProperties inEngineProperties)
 		}
 		__debugbreak();
 	}
+	
+	TypeSerializer::RegisterSerializers();
 
 	AssetUtils::Start();
 	
@@ -99,7 +102,6 @@ void Engine::Tick()
 	FrameMark;
 	ZoneScoped;
 	Time::Tick();
-	AutoInitManager::Tick();
 	
 #if !TRACY_ENABLE // Disable fps limit when we're profiling.
 	constexpr double targetFPS = 144.f;
@@ -119,6 +121,8 @@ void Engine::Tick()
 		TickNextFrame.Clear();
 		ticksThisFrame.Invoke();
 	}
+	
+	AutoInitManager::Tick();
 	
 	myVulkanContext->BeginFrame();
 	myFilewatcher->FlushChanges();

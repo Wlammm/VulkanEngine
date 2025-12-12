@@ -52,6 +52,8 @@ void World::PostPropertiesSerialized()
 		if (actor->IsTransientActor())
 			RemoveActor(actor.Get());
 	}
+	
+	Init();
 }
 
 void World::DoTick()

@@ -3,8 +3,6 @@
 
 #include "Actors/EditorCameraActor.h"
 #include "Engine/Engine.h"
-#include "Engine/Components/CameraComponent.h"
-#include "Engine/Components/EditorCameraMovementComponent.h"
 
 void EditorWorld::Init()
 {

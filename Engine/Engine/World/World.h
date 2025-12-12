@@ -22,6 +22,8 @@ public:
     World();
     ~World();
 
+    virtual void Init() {}
+    
     void PostPropertiesSerialized() override;
     static List<std::string> GetAssetExtensions() { return {".world" }; }
     

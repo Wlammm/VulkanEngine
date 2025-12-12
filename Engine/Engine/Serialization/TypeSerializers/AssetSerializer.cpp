@@ -37,6 +37,13 @@ void AssetSerializer::Serialize(void* inInstance, const Type* inType, BinarySeri
         if (sourcePath == "")
             return;
         
-        *asset = Engine::GetEngineSystem<AssetRegistry>().GetAsset(sourcePath, assetType);
+        *asset = AssetRegistry::Get()->GetAsset(sourcePath, assetType);
+        
+        // TODO: Make this async working. We'd need to be able to subscribe to events when an asset has finished loading..
+        
+        // Engine::GetEngineSystem<AssetRegistry>().GetAssetAsync(sourcePath, assetType,  [asset](SharedPtr<Asset> inAsset)
+        // {
+            // *asset = inAsset;
+        // });
     }
 }

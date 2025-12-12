@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 const unsigned char fa_solid_900[] =
 {
