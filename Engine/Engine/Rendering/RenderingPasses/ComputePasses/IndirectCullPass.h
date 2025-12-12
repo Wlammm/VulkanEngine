@@ -1,10 +1,10 @@
 ﻿#pragma once
 #include "Engine/Rendering/RenderingPasses/ComputePass.h"
 
-class IndirectPrePassComputePass : public ComputePass
+class IndirectCullPass : public ComputePass
 {
 public:
-    IndirectPrePassComputePass();
+    IndirectCullPass();
     
     void SetupDescriptors() override;
     

@@ -2,10 +2,6 @@
 #include "GDRPipeline.h"
 
 #include "Engine/Engine.h"
-#include "IndexBufferSystem.h"
-#include "MeshSystem.h"
-#include "TextureSystem.h"
-#include "VertexBufferSystem.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Assets/Shader.h"
 #include "Engine/Assets/TextureCube.h"
@@ -20,31 +16,23 @@
 #include "Engine/Vulkan/VulkanBuffer.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
-#include "Engine/Vulkan/VulkanPhysicalDevice.h"
-#include "Engine/Vulkan/VulkanUtils.hpp"
 #include "Engine/World/World.h"
-#include "RenderingPasses/ComputePasses/IndirectCullingComputePass.h"
-#include "RenderingPasses/ComputePasses/IndirectPrePassComputePass.h"
+#include "RenderingPasses/ComputePasses/IndirectCullPass.h"
+#include "RenderingPasses/ComputePasses/IndirectPrePass.h"
+#include "RenderingPasses/GraphicsPasses/MainPass.h"
+#include "RenderingPasses/GraphicsPasses/NoDepthPass.h"
 
 GDRPipeline::GDRPipeline()
 {
 	check(!myInstance)
 	myInstance= this;
-    myCullShader = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/IndirectCulling.comp");
-    myPrePassShader = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/PrePass.comp");
-
-    CreateBuffers();
-	CreateDrawPassResources();
 	
-	AddRenderPass<IndirectPrePassComputePass>();
-	AddRenderPass<IndirectCullingComputePass>();
+    CreateBuffers();
+	CreateRenderPasses();
 }
 
 GDRPipeline::~GDRPipeline()
 {
-	myVertexShader->OnShaderRecompiled.UnBind(&GDRPipeline::OnShaderRecompiled, this);
-	myFragmentShader->OnShaderRecompiled.UnBind(&GDRPipeline::OnShaderRecompiled, this);
-	
 	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
 	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
 	
@@ -58,67 +46,28 @@ GDRPipeline::~GDRPipeline()
     VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
     myCountBuffer = nullptr;
 	
-	for (IRenderPass* renderPass : myRenderPasses)
-	{
-		renderPass->DestroyResources();
-		del(renderPass);	
-	}
-	myRenderPasses.Clear();
+	DestroyRenderPasses();
 	myInstance = nullptr;	
 }
 
-void GDRPipeline::AddComputeCommands(vk::CommandBuffer inCommandBuffer)
+void GDRPipeline::ExecuteComputePasses(vk::CommandBuffer inCommandBuffer)
 {
 	EnsureCorrectBufferSizes(inCommandBuffer);
-    
-	for (IRenderPass* renderPass : myRenderPasses)
+	for (IRenderPass* renderPass : myComputePasses)
 	{
 		renderPass->Execute(inCommandBuffer);
 	}
 }
 
-void GDRPipeline::AddDepthPrepassCommands(vk::CommandBuffer inCommandBuffer)
+void GDRPipeline::ExecuteGraphicsPasses(vk::CommandBuffer inCommandBuffer)
 {
-	GPUMARK_SCOPE(inCommandBuffer, "Depth PrePass");
-
-	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
-	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
-	
-	inCommandBuffer.setDepthWriteEnable(true);
-	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
-}
-
-void GDRPipeline::AddGraphicsCommands(vk::CommandBuffer inCommandBuffer)
-{
-	GPUMARK_SCOPE(inCommandBuffer, "MainPass");
-	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
-	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
-
-	inCommandBuffer.setDepthWriteEnable(true);
-	inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
 	BuildFrameBuffer();
 	BuildDirectionalLightBuffer();
-	
-	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameDescriptorSet.GetSet(), {});
-	
-	inCommandBuffer.bindVertexBuffers(0, {vertexBufferSystem.GetGlobalVertexBuffer()->GetBuffer()->GetAPIResource()}, {0});
-	
-	inCommandBuffer.bindIndexBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetBuffer()->GetAPIResource(),0, vk::IndexType::eUint32);
-	
-	TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
-	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, textureSystem.GetDescriptorSet(), {});
 
-	inCommandBuffer.drawIndexedIndirectCount(myIndirectCommandsBuffer->GetBuffer()->GetAPIResource(), 0,
-		myCountBuffer->GetAPIResource(), 0,
-		static_cast<uint>(myIndirectCommandsBuffer->GetBuffer()->GetSize() / sizeof(vk::DrawIndexedIndirectCommand)),
-		sizeof(vk::DrawIndexedIndirectCommand));
-
-	inCommandBuffer.setDepthWriteEnable(false);
-	inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 0, myFrameNoDepthDescriptorSet.GetSet(), {});
-	inCommandBuffer.drawIndexedIndirectCount(myIndirectCommandsBufferNoDepth->GetBuffer()->GetAPIResource(), 0,
-			myCountNoDepthBuffer->GetAPIResource(), 0,
-			static_cast<uint>(myIndirectCommandsBufferNoDepth->GetBuffer()->GetSize() / sizeof(vk::DrawIndexedIndirectCommand)),
-			sizeof(vk::DrawIndexedIndirectCommand));
+	for (IRenderPass* renderPass : myRenderPasses)
+	{
+		renderPass->Execute(inCommandBuffer);
+	}
 }
 
 VulkanBuffer* GDRPipeline::GetCountBuffer() const
@@ -300,147 +249,29 @@ void GDRPipeline::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
     }
 }
 
-void GDRPipeline::CreateDrawPassResources()
+void GDRPipeline::DestroyRenderPasses()
 {
-	// Shaders
-	myVertexShader = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/IndirectVertexShader.vert");
-	myVertexShader->OnShaderRecompiled.Bind(&GDRPipeline::OnShaderRecompiled, this);
-	myFragmentShader = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/IndirectFragmentShader.frag");
-	myFragmentShader->OnShaderRecompiled.Bind(&GDRPipeline::OnShaderRecompiled, this);
-	
-    // Descriptor sets
+	for (IRenderPass* renderPass : myRenderPasses)
 	{
-		myFrameDescriptorSet.BindBuffer(
-			myFrameDataBuffer, 
-			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
-			0, 
-			vk::DescriptorType::eUniformBuffer);
-	
-		myFrameDescriptorSet.BindBuffer(
-			Engine::GetEngineSystem<PointLightSystem>().GetBuffer(), 
-			vk::ShaderStageFlagBits::eFragment, 
-			1, 
-			vk::DescriptorType::eStorageBuffer);
-	
-		myFrameDescriptorSet.BindBuffer(
-			myDirectionalLightBuffer,
-			vk::ShaderStageFlagBits::eFragment, 
-			2, 
-			vk::DescriptorType::eUniformBuffer);
-
-
-		myFrameDescriptorSet.BindBuffer(
-			myPerDrawDataBuffer,
-			vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 
-			4, 
-			vk::DescriptorType::eStorageBuffer);
-	
-		myFrameDescriptorSet.Build();
+		renderPass->DestroyResources();
+		del(renderPass);	
 	}
-
+	myRenderPasses.Clear();
+	
+	for (IRenderPass* renderPass : myComputePasses)
 	{
-		myFrameNoDepthDescriptorSet.BindBuffer(
-			myFrameDataBuffer, 
-			vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
-			0, 
-			vk::DescriptorType::eUniformBuffer);
-	
-		myFrameNoDepthDescriptorSet.BindBuffer(
-			Engine::GetEngineSystem<PointLightSystem>().GetBuffer(), 
-			vk::ShaderStageFlagBits::eFragment, 
-			1, 
-			vk::DescriptorType::eStorageBuffer);
-	
-		myFrameNoDepthDescriptorSet.BindBuffer(
-			myDirectionalLightBuffer,
-			vk::ShaderStageFlagBits::eFragment, 
-			2, 
-			vk::DescriptorType::eUniformBuffer);
-
-		myFrameNoDepthDescriptorSet.BindBuffer(
-			myPerDrawDataNoDepthBuffer,
-			vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 
-			4, 
-			vk::DescriptorType::eStorageBuffer);
-	
-		myFrameNoDepthDescriptorSet.Build();
+		renderPass->DestroyResources();
+		del(renderPass);	
 	}
-
-    // Pipeline creation
-	CreateGraphicsPipeline();
+	myComputePasses.Clear();
 }
 
-void GDRPipeline::OnShaderRecompiled()
+void GDRPipeline::CreateRenderPasses()
 {
-	VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
-	VulkanContext::GetDevice()->destroyPipeline(myPipeline);
-
-	CreateGraphicsPipeline();
-}
-
-void GDRPipeline::CreateGraphicsPipeline()
-{
-	 TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
-	
-	const List<vk::DescriptorSetLayout> layouts{ myFrameDescriptorSet.GetLayout(), textureSystem.GetDescriptorLayout() };
-	myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
-
-	const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(myVertexShader->GetAPIResource()).setPName("main"),
-		vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(myFragmentShader->GetAPIResource()).setPName("main"),
-	};
-
-	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo().setVertexAttributeDescriptions(Vertex::GetAttributeDescriptions()).setVertexBindingDescriptions(Vertex::GetBindingDescriptions());
-
-	const vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo = vk::PipelineInputAssemblyStateCreateInfo().setTopology(vk::PrimitiveTopology::eTriangleList);
-	const vk::PipelineViewportStateCreateInfo viewportInfo = vk::PipelineViewportStateCreateInfo().setViewportCount(1).setScissorCount(1);
-	const vk::PipelineRasterizationStateCreateInfo rasterizationInfo = vk::PipelineRasterizationStateCreateInfo()
-		.setDepthClampEnable(VK_FALSE)
-		.setRasterizerDiscardEnable(VK_FALSE)
-		.setPolygonMode(vk::PolygonMode::eFill)
-		.setCullMode(vk::CullModeFlagBits::eFront)
-		.setFrontFace(vk::FrontFace::eCounterClockwise)
-		.setDepthBiasEnable(VK_FALSE)
-		.setLineWidth(1.0f);
-
-	const auto multisampleInfo = vk::PipelineMultisampleStateCreateInfo().setRasterizationSamples(VulkanContext::GetPhysicalDevice().GetMaxMSAASamples());
-	const auto stencilOp = vk::StencilOpState().setFailOp(vk::StencilOp::eKeep).setPassOp(vk::StencilOp::eKeep).setCompareOp(vk::CompareOp::eAlways);
-
-	const auto depthStencilInfo = vk::PipelineDepthStencilStateCreateInfo()
-		.setDepthTestEnable(VK_TRUE)
-		.setDepthWriteEnable(VK_TRUE)
-		.setDepthCompareOp(vk::CompareOp::eLessOrEqual)
-		.setDepthBoundsTestEnable(VK_FALSE)
-		.setStencilTestEnable(VK_FALSE)
-		.setFront(stencilOp)
-		.setBack(stencilOp);
-
-	const std::array<vk::PipelineColorBlendAttachmentState, 1> colorBlendAttachments = {
-		vk::PipelineColorBlendAttachmentState().setColorWriteMask(
-			vk::ColorComponentFlagBits::eR |
-			vk::ColorComponentFlagBits::eG |
-			vk::ColorComponentFlagBits::eB |
-			vk::ColorComponentFlagBits::eA) };
-
-	const vk::PipelineColorBlendStateCreateInfo colorBlendInfo = vk::PipelineColorBlendStateCreateInfo().setAttachments(colorBlendAttachments);
-	const std::array<vk::DynamicState, 3> dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor, vk::DynamicState::eDepthWriteEnable };
-	const vk::PipelineDynamicStateCreateInfo dynamicStateInfo = vk::PipelineDynamicStateCreateInfo().setDynamicStates(dynamicStates);
-
-	const vk::ResultValue<vk::Pipeline> returnValue = VulkanContext::GetDevice()->createGraphicsPipeline(VulkanContext::GetPipelineCache(), vk::GraphicsPipelineCreateInfo()
-													   .setStages(shaderStageInfo)
-													   .setPVertexInputState(&vertexInputInfo)
-													   .setPInputAssemblyState(&inputAssemblyInfo)
-													   .setPViewportState(&viewportInfo)
-													   .setPRasterizationState(&rasterizationInfo)
-													   .setPMultisampleState(&multisampleInfo)
-													   .setPDepthStencilState(&depthStencilInfo)
-													   .setPColorBlendState(&colorBlendInfo)
-													   .setPDynamicState(&dynamicStateInfo)
-													   .setLayout(myPipelineLayout)
-													   .setRenderPass(Engine::GetEngineSystem<RenderSystem>().GetRenderPass()));
-
-	check(returnValue.result == vk::Result::eSuccess);
-	myPipeline = returnValue.value;
+	AddComputePass<IndirectPrePass>();
+	AddComputePass<IndirectCullPass>();
+	AddGraphicsPass<MainPass>();
+	AddGraphicsPass<NoDepthPass>();
 }
 
 void GDRPipeline::BuildFrameBuffer() const

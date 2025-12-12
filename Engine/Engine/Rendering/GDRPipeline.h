@@ -17,16 +17,23 @@ public:
     ~GDRPipeline();
 
     template<typename RenderPassType>
-    void AddRenderPass()
+    void AddGraphicsPass()
     {
         RenderPassType* renderPass = new RenderPassType();
         renderPass->CreateResources();
         myRenderPasses.Add(renderPass);
     }
     
-    void AddComputeCommands(vk::CommandBuffer inCommandBuffer);
-    void AddDepthPrepassCommands(vk::CommandBuffer inCommandBuffer);
-    void AddGraphicsCommands(vk::CommandBuffer inCommandBuffer);
+    template<typename RenderPassType>
+    void AddComputePass()
+    {
+        RenderPassType* renderPass = new RenderPassType();
+        renderPass->CreateResources();
+        myComputePasses.Add(renderPass);
+    }
+    
+    void ExecuteComputePasses(vk::CommandBuffer inCommandBuffer);
+    void ExecuteGraphicsPasses(vk::CommandBuffer inCommandBuffer);
 
     VulkanBuffer* GetCountBuffer() const;
     VulkanBuffer* GetIndirectBuffer() const;
@@ -39,18 +46,34 @@ public:
     VulkanBuffer* myCountNoDepthBuffer = nullptr;
     ResizableBuffer* myPerDrawDataBuffer = nullptr;
     ResizableBuffer* myPerDrawDataNoDepthBuffer = nullptr;
-    
+    // FrameDescriptorSet.
+    struct DirectionalLightBuffer
+    {
+        glm::vec4 myColor;
+        glm::vec3 myDirection;
+        float padding;
+        glm::mat4 myLightView;
+        glm::mat4 myLightProjection;
+    };
+    VulkanBuffer* myDirectionalLightBuffer;
+    // FrameDescriptorSet.
+    struct FrameData
+    {
+        glm::mat4 myToView;
+        glm::mat4 myProjection;
+        glm::vec3 myCameraPosition;
+        uint myCubemapIndex = (uint)-1;
+    };
+    VulkanBuffer* myFrameDataBuffer; 
     
 private:
     void EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer);
     
     void CreateBuffers();
 
-    void CreateDrawPassResources();
-
-    void OnShaderRecompiled();
-    void CreateGraphicsPipeline();
-
+    void DestroyRenderPasses();
+    void CreateRenderPasses();
+    
     void BuildFrameBuffer() const;
     void BuildDirectionalLightBuffer() const;
 
@@ -58,14 +81,9 @@ private:
     
 private:
     List<IRenderPass*> myRenderPasses;
-    
-    SharedPtr<Shader> myPrePassShader = nullptr;
-    SharedPtr<Shader> myCullShader = nullptr;
+    List<IRenderPass*> myComputePasses;
 
     TextureCube* myCubemap = nullptr;
-
-    
-    
     
     // ==== Draw resources ====
     VulkanDescriptorSet myFrameDescriptorSet{};
@@ -80,26 +98,7 @@ private:
     SharedPtr<Shader> myVertexShader;
     SharedPtr<Shader> myFragmentShader;
 
-    // FrameDescriptorSet.
-    struct FrameData
-    {
-        glm::mat4 myToView;
-        glm::mat4 myProjection;
-        glm::vec3 myCameraPosition;
-        uint myCubemapIndex = (uint)-1;
-    };
-    VulkanBuffer* myFrameDataBuffer; 
-
-    // FrameDescriptorSet.
-    struct DirectionalLightBuffer
-    {
-        glm::vec4 myColor;
-        glm::vec3 myDirection;
-        float padding;
-        glm::mat4 myLightView;
-        glm::mat4 myLightProjection;
-    };
-    VulkanBuffer* myDirectionalLightBuffer;
+ 
 
     List<TransformComponent*> myDirtyTransforms;
 };

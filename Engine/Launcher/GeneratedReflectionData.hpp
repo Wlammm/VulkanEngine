@@ -90,6 +90,7 @@
 #include "../Engine/Coroutines/CoroutineManager.h"
 #include "../Engine/Physics/PhysicsErrorCallback.h"
 #include "../Engine/Physics/PhysicsListener.h"
+#include "../Engine/Rendering/RenderingPasses/GraphicsPasses/NoDepthPass.h"
 #include "../Engine/Physics/PhysicsQueryStructs.h"
 #include "../Engine/Vulkan/VulkanAllocator.h"
 #include "../Engine/Vulkan/VulkanBuffer.h"
@@ -109,8 +110,11 @@
 #include "../Engine/Rendering/MeshUtils.h"
 #include "../Engine/Rendering/VertexBufferHandle.h"
 #include "../Engine/Rendering/RenderingPasses/ComputePass.h"
-#include "../Engine/Rendering/RenderingPasses/ComputePasses/IndirectCullingComputePass.h"
-#include "../Engine/Rendering/RenderingPasses/ComputePasses/IndirectPrePassComputePass.h"
+#include "../Engine/Rendering/RenderingPasses/ComputePasses/IndirectCullPass.h"
+#include "../Engine/World/World.h"
+#include "../Engine/Rendering/RenderingPasses/ComputePasses/IndirectPrePass.h"
+#include "../Engine/Rendering/RenderingPasses/GraphicsPass.h"
+#include "../Engine/Rendering/RenderingPasses/GraphicsPasses/MainPass.h"
 #include "../Engine/Rendering/TextureSystem.h"
 #include "../Engine/Vulkan/ResizableBuffer.h"
 #include "../Engine/Rendering/VertexBufferSystem.h"
@@ -149,7 +153,6 @@
 #include "../Engine/Vulkan/VulkanPhysicalDevice.h"
 #include "../Engine/Vulkan/VulkanShaderIncluder.h"
 #include "../Engine/Windows/WindowHandler.h"
-#include "../Engine/World/World.h"
 #include "../Engine/World/GameWorld.h"
 #include "../Editor/Actors/EditorCameraActor.h"
 #include "../Editor/AssetEditors/AssetEditor.h"
@@ -378,6 +381,7 @@ ReflectionSystem::AddType<Awaitable>("Awaitable", typeid(Awaitable).name());
 ReflectionSystem::AddType<CoroutineManager>("CoroutineManager", typeid(CoroutineManager).name());
 ReflectionSystem::AddType<PhysicsErrorCallback>("PhysicsErrorCallback", typeid(PhysicsErrorCallback).name());
 ReflectionSystem::AddType<PhysicsListener>("PhysicsListener", typeid(PhysicsListener).name());
+ReflectionSystem::AddType<NoDepthPass>("NoDepthPass", typeid(NoDepthPass).name());
 ReflectionSystem::AddType<RaycastHit>("RaycastHit", typeid(RaycastHit).name());
 ReflectionSystem::AddType<VulkanAllocator>("VulkanAllocator", typeid(VulkanAllocator).name());
 ReflectionSystem::AddType<VulkanBuffer>("VulkanBuffer", typeid(VulkanBuffer).name());
@@ -388,6 +392,8 @@ ReflectionSystem::AddType<VulkanDescriptorSet>("VulkanDescriptorSet", typeid(Vul
 ReflectionSystem::AddType<DebugPipeline>("DebugPipeline", typeid(DebugPipeline).name());
 ReflectionSystem::AddType<FullscreenPipeline>("FullscreenPipeline", typeid(FullscreenPipeline).name());
 ReflectionSystem::AddType<GDRPipeline>("GDRPipeline", typeid(GDRPipeline).name());
+ReflectionSystem::AddType<GDRPipeline::DirectionalLightBuffer>("GDRPipeline::DirectionalLightBuffer", typeid(GDRPipeline::DirectionalLightBuffer).name());
+ReflectionSystem::AddType<GDRPipeline::FrameData>("GDRPipeline::FrameData", typeid(GDRPipeline::FrameData).name());
 ReflectionSystem::AddType<IndexBufferHandle>("IndexBufferHandle", typeid(IndexBufferHandle).name());
 ReflectionSystem::AddType<MeshData>("MeshData", typeid(MeshData).name());
 ReflectionSystem::AddType<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
@@ -401,8 +407,11 @@ ReflectionSystem::AddType<MeshSystem>("MeshSystem", typeid(MeshSystem).name());
 ReflectionSystem::AddType<MeshUtils>("MeshUtils", typeid(MeshUtils).name());
 ReflectionSystem::AddType<VertexBufferHandle>("VertexBufferHandle", typeid(VertexBufferHandle).name());
 ReflectionSystem::AddType<ComputePass>("ComputePass", typeid(ComputePass).name());
-ReflectionSystem::AddType<IndirectCullingComputePass>("IndirectCullingComputePass", typeid(IndirectCullingComputePass).name());
-ReflectionSystem::AddType<IndirectPrePassComputePass>("IndirectPrePassComputePass", typeid(IndirectPrePassComputePass).name());
+ReflectionSystem::AddType<IndirectCullPass>("IndirectCullPass", typeid(IndirectCullPass).name());
+ReflectionSystem::AddType<World>("World", typeid(World).name());
+ReflectionSystem::AddType<IndirectPrePass>("IndirectPrePass", typeid(IndirectPrePass).name());
+ReflectionSystem::AddType<GraphicsPass>("GraphicsPass", typeid(GraphicsPass).name());
+ReflectionSystem::AddType<MainPass>("MainPass", typeid(MainPass).name());
 ReflectionSystem::AddType<TextureSystem>("TextureSystem", typeid(TextureSystem).name());
 ReflectionSystem::AddType<ResizableBuffer>("ResizableBuffer", typeid(ResizableBuffer).name());
 ReflectionSystem::AddType<VertexBufferSystem>("VertexBufferSystem", typeid(VertexBufferSystem).name());
@@ -441,7 +450,6 @@ ReflectionSystem::AddType<VulkanImGui>("VulkanImGui", typeid(VulkanImGui).name()
 ReflectionSystem::AddType<VulkanPhysicalDevice>("VulkanPhysicalDevice", typeid(VulkanPhysicalDevice).name());
 ReflectionSystem::AddType<VulkanShaderIncluder>("VulkanShaderIncluder", typeid(VulkanShaderIncluder).name());
 ReflectionSystem::AddType<WindowHandler>("WindowHandler", typeid(WindowHandler).name());
-ReflectionSystem::AddType<World>("World", typeid(World).name());
 ReflectionSystem::AddType<GameWorld>("GameWorld", typeid(GameWorld).name());
 ReflectionSystem::AddType<EditorCameraActor>("EditorCameraActor", typeid(EditorCameraActor).name());
 ReflectionSystem::AddType<AssetEditor>("AssetEditor", typeid(AssetEditor).name());
@@ -7418,6 +7426,32 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<NoDepthPass>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<GraphicsPass>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+NoDepthPass* instance = static_cast<NoDepthPass*>(inInstance);
+instance->SetupDescriptors();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+NoDepthPass* instance = static_cast<NoDepthPass*>(inInstance);
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
+instance->DrawCall(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+Method& currentMethod = currentClass->AddMethod(Method("DrawCall", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<RaycastHit>();
 	{
 		Field& currentField = currentClass->AddField(Field("myHitPosition", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
@@ -8127,13 +8161,16 @@ Method& currentMethod = currentClass->AddMethod(Method("AddFullscreenPass", Refl
 		Field& currentField = currentClass->AddField(Field("myPerDrawDataNoDepthBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
+		Field& currentField = currentClass->AddField(Field("myDirectionalLightBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+	}
+	{
 		Field& currentField = currentClass->AddField(Field("myRenderPasses", -1, ReflectionSystem::GetOrCreateType<List<IRenderPass *>>("List<IRenderPass *>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPrePassShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCullShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myComputePasses", -1, ReflectionSystem::GetOrCreateType<List<IRenderPass *>>("List<IRenderPass *>"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCubemap", -1, ReflectionSystem::GetOrCreateType<TextureCube>("TextureCube"), true, false));
@@ -8163,12 +8200,6 @@ Method& currentMethod = currentClass->AddMethod(Method("AddFullscreenPass", Refl
 		Field& currentField = currentClass->AddField(Field("myFragmentShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDirectionalLightBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
-	}
-	{
 		Field& currentField = currentClass->AddField(Field("myDirtyTransforms", -1, ReflectionSystem::GetOrCreateType<List<TransformComponent *>>("List<TransformComponent *>"), false, false));
 	}
 {
@@ -8186,36 +8217,24 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 GDRPipeline* instance = static_cast<GDRPipeline*>(inInstance);
 vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
-instance->AddComputeCommands(arg0);
+instance->ExecuteComputePasses(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
-Method& currentMethod = currentClass->AddMethod(Method("AddComputeCommands", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("ExecuteComputePasses", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GDRPipeline* instance = static_cast<GDRPipeline*>(inInstance);
 vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
-instance->AddDepthPrepassCommands(arg0);
+instance->ExecuteGraphicsPasses(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
-Method& currentMethod = currentClass->AddMethod(Method("AddDepthPrepassCommands", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-GDRPipeline* instance = static_cast<GDRPipeline*>(inInstance);
-vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
-instance->AddGraphicsCommands(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
-Method& currentMethod = currentClass->AddMethod(Method("AddGraphicsCommands", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("ExecuteGraphicsPasses", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8247,6 +8266,39 @@ return (void*)result;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetPerDrawDataBuffer", ReflectionSystem::GetOrCreateType<ResizableBuffer *>("ResizableBuffer *"), invoker, arguments));
 }
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<GDRPipeline::DirectionalLightBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("myColor", -1, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirection", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("padding", -1, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLightView", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLightProjection", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<GDRPipeline::FrameData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myToView", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myProjection", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCameraPosition", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCubemapIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<IndexBufferHandle>();
@@ -8666,14 +8718,24 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
 Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ComputePass* instance = static_cast<ComputePass*>(inInstance);
+instance->OnShaderRecompiled();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnShaderRecompiled", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<IndirectCullingComputePass>();
+	Type* currentClass = ReflectionSystem::GetMutableType<IndirectCullPass>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ComputePass>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-IndirectCullingComputePass* instance = static_cast<IndirectCullingComputePass*>(inInstance);
+IndirectCullPass* instance = static_cast<IndirectCullPass*>(inInstance);
 instance->SetupDescriptors();
 return nullptr;
 });
@@ -8683,7 +8745,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", Refle
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-IndirectCullingComputePass* instance = static_cast<IndirectCullingComputePass*>(inInstance);
+IndirectCullPass* instance = static_cast<IndirectCullPass*>(inInstance);
 vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
 instance->DispatchCall(arg0);
 return nullptr;
@@ -8694,12 +8756,332 @@ Method& currentMethod = currentClass->AddMethod(Method("DispatchCall", Reflectio
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<IndirectPrePassComputePass>();
+	Type* currentClass = ReflectionSystem::GetMutableType<World>();
+	{
+		Field& currentField = currentClass->AddField(Field("mySystemManager", offsetof(World, mySystemManager), ReflectionSystem::GetOrCreateType<UniquePtr<SystemManager<WorldSystem>>>("UniquePtr<SystemManager<WorldSystem>>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myActors", offsetof(World, myActors), ReflectionSystem::GetOrCreateType<List<UniquePtr<Actor>>>("List<UniquePtr<Actor>>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myActorsToDelete", offsetof(World, myActorsToDelete), ReflectionSystem::GetOrCreateType<List<Actor *>>("List<Actor *>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCachedDirectionalLightActor", offsetof(World, myCachedDirectionalLightActor), ReflectionSystem::GetOrCreateType<DirectionalLightActor>("DirectionalLightActor"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMainCamera", offsetof(World, myMainCamera), ReflectionSystem::GetOrCreateType<CameraComponent>("CameraComponent"), true, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+instance->Init();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Init", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+instance->PostPropertiesSerialized();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("PostPropertiesSerialized", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+static thread_local List<std::basic_string<char>> result = instance->GetAssetExtensions();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAssetExtensions", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+instance->DoTick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DoTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+instance->Destroy();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Destroy", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+instance->TickPhysics();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("TickPhysics", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
+const glm::vec<3, float> & arg1 = *(const glm::vec<3, float>*)inArguments[1];
+RaycastHit & arg2 = *(RaycastHit*)inArguments[2];
+const float& arg3 = *(const float*)inArguments[3];
+const unsigned int& arg4 = *(const unsigned int*)inArguments[4];
+bool& arg5 = *(bool*)inArguments[5];
+static thread_local bool result = instance->Raycast(arg0, arg1, arg2, arg3, arg4, arg5);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOrigin", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
+arguments.Add(MethodArgument("inDirection", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
+arguments.Add(MethodArgument("outHit", ReflectionSystem::GetOrCreateType<RaycastHit &>("RaycastHit &")));
+arguments.Add(MethodArgument("inMaxDistance", ReflectionSystem::GetOrCreateType<const float>("const float")));
+arguments.Add(MethodArgument("inExcludedTags", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+arguments.Add(MethodArgument("inIgnoreTriggers", ReflectionSystem::GetOrCreateType<bool>("bool")));
+Method& currentMethod = currentClass->AddMethod(Method("Raycast", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
+const glm::vec<3, float> & arg1 = *(const glm::vec<3, float>*)inArguments[1];
+List<RaycastHit> & arg2 = *(List<RaycastHit>*)inArguments[2];
+const float& arg3 = *(const float*)inArguments[3];
+const unsigned int& arg4 = *(const unsigned int*)inArguments[4];
+bool& arg5 = *(bool*)inArguments[5];
+static thread_local bool result = instance->RaycastAll(arg0, arg1, arg2, arg3, arg4, arg5);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inOrigin", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
+arguments.Add(MethodArgument("inDirection", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
+arguments.Add(MethodArgument("outHits", ReflectionSystem::GetOrCreateType<List<RaycastHit> &>("List<RaycastHit> &")));
+arguments.Add(MethodArgument("inMaxDistance", ReflectionSystem::GetOrCreateType<const float>("const float")));
+arguments.Add(MethodArgument("inExcludedTags", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
+arguments.Add(MethodArgument("inIgnoreTriggers", ReflectionSystem::GetOrCreateType<bool>("bool")));
+Method& currentMethod = currentClass->AddMethod(Method("RaycastAll", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+const Type * arg0 = (const Type*)inArguments[0];
+const std::basic_string<char> & arg1 = *(const std::basic_string<char>*)inArguments[1];
+Actor * result = instance->SpawnActor(arg0, arg1);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inActorType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("SpawnActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+instance->RemoveActor(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("RemoveActor", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+instance->RemoveAllActors();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("RemoveAllActors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+const List<UniquePtr<Actor>> & result = instance->GetAllActors();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetAllActors", ReflectionSystem::GetOrCreateType<const List<UniquePtr<Actor>> &>("const List<UniquePtr<Actor>> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+Actor * arg1 = (Actor*)inArguments[1];
+instance->OnTriggerEnter(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inFirst", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("OnTriggerEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+Actor * arg1 = (Actor*)inArguments[1];
+instance->OnTrigger(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inFirst", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("OnTrigger", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+Actor * arg1 = (Actor*)inArguments[1];
+instance->OnTriggerExit(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inFirst", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("OnTriggerExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+Actor * arg1 = (Actor*)inArguments[1];
+instance->OnCollisionEnter(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inFirst", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("OnCollisionEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+Actor * arg1 = (Actor*)inArguments[1];
+instance->OnCollision(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inFirst", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("OnCollision", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+Actor * arg1 = (Actor*)inArguments[1];
+instance->OnCollisionExit(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inFirst", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+Method& currentMethod = currentClass->AddMethod(Method("OnCollisionExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+DirectionalLightComponent * result = instance->GetDirectionalLight();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetDirectionalLight", ReflectionSystem::GetOrCreateType<DirectionalLightComponent *>("DirectionalLightComponent *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+CameraComponent * arg0 = (CameraComponent*)inArguments[0];
+instance->SetMainCamera(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCamera", ReflectionSystem::GetOrCreateType<CameraComponent *>("CameraComponent *")));
+Method& currentMethod = currentClass->AddMethod(Method("SetMainCamera", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+CameraComponent * result = instance->GetMainCamera();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetMainCamera", ReflectionSystem::GetOrCreateType<CameraComponent *>("CameraComponent *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+instance->CreateWorldSystems();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("CreateWorldSystems", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+instance->TickActorDeletes();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("TickActorDeletes", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+World* instance = static_cast<World*>(inInstance);
+Actor * arg0 = (Actor*)inArguments[0];
+const std::basic_string<char> & arg1 = *(const std::basic_string<char>*)inArguments[1];
+instance->InitActor(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
+arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("InitActor", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<IndirectPrePass>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ComputePass>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-IndirectPrePassComputePass* instance = static_cast<IndirectPrePassComputePass*>(inInstance);
+IndirectPrePass* instance = static_cast<IndirectPrePass*>(inInstance);
 instance->SetupDescriptors();
 return nullptr;
 });
@@ -8709,7 +9091,7 @@ Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", Refle
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
-IndirectPrePassComputePass* instance = static_cast<IndirectPrePassComputePass*>(inInstance);
+IndirectPrePass* instance = static_cast<IndirectPrePass*>(inInstance);
 vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
 instance->DispatchCall(arg0);
 return nullptr;
@@ -8717,6 +9099,93 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
 Method& currentMethod = currentClass->AddMethod(Method("DispatchCall", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<GraphicsPass>();
+	{
+		Field& currentField = currentClass->AddField(Field("myDescriptorSet", -1, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipelineLayout", -1, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPipeline", -1, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myFragmentShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IRenderPass>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
+instance->Execute(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
+instance->CreateResources();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("CreateResources", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
+instance->DestroyResources();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DestroyResources", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
+instance->OnShaderRecompiled();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("OnShaderRecompiled", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<MainPass>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<GraphicsPass>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+MainPass* instance = static_cast<MainPass*>(inInstance);
+instance->SetupDescriptors();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+MainPass* instance = static_cast<MainPass*>(inInstance);
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
+instance->DrawCall(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+Method& currentMethod = currentClass->AddMethod(Method("DrawCall", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -10558,326 +11027,6 @@ return (void*)result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetHInstance", ReflectionSystem::GetOrCreateType<HINSTANCE__ *>("HINSTANCE__ *"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<World>();
-	{
-		Field& currentField = currentClass->AddField(Field("mySystemManager", offsetof(World, mySystemManager), ReflectionSystem::GetOrCreateType<UniquePtr<SystemManager<WorldSystem>>>("UniquePtr<SystemManager<WorldSystem>>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myActors", offsetof(World, myActors), ReflectionSystem::GetOrCreateType<List<UniquePtr<Actor>>>("List<UniquePtr<Actor>>"), false, false));
-		currentField.AddMetadata(R"delim(SerializeField)delim");
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myActorsToDelete", offsetof(World, myActorsToDelete), ReflectionSystem::GetOrCreateType<List<Actor *>>("List<Actor *>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCachedDirectionalLightActor", offsetof(World, myCachedDirectionalLightActor), ReflectionSystem::GetOrCreateType<DirectionalLightActor>("DirectionalLightActor"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMainCamera", offsetof(World, myMainCamera), ReflectionSystem::GetOrCreateType<CameraComponent>("CameraComponent"), true, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Asset>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-instance->Init();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Init", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-instance->PostPropertiesSerialized();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("PostPropertiesSerialized", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-static thread_local List<std::basic_string<char>> result = instance->GetAssetExtensions();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAssetExtensions", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-instance->DoTick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("DoTick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-instance->Destroy();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Destroy", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-instance->TickPhysics();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("TickPhysics", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
-const glm::vec<3, float> & arg1 = *(const glm::vec<3, float>*)inArguments[1];
-RaycastHit & arg2 = *(RaycastHit*)inArguments[2];
-const float& arg3 = *(const float*)inArguments[3];
-const unsigned int& arg4 = *(const unsigned int*)inArguments[4];
-bool& arg5 = *(bool*)inArguments[5];
-static thread_local bool result = instance->Raycast(arg0, arg1, arg2, arg3, arg4, arg5);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOrigin", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
-arguments.Add(MethodArgument("inDirection", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
-arguments.Add(MethodArgument("outHit", ReflectionSystem::GetOrCreateType<RaycastHit &>("RaycastHit &")));
-arguments.Add(MethodArgument("inMaxDistance", ReflectionSystem::GetOrCreateType<const float>("const float")));
-arguments.Add(MethodArgument("inExcludedTags", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-arguments.Add(MethodArgument("inIgnoreTriggers", ReflectionSystem::GetOrCreateType<bool>("bool")));
-Method& currentMethod = currentClass->AddMethod(Method("Raycast", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-const glm::vec<3, float> & arg0 = *(const glm::vec<3, float>*)inArguments[0];
-const glm::vec<3, float> & arg1 = *(const glm::vec<3, float>*)inArguments[1];
-List<RaycastHit> & arg2 = *(List<RaycastHit>*)inArguments[2];
-const float& arg3 = *(const float*)inArguments[3];
-const unsigned int& arg4 = *(const unsigned int*)inArguments[4];
-bool& arg5 = *(bool*)inArguments[5];
-static thread_local bool result = instance->RaycastAll(arg0, arg1, arg2, arg3, arg4, arg5);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inOrigin", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
-arguments.Add(MethodArgument("inDirection", ReflectionSystem::GetOrCreateType<const glm::vec<3, float> &>("const glm::vec<3, float> &")));
-arguments.Add(MethodArgument("outHits", ReflectionSystem::GetOrCreateType<List<RaycastHit> &>("List<RaycastHit> &")));
-arguments.Add(MethodArgument("inMaxDistance", ReflectionSystem::GetOrCreateType<const float>("const float")));
-arguments.Add(MethodArgument("inExcludedTags", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-arguments.Add(MethodArgument("inIgnoreTriggers", ReflectionSystem::GetOrCreateType<bool>("bool")));
-Method& currentMethod = currentClass->AddMethod(Method("RaycastAll", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-const Type * arg0 = (const Type*)inArguments[0];
-const std::basic_string<char> & arg1 = *(const std::basic_string<char>*)inArguments[1];
-Actor * result = instance->SpawnActor(arg0, arg1);
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inActorType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
-arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("SpawnActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-instance->RemoveActor(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("RemoveActor", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-instance->RemoveAllActors();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("RemoveAllActors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-const List<UniquePtr<Actor>> & result = instance->GetAllActors();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetAllActors", ReflectionSystem::GetOrCreateType<const List<UniquePtr<Actor>> &>("const List<UniquePtr<Actor>> &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-Actor * arg1 = (Actor*)inArguments[1];
-instance->OnTriggerEnter(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inFirst", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("OnTriggerEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-Actor * arg1 = (Actor*)inArguments[1];
-instance->OnTrigger(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inFirst", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("OnTrigger", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-Actor * arg1 = (Actor*)inArguments[1];
-instance->OnTriggerExit(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inFirst", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("OnTriggerExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-Actor * arg1 = (Actor*)inArguments[1];
-instance->OnCollisionEnter(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inFirst", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("OnCollisionEnter", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-Actor * arg1 = (Actor*)inArguments[1];
-instance->OnCollision(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inFirst", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("OnCollision", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-Actor * arg1 = (Actor*)inArguments[1];
-instance->OnCollisionExit(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inFirst", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-arguments.Add(MethodArgument("inOther", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-Method& currentMethod = currentClass->AddMethod(Method("OnCollisionExit", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-DirectionalLightComponent * result = instance->GetDirectionalLight();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetDirectionalLight", ReflectionSystem::GetOrCreateType<DirectionalLightComponent *>("DirectionalLightComponent *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-CameraComponent * arg0 = (CameraComponent*)inArguments[0];
-instance->SetMainCamera(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inCamera", ReflectionSystem::GetOrCreateType<CameraComponent *>("CameraComponent *")));
-Method& currentMethod = currentClass->AddMethod(Method("SetMainCamera", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-CameraComponent * result = instance->GetMainCamera();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetMainCamera", ReflectionSystem::GetOrCreateType<CameraComponent *>("CameraComponent *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-instance->CreateWorldSystems();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("CreateWorldSystems", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-instance->TickActorDeletes();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("TickActorDeletes", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-World* instance = static_cast<World*>(inInstance);
-Actor * arg0 = (Actor*)inArguments[0];
-const std::basic_string<char> & arg1 = *(const std::basic_string<char>*)inArguments[1];
-instance->InitActor(arg0, arg1);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inActor", ReflectionSystem::GetOrCreateType<Actor *>("Actor *")));
-arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
-Method& currentMethod = currentClass->AddMethod(Method("InitActor", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 

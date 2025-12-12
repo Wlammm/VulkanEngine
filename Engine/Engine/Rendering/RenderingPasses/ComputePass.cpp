@@ -9,10 +9,17 @@
 ComputePass::ComputePass(const SourcePath& inShaderPath)
 {
     myShader = AssetRegistry::Get()->GetAssetSynchronous<Shader>(inShaderPath);
+    myShader->OnShaderRecompiled.Bind(&ComputePass::OnShaderRecompiled, this);
+}
+
+ComputePass::~ComputePass()
+{
+    myShader->OnShaderRecompiled.UnBind(&ComputePass::OnShaderRecompiled, this);
 }
 
 void ComputePass::CreateResources()
 {
+    myDescriptorSet = {};
     SetupDescriptors();
 
     vk::DescriptorSetLayout descriptorSetLayout = myDescriptorSet.GetLayout();
@@ -44,4 +51,10 @@ void ComputePass::Execute(vk::CommandBuffer inCommandBuffer)
     inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, myPipelineLayout, 0, myDescriptorSet.GetSet(), {});
     
     DispatchCall(inCommandBuffer);
+}
+
+void ComputePass::OnShaderRecompiled()
+{
+    DestroyResources();
+    CreateResources();
 }

@@ -178,7 +178,7 @@ void RenderSystem::AddGDRPass(vk::CommandBuffer inCommandBuffer)
 	ZoneScoped;
 	{
 		GPUMARK_SCOPE(inCommandBuffer, "Indirect Culling");
-		myGDRPipeline->AddComputeCommands(inCommandBuffer);
+		myGDRPipeline->ExecuteComputePasses(inCommandBuffer);
 	}
 
 	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
@@ -255,7 +255,7 @@ void RenderSystem::AddGDRPass(vk::CommandBuffer inCommandBuffer)
 		inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
 
 		mySkyboxPipeline->AddGraphicsCommands(inCommandBuffer);
-		myGDRPipeline->AddGraphicsCommands(inCommandBuffer);
+		myGDRPipeline->ExecuteGraphicsPasses(inCommandBuffer);
 	}
 
 	AddDebugPass(inCommandBuffer);

@@ -1,21 +1,21 @@
 ﻿#include "EnginePch.h"
-#include "IndirectPrePassComputePass.h"
+#include "IndirectPrePass.h"
 
 #include "Engine/Rendering/GDRPipeline.h"
 
-IndirectPrePassComputePass::IndirectPrePassComputePass()
+IndirectPrePass::IndirectPrePass()
     : ComputePass("Shaders/PrePass.comp")
 {
 }
 
-void IndirectPrePassComputePass::SetupDescriptors()
+void IndirectPrePass::SetupDescriptors()
 {
     myDescriptorSet.BindBuffer(GDRPipeline::Get()->myCountBuffer, vk::ShaderStageFlagBits::eCompute, 0, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(GDRPipeline::Get()->myCountNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.Build();
 }
 
-void IndirectPrePassComputePass::DispatchCall(vk::CommandBuffer inCommandBuffer)
+void IndirectPrePass::DispatchCall(vk::CommandBuffer inCommandBuffer)
 {
     // TODO: Maybe this could just be a write buffer immediate instead?
     inCommandBuffer.dispatch(1, 1, 1);

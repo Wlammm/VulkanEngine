@@ -25,6 +25,8 @@ Shader::~Shader()
 {
     if (IsValid())
         VulkanContext::GetDevice()->destroyShaderModule(myShaderModule);
+    
+    RemoveFilewatcherCallbacks();
 }
 
 void Shader::LoadPropertiesFromSource()

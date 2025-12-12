@@ -1,5 +1,5 @@
 ﻿#include "EnginePch.h"
-#include "IndirectCullingComputePass.h"
+#include "IndirectCullPass.h"
 
 #include "Engine/Rendering/GDRPipeline.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
@@ -7,12 +7,12 @@
 #include "Engine/Rendering/VertexBufferSystem.h"
 #include "Engine/Vulkan/GPUSceneSystem.h"
 
-IndirectCullingComputePass::IndirectCullingComputePass()
+IndirectCullPass::IndirectCullPass()
     : ComputePass("Shaders/IndirectCulling.comp")
 {
 }
 
-void IndirectCullingComputePass::SetupDescriptors()
+void IndirectCullPass::SetupDescriptors()
 {
     MeshSystem& meshSystem = Engine::GetEngineSystem<MeshSystem>();
     GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
@@ -33,7 +33,7 @@ void IndirectCullingComputePass::SetupDescriptors()
     myDescriptorSet.Build();
 }
 
-void IndirectCullingComputePass::DispatchCall(vk::CommandBuffer inCommandBuffer)
+void IndirectCullPass::DispatchCall(vk::CommandBuffer inCommandBuffer)
 {
     GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
 

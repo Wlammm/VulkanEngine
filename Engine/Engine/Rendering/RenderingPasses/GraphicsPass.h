@@ -5,29 +5,28 @@
 
 class Shader;
 
-class ComputePass : public IRenderPass
+class GraphicsPass : public IRenderPass
 {
 public:
-    ComputePass(const SourcePath& inShaderPath);
-    ~ComputePass();
-
-    virtual void SetupDescriptors() = 0;
+    GraphicsPass(const SourcePath& inVertexShaderPath, const SourcePath& inFragmentShaderPath);
+    ~GraphicsPass();
     
-    // Dispatch how many we want the shader to use. Everything else is already setup.
-    virtual void DispatchCall(vk::CommandBuffer inCommandBuffer) = 0;
+    virtual void SetupDescriptors() = 0;
+    // Do the draw calls here.
+    virtual void DrawCall(vk::CommandBuffer inCommandBuffer) = 0;
+    
+    void Execute(vk::CommandBuffer inCommandBuffer) override;
     
     void CreateResources() override;
     void DestroyResources() override;
-    
-    void Execute(vk::CommandBuffer inCommandBuffer) override;
     
     void OnShaderRecompiled();
     
 protected:
     VulkanDescriptorSet myDescriptorSet;
-    
     vk::PipelineLayout myPipelineLayout;
     vk::Pipeline myPipeline;
     
-    SharedPtr<Shader> myShader;
+    SharedPtr<Shader> myVertexShader;
+    SharedPtr<Shader> myFragmentShader;
 };
