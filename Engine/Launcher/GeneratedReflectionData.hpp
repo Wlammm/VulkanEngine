@@ -269,6 +269,8 @@ ReflectionSystem::AddType<List<Mesh *>>("List<Mesh *>", typeid(List<Mesh *>).nam
 ReflectionSystem::AddType<List<SerializationMeshData>>("List<SerializationMeshData>", typeid(List<SerializationMeshData>).name());
 ReflectionSystem::AddType<List<Filewatcher::CallbackHandle>>("List<Filewatcher::CallbackHandle>", typeid(List<Filewatcher::CallbackHandle>).name());
 ReflectionSystem::AddType<List<std::function<void ()>>>("List<std::function<void ()>>", typeid(List<std::function<void ()>>).name());
+ReflectionSystem::AddType<List<DescriptorBindingInfo>>("List<DescriptorBindingInfo>", typeid(List<DescriptorBindingInfo>).name());
+ReflectionSystem::AddType<List<DescriptorSetInfo>>("List<DescriptorSetInfo>", typeid(List<DescriptorSetInfo>).name());
 ReflectionSystem::AddType<List<IncludeData>>("List<IncludeData>", typeid(List<IncludeData>).name());
 ReflectionSystem::AddType<List<float>>("List<float>", typeid(List<float>).name());
 ReflectionSystem::AddType<List<std::shared_ptr<Material>>>("List<std::shared_ptr<Material>>", typeid(List<std::shared_ptr<Material>>).name());
@@ -350,6 +352,8 @@ ReflectionSystem::AddType<Material>("Material", typeid(Material).name());
 ReflectionSystem::AddType<SerializationMeshData>("SerializationMeshData", typeid(SerializationMeshData).name());
 ReflectionSystem::AddType<Model>("Model", typeid(Model).name());
 ReflectionSystem::AddType<IncludeData>("IncludeData", typeid(IncludeData).name());
+ReflectionSystem::AddType<DescriptorBindingInfo>("DescriptorBindingInfo", typeid(DescriptorBindingInfo).name());
+ReflectionSystem::AddType<DescriptorSetInfo>("DescriptorSetInfo", typeid(DescriptorSetInfo).name());
 ReflectionSystem::AddType<Shader>("Shader", typeid(Shader).name());
 ReflectionSystem::AddType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>", typeid(MulticastDelegate<void ()>).name());
 ReflectionSystem::AddType<CharacterControllerComponent>("CharacterControllerComponent", typeid(CharacterControllerComponent).name());
@@ -1445,6 +1449,16 @@ Method& currentMethod = currentClass->AddMethod(Method("HasStartupArgument", Ref
 	Type* currentClass = ReflectionSystem::GetMutableType<List<std::function<void ()>>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::function<void ()>>("std::function<void ()>"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<DescriptorBindingInfo>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<DescriptorBindingInfo>("DescriptorBindingInfo"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<DescriptorSetInfo>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<DescriptorSetInfo>("DescriptorSetInfo"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<IncludeData>>();
@@ -5263,6 +5277,40 @@ Method& currentMethod = currentClass->AddMethod(Method("GetSerializationMeshData
 	}
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<DescriptorBindingInfo>();
+	{
+		Field& currentField = currentClass->AddField(Field("myBindingIndex", offsetof(DescriptorBindingInfo, myBindingIndex), ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDescriptorType", offsetof(DescriptorBindingInfo, myDescriptorType), ReflectionSystem::GetOrCreateType<vk::DescriptorType>("vk::DescriptorType"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShaderStageFlags", offsetof(DescriptorBindingInfo, myShaderStageFlags), ReflectionSystem::GetOrCreateType<vk::Flags<vk::ShaderStageFlagBits>>("vk::Flags<vk::ShaderStageFlagBits>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myName", offsetof(DescriptorBindingInfo, myName), ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTypeName", offsetof(DescriptorBindingInfo, myTypeName), ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<DescriptorSetInfo>();
+	{
+		Field& currentField = currentClass->AddField(Field("mySetIndex", offsetof(DescriptorSetInfo, mySetIndex), ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBindings", offsetof(DescriptorSetInfo, myBindings), ReflectionSystem::GetOrCreateType<List<DescriptorBindingInfo>>("List<DescriptorBindingInfo>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<Shader>();
 	{
 		Field& currentField = currentClass->AddField(Field("OnShaderRecompiled", offsetof(Shader, OnShaderRecompiled), ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
@@ -5275,6 +5323,10 @@ Method& currentMethod = currentClass->AddMethod(Method("GetSerializationMeshData
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myShaderBinary", offsetof(Shader, myShaderBinary), ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDescriptorSets", offsetof(Shader, myDescriptorSets), ReflectionSystem::GetOrCreateType<List<DescriptorSetInfo>>("List<DescriptorSetInfo>"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
@@ -5373,6 +5425,16 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("RemoveFilewatcherCallbacks", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Shader* instance = static_cast<Shader*>(inInstance);
+instance->GenerateReflectionInfo();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GenerateReflectionInfo", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

@@ -14,6 +14,33 @@ struct IncludeData
     Filewatcher::CallbackHandle myCallbackHandle;
 };
 
+struct DescriptorBindingInfo
+{
+    META(SerializeField)
+    uint32_t myBindingIndex;
+    
+    META(SerializeField)
+    vk::DescriptorType myDescriptorType;
+    
+    META(SerializeField)
+    vk::ShaderStageFlags myShaderStageFlags;
+    
+    META(SerializeField)
+    std::string myName;
+    
+    META(SerializeField)
+    std::string myTypeName;
+};
+
+struct DescriptorSetInfo
+{
+    META(SerializeField)
+    uint32_t mySetIndex;
+    META(SerializeField)
+    List<DescriptorBindingInfo> myBindings;
+};
+
+
 class VulkanShader;
 class Shader : public Asset
 {
@@ -32,6 +59,8 @@ public:
     void Recompile();
 
     vk::ShaderModule GetAPIResource() const;
+    
+    const List<DescriptorSetInfo>& GetDescriptorSetInfos() const;
 
     // Called whenever the shader gets hot reloaded due to the the file being changed.
     MulticastDelegate<void()> OnShaderRecompiled;
@@ -40,6 +69,8 @@ private:
     void CreateFilewatcherCallbacks(const List<IncludeData>& inIncludePaths);
     void RemoveFilewatcherCallbacks();
 
+    void GenerateReflectionInfo();
+    
     void InitFromBinary(const List<uint32_t>& inData);
 
     
@@ -50,6 +81,9 @@ private:
     
     META(SerializeField)
     List<uint32_t> myShaderBinary;
+    
+    META(SerializeField)
+    List<DescriptorSetInfo> myDescriptorSets;
     
     META(SerializeField)
     List<IncludeData> myIncludes;

@@ -7,6 +7,26 @@
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
 #include "Engine/Vulkan/VulkanShaderIncluder.h"
+#include "Spirv-Reflect/spirv_reflect.h"
+
+vk::ShaderStageFlagBits GetStageFromModule(const SpvReflectShaderModule& module)
+{
+    switch (module.spirv_execution_model)
+    {
+    case SpvExecutionModelVertex:
+        return vk::ShaderStageFlagBits::eVertex;
+    case SpvExecutionModelFragment:
+        return vk::ShaderStageFlagBits::eFragment;
+    case SpvExecutionModelGLCompute:
+        return vk::ShaderStageFlagBits::eCompute;
+    case SpvExecutionModelTaskEXT:
+        return vk::ShaderStageFlagBits::eTaskEXT;
+    case SpvExecutionModelMeshEXT:
+        return vk::ShaderStageFlagBits::eMeshEXT;
+    default:
+        return vk::ShaderStageFlagBits::eAll;
+    }
+}
 
 shaderc_shader_kind GetKindFromExtension(const std::string& inExtension)
 {
@@ -71,6 +91,8 @@ void Shader::LoadPropertiesFromSource()
     {
         myIncludes.Add({includePath, std::filesystem::last_write_time(includePath) });
     }
+    
+    GenerateReflectionInfo();
 }
 
 void Shader::PostPropertiesSerialized()
@@ -111,6 +133,11 @@ vk::ShaderModule Shader::GetAPIResource() const
     return myShaderModule;
 }
 
+const List<DescriptorSetInfo>& Shader::GetDescriptorSetInfos() const
+{
+    return myDescriptorSets;
+}
+
 void Shader::CreateFilewatcherCallbacks(const List<IncludeData>& inIncludePaths)
 {
     myCallbackHandle = Engine::GetFilewatcher().InsertWatch_TS(GetSourcePath(), std::bind(&Shader::Recompile, this));
@@ -128,6 +155,42 @@ void Shader::RemoveFilewatcherCallbacks()
     {
         if (data.myCallbackHandle.IsValid())
             Engine::GetFilewatcher().RemoveWatch_TS(data.myIncludePath, data.myCallbackHandle);
+    }
+}
+
+void Shader::GenerateReflectionInfo()
+{
+    myDescriptorSets.Clear();
+    SpvReflectShaderModule module{};
+    
+    SpvReflectResult result = spvReflectCreateShaderModule(myShaderBinary.size() * sizeof(uint32_t), myShaderBinary.data(), &module);
+    check(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to generate reflection information for shader.");
+    
+    uint32_t setCount = 0;
+    spvReflectEnumerateDescriptorSets(&module, &setCount, nullptr);
+    
+    List<SpvReflectDescriptorSet*> sets;
+    sets.Resize(setCount);
+    
+    spvReflectEnumerateDescriptorSets(&module, &setCount, sets.data());
+    
+    for (SpvReflectDescriptorSet* set : sets)
+    {
+        DescriptorSetInfo& setInfo = myDescriptorSets.Emplace();
+        setInfo.mySetIndex = set->set;
+        
+        for (uint32_t bindingIndex = 0; bindingIndex < set->binding_count; ++bindingIndex)
+        {
+            SpvReflectDescriptorBinding* binding = set->bindings[bindingIndex];
+            DescriptorBindingInfo& bindingInfo = setInfo.myBindings.Emplace();
+            
+            bindingInfo.myBindingIndex = binding->binding;
+            bindingInfo.myDescriptorType = static_cast<vk::DescriptorType>(binding->descriptor_type);
+            bindingInfo.myShaderStageFlags = GetStageFromModule(module);
+            bindingInfo.myName = binding->name;
+            if (binding->type_description && binding->type_description->type_name)
+                bindingInfo.myTypeName = binding->type_description->type_name;
+        }
     }
 }
 
