@@ -1,7 +1,6 @@
 ﻿#include "EnginePch.h"
 #include "IndirectCullPass.h"
 
-#include "Engine/Rendering/GDRPipeline.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
 #include "Engine/Rendering/MeshSystem.h"
 #include "Engine/Rendering/VertexBufferSystem.h"
@@ -24,12 +23,12 @@ void IndirectCullPass::SetupDescriptors()
     myDescriptorSet.BindBuffer(indexSystem.GetGlobalSparseIndexDataBuffer(), vk::ShaderStageFlagBits::eCompute, 7, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(objectSystem.GetSparseBuffer(), vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(objectSystem.GetDenseBuffer(), vk::ShaderStageFlagBits::eCompute, 5, vk::DescriptorType::eStorageBuffer);
-    myDescriptorSet.BindBuffer(GDRPipeline::Get()->myIndirectCommandsBuffer, vk::ShaderStageFlagBits::eCompute, 2, vk::DescriptorType::eStorageBuffer);
-    myDescriptorSet.BindBuffer(GDRPipeline::Get()->myCountBuffer, vk::ShaderStageFlagBits::eCompute, 3, vk::DescriptorType::eStorageBuffer);
-    myDescriptorSet.BindBuffer(GDRPipeline::Get()->myPerDrawDataBuffer, vk::ShaderStageFlagBits::eCompute, 4, vk::DescriptorType::eStorageBuffer);
-    myDescriptorSet.BindBuffer(GDRPipeline::Get()->myPerDrawDataNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 8, vk::DescriptorType::eStorageBuffer);
-    myDescriptorSet.BindBuffer(GDRPipeline::Get()->myCountNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 9, vk::DescriptorType::eStorageBuffer);
-    myDescriptorSet.BindBuffer(GDRPipeline::Get()->myIndirectCommandsBufferNoDepth, vk::ShaderStageFlagBits::eCompute, 10, vk::DescriptorType::eStorageBuffer);
+    myDescriptorSet.BindBuffer(RenderSystem::Get()->myIndirectCommandsBuffer, vk::ShaderStageFlagBits::eCompute, 2, vk::DescriptorType::eStorageBuffer);
+    myDescriptorSet.BindBuffer(RenderSystem::Get()->myCountBuffer, vk::ShaderStageFlagBits::eCompute, 3, vk::DescriptorType::eStorageBuffer);
+    myDescriptorSet.BindBuffer(RenderSystem::Get()->myPerDrawDataBuffer, vk::ShaderStageFlagBits::eCompute, 4, vk::DescriptorType::eStorageBuffer);
+    myDescriptorSet.BindBuffer(RenderSystem::Get()->myPerDrawDataNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 8, vk::DescriptorType::eStorageBuffer);
+    myDescriptorSet.BindBuffer(RenderSystem::Get()->myCountNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 9, vk::DescriptorType::eStorageBuffer);
+    myDescriptorSet.BindBuffer(RenderSystem::Get()->myIndirectCommandsBufferNoDepth, vk::ShaderStageFlagBits::eCompute, 10, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.Build();
 }
 
@@ -44,37 +43,37 @@ void IndirectCullPass::DispatchCall(vk::CommandBuffer inCommandBuffer)
 		vk::BufferMemoryBarrier()
 			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
 			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eVertexAttributeRead)
-			.setBuffer(GDRPipeline::Get()->myIndirectCommandsBuffer->GetBuffer()->GetAPIResource())
+			.setBuffer(RenderSystem::Get()->myIndirectCommandsBuffer->GetBuffer()->GetAPIResource())
 			.setOffset(0)
 			.setSize(VK_WHOLE_SIZE),
 		vk::BufferMemoryBarrier()
 			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
 			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eVertexAttributeRead)
-			.setBuffer(GDRPipeline::Get()->myIndirectCommandsBufferNoDepth->GetBuffer()->GetAPIResource())
+			.setBuffer(RenderSystem::Get()->myIndirectCommandsBufferNoDepth->GetBuffer()->GetAPIResource())
 			.setOffset(0)
 			.setSize(VK_WHOLE_SIZE),
 		vk::BufferMemoryBarrier()
 			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
 			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eIndexRead)
-			.setBuffer(GDRPipeline::Get()->myPerDrawDataBuffer->GetBuffer()->GetAPIResource())
+			.setBuffer(RenderSystem::Get()->myPerDrawDataBuffer->GetBuffer()->GetAPIResource())
 			.setOffset(0)
 			.setSize(VK_WHOLE_SIZE),
 		vk::BufferMemoryBarrier()
 			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
 			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eIndexRead)
-			.setBuffer(GDRPipeline::Get()->myPerDrawDataNoDepthBuffer->GetBuffer()->GetAPIResource())
+			.setBuffer(RenderSystem::Get()->myPerDrawDataNoDepthBuffer->GetBuffer()->GetAPIResource())
 			.setOffset(0)
 			.setSize(VK_WHOLE_SIZE),
 		vk::BufferMemoryBarrier()
 			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
 			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead)
-			.setBuffer(GDRPipeline::Get()->myCountBuffer->GetAPIResource())
+			.setBuffer(RenderSystem::Get()->myCountBuffer->GetAPIResource())
 			.setOffset(0)
 			.setSize(VK_WHOLE_SIZE),
 		vk::BufferMemoryBarrier()
 			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
 			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead)
-			.setBuffer(GDRPipeline::Get()->myCountNoDepthBuffer->GetAPIResource())
+			.setBuffer(RenderSystem::Get()->myCountNoDepthBuffer->GetAPIResource())
 			.setOffset(0)
 			.setSize(VK_WHOLE_SIZE),
 	};

@@ -9,6 +9,10 @@
 
 
 class VulkanCommandBuffer;
+class ResizableBuffer;
+class VulkanBuffer;
+class TextureCube;
+class IRenderPass;
 
 class RenderSystem : public System
 {
@@ -33,34 +37,75 @@ public:
     static VulkanCommandBuffer* CreateUploadCommandBuffer_TS();
     static void QueueCommandBufferForUpload_TS(VulkanCommandBuffer* commandBuffer);
 
-    const class GDRPipeline& GetGDRPipeline() const;
-    
     // TODO: Refactor these so they're not public like this.
     class VulkanImage* myDepthBuffer = nullptr;
     class VulkanImage* myRenderTexture = nullptr;
 
+    ResizableBuffer* myIndirectCommandsBuffer = nullptr;
+    ResizableBuffer* myIndirectCommandsBufferNoDepth = nullptr;
+    VulkanBuffer* myCountBuffer = nullptr;
+    VulkanBuffer* myCountNoDepthBuffer = nullptr;
+    ResizableBuffer* myPerDrawDataBuffer = nullptr;
+    ResizableBuffer* myPerDrawDataNoDepthBuffer = nullptr;
+    
+    struct DirectionalLightBuffer
+    {
+        glm::vec4 myColor;
+        glm::vec3 myDirection;
+        float padding;
+        glm::mat4 myLightView;
+        glm::mat4 myLightProjection;
+    };
+    VulkanBuffer* myDirectionalLightBuffer;
+    // FrameDescriptorSet.
+    struct FrameData
+    {
+        glm::mat4 myToView;
+        glm::mat4 myProjection;
+        glm::vec3 myCameraPosition;
+        uint myCubemapIndex = (uint)-1;
+    };
+    VulkanBuffer* myFrameDataBuffer; 
+    
+    TextureCube* myCubemap = nullptr;
+    
 private:
-    void AddGDRPass(vk::CommandBuffer inCommandBuffer);
+    template<typename RenderPassType, typename... Args>
+   void AddGraphicsPass(Args&&... InArgs)
+    {
+        RenderPassType* renderPass = new RenderPassType(std::forward<Args>(InArgs)...);
+        renderPass->CreateResources();
+        myRenderPasses.Add(renderPass);
+    }
+    
+    void AddRenderPasses(vk::CommandBuffer inCommandBuffer);
     
     void AddUploadPass(vk::CommandBuffer inCommandBuffer);
 
     void FlushUploadCommands();
+    
+    void EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer);
+    void BuildFrameBuffer();
+    void BuildDirectionalLightBuffer();
 
 private:
     void CreateRenderResources();
     void DestroyRenderResources();
 
     void CreateRenderTextures();
-    void CreatePipelines();
+    void CreateBuffers();
+    
+    void CreateRenderPasses();
+    void DestroyRenderPasses();
 
 private:
     inline static std::recursive_mutex myUploadMutex;
     inline static List<VulkanCommandBuffer*> myQueuedUploadCommandBuffers;
     
-    class GDRPipeline* myGDRPipeline = nullptr;
-    
     // This is a resolved render texture that has a MSAA count of 1. This is required so we can use it as input to imgui for the editor viewport. 
     class VulkanImage* myResolvedRenderTexture = nullptr;
     // This is used for editor depth reading as readback is not supported on multisampled textures.
     class VulkanImage* myResolvedDepthTexture = nullptr;
+    
+    List<IRenderPass*> myRenderPasses;
 };

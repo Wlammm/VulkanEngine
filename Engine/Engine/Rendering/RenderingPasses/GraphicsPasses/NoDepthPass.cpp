@@ -1,7 +1,6 @@
 ﻿#include "EnginePch.h"
 #include "NoDepthPass.h"
 
-#include "Engine/Rendering/GDRPipeline.h"
 #include "Engine/Systems/PointLightSystem.h"
 #include "Engine/Vulkan/ResizableBuffer.h"
 
@@ -14,7 +13,7 @@ NoDepthPass::NoDepthPass()
 void NoDepthPass::SetupDescriptors()
 {
     myDescriptorSet.BindBuffer(
-            GDRPipeline::Get()->myFrameDataBuffer, 
+            RenderSystem::Get()->myFrameDataBuffer, 
             vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
             0, 
             vk::DescriptorType::eUniformBuffer);
@@ -26,13 +25,13 @@ void NoDepthPass::SetupDescriptors()
         vk::DescriptorType::eStorageBuffer);
 	
     myDescriptorSet.BindBuffer(
-        GDRPipeline::Get()->myDirectionalLightBuffer,
+        RenderSystem::Get()->myDirectionalLightBuffer,
         vk::ShaderStageFlagBits::eFragment, 
         2, 
         vk::DescriptorType::eUniformBuffer);
 
     myDescriptorSet.BindBuffer(
-        GDRPipeline::Get()->myPerDrawDataNoDepthBuffer,
+        RenderSystem::Get()->myPerDrawDataNoDepthBuffer,
         vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 
         4, 
         vk::DescriptorType::eStorageBuffer);
@@ -51,8 +50,8 @@ void NoDepthPass::DrawCall(vk::CommandBuffer inCommandBuffer)
 {
     inCommandBuffer.setDepthWriteEnable(false);
 
-    inCommandBuffer.drawIndexedIndirectCount(GDRPipeline::Get()->myIndirectCommandsBufferNoDepth->GetBuffer()->GetAPIResource(), 0,
-            GDRPipeline::Get()->myCountNoDepthBuffer->GetAPIResource(), 0,
-            static_cast<uint>(GDRPipeline::Get()->myIndirectCommandsBufferNoDepth->GetBuffer()->GetSize() / sizeof(vk::DrawIndexedIndirectCommand)),
+    inCommandBuffer.drawIndexedIndirectCount(RenderSystem::Get()->myIndirectCommandsBufferNoDepth->GetBuffer()->GetAPIResource(), 0,
+            RenderSystem::Get()->myCountNoDepthBuffer->GetAPIResource(), 0,
+            static_cast<uint>(RenderSystem::Get()->myIndirectCommandsBufferNoDepth->GetBuffer()->GetSize() / sizeof(vk::DrawIndexedIndirectCommand)),
             sizeof(vk::DrawIndexedIndirectCommand));
 }
