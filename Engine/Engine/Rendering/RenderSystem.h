@@ -21,9 +21,6 @@ public:
     
     void Init() override final;
     void Tick();
-
-    vk::RenderPass& GetRenderPass();
-    vk::RenderPass& GetImGuiRenderPass();
     
     class VulkanImage* GetRenderTexture();
     class VulkanImage* GetResolvedRenderTexture() const;
@@ -54,35 +51,13 @@ private:
     void DestroyRenderResources();
 
     void CreateRenderTextures();
-    void CreateRenderPass();
-    void CreateFrameBuffers();
     void CreatePipelines();
-    
-    vk::Framebuffer GetVkFrameBuffer() const;
-    vk::Framebuffer GetVkCopyToSwapchainFrameBuffer() const;
 
 private:
     inline static std::recursive_mutex myUploadMutex;
     inline static List<VulkanCommandBuffer*> myQueuedUploadCommandBuffers;
     
-    bool myIsUsingGPUDrivenRendering = true;
-    
     class GDRPipeline* myGDRPipeline = nullptr;
-
-    vk::RenderPass myRenderPass;
-    vk::RenderPass myCopyToSwapchainRenderPass;
-
-    vk::Framebuffer myVkFrameBuffer;
-    List<vk::Framebuffer> myCopyToSwapchainFrameBuffers;
-
-    /*
-    * Index 0 is for main texture.
-    * Index 1 is for depth texture.
-    */
-    vk::ClearValue myClearValues[2] = {
-        vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })),
-        vk::ClearDepthStencilValue(1.0f, 0u) };
-
     
     // This is a resolved render texture that has a MSAA count of 1. This is required so we can use it as input to imgui for the editor viewport. 
     class VulkanImage* myResolvedRenderTexture = nullptr;

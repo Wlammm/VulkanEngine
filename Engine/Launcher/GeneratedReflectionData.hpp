@@ -45,7 +45,6 @@
 #include "../Engine/Serialization/TypeSerializers/GlmSerializer.h"
 #include "../Engine/Utils/ThreadUtils.hpp"
 #include "../Engine/AssetRegistry/AssetRegistry.h"
-#include "../Engine/Rendering/SkyboxPipeline.h"
 #include "../Engine/Components/ConvexColliderComponent.h"
 #include "../Engine/ComponentSystem/Actors/PointLightActor.h"
 #include "../Engine/Containers/MutexList.hpp"
@@ -99,8 +98,6 @@
 #include "../Engine/Utils/MathUtils.hpp"
 #include "../Engine/Vulkan/VulkanDynamicBuffer.hpp"
 #include "../Engine/Vulkan/VulkanDescriptorSet.h"
-#include "../Engine/Rendering/DebugPipeline.h"
-#include "../Engine/Rendering/FullscreenPipeline.h"
 #include "../Engine/Rendering/GDRPipeline.h"
 #include "../Engine/Rendering/IndexBufferHandle.h"
 #include "../Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
@@ -280,13 +277,13 @@ ReflectionSystem::AddType<List<TransformComponent *>>("List<TransformComponent *
 ReflectionSystem::AddType<List<Component *>>("List<Component *>", typeid(List<Component *>).name());
 ReflectionSystem::AddType<List<std::thread>>("List<std::thread>", typeid(List<std::thread>).name());
 ReflectionSystem::AddType<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>("List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>", typeid(List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>).name());
-ReflectionSystem::AddType<List<vk::Framebuffer>>("List<vk::Framebuffer>", typeid(List<vk::Framebuffer>).name());
 ReflectionSystem::AddType<List<IRenderPass *>>("List<IRenderPass *>", typeid(List<IRenderPass *>).name());
 ReflectionSystem::AddType<List<IndexBufferHandle *>>("List<IndexBufferHandle *>", typeid(List<IndexBufferHandle *>).name());
 ReflectionSystem::AddType<List<IndexBufferData>>("List<IndexBufferData>", typeid(List<IndexBufferData>).name());
 ReflectionSystem::AddType<List<const char *>>("List<const char *>", typeid(List<const char *>).name());
 ReflectionSystem::AddType<List<vk::RenderingAttachmentInfo>>("List<vk::RenderingAttachmentInfo>", typeid(List<vk::RenderingAttachmentInfo>).name());
 ReflectionSystem::AddType<List<vk::Format>>("List<vk::Format>", typeid(List<vk::Format>).name());
+ReflectionSystem::AddType<List<vk::Framebuffer>>("List<vk::Framebuffer>", typeid(List<vk::Framebuffer>).name());
 ReflectionSystem::AddType<List<VertexBufferHandle *>>("List<VertexBufferHandle *>", typeid(List<VertexBufferHandle *>).name());
 ReflectionSystem::AddType<List<VertexBufferData>>("List<VertexBufferData>", typeid(List<VertexBufferData>).name());
 ReflectionSystem::AddType<List<vk::QueueFamilyProperties>>("List<vk::QueueFamilyProperties>", typeid(List<vk::QueueFamilyProperties>).name());
@@ -345,7 +342,6 @@ ReflectionSystem::AddType<StaticMeshComponent>("StaticMeshComponent", typeid(Sta
 ReflectionSystem::AddType<GlmSerializer>("GlmSerializer", typeid(GlmSerializer).name());
 ReflectionSystem::AddType<ThreadUtils>("ThreadUtils", typeid(ThreadUtils).name());
 ReflectionSystem::AddType<AssetRegistry>("AssetRegistry", typeid(AssetRegistry).name());
-ReflectionSystem::AddType<SkyboxPipeline>("SkyboxPipeline", typeid(SkyboxPipeline).name());
 ReflectionSystem::AddType<ConvexColliderComponent>("ConvexColliderComponent", typeid(ConvexColliderComponent).name());
 ReflectionSystem::AddType<PointLightActor>("PointLightActor", typeid(PointLightActor).name());
 ReflectionSystem::AddType<MutexList<std::filesystem::path>>("MutexList<std::filesystem::path>", typeid(MutexList<std::filesystem::path>).name());
@@ -398,8 +394,6 @@ ReflectionSystem::AddType<RenderSystem>("RenderSystem", typeid(RenderSystem).nam
 ReflectionSystem::AddType<MathUtils>("MathUtils", typeid(MathUtils).name());
 ReflectionSystem::AddType<IVulkanDynamicBuffer>("IVulkanDynamicBuffer", typeid(IVulkanDynamicBuffer).name());
 ReflectionSystem::AddType<VulkanDescriptorSet>("VulkanDescriptorSet", typeid(VulkanDescriptorSet).name());
-ReflectionSystem::AddType<DebugPipeline>("DebugPipeline", typeid(DebugPipeline).name());
-ReflectionSystem::AddType<FullscreenPipeline>("FullscreenPipeline", typeid(FullscreenPipeline).name());
 ReflectionSystem::AddType<GDRPipeline>("GDRPipeline", typeid(GDRPipeline).name());
 ReflectionSystem::AddType<GDRPipeline::DirectionalLightBuffer>("GDRPipeline::DirectionalLightBuffer", typeid(GDRPipeline::DirectionalLightBuffer).name());
 ReflectionSystem::AddType<GDRPipeline::FrameData>("GDRPipeline::FrameData", typeid(GDRPipeline::FrameData).name());
@@ -1490,11 +1484,6 @@ Method& currentMethod = currentClass->AddMethod(Method("HasStartupArgument", Ref
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>("Delegate<void (physx::PxPhysics *, physx::PxScene *)>"), false, false);
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Framebuffer>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Framebuffer>("vk::Framebuffer"), false, false);
-}
-{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<IRenderPass *>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IRenderPass>("IRenderPass"), true, false);
@@ -1523,6 +1512,11 @@ Method& currentMethod = currentClass->AddMethod(Method("HasStartupArgument", Ref
 	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Format>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Format>("vk::Format"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Framebuffer>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::Framebuffer>("vk::Framebuffer"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<VertexBufferHandle *>>();
@@ -4866,45 +4860,6 @@ Method& currentMethod = currentClass->AddMethod(Method("OnAssetRemoved", Reflect
 }
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<SkyboxPipeline>();
-	{
-		Field& currentField = currentClass->AddField(Field("myVertexShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFragmentShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", -1, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPipelineLayout", -1, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPipeline", -1, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySkyboxModel", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Model>>("std::shared_ptr<Model>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySkybox", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-SkyboxPipeline* instance = static_cast<SkyboxPipeline*>(inInstance);
-vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
-instance->AddGraphicsCommands(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
-Method& currentMethod = currentClass->AddMethod(Method("AddGraphicsCommands", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<ConvexColliderComponent>();
 	{
 		Field& currentField = currentClass->AddField(Field("myModel", -1, ReflectionSystem::GetOrCreateType<Model>("Model"), true, false));
@@ -7805,25 +7760,7 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPtr", ReflectionSyste
 		Field& currentField = currentClass->AddField(Field("myRenderTexture", -1, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myIsUsingGPUDrivenRendering", -1, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
 		Field& currentField = currentClass->AddField(Field("myGDRPipeline", -1, ReflectionSystem::GetOrCreateType<GDRPipeline>("GDRPipeline"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRenderPass", -1, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainRenderPass", -1, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myVkFrameBuffer", -1, ReflectionSystem::GetOrCreateType<vk::Framebuffer>("vk::Framebuffer"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCopyToSwapchainFrameBuffers", -1, ReflectionSystem::GetOrCreateType<List<vk::Framebuffer>>("List<vk::Framebuffer>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myClearValues", -1, ReflectionSystem::GetOrCreateType<vk::ClearValue[2]>("vk::ClearValue[2]"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myResolvedRenderTexture", -1, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
@@ -7861,26 +7798,6 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-vk::RenderPass & result = instance->GetRenderPass();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetRenderPass", ReflectionSystem::GetOrCreateType<vk::RenderPass &>("vk::RenderPass &"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
-vk::RenderPass & result = instance->GetImGuiRenderPass();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetImGuiRenderPass", ReflectionSystem::GetOrCreateType<vk::RenderPass &>("vk::RenderPass &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8100,72 +8017,6 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Rebuild", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<DebugPipeline>();
-	{
-		Field& currentField = currentClass->AddField(Field("myVertexShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFragmentShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPipeline", -1, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPipelineLayout", -1, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFrameDescriptorSet", -1, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-DebugPipeline* instance = static_cast<DebugPipeline*>(inInstance);
-const vk::CommandBuffer& arg0 = *(const vk::CommandBuffer*)inArguments[0];
-instance->AddDrawCommands(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<const vk::CommandBuffer>("const vk::CommandBuffer")));
-Method& currentMethod = currentClass->AddMethod(Method("AddDrawCommands", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<FullscreenPipeline>();
-	{
-		Field& currentField = currentClass->AddField(Field("myVertexShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFragmentShader", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPipeline", -1, ReflectionSystem::GetOrCreateType<vk::Pipeline>("vk::Pipeline"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPipelineLayout", -1, ReflectionSystem::GetOrCreateType<vk::PipelineLayout>("vk::PipelineLayout"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRenderPass", -1, ReflectionSystem::GetOrCreateType<vk::RenderPass>("vk::RenderPass"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDescriptorSet", -1, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
-	}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-FullscreenPipeline* instance = static_cast<FullscreenPipeline*>(inInstance);
-const vk::CommandBuffer& arg0 = *(const vk::CommandBuffer*)inArguments[0];
-instance->AddFullscreenPass(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<const vk::CommandBuffer>("const vk::CommandBuffer")));
-Method& currentMethod = currentClass->AddMethod(Method("AddFullscreenPass", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
