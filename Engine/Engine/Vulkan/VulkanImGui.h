@@ -3,7 +3,7 @@
 class VulkanImGui
 {
 public:
-	static void Start();
+	static void Start(vk::RenderPass inRenderPass);
 	static void Destroy();
 
 	static void BeginFrame();

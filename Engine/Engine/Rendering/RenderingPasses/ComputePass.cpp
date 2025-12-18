@@ -46,6 +46,13 @@ void ComputePass::DestroyResources()
 
 void ComputePass::Execute(vk::CommandBuffer inCommandBuffer)
 {
+#if !SHIPPING
+    if (myPassName == "")
+        myPassName = ReflectionSystem::GetType(this)->GetName();
+#endif
+    
+    GPUMARK_SCOPE(inCommandBuffer, myPassName.c_str());
+    
     inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eCompute, myPipeline);
     // TODO: Add support for multiple sets.
     inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eCompute, myPipelineLayout, 0, myDescriptorSet.GetSet(), {});

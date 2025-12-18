@@ -12,7 +12,10 @@ class VulkanCommandBuffer;
 
 class RenderSystem : public System
 {
+    inline static RenderSystem* myInstance = nullptr;
 public:
+    inline static RenderSystem* Get() { return myInstance; }
+    
     RenderSystem();
     ~RenderSystem();
     
@@ -34,14 +37,15 @@ public:
     static void QueueCommandBufferForUpload_TS(VulkanCommandBuffer* commandBuffer);
 
     const class GDRPipeline& GetGDRPipeline() const;
+    
+    // TODO: Refactor these so they're not public like this.
+    class VulkanImage* myDepthBuffer = nullptr;
+    class VulkanImage* myRenderTexture = nullptr;
 
 private:
     void AddGDRPass(vk::CommandBuffer inCommandBuffer);
     
     void AddUploadPass(vk::CommandBuffer inCommandBuffer);
-    void AddDebugPass(vk::CommandBuffer inCommandBuffer);
-    void AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer);
-    void AddImGuiPass(vk::CommandBuffer inCommandBuffer);
 
     void FlushUploadCommands();
 
@@ -63,10 +67,7 @@ private:
     
     bool myIsUsingGPUDrivenRendering = true;
     
-    class FullscreenPipeline* myCopyPipeline = nullptr;
-    class DebugPipeline* myDebugPipeline = nullptr;
     class GDRPipeline* myGDRPipeline = nullptr;
-    class SkyboxPipeline* mySkyboxPipeline = nullptr;
 
     vk::RenderPass myRenderPass;
     vk::RenderPass myCopyToSwapchainRenderPass;
@@ -82,8 +83,6 @@ private:
         vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })),
         vk::ClearDepthStencilValue(1.0f, 0u) };
 
-    class VulkanImage* myDepthBuffer = nullptr;
-    class VulkanImage* myRenderTexture = nullptr;
     
     // This is a resolved render texture that has a MSAA count of 1. This is required so we can use it as input to imgui for the editor viewport. 
     class VulkanImage* myResolvedRenderTexture = nullptr;

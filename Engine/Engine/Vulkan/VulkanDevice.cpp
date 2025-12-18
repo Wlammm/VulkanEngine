@@ -13,7 +13,12 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	const List<vk::DeviceQueueCreateInfo> queueCreateInfos = GetQueueFamilyCreateInfos();
 
 	vk::DeviceCreateInfo createInfo = vk::DeviceCreateInfo().setQueueCreateInfos(queueCreateInfos).setPEnabledExtensionNames(myPhysicalDevice.GetExtensions());
-
+	
+	vk::PhysicalDeviceFeatures physicalDeviceFeatures{};
+	physicalDeviceFeatures.samplerAnisotropy = VK_TRUE;
+	
+	createInfo.pEnabledFeatures = &physicalDeviceFeatures;
+	
 	vk::PhysicalDeviceVulkan12Features vulkan12Features{};
 	createInfo.pNext = &vulkan12Features;
 	vulkan12Features.drawIndirectCount = VK_TRUE;
@@ -26,10 +31,15 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	vulkan12Features.pNext = &vulkan11Features;
 	vulkan11Features.shaderDrawParameters = VK_TRUE;
 	
+	vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
+	vulkan11Features.pNext = &dynamicRenderingFeatures;
+	dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+	
+	
 	vk::DeviceDiagnosticsConfigCreateInfoNV aftermathInfo = {};
 	if(VulkanContext::GetAftermathTracker())
 	{
-		vulkan11Features.pNext = &aftermathInfo;
+		dynamicRenderingFeatures.pNext = &aftermathInfo;
 		vk::DeviceDiagnosticsConfigFlagsNV aftermathFlags =
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableResourceTracking |
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableAutomaticCheckpoints |

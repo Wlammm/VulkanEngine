@@ -3,7 +3,6 @@
 
 #include "Engine/Engine.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
-#include "Engine/Assets/Shader.h"
 #include "Engine/Assets/TextureCube.h"
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Components/DirectionalLightComponent.h"
@@ -16,11 +15,20 @@
 #include "Engine/Vulkan/VulkanBuffer.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
+#include "Engine/Vulkan/VulkanPhysicalDevice.h"
+#include "Engine/Vulkan/VulkanSwapChain.h"
 #include "Engine/World/World.h"
 #include "RenderingPasses/ComputePasses/IndirectCullPass.h"
 #include "RenderingPasses/ComputePasses/IndirectPrePass.h"
+#include "RenderingPasses/GraphicsPasses/CopyTexturePass.h"
+#include "RenderingPasses/GraphicsPasses/CopyToSwapchainPass.h"
+#include "RenderingPasses/GraphicsPasses/DebugPass.h"
+#include "RenderingPasses/GraphicsPasses/ImGuiPass.h"
 #include "RenderingPasses/GraphicsPasses/MainPass.h"
 #include "RenderingPasses/GraphicsPasses/NoDepthPass.h"
+#include "RenderingPasses/GraphicsPasses/SkyboxPass.h"
+#include "RenderingPasses/TransitionPasses/TransitionImagePass.h"
+#include "RenderingPasses/TransitionPasses/TransitionSwapchainImagePass.h"
 
 GDRPipeline::GDRPipeline()
 {
@@ -50,20 +58,12 @@ GDRPipeline::~GDRPipeline()
 	myInstance = nullptr;	
 }
 
-void GDRPipeline::ExecuteComputePasses(vk::CommandBuffer inCommandBuffer)
+void GDRPipeline::ExecutePasses(vk::CommandBuffer inCommandBuffer)
 {
 	EnsureCorrectBufferSizes(inCommandBuffer);
-	for (IRenderPass* renderPass : myComputePasses)
-	{
-		renderPass->Execute(inCommandBuffer);
-	}
-}
-
-void GDRPipeline::ExecuteGraphicsPasses(vk::CommandBuffer inCommandBuffer)
-{
 	BuildFrameBuffer();
 	BuildDirectionalLightBuffer();
-
+	
 	for (IRenderPass* renderPass : myRenderPasses)
 	{
 		renderPass->Execute(inCommandBuffer);
@@ -257,21 +257,62 @@ void GDRPipeline::DestroyRenderPasses()
 		del(renderPass);	
 	}
 	myRenderPasses.Clear();
-	
-	for (IRenderPass* renderPass : myComputePasses)
-	{
-		renderPass->DestroyResources();
-		del(renderPass);	
-	}
-	myComputePasses.Clear();
 }
 
 void GDRPipeline::CreateRenderPasses()
 {
-	AddComputePass<IndirectPrePass>();
-	AddComputePass<IndirectCullPass>();
+	AddGraphicsPass<TransitionImagePass>(
+		RenderSystem::Get()->GetResolvedRenderTexture(),
+		vk::AccessFlagBits::eNone,
+		vk::AccessFlagBits::eColorAttachmentWrite,
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::PipelineStageFlagBits::eTopOfPipe,
+		vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	
+	AddGraphicsPass<TransitionImagePass>(
+	RenderSystem::Get()->myRenderTexture,
+		vk::AccessFlagBits::eNone,
+		vk::AccessFlagBits::eColorAttachmentWrite,
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::PipelineStageFlagBits::eTopOfPipe,
+		vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	
+	AddGraphicsPass<SkyboxPass>();
+	AddGraphicsPass<IndirectPrePass>();
+	AddGraphicsPass<IndirectCullPass>();
 	AddGraphicsPass<MainPass>();
 	AddGraphicsPass<NoDepthPass>();
+	AddGraphicsPass<DebugPass>();
+	
+	AddGraphicsPass<TransitionImagePass>(
+		RenderSystem::Get()->GetResolvedRenderTexture(),
+		vk::AccessFlagBits::eColorAttachmentWrite,
+		vk::AccessFlagBits::eShaderRead,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::ImageLayout::eShaderReadOnlyOptimal,
+		vk::PipelineStageFlagBits::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits::eFragmentShader);
+	
+	AddGraphicsPass<TransitionSwapchainImagePass>(
+		vk::AccessFlagBits::eNone,
+		vk::AccessFlagBits::eColorAttachmentWrite,
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::PipelineStageFlagBits::eTopOfPipe,
+		vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	
+	AddGraphicsPass<CopyToSwapchainPass>(RenderSystem::Get()->GetResolvedRenderTexture());
+	AddGraphicsPass<ImGuiPass>();
+	
+	AddGraphicsPass<TransitionSwapchainImagePass>(
+		vk::AccessFlagBits::eColorAttachmentWrite,
+		vk::AccessFlagBits::eNone,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::ImageLayout::ePresentSrcKHR,
+		vk::PipelineStageFlagBits::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits::eBottomOfPipe);
 }
 
 void GDRPipeline::BuildFrameBuffer() const

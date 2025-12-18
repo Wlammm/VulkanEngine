@@ -40,6 +40,13 @@ void NoDepthPass::SetupDescriptors()
     myDescriptorSet.Build();
 }
 
+void NoDepthPass::SetupAttachments()
+{
+    AddColorAttachment(RenderSystem::Get()->myRenderTexture, vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);
+    
+    AddDepthAttachment(RenderSystem::Get()->myDepthBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);
+}
+
 void NoDepthPass::DrawCall(vk::CommandBuffer inCommandBuffer)
 {
     inCommandBuffer.setDepthWriteEnable(false);

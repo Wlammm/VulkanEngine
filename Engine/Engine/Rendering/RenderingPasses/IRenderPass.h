@@ -8,6 +8,4 @@ public:
     virtual void DestroyResources() = 0;
     
     virtual void Execute(vk::CommandBuffer inCommandBuffer) = 0;
-    
-    virtual void OnResize() {}
 };

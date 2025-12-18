@@ -4,6 +4,7 @@
 #include "VulkanContext.h"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
+#include "VulkanUtils.hpp"
 #include "Engine/Engine.h"
 
 VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
@@ -120,7 +121,7 @@ const vk::CommandBuffer& VulkanSwapChain::GetCommandBuffer() const
 
 const vk::Image& VulkanSwapChain::GetImage() const
 {
-	return myImages[mySyncIndex];
+	return myImages[myFrameIndex];
 }
 
 const vk::SurfaceKHR& VulkanSwapChain::GetSurface() const
@@ -277,6 +278,17 @@ void VulkanSwapChain::CreateSwapChain()
 		imageViewCreateInfo.image = myImages[i];
 
 		myImageViews.Add(myDevice->createImageView(imageViewCreateInfo));
+#if DEBUG
+		VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
+			.setObjectHandle(VulkanContext::GetVulkanHandle(myImages[i]))
+			.setPObjectName("Swapchain Image")
+			.setObjectType(vk::ObjectType::eImage));
+		
+		VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
+			.setObjectHandle(VulkanContext::GetVulkanHandle(myImageViews.Last()))
+			.setPObjectName("Swapchain ImageView")
+			.setObjectType(vk::ObjectType::eImageView));
+#endif
 	}
 }
 

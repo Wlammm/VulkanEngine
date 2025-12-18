@@ -22,6 +22,7 @@ public:
 	virtual constexpr ListSizeType size() const noexcept = 0;
 	virtual int GetSizeofElement() const = 0;
 	virtual void Resize(const ListSizeType inSize) = 0;
+	virtual void Clear() = 0;
 	
 	virtual void* GetData() const = 0;
 };
@@ -89,6 +90,17 @@ public:
 		}
 		return *this;
 	}
+	
+	bool operator==(const List& inOther) const
+	{
+		if (this == &inOther)
+			return true;
+
+		if (mySize != inOther.mySize)
+			return false;
+		
+		return std::equal(begin(), end(), inOther.begin());
+	}
 
 	List(const std::initializer_list<ElementType>& inInitList) requires std::is_copy_constructible_v<ElementType>
 	{
@@ -138,7 +150,7 @@ public:
 		return inIndex >= 0 && inIndex < mySize;
 	}
 
-	void Clear()
+	void Clear() override
 	{
 		if constexpr(!std::is_trivially_destructible<ElementType>::value)
 		{

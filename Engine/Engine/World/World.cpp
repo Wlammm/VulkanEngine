@@ -24,10 +24,6 @@ World::World()
 {
 	mySystemManager = MakeUnique<SystemManager<WorldSystem>>();
 	CreateWorldSystems();
-
-	myCachedDirectionalLightActor = SpawnActor<DirectionalLightActor>("DirectionalLight");
-	myCachedDirectionalLightActor->GetTransform().SetRotationDeg(321, 314, -50);
-	myCachedDirectionalLightActor->GetDirectionalLightComponent().SetColor({1, 168/255.0, 120/255.0, 1});
 }
 
 World::~World()
@@ -232,7 +228,7 @@ DirectionalLightComponent* World::GetDirectionalLight() const
 	if (!myCachedDirectionalLightActor)
 	{
 		myCachedDirectionalLightActor = FindActorOfType<DirectionalLightActor>();
-		if (!myCachedDirectionalLightActor)
+		if (!myCachedDirectionalLightActor) 
 			return nullptr;
 	}
 	

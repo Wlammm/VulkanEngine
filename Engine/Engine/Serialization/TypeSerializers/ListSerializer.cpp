@@ -14,6 +14,11 @@ void ListSerializer::Serialize(void* inInstance, const Type* inClass, BinarySeri
     check(!listStorageType.myIsReference && "Cannot serialize references");
     IList* list = static_cast<IList*>(inInstance);
 
+    if (inSerializer->IsReading())
+    {
+        list->Clear();
+    }
+    
     int size = list->size();    
     inSerializer->SerializeCopyable(size);
     

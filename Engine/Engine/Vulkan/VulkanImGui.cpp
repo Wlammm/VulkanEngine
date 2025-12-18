@@ -14,7 +14,7 @@
 #include "VulkanSwapChain.h"
 #include "Engine/Rendering/RenderSystem.h"
 
-void VulkanImGui::Start()
+void VulkanImGui::Start(vk::RenderPass inRenderPass)
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -65,7 +65,7 @@ void VulkanImGui::Start()
 	createInfo.MSAASamples = static_cast<VkSampleCountFlagBits>(vk::SampleCountFlagBits::e1);
 	createInfo.CheckVkResultFn = VulkanCheckResult;
 
-	ImGui_ImplVulkan_Init(&createInfo, Engine::GetEngineSystem<RenderSystem>().GetImGuiRenderPass());
+	ImGui_ImplVulkan_Init(&createInfo, inRenderPass);
 
 	VulkanCommandBuffer* cmd = VulkanContext::GetDevice().CreateCommandBuffer(true, false);
 	

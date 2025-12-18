@@ -28,6 +28,7 @@
 #include "Systems/PointLightSystem.h"
 #include "Vulkan/GPUSceneSystem.h"
 #include "Vulkan/Staging/StagingSystem.h"
+#include "World/GameWorld.h"
 
 Engine::Engine(const EngineProperties inEngineProperties)
 	: myEngineProperties{ inEngineProperties }
@@ -63,7 +64,7 @@ Engine::Engine(const EngineProperties inEngineProperties)
 	CreateSystems();
 
 #if !EDITOR
-	SetWorld(new World());
+	SetWorld(AssetRegistry::Get()->GetAssetSynchronous<GameWorld>("Assets/Worlds/Sponza.world"));
 #endif
 }
 

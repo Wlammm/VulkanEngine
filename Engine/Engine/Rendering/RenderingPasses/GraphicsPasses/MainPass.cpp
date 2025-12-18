@@ -30,7 +30,6 @@ void MainPass::SetupDescriptors()
         2, 
         vk::DescriptorType::eUniformBuffer);
 
-
     myDescriptorSet.BindBuffer(
         GDRPipeline::Get()->myPerDrawDataBuffer,
         vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 
@@ -38,6 +37,13 @@ void MainPass::SetupDescriptors()
         vk::DescriptorType::eStorageBuffer);
 	
     myDescriptorSet.Build();
+}
+
+void MainPass::SetupAttachments()
+{
+    AddColorAttachment(RenderSystem::Get()->myRenderTexture, vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore, RenderSystem::Get()->GetResolvedRenderTexture());
+    
+    AddDepthAttachment(RenderSystem::Get()->myDepthBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
 }
 
 void MainPass::DrawCall(vk::CommandBuffer inCommandBuffer)

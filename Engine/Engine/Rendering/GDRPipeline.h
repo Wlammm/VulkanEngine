@@ -16,24 +16,15 @@ public:
     GDRPipeline();
     ~GDRPipeline();
 
-    template<typename RenderPassType>
-    void AddGraphicsPass()
+    template<typename RenderPassType, typename... Args>
+    void AddGraphicsPass(Args&&... InArgs)
     {
-        RenderPassType* renderPass = new RenderPassType();
+        RenderPassType* renderPass = new RenderPassType(std::forward<Args>(InArgs)...);
         renderPass->CreateResources();
         myRenderPasses.Add(renderPass);
     }
     
-    template<typename RenderPassType>
-    void AddComputePass()
-    {
-        RenderPassType* renderPass = new RenderPassType();
-        renderPass->CreateResources();
-        myComputePasses.Add(renderPass);
-    }
-    
-    void ExecuteComputePasses(vk::CommandBuffer inCommandBuffer);
-    void ExecuteGraphicsPasses(vk::CommandBuffer inCommandBuffer);
+    void ExecutePasses(vk::CommandBuffer inCommandBuffer);
 
     VulkanBuffer* GetCountBuffer() const;
     VulkanBuffer* GetIndirectBuffer() const;
@@ -81,7 +72,6 @@ private:
     
 private:
     List<IRenderPass*> myRenderPasses;
-    List<IRenderPass*> myComputePasses;
 
     TextureCube* myCubemap = nullptr;
     

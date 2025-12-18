@@ -7,6 +7,7 @@ public:
     NoDepthPass();
     
     void SetupDescriptors() override;
+    void SetupAttachments() override;
     
     void DrawCall(vk::CommandBuffer inCommandBuffer) override;
 };

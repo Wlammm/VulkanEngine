@@ -5,6 +5,8 @@
 class DirectionalLightActor : public Actor
 {
 public:
+    
+    ~DirectionalLightActor();
     DirectionalLightComponent& GetDirectionalLightComponent();
     
 private:

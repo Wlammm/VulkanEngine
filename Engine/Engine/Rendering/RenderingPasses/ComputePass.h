@@ -24,6 +24,8 @@ public:
     void OnShaderRecompiled();
     
 protected:
+    std::string myPassName = "";
+    
     VulkanDescriptorSet myDescriptorSet;
     
     vk::PipelineLayout myPipelineLayout;

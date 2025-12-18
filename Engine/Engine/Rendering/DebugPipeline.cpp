@@ -12,16 +12,9 @@
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
 #include "Engine/Vulkan/VulkanPhysicalDevice.h"
-#include "Engine/World/World.h"
 
 DebugPipeline::DebugPipeline()
 {
-	myVertexShader = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/Debug.vert");
-	myVertexShader->OnShaderRecompiled.Bind(&DebugPipeline::OnShaderRecompiled, this);
-
-	myFragmentShader = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/Debug.frag");
-	myFragmentShader->OnShaderRecompiled.Bind(&DebugPipeline::OnShaderRecompiled, this);
-
 	myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
 		"FrameDataBuffer",
 		VulkanBuffer::UniformBufferCreateInfo(sizeof(FrameData)),
@@ -173,19 +166,5 @@ VulkanBuffer* DebugPipeline::BuildVertexBuffer()
 
 void DebugPipeline::UpdateFrameBuffer()
 {
-	CameraComponent* camera = Engine::GetWorld()->GetMainCamera();
-
-	if (!camera)
-	{
-		LOG_ERROR("No main camera set!");
-		return;
-	}
-	
-	TransformComponent& transform = camera->GetTransform();
-	
-	FrameData data{};
-	data.myProjection = camera->GetProjection();
-	data.myToView = glm::affineInverse(transform.GetMatrix());
-	data.myCameraPosition = transform.GetPosition();
-	myFrameDataBuffer->SetData(data);
 }
+

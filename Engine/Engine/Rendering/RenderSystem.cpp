@@ -21,11 +21,14 @@
 
 RenderSystem::RenderSystem()
 {
+	check(!myInstance);
+	myInstance = this;
 	VulkanSwapChain::OnSwapChainResized.Bind(&RenderSystem::OnSwapChainResize,this);
 }
 
 RenderSystem::~RenderSystem()
 {
+	myInstance = nullptr;
 	VulkanSwapChain::OnSwapChainResized.UnBind(&RenderSystem::OnSwapChainResize,this);
 	
 	// Flush out remaining upload commands as there might still be buffers waiting destruction in them.
@@ -40,7 +43,6 @@ RenderSystem::~RenderSystem()
 void RenderSystem::Init()
 {
 	CreateRenderResources();
-	VulkanImGui::Start();
 }
 
 void RenderSystem::Tick()
@@ -55,7 +57,6 @@ void RenderSystem::Tick()
 
 		AddUploadPass(commandBuffer);
 		AddGDRPass(commandBuffer);
-		AddFullscreenCopyPass(commandBuffer);
 	}
 
 	commandBuffer.end();
@@ -176,10 +177,6 @@ const GDRPipeline& RenderSystem::GetGDRPipeline() const
 void RenderSystem::AddGDRPass(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
-	{
-		GPUMARK_SCOPE(inCommandBuffer, "Indirect Culling");
-		myGDRPipeline->ExecuteComputePasses(inCommandBuffer);
-	}
 
 	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
 	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
@@ -232,35 +229,7 @@ void RenderSystem::AddGDRPass(vk::CommandBuffer inCommandBuffer)
 		pointLightBarrier,
 		nullptr);
 
-	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-			//.setRenderPass(myRenderTextureRenderPass)
-			.setRenderPass(myRenderPass)
-			//.setFramebuffer(myRenderTextureFrameBuffer)
-			.setFramebuffer(GetVkFrameBuffer())
-			.setPClearValues(myClearValues)
-			.setClearValueCount(2)
-			.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
-			, vk::SubpassContents::eInline);
-	{
-		GPUMARK_SCOPE(inCommandBuffer, "Indirect Graphics");
-
-		inCommandBuffer.setViewport(0, vk::Viewport()
-			.setX(0)
-			.setY(0)
-			.setWidth(static_cast<float>(Engine::GetRenderResolution().x))
-			.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
-			.setMinDepth(0.0f)
-			.setMaxDepth(1.0f));
-	
-		inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
-
-		mySkyboxPipeline->AddGraphicsCommands(inCommandBuffer);
-		myGDRPipeline->ExecuteGraphicsPasses(inCommandBuffer);
-	}
-
-	AddDebugPass(inCommandBuffer);
-
-	inCommandBuffer.endRenderPass();
+	myGDRPipeline->ExecutePasses(inCommandBuffer);
 }
 
 void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
@@ -279,82 +248,6 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 		});
 	}
 	myQueuedUploadCommandBuffers.Clear();
-}
-
-void RenderSystem::AddDebugPass(vk::CommandBuffer inCommandBuffer)
-{
-	ZoneScoped;
-	GPUMARK_SCOPE(inCommandBuffer, "DebugPass");
-
-	inCommandBuffer.setViewport(0, vk::Viewport()
-								.setX(0)
-								.setY(0)
-								.setWidth(static_cast<float>(Engine::GetRenderResolution().x))
-								.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
-								.setMinDepth(0.0f)
-								.setMaxDepth(1.0f));
-
-	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
-	myDebugPipeline->AddDrawCommands(inCommandBuffer);
-}
-
-void RenderSystem::AddFullscreenCopyPass(vk::CommandBuffer inCommandBuffer)
-{
-	ZoneScoped;
-	GPUMARK_SCOPE(inCommandBuffer, "FullscreenCopyPass");
-
-	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-		.setRenderPass(myCopyToSwapchainRenderPass)
-		.setFramebuffer(GetVkCopyToSwapchainFrameBuffer())
-		.setPClearValues(myClearValues)
-		.setClearValueCount(2)
-		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
-		, vk::SubpassContents::eInline);
-
-	inCommandBuffer.setViewport(0, vk::Viewport()
-		.setX(0)
-		.setY(0)
-		.setWidth(static_cast<float>(Engine::GetRenderResolution().x))
-		.setHeight(static_cast<float>(Engine::GetRenderResolution().y))
-		.setMinDepth(0.0f)
-		.setMaxDepth(1.0f));
-	inCommandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
-	
-	myCopyPipeline->AddFullscreenPass(inCommandBuffer);
-
-	VulkanImGui::Render(inCommandBuffer);
-
-	inCommandBuffer.endRenderPass();
-
-	/*commandBuffer.pipelineBarrier(
-		vk::PipelineStageFlagBits::eBottomOfPipe, vk::PipelineStageFlagBits::eBottomOfPipe, vk::DependencyFlagBits(), {}, {},
-		vk::ImageMemoryBarrier()
-		.setSrcAccessMask(vk::AccessFlags())
-		.setDstAccessMask(vk::AccessFlags())
-		.setOldLayout(vk::ImageLayout::ePresentSrcKHR)
-		.setNewLayout(vk::ImageLayout::ePresentSrcKHR)
-		.setSrcQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetGraphicsQueueIndex())
-		.setDstQueueFamilyIndex(VulkanContext::GetPhysicalDevice().GetPresentQueueIndex())
-		.setImage(VulkanContext::GetSwapChain().GetImage())
-		.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));*/
-}
-
-void RenderSystem::AddImGuiPass(vk::CommandBuffer inCommandBuffer)
-{
-	ZoneScoped;
-	GPUMARK_SCOPE(inCommandBuffer, "ImGuiPass");
-
-	inCommandBuffer.beginRenderPass(vk::RenderPassBeginInfo()
-		.setRenderPass(myCopyToSwapchainRenderPass)
-		.setFramebuffer(GetVkCopyToSwapchainFrameBuffer())
-		.setPClearValues(myClearValues)
-		.setClearValueCount(2)
-		.setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())))
-		, vk::SubpassContents::eInline);
-
-	VulkanImGui::Render(inCommandBuffer);
-	
-	inCommandBuffer.endRenderPass();
 }
 
 void RenderSystem::FlushUploadCommands()
@@ -386,9 +279,6 @@ void RenderSystem::DestroyRenderResources()
 	VulkanAllocator::DestroyImage_TS(myResolvedRenderTexture);
 	VulkanAllocator::DestroyImage_TS(myDepthBuffer);
 	VulkanAllocator::DestroyImage_TS(myResolvedDepthTexture);
-	del(myCopyPipeline);
-	del(myDebugPipeline);
-	del(mySkyboxPipeline);
 	del(myGDRPipeline);
 
 	VulkanContext::GetDevice()->destroyRenderPass(myRenderPass);
@@ -398,9 +288,6 @@ void RenderSystem::DestroyRenderResources()
 void RenderSystem::CreatePipelines()
 {
 	myGDRPipeline = new GDRPipeline();
-	mySkyboxPipeline = new SkyboxPipeline();
-	myDebugPipeline = new DebugPipeline();
-	myCopyPipeline = new FullscreenPipeline(Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Shader>("Shaders/FullscreenCopy.frag"), myResolvedRenderTexture, myCopyToSwapchainRenderPass);
 }
 
 void RenderSystem::CreateRenderTextures()
@@ -507,13 +394,13 @@ void RenderSystem::CreateRenderPass()
 			.setDepthResolveMode(vk::ResolveModeFlagBits::eAverage)
 			.setStencilResolveMode(vk::ResolveModeFlagBits::eNone)
 			.setPDepthStencilResolveAttachment(&depthAttachmentResolveRef);
-		
-		const auto subpass = vk::SubpassDescription2()
-			.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
-			.setColorAttachments(colorReference)
-			.setPDepthStencilAttachment(&depthReference)
-			.setResolveAttachments(resolveAttachments)
-			.setPNext(&depthResolveInfo);
+
+		const vk::SubpassDescription2 subpass = vk::SubpassDescription2()
+		                                        .setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
+		                                        .setColorAttachments(colorReference)
+		                                        .setPDepthStencilAttachment(&depthReference)
+		                                        .setResolveAttachments(resolveAttachments)
+		                                        .setPNext(&depthResolveInfo);
 		
 		vk::PipelineStageFlags stages = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
 		const std::array<vk::SubpassDependency2, 1> dependencies = {
