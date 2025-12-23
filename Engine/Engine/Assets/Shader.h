@@ -26,6 +26,9 @@ struct DescriptorBindingInfo
     vk::ShaderStageFlags myShaderStageFlags;
     
     META(SerializeField)
+    uint32_t myDescriptorCount;
+    
+    META(SerializeField)
     std::string myName;
     
     META(SerializeField)

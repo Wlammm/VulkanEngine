@@ -24,9 +24,14 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	vulkan12Features.drawIndirectCount = VK_TRUE;
 	vulkan12Features.descriptorBindingPartiallyBound = VK_TRUE;
 	vulkan12Features.runtimeDescriptorArray = VK_TRUE;
-	vulkan12Features.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
 	vulkan12Features.descriptorBindingVariableDescriptorCount = VK_TRUE;
-
+	vulkan12Features.scalarBlockLayout = VK_TRUE;
+	vulkan12Features.descriptorBindingStorageBufferUpdateAfterBind = VK_TRUE;
+	vulkan12Features.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
+	vulkan12Features.descriptorBindingUniformBufferUpdateAfterBind = VK_TRUE;
+	vulkan12Features.descriptorBindingStorageTexelBufferUpdateAfterBind = VK_TRUE;
+	vulkan12Features.descriptorBindingUniformTexelBufferUpdateAfterBind = VK_TRUE;
+	
 	vk::PhysicalDeviceVulkan11Features vulkan11Features{};
 	vulkan12Features.pNext = &vulkan11Features;
 	vulkan11Features.shaderDrawParameters = VK_TRUE;
@@ -34,7 +39,6 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
 	vulkan11Features.pNext = &dynamicRenderingFeatures;
 	dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
-	
 	
 	vk::DeviceDiagnosticsConfigCreateInfoNV aftermathInfo = {};
 	if(VulkanContext::GetAftermathTracker())
@@ -44,7 +48,7 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableResourceTracking |
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableAutomaticCheckpoints |
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableShaderDebugInfo |
-				vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableShaderErrorReporting;
+			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableShaderErrorReporting;
 		aftermathInfo.setFlags(aftermathFlags);
 	}
 	

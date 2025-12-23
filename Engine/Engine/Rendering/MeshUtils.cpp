@@ -11,7 +11,7 @@ glm::vec4 MeshUtils::CalculateSphereBounds(const List<Vertex>& inVertices)
         centerPos += glm::vec3(vertex.myPosition);
     }
 	
-    centerPos /= inVertices.size();
+    centerPos /= static_cast<float>(inVertices.size());
 
     float maxDistanceFromCenter = 0;
     for(const Vertex& vertex : inVertices)

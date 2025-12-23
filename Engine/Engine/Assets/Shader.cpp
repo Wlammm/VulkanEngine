@@ -113,6 +113,9 @@ bool Shader::IsCacheValid() const
     // Check if any included files has been modified as that forces us to recompile the shader also.
     for (const IncludeData& includeFile : myIncludes)
     {
+        if (!std::filesystem::exists(includeFile.myIncludePath))
+            return false;
+        
         std::filesystem::file_time_type sourceWriteTime = std::filesystem::last_write_time(includeFile.myIncludePath);
         
         if (includeFile.myLastWriteTime != sourceWriteTime)
@@ -187,6 +190,7 @@ void Shader::GenerateReflectionInfo()
             bindingInfo.myBindingIndex = binding->binding;
             bindingInfo.myDescriptorType = static_cast<vk::DescriptorType>(binding->descriptor_type);
             bindingInfo.myShaderStageFlags = GetStageFromModule(module);
+            bindingInfo.myDescriptorCount = binding->count;
             bindingInfo.myName = binding->name;
             if (binding->type_description && binding->type_description->type_name)
                 bindingInfo.myTypeName = binding->type_description->type_name;

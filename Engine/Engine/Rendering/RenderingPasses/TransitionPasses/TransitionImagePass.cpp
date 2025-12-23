@@ -11,7 +11,8 @@ TransitionImagePass::TransitionImagePass(
     vk::ImageLayout inSrcLayout, 
     vk::ImageLayout inDstLayout, 
     vk::PipelineStageFlagBits inSrcStage,
-    vk::PipelineStageFlagBits inDstStage)
+    vk::PipelineStageFlagBits inDstStage,
+    vk::ImageAspectFlags inAspectFlags)
 {
     myImage = inImage->GetAPIResource();
     mySrcAccess = inSrcAccess;
@@ -20,6 +21,7 @@ TransitionImagePass::TransitionImagePass(
     myDstLayout = inDstLayout;
     mySrcStage = inSrcStage;
     myDstStage = inDstStage;
+    myAspectFlags = inAspectFlags;
 }
 
 TransitionImagePass::TransitionImagePass(
@@ -29,7 +31,8 @@ TransitionImagePass::TransitionImagePass(
     vk::ImageLayout inSrcLayout, 
     vk::ImageLayout inDstLayout, 
     vk::PipelineStageFlagBits inSrcStage,
-    vk::PipelineStageFlagBits inDstStage)
+    vk::PipelineStageFlagBits inDstStage,
+    vk::ImageAspectFlags inAspectFlags)
 {
     myImage = inImage;
     mySrcAccess = inSrcAccess;
@@ -38,6 +41,7 @@ TransitionImagePass::TransitionImagePass(
     myDstLayout = inDstLayout;
     mySrcStage = inSrcStage;
     myDstStage = inDstStage;
+    myAspectFlags = inAspectFlags;
 }
 
 void TransitionImagePass::CreateResources()
@@ -61,7 +65,7 @@ void TransitionImagePass::Execute(vk::CommandBuffer inCommandBuffer)
         VK_QUEUE_FAMILY_IGNORED,                  
         myImage,                              
         vk::ImageSubresourceRange{
-            vk::ImageAspectFlagBits::eColor,
+            myAspectFlags,
             0, 1,                                   
             0, 1 
         }

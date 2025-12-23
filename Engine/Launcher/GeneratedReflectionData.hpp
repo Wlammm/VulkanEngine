@@ -125,6 +125,10 @@
 #include "../Engine/Rendering/RenderingPasses/GraphicsPasses/SkyboxPass.h"
 #include "../Engine/Rendering/RenderingPasses/TransitionPasses/TransitionImagePass.h"
 #include "../Engine/Rendering/RenderingPasses/TransitionPasses/TransitionSwapchainImagePass.h"
+#include "../Engine/Rendering/SharedWithShaders/Buffers/CameraBuffer.hpp"
+#include "../Engine/Rendering/SharedWithShaders/Buffers/GlobalLightBuffer.hpp"
+#include "../Engine/Rendering/SharedWithShaders/Buffers/PerDrawDataBuffer.hpp"
+#include "../Engine/Rendering/SharedWithShaders/Buffers/PointLightBuffer.hpp"
 #include "../Engine/Rendering/TextureSystem.h"
 #include "../Engine/Vulkan/ResizableBuffer.h"
 #include "../Engine/Rendering/VertexBufferSystem.h"
@@ -177,6 +181,7 @@
 #include "../Editor/Windows/EditorWindow.h"
 #include "../Editor/Windows/Viewport.h"
 #include "../Game/Components/Player/PlayerComponent.h"
+#include "../Engine/Rendering/SharedWithShaders/SharedHeader.hpp"
 #include "../Game/Actors/PlayerActor.h"
 #include "../Game/Components/SpringArmComponent.h"
 #include "../Game/Game.h"
@@ -432,6 +437,10 @@ ReflectionSystem::AddType<MainPass>("MainPass", typeid(MainPass).name());
 ReflectionSystem::AddType<SkyboxPass>("SkyboxPass", typeid(SkyboxPass).name());
 ReflectionSystem::AddType<TransitionImagePass>("TransitionImagePass", typeid(TransitionImagePass).name());
 ReflectionSystem::AddType<TransitionSwapchainImagePass>("TransitionSwapchainImagePass", typeid(TransitionSwapchainImagePass).name());
+ReflectionSystem::AddType<CameraBuffer>("CameraBuffer", typeid(CameraBuffer).name());
+ReflectionSystem::AddType<GlobalLightBuffer>("GlobalLightBuffer", typeid(GlobalLightBuffer).name());
+ReflectionSystem::AddType<PerDrawDataBuffer>("PerDrawDataBuffer", typeid(PerDrawDataBuffer).name());
+ReflectionSystem::AddType<PointLightBuffer>("PointLightBuffer", typeid(PointLightBuffer).name());
 ReflectionSystem::AddType<TextureSystem>("TextureSystem", typeid(TextureSystem).name());
 ReflectionSystem::AddType<ResizableBuffer>("ResizableBuffer", typeid(ResizableBuffer).name());
 ReflectionSystem::AddType<VertexBufferSystem>("VertexBufferSystem", typeid(VertexBufferSystem).name());
@@ -5291,6 +5300,10 @@ Method& currentMethod = currentClass->AddMethod(Method("GetSerializationMeshData
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
+		Field& currentField = currentClass->AddField(Field("myDescriptorCount", offsetof(DescriptorBindingInfo, myDescriptorCount), ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
 		Field& currentField = currentClass->AddField(Field("myName", offsetof(DescriptorBindingInfo, myName), ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
@@ -5403,6 +5416,16 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", ReflectionSystem::GetOrCreateType<vk::ShaderModule>("vk::ShaderModule"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Shader* instance = static_cast<Shader*>(inInstance);
+const List<DescriptorSetInfo> & result = instance->GetDescriptorSetInfos();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetDescriptorSetInfos", ReflectionSystem::GetOrCreateType<const List<DescriptorSetInfo> &>("const List<DescriptorSetInfo> &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8341,13 +8364,7 @@ Method& currentMethod = currentClass->AddMethod(Method("QueueCommandBufferForUpl
 		Field& currentField = currentClass->AddField(Field("myDirection", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("padding", -1, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myLightView", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myLightProjection", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myCubemapIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
 }
 { 
@@ -8360,9 +8377,6 @@ Method& currentMethod = currentClass->AddMethod(Method("QueueCommandBufferForUpl
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCameraPosition", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCubemapIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
 }
 { 
@@ -9668,6 +9682,26 @@ Method& currentMethod = currentClass->AddMethod(Method("OnShaderRecompiled", Ref
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
+vk::Format& arg0 = *(vk::Format*)inArguments[0];
+vk::ImageLayout& arg1 = *(vk::ImageLayout*)inArguments[1];
+vk::AttachmentLoadOp& arg2 = *(vk::AttachmentLoadOp*)inArguments[2];
+vk::AttachmentStoreOp& arg3 = *(vk::AttachmentStoreOp*)inArguments[3];
+VulkanImage * arg4 = (VulkanImage*)inArguments[4];
+instance->AddDynamicColorAttachment(arg0, arg1, arg2, arg3, arg4);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inFormat", ReflectionSystem::GetOrCreateType<vk::Format>("vk::Format")));
+arguments.Add(MethodArgument("inLayout", ReflectionSystem::GetOrCreateType<vk::ImageLayout>("vk::ImageLayout")));
+arguments.Add(MethodArgument("inLoadOp", ReflectionSystem::GetOrCreateType<vk::AttachmentLoadOp>("vk::AttachmentLoadOp")));
+arguments.Add(MethodArgument("inStoreOp", ReflectionSystem::GetOrCreateType<vk::AttachmentStoreOp>("vk::AttachmentStoreOp")));
+arguments.Add(MethodArgument("myResolveImage", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *")));
+Method& currentMethod = currentClass->AddMethod(Method("AddDynamicColorAttachment", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
 VulkanImage * arg0 = (VulkanImage*)inArguments[0];
 vk::ImageLayout& arg1 = *(vk::ImageLayout*)inArguments[1];
 vk::AttachmentLoadOp& arg2 = *(vk::AttachmentLoadOp*)inArguments[2];
@@ -9999,6 +10033,9 @@ Method& currentMethod = currentClass->AddMethod(Method("DrawCall", ReflectionSys
 	{
 		Field& currentField = currentClass->AddField(Field("myDstStage", -1, ReflectionSystem::GetOrCreateType<vk::PipelineStageFlagBits>("vk::PipelineStageFlagBits"), false, false));
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAspectFlags", -1, ReflectionSystem::GetOrCreateType<vk::Flags<vk::ImageAspectFlagBits>>("vk::Flags<vk::ImageAspectFlagBits>"), false, false));
+	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IRenderPass>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -10086,6 +10123,51 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
 Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<CameraBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("myToView", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myProjection", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCameraPosition", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<GlobalLightBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("myDirectionalLightColor", -1, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirectionalLightDirection", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCubemapIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLightView", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLightProjection", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PerDrawDataBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("perDrawData", -1, ReflectionSystem::GetOrCreateType<PerDrawData[]>("PerDrawData[]"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PointLightBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("myNumLights", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLights", -1, ReflectionSystem::GetOrCreateType<PointLightData[]>("PointLightData[]"), false, false));
+	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<TextureSystem>();
@@ -11284,11 +11366,13 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VulkanShaderIncluder* instance = static_cast<VulkanShaderIncluder*>(inInstance);
 const char * arg0 = (const char*)inArguments[0];
-static thread_local std::filesystem::path result = instance->ResolvePath(arg0);
+const char * arg1 = (const char*)inArguments[1];
+static thread_local std::filesystem::path result = instance->ResolvePath(arg0, arg1);
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inRequestedSource", ReflectionSystem::GetOrCreateType<const char *>("const char *")));
+arguments.Add(MethodArgument("inRequestingSource", ReflectionSystem::GetOrCreateType<const char *>("const char *")));
 Method& currentMethod = currentClass->AddMethod(Method("ResolvePath", ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), invoker, arguments));
 }
 }

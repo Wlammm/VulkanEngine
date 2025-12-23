@@ -387,8 +387,8 @@ void RenderSystem::BuildFrameBuffer()
 	data.myToView = glm::affineInverse(transform.GetMatrix());
 	data.myCameraPosition = transform.GetPosition();
 
-	if(myCubemap)
-		data.myCubemapIndex = myCubemap->GetBindlessIndex();
+	//if(myCubemap)
+	//	data.myCubemapIndex = myCubemap->GetBindlessIndex();
 	
 	myFrameDataBuffer->SetData(data);
 }
@@ -408,8 +408,6 @@ void RenderSystem::BuildDirectionalLightBuffer()
 	TransformComponent& transform = light->GetTransform();
 	buffer.myColor = light->GetColor();
 	buffer.myDirection = transform.GetForward();
-	buffer.myLightView = glm::affineInverse(transform.GetMatrix());
-	buffer.myLightProjection = light->GetLightProjection();
 	myDirectionalLightBuffer->SetData(buffer);
 }
 
@@ -447,7 +445,8 @@ void RenderSystem::CreateRenderPasses()
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::PipelineStageFlagBits::eTopOfPipe,
-		vk::PipelineStageFlagBits::eColorAttachmentOutput);
+		vk::PipelineStageFlagBits::eColorAttachmentOutput, 
+		vk::ImageAspectFlagBits::eColor);
 	
 	AddGraphicsPass<TransitionImagePass>(
 	RenderSystem::Get()->myRenderTexture,
@@ -456,7 +455,18 @@ void RenderSystem::CreateRenderPasses()
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::PipelineStageFlagBits::eTopOfPipe,
-		vk::PipelineStageFlagBits::eColorAttachmentOutput);
+		vk::PipelineStageFlagBits::eColorAttachmentOutput,
+		vk::ImageAspectFlagBits::eColor);
+	
+	AddGraphicsPass<TransitionImagePass>(
+	RenderSystem::Get()->myDepthBuffer,
+		vk::AccessFlagBits::eNone,
+		vk::AccessFlagBits::eColorAttachmentWrite,
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eDepthAttachmentOptimal,
+		vk::PipelineStageFlagBits::eTopOfPipe,
+		vk::PipelineStageFlagBits::eColorAttachmentOutput,
+		vk::ImageAspectFlagBits::eDepth);
 	
 	AddGraphicsPass<SkyboxPass>();
 	AddGraphicsPass<IndirectPrePass>();
@@ -472,7 +482,8 @@ void RenderSystem::CreateRenderPasses()
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::ImageLayout::eShaderReadOnlyOptimal,
 		vk::PipelineStageFlagBits::eColorAttachmentOutput,
-		vk::PipelineStageFlagBits::eFragmentShader);
+		vk::PipelineStageFlagBits::eFragmentShader,
+		vk::ImageAspectFlagBits::eColor);
 	
 	AddGraphicsPass<TransitionSwapchainImagePass>(
 		vk::AccessFlagBits::eNone,

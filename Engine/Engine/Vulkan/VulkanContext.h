@@ -75,9 +75,9 @@ private:
 	};
 
 private:
-	static VkBool32 DebugMessageCallback(
-		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-		VkDebugUtilsMessageTypeFlagsEXT messageType,
-		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+	static vk::Bool32 DebugMessageCallback(
+		vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+		vk::DebugUtilsMessageTypeFlagsEXT messageType,
+		const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData);
 };

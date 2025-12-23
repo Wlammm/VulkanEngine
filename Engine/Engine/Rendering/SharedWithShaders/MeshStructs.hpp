@@ -1,15 +1,7 @@
-#if __cplusplus
-#pragma once
-using vec4 = glm::vec4;
-using mat4 = glm::mat4;
-using vec3 = glm::vec3;
+#include "SharedHeader.hpp"
 
-#define ALIGNAS(x) alignas(x)
-#define DEFAULT_TO(x) = x
-#else
-#define ALIGNAS(x)
-#define DEFAULT_TO(x) 
-#endif
+#ifndef MESHSTRUCTS_H
+#define MESHSTRUCTS_H
 
 /*
  * Alignment rules in glsl:
@@ -64,3 +56,5 @@ struct PointLightData
     ALIGNAS(4) float myRange;
     ALIGNAS(4) float myIntensity;
 };
+
+#endif

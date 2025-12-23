@@ -19,7 +19,6 @@ class RenderSystem : public System
     inline static RenderSystem* myInstance = nullptr;
 public:
     inline static RenderSystem* Get() { return myInstance; }
-    
     RenderSystem();
     ~RenderSystem();
     
@@ -52,18 +51,16 @@ public:
     {
         glm::vec4 myColor;
         glm::vec3 myDirection;
-        float padding;
-        glm::mat4 myLightView;
-        glm::mat4 myLightProjection;
+        uint myCubemapIndex = (uint)-1;
     };
     VulkanBuffer* myDirectionalLightBuffer;
+    
     // FrameDescriptorSet.
     struct FrameData
     {
         glm::mat4 myToView;
         glm::mat4 myProjection;
         glm::vec3 myCameraPosition;
-        uint myCubemapIndex = (uint)-1;
     };
     VulkanBuffer* myFrameDataBuffer; 
     

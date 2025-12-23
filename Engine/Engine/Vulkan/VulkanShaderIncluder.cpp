@@ -17,7 +17,7 @@ VulkanShaderIncluder::~VulkanShaderIncluder()
 
 shaderc_include_result* VulkanShaderIncluder::GetInclude(const char* inRequestedSource, shaderc_include_type inType, const char* inRequestingSource, size_t inIncludeDepth)
 {
-    std::filesystem::path path = ResolvePath(inRequestedSource);
+    std::filesystem::path path = ResolvePath(inRequestedSource, inRequestingSource);
 
     shaderc_include_result* result = new shaderc_include_result();
     if (!std::filesystem::exists(path))
@@ -59,9 +59,19 @@ List<std::filesystem::path> VulkanShaderIncluder::GetIncludedFiles() const
     return includes;
 }
 
-std::filesystem::path VulkanShaderIncluder::ResolvePath(const char* inRequestedSource)
+std::filesystem::path VulkanShaderIncluder::ResolvePath(const char* inRequestedSource, const char* inRequestingSource)
 {
-    for (std::filesystem::path path : myExternalIncludePaths)
+    // Check relative path first.
+    {
+        std::filesystem::path path = inRequestingSource;
+        path = path.parent_path();
+        path += "/";
+        path += inRequestedSource;
+        if (std::filesystem::exists(path))
+            return path;
+    }
+    
+    for (std::filesystem::path path: myExternalIncludePaths)
     {
         path += inRequestedSource;
         
