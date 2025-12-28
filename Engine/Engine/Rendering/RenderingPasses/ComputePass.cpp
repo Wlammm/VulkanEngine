@@ -41,10 +41,7 @@ void ComputePass::CreateResources()
 void ComputePass::DestroyResources()
 {
     VulkanContext::GetDevice()->destroyPipeline(myPipeline);
-    myPipeline = nullptr;
-    
     VulkanContext::GetDevice()->destroyPipelineLayout(myPipelineLayout);
-    myPipelineLayout = nullptr;
 }
 
 void ComputePass::Execute(vk::CommandBuffer inCommandBuffer)

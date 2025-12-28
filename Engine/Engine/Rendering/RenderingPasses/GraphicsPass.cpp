@@ -11,36 +11,6 @@
 #include "Engine/Vulkan/VulkanPhysicalDevice.h"
 #include "Engine/Vulkan/VulkanSwapChain.h"
 
-using DescriptorBindingMap = std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding>;
-using DescriptorSetMap = std::unordered_map<uint32_t, DescriptorBindingMap>;
-void MergeShaderDescriptors(DescriptorSetMap& inOutDescriptorSets, SharedPtr<Shader> inShader)
-{
-    for (const DescriptorSetInfo& setInfo : inShader->GetDescriptorSetInfos())
-    {
-        DescriptorBindingMap& bindingMap = inOutDescriptorSets[setInfo.mySetIndex];
-        
-        for (const DescriptorBindingInfo& bindingInfo : setInfo.myBindings)
-        {
-            vk::DescriptorSetLayoutBinding& dest = bindingMap[bindingInfo.myBindingIndex];
-            
-            if (dest.descriptorType == vk::DescriptorType{})
-            {
-                dest.binding = bindingInfo.myBindingIndex;
-                dest.descriptorType = bindingInfo.myDescriptorType;
-                dest.descriptorCount = bindingInfo.myDescriptorCount;
-                dest.stageFlags = bindingInfo.myShaderStageFlags;
-            }
-            else
-            {
-                dest.stageFlags |= bindingInfo.myShaderStageFlags;
-                
-                check(dest.descriptorType == bindingInfo.myDescriptorType && "Shaders bound to the same pipeline needs to have the same descriptors on the same set slots");
-                check(dest.descriptorCount == bindingInfo.myDescriptorCount && "Shaders bound to the same pipeline needs to have the same descriptors on the same set slots");
-            }
-        }
-    }
-}
-
 GraphicsPass::GraphicsPass(const SourcePath& inVertexShaderPath, const SourcePath& inFragmentShaderPath, const bool inDynamicAttachments, const bool inNeedsBindlessTexturesDescriptor)
 {
     myHasDynamicAttachments = inDynamicAttachments;
@@ -133,15 +103,9 @@ void GraphicsPass::CreateResources()
     SetupAttachments();
     SetupDescriptors();
  
-    DescriptorSetMap setMap;
-    MergeShaderDescriptors(setMap, myVertexShader);
-    MergeShaderDescriptors(setMap, myFragmentShader);
-    
-    
-    
     // TODO: We should probably create some uniform descriptor set layouts both in shaders and in engine to make it easier to keep track of what is needed where.
     TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();
-
+    
     List<vk::DescriptorSetLayout> layouts{ myDescriptorSet.GetLayout() };
     
     if (myNeedsBindlessTextureDescriptor)

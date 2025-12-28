@@ -237,12 +237,7 @@ void VulkanContext::CreateDebugLayer()
 	pfnVkCmdBeginDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdBeginDebugUtilsLabelEXT>(myVulkanInstance.getProcAddr("vkCmdBeginDebugUtilsLabelEXT"));
 	pfnVkCmdEndDebugUtilsLabelEXT = reinterpret_cast<PFN_vkCmdEndDebugUtilsLabelEXT>(myVulkanInstance.getProcAddr("vkCmdEndDebugUtilsLabelEXT"));
 
-	vk::DebugUtilsMessengerCreateInfoEXT createInfo = vk::DebugUtilsMessengerCreateInfoEXT()
-		.setMessageSeverity(severityFlags)
-		.setMessageType(messageTypeFlags)
-		.setPfnUserCallback(&DebugMessageCallback)
-		.setPUserData(static_cast<void*>(this));
-	
+	vk::DebugUtilsMessengerCreateInfoEXT createInfo = vk::DebugUtilsMessengerCreateInfoEXT({}, severityFlags, messageTypeFlags, &DebugMessageCallback, static_cast<void*>(this));
 	myDebugMessenger = myVulkanInstance.createDebugUtilsMessengerEXT(createInfo);
 	LOG("Vulkan debug layer attached.");
 }
@@ -261,13 +256,12 @@ void VulkanContext::CreateDescriptorPool()
 	List<vk::DescriptorPoolSize> poolSizes;
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eUniformBuffer);
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eCombinedImageSampler);
-	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eStorageBuffer);
-	vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo().setPoolSizes(poolSizes).setMaxSets(1000).setFlags(vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind);
+	vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo().setPoolSizes(poolSizes).setMaxSets(1000);
 
 	myDescriptorPool = GetDevice()->createDescriptorPool(createInfo);
 }
 
-vk::Bool32 VulkanContext::DebugMessageCallback(vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity, vk::DebugUtilsMessageTypeFlagsEXT messageType, const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+VkBool32 VulkanContext::DebugMessageCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
 	std::ostringstream ss;
 

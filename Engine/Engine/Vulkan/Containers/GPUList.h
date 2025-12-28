@@ -25,7 +25,6 @@ public:
 template<typename ElementType> 
 class GPUList : public IGPUList
 {
-    constexpr static int SizeByteOffset = 4;
 public:
     ~GPUList()
     {
@@ -128,7 +127,9 @@ private:
     
     const uint GetOffsetToIndex(const uint inIndex)
     {
-        return sizeof(ElementType) * inIndex + SizeByteOffset;
+        constexpr int numElementsOffset = 16;
+        
+        return sizeof(ElementType) * inIndex + numElementsOffset;
     }
     
     void SetSize(const uint inSize)
@@ -156,7 +157,7 @@ private:
         
         // Create new buffer with required size.
         vk::BufferCreateInfo createInfo = myCreateInfo;
-        createInfo.setSize(inNewCapacity * sizeof(ElementType) + SizeByteOffset);
+        createInfo.setSize(inNewCapacity * sizeof(ElementType) + 16);
         myBuffer = VulkanAllocator::AllocateBuffer_TS(myBufferName, createInfo, myBufferMemoryUsage, false);
 
 #if ENABLE_GPU_DEBUGGING
@@ -173,7 +174,7 @@ private:
         
         // Copy old buffer into new buffer.
         VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
-        vk::BufferCopy copy = vk::BufferCopy().setSize(mySize * sizeof(ElementType) + SizeByteOffset);
+        vk::BufferCopy copy = vk::BufferCopy().setSize(mySize * sizeof(ElementType) + 16);
         commandBuffer->GetAPIResource().copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
 
         

@@ -68,7 +68,7 @@ static constexpr float FLOAT_MAX = 3.402823466e+38f;
 #include <vulkan/vulkan.hpp>
 #include <vma/vk_mem_alloc.h>
 
-#define USED_VULKAN_VERSION VK_API_VERSION_1_4
+#define USED_VULKAN_VERSION VK_API_VERSION_1_3
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_LEFT_HANDED

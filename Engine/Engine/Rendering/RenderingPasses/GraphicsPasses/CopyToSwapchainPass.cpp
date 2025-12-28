@@ -18,7 +18,6 @@ void CopyToSwapchainPass::SetupDescriptors()
 
 void CopyToSwapchainPass::SetupAttachments()
 {
-    AddDynamicColorAttachment(VulkanContext::GetSwapChain().GetFormat(), vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eStore);
     // We use dynamic attachments so do nothing here.
 }
 

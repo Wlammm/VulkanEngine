@@ -2,9 +2,6 @@
 #include "Type.h"
 #include "Engine/Core/UniquePtr.h"
 
-template<typename T>
-concept SizedType = requires { sizeof(T); };
-
 class ReflectionSystem 
 {
 public:
@@ -64,7 +61,7 @@ private:
     {
         constexpr size_t classSize = []() constexpr
         {
-            if constexpr (std::is_void_v<ClassType> || std::is_function_v<ClassType> || !SizedType<ClassType>)
+            if constexpr (std::is_void_v<ClassType> || std::is_function_v<ClassType>)
                 return size_t(0);
             else
                 return sizeof(std::remove_reference_t<ClassType>);
