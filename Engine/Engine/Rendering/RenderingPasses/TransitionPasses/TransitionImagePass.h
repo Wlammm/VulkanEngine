@@ -13,7 +13,8 @@ public:
         vk::ImageLayout inSrcLayout, 
         vk::ImageLayout inDstLayout, 
         vk::PipelineStageFlagBits inSrcStage, 
-        vk::PipelineStageFlagBits inDstStage);
+        vk::PipelineStageFlagBits inDstStage,
+        vk::ImageAspectFlags inAspectFlags);
     TransitionImagePass(
         vk::Image inImage, 
         vk::AccessFlagBits inSrcAccess, 
@@ -21,7 +22,8 @@ public:
         vk::ImageLayout inSrcLayout, 
         vk::ImageLayout inDstLayout, 
         vk::PipelineStageFlagBits inSrcStage, 
-        vk::PipelineStageFlagBits inDstStage);
+        vk::PipelineStageFlagBits inDstStage,
+        vk::ImageAspectFlags inAspectFlags);
     
     void CreateResources() override;
     void DestroyResources() override;
@@ -36,4 +38,5 @@ private:
     vk::ImageLayout myDstLayout;
     vk::PipelineStageFlagBits mySrcStage;
     vk::PipelineStageFlagBits myDstStage;
+    vk::ImageAspectFlags myAspectFlags;
 };

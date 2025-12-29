@@ -5408,6 +5408,16 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", Reflect
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Shader* instance = static_cast<Shader*>(inInstance);
+const List<DescriptorSetInfo> & result = instance->GetDescriptorSetInfos();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetDescriptorSetInfos", ReflectionSystem::GetOrCreateType<const List<DescriptorSetInfo> &>("const List<DescriptorSetInfo> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Shader* instance = static_cast<Shader*>(inInstance);
 const List<IncludeData> & arg0 = *(const List<IncludeData>*)inArguments[0];
 instance->CreateFilewatcherCallbacks(arg0);
 return nullptr;
@@ -9688,6 +9698,26 @@ Method& currentMethod = currentClass->AddMethod(Method("AddColorAttachment", Ref
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
+vk::Format& arg0 = *(vk::Format*)inArguments[0];
+vk::ImageLayout& arg1 = *(vk::ImageLayout*)inArguments[1];
+vk::AttachmentLoadOp& arg2 = *(vk::AttachmentLoadOp*)inArguments[2];
+vk::AttachmentStoreOp& arg3 = *(vk::AttachmentStoreOp*)inArguments[3];
+VulkanImage * arg4 = (VulkanImage*)inArguments[4];
+instance->AddDynamicColorAttachment(arg0, arg1, arg2, arg3, arg4);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inFormat", ReflectionSystem::GetOrCreateType<vk::Format>("vk::Format")));
+arguments.Add(MethodArgument("inLayout", ReflectionSystem::GetOrCreateType<vk::ImageLayout>("vk::ImageLayout")));
+arguments.Add(MethodArgument("inLoadOp", ReflectionSystem::GetOrCreateType<vk::AttachmentLoadOp>("vk::AttachmentLoadOp")));
+arguments.Add(MethodArgument("inStoreOp", ReflectionSystem::GetOrCreateType<vk::AttachmentStoreOp>("vk::AttachmentStoreOp")));
+arguments.Add(MethodArgument("myResolveImage", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *")));
+Method& currentMethod = currentClass->AddMethod(Method("AddDynamicColorAttachment", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
 VulkanImage * arg0 = (VulkanImage*)inArguments[0];
 vk::ImageLayout& arg1 = *(vk::ImageLayout*)inArguments[1];
 vk::AttachmentLoadOp& arg2 = *(vk::AttachmentLoadOp*)inArguments[2];
@@ -9998,6 +10028,9 @@ Method& currentMethod = currentClass->AddMethod(Method("DrawCall", ReflectionSys
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDstStage", -1, ReflectionSystem::GetOrCreateType<vk::PipelineStageFlagBits>("vk::PipelineStageFlagBits"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAspectFlags", -1, ReflectionSystem::GetOrCreateType<vk::Flags<vk::ImageAspectFlagBits>>("vk::Flags<vk::ImageAspectFlagBits>"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IRenderPass>());
 {
@@ -11284,11 +11317,13 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VulkanShaderIncluder* instance = static_cast<VulkanShaderIncluder*>(inInstance);
 const char * arg0 = (const char*)inArguments[0];
-static thread_local std::filesystem::path result = instance->ResolvePath(arg0);
+const char * arg1 = (const char*)inArguments[1];
+static thread_local std::filesystem::path result = instance->ResolvePath(arg0, arg1);
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inRequestedSource", ReflectionSystem::GetOrCreateType<const char *>("const char *")));
+arguments.Add(MethodArgument("inRequestingSource", ReflectionSystem::GetOrCreateType<const char *>("const char *")));
 Method& currentMethod = currentClass->AddMethod(Method("ResolvePath", ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), invoker, arguments));
 }
 }

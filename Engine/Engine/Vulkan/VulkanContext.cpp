@@ -256,12 +256,15 @@ void VulkanContext::CreateDescriptorPool()
 	List<vk::DescriptorPoolSize> poolSizes;
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eUniformBuffer);
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eCombinedImageSampler);
-	vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo().setPoolSizes(poolSizes).setMaxSets(1000);
+	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eStorageBuffer);
+	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eStorageBufferDynamic);
+	
+	vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo().setPoolSizes(poolSizes).setMaxSets(1000).setFlags(vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind);
 
 	myDescriptorPool = GetDevice()->createDescriptorPool(createInfo);
 }
 
-VkBool32 VulkanContext::DebugMessageCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+vk::Bool32 VulkanContext::DebugMessageCallback(vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity, vk::DebugUtilsMessageTypeFlagsEXT messageType, const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
 	std::ostringstream ss;
 

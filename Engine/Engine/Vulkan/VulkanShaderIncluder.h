@@ -15,7 +15,7 @@ public:
 
 	List<std::filesystem::path> GetIncludedFiles() const;
 	
-	std::filesystem::path ResolvePath(const char* inRequestedSource);
+	std::filesystem::path ResolvePath(const char* inRequestedSource, const char* inRequestingSource);
 private:
 	struct IncludeData
 	{

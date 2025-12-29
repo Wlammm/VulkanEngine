@@ -67,6 +67,26 @@ public:
         myColorFormats.Add(inImage->GetFormat());
     }
     
+    void AddDynamicColorAttachment(vk::Format inFormat, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myResolveImage = nullptr)
+    {
+        myColorAttachments.Emplace()
+            .setLoadOp(inLoadOp)
+            .setStoreOp(inStoreOp)
+            .setImageLayout(inLayout)
+            .setImageView(nullptr)
+            .setClearValue(vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })));
+        
+        if (myResolveImage)
+        {
+            myColorAttachments.Last()
+                .setResolveImageLayout(vk::ImageLayout::eColorAttachmentOptimal).
+                setResolveImageView(myResolveImage->GetImageView())
+                .setResolveMode(vk::ResolveModeFlagBits::eAverage);
+        }
+        
+        myColorFormats.Add(inFormat);
+    }
+    
     void AddDepthAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp)
     {
         myHasDepthAttachment = true;

@@ -91,7 +91,81 @@ void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sample
 void VulkanDescriptorSet::Build()
 {
 	ZoneScoped;
+	BuildLayoutAndAllocate();
+	UpdateDescriptors();
+}
+
+void VulkanDescriptorSet::Rebuild()
+{
+	UpdateDescriptors();
+}
+
+void VulkanDescriptorSet::BuildLayoutAndAllocate()
+{
 	List<vk::DescriptorSetLayoutBinding> layoutBindings{};
+	for(const BindingData<const VulkanBuffer*>& binding : myBuffers)
+	{
+		layoutBindings.Emplace()
+			.setDescriptorCount(1)
+			.setDescriptorType(binding.myDescriptorType)
+			.setStageFlags(binding.myShaderStages)
+			.setBinding(binding.myBindingIndex);
+	}
+	
+	for(const BindingData<const ResizableBuffer*>& binding : myResizableBuffer)
+	{
+		layoutBindings.Emplace()
+			.setDescriptorCount(1)
+			.setDescriptorType(binding.myDescriptorType)
+			.setStageFlags(binding.myShaderStages)
+			.setBinding(binding.myBindingIndex);
+	}
+	
+	for(const BindingData<const IGPUList*>& binding : myResizableBuffers)
+	{
+		layoutBindings.Emplace()
+			.setDescriptorCount(1)
+			.setDescriptorType(binding.myDescriptorType)
+			.setStageFlags(binding.myShaderStages)
+			.setBinding(binding.myBindingIndex);
+	}
+	
+	for(const BindingData<const VulkanImage*>& binding : myImages)
+	{
+		layoutBindings.Add(vk::DescriptorSetLayoutBinding()
+			.setBinding(binding.myBindingIndex)
+			.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+			.setDescriptorCount(1)
+			.setStageFlags(binding.myShaderStages)
+			.setPImmutableSamplers(nullptr));
+	}
+	
+	// Create layout
+	if(!myLayout)
+	{
+		std::vector<vk::DescriptorBindingFlags> bindingFlags(
+			layoutBindings.size(),
+			vk::DescriptorBindingFlagBits::eUpdateAfterBind
+		);
+		
+		vk::DescriptorSetLayoutBindingFlagsCreateInfo flagsInfo{};
+		flagsInfo.setBindingFlags(bindingFlags);
+		
+		vk::DescriptorSetLayoutCreateInfo createInfo = vk::DescriptorSetLayoutCreateInfo().setBindings(layoutBindings).setFlags(vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool).setPNext(&flagsInfo);
+		myLayout = VulkanContext::GetDevice()->createDescriptorSetLayout(createInfo);
+	}
+	
+	// Create set
+	vk::DescriptorSetAllocateInfo allocInfo = vk::DescriptorSetAllocateInfo()
+		.setDescriptorPool(VulkanContext::GetDescriptorPool())
+		.setSetLayouts(myLayout);
+
+	
+	mySet = VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front();
+}
+
+void VulkanDescriptorSet::UpdateDescriptors()
+{
 	List<vk::WriteDescriptorSet> setWrites{};
 	setWrites.Reserve(16);
 	
@@ -103,17 +177,10 @@ void VulkanDescriptorSet::Build()
 
 	for(const BindingData<const VulkanBuffer*>& binding : myBuffers)
 	{
-		layoutBindings.Emplace()
-		.setDescriptorCount(1)
-		.setDescriptorType(binding.myDescriptorType)
-		.setStageFlags(binding.myShaderStages)
-		.setBinding(binding.myBindingIndex);
-
 		bufferInfos.Emplace()
 			.setOffset(0)
 			.setBuffer(binding.myData->GetAPIResource())
-			.setRange(binding.myData->GetSize());
-
+			.setRange(VK_WHOLE_SIZE);
 		setWrites.Emplace()
 			.setDescriptorType(binding.myDescriptorType)
 			.setDstBinding(binding.myBindingIndex)
@@ -122,16 +189,10 @@ void VulkanDescriptorSet::Build()
 	
 	for(const BindingData<const ResizableBuffer*>& binding : myResizableBuffer)
 	{
-		layoutBindings.Emplace()
-		.setDescriptorCount(1)
-		.setDescriptorType(binding.myDescriptorType)
-		.setStageFlags(binding.myShaderStages)
-		.setBinding(binding.myBindingIndex);
-
 		bufferInfos.Emplace()
-			.setOffset(0)
-			.setBuffer(binding.myData->GetBuffer()->GetAPIResource())
-			.setRange(binding.myData->GetBuffer()->GetSize());
+				.setOffset(0)
+				.setBuffer(binding.myData->GetBuffer()->GetAPIResource())
+				.setRange(VK_WHOLE_SIZE);
 
 		setWrites.Emplace()
 			.setDescriptorType(binding.myDescriptorType)
@@ -141,32 +202,19 @@ void VulkanDescriptorSet::Build()
 	
 	for(const BindingData<const IGPUList*>& binding : myResizableBuffers)
 	{
-		layoutBindings.Emplace()
-		.setDescriptorCount(1)
-		.setDescriptorType(binding.myDescriptorType)
-		.setStageFlags(binding.myShaderStages)
-		.setBinding(binding.myBindingIndex);
-
 		bufferInfos.Emplace()
 			.setOffset(0)
 			.setBuffer(binding.myData->GetBuffer()->GetAPIResource())
-			.setRange(binding.myData->GetBuffer()->GetSize());
+			.setRange(VK_WHOLE_SIZE);
 
 		setWrites.Emplace()
 			.setDescriptorType(binding.myDescriptorType)
 			.setDstBinding(binding.myBindingIndex)
 			.setBufferInfo(bufferInfos.Last());
 	}
-
+	
 	for(const BindingData<const VulkanImage*>& binding : myImages)
 	{
-		layoutBindings.Add(vk::DescriptorSetLayoutBinding()
-		.setBinding(binding.myBindingIndex)
-		.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-		.setDescriptorCount(1)
-		.setStageFlags(binding.myShaderStages)
-		.setPImmutableSamplers(nullptr));
-
 		imageInfos.Emplace()
 			.setSampler(binding.mySampler)
 			.setImageView(binding.myData->GetImageView())
@@ -177,35 +225,11 @@ void VulkanDescriptorSet::Build()
 			.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
 			.setImageInfo(imageInfos.Last());
 	}
-
-	// Create layout
-	if(!myLayout)
-	{
-		vk::DescriptorSetLayoutCreateInfo createInfo = vk::DescriptorSetLayoutCreateInfo().setBindings(layoutBindings);
-		myLayout = VulkanContext::GetDevice()->createDescriptorSetLayout(createInfo);
-	}
-
-	// Create set
-	vk::DescriptorSetAllocateInfo allocInfo = vk::DescriptorSetAllocateInfo()
-		.setDescriptorPool(VulkanContext::GetDescriptorPool())
-		.setSetLayouts(myLayout);
-	mySet = VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front();
-
+	
 	// Update set
 	for(vk::WriteDescriptorSet& write : setWrites)
 	{
 		write.setDstSet(mySet);
 	}
 	VulkanContext::GetDevice()->updateDescriptorSets(setWrites, {});
-}
-
-void VulkanDescriptorSet::Rebuild()
-{
-	if(!myUsesSharedLayout)
-	{
-		VulkanContext::GetDevice()->destroyDescriptorSetLayout(myLayout);
-		myLayout = nullptr;
-	}
-	
-	Build();
 }

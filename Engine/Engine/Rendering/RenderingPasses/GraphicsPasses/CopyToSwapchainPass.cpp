@@ -18,7 +18,7 @@ void CopyToSwapchainPass::SetupDescriptors()
 
 void CopyToSwapchainPass::SetupAttachments()
 {
-    // We use dynamic attachments so do nothing here.
+    AddDynamicColorAttachment(VulkanContext::GetSwapChain().GetFormat(), vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eStore);
 }
 
 vk::SampleCountFlagBits CopyToSwapchainPass::GetNumSamples() const

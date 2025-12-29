@@ -24,6 +24,9 @@ public:
 	void Rebuild();
 	
 private:
+	void BuildLayoutAndAllocate();
+	void UpdateDescriptors();
+	
 	template<typename Type>
 	struct BindingData
 	{

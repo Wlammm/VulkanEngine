@@ -447,7 +447,8 @@ void RenderSystem::CreateRenderPasses()
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::PipelineStageFlagBits::eTopOfPipe,
-		vk::PipelineStageFlagBits::eColorAttachmentOutput);
+		vk::PipelineStageFlagBits::eColorAttachmentOutput,
+		vk::ImageAspectFlagBits::eColor);
 	
 	AddGraphicsPass<TransitionImagePass>(
 	RenderSystem::Get()->myRenderTexture,
@@ -456,7 +457,18 @@ void RenderSystem::CreateRenderPasses()
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::PipelineStageFlagBits::eTopOfPipe,
-		vk::PipelineStageFlagBits::eColorAttachmentOutput);
+		vk::PipelineStageFlagBits::eColorAttachmentOutput,
+		vk::ImageAspectFlagBits::eColor);
+	
+	AddGraphicsPass<TransitionImagePass>(
+	RenderSystem::Get()->myDepthBuffer,
+		vk::AccessFlagBits::eNone,
+		vk::AccessFlagBits::eColorAttachmentWrite,
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eDepthAttachmentOptimal,
+		vk::PipelineStageFlagBits::eTopOfPipe,
+		vk::PipelineStageFlagBits::eColorAttachmentOutput,
+		vk::ImageAspectFlagBits::eDepth);
 	
 	AddGraphicsPass<SkyboxPass>();
 	AddGraphicsPass<IndirectPrePass>();
@@ -472,7 +484,8 @@ void RenderSystem::CreateRenderPasses()
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::ImageLayout::eShaderReadOnlyOptimal,
 		vk::PipelineStageFlagBits::eColorAttachmentOutput,
-		vk::PipelineStageFlagBits::eFragmentShader);
+		vk::PipelineStageFlagBits::eFragmentShader,
+		vk::ImageAspectFlagBits::eColor);
 	
 	AddGraphicsPass<TransitionSwapchainImagePass>(
 		vk::AccessFlagBits::eNone,

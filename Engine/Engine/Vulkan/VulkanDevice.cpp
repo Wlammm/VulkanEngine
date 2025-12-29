@@ -24,8 +24,14 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	vulkan12Features.drawIndirectCount = VK_TRUE;
 	vulkan12Features.descriptorBindingPartiallyBound = VK_TRUE;
 	vulkan12Features.runtimeDescriptorArray = VK_TRUE;
-	vulkan12Features.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
 	vulkan12Features.descriptorBindingVariableDescriptorCount = VK_TRUE;
+	
+	vulkan12Features.scalarBlockLayout = VK_TRUE;
+	vulkan12Features.descriptorBindingStorageBufferUpdateAfterBind = VK_TRUE;
+	vulkan12Features.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
+	vulkan12Features.descriptorBindingUniformBufferUpdateAfterBind = VK_TRUE;
+	vulkan12Features.descriptorBindingStorageTexelBufferUpdateAfterBind = VK_TRUE;
+	vulkan12Features.descriptorBindingUniformTexelBufferUpdateAfterBind = VK_TRUE;
 
 	vk::PhysicalDeviceVulkan11Features vulkan11Features{};
 	vulkan12Features.pNext = &vulkan11Features;
