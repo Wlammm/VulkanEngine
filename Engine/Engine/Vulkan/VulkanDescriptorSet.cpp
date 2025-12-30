@@ -76,6 +76,16 @@ void VulkanDescriptorSet::BindBuffer(const class IGPUList* inBuffer, vk::ShaderS
 		inBuffer->GetOnBufferResized().Bind(&VulkanDescriptorSet::Rebuild, this);
 }
 
+void VulkanDescriptorSet::BindSampler(vk::Sampler inSampler, vk::ShaderStageFlags inShaderStages, uint inBindingIndex)
+{
+	BindingData<vk::Sampler> data{};
+	data.myData = inSampler;
+	data.myBindingIndex = inBindingIndex;
+	data.myShaderStages = inShaderStages;
+	data.myDescriptorType = vk::DescriptorType::eSampler;
+	mySamplers.Add(data);
+}
+
 void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags, const vk::ImageLayout inImageLayout)
 {
 	BindingData<const VulkanImage*> data;
@@ -85,7 +95,7 @@ void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sample
 	data.myDescriptorType = vk::DescriptorType::eCombinedImageSampler;
 	data.myImageLayout = inImageLayout;
 	data.mySampler = inSampler;
-	myImages.Add(data);
+	mySampledImages.Add(data);
 }
 
 void VulkanDescriptorSet::Build()
@@ -130,7 +140,7 @@ void VulkanDescriptorSet::BuildLayoutAndAllocate()
 			.setBinding(binding.myBindingIndex);
 	}
 	
-	for(const BindingData<const VulkanImage*>& binding : myImages)
+	for(const BindingData<const VulkanImage*>& binding : mySampledImages)
 	{
 		layoutBindings.Add(vk::DescriptorSetLayoutBinding()
 			.setBinding(binding.myBindingIndex)
@@ -138,6 +148,16 @@ void VulkanDescriptorSet::BuildLayoutAndAllocate()
 			.setDescriptorCount(1)
 			.setStageFlags(binding.myShaderStages)
 			.setPImmutableSamplers(nullptr));
+	}
+	
+	for (const BindingData<vk::Sampler>& binding : mySamplers)
+	{
+		layoutBindings.Add(
+			vk::DescriptorSetLayoutBinding()
+				.setDescriptorCount(1)
+				.setBinding(binding.myBindingIndex)
+				.setDescriptorType(binding.myDescriptorType)
+				.setStageFlags(binding.myShaderStages));
 	}
 	
 	// Create layout
@@ -173,7 +193,7 @@ void VulkanDescriptorSet::UpdateDescriptors()
 	bufferInfos.Reserve(myBuffers.size() + myResizableBuffer.size() + myResizableBuffers.size());
 	
 	List<vk::DescriptorImageInfo> imageInfos{};
-	imageInfos.Reserve(myImages.size());
+	imageInfos.Reserve(mySampledImages.size());
 
 	for(const BindingData<const VulkanBuffer*>& binding : myBuffers)
 	{
@@ -213,7 +233,7 @@ void VulkanDescriptorSet::UpdateDescriptors()
 			.setBufferInfo(bufferInfos.Last());
 	}
 	
-	for(const BindingData<const VulkanImage*>& binding : myImages)
+	for(const BindingData<const VulkanImage*>& binding : mySampledImages)
 	{
 		imageInfos.Emplace()
 			.setSampler(binding.mySampler)
@@ -224,6 +244,16 @@ void VulkanDescriptorSet::UpdateDescriptors()
 			.setDstBinding(binding.myBindingIndex)
 			.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
 			.setImageInfo(imageInfos.Last());
+	}
+	
+	for (const BindingData<vk::Sampler>& binding : mySamplers)
+	{
+		vk::DescriptorImageInfo samplerInfo{};
+		samplerInfo.setSampler(binding.myData);
+		setWrites.Emplace()
+			.setDstBinding(binding.myBindingIndex)
+			.setDescriptorType(binding.myDescriptorType)
+			.setImageInfo(samplerInfo);
 	}
 	
 	// Update set

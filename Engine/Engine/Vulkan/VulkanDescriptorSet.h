@@ -17,6 +17,8 @@ public:
 	void BindBuffer(const class ResizableBuffer* inBuffer, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::DescriptorType inDescriptorType);
 	void BindBuffer(const class IGPUList* inBuffer, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::DescriptorType inDescriptorType);
 	
+	void BindSampler(vk::Sampler inSampler, vk::ShaderStageFlags inShaderStages, uint inBindingIndex);
+	
 	void BindImage(const class VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags, const vk::ImageLayout inImageLayout = vk::ImageLayout::eReadOnlyOptimal);
 	
 	void Build();
@@ -44,7 +46,9 @@ private:
 	// TODO: Remove old resizable buffer.
 	List<BindingData<const ResizableBuffer*>> myResizableBuffer{};
 	List<BindingData<const IGPUList*>> myResizableBuffers{};
-	List<BindingData<const VulkanImage*>> myImages{};
+	List<BindingData<const VulkanImage*>> mySampledImages{};
+	List<BindingData<vk::Sampler>> mySamplers{};
+	
 	
 	// If a layout is passed in as constructor we do not want to handle deletion of it.
 	bool myUsesSharedLayout = false;

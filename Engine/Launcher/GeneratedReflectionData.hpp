@@ -64,6 +64,7 @@
 #include "../Engine/Components/CameraComponent.h"
 #include "../Editor/Toolbar/Themes/EditorThemes.h"
 #include "../Engine/Components/CapsuleColliderComponent.h"
+#include "../Engine/Rendering/DXCompiler.h"
 #include "../Engine/Components/DirectionalLightComponent.h"
 #include "../Editor/EditorPch.h"
 #include "../Engine/Components/EditorCameraMovementComponent.h"
@@ -366,6 +367,7 @@ ReflectionSystem::AddType<LandscapeRenderComponent>("LandscapeRenderComponent", 
 ReflectionSystem::AddType<CameraComponent>("CameraComponent", typeid(CameraComponent).name());
 ReflectionSystem::AddType<EditorThemes>("EditorThemes", typeid(EditorThemes).name());
 ReflectionSystem::AddType<CapsuleColliderComponent>("CapsuleColliderComponent", typeid(CapsuleColliderComponent).name());
+ReflectionSystem::AddType<DXCompiler>("DXCompiler", typeid(DXCompiler).name());
 ReflectionSystem::AddType<DirectionalLightComponent>("DirectionalLightComponent", typeid(DirectionalLightComponent).name());
 ReflectionSystem::AddType<EditorCameraMovementComponent>("EditorCameraMovementComponent", typeid(EditorCameraMovementComponent).name());
 ReflectionSystem::AddType<WorldSystem>("WorldSystem", typeid(WorldSystem).name());
@@ -5322,6 +5324,10 @@ Method& currentMethod = currentClass->AddMethod(Method("GetSerializationMeshData
 		Field& currentField = currentClass->AddField(Field("myCallbackHandle", offsetof(Shader, myCallbackHandle), ReflectionSystem::GetOrCreateType<Filewatcher::CallbackHandle>("Filewatcher::CallbackHandle"), false, false));
 	}
 	{
+		Field& currentField = currentClass->AddField(Field("myEntryPoint", offsetof(Shader, myEntryPoint), ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
 		Field& currentField = currentClass->AddField(Field("myShaderBinary", offsetof(Shader, myShaderBinary), ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
@@ -5408,11 +5414,45 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAPIResource", Reflect
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 Shader* instance = static_cast<Shader*>(inInstance);
+const std::basic_string<char> & result = instance->GetEntryPoint();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetEntryPoint", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Shader* instance = static_cast<Shader*>(inInstance);
 const List<DescriptorSetInfo> & result = instance->GetDescriptorSetInfos();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetDescriptorSetInfos", ReflectionSystem::GetOrCreateType<const List<DescriptorSetInfo> &>("const List<DescriptorSetInfo> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Shader* instance = static_cast<Shader*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+instance->CompileGlslToSpv(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inShaderSource", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("CompileGlslToSpv", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Shader* instance = static_cast<Shader*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+instance->CompileHlslToSpv(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inShaderSource", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("CompileHlslToSpv", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -6441,6 +6481,19 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("OnScaleChanged", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<DXCompiler>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+DXCompiler* instance = static_cast<DXCompiler*>(inInstance);
+instance->InitDXC();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("InitDXC", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -8468,6 +8521,22 @@ arguments.Add(MethodArgument("inShaderStages", ReflectionSystem::GetOrCreateType
 arguments.Add(MethodArgument("inBindingIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
 arguments.Add(MethodArgument("inDescriptorType", ReflectionSystem::GetOrCreateType<vk::DescriptorType>("vk::DescriptorType")));
 Method& currentMethod = currentClass->AddMethod(Method("BindBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
+vk::Sampler& arg0 = *(vk::Sampler*)inArguments[0];
+vk::Flags<vk::ShaderStageFlagBits>& arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
+unsigned int& arg2 = *(unsigned int*)inArguments[2];
+instance->BindSampler(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSampler", ReflectionSystem::GetOrCreateType<vk::Sampler>("vk::Sampler")));
+arguments.Add(MethodArgument("inShaderStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::ShaderStageFlagBits>>("vk::Flags<vk::ShaderStageFlagBits>")));
+arguments.Add(MethodArgument("inBindingIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("BindSampler", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

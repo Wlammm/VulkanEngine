@@ -159,6 +159,7 @@ project "Launcher"
 		"%{EXTERNAL}/aftermath/lib/GFSDK_Aftermath_Lib.x64.lib",
 		"%{VULKAN_SDK}/Lib/shaderc_shared.lib",
 		"%{VULKAN_SDK}/Lib/shaderc_util.lib",
+		"%{VULKAN_SDK}/Lib/dxcompiler.lib",
 		"%{VULKAN_SDK}/Lib/spirv-cross-cored.lib",
 		"%{VULKAN_SDK}/Lib/spirv-cross-cppd.lib",
 		"%{VULKAN_SDK}/Lib/spirv-cross-glsld.lib",

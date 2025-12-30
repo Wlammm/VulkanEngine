@@ -64,6 +64,11 @@ static constexpr float FLOAT_MAX = 3.402823466e+38f;
 
 #include "Engine/Utils/StdIncludes.hpp"
 
+// ------ DXC ------
+#include <dxcapi.h>
+#include <wrl/client.h>
+using Microsoft::WRL::ComPtr;
+
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan.hpp>
 #include <vma/vk_mem_alloc.h>

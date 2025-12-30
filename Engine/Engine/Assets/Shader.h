@@ -60,12 +60,17 @@ public:
 
     vk::ShaderModule GetAPIResource() const;
     
+    const std::string& GetEntryPoint() const { return myEntryPoint; }
+    
     const List<DescriptorSetInfo>& GetDescriptorSetInfos() const;
 
     // Called whenever the shader gets hot reloaded due to the the file being changed.
     MulticastDelegate<void()> OnShaderRecompiled;
     
 private:
+    void CompileGlslToSpv(const std::string& inShaderSource);
+    void CompileHlslToSpv(const std::string& inShaderSource);
+    
     void CreateFilewatcherCallbacks(const List<IncludeData>& inIncludePaths);
     void RemoveFilewatcherCallbacks();
 
@@ -78,6 +83,9 @@ private:
     vk::ShaderModule myShaderModule;
 
     Filewatcher::CallbackHandle myCallbackHandle;
+    
+    META(SerializeField)
+    std::string myEntryPoint;
     
     META(SerializeField)
     List<uint32_t> myShaderBinary;

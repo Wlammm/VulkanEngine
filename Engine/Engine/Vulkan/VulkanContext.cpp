@@ -10,7 +10,7 @@
 #include "Tracy/tracy/Tracy.hpp"
 #include "VulkanUtils.hpp"
 #include "Aftermath/NvidiaAftermathTracker.h"
-
+#include "Engine/Rendering/DXCompiler.h"
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(VkInstance instance,
@@ -56,6 +56,8 @@ VulkanContext::VulkanContext()
 	CreateInstance();
 	CreateDebugLayer();
 
+	DXCompiler::InitDXC();
+	
 	myPhysicalDevice = MakeUnique<VulkanPhysicalDevice>();
 	
 	if(Engine::GetEngineProperties().HasStartupArgument("-aftermath"))
@@ -215,7 +217,7 @@ void VulkanContext::CreateInstance()
 
 void VulkanContext::CreateDebugLayer()
 {
-#ifndef DEBUG
+#if SHIPPING
 	if(!Engine::GetEngineProperties().HasStartupArgument("-VulkanDebug"))
 		return;
 #endif
@@ -244,7 +246,7 @@ void VulkanContext::CreateDebugLayer()
 
 void VulkanContext::DestroyDebugLayer()
 {
-#ifndef DEBUG
+#if SHIPPING
 	if (!Engine::GetEngineProperties().HasStartupArgument("-VulkanDebug"))
 		return;
 #endif
@@ -258,6 +260,7 @@ void VulkanContext::CreateDescriptorPool()
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eCombinedImageSampler);
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eStorageBuffer);
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eStorageBufferDynamic);
+	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eSampler);
 	
 	vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo().setPoolSizes(poolSizes).setMaxSets(1000).setFlags(vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind);
 

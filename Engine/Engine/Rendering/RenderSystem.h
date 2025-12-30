@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/System/System.h"
 
-#if DEBUG
+#if !SHIPPING
 #define GPUMARK_SCOPE(inCommandBuffer, inString) inCommandBuffer.beginDebugUtilsLabelEXT(inString); ON_SCOPE_EXIT([inCommandBuffer](){ inCommandBuffer.endDebugUtilsLabelEXT(); })
 #else
 #define GPUMARK_SCOPE(inCommandBuffer, inString)

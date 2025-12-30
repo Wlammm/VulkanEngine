@@ -12,7 +12,7 @@
 #include "Engine/World/World.h"
 
 SkyboxPass::SkyboxPass()
-    : GraphicsPass("Shaders/Skybox.vert", "Shaders/Skybox.frag")
+    : GraphicsPass("Shaders/Skybox.vert", "Shaders/SkyboxPS.hlsl")
 {
     mySkybox = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Texture>("Assets/Cubemaps/sunflowers_puresky_4k.hdr");
     mySkyboxModel = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Model>("Assets/Primitives/Sphere.fbx");
@@ -41,6 +41,8 @@ void SkyboxPass::SetupDescriptors()
         vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
         0, 
         vk::DescriptorType::eUniformBuffer);
+    
+    myDescriptorSet.BindSampler(VulkanUtils::GetSampler(SamplerMode::LinearWrap), vk::ShaderStageFlagBits::eFragment, 2);
     myDescriptorSet.Build();
 }
 

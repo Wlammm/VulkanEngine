@@ -2,8 +2,10 @@
 #include "Shader.h"
 
 #include <shaderc/shaderc.hpp>
+#include <dxc/dxcapi.h>
 
 #include "Engine/Engine.h"
+#include "Engine/Rendering/DXCompiler.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
 #include "Engine/Vulkan/VulkanShaderIncluder.h"
@@ -26,6 +28,11 @@ vk::ShaderStageFlagBits GetStageFromModule(const SpvReflectShaderModule& module)
     default:
         return vk::ShaderStageFlagBits::eAll;
     }
+}
+
+bool IsHlslShader(const SourcePath& inSourcePath)
+{
+    return inSourcePath.extension() == ".hlsl";
 }
 
 shaderc_shader_kind GetKindFromExtension(const std::string& inExtension)
@@ -53,43 +60,24 @@ void Shader::LoadPropertiesFromSource()
 {
     Asset::LoadPropertiesFromSource();
     
+    check(std::filesystem::exists(GetSourcePath()));
+    
     std::ifstream stream(GetSourcePath());
     std::stringstream ss;
     ss << stream.rdbuf();
     stream.close();
     std::string shaderSource = ss.str();
-    shaderc::Compiler compiler;
-    shaderc::CompileOptions options;
-    options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_3);
-    options.SetWarningsAsErrors();
-    options.SetGenerateDebugInfo();
-    options.SetTargetSpirv(shaderc_spirv_version_1_5);
-    options.SetOptimizationLevel(shaderc_optimization_level_performance);
+    
 
-    // Create the unique ptr and grab a raw pointer from it before passing it to the compiler so we can grab include data afterwards.
-    std::unique_ptr<VulkanShaderIncluder> uniqueIncluder = std::make_unique<VulkanShaderIncluder>();
-    VulkanShaderIncluder* includer = uniqueIncluder.get();
-    options.SetIncluder(std::move(uniqueIncluder));
-	
-    shaderc::SpvCompilationResult result = compiler.CompileGlslToSpv(shaderSource, GetKindFromExtension(GetSourcePath().extension().string()), GetSourcePath().filename().string().c_str(), options);
-
-    if (result.GetCompilationStatus() != shaderc_compilation_status_success)
+    const bool isHlslShader = IsHlslShader(GetSourcePath());
+    
+    if (isHlslShader)
     {
-        LOG_ERROR("SHADER COMPILE ERROR [%s]: ", GetSourcePath().filename().string().c_str());
-        LOG_ERROR("%s", result.GetErrorMessage().c_str());
-
-        // Throw error if we dont already have a valid shader module from previously.
-        check(myShaderModule);
-        return;
+        CompileHlslToSpv(shaderSource);
     }
-    
-    // TODO: Maybe we should add support for iterator initialization to lists so we dont have to do this extra copy.
-    myShaderBinary = std::vector<uint32_t>{result.cbegin(), result.cend() };
-    
-    myIncludes.Clear();
-    for (const SourcePath& includePath : includer->GetIncludedFiles())
+    else
     {
-        myIncludes.Add({includePath, std::filesystem::last_write_time(includePath) });
+        CompileGlslToSpv(shaderSource);
     }
     
     GenerateReflectionInfo();
@@ -136,6 +124,124 @@ vk::ShaderModule Shader::GetAPIResource() const
 const List<DescriptorSetInfo>& Shader::GetDescriptorSetInfos() const
 {
     return myDescriptorSets;
+}
+
+void Shader::CompileGlslToSpv(const std::string& inShaderSource)
+{
+    myEntryPoint = "main";
+    shaderc::Compiler compiler;
+    shaderc::CompileOptions options;
+    options.SetTargetEnvironment(shaderc_target_env_vulkan, shaderc_env_version_vulkan_1_4);
+    options.SetWarningsAsErrors();
+    options.SetGenerateDebugInfo();
+    options.SetTargetSpirv(shaderc_spirv_version_1_5);
+    options.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+    // Create the unique ptr and grab a raw pointer from it before passing it to the compiler so we can grab include data afterwards.
+    std::unique_ptr<VulkanShaderIncluder> uniqueIncluder = std::make_unique<VulkanShaderIncluder>();
+    VulkanShaderIncluder* includer = uniqueIncluder.get();
+    options.SetIncluder(std::move(uniqueIncluder));
+	
+    shaderc::SpvCompilationResult result = compiler.CompileGlslToSpv(inShaderSource, GetKindFromExtension(GetSourcePath().extension().string()), GetSourcePath().filename().string().c_str(), options);
+
+    if (result.GetCompilationStatus() != shaderc_compilation_status_success)
+    {
+        LOG_ERROR("SHADER COMPILE ERROR [%s]: ", GetSourcePath().filename().string().c_str());
+        LOG_ERROR("%s", result.GetErrorMessage().c_str());
+
+        // Throw error if we dont already have a valid shader module from previously.
+        check(myShaderModule);
+        return;
+    }
+    
+    // TODO: Maybe we should add support for iterator initialization to lists so we dont have to do this extra copy.
+    myShaderBinary = std::vector<uint32_t>{result.cbegin(), result.cend() };
+    
+    myIncludes.Clear();
+    for (const SourcePath& includePath : includer->GetIncludedFiles())
+    {
+        myIncludes.Add({includePath, std::filesystem::last_write_time(includePath) });
+    }
+}
+
+bool IsHlslVertexShader(const std::string& inShaderSource)
+{
+    // TODO: This is a really slow way of finding out the shader type but works for now.
+    return inShaderSource.contains("VSMain");
+}
+
+bool IsHlslFragmentShader(const std::string& inShaderSource)
+{
+    return inShaderSource.contains("PSMain");
+}
+
+void Shader::CompileHlslToSpv(const std::string& inShaderSource)
+{
+    // Create source buffer
+    DxcBuffer sourceBuffer{};
+    sourceBuffer.Ptr = inShaderSource.data();
+    sourceBuffer.Size = inShaderSource.size();
+    sourceBuffer.Encoding = DXC_CP_UTF8;
+    
+    std::wstring profile;
+    if (IsHlslVertexShader(inShaderSource))
+    {
+        myEntryPoint = "VSMain";
+        profile = L"vs_6_6";
+    }
+    else if (IsHlslFragmentShader(inShaderSource))
+    {
+        myEntryPoint = "PSMain";
+        profile = L"ps_6_6";
+    }
+    else
+        check(false && "No valid entry point found.");
+    
+    
+    std::wstring wideEntryPointString = String::ToWString(myEntryPoint);
+    // Arguments (VERY IMPORTANT)
+    std::vector<LPCWSTR> args = {
+        L"-spirv",
+        L"-fspv-target-env=vulkan1.3",
+        L"-E", wideEntryPointString.c_str(),
+        L"-T", profile.c_str(),
+        L"-Zpr",            // row-major (matches GLSL std140 expectations better)
+        L"-O3",
+#if DEBUG
+        L"-Zi",
+        L"-Qembed_debug",
+#endif
+    };
+
+    ComPtr<IDxcResult> result;
+    HRESULT hr = DXCompiler::gDxcCompiler->Compile(
+        &sourceBuffer,
+        args.data(),
+        (uint32_t)args.size(),
+        nullptr, // include handler (we’ll fix this next)
+        IID_PPV_ARGS(&result)
+    );
+
+    check(SUCCEEDED(hr));
+
+    // Get errors
+    ComPtr<IDxcBlobUtf8> errors;
+    result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr);
+
+    if (errors && errors->GetStringLength() > 0)
+    {
+        LOG_ERROR("Failed to compile hlsl shader [%s]: %s", GetSourcePath().string().c_str(), errors->GetStringPointer());
+        check(false);
+    }
+
+    // Get SPIR-V
+    ComPtr<IDxcBlob> spirvBlob;
+    result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&spirvBlob), nullptr);
+
+    check(spirvBlob && "Failed to generate spv output from shader.");
+
+    myShaderBinary.Resize(static_cast<ListSizeType>(spirvBlob->GetBufferSize() / sizeof(uint32_t)));
+    memcpy(myShaderBinary.data(), spirvBlob->GetBufferPointer(), spirvBlob->GetBufferSize());
 }
 
 void Shader::CreateFilewatcherCallbacks(const List<IncludeData>& inIncludePaths)

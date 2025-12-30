@@ -71,13 +71,6 @@ void VulkanSwapChain::EndFrame()
 		myFences[mySyncIndex]);
 
 	check(submitResult == vk::Result::eSuccess);
-	
-	//VulkanContext::GetDevice().GetGraphicsQueue().submit(vk::SubmitInfo()
-	//	.setWaitDstStageMask(pipelineStageFlags)
-	//	.setWaitSemaphores(myImageAcquiredSemaphores[mySyncIndex])
-	//	.setCommandBuffers(GetCommandBuffer())
-	//	.setSignalSemaphores(myDrawCompleteSemaphores[mySyncIndex]),
-	//	myFences[mySyncIndex]);
 
 	const vk::PresentInfoKHR presentInfo = vk::PresentInfoKHR()
 		.setWaitSemaphores(myDrawCompleteSemaphores[myFrameIndex])

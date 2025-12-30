@@ -78,6 +78,7 @@
 #include "../Engine/Reflection\Method.h"
 #include "../Engine/Reflection\ReflectionSystem.h"
 #include "../Engine/Reflection\Type.h"
+#include "../Engine/Rendering\DXCompiler.h"
 #include "../Engine/Rendering\IndexBufferHandle.h"
 #include "../Engine/Rendering\IndexBufferSystem.h"
 #include "../Engine/Rendering\Mesh.h"
