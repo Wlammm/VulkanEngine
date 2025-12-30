@@ -257,7 +257,7 @@ void ReflectionParser::BuildCommandLineArgs(std::vector<const char*>& outCommand
     outCommandLineArgs.push_back("-D_WCHAR_T_DEFINED=1");
     
     // Ensure MSVC standard library is used first
-    outCommandLineArgs.push_back("-I");
+    outCommandLineArgs.push_back("-isystem");
     outCommandLineArgs.push_back("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/include");
 
     outCommandLineArgs.push_back("-DREFLECTION_GENERATION=1");
@@ -523,7 +523,7 @@ CXChildVisitResult ReflectionParser::HandleClassDeclaration(CXCursor inCurrentCu
 {
     const std::string className = GetDisplayName(inCurrentCursor);
     
-    if (className.contains("UniquePtr<Actor>"))
+    if (className.contains("std::basic_string"))
     {
         int a = 10;
     }
@@ -546,11 +546,6 @@ CXChildVisitResult ReflectionParser::HandleClassDeclaration(CXCursor inCurrentCu
     // We need shared_ptr's to be added as we use them for the asset registry. Their template arguments are needed.
     if (IsSystemsHeader(location) && !isSharedPtr)
         return CXChildVisit_Continue;
-
-    if (className.contains("hash"))
-    {
-         int a =1;
-    }
     
     if (!clang_isCursorDefinition(inCurrentCursor))
         return CXChildVisit_Continue;
@@ -633,13 +628,7 @@ CXChildVisitResult ReflectionParser::HandleClassDeclaration(CXCursor inCurrentCu
 
 bool ReflectionParser::IsSystemsHeader(CXSourceLocation inSourceLocation)
 {
-    if (clang_Location_isInSystemHeader(inSourceLocation))
-        return true;
-
-    std::string filePath = GetFileName(inSourceLocation);
-    
-    // Hardcoded as libclang doesnt recognize all systems headers correctly. 
-    return filePath.contains(")VC/Tools/MSVC");
+    return clang_Location_isInSystemHeader(inSourceLocation);
 }
 
 std::string ReflectionParser::ReplaceBadTypeNames(const std::string& inTypeName)
