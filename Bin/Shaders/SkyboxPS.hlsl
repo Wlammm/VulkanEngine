@@ -35,5 +35,5 @@ float4 PSMain(PSInput input) : SV_Target
 {
     float3 viewDir = normalize(input.inModelFragPos);
     float2 uv = SampleSphericalMap(viewDir);
-    return textures[NonUniformResourceIndex(1)].Sample(linearSampler, uv);
+    return textures[1].Sample(linearSampler, uv);
 }
