@@ -12,7 +12,7 @@
 #include "Engine/World/World.h"
 
 SkyboxPass::SkyboxPass()
-    : GraphicsPass("Shaders/Skybox.vert", "Shaders/SkyboxPS.hlsl")
+    : GraphicsPass("Shaders/SkyboxVS.hlsl", "Shaders/SkyboxPS.hlsl")
 {
     mySkybox = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Texture>("Assets/Cubemaps/sunflowers_puresky_4k.hdr");
     mySkyboxModel = Engine::GetEngineSystem<AssetRegistry>().GetAssetSynchronous<Model>("Assets/Primitives/Sphere.fbx");

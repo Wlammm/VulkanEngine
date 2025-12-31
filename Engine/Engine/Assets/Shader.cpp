@@ -205,7 +205,7 @@ void Shader::CompileHlslToSpv(const std::string& inShaderSource)
         L"-fspv-target-env=vulkan1.3",
         L"-E", wideEntryPointString.c_str(),
         L"-T", profile.c_str(),
-        L"-Zpr",            // row-major (matches GLSL std140 expectations better)
+        //L"-Zpr",            // row-major (matches GLSL std140 expectations better)
         L"-O3",
 #if DEBUG
         L"-Zi",

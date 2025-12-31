@@ -11,9 +11,8 @@ public:
 
     Color ToColor() const;
 
-private:
-    float myR;
-    float myG;
-    float myB;
-    float myA;
+    float R;
+    float G;
+    float B;
+    float A;
 };
