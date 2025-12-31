@@ -1,12 +1,13 @@
 ﻿#pragma once
 #include "Engine/Rendering/RenderingPasses/ComputePass.h"
 
-class IndirectPrePass : public ComputePass
+class IndirectPrePass : public IRenderPass
 {
 public:
     IndirectPrePass();
+
+    void CreateResources() override;
+    void DestroyResources() override;
     
-    void SetupDescriptors() override;
-    
-    void DispatchCall(vk::CommandBuffer inCommandBuffer) override;
+    void Execute(vk::CommandBuffer inCommandBuffer) override;
 };

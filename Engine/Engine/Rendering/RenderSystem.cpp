@@ -575,13 +575,13 @@ void RenderSystem::CreateBuffers()
     myCountBuffer = VulkanAllocator::AllocateBuffer_TS("IndirectDrawCount Buffer",
         vk::BufferCreateInfo()
         .setSize(sizeof(uint))
-        .setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer),
+        .setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst),
         VMA_MEMORY_USAGE_AUTO);
 
 	myCountNoDepthBuffer = VulkanAllocator::AllocateBuffer_TS("IndirectDrawCount NoDepth Buffer",
 		vk::BufferCreateInfo()
 		.setSize(sizeof(uint))
-		.setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer),
+		.setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst),
 		VMA_MEMORY_USAGE_AUTO);
     
     const uint numObjects = objectSystem.GetNumObjects() != 0 ? objectSystem.GetNumObjects() : 4;

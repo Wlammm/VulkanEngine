@@ -9195,28 +9195,38 @@ Method& currentMethod = currentClass->AddMethod(Method("DispatchCall", Reflectio
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<IndirectPrePass>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ComputePass>());
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IRenderPass>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 IndirectPrePass* instance = static_cast<IndirectPrePass*>(inInstance);
-instance->SetupDescriptors();
+instance->CreateResources();
 return nullptr;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("CreateResources", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+IndirectPrePass* instance = static_cast<IndirectPrePass*>(inInstance);
+instance->DestroyResources();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DestroyResources", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 IndirectPrePass* instance = static_cast<IndirectPrePass*>(inInstance);
 vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
-instance->DispatchCall(arg0);
+instance->Execute(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
-Method& currentMethod = currentClass->AddMethod(Method("DispatchCall", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
