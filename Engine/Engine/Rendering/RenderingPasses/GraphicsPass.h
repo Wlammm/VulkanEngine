@@ -91,7 +91,7 @@ public:
         myColorFormats.Add(inFormat);
     }
     
-    void AddDepthAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp)
+    void AddDepthAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myDepthResolveImage = nullptr)
     {
         myHasDepthAttachment = true;
         myDepthAttachment
@@ -100,6 +100,14 @@ public:
             .setImageLayout(inLayout)
             .setImageView(inImage->GetImageView())
             .setClearValue(vk::ClearDepthStencilValue(1.0f, 0u));
+        
+        if (myDepthResolveImage)
+        {
+            myDepthAttachment
+                .setResolveImageLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal)
+                .setResolveImageView(myDepthResolveImage->GetImageView())
+                .setResolveMode(vk::ResolveModeFlagBits::eAverage);
+        }
         
         myDepthFormat = inImage->GetFormat();
     }

@@ -8,21 +8,22 @@ class TransitionImagePass : public IRenderPass
 public:
     TransitionImagePass(
         VulkanImage* inImage, 
-        vk::AccessFlagBits inSrcAccess, 
-        vk::AccessFlagBits inDstAccess, 
+        vk::AccessFlags inSrcAccess, 
+        vk::AccessFlags inDstAccess, 
         vk::ImageLayout inSrcLayout, 
         vk::ImageLayout inDstLayout, 
-        vk::PipelineStageFlagBits inSrcStage, 
-        vk::PipelineStageFlagBits inDstStage,
+        vk::PipelineStageFlags inSrcStage, 
+        vk::PipelineStageFlags inDstStage,
         vk::ImageAspectFlags inAspectFlags);
+    
     TransitionImagePass(
         vk::Image inImage, 
-        vk::AccessFlagBits inSrcAccess, 
-        vk::AccessFlagBits inDstAccess, 
+        vk::AccessFlags inSrcAccess, 
+        vk::AccessFlags inDstAccess, 
         vk::ImageLayout inSrcLayout, 
         vk::ImageLayout inDstLayout, 
-        vk::PipelineStageFlagBits inSrcStage, 
-        vk::PipelineStageFlagBits inDstStage,
+        vk::PipelineStageFlags inSrcStage, 
+        vk::PipelineStageFlags inDstStage,
         vk::ImageAspectFlags inAspectFlags);
     
     void CreateResources() override;
@@ -32,11 +33,11 @@ public:
     
 private:
     vk::Image myImage = nullptr;
-    vk::AccessFlagBits mySrcAccess;
-    vk::AccessFlagBits myDstAccess;
+    vk::AccessFlags mySrcAccess;
+    vk::AccessFlags myDstAccess;
     vk::ImageLayout mySrcLayout;
     vk::ImageLayout myDstLayout;
-    vk::PipelineStageFlagBits mySrcStage;
-    vk::PipelineStageFlagBits myDstStage;
+    vk::PipelineStageFlags mySrcStage;
+    vk::PipelineStageFlags myDstStage;
     vk::ImageAspectFlags myAspectFlags;
 };

@@ -7323,6 +7323,16 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDepthTexture", Reflec
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+VulkanImage * result = instance->GetResolvedDepthTexture();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetResolvedDepthTexture", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
 instance->OnSwapChainResize();
 return nullptr;
 });
@@ -9439,7 +9449,8 @@ VulkanImage * arg0 = (VulkanImage*)inArguments[0];
 vk::ImageLayout& arg1 = *(vk::ImageLayout*)inArguments[1];
 vk::AttachmentLoadOp& arg2 = *(vk::AttachmentLoadOp*)inArguments[2];
 vk::AttachmentStoreOp& arg3 = *(vk::AttachmentStoreOp*)inArguments[3];
-instance->AddDepthAttachment(arg0, arg1, arg2, arg3);
+VulkanImage * arg4 = (VulkanImage*)inArguments[4];
+instance->AddDepthAttachment(arg0, arg1, arg2, arg3, arg4);
 return nullptr;
 });
 List<MethodArgument> arguments{};
@@ -9447,6 +9458,7 @@ arguments.Add(MethodArgument("inImage", ReflectionSystem::GetOrCreateType<Vulkan
 arguments.Add(MethodArgument("inLayout", ReflectionSystem::GetOrCreateType<vk::ImageLayout>("vk::ImageLayout")));
 arguments.Add(MethodArgument("inLoadOp", ReflectionSystem::GetOrCreateType<vk::AttachmentLoadOp>("vk::AttachmentLoadOp")));
 arguments.Add(MethodArgument("inStoreOp", ReflectionSystem::GetOrCreateType<vk::AttachmentStoreOp>("vk::AttachmentStoreOp")));
+arguments.Add(MethodArgument("myDepthResolveImage", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *")));
 Method& currentMethod = currentClass->AddMethod(Method("AddDepthAttachment", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
@@ -9759,10 +9771,10 @@ Method& currentMethod = currentClass->AddMethod(Method("DrawCall", ReflectionSys
 		Field& currentField = currentClass->AddField(Field("myImage", -1, ReflectionSystem::GetOrCreateType<vk::Image>("vk::Image"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySrcAccess", -1, ReflectionSystem::GetOrCreateType<vk::AccessFlagBits>("vk::AccessFlagBits"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySrcAccess", -1, ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDstAccess", -1, ReflectionSystem::GetOrCreateType<vk::AccessFlagBits>("vk::AccessFlagBits"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDstAccess", -1, ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySrcLayout", -1, ReflectionSystem::GetOrCreateType<vk::ImageLayout>("vk::ImageLayout"), false, false));
@@ -9771,10 +9783,10 @@ Method& currentMethod = currentClass->AddMethod(Method("DrawCall", ReflectionSys
 		Field& currentField = currentClass->AddField(Field("myDstLayout", -1, ReflectionSystem::GetOrCreateType<vk::ImageLayout>("vk::ImageLayout"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("mySrcStage", -1, ReflectionSystem::GetOrCreateType<vk::PipelineStageFlagBits>("vk::PipelineStageFlagBits"), false, false));
+		Field& currentField = currentClass->AddField(Field("mySrcStage", -1, ReflectionSystem::GetOrCreateType<vk::Flags<vk::PipelineStageFlagBits>>("vk::Flags<vk::PipelineStageFlagBits>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDstStage", -1, ReflectionSystem::GetOrCreateType<vk::PipelineStageFlagBits>("vk::PipelineStageFlagBits"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDstStage", -1, ReflectionSystem::GetOrCreateType<vk::Flags<vk::PipelineStageFlagBits>>("vk::Flags<vk::PipelineStageFlagBits>"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myAspectFlags", -1, ReflectionSystem::GetOrCreateType<vk::Flags<vk::ImageAspectFlagBits>>("vk::Flags<vk::ImageAspectFlagBits>"), false, false));

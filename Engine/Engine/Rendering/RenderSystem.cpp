@@ -90,6 +90,11 @@ VulkanImage* RenderSystem::GetDepthTexture()
 	return myDepthBuffer;
 }
 
+class VulkanImage* RenderSystem::GetResolvedDepthTexture() const
+{
+	return myResolvedDepthTexture;
+}
+
 void RenderSystem::OnSwapChainResize()
 {
 	DestroyRenderResources();
@@ -449,6 +454,16 @@ void RenderSystem::CreateRenderPasses()
 		vk::PipelineStageFlagBits::eTopOfPipe,
 		vk::PipelineStageFlagBits::eColorAttachmentOutput,
 		vk::ImageAspectFlagBits::eColor);
+	
+	AddGraphicsPass<TransitionImagePass>(
+		myResolvedDepthTexture,
+		vk::AccessFlagBits::eNone,
+		vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eDepthAttachmentOptimal,
+		vk::PipelineStageFlagBits::eTopOfPipe,
+		vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests,
+		vk::ImageAspectFlagBits::eDepth);
 	
 	AddGraphicsPass<TransitionImagePass>(
 	RenderSystem::Get()->myRenderTexture,

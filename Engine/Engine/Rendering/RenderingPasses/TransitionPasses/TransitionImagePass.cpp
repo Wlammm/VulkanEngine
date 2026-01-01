@@ -6,12 +6,12 @@
 
 TransitionImagePass::TransitionImagePass(
     VulkanImage* inImage, 
-    vk::AccessFlagBits inSrcAccess, 
-    vk::AccessFlagBits inDstAccess,
+    vk::AccessFlags inSrcAccess, 
+    vk::AccessFlags inDstAccess,
     vk::ImageLayout inSrcLayout, 
     vk::ImageLayout inDstLayout, 
-    vk::PipelineStageFlagBits inSrcStage,
-    vk::PipelineStageFlagBits inDstStage,
+    vk::PipelineStageFlags inSrcStage,
+    vk::PipelineStageFlags inDstStage,
     vk::ImageAspectFlags inAspectFlags)
 {
     myImage = inImage->GetAPIResource();
@@ -26,12 +26,12 @@ TransitionImagePass::TransitionImagePass(
 
 TransitionImagePass::TransitionImagePass(
     vk::Image inImage, 
-    vk::AccessFlagBits inSrcAccess, 
-    vk::AccessFlagBits inDstAccess,
+    vk::AccessFlags inSrcAccess, 
+    vk::AccessFlags inDstAccess,
     vk::ImageLayout inSrcLayout, 
     vk::ImageLayout inDstLayout, 
-    vk::PipelineStageFlagBits inSrcStage,
-    vk::PipelineStageFlagBits inDstStage,
+    vk::PipelineStageFlags inSrcStage,
+    vk::PipelineStageFlags inDstStage,
     vk::ImageAspectFlags inAspectFlags)
 {
     myImage = inImage;

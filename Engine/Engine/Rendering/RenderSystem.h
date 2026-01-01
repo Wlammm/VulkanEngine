@@ -29,6 +29,7 @@ public:
     class VulkanImage* GetRenderTexture();
     class VulkanImage* GetResolvedRenderTexture() const;
     class VulkanImage* GetDepthTexture();
+    class VulkanImage* GetResolvedDepthTexture() const;
 
     void OnSwapChainResize();
 
