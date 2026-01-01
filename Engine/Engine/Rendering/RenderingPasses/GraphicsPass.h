@@ -40,6 +40,10 @@ public:
     // Do the draw calls here.
     virtual void DrawCall(vk::CommandBuffer inCommandBuffer) = 0;
     
+    virtual List<vk::VertexInputBindingDescription>& GetVertexBindingDescriptor() const;
+    virtual List<vk::VertexInputAttributeDescription>& GetVertexAttributeDescriptions() const;
+    virtual vk::PrimitiveTopology GetPrimitiveTopology() const;
+    
     void Execute(vk::CommandBuffer inCommandBuffer) override;
     
     void CreateResources() override;

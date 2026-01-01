@@ -34,6 +34,21 @@ vk::SampleCountFlagBits GraphicsPass::GetNumSamples() const
     return VulkanContext::GetPhysicalDevice().GetMaxMSAASamples();
 }
 
+List<vk::VertexInputBindingDescription>& GraphicsPass::GetVertexBindingDescriptor() const
+{
+    return Vertex::GetBindingDescriptions();
+}
+
+List<vk::VertexInputAttributeDescription>& GraphicsPass::GetVertexAttributeDescriptions() const
+{
+    return Vertex::GetAttributeDescriptions();
+}
+
+vk::PrimitiveTopology GraphicsPass::GetPrimitiveTopology() const
+{
+    return vk::PrimitiveTopology::eTriangleList;
+}
+
 void GraphicsPass::Execute(vk::CommandBuffer inCommandBuffer)
 {
 #if !SHIPPING
@@ -118,9 +133,9 @@ void GraphicsPass::CreateResources()
         vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(myFragmentShader->GetAPIResource()).setPName(myFragmentShader->GetEntryPoint().c_str()),
     };
     
-    vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo().setVertexAttributeDescriptions(Vertex::GetAttributeDescriptions()).setVertexBindingDescriptions(Vertex::GetBindingDescriptions());
+    vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo().setVertexAttributeDescriptions(GetVertexAttributeDescriptions()).setVertexBindingDescriptions(GetVertexBindingDescriptor());
 
-    const vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo = vk::PipelineInputAssemblyStateCreateInfo().setTopology(vk::PrimitiveTopology::eTriangleList);
+    const vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo = vk::PipelineInputAssemblyStateCreateInfo().setTopology(GetPrimitiveTopology());
     const vk::PipelineViewportStateCreateInfo viewportInfo = vk::PipelineViewportStateCreateInfo().setViewportCount(1).setScissorCount(1);
     const vk::PipelineRasterizationStateCreateInfo rasterizationInfo = vk::PipelineRasterizationStateCreateInfo()
         .setDepthClampEnable(VK_FALSE)

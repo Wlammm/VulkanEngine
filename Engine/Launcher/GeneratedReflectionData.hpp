@@ -9323,6 +9323,36 @@ Method& currentMethod = currentClass->AddMethod(Method("GetNumSamples", Reflecti
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
+List<vk::VertexInputBindingDescription> & result = instance->GetVertexBindingDescriptor();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetVertexBindingDescriptor", ReflectionSystem::GetOrCreateType<List<vk::VertexInputBindingDescription> &>("List<vk::VertexInputBindingDescription> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
+List<vk::VertexInputAttributeDescription> & result = instance->GetVertexAttributeDescriptions();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetVertexAttributeDescriptions", ReflectionSystem::GetOrCreateType<List<vk::VertexInputAttributeDescription> &>("List<vk::VertexInputAttributeDescription> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
+static thread_local vk::PrimitiveTopology result = instance->GetPrimitiveTopology();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetPrimitiveTopology", ReflectionSystem::GetOrCreateType<vk::PrimitiveTopology>("vk::PrimitiveTopology"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
 vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
 instance->Execute(arg0);
 return nullptr;
@@ -9556,6 +9586,36 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+DebugPass* instance = static_cast<DebugPass*>(inInstance);
+List<vk::VertexInputBindingDescription> & result = instance->GetVertexBindingDescriptor();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetVertexBindingDescriptor", ReflectionSystem::GetOrCreateType<List<vk::VertexInputBindingDescription> &>("List<vk::VertexInputBindingDescription> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+DebugPass* instance = static_cast<DebugPass*>(inInstance);
+List<vk::VertexInputAttributeDescription> & result = instance->GetVertexAttributeDescriptions();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetVertexAttributeDescriptions", ReflectionSystem::GetOrCreateType<List<vk::VertexInputAttributeDescription> &>("List<vk::VertexInputAttributeDescription> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+DebugPass* instance = static_cast<DebugPass*>(inInstance);
+static thread_local vk::PrimitiveTopology result = instance->GetPrimitiveTopology();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetPrimitiveTopology", ReflectionSystem::GetOrCreateType<vk::PrimitiveTopology>("vk::PrimitiveTopology"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

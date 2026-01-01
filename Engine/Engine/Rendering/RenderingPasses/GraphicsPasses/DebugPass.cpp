@@ -23,13 +23,45 @@ DebugPass::~DebugPass()
 
 void DebugPass::SetupAttachments()
 {
-    AddColorAttachment(RenderSystem::Get()->myRenderTexture, vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);
+    AddColorAttachment(RenderSystem::Get()->myRenderTexture, vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore, RenderSystem::Get()->GetResolvedRenderTexture());
+    AddDepthAttachment(RenderSystem::Get()->myDepthBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);
 }
 
 void DebugPass::SetupDescriptors()
 {
     myDescriptorSet.BindBuffer(myFrameDataBuffer, vk::ShaderStageFlagBits::eVertex, 0, vk::DescriptorType::eUniformBuffer);
     myDescriptorSet.Build();
+}
+
+List<vk::VertexInputBindingDescription>& DebugPass::GetVertexBindingDescriptor() const
+{
+    static List<vk::VertexInputBindingDescription> bindingDescriptions;
+
+    DO_ONCE(
+        bindingDescriptions.Add(vk::VertexInputBindingDescription()
+            .setBinding(0)
+            .setStride(sizeof(DebugVertex))
+            .setInputRate(vk::VertexInputRate::eVertex)
+        );
+    );
+
+    return bindingDescriptions;
+}
+
+List<vk::VertexInputAttributeDescription>& DebugPass::GetVertexAttributeDescriptions() const
+{
+    static List<vk::VertexInputAttributeDescription> descs{};
+
+    DO_ONCE(
+        descs.Add({ 0, 0, vk::Format::eR32G32B32Sfloat, offsetof(DebugVertex, myPosition) });
+        descs.Add({ 1, 0, vk::Format::eR32Sint, offsetof(DebugVertex, myColor) });
+    );
+    return descs;
+}
+
+vk::PrimitiveTopology DebugPass::GetPrimitiveTopology() const
+{
+    return vk::PrimitiveTopology::eLineList;
 }
 
 void DebugPass::DrawCall(vk::CommandBuffer inCommandBuffer)

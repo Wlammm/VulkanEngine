@@ -26,6 +26,7 @@
 #include "Serialization/TypeSerializers/TypeSerializer.h"
 #include "System/SystemManager.hpp"
 #include "Systems/PointLightSystem.h"
+#include "Utils/Debug.h"
 #include "Vulkan/GPUSceneSystem.h"
 #include "Vulkan/Staging/StagingSystem.h"
 #include "World/GameWorld.h"
@@ -84,21 +85,6 @@ Engine::~Engine()
 
 void Engine::Tick()
 {
-#if 0 // Serialization testing.
-	BinarySerializer serializer("SomeFile.format", BinarySerializer::Mode::Write);
-	TestClass testClass;
-	testClass.SomeField = 321534534;
-	testClass.SomeFloat = 321321321.232154f;
-	serializer.SerializeClass(testClass);
-	serializer.Close();
-
-	TestClass readClass;
-	BinarySerializer reader("SomeFile.format", BinarySerializer::Mode::Read);
-	reader.SerializeClass(readClass);
-	reader.Close();
-	exit(0);
-#endif	
-
 	myFrameIndex++;
 	FrameMark;
 	ZoneScoped;
@@ -122,6 +108,8 @@ void Engine::Tick()
 		TickNextFrame.Clear();
 		ticksThisFrame.Invoke();
 	}
+	
+	Debug::DrawSphere(glm::vec3(0, 0, 0), 100);
 	
 	AutoInitManager::Tick();
 	
