@@ -6,6 +6,7 @@
 
 #include "Engine/Engine.h"
 #include "Engine/Rendering/DXCompiler.h"
+#include "Engine/Vulkan/HlslShaderIncluder.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
 #include "Engine/Vulkan/VulkanShaderIncluder.h"
@@ -199,30 +200,43 @@ void Shader::CompileHlslToSpv(const std::string& inShaderSource)
     
     
     std::wstring wideEntryPointString = String::ToWString(myEntryPoint);
-    // Arguments (VERY IMPORTANT)
+    
     std::vector<LPCWSTR> args = {
         L"-spirv",
         L"-fspv-target-env=vulkan1.3",
         L"-E", wideEntryPointString.c_str(),
         L"-T", profile.c_str(),
-        //L"-Zpr",            // row-major (matches GLSL std140 expectations better)
         L"-O3",
+        L"-HV",
+        L"2021",
+        L"-WX",
 #if DEBUG
         L"-Zi",
         L"-Qembed_debug",
 #endif
     };
 
+    ComPtr<IDxcUtils> utils = DXCompiler::gDxcUtils;
+
+    std::filesystem::path shaderDir = GetSourcePath().parent_path();
+    ComPtr<IDxcIncludeHandler> includeHandler = new HlslShaderIncluder(utils.Get(), shaderDir);
+    
     ComPtr<IDxcResult> result;
     HRESULT hr = DXCompiler::gDxcCompiler->Compile(
         &sourceBuffer,
         args.data(),
         (uint32_t)args.size(),
-        nullptr, // include handler (we’ll fix this next)
+        includeHandler.Get(),
         IID_PPV_ARGS(&result)
     );
-
+    
     check(SUCCEEDED(hr));
+    
+    myIncludes.Clear();
+    for (const std::filesystem::path& path : static_cast<HlslShaderIncluder*>(includeHandler.Get())->GetIncludedFiles())
+    {
+        myIncludes.Add({ path, std::filesystem::last_write_time(path) });
+    }
 
     // Get errors
     ComPtr<IDxcBlobUtf8> errors;

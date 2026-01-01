@@ -7,7 +7,7 @@
 #include "Engine/World/World.h"
 
 DebugPass::DebugPass()
-    : GraphicsPass("Shaders/Debug.vert", "Shaders/Debug.frag", false, false)
+    : GraphicsPass("Shaders/DebugVS.hlsl", "Shaders/DebugPS.hlsl", false, false)
 {
     myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
         "FrameDataBuffer",

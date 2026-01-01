@@ -33,6 +33,7 @@
 #include "../Editor/EditorSystem/SelectionSystem.h"
 #include "../Engine/Serialization/TypeSerializers/PathSerializer.h"
 #include "../Editor/ImGui/AdvancedDrawers/AssetPropertyDrawer.h"
+#include "../Engine/Vulkan/HlslShaderIncluder.h"
 #include "../Engine/ComponentSystem/Actors/StaticMeshActor.h"
 #include "../Engine/Vulkan/VulkanCommandBuffer.h"
 #include "../Editor/ImGui/AdvancedDrawers/ListPropertyDrawer.h"
@@ -255,6 +256,7 @@ ReflectionSystem::AddType<Material>("Material", typeid(Material).name());
 ReflectionSystem::AddType<SelectionSystem>("SelectionSystem", typeid(SelectionSystem).name());
 ReflectionSystem::AddType<PathSerializer>("PathSerializer", typeid(PathSerializer).name());
 ReflectionSystem::AddType<AssetPropertyDrawer>("AssetPropertyDrawer", typeid(AssetPropertyDrawer).name());
+ReflectionSystem::AddType<HlslShaderIncluder>("HlslShaderIncluder", typeid(HlslShaderIncluder).name());
 ReflectionSystem::AddType<StaticMeshActor>("StaticMeshActor", typeid(StaticMeshActor).name());
 ReflectionSystem::AddType<VulkanCommandBuffer>("VulkanCommandBuffer", typeid(VulkanCommandBuffer).name());
 ReflectionSystem::AddType<ListPropertyDrawer>("ListPropertyDrawer", typeid(ListPropertyDrawer).name());
@@ -344,8 +346,8 @@ ReflectionSystem::AddType<List<vk::Format>>("List<vk::Format>", typeid(List<vk::
 ReflectionSystem::AddType<List<vk::Framebuffer>>("List<vk::Framebuffer>", typeid(List<vk::Framebuffer>).name());
 ReflectionSystem::AddType<List<VertexBufferHandle *>>("List<VertexBufferHandle *>", typeid(List<VertexBufferHandle *>).name());
 ReflectionSystem::AddType<List<VertexBufferData>>("List<VertexBufferData>", typeid(List<VertexBufferData>).name());
-ReflectionSystem::AddType<List<vk::QueueFamilyProperties>>("List<vk::QueueFamilyProperties>", typeid(List<vk::QueueFamilyProperties>).name());
 ReflectionSystem::AddType<List<std::filesystem::path>>("List<std::filesystem::path>", typeid(List<std::filesystem::path>).name());
+ReflectionSystem::AddType<List<vk::QueueFamilyProperties>>("List<vk::QueueFamilyProperties>", typeid(List<vk::QueueFamilyProperties>).name());
 ReflectionSystem::AddType<List<vk::Fence>>("List<vk::Fence>", typeid(List<vk::Fence>).name());
 ReflectionSystem::AddType<List<vk::Semaphore>>("List<vk::Semaphore>", typeid(List<vk::Semaphore>).name());
 ReflectionSystem::AddType<List<vk::Image>>("List<vk::Image>", typeid(List<vk::Image>).name());
@@ -2135,6 +2137,80 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inInstance", ReflectionSystem::GetOrCreateType<void *>("void *")));
 arguments.Add(MethodArgument("inField", ReflectionSystem::GetOrCreateType<const Field &>("const Field &")));
 Method& currentMethod = currentClass->AddMethod(Method("Draw", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<HlslShaderIncluder>();
+	{
+		Field& currentField = currentClass->AddField(Field("myRefCount", -1, ReflectionSystem::GetOrCreateType<std::atomic<unsigned long>>("std::atomic<unsigned long>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myUtils", -1, ReflectionSystem::GetOrCreateType<IDxcUtils>("IDxcUtils"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBaseDir", -1, ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIncludedFiles", -1, ReflectionSystem::GetOrCreateType<List<std::filesystem::path>>("List<std::filesystem::path>"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IDxcIncludeHandler>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+HlslShaderIncluder* instance = static_cast<HlslShaderIncluder*>(inInstance);
+const _GUID & arg0 = *(const _GUID*)inArguments[0];
+void ** arg1 = (void **)inArguments[1];
+static thread_local long result = instance->QueryInterface(arg0, arg1);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("riid", ReflectionSystem::GetOrCreateType<const _GUID &>("const _GUID &")));
+arguments.Add(MethodArgument("ppvObject", ReflectionSystem::GetOrCreateType<void **>("void **")));
+Method& currentMethod = currentClass->AddMethod(Method("QueryInterface", ReflectionSystem::GetOrCreateType<long>("long"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+HlslShaderIncluder* instance = static_cast<HlslShaderIncluder*>(inInstance);
+static thread_local unsigned long result = instance->AddRef();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("AddRef", ReflectionSystem::GetOrCreateType<unsigned long>("unsigned long"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+HlslShaderIncluder* instance = static_cast<HlslShaderIncluder*>(inInstance);
+static thread_local unsigned long result = instance->Release();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Release", ReflectionSystem::GetOrCreateType<unsigned long>("unsigned long"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+HlslShaderIncluder* instance = static_cast<HlslShaderIncluder*>(inInstance);
+const wchar_t * arg0 = (const wchar_t*)inArguments[0];
+IDxcBlob ** arg1 = (IDxcBlob **)inArguments[1];
+static thread_local long result = instance->LoadSource(arg0, arg1);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("pFilename", ReflectionSystem::GetOrCreateType<const wchar_t *>("const wchar_t *")));
+arguments.Add(MethodArgument("ppIncludeSource", ReflectionSystem::GetOrCreateType<IDxcBlob **>("IDxcBlob **")));
+Method& currentMethod = currentClass->AddMethod(Method("LoadSource", ReflectionSystem::GetOrCreateType<long>("long"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+HlslShaderIncluder* instance = static_cast<HlslShaderIncluder*>(inInstance);
+const List<std::filesystem::path> & result = instance->GetIncludedFiles();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetIncludedFiles", ReflectionSystem::GetOrCreateType<const List<std::filesystem::path> &>("const List<std::filesystem::path> &"), invoker, arguments));
 }
 }
 { 
@@ -6358,14 +6434,14 @@ Method& currentMethod = currentClass->AddMethod(Method("OnModelChangedFromInspec
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VertexBufferData>("VertexBufferData"), false, false);
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::QueueFamilyProperties>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::QueueFamilyProperties>("vk::QueueFamilyProperties"), false, false);
-}
-{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<std::filesystem::path>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::QueueFamilyProperties>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<vk::QueueFamilyProperties>("vk::QueueFamilyProperties"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<vk::Fence>>();
