@@ -24,3 +24,8 @@ void PointLightSystem::RemoveLight(const PointLightInstanceIndex inLightInstance
 {
     myPointLightBuffer.Remove(inLightInstance);
 }
+
+uint PointLightSystem::GetNumPointLights() const
+{
+    return myPointLightBuffer.Size();
+}

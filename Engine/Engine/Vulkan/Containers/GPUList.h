@@ -127,15 +127,12 @@ private:
     
     const uint GetOffsetToIndex(const uint inIndex)
     {
-        constexpr int numElementsOffset = 16;
-        
-        return sizeof(ElementType) * inIndex + numElementsOffset;
+        return sizeof(ElementType) * inIndex;
     }
     
     void SetSize(const uint inSize)
     {
         mySize = inSize;
-        myBuffer->SetData(&mySize, sizeof(uint), 0);
     }
     
     void EnsureCapacityForAdds(const uint inNumAdds)
@@ -157,7 +154,7 @@ private:
         
         // Create new buffer with required size.
         vk::BufferCreateInfo createInfo = myCreateInfo;
-        createInfo.setSize(inNewCapacity * sizeof(ElementType) + 16);
+        createInfo.setSize(inNewCapacity * sizeof(ElementType));
         myBuffer = VulkanAllocator::AllocateBuffer_TS(myBufferName, createInfo, myBufferMemoryUsage, false);
 
 #if ENABLE_GPU_DEBUGGING
@@ -174,7 +171,7 @@ private:
         
         // Copy old buffer into new buffer.
         VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
-        vk::BufferCopy copy = vk::BufferCopy().setSize(mySize * sizeof(ElementType) + 16);
+        vk::BufferCopy copy = vk::BufferCopy().setSize(mySize * sizeof(ElementType));
         commandBuffer->GetAPIResource().copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
 
         
@@ -202,6 +199,10 @@ private:
         OnGPUBufferResized.Invoke();
     }
     
+    uint Size() const
+    {
+        return mySize;
+    }
     
 private:
 #if ENABLE_GPU_DEBUGGING

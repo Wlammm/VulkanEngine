@@ -20,6 +20,8 @@ public:
 
     const IGPUList* GetBuffer() const { return &myPointLightBuffer; }
     
+    uint GetNumPointLights() const;
+    
 private:
     GPUSparseDenseBuffer<PointLightData> myPointLightBuffer;
     

@@ -35,6 +35,12 @@ void NoDepthPass::SetupDescriptors()
         vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 
         4, 
         vk::DescriptorType::eStorageBuffer);
+    
+    myDescriptorSet.BindBuffer(
+       RenderSystem::Get()->mySceneHeaderBuffer,
+       vk::ShaderStageFlagBits::eFragment, 
+       5, 
+       vk::DescriptorType::eUniformBuffer);
 	
     myDescriptorSet.Build();
 }

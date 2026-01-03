@@ -38,6 +38,12 @@ struct IndexBufferData
     ALIGNAS(4) uint myCount;
 };
 
+struct ALIGNAS(16) SceneHeader
+{
+    ALIGNAS(4) uint myNumMeshInstances DEFAULT_TO(0);
+    ALIGNAS(4) uint myNumPointLights DEFAULT_TO(0);
+};
+
 struct ALIGNAS(16) MeshInstanceData
 {
     ALIGNAS(16) float4x4 myToWorld;

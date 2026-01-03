@@ -62,6 +62,8 @@ void RenderSystem::Tick()
 {
 	ZoneScoped;
 	
+	BuildSceneHeader();
+	
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
 
@@ -175,6 +177,14 @@ void RenderSystem::QueueCommandBufferForUpload_TS(VulkanCommandBuffer* commandBu
 {
 	std::scoped_lock lock(myUploadMutex);
 	myQueuedUploadCommandBuffers.Add(commandBuffer);
+}
+
+void RenderSystem::BuildSceneHeader() const
+{
+	SceneHeader header;
+	header.myNumMeshInstances = Engine::GetEngineSystem<GPUSceneSystem>().GetNumObjects();
+	header.myNumPointLights = Engine::GetEngineSystem<PointLightSystem>().GetNumPointLights();
+	mySceneHeaderBuffer->SetData(header);
 }
 
 void RenderSystem::AddRenderPasses(vk::CommandBuffer inCommandBuffer)
@@ -441,6 +451,7 @@ void RenderSystem::DestroyRenderResources()
 	VulkanAllocator::DestroyBuffer_TS(myCountNoDepthBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myDirectionalLightBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
+	VulkanAllocator::DestroyBuffer_TS(mySceneHeaderBuffer);
 }
 
 void RenderSystem::CreateRenderPasses()
@@ -637,4 +648,6 @@ void RenderSystem::CreateBuffers()
         VulkanBuffer::UniformBufferCreateInfo(sizeof(DirectionalLightBuffer)), 
         VMA_MEMORY_USAGE_AUTO, 
         true);
+	
+	mySceneHeaderBuffer = VulkanAllocator::AllocateBuffer_TS("SceneHeaderBuffer", VulkanBuffer::UniformBufferCreateInfo(sizeof(SceneHeader)), VMA_MEMORY_USAGE_AUTO, true);
 }

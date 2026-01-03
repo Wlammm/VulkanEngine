@@ -9,4 +9,7 @@ public:
     void SetupDescriptors() override;
     
     void DispatchCall(vk::CommandBuffer inCommandBuffer) override;
+    
+private:
+    
 };

@@ -12,16 +12,9 @@ StructuredBuffer<VertexBufferData> inVertexDataBuffer;
 [[vk::binding(7)]]
 StructuredBuffer<IndexBufferData> inIndexDataBuffer;
 
-struct MeshInstances
-{
-    uint myNumObjects;
-    MeshInstanceData myMeshInstances[999999];
-};
 
 [[vk::binding(1)]]
-StructuredBuffer<MeshInstances> inMeshInstances;
-
-
+StructuredBuffer<MeshInstanceData> inMeshInstances;
 
 // -------------------- Output Buffers --------------------
 [[vk::binding(2)]]
@@ -44,6 +37,9 @@ RWStructuredBuffer<uint> outCountBufferNoDepth;
 [[vk::binding(10)]]
 RWStructuredBuffer<DrawIndexedIndirectCommand> outIndirectBufferNoDepth;
 
+[[vk::binding(11)]]
+ConstantBuffer<SceneHeader> inSceneHeader : register(b0);
+
 // -------------------- Compute Shader --------------------
 
 [numthreads(256, 1, 1)]
@@ -51,10 +47,10 @@ void CSMain(uint3 dispatchThreadID : SV_DispatchThreadID)
 {
     uint meshInstanceIndex = dispatchThreadID.x;
     
-    if (meshInstanceIndex >= inMeshInstances[0].myNumObjects)
+    if (meshInstanceIndex >= inSceneHeader.myNumMeshInstances)
         return;
     
-    MeshInstanceData instanceData = inMeshInstances[0].myMeshInstances[meshInstanceIndex];
+    MeshInstanceData instanceData = inMeshInstances[meshInstanceIndex];
     
     MeshData meshData = inMeshBuffer[instanceData.myMeshIndex];
     

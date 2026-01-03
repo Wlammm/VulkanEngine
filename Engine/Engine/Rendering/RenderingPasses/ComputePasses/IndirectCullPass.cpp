@@ -28,13 +28,14 @@ void IndirectCullPass::SetupDescriptors()
     myDescriptorSet.BindBuffer(RenderSystem::Get()->myPerDrawDataNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 8, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(RenderSystem::Get()->myCountNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 9, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(RenderSystem::Get()->myIndirectCommandsBufferNoDepth, vk::ShaderStageFlagBits::eCompute, 10, vk::DescriptorType::eStorageBuffer);
+	myDescriptorSet.BindBuffer(RenderSystem::Get()->mySceneHeaderBuffer, vk::ShaderStageFlagBits::eCompute, 11, vk::DescriptorType::eUniformBuffer);
     myDescriptorSet.Build();
 }
 
 void IndirectCullPass::DispatchCall(vk::CommandBuffer inCommandBuffer)
 {
     GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
-
+	
     inCommandBuffer.dispatch(static_cast<uint32_t>(std::ceil(objectSystem.GetNumObjects() / 256.0f)), 1, 1);
     
     // Memory barrier to ensure the compute shader writes are visible to subsequent draw calls

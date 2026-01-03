@@ -9,6 +9,8 @@
 #include "World/EditorWorld.h"
 #define IMSPINNER_DEMO
 #include "imspinner.h"
+#include "Engine/Vulkan/VulkanContext.h"
+#include "Engine/Vulkan/VulkanDevice.h"
 
 PreviousWorldsSystem::PreviousWorldsSystem()
 {

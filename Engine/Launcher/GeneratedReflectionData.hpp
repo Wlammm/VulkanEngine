@@ -374,6 +374,7 @@ ReflectionSystem::AddType<Random>("Random", typeid(Random).name());
 ReflectionSystem::AddType<MeshData>("MeshData", typeid(MeshData).name());
 ReflectionSystem::AddType<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
 ReflectionSystem::AddType<IndexBufferData>("IndexBufferData", typeid(IndexBufferData).name());
+ReflectionSystem::AddType<SceneHeader>("SceneHeader", typeid(SceneHeader).name());
 ReflectionSystem::AddType<MeshInstanceData>("MeshInstanceData", typeid(MeshInstanceData).name());
 ReflectionSystem::AddType<PerDrawData>("PerDrawData", typeid(PerDrawData).name());
 ReflectionSystem::AddType<PointLightData>("PointLightData", typeid(PointLightData).name());
@@ -6920,6 +6921,15 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSys
 	}
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<SceneHeader>();
+	{
+		Field& currentField = currentClass->AddField(Field("myNumMeshInstances", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNumPointLights", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<MeshInstanceData>();
 	{
 		Field& currentField = currentClass->AddField(Field("myToWorld", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
@@ -7392,6 +7402,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", Refl
 		Field& currentField = currentClass->AddField(Field("myCubemap", -1, ReflectionSystem::GetOrCreateType<TextureCube>("TextureCube"), true, false));
 	}
 	{
+		Field& currentField = currentClass->AddField(Field("mySceneHeaderBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+	}
+	{
 		Field& currentField = currentClass->AddField(Field("myResolvedRenderTexture", -1, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
 	}
 	{
@@ -7514,6 +7527,16 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("commandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *")));
 Method& currentMethod = currentClass->AddMethod(Method("QueueCommandBufferForUpload_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+instance->BuildSceneHeader();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("BuildSceneHeader", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -10850,6 +10873,16 @@ return (void*)result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<const IGPUList *>("const IGPUList *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PointLightSystem* instance = static_cast<PointLightSystem*>(inInstance);
+static thread_local unsigned int result = instance->GetNumPointLights();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetNumPointLights", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
 }
 }
 { 
