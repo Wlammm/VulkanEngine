@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/System/System.h"
 #include "Engine/Vulkan/Containers/GPUSparseDenseBuffer.h"
-#include "Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
+#include "Engine/Shaders/Shared/MeshStructs.hpp"
 
 class ResizableBuffer;
 

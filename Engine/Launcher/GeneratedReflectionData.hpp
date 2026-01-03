@@ -97,6 +97,7 @@
 #include "../Engine/Core/Input.h"
 #include "../Engine/Core/Random.h"
 #include "../Engine/Core/SharedPtr.h"
+#include "../Engine/Shaders/Shared/MeshStructs.hpp"
 #include "../Engine/Core/ThreadPool.h"
 #include "../Engine/Core/Time.h"
 #include "../Engine/Core/UniqueID.h"
@@ -147,7 +148,6 @@
 #include "../Engine/Rendering/RenderingPasses/GraphicsPasses/SkyboxPass.h"
 #include "../Engine/Rendering/RenderingPasses/TransitionPasses/TransitionImagePass.h"
 #include "../Engine/Rendering/RenderingPasses/TransitionPasses/TransitionSwapchainImagePass.h"
-#include "../Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
 #include "../Engine/Rendering/TextureSystem.h"
 #include "../Engine/Rendering/Vertex.hpp"
 #include "../Engine/Rendering/VertexBufferSystem.h"
@@ -370,6 +370,12 @@ ReflectionSystem::AddType<Filewatcher::CallbackHandle>("Filewatcher::CallbackHan
 ReflectionSystem::AddType<Filewatcher::FileData>("Filewatcher::FileData", typeid(Filewatcher::FileData).name());
 ReflectionSystem::AddType<Input>("Input", typeid(Input).name());
 ReflectionSystem::AddType<Random>("Random", typeid(Random).name());
+ReflectionSystem::AddType<MeshData>("MeshData", typeid(MeshData).name());
+ReflectionSystem::AddType<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
+ReflectionSystem::AddType<IndexBufferData>("IndexBufferData", typeid(IndexBufferData).name());
+ReflectionSystem::AddType<MeshInstanceData>("MeshInstanceData", typeid(MeshInstanceData).name());
+ReflectionSystem::AddType<PerDrawData>("PerDrawData", typeid(PerDrawData).name());
+ReflectionSystem::AddType<PointLightData>("PointLightData", typeid(PointLightData).name());
 ReflectionSystem::AddType<ThreadPool>("ThreadPool", typeid(ThreadPool).name());
 ReflectionSystem::AddType<Time>("Time", typeid(Time).name());
 ReflectionSystem::AddType<UniqueID>("UniqueID", typeid(UniqueID).name());
@@ -435,12 +441,6 @@ ReflectionSystem::AddType<MainPass>("MainPass", typeid(MainPass).name());
 ReflectionSystem::AddType<SkyboxPass>("SkyboxPass", typeid(SkyboxPass).name());
 ReflectionSystem::AddType<TransitionImagePass>("TransitionImagePass", typeid(TransitionImagePass).name());
 ReflectionSystem::AddType<TransitionSwapchainImagePass>("TransitionSwapchainImagePass", typeid(TransitionSwapchainImagePass).name());
-ReflectionSystem::AddType<MeshData>("MeshData", typeid(MeshData).name());
-ReflectionSystem::AddType<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
-ReflectionSystem::AddType<IndexBufferData>("IndexBufferData", typeid(IndexBufferData).name());
-ReflectionSystem::AddType<MeshInstanceData>("MeshInstanceData", typeid(MeshInstanceData).name());
-ReflectionSystem::AddType<PerDrawData>("PerDrawData", typeid(PerDrawData).name());
-ReflectionSystem::AddType<PointLightData>("PointLightData", typeid(PointLightData).name());
 ReflectionSystem::AddType<TextureSystem>("TextureSystem", typeid(TextureSystem).name());
 ReflectionSystem::AddType<Vertex>("Vertex", typeid(Vertex).name());
 ReflectionSystem::AddType<VertexBufferSystem>("VertexBufferSystem", typeid(VertexBufferSystem).name());
@@ -3349,6 +3349,18 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inSourcePath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
 arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
 Method& currentMethod = currentClass->AddMethod(Method("CreateNewAsset", ReflectionSystem::GetOrCreateType<std::shared_ptr<Asset>>("std::shared_ptr<Asset>"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+AssetRegistry* instance = static_cast<AssetRegistry*>(inInstance);
+const std::filesystem::path & arg0 = *(const std::filesystem::path*)inArguments[0];
+static thread_local std::filesystem::path result = instance->TryRedirectPath(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSourcePath", ReflectionSystem::GetOrCreateType<const std::filesystem::path &>("const std::filesystem::path &")));
+Method& currentMethod = currentClass->AddMethod(Method("TryRedirectPath", ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -6908,6 +6920,90 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSys
 	}
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<MeshData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myBoundingSphereModelSpace", -1, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIndexDataIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<VertexBufferData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<IndexBufferData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCount", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<MeshInstanceData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myToWorld", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMeshIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormalIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDepthWriteEnabled", -1, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PerDrawData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myToWorld", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNormalIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMaterialIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("padding", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PointLightData>();
+	{
+		Field& currentField = currentClass->AddField(Field("myColor", -1, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPosition", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRange", -1, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIntensity", -1, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<ThreadPool>();
 	{
 		Field& currentField = currentClass->AddField(Field("myThreads", -1, ReflectionSystem::GetOrCreateType<List<std::thread>>("List<std::thread>"), false, false));
@@ -9954,90 +10050,6 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
 Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<MeshData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myBoundingSphereModelSpace", -1, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myVertexIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIndexDataIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMaterialIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<VertexBufferData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myOffset", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<IndexBufferData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myOffset", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCount", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<MeshInstanceData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myToWorld", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMeshIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNormalIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMaterialIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDepthWriteEnabled", -1, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PerDrawData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myToWorld", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myAlbedoIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNormalIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myMaterialIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("padding", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PointLightData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myColor", -1, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPosition", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myRange", -1, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myIntensity", -1, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<TextureSystem>();

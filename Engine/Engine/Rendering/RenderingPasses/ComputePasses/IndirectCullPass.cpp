@@ -7,7 +7,7 @@
 #include "Engine/Vulkan/GPUSceneSystem.h"
 
 IndirectCullPass::IndirectCullPass()
-    : ComputePass("Shaders/IndirectCulling.comp")
+    : ComputePass("Shaders/IndirectCullingCS.hlsl")
 {
 }
 

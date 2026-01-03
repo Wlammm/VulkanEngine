@@ -1,26 +1,24 @@
-#extension GL_EXT_nonuniform_qualifier : enable
+﻿static const float Epsilon = 0.00001;
+static const float PI = 3.14159265359;
 
-const float Epsilon = 0.00001;
-const float PI = 3.14159265359;
-
-vec4 LinearToGamma(vec4 inLinear)
+float4 LinearToGamma(float4 inLinear)
 {
-    return pow(inLinear, vec4(1.0/2.2));
+    return pow(inLinear, (1.0f/2.2f).xxxx);
 }
 
-vec4 GammaToLinear(vec4 inGamma)
+float4 GammaToLinear(float4 inGamma)
 {
-    return pow(inGamma, vec4(2.2));
+    return pow(inGamma, (2.2f).xxxx);
 }
 
-vec3 LinearToGamma(vec3 inLinear)
+float3 LinearToGamma(float3 inLinear)
 {
-    return pow(inLinear, vec3(1.0/2.2));
+    return pow(inLinear, (1.0/2.2).xxx);
 }
 
-vec3 GammaToLinear(vec3 inGamma)
+float3 GammaToLinear(float3 inGamma)
 {
-    return pow(inGamma, vec3(2.2));
+    return pow(inGamma, (2.2).xxx);
 }
 
 float saturate(float inValue)
@@ -28,124 +26,124 @@ float saturate(float inValue)
     return clamp(inValue, 0.0, 1.0);
 }
 
-vec2 saturate(vec2 inValue)
+float2 saturate(float2 inValue)
 {
-    return clamp(inValue, vec2(0.0, 0.0), vec2(1.0, 1.0));
+    return clamp(inValue, float2(0.0, 0.0), float2(1.0, 1.0));
 }
 
-vec3 saturate(vec3 inValue)
+float3 saturate(float3 inValue)
 {
-    return clamp(inValue, vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+    return clamp(inValue, float3(0.0, 0.0, 0.0), float3(1.0, 1.0, 1.0));
 }
 
-vec4 saturate(vec4 inValue)
+float4 saturate(float4 inValue)
 {
-    return clamp(inValue, vec4(0.0, 0.0, 0.0, 0.0), vec4(1.0, 1.0, 1.0, 1.0));
+    return clamp(inValue, float4(0.0, 0.0, 0.0, 0.0), float4(1.0, 1.0, 1.0, 1.0));
 }
 
-vec4 LinearColorFromColor(int inColor)
+float4 LinearColorFromColor(int inColor)
 {
     float r = float(inColor & 0xFF) / 255.0;
     float g = float((inColor >> 8) & 0xFF) / 255.0;
     float b = float((inColor >> 16) & 0xFF) / 255.0;
     float a = float((inColor >> 24) & 0xFF) / 255.0;
 
-    return vec4(r, g, b, a);
+    return float4(r, g, b, a);
 }
 
 // Shader avoid branching article: https://theorangeduck.com/page/avoiding-shader-conditionals
 // USAGE: output of these will either be 1 or 0 depending on the condition is true or not. Simply multiply the output with a number to add it conditionally.
 
 // ==
-vec4 when_eq(vec4 x, vec4 y) {
+float4 when_eq(float4 x, float4 y) {
   return 1.0 - abs(sign(x - y));
 }
 
 // !=
-vec4 when_neq(vec4 x, vec4 y) {
+float4 when_neq(float4 x, float4 y) {
   return abs(sign(x - y));
 }
 
 // >
-vec4 when_gt(vec4 x, vec4 y) {
+float4 when_gt(float4 x, float4 y) {
   return max(sign(x - y), 0.0);
 }
 
 // <
-vec4 when_lt(vec4 x, vec4 y) {
+float4 when_lt(float4 x, float4 y) {
   return max(sign(y - x), 0.0);
 }
 
 // >=
-vec4 when_ge(vec4 x, vec4 y) {
+float4 when_ge(float4 x, float4 y) {
   return 1.0 - when_lt(x, y);
 }
 
 // <=
-vec4 when_le(vec4 x, vec4 y) {
+float4 when_le(float4 x, float4 y) {
   return 1.0 - when_gt(x, y);
 }
 
-// vec3
+// float3
 // ==
-vec3 when_eq(vec3 x, vec3 y) {
+float3 when_eq(float3 x, float3 y) {
   return 1.0 - abs(sign(x - y));
 }
 
 // !=
-vec3 when_neq(vec3 x, vec3 y) {
+float3 when_neq(float3 x, float3 y) {
   return abs(sign(x - y));
 }
 
 // >
-vec3 when_gt(vec3 x, vec3 y) {
+float3 when_gt(float3 x, float3 y) {
   return max(sign(x - y), 0.0);
 }
 
 // <
-vec3 when_lt(vec3 x, vec3 y) {
+float3 when_lt(float3 x, float3 y) {
   return max(sign(y - x), 0.0);
 }
 
 // >=
-vec3 when_ge(vec3 x, vec3 y) {
+float3 when_ge(float3 x, float3 y) {
   return 1.0 - when_lt(x, y);
 }
 
 // <=
-vec3 when_le(vec3 x, vec3 y) {
+float3 when_le(float3 x, float3 y) {
   return 1.0 - when_gt(x, y);
 }
 
 
-// vec2
+// float2
 // ==
-vec2 when_eq(vec2 x, vec2 y) {
+float2 when_eq(float2 x, float2 y) {
   return 1.0 - abs(sign(x - y));
 }
 
 // !=
-vec2 when_neq(vec2 x, vec2 y) {
+float2 when_neq(float2 x, float2 y) {
   return abs(sign(x - y));
 }
 
 // >
-vec2 when_gt(vec2 x, vec2 y) {
+float2 when_gt(float2 x, float2 y) {
   return max(sign(x - y), 0.0);
 }
 
 // <
-vec2 when_lt(vec2 x, vec2 y) {
+float2 when_lt(float2 x, float2 y) {
   return max(sign(y - x), 0.0);
 }
 
 // >=
-vec2 when_ge(vec2 x, vec2 y) {
+float2 when_ge(float2 x, float2 y) {
   return 1.0 - when_lt(x, y);
 }
 
 // <=
-vec2 when_le(vec2 x, vec2 y) {
+float2 when_le(float2 x, float2 y) {
   return 1.0 - when_gt(x, y);
 }
 

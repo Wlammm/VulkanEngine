@@ -176,6 +176,11 @@ bool IsHlslFragmentShader(const std::string& inShaderSource)
     return inShaderSource.contains("PSMain");
 }
 
+bool IsHlslComputeShader(const std::string& inShaderSource)
+{
+    return inShaderSource.contains("CSMain");
+}
+
 void Shader::CompileHlslToSpv(const std::string& inShaderSource)
 {
     // Create source buffer
@@ -195,9 +200,13 @@ void Shader::CompileHlslToSpv(const std::string& inShaderSource)
         myEntryPoint = "PSMain";
         profile = L"ps_6_6";
     }
+    else if (IsHlslComputeShader(inShaderSource))
+    {
+        myEntryPoint = "CSMain";
+        profile = L"cs_6_6";
+    }
     else
         check(false && "No valid entry point found.");
-    
     
     std::wstring wideEntryPointString = String::ToWString(myEntryPoint);
     

@@ -32,20 +32,21 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	vulkan12Features.descriptorBindingUniformBufferUpdateAfterBind = VK_TRUE;
 	vulkan12Features.descriptorBindingStorageTexelBufferUpdateAfterBind = VK_TRUE;
 	vulkan12Features.descriptorBindingUniformTexelBufferUpdateAfterBind = VK_TRUE;
-
-	vk::PhysicalDeviceVulkan11Features vulkan11Features{};
-	vulkan12Features.pNext = &vulkan11Features;
-	vulkan11Features.shaderDrawParameters = VK_TRUE;
 	
-	vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
-	vulkan11Features.pNext = &dynamicRenderingFeatures;
-	dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+	vk::PhysicalDeviceVulkan13Features vulkan13Features{};
+	vulkan12Features.pNext = &vulkan13Features;
+	vulkan13Features.shaderDemoteToHelperInvocation = VK_TRUE;
+	vulkan13Features.dynamicRendering = VK_TRUE;
+	
+	vk::PhysicalDeviceVulkan11Features vulkan11Features{};
+	vulkan13Features.pNext = &vulkan11Features;
+	vulkan11Features.shaderDrawParameters = VK_TRUE;
 	
 	
 	vk::DeviceDiagnosticsConfigCreateInfoNV aftermathInfo = {};
 	if(VulkanContext::GetAftermathTracker())
 	{
-		dynamicRenderingFeatures.pNext = &aftermathInfo;
+		vulkan11Features.pNext = &aftermathInfo;
 		vk::DeviceDiagnosticsConfigFlagsNV aftermathFlags =
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableResourceTracking |
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableAutomaticCheckpoints |

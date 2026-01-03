@@ -2,7 +2,7 @@
 #include "Vertex.hpp"
 #include "Engine/System/System.h"
 #include "Engine/Vulkan/ResizableBuffer.h"
-#include "Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
+#include "Engine/Shaders/Shared/MeshStructs.hpp"
 
 class VertexBufferHandle;
 class VulkanBuffer;

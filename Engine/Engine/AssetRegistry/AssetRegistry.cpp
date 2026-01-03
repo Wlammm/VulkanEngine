@@ -40,22 +40,25 @@ SharedPtr<Asset> AssetRegistry::GetAssetSynchronous(const SourcePath& inSourcePa
 {
     ZoneScoped;
     ZoneText(inSourcePath.filename().string().c_str(), inSourcePath.filename().string().size());
-    SharedPtr<Asset> asset = TryGetLoadedAsset(inSourcePath);
+    
+    const SourcePath path = TryRedirectPath(inSourcePath);
+    
+    SharedPtr<Asset> asset = TryGetLoadedAsset(path);
     if (asset != nullptr)
         return asset;
 
     // TODO: We want some guarantee that loaded assets stay valid throughout the entire frame. Currently we have none. So assets can get unloaded while we're trying to load them in-between our checks..
     
     myPendingAssets.Lock();
-    if (myPendingAssets.Contains(inSourcePath))
+    if (myPendingAssets.Contains(path))
     {
         myPendingAssets.Unlock();
         // It is not guaranteed the asset is still in here but that is fine. In that case we know its already been loaded.
-        return WaitForPendingAsset(inSourcePath);
+        return WaitForPendingAsset(path);
     }
     else
     {
-        myPendingAssets.Add(inSourcePath);
+        myPendingAssets.Add(path);
         myPendingAssets.Unlock();
     }
 
@@ -63,16 +66,24 @@ SharedPtr<Asset> AssetRegistry::GetAssetSynchronous(const SourcePath& inSourcePa
 
     if (inType->CallStaticMethodRecursive<bool>("IsExternalAsset"))
     {
-        asset = LoadExternalAsset(inSourcePath, inType);
+        asset = LoadExternalAsset(path, inType);
     }
     else
     {
-        asset = LoadInternalAsset(inSourcePath, inType);
+        asset = LoadInternalAsset(path, inType);
     }
     
-    myPendingAssets.Remove(inSourcePath);
+    myPendingAssets.Remove(path);
 
     return asset;
+}
+
+SourcePath AssetRegistry::TryRedirectPath(const SourcePath& inSourcePath) const
+{
+    if (inSourcePath.string().starts_with("Shaders/"))
+        return String::Replace(inSourcePath.string(), "Shaders/", "../Engine/Engine/Shaders/");
+        
+    return inSourcePath;
 }
 
 CachePath AssetRegistry::SourceToCachePath(const SourcePath& inSourcePath) const

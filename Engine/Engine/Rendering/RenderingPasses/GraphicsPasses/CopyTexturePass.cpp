@@ -2,7 +2,7 @@
 #include "CopyTexturePass.h"
 
 CopyTexturePass::CopyTexturePass(VulkanImage* inSourceTexture, VulkanImage* inTargetTexture)
-    : GraphicsPass("Shaders/FullscreenVS.vert", "Shaders/FullscreenCopy.frag")
+    : GraphicsPass("Shaders/FullscreenVS.hlsl", "Shaders/FullscreenCopyPS.hlsl")
 {
     mySourceTexture = inSourceTexture;
     myTargetTexture = inTargetTexture;

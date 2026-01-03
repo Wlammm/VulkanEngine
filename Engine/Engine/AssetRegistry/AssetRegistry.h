@@ -149,6 +149,9 @@ public:
         AddLoadedAsset(asset, inType);
         return asset;
     }
+    
+    // This will redirect the path to another location for some asset types. Used for Shaders as an example. Anything that starts with Shaders/ will be redirected to ../Engine/Engine/Shaders/
+    SourcePath TryRedirectPath(const SourcePath& inSourcePath) const;
 
     CachePath SourceToCachePath(const SourcePath& inSourcePath) const;
 

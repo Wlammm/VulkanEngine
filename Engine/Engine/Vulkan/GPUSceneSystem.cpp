@@ -4,7 +4,7 @@
 #include "ResizableBuffer.h"
 #include "VulkanAllocator.h"
 
-#include "Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
+#include "Engine/Shaders/Shared/MeshStructs.hpp"
 
 GPUSceneSystem::GPUSceneSystem()
 {

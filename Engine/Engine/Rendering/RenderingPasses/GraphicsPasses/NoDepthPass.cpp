@@ -5,7 +5,7 @@
 #include "Engine/Vulkan/ResizableBuffer.h"
 
 NoDepthPass::NoDepthPass()
-: GraphicsPass("Shaders/IndirectVertexShader.vert", "Shaders/IndirectFragmentShader.frag")
+: GraphicsPass("Shaders/MainVS.hlsl", "Shaders/MainPS.hlsl")
 {
     
 }

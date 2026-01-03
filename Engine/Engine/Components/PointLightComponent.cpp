@@ -3,7 +3,7 @@
 
 #include "TransformComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
+#include "Engine/Shaders/Shared/MeshStructs.hpp"
 #include "Engine/Systems/PointLightSystem.h"
 
 PointLightComponent::PointLightComponent()

@@ -4,7 +4,7 @@
 #include "Engine/Vulkan/VulkanSwapChain.h"
 
 CopyToSwapchainPass::CopyToSwapchainPass(VulkanImage* inSourceImage)
-    : GraphicsPass("Shaders/FullscreenVS.vert", "Shaders/FullscreenCopy.frag", true)
+    : GraphicsPass("Shaders/FullscreenVS.hlsl", "Shaders/FullscreenCopyPS.hlsl", true)
 {
     mySourceTexture = inSourceImage;
 }

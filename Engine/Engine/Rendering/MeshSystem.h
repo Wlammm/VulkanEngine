@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Engine/Rendering/SharedWithShaders/MeshStructs.hpp"
+#include "Engine/Shaders/Shared/MeshStructs.hpp"
 #include "Engine/System/System.h"
 
 class Mesh;

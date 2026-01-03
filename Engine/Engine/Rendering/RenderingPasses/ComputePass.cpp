@@ -29,7 +29,7 @@ void ComputePass::CreateResources()
     computePipelineCreateInfo.setStage(vk::PipelineShaderStageCreateInfo()
         .setStage(vk::ShaderStageFlagBits::eCompute)
         .setModule(myShader->GetAPIResource())
-        .setPName("main"));
+        .setPName(myShader->GetEntryPoint().c_str()));
     computePipelineCreateInfo.setLayout(myPipelineLayout);
     
     const vk::ResultValue<vk::Pipeline> result = VulkanContext::GetDevice()->createComputePipeline(VulkanContext::GetPipelineCache(), computePipelineCreateInfo);

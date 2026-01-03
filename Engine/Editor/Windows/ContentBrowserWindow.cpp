@@ -739,6 +739,10 @@ void ContentBrowserWindow::DeleteItem()
 void ContentBrowserWindow::HandleDoubleClick(const ContentBrowserItem& inClickedItem)
 {
 	const Type* assetType = AssetUtils::GetAssetTypeFromFileExtension(inClickedItem.myPath.extension().string());
+	
+	if (!assetType)
+		return;
+	
 	SharedPtr<Asset> asset = AssetRegistry::Get()->GetAssetSynchronous(inClickedItem.myPath, assetType);
 	Editor::GetSystem<AssetEditorSystem>()->OpenAssetEditor(asset, assetType);
 }

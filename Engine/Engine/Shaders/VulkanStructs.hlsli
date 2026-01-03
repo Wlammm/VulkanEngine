@@ -1,4 +1,4 @@
-struct DrawIndexedIndirectCommand
+﻿struct DrawIndexedIndirectCommand
 {
     uint indexCount;
     uint instanceCount;

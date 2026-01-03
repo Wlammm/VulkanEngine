@@ -76,7 +76,15 @@ workspace "Engine"
 		"../%{prj.name}/**.hpp",
 		"../%{prj.name}/**.h",
 		"../%{prj.name}/**.natvis",
+		
+		-- Shaders (visible in solution only)
+		"../%{prj.name}/**.hlsl",
+		"../%{prj.name}/**.hlsli",
 	}
+	filter { "files:**.hlsl or **.hlsli" }
+		flags { "ExcludeFromBuild" }
+	filter {}
+
 	
 	filter "action:vs*"
 		buildoptions { "/bigobj" }

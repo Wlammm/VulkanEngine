@@ -1,8 +1,8 @@
 #if __cplusplus
 #pragma once
-using vec4 = glm::vec4;
-using mat4 = glm::mat4;
-using vec3 = glm::vec3;
+using float4 = glm::vec4;
+using float4x4 = glm::mat4;
+using float3 = glm::vec3;
 
 #define ALIGNAS(x) alignas(x)
 #define DEFAULT_TO(x) = x
@@ -15,13 +15,13 @@ using vec3 = glm::vec3;
  * Alignment rules in glsl:
  * - scalar             = 4
  * - vec2               = 8
- * - vec3 & vec4 & mat4 = 16
+ * - vec3 & float4 & float4x4 = 16
  * A nested structure must be aligned by the base alignment of its members rounded up to a multiple of 16
  */
 
 struct MeshData
 {
-    ALIGNAS(16) vec4 myBoundingSphereModelSpace; // X, Y, Z are center position in model space. W is radius
+    ALIGNAS(16) float4 myBoundingSphereModelSpace; // X, Y, Z are center position in model space. W is radius
     ALIGNAS(4) uint myVertexIndex; // The index into the global sparse vertex data buffer.
     ALIGNAS(4) uint myIndexDataIndex; // The index into the global sparse index data buffer.
     ALIGNAS(4) uint myMaterialIndex; // TODO: Is this even used?
@@ -40,7 +40,7 @@ struct IndexBufferData
 
 struct ALIGNAS(16) MeshInstanceData
 {
-    ALIGNAS(16) mat4 myToWorld;
+    ALIGNAS(16) float4x4 myToWorld;
     ALIGNAS(4) uint myMeshIndex DEFAULT_TO((uint)-1);
     ALIGNAS(4) uint myAlbedoIndex DEFAULT_TO((uint)-1);
     ALIGNAS(4) uint myNormalIndex DEFAULT_TO((uint)-1);
@@ -50,7 +50,7 @@ struct ALIGNAS(16) MeshInstanceData
 
 struct PerDrawData
 {
-    ALIGNAS(16) mat4 myToWorld;
+    ALIGNAS(16) float4x4 myToWorld;
     ALIGNAS(4) uint myAlbedoIndex;
     ALIGNAS(4) uint myNormalIndex;
     ALIGNAS(4) uint myMaterialIndex;
@@ -59,8 +59,8 @@ struct PerDrawData
 
 struct PointLightData
 {
-    ALIGNAS(16) vec4 myColor;
-    ALIGNAS(16) vec3 myPosition;
+    ALIGNAS(16) float4 myColor;
+    ALIGNAS(16) float3 myPosition;
     ALIGNAS(4) float myRange;
     ALIGNAS(4) float myIntensity;
 };
