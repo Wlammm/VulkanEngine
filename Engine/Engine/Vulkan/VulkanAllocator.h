@@ -12,7 +12,6 @@ public:
 
 	static class VulkanBuffer* AllocateBuffer_TS(const std::string& inName, const vk::BufferCreateInfo& inCreateInfo, VmaMemoryUsage inUsage, bool inMappable = false);
 	static void DestroyBuffer_TS(class VulkanBuffer* inBuffer);
-	static void DestroyBuffer_TS(class ResizableBuffer* inBuffer);
 
 	// Will call this delegate when its safe to delete the resource as long as it hasnt been queued after this call.
 	static void QueueDestroyCommand(const Delegate<void()>& inCommand);
@@ -45,7 +44,6 @@ private:
 		T* myData;
 	};
 	MutexList<DeleteData<VulkanBuffer>> myBufferDeleteData;
-	MutexList<DeleteData<ResizableBuffer>> myResizableBufferDeleteData;
 	MutexList<DeleteData<VulkanImage>> myImageDeleteData;
 
 	struct DelegateDeleteData

@@ -8,6 +8,7 @@ class ResizableBuffer : public IGPUBuffer
 {
 public:
     ResizableBuffer(VulkanBuffer* inBuffer);
+    ~ResizableBuffer() override;
     ResizableBuffer() = delete;
     ResizableBuffer(const ResizableBuffer&) = delete;
     void operator=(const ResizableBuffer&) = delete;
@@ -35,7 +36,6 @@ public:
     
 private:
     friend class VulkanAllocator;
-    ~ResizableBuffer() = default;
     
     bool myHasActiveUpload = false;
     bool myHasRegisteredForTick = false;

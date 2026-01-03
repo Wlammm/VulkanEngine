@@ -28,7 +28,7 @@ StagingSystem::~StagingSystem()
     std::scoped_lock lock(myMutex);
     for(int i = 0; i < 3; ++i)
     {
-        VulkanAllocator::DestroyBuffer_TS(myStagingBuffers[i].myBuffer);
+        del(myStagingBuffers[i].myBuffer);
         myStagingBuffers[i].myBuffer = nullptr;
     }
 }

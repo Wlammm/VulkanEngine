@@ -15,6 +15,12 @@ ResizableBuffer::ResizableBuffer(VulkanBuffer* inBuffer)
     myBuffer = inBuffer;
 }
 
+ResizableBuffer::~ResizableBuffer()
+{
+    VulkanAllocator::DestroyBuffer_TS(myBuffer);
+    myBuffer = nullptr;
+}
+
 VulkanBuffer* ResizableBuffer::GetBuffer() const
 {
     return myBuffer;

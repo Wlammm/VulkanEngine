@@ -28,8 +28,8 @@ VertexBufferSystem::VertexBufferSystem()
 
 VertexBufferSystem::~VertexBufferSystem()
 {
-    VulkanAllocator::DestroyBuffer_TS(myBuffer);
-    VulkanAllocator::DestroyBuffer_TS(mySparseVertexDataBuffer);
+    del(myBuffer);
+    del(mySparseVertexDataBuffer);
     myUsedBufferSize = 0;
 
     for(VertexBufferHandle* vertexBuffer : myVertexBuffers)

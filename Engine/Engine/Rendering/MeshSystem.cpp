@@ -21,7 +21,7 @@ MeshSystem::MeshSystem()
 
 MeshSystem::~MeshSystem()
 {
-    VulkanAllocator::DestroyBuffer_TS(myBuffer);
+    del(myBuffer);
 }
 
 Mesh* MeshSystem::UploadMesh(VertexBufferHandle* inVertexBuffer, IndexBufferHandle* inIndexBuffer, const glm::vec4& inBoundingSphere)

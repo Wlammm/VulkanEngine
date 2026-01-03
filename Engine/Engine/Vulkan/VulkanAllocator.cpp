@@ -96,11 +96,6 @@ void VulkanAllocator::DestroyBuffer_TS(VulkanBuffer* inBuffer)
 	myInstance->myBufferDeleteData.Add({ VulkanAllocator::DestructionFrameDelay, inBuffer });
 }
 
-void VulkanAllocator::DestroyBuffer_TS(ResizableBuffer* inBuffer)
-{
-	myInstance->myResizableBufferDeleteData.Add({VulkanAllocator::DestructionFrameDelay, inBuffer });
-}
-
 void VulkanAllocator::QueueDestroyCommand(const Delegate<void()>& inCommand)
 {
 	myInstance->myDelegateDeletes.Add({VulkanAllocator::DestructionFrameDelay, inCommand });
@@ -182,19 +177,6 @@ void VulkanAllocator::TickBufferDeletes()
 		}
 	}
 	myBufferDeleteData.Unlock();
-
-	myResizableBufferDeleteData.Lock();
-	for (int i = myResizableBufferDeleteData.size() - 1; i >= 0; --i)
-	{
-		myResizableBufferDeleteData[i].myFramesUntilDelete--;
-		if (myResizableBufferDeleteData[i].myFramesUntilDelete <= 0)
-		{
-			DestroyBufferInternal(myResizableBufferDeleteData[i].myData->GetBuffer());
-			del(myResizableBufferDeleteData[i].myData);
-			myResizableBufferDeleteData.RemoveIndex(i);
-		}
-	}
-	myResizableBufferDeleteData.Unlock();
 }
 
 void VulkanAllocator::TickImageDeletes()

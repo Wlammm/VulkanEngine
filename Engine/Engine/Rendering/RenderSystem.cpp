@@ -443,10 +443,10 @@ void RenderSystem::DestroyRenderResources()
 	VulkanAllocator::DestroyImage_TS(myResolvedDepthTexture);
 	DestroyRenderPasses();
 	
-	VulkanAllocator::DestroyBuffer_TS(myIndirectCommandsBuffer);
-	VulkanAllocator::DestroyBuffer_TS(myIndirectCommandsBufferNoDepth);
-	VulkanAllocator::DestroyBuffer_TS(myPerDrawDataBuffer);
-	VulkanAllocator::DestroyBuffer_TS(myPerDrawDataNoDepthBuffer);
+	del(myIndirectCommandsBuffer);
+	del(myIndirectCommandsBufferNoDepth);
+	del(myPerDrawDataBuffer);
+	del(myPerDrawDataNoDepthBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myCountBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myCountNoDepthBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myDirectionalLightBuffer);

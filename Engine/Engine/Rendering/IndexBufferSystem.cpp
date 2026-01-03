@@ -34,8 +34,8 @@ IndexBufferSystem::~IndexBufferSystem()
     }
     myIndexBuffers.Clear();
     
-    VulkanAllocator::DestroyBuffer_TS(mySparseIndexDataBuffer);
-    VulkanAllocator::DestroyBuffer_TS(myBuffer);
+    del(mySparseIndexDataBuffer);
+    del(myBuffer);
 }
 
 IndexBufferHandle* IndexBufferSystem::UploadIndexBuffer(const List<uint>& inIndices)
