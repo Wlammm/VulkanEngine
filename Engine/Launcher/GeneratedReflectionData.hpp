@@ -274,6 +274,7 @@ ReflectionSystem::AddType<Viewport>("Viewport", typeid(Viewport).name());
 ReflectionSystem::AddType<FileDialog>("FileDialog", typeid(FileDialog).name());
 ReflectionSystem::AddType<SinWaveMovementComponent>("SinWaveMovementComponent", typeid(SinWaveMovementComponent).name());
 ReflectionSystem::AddType<ImGuiTextureUtils>("ImGuiTextureUtils", typeid(ImGuiTextureUtils).name());
+ReflectionSystem::AddType<GPUSparseDenseBuffer<MeshInstanceData>>("GPUSparseDenseBuffer<MeshInstanceData>", typeid(GPUSparseDenseBuffer<MeshInstanceData>).name());
 ReflectionSystem::AddType<GPUSparseDenseBuffer<PointLightData>>("GPUSparseDenseBuffer<PointLightData>", typeid(GPUSparseDenseBuffer<PointLightData>).name());
 ReflectionSystem::AddType<InspectorWindow>("InspectorWindow", typeid(InspectorWindow).name());
 ReflectionSystem::AddType<EditorWindow>("EditorWindow", typeid(EditorWindow).name());
@@ -332,6 +333,7 @@ ReflectionSystem::AddType<List<DescriptorBindingInfo>>("List<DescriptorBindingIn
 ReflectionSystem::AddType<List<DescriptorSetInfo>>("List<DescriptorSetInfo>", typeid(List<DescriptorSetInfo>).name());
 ReflectionSystem::AddType<List<IncludeData>>("List<IncludeData>", typeid(List<IncludeData>).name());
 ReflectionSystem::AddType<List<float>>("List<float>", typeid(List<float>).name());
+ReflectionSystem::AddType<List<IRenderPass *>>("List<IRenderPass *>", typeid(List<IRenderPass *>).name());
 ReflectionSystem::AddType<List<std::shared_ptr<Material>>>("List<std::shared_ptr<Material>>", typeid(List<std::shared_ptr<Material>>).name());
 ReflectionSystem::AddType<List<TransformComponent *>>("List<TransformComponent *>", typeid(List<TransformComponent *>).name());
 ReflectionSystem::AddType<List<Component *>>("List<Component *>", typeid(List<Component *>).name());
@@ -339,7 +341,6 @@ ReflectionSystem::AddType<List<std::thread>>("List<std::thread>", typeid(List<st
 ReflectionSystem::AddType<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>("List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>", typeid(List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>).name());
 ReflectionSystem::AddType<List<IndexBufferHandle *>>("List<IndexBufferHandle *>", typeid(List<IndexBufferHandle *>).name());
 ReflectionSystem::AddType<List<IndexBufferData>>("List<IndexBufferData>", typeid(List<IndexBufferData>).name());
-ReflectionSystem::AddType<List<IRenderPass *>>("List<IRenderPass *>", typeid(List<IRenderPass *>).name());
 ReflectionSystem::AddType<List<const char *>>("List<const char *>", typeid(List<const char *>).name());
 ReflectionSystem::AddType<List<vk::RenderingAttachmentInfo>>("List<vk::RenderingAttachmentInfo>", typeid(List<vk::RenderingAttachmentInfo>).name());
 ReflectionSystem::AddType<List<vk::Format>>("List<vk::Format>", typeid(List<vk::Format>).name());
@@ -760,34 +761,9 @@ Method& currentMethod = currentClass->AddMethod(Method("ResetMouseDelta", Reflec
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<GPUSceneSystem>();
 	{
-		Field& currentField = currentClass->AddField(Field("myFreeSparseIndices", -1, ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNextFreeSparseIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySparseBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNumGPUObjectUpdatesThisFrame", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDenseBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDenseBufferCPURepresentation", -1, ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMeshes", -1, ReflectionSystem::GetOrCreateType<GPUSparseDenseBuffer<MeshInstanceData>>("GPUSparseDenseBuffer<MeshInstanceData>"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-instance->Tick();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
@@ -830,31 +806,21 @@ Method& currentMethod = currentClass->AddMethod(Method("RemoveMeshInstance", Ref
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-const ResizableBuffer * result = instance->GetSparseBuffer();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetSparseBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-const ResizableBuffer * result = instance->GetDenseBuffer();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetDenseBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
 static thread_local unsigned int result = instance->GetNumObjects();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetNumObjects", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
+const IGPUList * result = instance->GetBuffer();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<const IGPUList *>("const IGPUList *"), invoker, arguments));
 }
 }
 { 
@@ -2906,6 +2872,11 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inTexture", ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>")));
 Method& currentMethod = currentClass->AddMethod(Method("CreateDescriptorSetForTexture", ReflectionSystem::GetOrCreateType<vk::DescriptorSet>("vk::DescriptorSet"), invoker, arguments));
 }
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<GPUSparseDenseBuffer<MeshInstanceData>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IGPUList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<MeshInstanceData>("MeshInstanceData"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<GPUSparseDenseBuffer<PointLightData>>();
@@ -6375,6 +6346,11 @@ Method& currentMethod = currentClass->AddMethod(Method("OnModelChangedFromInspec
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<float>("float"), false, false);
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<IRenderPass *>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IRenderPass>("IRenderPass"), true, false);
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<std::shared_ptr<Material>>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::shared_ptr<Material>>("std::shared_ptr<Material>"), false, false);
@@ -6408,11 +6384,6 @@ Method& currentMethod = currentClass->AddMethod(Method("OnModelChangedFromInspec
 	Type* currentClass = ReflectionSystem::GetMutableType<List<IndexBufferData>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IndexBufferData>("IndexBufferData"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<IRenderPass *>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IRenderPass>("IRenderPass"), true, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<const char *>>();

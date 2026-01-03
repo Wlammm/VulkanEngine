@@ -34,7 +34,6 @@ public:
     {
         uint handle;
 
-        // Recycle an old handle if available, otherwise create a new one
         if (!myFreeHandles.empty())
         {
             handle = myFreeHandles.top();
@@ -46,11 +45,8 @@ public:
             mySparseIndices.Add(0); // Placeholder, is being set below
         }
 
-        // Determine where this data will live in the Dense array (at the end)
-        // We can track size via our CPU reverse map, as it mirrors the GPU list size.
         uint denseIndex = static_cast<uint>(myDenseToHandle.size());
 
-        // Add to the underlying GPU List
         myDenseData.Add(inData);
 
         // Update mappings
@@ -73,7 +69,6 @@ public:
 
         uint denseIndex = mySparseIndices[inHandle];
         
-        // Sanity check: Ensure this handle is actually pointing to a valid dense index
         if (denseIndex == INVALID_INDEX) 
         {
             check(false && "Invalid dense index.");
@@ -103,7 +98,6 @@ public:
         // If the element to remove is NOT the last element, we must swap.
         if (denseIndexToRemove != lastDenseIndex)
         {
-            // Identify who is currently at the end of the dense array
             uint lastHandle = myDenseToHandle[lastDenseIndex];
 
             // Perform the GPU move. 
@@ -123,9 +117,14 @@ public:
         }
 
         // Cleanup CPU tracking
-        myDenseToHandle.RemoveLast();       // Remove the last entry (size decreased)
-        mySparseIndices[inHandle] = INVALID_INDEX; // Invalidate the removed handle
-        myFreeHandles.push(inHandle);     // Recycle the handle
+        myDenseToHandle.RemoveLast();
+        mySparseIndices[inHandle] = INVALID_INDEX;
+        myFreeHandles.push(inHandle);
+    }
+    
+    uint Size() const
+    {
+        return myDenseToHandle.size();
     }
     
 private:

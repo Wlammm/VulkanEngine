@@ -12,17 +12,16 @@ StructuredBuffer<VertexBufferData> inVertexDataBuffer;
 [[vk::binding(7)]]
 StructuredBuffer<IndexBufferData> inIndexDataBuffer;
 
-[[vk::binding(1)]]
-StructuredBuffer<MeshInstanceData> inSparseObjectBuffer;
-
-struct DenseObjectBuffer
+struct MeshInstances
 {
     uint myNumObjects;
-    uint myIndices[999999];
+    MeshInstanceData myMeshInstances[999999];
 };
 
-[[vk::binding(5)]]
-StructuredBuffer<DenseObjectBuffer> inDenseObjectBuffer;
+[[vk::binding(1)]]
+StructuredBuffer<MeshInstances> inMeshInstances;
+
+
 
 // -------------------- Output Buffers --------------------
 [[vk::binding(2)]]
@@ -50,14 +49,12 @@ RWStructuredBuffer<DrawIndexedIndirectCommand> outIndirectBufferNoDepth;
 [numthreads(256, 1, 1)]
 void CSMain(uint3 dispatchThreadID : SV_DispatchThreadID)
 {
-    uint denseIndex = dispatchThreadID.x;
+    uint meshInstanceIndex = dispatchThreadID.x;
     
-    if (denseIndex >= inDenseObjectBuffer[0].myNumObjects)
+    if (meshInstanceIndex >= inMeshInstances[0].myNumObjects)
         return;
     
-    uint sparseIndex = inDenseObjectBuffer[0].myIndices[denseIndex];
-    
-    MeshInstanceData instanceData = inSparseObjectBuffer[sparseIndex];
+    MeshInstanceData instanceData = inMeshInstances[0].myMeshInstances[meshInstanceIndex];
     
     MeshData meshData = inMeshBuffer[instanceData.myMeshIndex];
     

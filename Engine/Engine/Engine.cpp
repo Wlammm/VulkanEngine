@@ -117,7 +117,6 @@ void Engine::Tick()
 	myFilewatcher->FlushChanges();
 	
 	GetEngineSystem<StagingSystem>().Tick();
-	GetEngineSystem<GPUSceneSystem>().Tick();
 	
 	myWorld->DoTick();
 

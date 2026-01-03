@@ -21,8 +21,7 @@ void IndirectCullPass::SetupDescriptors()
     myDescriptorSet.BindBuffer(meshSystem.GetBuffer(), vk::ShaderStageFlagBits::eCompute, 0, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(vertexSystem.GetGlobalSparseVertexDataBuffer(), vk::ShaderStageFlagBits::eCompute, 6, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(indexSystem.GetGlobalSparseIndexDataBuffer(), vk::ShaderStageFlagBits::eCompute, 7, vk::DescriptorType::eStorageBuffer);
-    myDescriptorSet.BindBuffer(objectSystem.GetSparseBuffer(), vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
-    myDescriptorSet.BindBuffer(objectSystem.GetDenseBuffer(), vk::ShaderStageFlagBits::eCompute, 5, vk::DescriptorType::eStorageBuffer);
+    myDescriptorSet.BindBuffer(objectSystem.GetBuffer(), vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(RenderSystem::Get()->myIndirectCommandsBuffer, vk::ShaderStageFlagBits::eCompute, 2, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(RenderSystem::Get()->myCountBuffer, vk::ShaderStageFlagBits::eCompute, 3, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(RenderSystem::Get()->myPerDrawDataBuffer, vk::ShaderStageFlagBits::eCompute, 4, vk::DescriptorType::eStorageBuffer);
