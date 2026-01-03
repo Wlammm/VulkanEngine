@@ -25,41 +25,25 @@ struct DenseObjectBuffer
 StructuredBuffer<DenseObjectBuffer> inDenseObjectBuffer;
 
 // -------------------- Output Buffers --------------------
-
-struct OutIndirectBuffer
-{
-    DrawIndexedIndirectCommand drawCommands[9999999];
-};
-
 [[vk::binding(2)]]
-RWStructuredBuffer<OutIndirectBuffer> outIndirectBuffer;
-
-struct OutCountBuffer
-{
-    uint myDrawCount;
-};
+RWStructuredBuffer<DrawIndexedIndirectCommand> outIndirectBuffer;
 
 [[vk::binding(3)]]
-RWStructuredBuffer<OutCountBuffer> outCountBuffer;
-
-struct OutPerDrawDataBuffer
-{
-    PerDrawData perDrawData[9999999];
-};
+RWStructuredBuffer<uint> outCountBuffer;
 
 [[vk::binding(4)]]
-RWStructuredBuffer<OutPerDrawDataBuffer> outPerDrawData;
+RWStructuredBuffer<PerDrawData> outPerDrawData;
 
 // ---- No-depth variants ----
 
 [[vk::binding(8)]]
-RWStructuredBuffer<OutPerDrawDataBuffer> outPerDrawDataNoDepth;
+RWStructuredBuffer<PerDrawData> outPerDrawDataNoDepth;
 
 [[vk::binding(9)]]
-RWStructuredBuffer<OutCountBuffer> outCountBufferNoDepth;
+RWStructuredBuffer<uint> outCountBufferNoDepth;
 
 [[vk::binding(10)]]
-RWStructuredBuffer<OutIndirectBuffer> outIndirectBufferNoDepth;
+RWStructuredBuffer<DrawIndexedIndirectCommand> outIndirectBufferNoDepth;
 
 // -------------------- Compute Shader --------------------
 
@@ -86,33 +70,33 @@ void CSMain(uint3 dispatchThreadID : SV_DispatchThreadID)
     if (depthWriteEnabled)
     {
         uint renderIndex;
-        InterlockedAdd(outCountBuffer[0].myDrawCount, 1, renderIndex);
+        InterlockedAdd(outCountBuffer[0], 1, renderIndex);
         
-        outIndirectBuffer[0].drawCommands[renderIndex].firstInstance = 0;
-        outIndirectBuffer[0].drawCommands[renderIndex].instanceCount = 1;
-        outIndirectBuffer[0].drawCommands[renderIndex].indexCount    = indexData.myCount;
-        outIndirectBuffer[0].drawCommands[renderIndex].vertexOffset = (int)vertexData.myOffset;
-        outIndirectBuffer[0].drawCommands[renderIndex].firstIndex   = indexData.myOffset;
+        outIndirectBuffer[renderIndex].firstInstance = 0;
+        outIndirectBuffer[renderIndex].instanceCount = 1;
+        outIndirectBuffer[renderIndex].indexCount    = indexData.myCount;
+        outIndirectBuffer[renderIndex].vertexOffset = (int)vertexData.myOffset;
+        outIndirectBuffer[renderIndex].firstIndex   = indexData.myOffset;
         
-        outPerDrawData[0].perDrawData[renderIndex].myAlbedoIndex   = instanceData.myAlbedoIndex;
-        outPerDrawData[0].perDrawData[renderIndex].myNormalIndex   = instanceData.myNormalIndex;
-        outPerDrawData[0].perDrawData[renderIndex].myMaterialIndex = instanceData.myMaterialIndex;
-        outPerDrawData[0].perDrawData[renderIndex].myToWorld       = instanceData.myToWorld;
+        outPerDrawData[renderIndex].myAlbedoIndex   = instanceData.myAlbedoIndex;
+        outPerDrawData[renderIndex].myNormalIndex   = instanceData.myNormalIndex;
+        outPerDrawData[renderIndex].myMaterialIndex = instanceData.myMaterialIndex;
+        outPerDrawData[renderIndex].myToWorld       = instanceData.myToWorld;
     }
     else
     {
         uint renderIndex;
-        InterlockedAdd(outCountBufferNoDepth[0].myDrawCount, 1, renderIndex);
+        InterlockedAdd(outCountBufferNoDepth[0], 1, renderIndex);
         
-        outIndirectBufferNoDepth[0].drawCommands[renderIndex].firstInstance = 0;
-        outIndirectBufferNoDepth[0].drawCommands[renderIndex].instanceCount = 1;
-        outIndirectBufferNoDepth[0].drawCommands[renderIndex].indexCount    = indexData.myCount;
-        outIndirectBufferNoDepth[0].drawCommands[renderIndex].vertexOffset = (int)vertexData.myOffset;
-        outIndirectBufferNoDepth[0].drawCommands[renderIndex].firstIndex   = indexData.myOffset;
+        outIndirectBufferNoDepth[renderIndex].firstInstance = 0;
+        outIndirectBufferNoDepth[renderIndex].instanceCount = 1;
+        outIndirectBufferNoDepth[renderIndex].indexCount    = indexData.myCount;
+        outIndirectBufferNoDepth[renderIndex].vertexOffset = (int)vertexData.myOffset;
+        outIndirectBufferNoDepth[renderIndex].firstIndex   = indexData.myOffset;
         
-        outPerDrawDataNoDepth[0].perDrawData[renderIndex].myAlbedoIndex   = instanceData.myAlbedoIndex;
-        outPerDrawDataNoDepth[0].perDrawData[renderIndex].myNormalIndex   = instanceData.myNormalIndex;
-        outPerDrawDataNoDepth[0].perDrawData[renderIndex].myMaterialIndex = instanceData.myMaterialIndex;
-        outPerDrawDataNoDepth[0].perDrawData[renderIndex].myToWorld       = instanceData.myToWorld;
+        outPerDrawDataNoDepth[renderIndex].myAlbedoIndex   = instanceData.myAlbedoIndex;
+        outPerDrawDataNoDepth[renderIndex].myNormalIndex   = instanceData.myNormalIndex;
+        outPerDrawDataNoDepth[renderIndex].myMaterialIndex = instanceData.myMaterialIndex;
+        outPerDrawDataNoDepth[renderIndex].myToWorld       = instanceData.myToWorld;
     }
 }

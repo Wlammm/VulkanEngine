@@ -7,18 +7,6 @@
 class Shader;
 class VulkanImage;
 
-struct TextureAttachmentDesc
-{
-    VulkanImage* myTexture;
-    
-    vk::AttachmentLoadOp myLoadOp;
-    vk::AttachmentStoreOp myStoreOp;
-
-    vk::ImageLayout myInitialLayout;
-    vk::ImageLayout myFinalLayout;
-};
-
-
 class GraphicsPass : public IRenderPass
 {
 public:

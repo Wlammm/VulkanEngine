@@ -431,7 +431,6 @@ ReflectionSystem::AddType<ComputePass>("ComputePass", typeid(ComputePass).name()
 ReflectionSystem::AddType<World>("World", typeid(World).name());
 ReflectionSystem::AddType<IndirectCullPass>("IndirectCullPass", typeid(IndirectCullPass).name());
 ReflectionSystem::AddType<IndirectPrePass>("IndirectPrePass", typeid(IndirectPrePass).name());
-ReflectionSystem::AddType<TextureAttachmentDesc>("TextureAttachmentDesc", typeid(TextureAttachmentDesc).name());
 ReflectionSystem::AddType<GraphicsPass>("GraphicsPass", typeid(GraphicsPass).name());
 ReflectionSystem::AddType<CopyTexturePass>("CopyTexturePass", typeid(CopyTexturePass).name());
 ReflectionSystem::AddType<CopyToSwapchainPass>("CopyToSwapchainPass", typeid(CopyToSwapchainPass).name());
@@ -9410,24 +9409,6 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
 Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<TextureAttachmentDesc>();
-	{
-		Field& currentField = currentClass->AddField(Field("myTexture", -1, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myLoadOp", -1, ReflectionSystem::GetOrCreateType<vk::AttachmentLoadOp>("vk::AttachmentLoadOp"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myStoreOp", -1, ReflectionSystem::GetOrCreateType<vk::AttachmentStoreOp>("vk::AttachmentStoreOp"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myInitialLayout", -1, ReflectionSystem::GetOrCreateType<vk::ImageLayout>("vk::ImageLayout"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFinalLayout", -1, ReflectionSystem::GetOrCreateType<vk::ImageLayout>("vk::ImageLayout"), false, false));
-	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<GraphicsPass>();
