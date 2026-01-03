@@ -199,6 +199,7 @@
 #include "../Game/GamePch.h"
 #include "../Game/GameTags.h"
 #include "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/include/memory"
+#include "../Engine/Vulkan/Containers/GPUPooledBuffer.h"
 
 
 // END INCLUDES FOR REFLECTED TYPES

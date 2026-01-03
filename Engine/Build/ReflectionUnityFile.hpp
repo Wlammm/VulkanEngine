@@ -133,6 +133,7 @@
 #include "../Engine/Vulkan\Aftermath\NvidiaAftermathTracker.h"
 #include "../Engine/Vulkan\Aftermath\ShaderDatabase.h"
 #include "../Engine/Vulkan\Containers\GPUList.h"
+#include "../Engine/Vulkan\Containers\GPUPooledBuffer.h"
 #include "../Engine/Vulkan\Containers\GPUSparseDenseBuffer.h"
 #include "../Engine/Vulkan\GPUSceneSystem.h"
 #include "../Engine/Vulkan\HlslShaderIncluder.h"

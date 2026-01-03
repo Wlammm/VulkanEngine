@@ -174,7 +174,6 @@ private:
         vk::BufferCopy copy = vk::BufferCopy().setSize(mySize * sizeof(ElementType));
         commandBuffer->GetAPIResource().copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
 
-        
         // Ensure the copy is finished before any further copies to this buffer
         vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
             .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
@@ -202,6 +201,16 @@ private:
     uint Size() const
     {
         return mySize;
+    }
+    
+    // Grows the list by a specific amount without initializing the data, 
+    // returning the start index of the new range.
+    uint Grow(const uint inAmount)
+    {
+        EnsureCapacityForAdds(inAmount);
+        uint startOffset = mySize;
+        SetSize(mySize + inAmount);
+        return startOffset;
     }
     
 private:
