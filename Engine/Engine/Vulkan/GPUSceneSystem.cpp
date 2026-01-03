@@ -33,7 +33,7 @@ uint GPUSceneSystem::GetNumObjects() const
     return myMeshes.Size();
 }
 
-const IGPUList* GPUSceneSystem::GetBuffer() const
+const IGPUBuffer* GPUSceneSystem::GetBuffer() const
 {
     return &myMeshes;
 }

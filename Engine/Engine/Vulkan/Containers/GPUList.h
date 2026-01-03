@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <algorithm>
 
+#include "IGPUBuffer.hpp"
 #include "Engine/Engine.h"
 #include "Engine/Delegates/MulticastDelegate.hpp"
 #include "Engine/Rendering/RenderSystem.h"
@@ -11,19 +12,13 @@
 
 #define ENABLE_GPU_DEBUGGING 1
 
-class IGPUList
-{
-public:
-    virtual ~IGPUList() = default;
-    virtual VulkanBuffer* GetBuffer() const = 0;
-    virtual MulticastDelegate<void()>& GetOnBufferResized() const = 0;
-};
+
 
 /*
  * A gpu version of the CPU List container.
  */
 template<typename ElementType> 
-class GPUList : public IGPUList
+class GPUList : public IGPUBuffer
 {
 public:
     ~GPUList()
@@ -38,7 +33,7 @@ public:
     mutable MulticastDelegate<void()> OnGPUBufferResized;
     
     VulkanBuffer* GetBuffer() const override { return myBuffer;}
-    MulticastDelegate<void()>& GetOnBufferResized() const override { return OnGPUBufferResized; };
+    MulticastDelegate<void()>* GetOnBufferResized() const override { return &OnGPUBufferResized; };
     
     GPUList(const vk::BufferCreateInfo& inCreateInfo, const std::string& inBufferName, const VmaMemoryUsage inMemoryUsage, const uint inCapacity = 4)
     {

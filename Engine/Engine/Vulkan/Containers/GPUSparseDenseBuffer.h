@@ -16,7 +16,7 @@
  * };
  */
 template<typename ElementType>
-class GPUSparseDenseBuffer : public IGPUList
+class GPUSparseDenseBuffer : public IGPUBuffer
 {
 public:
     GPUSparseDenseBuffer(const vk::BufferCreateInfo& inCreateInfo, const std::string& inBufferName, const VmaMemoryUsage inMemoryUsage, const uint inCapacity = 4)
@@ -24,7 +24,7 @@ public:
     { }
     
     VulkanBuffer* GetBuffer() const override { return myDenseData.GetBuffer(); }
-    MulticastDelegate<void()>& GetOnBufferResized() const override { return myDenseData.GetOnBufferResized();}
+    MulticastDelegate<void()>* GetOnBufferResized() const override { return myDenseData.GetOnBufferResized();}
     
     /*
      * Adds data to the GPU buffer and returns a stable CPU handle.

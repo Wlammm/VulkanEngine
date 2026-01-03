@@ -1,9 +1,10 @@
 ﻿#pragma once
+#include "Containers/IGPUBuffer.hpp"
 #include "Engine/Delegates/MulticastDelegate.hpp"
 
 class VulkanBuffer;
 
-class ResizableBuffer
+class ResizableBuffer : public IGPUBuffer
 {
 public:
     ResizableBuffer(VulkanBuffer* inBuffer);
@@ -11,9 +12,8 @@ public:
     ResizableBuffer(const ResizableBuffer&) = delete;
     void operator=(const ResizableBuffer&) = delete;
 
-    mutable MulticastDelegate<void()> OnBufferResized;
-
-    VulkanBuffer* GetBuffer() const;
+    VulkanBuffer* GetBuffer() const override;
+    MulticastDelegate<void()>* GetOnBufferResized() const override;
 
     void CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const uint inSize, uint inOffset);
     void SetData(const void* inData, const uint inSize, uint inOffset = 0);
@@ -40,4 +40,6 @@ private:
     bool myHasActiveUpload = false;
     bool myHasRegisteredForTick = false;
     VulkanBuffer* myBuffer = nullptr;
+    
+    mutable MulticastDelegate<void()> OnBufferResized;
 };

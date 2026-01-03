@@ -23,9 +23,10 @@ VulkanDescriptorSet::~VulkanDescriptorSet()
 	if(!myUsesSharedLayout)
 		VulkanContext::GetDevice()->destroyDescriptorSetLayout(myLayout);
 
-	for(const BindingData<const ResizableBuffer*>& binding : myResizableBuffer)
+	for(const BindingData<const IGPUBuffer*>& binding : myBuffers)
 	{
-		binding.myData->OnBufferResized.UnBind(&VulkanDescriptorSet::Rebuild, this);
+		if (binding.myData->GetOnBufferResized())
+			binding.myData->GetOnBufferResized()->UnBind(&VulkanDescriptorSet::Rebuild, this);
 	}
 }
 
@@ -39,41 +40,19 @@ vk::DescriptorSet VulkanDescriptorSet::GetSet() const
 	return mySet;
 }
 
-void VulkanDescriptorSet::BindBuffer(const VulkanBuffer* inBuffer, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::DescriptorType inDescriptorType)
+
+void VulkanDescriptorSet::BindBuffer(const class IGPUBuffer* inBuffer, vk::ShaderStageFlags inShaderStages,
+	uint inBindingIndex, vk::DescriptorType inDescriptorType)
 {
-	BindingData<const VulkanBuffer*> data{};
+	BindingData<const IGPUBuffer*> data{};
 	data.myData = inBuffer;
 	data.myShaderStages = inShaderStages;
 	data.myBindingIndex = inBindingIndex;
 	data.myDescriptorType = inDescriptorType;
 	myBuffers.Add(data);
-}
 
-void VulkanDescriptorSet::BindBuffer(const ResizableBuffer* inBuffer, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::DescriptorType inDescriptorType)
-{
-	BindingData<const ResizableBuffer*> data{};
-	data.myData = inBuffer;
-	data.myShaderStages = inShaderStages;
-	data.myBindingIndex = inBindingIndex;
-	data.myDescriptorType = inDescriptorType;
-	myResizableBuffer.Add(data);
-
-	if(!inBuffer->OnBufferResized.IsBound(Delegate<void()>(&VulkanDescriptorSet::Rebuild, this)))
-		inBuffer->OnBufferResized.Bind(&VulkanDescriptorSet::Rebuild, this);
-}
-
-void VulkanDescriptorSet::BindBuffer(const class IGPUList* inBuffer, vk::ShaderStageFlags inShaderStages,
-	uint inBindingIndex, vk::DescriptorType inDescriptorType)
-{
-	BindingData<const IGPUList*> data{};
-	data.myData = inBuffer;
-	data.myShaderStages = inShaderStages;
-	data.myBindingIndex = inBindingIndex;
-	data.myDescriptorType = inDescriptorType;
-	myResizableBuffers.Add(data);
-
-	if(!inBuffer->GetOnBufferResized().IsBound(Delegate<void()>(&VulkanDescriptorSet::Rebuild, this)))
-		inBuffer->GetOnBufferResized().Bind(&VulkanDescriptorSet::Rebuild, this);
+	if(inBuffer->GetOnBufferResized() && !inBuffer->GetOnBufferResized()->IsBound(Delegate<void()>(&VulkanDescriptorSet::Rebuild, this)))
+		inBuffer->GetOnBufferResized()->Bind(&VulkanDescriptorSet::Rebuild, this);
 }
 
 void VulkanDescriptorSet::BindSampler(vk::Sampler inSampler, vk::ShaderStageFlags inShaderStages, uint inBindingIndex)
@@ -113,25 +92,8 @@ void VulkanDescriptorSet::Rebuild()
 void VulkanDescriptorSet::BuildLayoutAndAllocate()
 {
 	List<vk::DescriptorSetLayoutBinding> layoutBindings{};
-	for(const BindingData<const VulkanBuffer*>& binding : myBuffers)
-	{
-		layoutBindings.Emplace()
-			.setDescriptorCount(1)
-			.setDescriptorType(binding.myDescriptorType)
-			.setStageFlags(binding.myShaderStages)
-			.setBinding(binding.myBindingIndex);
-	}
 	
-	for(const BindingData<const ResizableBuffer*>& binding : myResizableBuffer)
-	{
-		layoutBindings.Emplace()
-			.setDescriptorCount(1)
-			.setDescriptorType(binding.myDescriptorType)
-			.setStageFlags(binding.myShaderStages)
-			.setBinding(binding.myBindingIndex);
-	}
-	
-	for(const BindingData<const IGPUList*>& binding : myResizableBuffers)
+	for(const BindingData<const IGPUBuffer*>& binding : myBuffers)
 	{
 		layoutBindings.Emplace()
 			.setDescriptorCount(1)
@@ -190,43 +152,17 @@ void VulkanDescriptorSet::UpdateDescriptors()
 	setWrites.Reserve(16);
 	
 	List<vk::DescriptorBufferInfo> bufferInfos{};
-	bufferInfos.Reserve(myBuffers.size() + myResizableBuffer.size() + myResizableBuffers.size());
+	bufferInfos.Reserve(myBuffers.size());
 	
 	List<vk::DescriptorImageInfo> imageInfos{};
 	imageInfos.Reserve(mySampledImages.size());
 
-	for(const BindingData<const VulkanBuffer*>& binding : myBuffers)
-	{
-		bufferInfos.Emplace()
-			.setOffset(0)
-			.setBuffer(binding.myData->GetAPIResource())
-			.setRange(VK_WHOLE_SIZE);
-		setWrites.Emplace()
-			.setDescriptorType(binding.myDescriptorType)
-			.setDstBinding(binding.myBindingIndex)
-			.setBufferInfo(bufferInfos.Last());
-	}
-	
-	for(const BindingData<const ResizableBuffer*>& binding : myResizableBuffer)
-	{
-		bufferInfos.Emplace()
-				.setOffset(0)
-				.setBuffer(binding.myData->GetBuffer()->GetAPIResource())
-				.setRange(VK_WHOLE_SIZE);
-
-		setWrites.Emplace()
-			.setDescriptorType(binding.myDescriptorType)
-			.setDstBinding(binding.myBindingIndex)
-			.setBufferInfo(bufferInfos.Last());
-	}
-	
-	for(const BindingData<const IGPUList*>& binding : myResizableBuffers)
+	for(const BindingData<const IGPUBuffer*>& binding : myBuffers)
 	{
 		bufferInfos.Emplace()
 			.setOffset(0)
 			.setBuffer(binding.myData->GetBuffer()->GetAPIResource())
 			.setRange(VK_WHOLE_SIZE);
-
 		setWrites.Emplace()
 			.setDescriptorType(binding.myDescriptorType)
 			.setDstBinding(binding.myBindingIndex)

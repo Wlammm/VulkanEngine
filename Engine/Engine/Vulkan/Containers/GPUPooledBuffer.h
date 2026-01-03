@@ -6,7 +6,7 @@
 // NOTE: THIS STRUCTURE HAS NOT BEEN TESTED YET. ONLY CREATED AND THEN MOVED OVER TO OTHER STUFF.
 
 template<typename ElementType>
-class GPUPooledBuffer : public IGPUList
+class GPUPooledBuffer : public IGPUBuffer
 {
 public:
     struct Allocation
@@ -28,7 +28,7 @@ public:
         return myList.GetBuffer();
     }
     
-    MulticastDelegate<void()>& GetOnBufferResized() const override
+    MulticastDelegate<void()>* GetOnBufferResized() const override
     {
         return myList.GetOnBufferResized();
     }

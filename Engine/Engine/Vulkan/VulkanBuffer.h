@@ -1,8 +1,9 @@
 #pragma once
+#include "Containers/IGPUBuffer.hpp"
 #include "Engine/Delegates/MulticastDelegate.hpp"
 #include "Engine/Rendering/Vertex.hpp"
 
-class VulkanBuffer
+class VulkanBuffer : public IGPUBuffer
 {
 public:
 	static vk::BufferCreateInfo StagingCreateInfo(uint inSize)
@@ -52,6 +53,14 @@ public:
 	}
 	
 public:
+	VulkanBuffer* GetBuffer() const override
+	{
+		// Bad practice but its okey for this instance.
+		return const_cast<VulkanBuffer*>(this);
+	}
+	
+	MulticastDelegate<void()>* GetOnBufferResized() const override { return nullptr; }
+	
 	vk::Buffer GetAPIResource() const;
 
 	void CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const uint inSize, uint inOffset);

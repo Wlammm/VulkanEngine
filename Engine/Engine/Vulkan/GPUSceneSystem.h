@@ -21,7 +21,7 @@ public:
 
     uint GetNumObjects() const;
     
-    const IGPUList* GetBuffer() const;
+    const IGPUBuffer* GetBuffer() const;
     
 private:
     GPUSparseDenseBuffer<MeshInstanceData> myMeshes;

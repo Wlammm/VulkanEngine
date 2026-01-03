@@ -18,7 +18,7 @@ public:
     
     void RemoveLight(const PointLightInstanceIndex inLightInstance);
 
-    const IGPUList* GetBuffer() const { return &myPointLightBuffer; }
+    const IGPUBuffer* GetBuffer() const { return &myPointLightBuffer; }
     
     uint GetNumPointLights() const;
     

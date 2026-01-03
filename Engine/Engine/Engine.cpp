@@ -203,8 +203,8 @@ void Engine::CreateSystems()
 	mySystemManager->AddSystem<GPUSceneSystem>();
 	mySystemManager->AddSystem<IndexBufferSystem>();
 	mySystemManager->AddSystem<VertexBufferSystem>();
-	mySystemManager->AddSystem<RenderSystem>();
 	mySystemManager->AddSystem<PointLightSystem>();
+	mySystemManager->AddSystem<RenderSystem>();
 
 	mySystemManager->InitAllSystems();
 }

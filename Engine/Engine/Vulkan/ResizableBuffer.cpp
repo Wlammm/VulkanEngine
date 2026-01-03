@@ -20,6 +20,11 @@ VulkanBuffer* ResizableBuffer::GetBuffer() const
     return myBuffer;
 }
 
+MulticastDelegate<void()>* ResizableBuffer::GetOnBufferResized() const
+{
+    return &OnBufferResized;
+}
+
 void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const uint inSize, uint inOffset)
 {
     CheckCapacity(inSize + inOffset);

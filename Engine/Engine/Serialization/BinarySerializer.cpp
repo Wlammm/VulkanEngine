@@ -158,7 +158,9 @@ void BinarySerializer::ReadType(void* outInstance, const Type* inType, const boo
 
         const Field* field = inType->FindFieldByNameRecursive(fieldName);
 
-        if (!field || field->GetType()->GetName() != fieldTypeName)
+        // TODO: Fix reflection system to not have issues with references and const as part of type. That should be specific to the fields I think :))) Sometimes it didnt allow past here because the type names didnt fully 
+        // match because the field it found was const while the one saved wasnt. So changing to contains for now with weird check..
+        if (!field || !(field->GetType()->GetName().contains(fieldTypeName) || fieldTypeName.contains(field->GetType()->GetName())))
         {
             LOG("BinarySerializer::ReadClass - Failed to find field: %s %s in class %s.", fieldName.c_str(), fieldTypeName.c_str(), inType->GetName().c_str());
             myReadOffset += fieldSize;
