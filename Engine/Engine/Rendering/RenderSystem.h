@@ -62,11 +62,6 @@ public:
     
     TextureCube* myCubemap = nullptr;
     
-    
-    void BuildSceneHeader() const;
-    
-    VulkanBuffer* mySceneHeaderBuffer = nullptr;
-    
 private:
     template<typename RenderPassType, typename... Args>
    void AddGraphicsPass(Args&&... InArgs)

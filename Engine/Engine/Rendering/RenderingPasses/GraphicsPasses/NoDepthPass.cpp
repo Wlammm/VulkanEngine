@@ -38,7 +38,7 @@ void NoDepthPass::SetupDescriptors()
         vk::DescriptorType::eStorageBuffer);
     
     myDescriptorSet.BindBuffer(
-       RenderSystem::Get()->mySceneHeaderBuffer,
+       GPUResourceManager::Get()->GetBuffer<SceneHeader>(),
        vk::ShaderStageFlagBits::eFragment, 
        5, 
        vk::DescriptorType::eUniformBuffer);

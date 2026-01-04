@@ -1,6 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "IndirectCullPass.h"
 
+#include "Engine/Rendering/GPUResourceManager.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
 #include "Engine/Rendering/MeshSystem.h"
 #include "Engine/Rendering/VertexBufferSystem.h"
@@ -28,7 +29,7 @@ void IndirectCullPass::SetupDescriptors()
     myDescriptorSet.BindBuffer(RenderSystem::Get()->myPerDrawDataNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 8, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(RenderSystem::Get()->myCountNoDepthBuffer, vk::ShaderStageFlagBits::eCompute, 9, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(RenderSystem::Get()->myIndirectCommandsBufferNoDepth, vk::ShaderStageFlagBits::eCompute, 10, vk::DescriptorType::eStorageBuffer);
-	myDescriptorSet.BindBuffer(RenderSystem::Get()->mySceneHeaderBuffer, vk::ShaderStageFlagBits::eCompute, 11, vk::DescriptorType::eUniformBuffer);
+	myDescriptorSet.BindBuffer(GPUResourceManager::Get()->GetBuffer<SceneHeader>(), vk::ShaderStageFlagBits::eCompute, 11, vk::DescriptorType::eUniformBuffer);
     myDescriptorSet.Build();
 }
 

@@ -9,11 +9,12 @@ class ConstantBuffer : public IGPUBuffer
 public:
     ConstantBuffer(const std::string& inBufferName)
     {
-        // TODO: Should we allow these to be mappable?
+        // TODO: Should we allow these to not be mappable?
         myBuffer = VulkanAllocator::AllocateBuffer_TS(
             inBufferName, 
             VulkanBuffer::UniformBufferCreateInfo(sizeof(T)),
-            VMA_MEMORY_USAGE_AUTO);
+            VMA_MEMORY_USAGE_AUTO,
+            true);
     }
 
     ~ConstantBuffer()
