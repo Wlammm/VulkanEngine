@@ -1,6 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "MainPass.h"
 
+#include "Engine/Rendering/GPUResourceManager.h"
 #include "Engine/Systems/PointLightSystem.h"
 #include "Engine/Vulkan/ResizableBuffer.h"
 
@@ -12,7 +13,7 @@ MainPass::MainPass()
 void MainPass::SetupDescriptors()
 {
     myDescriptorSet.BindBuffer(
-            RenderSystem::Get()->myFrameDataBuffer, 
+            GPUResourceManager::Get()->GetBuffer<CameraBuffer>(), 
             vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
             0, 
             vk::DescriptorType::eUniformBuffer);

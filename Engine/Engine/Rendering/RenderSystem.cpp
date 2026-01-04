@@ -1,6 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "RenderSystem.h"
 
+#include "GPUResourceManager.h"
 #include "Engine/Engine.h"
 #include "IndexBufferSystem.h"
 #include "VertexBufferSystem.h"
@@ -17,6 +18,7 @@
 #include "Engine/Vulkan/VulkanImage.h"
 #include "Engine/Vulkan/VulkanPhysicalDevice.h"
 #include "Engine/Vulkan/VulkanSwapChain.h"
+#include "Engine/Vulkan/Containers/ConstantBuffer.h"
 #include "Engine/World/World.h"
 #include "RenderingPasses/IRenderPass.h"
 #include "RenderingPasses/ComputePasses/IndirectCullPass.h"
@@ -55,6 +57,24 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::Init()
 {
+	GPUResourceManager* resourceManager = GPUResourceManager::Get();
+	resourceManager->RegisterBuffer<CameraBuffer>(new ConstantBuffer<CameraBuffer>("CameraBuffer"), [](GPUResourceManager::BufferResource& inResource)
+	{
+		CameraComponent* camera = Engine::GetWorld()->GetMainCamera();
+		if(!camera)
+		{
+			LOG_ERROR("No main camera set!");
+			return;
+		}
+			
+		CameraBuffer data{};
+		data.myProjection = camera->GetProjection();
+		data.myToView = glm::affineInverse(camera->GetTransform().GetMatrix());
+		data.myCameraPosition = camera->GetTransform().GetPosition();
+		
+		static_cast<ConstantBuffer<CameraBuffer>*>(inResource.myBuffer)->SetData(data);
+	});
+	
 	CreateRenderResources();
 }
 
@@ -243,7 +263,6 @@ void RenderSystem::AddRenderPasses(vk::CommandBuffer inCommandBuffer)
 		nullptr);
 
 	EnsureCorrectBufferSizes(inCommandBuffer);
-	BuildFrameBuffer();
 	BuildDirectionalLightBuffer();
 	
 	for (IRenderPass* renderPass : myRenderPasses)
@@ -385,29 +404,6 @@ void RenderSystem::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
     }
 }
 
-void RenderSystem::BuildFrameBuffer()
-{
-	CameraComponent* camera = Engine::GetWorld()->GetMainCamera();
-
-	if (!camera)
-	{
-		LOG_ERROR("No main camera set!");
-		return;
-	}
-	
-	TransformComponent& transform = camera->GetTransform();
-	
-	FrameData data{};
-	data.myProjection = camera->GetProjection();
-	data.myToView = glm::affineInverse(transform.GetMatrix());
-	data.myCameraPosition = transform.GetPosition();
-
-	if(myCubemap)
-		data.myCubemapIndex = myCubemap->GetBindlessIndex();
-	
-	myFrameDataBuffer->SetData(data);
-}
-
 void RenderSystem::BuildDirectionalLightBuffer()
 {
 	DirectionalLightBuffer buffer = {};
@@ -450,7 +446,6 @@ void RenderSystem::DestroyRenderResources()
 	VulkanAllocator::DestroyBuffer_TS(myCountBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myCountNoDepthBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myDirectionalLightBuffer);
-	VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
 	VulkanAllocator::DestroyBuffer_TS(mySceneHeaderBuffer);
 }
 
@@ -636,12 +631,6 @@ void RenderSystem::CreateBuffers()
 		.setSize(sizeof(vk::DrawIndexedIndirectCommand) * numObjects)
 		.setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
 		VMA_MEMORY_USAGE_AUTO));
-
-    myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
-        "FrameDataBuffer",
-        VulkanBuffer::UniformBufferCreateInfo(sizeof(FrameData)),
-        VMA_MEMORY_USAGE_AUTO, 
-        true);
 
     myDirectionalLightBuffer = VulkanAllocator::AllocateBuffer_TS(
         "DirectionalLightBuffer", 

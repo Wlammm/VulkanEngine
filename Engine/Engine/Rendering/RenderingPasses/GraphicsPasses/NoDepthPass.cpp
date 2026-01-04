@@ -1,6 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "NoDepthPass.h"
 
+#include "Engine/Rendering/GPUResourceManager.h"
 #include "Engine/Systems/PointLightSystem.h"
 #include "Engine/Vulkan/ResizableBuffer.h"
 
@@ -13,7 +14,7 @@ NoDepthPass::NoDepthPass()
 void NoDepthPass::SetupDescriptors()
 {
     myDescriptorSet.BindBuffer(
-            RenderSystem::Get()->myFrameDataBuffer, 
+            GPUResourceManager::Get()->GetBuffer<CameraBuffer>(), 
             vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
             0, 
             vk::DescriptorType::eUniformBuffer);

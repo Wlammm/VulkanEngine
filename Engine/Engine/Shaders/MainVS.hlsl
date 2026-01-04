@@ -23,14 +23,8 @@ struct VSOutput
 };
 
 
-struct FrameBuffer
-{
-    float4x4 myToView;
-    float4x4 myProjection;
-    float3 myCameraPosition;
-};
 
-[[vk::binding(0, 0)]] ConstantBuffer<FrameBuffer> inFrameData : register(b0);
+[[vk::binding(0, 0)]] ConstantBuffer<CameraBuffer> inCameraBuffer : register(b0);
 
 [[vk::binding(4, 0)]] StructuredBuffer<PerDrawData> inPerDrawData;
 
@@ -39,7 +33,7 @@ VSOutput VSMain(VSInput input, [[vk::builtin("DrawIndex")]] uint drawID : SV_Ins
     VSOutput output;
     
     PerDrawData drawData = inPerDrawData[drawID];
-    output.outPosition = mul(inFrameData.myProjection, mul(inFrameData.myToView, mul(drawData.myToWorld, float4(input.inPosition, 1.0))));
+    output.outPosition = mul(inCameraBuffer.myProjection, mul(inCameraBuffer.myToView, mul(drawData.myToWorld, float4(input.inPosition, 1.0))));
 	
     float3x3 toWorldRotation = (float3x3)drawData.myToWorld;
     output.outNormal = normalize(mul(toWorldRotation, input.inNormal));
@@ -53,7 +47,7 @@ VSOutput VSMain(VSInput input, [[vk::builtin("DrawIndex")]] uint drawID : SV_Ins
     float3 N = normalize(output.outNormal);
     float3 B = cross(N, T);
     float3x3 TBN = transpose(float3x3(T, B, N));
-    output.outTangentViewDir = mul(TBN, inFrameData.myCameraPosition - output.outFragPos);
+    output.outTangentViewDir = mul(TBN, inCameraBuffer.myCameraPosition - output.outFragPos);
     
     return output;
 }

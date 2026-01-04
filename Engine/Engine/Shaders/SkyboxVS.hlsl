@@ -1,12 +1,6 @@
-struct FrameData 
-{
-    float4x4 myToView;
-    float4x4 myProjection;
-    float3   myCameraPosition;
-    uint     myCubemapIndex;
-};
+#include "Shared/MeshStructs.hpp"
 
-[[vk::binding(0, 0)]] ConstantBuffer<FrameData> inFrameData : register(b0);
+[[vk::binding(0, 0)]] ConstantBuffer<CameraBuffer> inCameraBuffer : register(b0);
 
 struct VSInput 
 {
@@ -31,9 +25,9 @@ VSOutput VSMain(VSInput input)
     VSOutput output;
 
     float4 pos = float4(input.position, 1.0f);
-    output.sv_position = mul(inFrameData.myProjection, pos);
+    output.sv_position = mul(inCameraBuffer.myProjection, pos);
     
-    float3x3 toViewRotation = (float3x3)inFrameData.myToView;
+    float3x3 toViewRotation = (float3x3)inCameraBuffer.myToView;
     output.outModelFragPos = mul(transpose(toViewRotation), input.position);
     
     output.texCoord = input.texCoords0;

@@ -33,7 +33,7 @@ public:
 	{
 		return vk::BufferCreateInfo()
 			.setSize(inSize)
-			.setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
+			.setUsage(vk::BufferUsageFlagBits::eUniformBuffer | vk::BufferUsageFlagBits::eTransferDst);
 	}
 
 	static vk::BufferCreateInfo StorageBufferCreateInfo(uint inSize)

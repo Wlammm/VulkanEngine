@@ -35,6 +35,7 @@ public:
     {
         const std::string typeName = typeid(ClassType).name();
 
+        // TODO: Find a faster way than string comparisons.
         for (const Type* entry : myTypes)
         {
             if (entry->GetFullName() == typeName)

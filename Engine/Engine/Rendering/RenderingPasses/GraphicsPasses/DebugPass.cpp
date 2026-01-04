@@ -3,22 +3,18 @@
 
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Components/TransformComponent.h"
+#include "Engine/Rendering/GPUResourceManager.h"
+#include "Engine/Shaders/Shared/MeshStructs.hpp"
 #include "Engine/Utils/Debug.h"
 #include "Engine/World/World.h"
 
 DebugPass::DebugPass()
     : GraphicsPass("Shaders/DebugVS.hlsl", "Shaders/DebugPS.hlsl", false, false)
 {
-    myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
-        "FrameDataBuffer",
-        VulkanBuffer::UniformBufferCreateInfo(sizeof(FrameData)),
-        VMA_MEMORY_USAGE_AUTO,
-        true);
 }
 
 DebugPass::~DebugPass()
 {
-    VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
 }
 
 void DebugPass::SetupAttachments()
@@ -29,7 +25,7 @@ void DebugPass::SetupAttachments()
 
 void DebugPass::SetupDescriptors()
 {
-    myDescriptorSet.BindBuffer(myFrameDataBuffer, vk::ShaderStageFlagBits::eVertex, 0, vk::DescriptorType::eUniformBuffer);
+    myDescriptorSet.BindBuffer(GPUResourceManager::Get()->GetBuffer<CameraBuffer>(), vk::ShaderStageFlagBits::eVertex, 0, vk::DescriptorType::eUniformBuffer);
     myDescriptorSet.Build();
 }
 
@@ -71,8 +67,6 @@ void DebugPass::DrawCall(vk::CommandBuffer inCommandBuffer)
     if (!vertexBuffer)
         return;
     
-    UpdateFrameBuffer();
-    
     inCommandBuffer.bindVertexBuffers(0, { vertexBuffer->GetAPIResource() }, { 0 });
     inCommandBuffer.draw(Debug::GetDrawInfos().size() * 2, 1, 0, 0);
     Debug::ClearDrawInfos();
@@ -100,23 +94,4 @@ VulkanBuffer* DebugPass::BuildVertexBuffer()
 
     VulkanAllocator::DestroyBuffer_TS(buffer);
     return buffer;
-}
-
-void DebugPass::UpdateFrameBuffer()
-{
-    CameraComponent* camera = Engine::GetWorld()->GetMainCamera();
-
-    if (!camera)
-    {
-        LOG_ERROR("No main camera set!");
-        return;
-    }
-	
-    TransformComponent& transform = camera->GetTransform();
-	
-    FrameData data{};
-    data.myProjection = camera->GetProjection();
-    data.myToView = glm::affineInverse(transform.GetMatrix());
-    data.myCameraPosition = transform.GetPosition();
-    myFrameDataBuffer->SetData(data);
 }

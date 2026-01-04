@@ -16,19 +16,10 @@ public:
     
 private:
     VulkanBuffer* BuildVertexBuffer();
-    void UpdateFrameBuffer();
 
     struct DebugVertex
     {
         glm::vec3 myPosition;
         Color myColor;
     };
-    
-    struct FrameData
-    {
-        glm::mat4 myToView;
-        glm::mat4 myProjection;
-        glm::vec3 myCameraPosition;
-    };
-    VulkanBuffer* myFrameDataBuffer;
 };

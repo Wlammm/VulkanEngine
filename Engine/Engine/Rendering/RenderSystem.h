@@ -59,14 +59,6 @@ public:
     };
     VulkanBuffer* myDirectionalLightBuffer;
     // FrameDescriptorSet.
-    struct FrameData
-    {
-        glm::mat4 myToView;
-        glm::mat4 myProjection;
-        glm::vec3 myCameraPosition;
-        uint myCubemapIndex = (uint)-1;
-    };
-    VulkanBuffer* myFrameDataBuffer; 
     
     TextureCube* myCubemap = nullptr;
     
@@ -91,7 +83,6 @@ private:
     void FlushUploadCommands();
     
     void EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer);
-    void BuildFrameBuffer();
     void BuildDirectionalLightBuffer();
 
 private:

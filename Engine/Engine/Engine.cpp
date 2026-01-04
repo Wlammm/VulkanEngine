@@ -18,6 +18,7 @@
 #include "Tracy/tracy/Tracy.hpp"
 #include "Core/AutoInitManager.h"
 #include "Physics/PhysicsSystem.h"
+#include "Rendering/GPUResourceManager.h"
 #include "Rendering/IndexBufferSystem.h"
 #include "Rendering/MeshSystem.h"
 #include "Rendering/RenderSystem.h"
@@ -123,6 +124,7 @@ void Engine::Tick()
 	myExternalTickFunction();
 	
 	GetEngineSystem<TextureSystem>().Tick();
+	GetEngineSystem<GPUResourceManager>().Tick();
 	GetEngineSystem<RenderSystem>().Tick();
 	
 	myVulkanContext->EndFrame();
@@ -197,6 +199,7 @@ void Engine::SetExternalTickFunction(const std::function<void()> inExternalTickF
 void Engine::CreateSystems()
 {
 	mySystemManager->AddSystem<AssetRegistry>();
+	mySystemManager->AddSystem<GPUResourceManager>();
 	mySystemManager->AddSystem<StagingSystem>();
 	mySystemManager->AddSystem<TextureSystem>();
 	mySystemManager->AddSystem<MeshSystem>();

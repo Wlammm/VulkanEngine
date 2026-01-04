@@ -6,6 +6,7 @@
 #include "Engine/Assets/Texture.h"
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Components/TransformComponent.h"
+#include "Engine/Rendering/GPUResourceManager.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
 #include "Engine/Rendering/Mesh.h"
 #include "Engine/Rendering/VertexBufferSystem.h"
@@ -20,7 +21,6 @@ SkyboxPass::SkyboxPass()
 
 SkyboxPass::~SkyboxPass()
 {
-    VulkanAllocator::DestroyBuffer_TS(myFrameDataBuffer);
 }
 
 void SkyboxPass::SetupAttachments()
@@ -30,14 +30,8 @@ void SkyboxPass::SetupAttachments()
 
 void SkyboxPass::SetupDescriptors()
 {
-    myFrameDataBuffer = VulkanAllocator::AllocateBuffer_TS(
-        "FrameDataBuffer",
-        VulkanBuffer::UniformBufferCreateInfo(sizeof(FrameData)),
-        VMA_MEMORY_USAGE_AUTO, 
-        true);
-    
     myDescriptorSet.BindBuffer(
-        myFrameDataBuffer, 
+        GPUResourceManager::Get()->GetBuffer<CameraBuffer>(), 
         vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
         0, 
         vk::DescriptorType::eUniformBuffer);
@@ -55,8 +49,6 @@ void SkyboxPass::DrawCall(vk::CommandBuffer inCommandBuffer)
     // Invert the sphere for this pass as the camera is inside of it.
     inCommandBuffer.setFrontFace(vk::FrontFace::eClockwise);
     
-    BuildFrameData();
-    
     Mesh* mesh = mySkyboxModel->GetMeshes()[0];
     
     VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
@@ -65,25 +57,4 @@ void SkyboxPass::DrawCall(vk::CommandBuffer inCommandBuffer)
     uint vertexOffset = vertexBufferSystem.GetVertexOffsetFromVertexHandle(mesh->GetVertexBuffer());
     const IndexBufferData& indexData = indexBufferSystem.GetIndexBufferDataFromIndexHandle(mesh->GetIndexBuffer());
     inCommandBuffer.drawIndexed(indexData.myCount, 1, indexData.myOffset, vertexOffset, 0);
-}
-
-void SkyboxPass::BuildFrameData()
-{
-    if (!mySkybox)
-        return;
-
-    CameraComponent* camera = Engine::GetWorld()->GetMainCamera();
-    if(!camera)
-    {
-        LOG_ERROR("No main camera set!");
-        return;
-    }
-		
-    FrameData data{};
-    data.myProjection = camera->GetProjection();
-    data.myToView = glm::affineInverse(camera->GetTransform().GetMatrix());
-    data.myCameraPosition = camera->GetTransform().GetPosition();
-    data.myCubemapIndex = mySkybox->GetBindlessIndex();
-	
-    myFrameDataBuffer->SetData(data);
 }

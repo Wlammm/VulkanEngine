@@ -178,6 +178,7 @@
 #include "../Engine/Utils/StdIncludes.hpp"
 #include "../Engine/Vulkan/Aftermath/NvidiaAftermathTracker.h"
 #include "../Engine/Vulkan/Aftermath/ShaderDatabase.h"
+#include "../Engine/Vulkan/Containers/ConstantBuffer.h"
 #include "../Engine/Vulkan/Containers/GPUPooledBuffer.h"
 #include "../Engine/Vulkan/Containers/IGPUBuffer.hpp"
 #include "../Engine/Vulkan/ResizableBuffer.h"
@@ -342,6 +343,7 @@ ReflectionSystem::AddType<List<TransformComponent *>>("List<TransformComponent *
 ReflectionSystem::AddType<List<Component *>>("List<Component *>", typeid(List<Component *>).name());
 ReflectionSystem::AddType<List<std::thread>>("List<std::thread>", typeid(List<std::thread>).name());
 ReflectionSystem::AddType<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>("List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>", typeid(List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>).name());
+ReflectionSystem::AddType<List<GPUResourceManager::BufferResource>>("List<GPUResourceManager::BufferResource>", typeid(List<GPUResourceManager::BufferResource>).name());
 ReflectionSystem::AddType<List<IndexBufferHandle *>>("List<IndexBufferHandle *>", typeid(List<IndexBufferHandle *>).name());
 ReflectionSystem::AddType<List<IndexBufferData>>("List<IndexBufferData>", typeid(List<IndexBufferData>).name());
 ReflectionSystem::AddType<List<const char *>>("List<const char *>", typeid(List<const char *>).name());
@@ -373,9 +375,10 @@ ReflectionSystem::AddType<Filewatcher>("Filewatcher", typeid(Filewatcher).name()
 ReflectionSystem::AddType<Filewatcher::CallbackHandle>("Filewatcher::CallbackHandle", typeid(Filewatcher::CallbackHandle).name());
 ReflectionSystem::AddType<Filewatcher::FileData>("Filewatcher::FileData", typeid(Filewatcher::FileData).name());
 ReflectionSystem::AddType<GPUResourceManager>("GPUResourceManager", typeid(GPUResourceManager).name());
-ReflectionSystem::AddType<GPUResourceManager::GPUResource>("GPUResourceManager::GPUResource", typeid(GPUResourceManager::GPUResource).name());
+ReflectionSystem::AddType<GPUResourceManager::BufferResource>("GPUResourceManager::BufferResource", typeid(GPUResourceManager::BufferResource).name());
 ReflectionSystem::AddType<Input>("Input", typeid(Input).name());
 ReflectionSystem::AddType<Random>("Random", typeid(Random).name());
+ReflectionSystem::AddType<CameraBuffer>("CameraBuffer", typeid(CameraBuffer).name());
 ReflectionSystem::AddType<MeshData>("MeshData", typeid(MeshData).name());
 ReflectionSystem::AddType<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
 ReflectionSystem::AddType<IndexBufferData>("IndexBufferData", typeid(IndexBufferData).name());
@@ -408,10 +411,10 @@ ReflectionSystem::AddType<Delegate<void (void *)>>("Delegate<void (void *)>", ty
 ReflectionSystem::AddType<Delegate<void (IUniquePtr *)>>("Delegate<void (IUniquePtr *)>", typeid(Delegate<void (IUniquePtr *)>).name());
 ReflectionSystem::AddType<Delegate<std::shared_ptr<void> ()>>("Delegate<std::shared_ptr<void> ()>", typeid(Delegate<std::shared_ptr<void> ()>).name());
 ReflectionSystem::AddType<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>("Delegate<void (physx::PxPhysics *, physx::PxScene *)>", typeid(Delegate<void (physx::PxPhysics *, physx::PxScene *)>).name());
+ReflectionSystem::AddType<Delegate<void (GPUResourceManager::BufferResource &)>>("Delegate<void (GPUResourceManager::BufferResource &)>", typeid(Delegate<void (GPUResourceManager::BufferResource &)>).name());
 ReflectionSystem::AddType<Delegate<void ()>>("Delegate<void ()>", typeid(Delegate<void ()>).name());
 ReflectionSystem::AddType<RenderSystem>("RenderSystem", typeid(RenderSystem).name());
 ReflectionSystem::AddType<RenderSystem::DirectionalLightBuffer>("RenderSystem::DirectionalLightBuffer", typeid(RenderSystem::DirectionalLightBuffer).name());
-ReflectionSystem::AddType<RenderSystem::FrameData>("RenderSystem::FrameData", typeid(RenderSystem::FrameData).name());
 ReflectionSystem::AddType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>", typeid(MulticastDelegate<void ()>).name());
 ReflectionSystem::AddType<TestClass>("TestClass", typeid(TestClass).name());
 ReflectionSystem::AddType<Engine>("Engine", typeid(Engine).name());
@@ -6382,6 +6385,11 @@ Method& currentMethod = currentClass->AddMethod(Method("OnModelChangedFromInspec
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>("Delegate<void (physx::PxPhysics *, physx::PxScene *)>"), false, false);
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<GPUResourceManager::BufferResource>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<GPUResourceManager::BufferResource>("GPUResourceManager::BufferResource"), false, false);
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<IndexBufferHandle *>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IndexBufferHandle>("IndexBufferHandle"), true, false);
@@ -6714,11 +6722,68 @@ Method& currentMethod = currentClass->AddMethod(Method("operator==", ReflectionS
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<GPUResourceManager>();
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffers", -1, ReflectionSystem::GetOrCreateType<List<GPUResourceManager::BufferResource>>("List<GPUResourceManager::BufferResource>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTickableBuffers", -1, ReflectionSystem::GetOrCreateType<List<GPUResourceManager::BufferResource>>("List<GPUResourceManager::BufferResource>"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUResourceManager* instance = static_cast<GPUResourceManager*>(inInstance);
+GPUResourceManager * result = instance->Get();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Get", ReflectionSystem::GetOrCreateType<GPUResourceManager *>("GPUResourceManager *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUResourceManager* instance = static_cast<GPUResourceManager*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUResourceManager* instance = static_cast<GPUResourceManager*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+IGPUBuffer * result = instance->GetBuffer(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inBufferTypeName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<IGPUBuffer *>("IGPUBuffer *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUResourceManager* instance = static_cast<GPUResourceManager*>(inInstance);
+const Type * arg0 = (const Type*)inArguments[0];
+IGPUBuffer * result = instance->GetBuffer(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<IGPUBuffer *>("IGPUBuffer *"), invoker, arguments));
+}
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<GPUResourceManager::GPUResource>();
+	Type* currentClass = ReflectionSystem::GetMutableType<GPUResourceManager::BufferResource>();
 	{
-		Field& currentField = currentClass->AddField(Field("myDescriptorType", -1, ReflectionSystem::GetOrCreateType<vk::DescriptorType>("vk::DescriptorType"), false, false));
+		Field& currentField = currentClass->AddField(Field("myBuffer", -1, ReflectionSystem::GetOrCreateType<IGPUBuffer>("IGPUBuffer"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myType", -1, ReflectionSystem::GetOrCreateType<const Type>("const Type"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTickFunction", -1, ReflectionSystem::GetOrCreateType<Delegate<void (GPUResourceManager::BufferResource &)>>("Delegate<void (GPUResourceManager::BufferResource &)>"), false, false));
 	}
 }
 { 
@@ -6902,6 +6967,18 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSys
 	Type* currentClass = ReflectionSystem::GetMutableType<Random>();
 	{
 		Field& currentField = currentClass->AddField(Field("myEngine", -1, ReflectionSystem::GetOrCreateType<std::mersenne_twister_engine<unsigned int, 32, 624, 397, 31, 2567483615, 11, 4294967295, 7, 2636928640, 15, 4022730752, 18, 1812433253>>("std::mersenne_twister_engine<unsigned int, 32, 624, 397, 31, 2567483615, 11, 4294967295, 7, 2636928640, 15, 4022730752, 18, 1812433253>"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<CameraBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("myToView", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myProjection", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myCameraPosition", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
 	}
 }
 { 
@@ -7374,6 +7451,10 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", Refl
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void (physx::PxPhysics *, physx::PxScene *)>("void (physx::PxPhysics *, physx::PxScene *)"), false, false);
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void (GPUResourceManager::BufferResource &)>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void (GPUResourceManager::BufferResource &)>("void (GPUResourceManager::BufferResource &)"), false, false);
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<Delegate<void ()>>();
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<void ()>("void ()"), false, false);
 }
@@ -7405,9 +7486,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", Refl
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDirectionalLightBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCubemap", -1, ReflectionSystem::GetOrCreateType<TextureCube>("TextureCube"), true, false));
@@ -7566,21 +7644,6 @@ Method& currentMethod = currentClass->AddMethod(Method("BuildSceneHeader", Refle
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myLightProjection", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<RenderSystem::FrameData>();
-	{
-		Field& currentField = currentClass->AddField(Field("myToView", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myProjection", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCameraPosition", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCubemapIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
 }
 { 
@@ -9733,9 +9796,6 @@ Method& currentMethod = currentClass->AddMethod(Method("DrawCall", ReflectionSys
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<DebugPass>();
-	{
-		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
-	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<GraphicsPass>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -9885,9 +9945,6 @@ Method& currentMethod = currentClass->AddMethod(Method("DrawCall", ReflectionSys
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("mySkybox", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFrameDataBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<GraphicsPass>());
 {

@@ -15,15 +15,7 @@ struct PSInput
 [[vk::binding(0, 1)]] Texture2D textures[];
 [[vk::binding(0, 1)]] SamplerState samplerState;
 
-struct FrameBuffer 
-{
-	float4x4 myToView;
-	float4x4 myProjection;
-	float3 myCameraPosition;
-    uint myCubemapIndex;
-};
-
-[[vk::binding(0, 0)]] ConstantBuffer<FrameBuffer> inFrameData : register(b0);
+[[vk::binding(0, 0)]] ConstantBuffer<CameraBuffer> inCameraBuffer : register(b0);
 
 // TODO: this could probably be inPointLightBuffer.Count later on instead of myNumLights...
 [[vk::binding(1)]]
@@ -116,10 +108,10 @@ float4 PSMain(PSInput input) : SV_Target
     for(int i = 0; i < inSceneHeader.myNumPointLights; ++i)
     {
         float3 lightColor = inPointLightBuffer[i].myColor.rgb * inPointLightBuffer[i].myIntensity;
-        pointLightColor += CalculatePointLight(inPointLightBuffer[i].myPosition, lightColor, inPointLightBuffer[i].myRange, normalColor, inFrameData.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness);
+        pointLightColor += CalculatePointLight(inPointLightBuffer[i].myPosition, lightColor, inPointLightBuffer[i].myRange, normalColor, inCameraBuffer.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness);
     }
     float3 lightDir = inDirectionalLightBuffer.myDirection;
-    float3 directionalLightColor = CalculateDirectionalLight(inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor.xyz, normalColor, inFrameData.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness);
+    float3 directionalLightColor = CalculateDirectionalLight(inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor.xyz, normalColor, inCameraBuffer.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness);
     
     directionalLightColor *= inDirectionalLightBuffer.myColor.a * 10;
     float3 ambientLight = albedoColor.rgb * ambientLightStrength;

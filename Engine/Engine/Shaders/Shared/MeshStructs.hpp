@@ -19,6 +19,16 @@ using float3 = glm::vec3;
  * A nested structure must be aligned by the base alignment of its members rounded up to a multiple of 16
  */
 
+// ----------- ConstantBuffers -----------
+struct CameraBuffer
+{
+    float4x4 myToView;
+    float4x4 myProjection;
+    float3 myCameraPosition;
+};
+
+
+// ----------- StorageBuffers -----------
 struct MeshData
 {
     ALIGNAS(16) float4 myBoundingSphereModelSpace; // X, Y, Z are center position in model space. W is radius

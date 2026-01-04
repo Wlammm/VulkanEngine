@@ -10,15 +10,6 @@ Texture2D textures[];
 [[vk::binding(2, 0)]]
 SamplerState linearSampler;
 
-// Uniform buffer (set = 0, binding = 0)
-cbuffer FrameBuffer : register(b0, space0)
-{
-    float4x4 myToView;
-    float4x4 myProjection;
-    float3   myCameraPosition;
-    uint     mySkyboxIndex;
-};
-
 static const float2 invAtan = float2(0.1591, 0.3183);
 
 float2 SampleSphericalMap(float3 v)
