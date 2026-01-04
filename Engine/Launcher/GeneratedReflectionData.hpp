@@ -379,10 +379,11 @@ ReflectionSystem::AddType<GPUResourceManager::BufferResource>("GPUResourceManage
 ReflectionSystem::AddType<Input>("Input", typeid(Input).name());
 ReflectionSystem::AddType<Random>("Random", typeid(Random).name());
 ReflectionSystem::AddType<CameraBuffer>("CameraBuffer", typeid(CameraBuffer).name());
+ReflectionSystem::AddType<SceneHeader>("SceneHeader", typeid(SceneHeader).name());
+ReflectionSystem::AddType<DirectionalLightBuffer>("DirectionalLightBuffer", typeid(DirectionalLightBuffer).name());
 ReflectionSystem::AddType<MeshData>("MeshData", typeid(MeshData).name());
 ReflectionSystem::AddType<VertexBufferData>("VertexBufferData", typeid(VertexBufferData).name());
 ReflectionSystem::AddType<IndexBufferData>("IndexBufferData", typeid(IndexBufferData).name());
-ReflectionSystem::AddType<SceneHeader>("SceneHeader", typeid(SceneHeader).name());
 ReflectionSystem::AddType<MeshInstanceData>("MeshInstanceData", typeid(MeshInstanceData).name());
 ReflectionSystem::AddType<PerDrawData>("PerDrawData", typeid(PerDrawData).name());
 ReflectionSystem::AddType<PointLightData>("PointLightData", typeid(PointLightData).name());
@@ -414,7 +415,6 @@ ReflectionSystem::AddType<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>
 ReflectionSystem::AddType<Delegate<void (GPUResourceManager::BufferResource &)>>("Delegate<void (GPUResourceManager::BufferResource &)>", typeid(Delegate<void (GPUResourceManager::BufferResource &)>).name());
 ReflectionSystem::AddType<Delegate<void ()>>("Delegate<void ()>", typeid(Delegate<void ()>).name());
 ReflectionSystem::AddType<RenderSystem>("RenderSystem", typeid(RenderSystem).name());
-ReflectionSystem::AddType<RenderSystem::DirectionalLightBuffer>("RenderSystem::DirectionalLightBuffer", typeid(RenderSystem::DirectionalLightBuffer).name());
 ReflectionSystem::AddType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>", typeid(MulticastDelegate<void ()>).name());
 ReflectionSystem::AddType<TestClass>("TestClass", typeid(TestClass).name());
 ReflectionSystem::AddType<Engine>("Engine", typeid(Engine).name());
@@ -6982,6 +6982,33 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSys
 	}
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<SceneHeader>();
+	{
+		Field& currentField = currentClass->AddField(Field("myNumMeshInstances", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myNumPointLights", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<DirectionalLightBuffer>();
+	{
+		Field& currentField = currentClass->AddField(Field("myColor", -1, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myDirection", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("padding", -1, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLightView", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myLightProjection", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
+	}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<MeshData>();
 	{
 		Field& currentField = currentClass->AddField(Field("myBoundingSphereModelSpace", -1, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
@@ -7009,15 +7036,6 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSys
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCount", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<SceneHeader>();
-	{
-		Field& currentField = currentClass->AddField(Field("myNumMeshInstances", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myNumPointLights", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
 }
 { 
@@ -7485,9 +7503,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", Refl
 		Field& currentField = currentClass->AddField(Field("myPerDrawDataNoDepthBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDirectionalLightBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
-	}
-	{
 		Field& currentField = currentClass->AddField(Field("myCubemap", -1, ReflectionSystem::GetOrCreateType<TextureCube>("TextureCube"), true, false));
 	}
 	{
@@ -7614,24 +7629,6 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("commandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *")));
 Method& currentMethod = currentClass->AddMethod(Method("QueueCommandBufferForUpload_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<RenderSystem::DirectionalLightBuffer>();
-	{
-		Field& currentField = currentClass->AddField(Field("myColor", -1, ReflectionSystem::GetOrCreateType<glm::vec<4, float>>("glm::vec<4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myDirection", -1, ReflectionSystem::GetOrCreateType<glm::vec<3, float>>("glm::vec<3, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("padding", -1, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myLightView", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myLightProjection", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
-	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<MulticastDelegate<void ()>>();

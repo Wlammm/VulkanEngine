@@ -84,6 +84,26 @@ void RenderSystem::Init()
 		static_cast<ConstantBuffer<SceneHeader>*>(inResource.myBuffer)->SetData(data);
 	});
 	
+	resourceManager->RegisterBuffer<DirectionalLightBuffer>(new ConstantBuffer<DirectionalLightBuffer>("DirectionalLightBuffer"), [](GPUResourceManager::BufferResource& inResource)
+	{
+		DirectionalLightComponent* light = Engine::GetWorld()->GetDirectionalLight();
+		if (!light)
+		{
+			LOG_WARNING("Scene does not contain a directional light.");
+			return;
+		}
+		
+		TransformComponent& transform = light->GetTransform();
+		
+		DirectionalLightBuffer data;
+		data.myColor = light->GetColor();
+		data.myDirection = transform.GetForward();
+		data.myLightView = glm::affineInverse(transform.GetMatrix());
+		data.myLightProjection = light->GetLightProjection();
+		
+		static_cast<ConstantBuffer<DirectionalLightBuffer>*>(inResource.myBuffer)->SetData(data);
+	});
+	
 	CreateRenderResources();
 }
 
@@ -262,7 +282,6 @@ void RenderSystem::AddRenderPasses(vk::CommandBuffer inCommandBuffer)
 		nullptr);
 
 	EnsureCorrectBufferSizes(inCommandBuffer);
-	BuildDirectionalLightBuffer();
 	
 	for (IRenderPass* renderPass : myRenderPasses)
 	{
@@ -403,26 +422,6 @@ void RenderSystem::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
     }
 }
 
-void RenderSystem::BuildDirectionalLightBuffer()
-{
-	DirectionalLightBuffer buffer = {};
-
-	DirectionalLightComponent* light = Engine::GetWorld()->GetDirectionalLight();
-
-	if (!light)
-	{
-		LOG_WARNING("GDRPipeline::BuildDirectionalLightBuffer - No directional light.");
-		return;
-	}
-	
-	TransformComponent& transform = light->GetTransform();
-	buffer.myColor = light->GetColor();
-	buffer.myDirection = transform.GetForward();
-	buffer.myLightView = glm::affineInverse(transform.GetMatrix());
-	buffer.myLightProjection = light->GetLightProjection();
-	myDirectionalLightBuffer->SetData(buffer);
-}
-
 void RenderSystem::CreateRenderResources()
 {
 	CreateRenderTextures();
@@ -444,7 +443,6 @@ void RenderSystem::DestroyRenderResources()
 	del(myPerDrawDataNoDepthBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myCountBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myCountNoDepthBuffer);
-	VulkanAllocator::DestroyBuffer_TS(myDirectionalLightBuffer);
 }
 
 void RenderSystem::CreateRenderPasses()
@@ -629,10 +627,4 @@ void RenderSystem::CreateBuffers()
 		.setSize(sizeof(vk::DrawIndexedIndirectCommand) * numObjects)
 		.setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
 		VMA_MEMORY_USAGE_AUTO));
-
-    myDirectionalLightBuffer = VulkanAllocator::AllocateBuffer_TS(
-        "DirectionalLightBuffer", 
-        VulkanBuffer::UniformBufferCreateInfo(sizeof(DirectionalLightBuffer)), 
-        VMA_MEMORY_USAGE_AUTO, 
-        true);
 }

@@ -27,6 +27,21 @@ struct CameraBuffer
     float3 myCameraPosition;
 };
 
+struct ALIGNAS(16) SceneHeader
+{
+    ALIGNAS(4) uint myNumMeshInstances DEFAULT_TO(0);
+    ALIGNAS(4) uint myNumPointLights DEFAULT_TO(0);
+};
+
+struct DirectionalLightBuffer
+{
+    float4 myColor;
+    float3 myDirection;
+    float  padding;
+
+    float4x4 myLightView;
+    float4x4 myLightProjection;
+};
 
 // ----------- StorageBuffers -----------
 struct MeshData
@@ -48,11 +63,7 @@ struct IndexBufferData
     ALIGNAS(4) uint myCount;
 };
 
-struct ALIGNAS(16) SceneHeader
-{
-    ALIGNAS(4) uint myNumMeshInstances DEFAULT_TO(0);
-    ALIGNAS(4) uint myNumPointLights DEFAULT_TO(0);
-};
+
 
 struct ALIGNAS(16) MeshInstanceData
 {

@@ -23,16 +23,6 @@ StructuredBuffer<PointLightData> inPointLightBuffer;
 
 [[vk::binding(5)]] ConstantBuffer<SceneHeader> inSceneHeader : register(b1);
 
-struct DirectionalLightBuffer
-{
-    float4 myColor;
-    float3 myDirection;
-    float  padding;
-
-    float4x4 myLightView;
-    float4x4 myLightProjection;
-};
-
 [[vk::binding(2)]]
 ConstantBuffer<DirectionalLightBuffer> inDirectionalLightBuffer : register(b2);
 

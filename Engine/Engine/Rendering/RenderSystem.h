@@ -49,17 +49,6 @@ public:
     ResizableBuffer* myPerDrawDataBuffer = nullptr;
     ResizableBuffer* myPerDrawDataNoDepthBuffer = nullptr;
     
-    struct DirectionalLightBuffer
-    {
-        glm::vec4 myColor;
-        glm::vec3 myDirection;
-        float padding;
-        glm::mat4 myLightView;
-        glm::mat4 myLightProjection;
-    };
-    VulkanBuffer* myDirectionalLightBuffer;
-    // FrameDescriptorSet.
-    
     TextureCube* myCubemap = nullptr;
     
 private:
@@ -78,7 +67,6 @@ private:
     void FlushUploadCommands();
     
     void EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer);
-    void BuildDirectionalLightBuffer();
 
 private:
     void CreateRenderResources();

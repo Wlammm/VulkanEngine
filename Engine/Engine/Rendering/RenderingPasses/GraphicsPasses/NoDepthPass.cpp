@@ -26,7 +26,7 @@ void NoDepthPass::SetupDescriptors()
         vk::DescriptorType::eStorageBuffer);
 	
     myDescriptorSet.BindBuffer(
-        RenderSystem::Get()->myDirectionalLightBuffer,
+        GPUResourceManager::Get()->GetBuffer<DirectionalLightBuffer>(),
         vk::ShaderStageFlagBits::eFragment, 
         2, 
         vk::DescriptorType::eUniformBuffer);
