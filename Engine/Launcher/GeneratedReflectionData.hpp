@@ -7050,7 +7050,7 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSys
 		Field& currentField = currentClass->AddField(Field("myMaterialIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myDepthWriteEnabled", -1, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+		Field& currentField = currentClass->AddField(Field("myDrawFlags", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
 }
 { 

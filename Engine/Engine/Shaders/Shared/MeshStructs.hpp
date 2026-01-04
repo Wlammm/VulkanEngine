@@ -19,6 +19,14 @@ using float3 = glm::vec3;
  * A nested structure must be aligned by the base alignment of its members rounded up to a multiple of 16
  */
 
+enum EDrawFlags
+{
+    DrawFlag_NoDepthTest = 1 << 0,
+    //DrawFlag_CastShadow = 1 << 1,
+    //DrawFlag_AlphaTest  = 1 << 2,
+    //DrawFlag_Transparent = 1 << 3,
+};
+
 // ----------- ConstantBuffers -----------
 struct CameraBuffer
 {
@@ -63,8 +71,6 @@ struct IndexBufferData
     ALIGNAS(4) uint myCount;
 };
 
-
-
 struct ALIGNAS(16) MeshInstanceData
 {
     ALIGNAS(16) float4x4 myToWorld;
@@ -72,7 +78,7 @@ struct ALIGNAS(16) MeshInstanceData
     ALIGNAS(4) uint myAlbedoIndex DEFAULT_TO((uint)-1);
     ALIGNAS(4) uint myNormalIndex DEFAULT_TO((uint)-1);
     ALIGNAS(4) uint myMaterialIndex DEFAULT_TO((uint)-1);
-    ALIGNAS(4) int myDepthWriteEnabled DEFAULT_TO(1);
+    ALIGNAS(4) uint myDrawFlags DEFAULT_TO(0);
 };
 
 struct PerDrawData

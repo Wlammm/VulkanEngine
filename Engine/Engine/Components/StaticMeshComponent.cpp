@@ -125,7 +125,11 @@ void StaticMeshComponent::OnRenderStateDirty()
     {
         const Mesh* mesh = myModel->GetMeshes()[meshIndex];
         
-        MeshInstanceData data{ .myToWorld=GetTransform().GetMatrix(), .myMeshIndex=mesh->GetHandle(), .myDepthWriteEnabled=myShouldWriteDepth };
+        uint drawFlags = 0;
+        if (!myShouldWriteDepth)
+            drawFlags |= DrawFlag_NoDepthTest;
+        
+        MeshInstanceData data{ .myToWorld=GetTransform().GetMatrix(), .myMeshIndex=mesh->GetHandle(), .myDrawFlags=drawFlags };
 
         check(myMaterials.IsValidIndex(meshIndex));
         if(myMaterials[meshIndex] && myMaterials[meshIndex]->IsValid())

@@ -58,7 +58,7 @@ void CSMain(uint3 dispatchThreadID : SV_DispatchThreadID)
     
     IndexBufferData indexData = inIndexDataBuffer[meshData.myIndexDataIndex];
 
-    bool depthWriteEnabled = instanceData.myDepthWriteEnabled == 1;
+    bool depthWriteEnabled = (instanceData.myDrawFlags & DrawFlag_NoDepthTest) == 0;
     
     if (depthWriteEnabled)
     {
