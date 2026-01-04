@@ -21,7 +21,7 @@ public:
     
     void Tick()
     {
-        for (BufferResource& buffer : myBuffers)
+        for (BufferResource& buffer : myTickableBuffers)
         {
             buffer.myTickFunction(buffer);
         }
@@ -40,7 +40,7 @@ public:
         buffer.myType = type;
         buffer.myTickFunction = inTickFunction;
         
-        if (inTickFunction != nullptr)
+        if (inTickFunction.IsValid())
         {
             myTickableBuffers.Add(buffer);
         }

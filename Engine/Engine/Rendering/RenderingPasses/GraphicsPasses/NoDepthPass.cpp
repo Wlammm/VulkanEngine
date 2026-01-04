@@ -20,7 +20,7 @@ void NoDepthPass::SetupDescriptors()
             vk::DescriptorType::eUniformBuffer);
 	
     myDescriptorSet.BindBuffer(
-        Engine::GetEngineSystem<PointLightSystem>().GetBuffer(), 
+        GPUResourceManager::Get()->GetBuffer<PointLightData>(), 
         vk::ShaderStageFlagBits::eFragment, 
         1, 
         vk::DescriptorType::eStorageBuffer);

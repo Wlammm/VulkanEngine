@@ -69,6 +69,8 @@ private:
     void EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer);
 
 private:
+    void RegisterRenderResources();
+    
     void CreateRenderResources();
     void DestroyRenderResources();
 

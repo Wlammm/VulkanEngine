@@ -57,53 +57,7 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::Init()
 {
-	GPUResourceManager* resourceManager = GPUResourceManager::Get();
-	resourceManager->RegisterBuffer<CameraBuffer>(new ConstantBuffer<CameraBuffer>("CameraBuffer"), [](GPUResourceManager::BufferResource& inResource)
-	{
-		CameraComponent* camera = Engine::GetWorld()->GetMainCamera();
-		if(!camera)
-		{
-			LOG_ERROR("No main camera set!");
-			return;
-		}
-			
-		CameraBuffer data{};
-		data.myProjection = camera->GetProjection();
-		data.myToView = glm::affineInverse(camera->GetTransform().GetMatrix());
-		data.myCameraPosition = camera->GetTransform().GetPosition();
-		
-		static_cast<ConstantBuffer<CameraBuffer>*>(inResource.myBuffer)->SetData(data);
-	});
-	
-	resourceManager->RegisterBuffer<SceneHeader>(new ConstantBuffer<SceneHeader>("SceneHeader"), [](GPUResourceManager::BufferResource& inResource)
-	{
-		SceneHeader data;
-		data.myNumMeshInstances = Engine::GetEngineSystem<GPUSceneSystem>().GetNumObjects();
-		data.myNumPointLights = Engine::GetEngineSystem<PointLightSystem>().GetNumPointLights();
-		
-		static_cast<ConstantBuffer<SceneHeader>*>(inResource.myBuffer)->SetData(data);
-	});
-	
-	resourceManager->RegisterBuffer<DirectionalLightBuffer>(new ConstantBuffer<DirectionalLightBuffer>("DirectionalLightBuffer"), [](GPUResourceManager::BufferResource& inResource)
-	{
-		DirectionalLightComponent* light = Engine::GetWorld()->GetDirectionalLight();
-		if (!light)
-		{
-			LOG_WARNING("Scene does not contain a directional light.");
-			return;
-		}
-		
-		TransformComponent& transform = light->GetTransform();
-		
-		DirectionalLightBuffer data;
-		data.myColor = light->GetColor();
-		data.myDirection = transform.GetForward();
-		data.myLightView = glm::affineInverse(transform.GetMatrix());
-		data.myLightProjection = light->GetLightProjection();
-		
-		static_cast<ConstantBuffer<DirectionalLightBuffer>*>(inResource.myBuffer)->SetData(data);
-	});
-	
+	RegisterRenderResources();
 	CreateRenderResources();
 }
 
@@ -420,6 +374,61 @@ void RenderSystem::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
 			);
 	    }
     }
+}
+
+void RenderSystem::RegisterRenderResources()
+{
+	GPUResourceManager* resourceManager = GPUResourceManager::Get();
+	
+	
+	// ---------- ConstantBuffers ----------
+	resourceManager->RegisterBuffer<CameraBuffer>(new ConstantBuffer<CameraBuffer>("CameraBuffer"), [](GPUResourceManager::BufferResource& inResource)
+	{
+		CameraComponent* camera = Engine::GetWorld()->GetMainCamera();
+		if(!camera)
+		{
+			LOG_ERROR("No main camera set!");
+			return;
+		}
+			
+		CameraBuffer data{};
+		data.myProjection = camera->GetProjection();
+		data.myToView = glm::affineInverse(camera->GetTransform().GetMatrix());
+		data.myCameraPosition = camera->GetTransform().GetPosition();
+		
+		static_cast<ConstantBuffer<CameraBuffer>*>(inResource.myBuffer)->SetData(data);
+	});
+	
+	resourceManager->RegisterBuffer<SceneHeader>(new ConstantBuffer<SceneHeader>("SceneHeader"), [](GPUResourceManager::BufferResource& inResource)
+	{
+		SceneHeader data;
+		data.myNumMeshInstances = Engine::GetEngineSystem<GPUSceneSystem>().GetNumObjects();
+		data.myNumPointLights = Engine::GetEngineSystem<PointLightSystem>().GetNumPointLights();
+		
+		static_cast<ConstantBuffer<SceneHeader>*>(inResource.myBuffer)->SetData(data);
+	});
+	
+	resourceManager->RegisterBuffer<DirectionalLightBuffer>(new ConstantBuffer<DirectionalLightBuffer>("DirectionalLightBuffer"), [](GPUResourceManager::BufferResource& inResource)
+	{
+		DirectionalLightComponent* light = Engine::GetWorld()->GetDirectionalLight();
+		if (!light)
+		{
+			LOG_WARNING("Scene does not contain a directional light.");
+			return;
+		}
+		
+		TransformComponent& transform = light->GetTransform();
+		
+		DirectionalLightBuffer data;
+		data.myColor = light->GetColor();
+		data.myDirection = transform.GetForward();
+		data.myLightView = glm::affineInverse(transform.GetMatrix());
+		data.myLightProjection = light->GetLightProjection();
+		
+		static_cast<ConstantBuffer<DirectionalLightBuffer>*>(inResource.myBuffer)->SetData(data);
+	});
+	
+	// ---------- StorageBuffers ----------
 }
 
 void RenderSystem::CreateRenderResources()

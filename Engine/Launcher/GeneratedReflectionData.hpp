@@ -279,7 +279,6 @@ ReflectionSystem::AddType<FileDialog>("FileDialog", typeid(FileDialog).name());
 ReflectionSystem::AddType<SinWaveMovementComponent>("SinWaveMovementComponent", typeid(SinWaveMovementComponent).name());
 ReflectionSystem::AddType<ImGuiTextureUtils>("ImGuiTextureUtils", typeid(ImGuiTextureUtils).name());
 ReflectionSystem::AddType<GPUSparseDenseBuffer<MeshInstanceData>>("GPUSparseDenseBuffer<MeshInstanceData>", typeid(GPUSparseDenseBuffer<MeshInstanceData>).name());
-ReflectionSystem::AddType<GPUSparseDenseBuffer<PointLightData>>("GPUSparseDenseBuffer<PointLightData>", typeid(GPUSparseDenseBuffer<PointLightData>).name());
 ReflectionSystem::AddType<InspectorWindow>("InspectorWindow", typeid(InspectorWindow).name());
 ReflectionSystem::AddType<EditorWindow>("EditorWindow", typeid(EditorWindow).name());
 ReflectionSystem::AddType<Asset>("Asset", typeid(Asset).name());
@@ -2886,11 +2885,6 @@ Method& currentMethod = currentClass->AddMethod(Method("CreateDescriptorSetForTe
 	Type* currentClass = ReflectionSystem::GetMutableType<GPUSparseDenseBuffer<MeshInstanceData>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IGPUBuffer>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<MeshInstanceData>("MeshInstanceData"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<GPUSparseDenseBuffer<PointLightData>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IGPUBuffer>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<PointLightData>("PointLightData"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<InspectorWindow>();
@@ -10875,7 +10869,7 @@ Method& currentMethod = currentClass->AddMethod(Method("DestroySamplers", Reflec
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<PointLightSystem>();
 	{
-		Field& currentField = currentClass->AddField(Field("myPointLightBuffer", -1, ReflectionSystem::GetOrCreateType<GPUSparseDenseBuffer<PointLightData>>("GPUSparseDenseBuffer<PointLightData>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myPointLightBuffer", -1, ReflectionSystem::GetOrCreateType<GPUSparseDenseBuffer<PointLightData>>("GPUSparseDenseBuffer<PointLightData>"), true, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 {
@@ -10915,16 +10909,6 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inLightInstance", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
 Method& currentMethod = currentClass->AddMethod(Method("RemoveLight", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PointLightSystem* instance = static_cast<PointLightSystem*>(inInstance);
-const IGPUBuffer * result = instance->GetBuffer();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<const IGPUBuffer *>("const IGPUBuffer *"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

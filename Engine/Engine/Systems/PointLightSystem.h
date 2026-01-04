@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Engine/System/System.h"
-#include "Engine/Vulkan/Containers/GPUSparseDenseBuffer.h"
 #include "Engine/Shaders/Shared/MeshStructs.hpp"
+#include "Engine/Vulkan/Containers/GPUSparseDenseBuffer.h"
 
 class ResizableBuffer;
 
@@ -17,12 +17,10 @@ public:
     void UpdateLight(const PointLightInstanceIndex inLightInstance, const PointLightData& inPointLightData);
     
     void RemoveLight(const PointLightInstanceIndex inLightInstance);
-
-    const IGPUBuffer* GetBuffer() const { return &myPointLightBuffer; }
     
     uint GetNumPointLights() const;
     
 private:
-    GPUSparseDenseBuffer<PointLightData> myPointLightBuffer;
+    GPUSparseDenseBuffer<PointLightData>* myPointLightBuffer;
     
 };

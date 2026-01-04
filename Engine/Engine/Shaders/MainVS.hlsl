@@ -22,10 +22,7 @@ struct VSOutput
     [[vk::location(6)]] float3 outTangentViewDir : TANGENTVIEWDIR;
 };
 
-
-
 [[vk::binding(0, 0)]] ConstantBuffer<CameraBuffer> inCameraBuffer : register(b0);
-
 [[vk::binding(4, 0)]] StructuredBuffer<PerDrawData> inPerDrawData;
 
 VSOutput VSMain(VSInput input, [[vk::builtin("DrawIndex")]] uint drawID : SV_InstanceID)
