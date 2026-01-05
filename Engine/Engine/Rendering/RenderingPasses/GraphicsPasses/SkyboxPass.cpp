@@ -31,7 +31,7 @@ void SkyboxPass::SetupAttachments()
 void SkyboxPass::SetupDescriptors()
 {
     myDescriptorSet.BindBuffer(
-        GPUResourceManager::Get()->GetBuffer<CameraBuffer>(), 
+        GPUResourceManager::Get()->GetBuffer<CameraBuffer>(),
         vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
         0, 
         vk::DescriptorType::eUniformBuffer);

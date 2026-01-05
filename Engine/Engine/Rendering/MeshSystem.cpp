@@ -1,6 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "MeshSystem.h"
 
+#include "GPUResourceManager.h"
 #include "IndexBufferHandle.h"
 #include "Mesh.h"
 #include "VertexBufferHandle.h"
@@ -17,11 +18,13 @@ MeshSystem::MeshSystem()
             .setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc)
             .setSize(sizeof(MeshData) * 4),
             VMA_MEMORY_USAGE_AUTO));
+    
+    
+    GPUResourceManager::Get()->RegisterBuffer<MeshData>(myBuffer);
 }
 
 MeshSystem::~MeshSystem()
 {
-    del(myBuffer);
 }
 
 Mesh* MeshSystem::UploadMesh(VertexBufferHandle* inVertexBuffer, IndexBufferHandle* inIndexBuffer, const glm::vec4& inBoundingSphere)
@@ -47,9 +50,4 @@ Mesh* MeshSystem::UploadMesh(VertexBufferHandle* inVertexBuffer, IndexBufferHand
 void MeshSystem::RemoveMesh(Mesh* inMesh)
 {
     LOG_WARNING("MeshSystem::RemoveMesh not implemented!");
-}
-
-ResizableBuffer* MeshSystem::GetBuffer() const
-{
-    return myBuffer;
 }

@@ -17,8 +17,6 @@ public:
 
     void RemoveMesh(Mesh* inMesh);
     
-    ResizableBuffer* GetBuffer() const;
-    
 private:
     List<Mesh*> myMeshes{};
     ResizableBuffer* myBuffer;

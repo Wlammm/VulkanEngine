@@ -195,7 +195,7 @@ void RenderSystem::AddRenderPasses(vk::CommandBuffer inCommandBuffer)
 		.setDstAccessMask(vk::AccessFlagBits::eVertexAttributeRead) // Vertex shader reads
 		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setBuffer(vertexBufferSystem.GetGlobalVertexBuffer()->GetBuffer()->GetAPIResource())
+		.setBuffer(GPUResourceManager::Get()->GetBuffer<Vertex>()->GetBuffer()->GetAPIResource())
 		.setOffset(0)
 		.setSize(VK_WHOLE_SIZE);
 
@@ -205,7 +205,7 @@ void RenderSystem::AddRenderPasses(vk::CommandBuffer inCommandBuffer)
 		.setDstAccessMask(vk::AccessFlagBits::eIndexRead) // Vertex shader reads index buffer
 		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetBuffer()->GetAPIResource())
+		.setBuffer(GPUResourceManager::Get()->GetBuffer<Index>()->GetBuffer()->GetAPIResource())
 		.setOffset(0)
 		.setSize(VK_WHOLE_SIZE);
 	
@@ -224,7 +224,7 @@ void RenderSystem::AddRenderPasses(vk::CommandBuffer inCommandBuffer)
 		.setDstAccessMask(vk::AccessFlagBits::eShaderRead) // Vertex shader reads index buffer
 		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetBuffer()->GetAPIResource())
+		.setBuffer(GPUResourceManager::Get()->GetBuffer<Index>()->GetBuffer()->GetAPIResource())
 		.setOffset(0)
 		.setSize(VK_WHOLE_SIZE);
 

@@ -3,6 +3,7 @@
 
 #include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Assets/Shader.h"
+#include "Engine/Rendering/GPUResourceManager.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
 #include "Engine/Rendering/TextureSystem.h"
 #include "Engine/Rendering/VertexBufferSystem.h"
@@ -103,8 +104,8 @@ void GraphicsPass::Execute(vk::CommandBuffer inCommandBuffer)
     if (myNeedsBindlessTextureDescriptor)
         inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, textureSystem.GetDescriptorSet(), {});
 
-    inCommandBuffer.bindVertexBuffers(0, {vertexBufferSystem.GetGlobalVertexBuffer()->GetBuffer()->GetAPIResource()}, {0});
-	inCommandBuffer.bindIndexBuffer(indexBufferSystem.GetGlobalIndexBuffer()->GetBuffer()->GetAPIResource(),0, vk::IndexType::eUint32);
+    inCommandBuffer.bindVertexBuffers(0, {GPUResourceManager::Get()->GetBuffer<Vertex>()->GetBuffer()->GetAPIResource()}, {0});
+	inCommandBuffer.bindIndexBuffer(GPUResourceManager::Get()->GetBuffer<Index>()->GetBuffer()->GetAPIResource(),0, vk::IndexType::eUint32);
 
     
     DrawCall(inCommandBuffer);

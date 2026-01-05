@@ -1,6 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "VertexBufferSystem.h"
 
+#include "GPUResourceManager.h"
 #include "Engine/Engine.h"
 #include "RenderSystem.h"
 #include "VertexBufferHandle.h"
@@ -23,13 +24,13 @@ VertexBufferSystem::VertexBufferSystem()
       .setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst| vk::BufferUsageFlagBits::eTransferSrc)
       , VMA_MEMORY_USAGE_AUTO,
       false));
-
+    
+    GPUResourceManager::Get()->RegisterBuffer<Vertex>(myBuffer);
+    GPUResourceManager::Get()->RegisterBuffer<VertexBufferData>(mySparseVertexDataBuffer);
 }
 
 VertexBufferSystem::~VertexBufferSystem()
 {
-    del(myBuffer);
-    del(mySparseVertexDataBuffer);
     myUsedBufferSize = 0;
 
     for(VertexBufferHandle* vertexBuffer : myVertexBuffers)
@@ -113,16 +114,6 @@ VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(const List<Vertex>& i
 void VertexBufferSystem::RemoveVertexBuffer(const VertexBufferHandle* inBuffer)
 {
     LOG_WARNING("VertexBufferSubsystem::RemoveVertexBuffer not implemented.");
-}
-
-const ResizableBuffer* VertexBufferSystem::GetGlobalVertexBuffer() const
-{
-    return myBuffer;
-}
-
-const ResizableBuffer* VertexBufferSystem::GetGlobalSparseVertexDataBuffer() const
-{
-    return mySparseVertexDataBuffer;
 }
 
 uint VertexBufferSystem::GetUsedBufferSize() const

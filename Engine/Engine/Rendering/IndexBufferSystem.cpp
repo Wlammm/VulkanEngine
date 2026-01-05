@@ -1,6 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "IndexBufferSystem.h"
 
+#include "GPUResourceManager.h"
 #include "Engine/Engine.h"
 #include "IndexBufferHandle.h"
 #include "RenderSystem.h"
@@ -8,6 +9,7 @@
 #include "Engine/Vulkan/ResizableBuffer.h"
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
+
 
 IndexBufferSystem::IndexBufferSystem()
 {
@@ -21,6 +23,9 @@ IndexBufferSystem::IndexBufferSystem()
      .setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst| vk::BufferUsageFlagBits::eTransferSrc)
      , VMA_MEMORY_USAGE_AUTO,
      false));
+    
+    GPUResourceManager::Get()->RegisterBuffer<IndexBufferData>(mySparseIndexDataBuffer);
+    GPUResourceManager::Get()->RegisterBuffer<Index>(myBuffer);
 }
 
 IndexBufferSystem::~IndexBufferSystem()
@@ -125,14 +130,4 @@ const IndexBufferData& IndexBufferSystem::GetIndexBufferDataFromIndexHandle(Inde
 void IndexBufferSystem::RemoveIndexBuffer(const IndexBufferHandle* inBuffer)
 {
     LOG_WARNING("IndexBufferSubsystem::RemoveIndexBuffer not implemented.");
-}
-
-const ResizableBuffer* IndexBufferSystem::GetGlobalIndexBuffer() const
-{
-    return myBuffer;
-}
-
-const ResizableBuffer* IndexBufferSystem::GetGlobalSparseIndexDataBuffer() const
-{
-    return mySparseIndexDataBuffer;
 }

@@ -6,6 +6,8 @@ class ResizableBuffer;
 class IndexBufferHandle;
 class VulkanBuffer;
 
+using Index = uint;
+
 class IndexBufferSystem : public System
 {
 public:
@@ -18,8 +20,6 @@ public:
     const IndexBufferData& GetIndexBufferDataFromIndexHandle(IndexBufferHandle* inHandle);
     
     void RemoveIndexBuffer(const IndexBufferHandle* inBuffer);
-    const ResizableBuffer* GetGlobalIndexBuffer() const;
-    const ResizableBuffer* GetGlobalSparseIndexDataBuffer() const;
 
 private:
     uint myUsedBufferSize = 0;

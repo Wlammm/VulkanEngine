@@ -770,7 +770,7 @@ Method& currentMethod = currentClass->AddMethod(Method("ResetMouseDelta", Reflec
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<GPUSceneSystem>();
 	{
-		Field& currentField = currentClass->AddField(Field("myMeshes", -1, ReflectionSystem::GetOrCreateType<GPUSparseDenseBuffer<MeshInstanceData>>("GPUSparseDenseBuffer<MeshInstanceData>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMeshes", -1, ReflectionSystem::GetOrCreateType<GPUSparseDenseBuffer<MeshInstanceData>>("GPUSparseDenseBuffer<MeshInstanceData>"), true, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 {
@@ -820,16 +820,6 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetNumObjects", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-GPUSceneSystem* instance = static_cast<GPUSceneSystem*>(inInstance);
-const IGPUBuffer * result = instance->GetBuffer();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<const IGPUBuffer *>("const IGPUBuffer *"), invoker, arguments));
 }
 }
 { 
@@ -8814,26 +8804,6 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<const IndexBufferHandle *>("const IndexBufferHandle *")));
 Method& currentMethod = currentClass->AddMethod(Method("RemoveIndexBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-IndexBufferSystem* instance = static_cast<IndexBufferSystem*>(inInstance);
-const ResizableBuffer * result = instance->GetGlobalIndexBuffer();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetGlobalIndexBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-IndexBufferSystem* instance = static_cast<IndexBufferSystem*>(inInstance);
-const ResizableBuffer * result = instance->GetGlobalSparseIndexDataBuffer();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetGlobalSparseIndexDataBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
-}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<Mesh>();
@@ -8968,16 +8938,6 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inMesh", ReflectionSystem::GetOrCreateType<Mesh *>("Mesh *")));
 Method& currentMethod = currentClass->AddMethod(Method("RemoveMesh", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-MeshSystem* instance = static_cast<MeshSystem*>(inInstance);
-ResizableBuffer * result = instance->GetBuffer();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<ResizableBuffer *>("ResizableBuffer *"), invoker, arguments));
 }
 }
 { 
@@ -10278,26 +10238,6 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<const VertexBufferHandle *>("const VertexBufferHandle *")));
 Method& currentMethod = currentClass->AddMethod(Method("RemoveVertexBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
-const ResizableBuffer * result = instance->GetGlobalVertexBuffer();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetGlobalVertexBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
-const ResizableBuffer * result = instance->GetGlobalSparseVertexDataBuffer();
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetGlobalSparseVertexDataBuffer", ReflectionSystem::GetOrCreateType<const ResizableBuffer *>("const ResizableBuffer *"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

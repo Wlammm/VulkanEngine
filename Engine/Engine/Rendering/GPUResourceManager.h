@@ -34,6 +34,11 @@ public:
     void RegisterBuffer(IGPUBuffer* inBuffer, Delegate<void(BufferResource& inResource)> inTickFunction = nullptr)
     {
         const Type* type = ReflectionSystem::GetType<T>();
+
+        for (BufferResource& buffer : myBuffers)
+        {
+            check(buffer.myType != type);
+        }
         
         BufferResource& buffer = myBuffers.Emplace();
         buffer.myBuffer = inBuffer;

@@ -22,9 +22,6 @@ public:
     VertexBufferHandle* UploadVertexBuffer(const List<Vertex>& inVertices);
     void RemoveVertexBuffer(const VertexBufferHandle* inBuffer);
 
-    const ResizableBuffer* GetGlobalVertexBuffer() const;
-    const ResizableBuffer* GetGlobalSparseVertexDataBuffer() const;
-    
     uint GetUsedBufferSize() const;
 
     uint GetVertexOffsetFromVertexHandle(VertexBufferHandle* inBuffer) const;
