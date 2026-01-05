@@ -69,7 +69,7 @@ void NoDepthPass::DrawCall(vk::CommandBuffer inCommandBuffer)
     inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(ShadingBinHeader), &header);
     
     inCommandBuffer.drawIndexedIndirectCount(
-        RenderSystem::Get()->myIndirectCommandsBuffer->GetBuffer()->GetAPIResource(), 
+        GPUResourceManager::Get()->GetBuffer<vk::DrawIndexedIndirectCommand>()->GetBuffer()->GetAPIResource(), 
         maxNumDraws * EShadingBin::ShadingBin_NoDepth * sizeof(vk::DrawIndexedIndirectCommand),
         RenderSystem::Get()->myCountBuffer->GetAPIResource(), 
         EShadingBin::ShadingBin_NoDepth * sizeof(uint),

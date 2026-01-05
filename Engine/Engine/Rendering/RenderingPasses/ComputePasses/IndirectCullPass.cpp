@@ -23,7 +23,7 @@ void IndirectCullPass::SetupDescriptors()
     myDescriptorSet.BindBuffer(GPUResourceManager::Get()->GetBuffer<VertexBufferData>(), vk::ShaderStageFlagBits::eCompute, 6, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(GPUResourceManager::Get()->GetBuffer<IndexBufferData>(), vk::ShaderStageFlagBits::eCompute, 7, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(GPUResourceManager::Get()->GetBuffer<MeshInstanceData>(), vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
-    myDescriptorSet.BindBuffer(RenderSystem::Get()->myIndirectCommandsBuffer, vk::ShaderStageFlagBits::eCompute, 2, vk::DescriptorType::eStorageBuffer);
+    myDescriptorSet.BindBuffer(GPUResourceManager::Get()->GetBuffer<vk::DrawIndexedIndirectCommand>(), vk::ShaderStageFlagBits::eCompute, 2, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(RenderSystem::Get()->myCountBuffer, vk::ShaderStageFlagBits::eCompute, 3, vk::DescriptorType::eStorageBuffer);
     myDescriptorSet.BindBuffer(GPUResourceManager::Get()->GetBuffer<PerDrawData>(), vk::ShaderStageFlagBits::eCompute, 4, vk::DescriptorType::eStorageBuffer);
 	myDescriptorSet.BindBuffer(GPUResourceManager::Get()->GetBuffer<SceneHeader>(), vk::ShaderStageFlagBits::eCompute, 11, vk::DescriptorType::eUniformBuffer);
@@ -41,7 +41,7 @@ void IndirectCullPass::DispatchCall(vk::CommandBuffer inCommandBuffer)
 		vk::BufferMemoryBarrier()
 			.setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)
 			.setDstAccessMask(vk::AccessFlagBits::eIndirectCommandRead | vk::AccessFlagBits::eVertexAttributeRead)
-			.setBuffer(RenderSystem::Get()->myIndirectCommandsBuffer->GetBuffer()->GetAPIResource())
+			.setBuffer(GPUResourceManager::Get()->GetBuffer<vk::DrawIndexedIndirectCommand>()->GetBuffer()->GetAPIResource())
 			.setOffset(0)
 			.setSize(VK_WHOLE_SIZE),
 		vk::BufferMemoryBarrier()

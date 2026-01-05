@@ -38,9 +38,6 @@ IndexBufferSystem::~IndexBufferSystem()
         del(indexBuffer);
     }
     myIndexBuffers.Clear();
-    
-    del(mySparseIndexDataBuffer);
-    del(myBuffer);
 }
 
 IndexBufferHandle* IndexBufferSystem::UploadIndexBuffer(const List<uint>& inIndices)

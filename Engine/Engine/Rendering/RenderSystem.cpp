@@ -270,34 +270,7 @@ void RenderSystem::FlushUploadCommands()
 
 void RenderSystem::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
 {
-    GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
-
-    uint requiredSize = objectSystem.GetNumObjects() * sizeof(vk::DrawIndexedIndirectCommand) * EShadingBin::ShadingBin_Count;
-    if(requiredSize > myIndirectCommandsBuffer->GetBuffer()->GetSize())
-    {
-	    {
-		    myIndirectCommandsBuffer->Resize(requiredSize);
-
-	    	vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
-				.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-				.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
-				.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-				.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-				.setBuffer(myIndirectCommandsBuffer->GetBuffer()->GetAPIResource())
-				.setOffset(0)
-				.setSize(VK_WHOLE_SIZE);
-
-	    	// Insert the pipeline barrier
-	    	inCommandBuffer.pipelineBarrier(
-				vk::PipelineStageFlagBits::eTransfer,
-				vk::PipelineStageFlagBits::eComputeShader,
-				vk::DependencyFlags(),
-				nullptr,
-				bufferMemoryBarrier,
-				nullptr
-			);
-	    }
-    }
+    
 }
 
 void RenderSystem::RegisterRenderResources()
@@ -360,39 +333,78 @@ void RenderSystem::RegisterRenderResources()
 		.setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
 		VMA_MEMORY_USAGE_AUTO)), 
 		[](GPUResourceManager::BufferResource& inResource)
+	{
+		ResizableBuffer* resizableBuffer = static_cast<ResizableBuffer*>(inResource.myBuffer);
+		GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
+		
+		uint drawCallRequiredSize = objectSystem.GetNumObjects() * sizeof(PerDrawData) * EShadingBin::ShadingBin_Count;
+		if(drawCallRequiredSize > resizableBuffer->GetBuffer()->GetSize())
 		{
-			ResizableBuffer* resizableBuffer = static_cast<ResizableBuffer*>(inResource.myBuffer);
-			GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
+			resizableBuffer->Resize(drawCallRequiredSize);
 			
-			uint drawCallRequiredSize = objectSystem.GetNumObjects() * sizeof(PerDrawData) * EShadingBin::ShadingBin_Count;
-			if(drawCallRequiredSize > resizableBuffer->GetBuffer()->GetSize())
-			{
-				resizableBuffer->Resize(drawCallRequiredSize);
-				
-				// TODO: We probably shouldnt have this command buffer here.
-				VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
+			// TODO: We probably shouldnt have this command buffer here.
+			VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
 
-				vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
-					.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-					.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
-					.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-					.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-					.setBuffer(resizableBuffer->GetBuffer()->GetAPIResource())
-					.setOffset(0)
-					.setSize(VK_WHOLE_SIZE);
-				// Insert the pipeline barrier
-				commandBuffer->GetAPIResource().pipelineBarrier(
-					vk::PipelineStageFlagBits::eTransfer,
-					vk::PipelineStageFlagBits::eComputeShader,
-					vk::DependencyFlags(),
-					nullptr,
-					bufferMemoryBarrier,
-					nullptr
-				);
-				
-				RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
-			}
-		});
+			vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
+				.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+				.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
+				.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+				.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+				.setBuffer(resizableBuffer->GetBuffer()->GetAPIResource())
+				.setOffset(0)
+				.setSize(VK_WHOLE_SIZE);
+			// Insert the pipeline barrier
+			commandBuffer->GetAPIResource().pipelineBarrier(
+				vk::PipelineStageFlagBits::eTransfer,
+				vk::PipelineStageFlagBits::eComputeShader,
+				vk::DependencyFlags(),
+				nullptr,
+				bufferMemoryBarrier,
+				nullptr
+			);
+			
+			RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+		}
+	});
+	
+	resourceManager->RegisterBuffer<vk::DrawIndexedIndirectCommand>(new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("IndirectDrawCommands Buffer",
+		vk::BufferCreateInfo()
+		.setSize(sizeof(vk::DrawIndexedIndirectCommand) * 16)
+		.setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
+		VMA_MEMORY_USAGE_AUTO)), [](GPUResourceManager::BufferResource& inResource)
+	{
+		ResizableBuffer* indirectCommandsBuffer = static_cast<ResizableBuffer*>(inResource.myBuffer);
+		
+		GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
+
+		uint requiredSize = objectSystem.GetNumObjects() * sizeof(vk::DrawIndexedIndirectCommand) * EShadingBin::ShadingBin_Count;
+		if(requiredSize > indirectCommandsBuffer->GetBuffer()->GetSize())
+		{
+			indirectCommandsBuffer->Resize(requiredSize);
+			
+			VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
+
+			vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
+				.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+				.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
+				.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+				.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+				.setBuffer(indirectCommandsBuffer->GetBuffer()->GetAPIResource())
+				.setOffset(0)
+				.setSize(VK_WHOLE_SIZE);
+
+			// Insert the pipeline barrier
+			commandBuffer->GetAPIResource().pipelineBarrier(
+				vk::PipelineStageFlagBits::eTransfer,
+				vk::PipelineStageFlagBits::eComputeShader,
+				vk::DependencyFlags(),
+				nullptr,
+				bufferMemoryBarrier,
+				nullptr
+			);
+			RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+		}
+	});
 }
 
 void RenderSystem::CreateRenderResources()
@@ -410,7 +422,6 @@ void RenderSystem::DestroyRenderResources()
 	VulkanAllocator::DestroyImage_TS(myResolvedDepthTexture);
 	DestroyRenderPasses();
 	
-	del(myIndirectCommandsBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myCountBuffer);
 }
 
@@ -565,10 +576,4 @@ void RenderSystem::CreateBuffers()
         VMA_MEMORY_USAGE_AUTO);
     
     const uint numObjects = objectSystem.GetNumObjects() != 0 ? objectSystem.GetNumObjects() : 4;
-    
-    myIndirectCommandsBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("IndirectDrawCommands Buffer",
-        vk::BufferCreateInfo()
-        .setSize(sizeof(vk::DrawIndexedIndirectCommand) * numObjects)
-        .setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
-        VMA_MEMORY_USAGE_AUTO));
 }

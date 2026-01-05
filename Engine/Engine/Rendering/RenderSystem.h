@@ -42,7 +42,6 @@ public:
     class VulkanImage* myDepthBuffer = nullptr;
     class VulkanImage* myRenderTexture = nullptr;
 
-    ResizableBuffer* myIndirectCommandsBuffer = nullptr;
     VulkanBuffer* myCountBuffer = nullptr;
     
     TextureCube* myCubemap = nullptr;

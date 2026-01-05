@@ -7479,9 +7479,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", Refl
 		Field& currentField = currentClass->AddField(Field("myRenderTexture", -1, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myIndirectCommandsBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
-	}
-	{
 		Field& currentField = currentClass->AddField(Field("myCountBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
 	}
 	{
