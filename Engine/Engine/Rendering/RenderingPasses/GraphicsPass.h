@@ -79,6 +79,12 @@ public:
         myColorFormats.Add(inFormat);
     }
     
+    template<typename Type>
+    void SetPushConstantToType(vk::ShaderStageFlags inShaderStages)
+    {
+        myPushConstantRange.setSize(sizeof(Type)).setOffset(0).setStageFlags(inShaderStages);
+    }
+    
     void AddDepthAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myDepthResolveImage = nullptr)
     {
         myHasDepthAttachment = true;
@@ -117,6 +123,8 @@ private:
     
     List<vk::RenderingAttachmentInfo> myColorAttachments;
     List<vk::Format> myColorFormats;
+    
+    vk::PushConstantRange myPushConstantRange{};
     
     vk::RenderingAttachmentInfo myDepthAttachment;
     vk::Format myDepthFormat;

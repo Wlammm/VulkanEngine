@@ -126,7 +126,12 @@ void GraphicsPass::CreateResources()
     if (myNeedsBindlessTextureDescriptor)
         layouts.Add(textureSystem.GetDescriptorLayout());
     
-    myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(layouts));
+    vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo().setSetLayouts(layouts);
+    
+    if (myPushConstantRange.size != 0)
+        pipelineLayoutCreateInfo.setPushConstantRanges(myPushConstantRange);
+    
+    myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(pipelineLayoutCreateInfo);
     
     const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
         vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(myVertexShader->GetAPIResource()).setPName(myVertexShader->GetEntryPoint().c_str()),

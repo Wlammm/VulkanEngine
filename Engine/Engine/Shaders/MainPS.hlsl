@@ -29,7 +29,6 @@ ConstantBuffer<DirectionalLightBuffer> inDirectionalLightBuffer : register(b2);
 [[vk::binding(4)]]
 StructuredBuffer<PerDrawData> inPerDrawData;
 
-
 float3 GetNormalFromNormalTexture(float3 inSampledNormal, float3 inWorldPos, float2 inTexCoord, float3 inVertexNormal)
 {
     float3 tangentNormal = inSampledNormal * 2.0 - 1.0;

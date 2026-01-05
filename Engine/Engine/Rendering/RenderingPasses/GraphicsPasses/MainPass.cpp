@@ -3,7 +3,9 @@
 
 #include "Engine/Rendering/GPUResourceManager.h"
 #include "Engine/Systems/PointLightSystem.h"
+#include "Engine/Vulkan/GPUSceneSystem.h"
 #include "Engine/Vulkan/ResizableBuffer.h"
+#include "Engine/Vulkan/Containers/ConstantBuffer.h"
 
 MainPass::MainPass()
     : GraphicsPass("Shaders/MainVS.hlsl", "Shaders/MainPS.hlsl")
@@ -13,10 +15,10 @@ MainPass::MainPass()
 void MainPass::SetupDescriptors()
 {
     myDescriptorSet.BindBuffer(
-            GPUResourceManager::Get()->GetBuffer<CameraBuffer>(), 
-            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
-            0, 
-            vk::DescriptorType::eUniformBuffer);
+        GPUResourceManager::Get()->GetBuffer<CameraBuffer>(), 
+        vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
+        0, 
+        vk::DescriptorType::eUniformBuffer);
 	
     myDescriptorSet.BindBuffer(
         GPUResourceManager::Get()->GetBuffer<PointLightData>(), 
@@ -43,6 +45,8 @@ void MainPass::SetupDescriptors()
         vk::DescriptorType::eUniformBuffer);
 	
     myDescriptorSet.Build();
+    
+    SetPushConstantToType<ShadingBinHeader>(vk::ShaderStageFlagBits::eVertex);
 }
 
 void MainPass::SetupAttachments()
@@ -56,8 +60,18 @@ void MainPass::DrawCall(vk::CommandBuffer inCommandBuffer)
 {
     inCommandBuffer.setDepthWriteEnable(true);
     
-    inCommandBuffer.drawIndexedIndirectCount(RenderSystem::Get()->myIndirectCommandsBuffer->GetBuffer()->GetAPIResource(), 0,
-    RenderSystem::Get()->myCountBuffer->GetAPIResource(), 0,
-    static_cast<uint>(RenderSystem::Get()->myIndirectCommandsBuffer->GetBuffer()->GetSize() / sizeof(vk::DrawIndexedIndirectCommand)),
-    sizeof(vk::DrawIndexedIndirectCommand));
+    uint maxNumDraws = Engine::GetEngineSystem<GPUSceneSystem>().GetNumObjects();
+    
+    ShadingBinHeader header;
+    header.myShadingBin = EShadingBin::ShadingBin_Default;
+    header.myElementsPerBin = maxNumDraws;
+    inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(ShadingBinHeader), &header);
+    
+    inCommandBuffer.drawIndexedIndirectCount(
+        RenderSystem::Get()->myIndirectCommandsBuffer->GetBuffer()->GetAPIResource(), 
+        maxNumDraws * EShadingBin::ShadingBin_Default * sizeof(vk::DrawIndexedIndirectCommand),
+        RenderSystem::Get()->myCountBuffer->GetAPIResource(), 
+        EShadingBin::ShadingBin_Default * 4,
+        maxNumDraws,
+        sizeof(vk::DrawIndexedIndirectCommand));
 }

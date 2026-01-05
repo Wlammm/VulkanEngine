@@ -6,7 +6,9 @@ using float3 = glm::vec3;
 
 #define ALIGNAS(x) alignas(x)
 #define DEFAULT_TO(x) = x
+#define CPP(x) x
 #else
+#define CPP(x)
 #define ALIGNAS(x)
 #define DEFAULT_TO(x) 
 #endif
@@ -19,12 +21,38 @@ using float3 = glm::vec3;
  * A nested structure must be aligned by the base alignment of its members rounded up to a multiple of 16
  */
 
-enum EDrawFlags
+enum EDrawFlags CPP(: int)
 {
     DrawFlag_NoDepthTest = 1 << 0,
     //DrawFlag_CastShadow = 1 << 1,
     //DrawFlag_AlphaTest  = 1 << 2,
     //DrawFlag_Transparent = 1 << 3,
+};
+
+static bool HasFlags(int inValue, int inFlag)
+{
+    return (inValue & inFlag) != 0;
+}
+
+enum EShadingBin CPP(: int)
+{
+    ShadingBin_Default = 0,
+    ShadingBin_NoDepth = 1,
+    ShadingBin_Count
+};
+
+static bool ShouldDrawForShadingBin(EDrawFlags inDrawFlags, EShadingBin inShadingBin)
+{
+    bool bNoDepth = HasFlags(inDrawFlags, DrawFlag_NoDepthTest);
+    return (bNoDepth && inShadingBin == ShadingBin_NoDepth) ||
+           (!bNoDepth && inShadingBin == ShadingBin_Default);
+}
+
+// ----------- PushConstants -----------
+struct ALIGNAS(16) ShadingBinHeader
+{
+    ALIGNAS(4) uint myElementsPerBin;
+    ALIGNAS(4) EShadingBin myShadingBin;
 };
 
 // ----------- ConstantBuffers -----------
@@ -34,6 +62,7 @@ struct CameraBuffer
     float4x4 myProjection;
     float3 myCameraPosition;
 };
+
 
 struct ALIGNAS(16) SceneHeader
 {

@@ -25,11 +25,16 @@ struct VSOutput
 [[vk::binding(0, 0)]] ConstantBuffer<CameraBuffer> inCameraBuffer : register(b0);
 [[vk::binding(4, 0)]] StructuredBuffer<PerDrawData> inPerDrawData;
 
-VSOutput VSMain(VSInput input, [[vk::builtin("DrawIndex")]] uint drawID : SV_InstanceID)
+[[vk::push_constant]]
+ShadingBinHeader inShadingBinHeader;
+
+VSOutput VSMain(VSInput input, [[vk::builtin("DrawIndex")]] uint inDrawID : SV_InstanceID)
 {
     VSOutput output;
     
-    PerDrawData drawData = inPerDrawData[drawID];
+    uint shadingBinDrawID = inDrawID + (inShadingBinHeader.myShadingBin * inShadingBinHeader.myElementsPerBin);
+    
+    PerDrawData drawData = inPerDrawData[shadingBinDrawID];
     output.outPosition = mul(inCameraBuffer.myProjection, mul(inCameraBuffer.myToView, mul(drawData.myToWorld, float4(input.inPosition, 1.0))));
 	
     float3x3 toWorldRotation = (float3x3)drawData.myToWorld;
@@ -38,7 +43,7 @@ VSOutput VSMain(VSInput input, [[vk::builtin("DrawIndex")]] uint drawID : SV_Ins
     output.outBinormals = normalize(mul(toWorldRotation, input.inBinormals));
     output.outFragPos = (float3)mul(drawData.myToWorld, float4(input.inPosition, 1.0));
     output.outTexCoord = input.inTexCoords[0];
-    output.outDrawID = drawID;
+    output.outDrawID = shadingBinDrawID;
 
     float3 T = normalize(output.outTangent);
     float3 N = normalize(output.outNormal);

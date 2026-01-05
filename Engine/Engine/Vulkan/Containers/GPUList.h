@@ -50,10 +50,6 @@ public:
         EnsureCapacityForAdds(1);
         SetDataAtIndex(inElement, mySize);
         
-#if ENABLE_GPU_DEBUGGING
-        myCpuDebuggingList[mySize] = inElement;
-#endif
-        
         SetSize(mySize + 1);
     }
     
@@ -145,6 +141,10 @@ private:
         myCapacity = inNewCapacity;
         mySize = std::min(mySize, inNewCapacity);
         
+#if ENABLE_GPU_DEBUGGING
+        myCpuDebuggingList.Resize(inNewCapacity);
+#endif
+        
         VulkanBuffer* oldBuffer = myBuffer;
         
         // Create new buffer with required size.
@@ -152,9 +152,6 @@ private:
         createInfo.setSize(inNewCapacity * sizeof(ElementType));
         myBuffer = VulkanAllocator::AllocateBuffer_TS(myBufferName, createInfo, myBufferMemoryUsage, false);
 
-#if ENABLE_GPU_DEBUGGING
-        myCpuDebuggingList.Resize(inNewCapacity);
-#endif
         if (oldBuffer == nullptr)
         {
             SetSize(mySize);

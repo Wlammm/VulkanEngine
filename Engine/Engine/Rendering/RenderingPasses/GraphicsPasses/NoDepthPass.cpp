@@ -3,7 +3,9 @@
 
 #include "Engine/Rendering/GPUResourceManager.h"
 #include "Engine/Systems/PointLightSystem.h"
+#include "Engine/Vulkan/GPUSceneSystem.h"
 #include "Engine/Vulkan/ResizableBuffer.h"
+#include "Engine/Vulkan/Containers/ConstantBuffer.h"
 
 NoDepthPass::NoDepthPass()
 : GraphicsPass("Shaders/MainVS.hlsl", "Shaders/MainPS.hlsl")
@@ -32,7 +34,7 @@ void NoDepthPass::SetupDescriptors()
         vk::DescriptorType::eUniformBuffer);
 
     myDescriptorSet.BindBuffer(
-        RenderSystem::Get()->myPerDrawDataNoDepthBuffer,
+        RenderSystem::Get()->myPerDrawDataBuffer,
         vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 
         4, 
         vk::DescriptorType::eStorageBuffer);
@@ -44,6 +46,8 @@ void NoDepthPass::SetupDescriptors()
        vk::DescriptorType::eUniformBuffer);
 	
     myDescriptorSet.Build();
+    
+    SetPushConstantToType<ShadingBinHeader>(vk::ShaderStageFlagBits::eVertex);
 }
 
 void NoDepthPass::SetupAttachments()
@@ -57,8 +61,18 @@ void NoDepthPass::DrawCall(vk::CommandBuffer inCommandBuffer)
 {
     inCommandBuffer.setDepthWriteEnable(false);
 
-    inCommandBuffer.drawIndexedIndirectCount(RenderSystem::Get()->myIndirectCommandsBufferNoDepth->GetBuffer()->GetAPIResource(), 0,
-            RenderSystem::Get()->myCountNoDepthBuffer->GetAPIResource(), 0,
-            static_cast<uint>(RenderSystem::Get()->myIndirectCommandsBufferNoDepth->GetBuffer()->GetSize() / sizeof(vk::DrawIndexedIndirectCommand)),
-            sizeof(vk::DrawIndexedIndirectCommand));
+    uint maxNumDraws = Engine::GetEngineSystem<GPUSceneSystem>().GetNumObjects();
+    
+    ShadingBinHeader header;
+    header.myShadingBin = EShadingBin::ShadingBin_NoDepth;
+    header.myElementsPerBin = maxNumDraws;
+    inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(ShadingBinHeader), &header);
+    
+    inCommandBuffer.drawIndexedIndirectCount(
+        RenderSystem::Get()->myIndirectCommandsBuffer->GetBuffer()->GetAPIResource(), 
+        maxNumDraws * EShadingBin::ShadingBin_NoDepth * sizeof(vk::DrawIndexedIndirectCommand),
+        RenderSystem::Get()->myCountBuffer->GetAPIResource(), 
+        EShadingBin::ShadingBin_NoDepth * sizeof(uint),
+        maxNumDraws,
+        sizeof(vk::DrawIndexedIndirectCommand));
 }

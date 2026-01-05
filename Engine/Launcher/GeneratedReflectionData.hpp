@@ -377,6 +377,7 @@ ReflectionSystem::AddType<GPUResourceManager>("GPUResourceManager", typeid(GPURe
 ReflectionSystem::AddType<GPUResourceManager::BufferResource>("GPUResourceManager::BufferResource", typeid(GPUResourceManager::BufferResource).name());
 ReflectionSystem::AddType<Input>("Input", typeid(Input).name());
 ReflectionSystem::AddType<Random>("Random", typeid(Random).name());
+ReflectionSystem::AddType<ShadingBinHeader>("ShadingBinHeader", typeid(ShadingBinHeader).name());
 ReflectionSystem::AddType<CameraBuffer>("CameraBuffer", typeid(CameraBuffer).name());
 ReflectionSystem::AddType<SceneHeader>("SceneHeader", typeid(SceneHeader).name());
 ReflectionSystem::AddType<DirectionalLightBuffer>("DirectionalLightBuffer", typeid(DirectionalLightBuffer).name());
@@ -6964,6 +6965,15 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSys
 	}
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<ShadingBinHeader>();
+	{
+		Field& currentField = currentClass->AddField(Field("myElementsPerBin", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShadingBin", -1, ReflectionSystem::GetOrCreateType<EShadingBin>("EShadingBin"), false, false));
+	}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<CameraBuffer>();
 	{
 		Field& currentField = currentClass->AddField(Field("myToView", -1, ReflectionSystem::GetOrCreateType<glm::mat<4, 4, float>>("glm::mat<4, 4, float>"), false, false));
@@ -7482,19 +7492,10 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", Refl
 		Field& currentField = currentClass->AddField(Field("myIndirectCommandsBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myIndirectCommandsBufferNoDepth", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
-	}
-	{
 		Field& currentField = currentClass->AddField(Field("myCountBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myCountNoDepthBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
-	}
-	{
 		Field& currentField = currentClass->AddField(Field("myPerDrawDataBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myPerDrawDataNoDepthBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myCubemap", -1, ReflectionSystem::GetOrCreateType<TextureCube>("TextureCube"), true, false));
@@ -9490,6 +9491,9 @@ Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSyst
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myColorFormats", -1, ReflectionSystem::GetOrCreateType<List<vk::Format>>("List<vk::Format>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPushConstantRange", -1, ReflectionSystem::GetOrCreateType<vk::PushConstantRange>("vk::PushConstantRange"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDepthAttachment", -1, ReflectionSystem::GetOrCreateType<vk::RenderingAttachmentInfo>("vk::RenderingAttachmentInfo"), false, false));

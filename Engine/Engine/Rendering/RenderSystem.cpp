@@ -272,7 +272,7 @@ void RenderSystem::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
 {
     GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
 
-    uint requiredSize = objectSystem.GetNumObjects() * sizeof(vk::DrawIndexedIndirectCommand);
+    uint requiredSize = objectSystem.GetNumObjects() * sizeof(vk::DrawIndexedIndirectCommand) * EShadingBin::ShadingBin_Count;
     if(requiredSize > myIndirectCommandsBuffer->GetBuffer()->GetSize())
     {
 	    {
@@ -297,34 +297,9 @@ void RenderSystem::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
 				nullptr
 			);
 	    }
-
-    	// No depth
-    	// TODO: This should all be refactored and nicer.
-	    {
-	    	myIndirectCommandsBufferNoDepth->Resize(requiredSize);
-
-	    	vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
-				.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-				.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
-				.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-				.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-				.setBuffer(myIndirectCommandsBufferNoDepth->GetBuffer()->GetAPIResource())
-				.setOffset(0)
-				.setSize(VK_WHOLE_SIZE);
-
-	    	// Insert the pipeline barrier
-	    	inCommandBuffer.pipelineBarrier(
-				vk::PipelineStageFlagBits::eTransfer,
-				vk::PipelineStageFlagBits::eComputeShader,
-				vk::DependencyFlags(),
-				nullptr,
-				bufferMemoryBarrier,
-				nullptr
-			);
-	    }
     }
 
-    uint drawCallRequiredSize = objectSystem.GetNumObjects() * sizeof(PerDrawData);
+    uint drawCallRequiredSize = objectSystem.GetNumObjects() * sizeof(PerDrawData) * EShadingBin::ShadingBin_Count;
     if(drawCallRequiredSize > myPerDrawDataBuffer->GetBuffer()->GetSize())
     {
 	    {
@@ -336,30 +311,6 @@ void RenderSystem::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
 				.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 				.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 				.setBuffer(myPerDrawDataBuffer->GetBuffer()->GetAPIResource())
-				.setOffset(0)
-				.setSize(VK_WHOLE_SIZE);
-
-	    	// Insert the pipeline barrier
-	    	inCommandBuffer.pipelineBarrier(
-				vk::PipelineStageFlagBits::eTransfer,
-				vk::PipelineStageFlagBits::eComputeShader,
-				vk::DependencyFlags(),
-				nullptr,
-				bufferMemoryBarrier,
-				nullptr
-			);
-	    }
-
-    	// No depth
-	    {
-	    	myPerDrawDataNoDepthBuffer->Resize(drawCallRequiredSize);
-
-	    	vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
-				.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-				.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
-				.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-				.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-				.setBuffer(myPerDrawDataNoDepthBuffer->GetBuffer()->GetAPIResource())
 				.setOffset(0)
 				.setSize(VK_WHOLE_SIZE);
 
@@ -447,11 +398,8 @@ void RenderSystem::DestroyRenderResources()
 	DestroyRenderPasses();
 	
 	del(myIndirectCommandsBuffer);
-	del(myIndirectCommandsBufferNoDepth);
 	del(myPerDrawDataBuffer);
-	del(myPerDrawDataNoDepthBuffer);
 	VulkanAllocator::DestroyBuffer_TS(myCountBuffer);
-	VulkanAllocator::DestroyBuffer_TS(myCountNoDepthBuffer);
 }
 
 void RenderSystem::CreateRenderPasses()
@@ -600,15 +548,9 @@ void RenderSystem::CreateBuffers()
     
     myCountBuffer = VulkanAllocator::AllocateBuffer_TS("IndirectDrawCount Buffer",
         vk::BufferCreateInfo()
-        .setSize(sizeof(uint))
+        .setSize(sizeof(uint) * EShadingBin::ShadingBin_Count)
         .setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst),
         VMA_MEMORY_USAGE_AUTO);
-
-	myCountNoDepthBuffer = VulkanAllocator::AllocateBuffer_TS("IndirectDrawCount NoDepth Buffer",
-		vk::BufferCreateInfo()
-		.setSize(sizeof(uint))
-		.setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst),
-		VMA_MEMORY_USAGE_AUTO);
     
     const uint numObjects = objectSystem.GetNumObjects() != 0 ? objectSystem.GetNumObjects() : 4;
     
@@ -618,22 +560,9 @@ void RenderSystem::CreateBuffers()
         .setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
         VMA_MEMORY_USAGE_AUTO));
 
-	myIndirectCommandsBufferNoDepth = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("IndirectDrawCommands Buffer No Depth",
-		vk::BufferCreateInfo()
-		.setSize(sizeof(vk::DrawIndexedIndirectCommand) * numObjects)
-		.setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
-		VMA_MEMORY_USAGE_AUTO));
-
     myPerDrawDataBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("PerDrawCallData Buffer",
         vk::BufferCreateInfo()
         .setSize(sizeof(vk::DrawIndexedIndirectCommand) * numObjects)
         .setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
         VMA_MEMORY_USAGE_AUTO));
-
-	// TODO: This should probably not have allocations for all objects. Only the meshes that shouldnt render depth.
-	myPerDrawDataNoDepthBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("PerDrawCallData NoDepth Buffer",
-		vk::BufferCreateInfo()
-		.setSize(sizeof(vk::DrawIndexedIndirectCommand) * numObjects)
-		.setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
-		VMA_MEMORY_USAGE_AUTO));
 }
