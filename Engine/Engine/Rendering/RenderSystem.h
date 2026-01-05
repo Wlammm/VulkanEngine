@@ -44,7 +44,6 @@ public:
 
     ResizableBuffer* myIndirectCommandsBuffer = nullptr;
     VulkanBuffer* myCountBuffer = nullptr;
-    ResizableBuffer* myPerDrawDataBuffer = nullptr;
     
     TextureCube* myCubemap = nullptr;
     

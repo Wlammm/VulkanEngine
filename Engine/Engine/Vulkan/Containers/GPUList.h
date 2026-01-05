@@ -129,6 +129,11 @@ private:
     void EnsureCapacityForAdds(const uint inNumAdds)
     {
         uint requiredCapacity = mySize + inNumAdds;
+        
+#if ENABLE_GPU_DEBUGGING
+        myCpuDebuggingList.Resize(requiredCapacity);
+#endif
+        
         if (myCapacity >= requiredCapacity)
             return;
         

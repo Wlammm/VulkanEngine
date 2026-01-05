@@ -34,7 +34,7 @@ void NoDepthPass::SetupDescriptors()
         vk::DescriptorType::eUniformBuffer);
 
     myDescriptorSet.BindBuffer(
-        RenderSystem::Get()->myPerDrawDataBuffer,
+        GPUResourceManager::Get()->GetBuffer<PerDrawData>(),
         vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 
         4, 
         vk::DescriptorType::eStorageBuffer);
