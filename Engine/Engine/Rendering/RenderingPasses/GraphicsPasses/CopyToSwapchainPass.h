@@ -11,8 +11,8 @@ public:
     
     vk::SampleCountFlagBits GetNumSamples() const override;
     
-    List<vk::RenderingAttachmentInfo> GetDynamicColorAttachments() override;
-    vk::RenderingAttachmentInfo GetDynamicDepthAttachments() override;
+    void GetDynamicColorAttachments() override;
+    void GetDynamicDepthAttachments() override;
     
     void DrawCall(vk::CommandBuffer inCommandBuffer) override;
     

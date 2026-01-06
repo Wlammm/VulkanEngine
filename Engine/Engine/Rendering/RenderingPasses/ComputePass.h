@@ -26,8 +26,6 @@ public:
 protected:
     std::string myPassName = "";
     
-    VulkanDescriptorSet myDescriptorSet;
-    
     vk::PipelineLayout myPipelineLayout;
     vk::Pipeline myPipeline;
     

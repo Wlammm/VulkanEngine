@@ -20,6 +20,7 @@
 #include "Engine/Vulkan/VulkanSwapChain.h"
 #include "Engine/Vulkan/Containers/ConstantBuffer.h"
 #include "Engine/World/World.h"
+#include "RenderGraph/RenderGraph.h"
 #include "RenderingPasses/IRenderPass.h"
 #include "RenderingPasses/ComputePasses/IndirectCullPass.h"
 #include "RenderingPasses/ComputePasses/IndirectPrePass.h"
@@ -28,6 +29,7 @@
 #include "RenderingPasses/GraphicsPasses/ImGuiPass.h"
 #include "RenderingPasses/GraphicsPasses/MainPass.h"
 #include "RenderingPasses/GraphicsPasses/NoDepthPass.h"
+#include "RenderingPasses/GraphicsPasses/PresentPass.h"
 #include "RenderingPasses/GraphicsPasses/SkyboxPass.h"
 #include "RenderingPasses/TransitionPasses/TransitionImagePass.h"
 #include "RenderingPasses/TransitionPasses/TransitionSwapchainImagePass.h"
@@ -72,7 +74,7 @@ void RenderSystem::Tick()
 		GPUMARK_SCOPE(commandBuffer, "Frame");
 
 		AddUploadPass(commandBuffer);
-		AddRenderPasses(commandBuffer);
+		ExecuteRenderGraph(commandBuffer);
 	}
 
 	commandBuffer.end();
@@ -180,7 +182,7 @@ void RenderSystem::QueueCommandBufferForUpload_TS(VulkanCommandBuffer* commandBu
 	myQueuedUploadCommandBuffers.Add(commandBuffer);
 }
 
-void RenderSystem::AddRenderPasses(vk::CommandBuffer inCommandBuffer)
+void RenderSystem::ExecuteRenderGraph(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
 
@@ -235,12 +237,7 @@ void RenderSystem::AddRenderPasses(vk::CommandBuffer inCommandBuffer)
 		pointLightBarrier,
 		nullptr);
 
-	EnsureCorrectBufferSizes(inCommandBuffer);
-	
-	for (IRenderPass* renderPass : myRenderPasses)
-	{
-		renderPass->Execute(inCommandBuffer);
-	}
+	myRenderGraph->Execute(inCommandBuffer);
 }
 
 void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
@@ -266,11 +263,6 @@ void RenderSystem::FlushUploadCommands()
 	std::scoped_lock lock(myUploadMutex);
 	VulkanContext::GetDevice().FlushSecondaryCommandBuffers(myQueuedUploadCommandBuffers);
 	myQueuedUploadCommandBuffers.Clear();
-}
-
-void RenderSystem::EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer)
-{
-    
 }
 
 void RenderSystem::RegisterRenderResources()
@@ -427,91 +419,88 @@ void RenderSystem::DestroyRenderResources()
 
 void RenderSystem::CreateRenderPasses()
 {
-	AddGraphicsPass<TransitionImagePass>(
-		RenderSystem::Get()->GetResolvedRenderTexture(),
-		vk::AccessFlagBits::eNone,
-		vk::AccessFlagBits::eColorAttachmentWrite,
-		vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eColorAttachmentOptimal,
-		vk::PipelineStageFlagBits::eTopOfPipe,
-		vk::PipelineStageFlagBits::eColorAttachmentOutput,
-		vk::ImageAspectFlagBits::eColor);
+	myRenderGraph = new RenderGraph();
+	//myRenderGraph->AddPass(new TransitionImagePass(
+	//	RenderSystem::Get()->GetResolvedRenderTexture(),
+	//	vk::AccessFlagBits::eNone,
+	//	vk::AccessFlagBits::eColorAttachmentWrite,
+	//	vk::ImageLayout::eUndefined,
+	//	vk::ImageLayout::eColorAttachmentOptimal,
+	//	vk::PipelineStageFlagBits::eTopOfPipe,
+	//	vk::PipelineStageFlagBits::eColorAttachmentOutput,
+	//	vk::ImageAspectFlagBits::eColor));
+	//
+	//myRenderGraph->AddPass(new TransitionImagePass(
+	//	myResolvedDepthTexture,
+	//	vk::AccessFlagBits::eNone,
+	//	vk::AccessFlagBits::eDepthStencilAttachmentWrite,
+	//	vk::ImageLayout::eUndefined,
+	//	vk::ImageLayout::eDepthAttachmentOptimal,
+	//	vk::PipelineStageFlagBits::eTopOfPipe,
+	//	vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests,
+	//	vk::ImageAspectFlagBits::eDepth));
+	//
+	//myRenderGraph->AddPass(new TransitionImagePass(
+	//RenderSystem::Get()->myRenderTexture,
+	//	vk::AccessFlagBits::eNone,
+	//	vk::AccessFlagBits::eColorAttachmentWrite,
+	//	vk::ImageLayout::eUndefined,
+	//	vk::ImageLayout::eColorAttachmentOptimal,
+	//	vk::PipelineStageFlagBits::eTopOfPipe,
+	//	vk::PipelineStageFlagBits::eColorAttachmentOutput,
+	//	vk::ImageAspectFlagBits::eColor));
+	//
+	//myRenderGraph->AddPass(new TransitionImagePass(
+	//RenderSystem::Get()->myDepthBuffer,
+	//	vk::AccessFlagBits::eNone,
+	//	vk::AccessFlagBits::eColorAttachmentWrite,
+	//	vk::ImageLayout::eUndefined,
+	//	vk::ImageLayout::eDepthAttachmentOptimal,
+	//	vk::PipelineStageFlagBits::eTopOfPipe,
+	//	vk::PipelineStageFlagBits::eColorAttachmentOutput,
+	//	vk::ImageAspectFlagBits::eDepth));
 	
-	AddGraphicsPass<TransitionImagePass>(
-		myResolvedDepthTexture,
-		vk::AccessFlagBits::eNone,
-		vk::AccessFlagBits::eDepthStencilAttachmentWrite,
-		vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eDepthAttachmentOptimal,
-		vk::PipelineStageFlagBits::eTopOfPipe,
-		vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests,
-		vk::ImageAspectFlagBits::eDepth);
+	myRenderGraph->AddPass(new SkyboxPass());
+	myRenderGraph->AddPass(new IndirectPrePass());
+	myRenderGraph->AddPass(new IndirectCullPass());
+	myRenderGraph->AddPass(new MainPass());
+	myRenderGraph->AddPass(new NoDepthPass());
+	myRenderGraph->AddPass(new DebugPass());
 	
-	AddGraphicsPass<TransitionImagePass>(
-	RenderSystem::Get()->myRenderTexture,
-		vk::AccessFlagBits::eNone,
-		vk::AccessFlagBits::eColorAttachmentWrite,
-		vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eColorAttachmentOptimal,
-		vk::PipelineStageFlagBits::eTopOfPipe,
-		vk::PipelineStageFlagBits::eColorAttachmentOutput,
-		vk::ImageAspectFlagBits::eColor);
+	//myRenderGraph->AddPass(new TransitionImagePass(
+	//	RenderSystem::Get()->GetResolvedRenderTexture(),
+	//	vk::AccessFlagBits::eColorAttachmentWrite,
+	//	vk::AccessFlagBits::eShaderRead,
+	//	vk::ImageLayout::eColorAttachmentOptimal,
+	//	vk::ImageLayout::eShaderReadOnlyOptimal,
+	//	vk::PipelineStageFlagBits::eColorAttachmentOutput,
+	//	vk::PipelineStageFlagBits::eFragmentShader,
+	//	vk::ImageAspectFlagBits::eColor));
+	//
+	//myRenderGraph->AddPass(new TransitionSwapchainImagePass(
+	//	vk::AccessFlagBits::eNone,
+	//	vk::AccessFlagBits::eColorAttachmentWrite,
+	//	vk::ImageLayout::eUndefined,
+	//	vk::ImageLayout::eColorAttachmentOptimal,
+	//	vk::PipelineStageFlagBits::eTopOfPipe,
+	//	vk::PipelineStageFlagBits::eColorAttachmentOutput));
 	
-	AddGraphicsPass<TransitionImagePass>(
-	RenderSystem::Get()->myDepthBuffer,
-		vk::AccessFlagBits::eNone,
-		vk::AccessFlagBits::eColorAttachmentWrite,
-		vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eDepthAttachmentOptimal,
-		vk::PipelineStageFlagBits::eTopOfPipe,
-		vk::PipelineStageFlagBits::eColorAttachmentOutput,
-		vk::ImageAspectFlagBits::eDepth);
+	myRenderGraph->AddPass(new CopyToSwapchainPass(RenderSystem::Get()->GetResolvedRenderTexture()));
+	myRenderGraph->AddPass(new ImGuiPass());
+	myRenderGraph->AddPass(new PresentPass());
 	
-	AddGraphicsPass<SkyboxPass>();
-	AddGraphicsPass<IndirectPrePass>();
-	AddGraphicsPass<IndirectCullPass>();
-	AddGraphicsPass<MainPass>();
-	AddGraphicsPass<NoDepthPass>();
-	AddGraphicsPass<DebugPass>();
-	
-	AddGraphicsPass<TransitionImagePass>(
-		RenderSystem::Get()->GetResolvedRenderTexture(),
-		vk::AccessFlagBits::eColorAttachmentWrite,
-		vk::AccessFlagBits::eShaderRead,
-		vk::ImageLayout::eColorAttachmentOptimal,
-		vk::ImageLayout::eShaderReadOnlyOptimal,
-		vk::PipelineStageFlagBits::eColorAttachmentOutput,
-		vk::PipelineStageFlagBits::eFragmentShader,
-		vk::ImageAspectFlagBits::eColor);
-	
-	AddGraphicsPass<TransitionSwapchainImagePass>(
-		vk::AccessFlagBits::eNone,
-		vk::AccessFlagBits::eColorAttachmentWrite,
-		vk::ImageLayout::eUndefined,
-		vk::ImageLayout::eColorAttachmentOptimal,
-		vk::PipelineStageFlagBits::eTopOfPipe,
-		vk::PipelineStageFlagBits::eColorAttachmentOutput);
-	
-	AddGraphicsPass<CopyToSwapchainPass>(RenderSystem::Get()->GetResolvedRenderTexture());
-	AddGraphicsPass<ImGuiPass>();
-	
-	AddGraphicsPass<TransitionSwapchainImagePass>(
-		vk::AccessFlagBits::eColorAttachmentWrite,
-		vk::AccessFlagBits::eNone,
-		vk::ImageLayout::eColorAttachmentOptimal,
-		vk::ImageLayout::ePresentSrcKHR,
-		vk::PipelineStageFlagBits::eColorAttachmentOutput,
-		vk::PipelineStageFlagBits::eBottomOfPipe);
+	//myRenderGraph->AddPass(new TransitionSwapchainImagePass(
+	//	vk::AccessFlagBits::eColorAttachmentWrite,
+	//	vk::AccessFlagBits::eNone,
+	//	vk::ImageLayout::eColorAttachmentOptimal,
+	//	vk::ImageLayout::ePresentSrcKHR,
+	//	vk::PipelineStageFlagBits::eColorAttachmentOutput,
+	//	vk::PipelineStageFlagBits::eBottomOfPipe));
 }
 
 void RenderSystem::DestroyRenderPasses()
 {
-	for (IRenderPass* renderPass : myRenderPasses)
-	{
-		renderPass->DestroyResources();
-		del(renderPass);	
-	}
-	myRenderPasses.Clear();
+	del(myRenderGraph);
 }
 
 void RenderSystem::CreateRenderTextures()

@@ -17,12 +17,12 @@ VulkanImage::~VulkanImage()
 
 void VulkanImage::CreateView(vk::ImageViewType inViewType)
 {
-	vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
+	mySubresourceRange = vk::ImageSubresourceRange()
 		.setAspectMask(vk::ImageAspectFlagBits::eColor)
 		.setBaseMipLevel(0)
 		.setLevelCount(myNumMipLevels)
 		.setLayerCount(1);
-	CreateView(inViewType, subresourceRange);
+	CreateView(inViewType, mySubresourceRange);
 
 #if DEBUG
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
@@ -36,7 +36,8 @@ void VulkanImage::CreateView(vk::ImageViewType inViewType, vk::ImageSubresourceR
 {
 	ZoneScoped;
 	check(!myView);
-
+	mySubresourceRange = inRange;
+	
 	vk::ImageViewCreateInfo createInfo = vk::ImageViewCreateInfo()
 		.setImage(myImage)
 		.setViewType(inViewType)
@@ -48,7 +49,9 @@ void VulkanImage::CreateView(vk::ImageViewType inViewType, vk::ImageSubresourceR
 
 void VulkanImage::CreateDepthView()
 {
-	CreateView(vk::ImageViewType::e2D, vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1));
+	mySubresourceRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1);
+	
+	CreateView(vk::ImageViewType::e2D, mySubresourceRange);
 }
 
 const glm::vec2& VulkanImage::GetSize() const
@@ -64,6 +67,24 @@ uint VulkanImage::GetNumMipLevels() const
 vk::SampleCountFlagBits VulkanImage::GetNumMSAASamples() const
 {
 	return myNumMSAASamples;
+}
+
+vk::ImageSubresourceRange VulkanImage::GetSubresourceRange() const
+{
+	return mySubresourceRange;
+}
+
+VulkanImage* VulkanImage::CreateFromSwapchainImage(vk::Image inImage, vk::Format inFormat)
+{
+	VulkanImage* image = new VulkanImage();
+	image->myImage = inImage;
+	image->myFormat = inFormat;
+	return image;
+}
+
+void VulkanImage::DestroySwapchainImage(VulkanImage* inImage)
+{
+	del(inImage);
 }
 
 vk::Image VulkanImage::GetAPIResource() const

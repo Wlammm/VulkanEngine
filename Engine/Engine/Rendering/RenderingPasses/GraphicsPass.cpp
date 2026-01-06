@@ -64,8 +64,9 @@ void GraphicsPass::Execute(vk::CommandBuffer inCommandBuffer)
 
     if (myHasDynamicAttachments)
     {
-        colorAttachment = GetDynamicColorAttachments();
-        depthAttachment = GetDynamicDepthAttachments();
+        check(!myDynamicColorAttachments.IsEmpty() && "Dynamic color attachments shouldnt be zero if we have dynamic color attachments.");
+        colorAttachment = myDynamicColorAttachments;
+        depthAttachment = myDynamicDepthAttachment;
     }
     
     vk::RenderingInfo renderingInfo = vk::RenderingInfo()
@@ -111,6 +112,17 @@ void GraphicsPass::Execute(vk::CommandBuffer inCommandBuffer)
     DrawCall(inCommandBuffer);
     
     inCommandBuffer.endRendering();
+}
+
+void GraphicsPass::PreExecute()
+{
+    IRenderPass::PreExecute();
+    if (myHasDynamicAttachments)
+    {
+        myDynamicColorAttachments.Clear();
+        GetDynamicColorAttachments();
+        GetDynamicDepthAttachments();
+    }
 }
 
 void GraphicsPass::CreateResources()

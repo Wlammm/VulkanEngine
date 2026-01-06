@@ -4,6 +4,7 @@
 #include "VulkanContext.h"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
+#include "VulkanImage.h"
 #include "VulkanUtils.hpp"
 #include "Engine/Engine.h"
 
@@ -112,11 +113,6 @@ const vk::CommandBuffer& VulkanSwapChain::GetCommandBuffer() const
 	return myCommandBuffers[mySyncIndex];
 }
 
-const vk::Image& VulkanSwapChain::GetImage() const
-{
-	return myImages[myFrameIndex];
-}
-
 const vk::SurfaceKHR& VulkanSwapChain::GetSurface() const
 {
 	return myWindowSurface;
@@ -152,9 +148,19 @@ uint VulkanSwapChain::GetMinImageCount() const
 	return myMinImageCount;
 }
 
-const vk::ImageView& VulkanSwapChain::GetImageView(const uint inIndex) const
+vk::ImageView VulkanSwapChain::GetImageView(const uint inIndex) const
 {
-	return myImageViews[inIndex];
+	return myImages[inIndex]->GetImageView();
+}
+
+VulkanImage* VulkanSwapChain::GetImage(const uint inIndex) const
+{
+	return myImages[inIndex];
+}
+
+VulkanImage* VulkanSwapChain::GetImage() const
+{
+	return myImages[myFrameIndex];
 }
 
 void VulkanSwapChain::CreateWindowSurface()
@@ -261,24 +267,20 @@ void VulkanSwapChain::CreateSwapChain()
 	if (oldSwapChain)
 		myDevice->destroySwapchainKHR(oldSwapChain);
 
-	myImages = myDevice->getSwapchainImagesKHR(mySwapChain);
-	for(int i = 0; i < myImages.size(); ++i)
+	List<vk::Image> swapchainImages = myDevice->getSwapchainImagesKHR(mySwapChain);
+	for(vk::Image image : swapchainImages)
 	{
-		vk::ImageViewCreateInfo imageViewCreateInfo = vk::ImageViewCreateInfo()
-			.setViewType(vk::ImageViewType::e2D)
-			.setFormat(imageFormat.format)
-			.setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1));
-		imageViewCreateInfo.image = myImages[i];
-
-		myImageViews.Add(myDevice->createImageView(imageViewCreateInfo));
+		myImages.Add(VulkanImage::CreateFromSwapchainImage(image, imageFormat.format));
+		myImages.Last()->CreateView(vk::ImageViewType::e2D);
+		
 #if DEBUG
 		VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
-			.setObjectHandle(VulkanContext::GetVulkanHandle(myImages[i]))
+			.setObjectHandle(VulkanContext::GetVulkanHandle(myImages.Last()->GetAPIResource()))
 			.setPObjectName("Swapchain Image")
 			.setObjectType(vk::ObjectType::eImage));
 		
 		VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
-			.setObjectHandle(VulkanContext::GetVulkanHandle(myImageViews.Last()))
+			.setObjectHandle(VulkanContext::GetVulkanHandle(myImages.Last()->GetImageView()))
 			.setPObjectName("Swapchain ImageView")
 			.setObjectType(vk::ObjectType::eImageView));
 #endif
@@ -317,18 +319,17 @@ void VulkanSwapChain::DestroySwapChainRelatedObjects()
 	myImageAcquiredSemaphores.Clear();
 	myDrawCompleteSemaphores.Clear();
 
-	for (int i = 0; i < myImageViews.size(); ++i)
+	for (int i = 0; i < myImages.size(); ++i)
 	{
-		myDevice->destroyImageView(myImageViews[i]);
+		VulkanImage::DestroySwapchainImage(myImages[i]);
 	}
+	myImages.Clear();
 
 	myDevice->freeCommandBuffers(myCommandPool, myCommandBuffers);
 	myCommandBuffers.Clear();
 
 	myDevice->destroyCommandPool(myCommandPool);
 
-	myImageViews.Clear();
-	myImages.Clear();
 
 	myFrameIndex = 0;
 	myFrameIndex = 0;

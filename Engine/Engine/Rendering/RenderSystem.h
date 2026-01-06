@@ -13,6 +13,7 @@ class ResizableBuffer;
 class VulkanBuffer;
 class TextureCube;
 class IRenderPass;
+class RenderGraph;
 
 class RenderSystem : public System
 {
@@ -47,21 +48,11 @@ public:
     TextureCube* myCubemap = nullptr;
     
 private:
-    template<typename RenderPassType, typename... Args>
-   void AddGraphicsPass(Args&&... InArgs)
-    {
-        RenderPassType* renderPass = new RenderPassType(std::forward<Args>(InArgs)...);
-        renderPass->CreateResources();
-        myRenderPasses.Add(renderPass);
-    }
-    
-    void AddRenderPasses(vk::CommandBuffer inCommandBuffer);
+    void ExecuteRenderGraph(vk::CommandBuffer inCommandBuffer);
     
     void AddUploadPass(vk::CommandBuffer inCommandBuffer);
 
     void FlushUploadCommands();
-    
-    void EnsureCorrectBufferSizes(vk::CommandBuffer inCommandBuffer);
 
 private:
     void RegisterRenderResources();
@@ -84,5 +75,5 @@ private:
     // This is used for editor depth reading as readback is not supported on multisampled textures.
     class VulkanImage* myResolvedDepthTexture = nullptr;
     
-    List<IRenderPass*> myRenderPasses;
+    RenderGraph* myRenderGraph;
 };

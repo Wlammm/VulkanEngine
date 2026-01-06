@@ -12,13 +12,13 @@ CopyToSwapchainPass::CopyToSwapchainPass(VulkanImage* inSourceImage)
 void CopyToSwapchainPass::SetupDescriptors()
 {
     // Should this be linear sampling instead? I don't think so?
-    myDescriptorSet.BindImage(mySourceTexture, VulkanUtils::GetSampler(SamplerMode::PointWrap), 0, vk::ShaderStageFlagBits::eFragment);
-    myDescriptorSet.Build();
+    BindImage(mySourceTexture, VulkanUtils::GetSampler(SamplerMode::PointWrap), 0, vk::ShaderStageFlagBits::eFragment, vk::ImageLayout::eShaderReadOnlyOptimal);
+    Build();
 }
 
 void CopyToSwapchainPass::SetupAttachments()
 {
-    AddDynamicColorAttachment(VulkanContext::GetSwapChain().GetFormat(), vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eStore);
+    RegisterDynamicColorAttachment(VulkanContext::GetSwapChain().GetFormat(), vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eDontCare, vk::AttachmentStoreOp::eStore);
 }
 
 vk::SampleCountFlagBits CopyToSwapchainPass::GetNumSamples() const
@@ -26,19 +26,15 @@ vk::SampleCountFlagBits CopyToSwapchainPass::GetNumSamples() const
     return vk::SampleCountFlagBits::e1;
 }
 
-List<vk::RenderingAttachmentInfo> CopyToSwapchainPass::GetDynamicColorAttachments()
+void CopyToSwapchainPass::GetDynamicColorAttachments()
 {
-    return { vk::RenderingAttachmentInfo().setLoadOp(vk::AttachmentLoadOp::eDontCare)
-            .setStoreOp(vk::AttachmentStoreOp::eStore)
-            .setImageLayout(vk::ImageLayout::eAttachmentOptimal)
-            .setImageView(VulkanContext::GetSwapChain().GetImageView(VulkanContext::GetSwapChain().GetFrameIndex()))
-            .setClearValue(vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} }))) };
+    VulkanImage* image = VulkanContext::GetSwapChain().GetImage(VulkanContext::GetSwapChain().GetFrameIndex());
+    
+    AddDynamicColorAttachment(image, vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
 }
 
-vk::RenderingAttachmentInfo CopyToSwapchainPass::GetDynamicDepthAttachments()
-{
-    return vk::RenderingAttachmentInfo();
-}
+void CopyToSwapchainPass::GetDynamicDepthAttachments()
+{ }
 
 void CopyToSwapchainPass::DrawCall(vk::CommandBuffer inCommandBuffer)
 {

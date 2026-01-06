@@ -25,19 +25,19 @@ SkyboxPass::~SkyboxPass()
 
 void SkyboxPass::SetupAttachments()
 {
-    AddColorAttachment(RenderSystem::Get()->myRenderTexture, vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
+    AddColorAttachment(RenderSystem::Get()->myRenderTexture, vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
 }
 
 void SkyboxPass::SetupDescriptors()
 {
-    myDescriptorSet.BindBuffer(
+    BindBuffer(
         GPUResourceManager::Get()->GetBuffer<CameraBuffer>(),
         vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
         0, 
         vk::DescriptorType::eUniformBuffer);
     
-    myDescriptorSet.BindSampler(VulkanUtils::GetSampler(SamplerMode::LinearWrap), vk::ShaderStageFlagBits::eFragment, 2);
-    myDescriptorSet.Build();
+    BindSampler(VulkanUtils::GetSampler(SamplerMode::LinearWrap), vk::ShaderStageFlagBits::eFragment, 2);
+    Build();
 }
 
 void SkyboxPass::DrawCall(vk::CommandBuffer inCommandBuffer)

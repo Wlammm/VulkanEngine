@@ -19,14 +19,15 @@ DebugPass::~DebugPass()
 
 void DebugPass::SetupAttachments()
 {
-    AddColorAttachment(RenderSystem::Get()->myRenderTexture, vk::ImageLayout::eAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore, RenderSystem::Get()->GetResolvedRenderTexture());
+    AddColorAttachment(RenderSystem::Get()->myRenderTexture, vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore, RenderSystem::Get()->GetResolvedRenderTexture());
     AddDepthAttachment(RenderSystem::Get()->myDepthBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);
 }
 
 void DebugPass::SetupDescriptors()
 {
-    myDescriptorSet.BindBuffer(GPUResourceManager::Get()->GetBuffer<CameraBuffer>(), vk::ShaderStageFlagBits::eVertex, 0, vk::DescriptorType::eUniformBuffer);
-    myDescriptorSet.Build();
+    BindBuffer(GPUResourceManager::Get()->GetBuffer<CameraBuffer>(), vk::ShaderStageFlagBits::eVertex, 0, vk::DescriptorType::eUniformBuffer);
+    
+    Build();
 }
 
 List<vk::VertexInputBindingDescription>& DebugPass::GetVertexBindingDescriptor() const

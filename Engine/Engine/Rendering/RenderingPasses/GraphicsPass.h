@@ -17,8 +17,8 @@ public:
     // Setup what textures should be rendered to.
     virtual void SetupAttachments() = 0;
     
-    virtual List<vk::RenderingAttachmentInfo> GetDynamicColorAttachments() { check(false && "Dynamic passes needs to override this function"); return List<vk::RenderingAttachmentInfo>(); };
-    virtual vk::RenderingAttachmentInfo GetDynamicDepthAttachments() { check(false && "Dynamic passes needs to override this function"); return vk::RenderingAttachmentInfo{}; }
+    virtual void GetDynamicColorAttachments() { check(false && "Dynamic passes needs to override this function"); };
+    virtual void GetDynamicDepthAttachments() { check(false && "Dynamic passes needs to override this function"); }
     
     // Setup what buffers and textures should be bound to read from during this pass.
     virtual void SetupDescriptors() = 0;
@@ -34,6 +34,8 @@ public:
     
     void Execute(vk::CommandBuffer inCommandBuffer) override;
     
+    void PreExecute() override;
+    
     void CreateResources() override;
     void DestroyResources() override;
     
@@ -48,18 +50,40 @@ public:
             .setImageView(inImage->GetImageView())
             .setClearValue(vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })));
         
+        RegisterImageUsage(inImage, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite, inLayout);
+        
         if (myResolveImage)
         {
             myColorAttachments.Last()
                 .setResolveImageLayout(vk::ImageLayout::eColorAttachmentOptimal).
                 setResolveImageView(myResolveImage->GetImageView())
                 .setResolveMode(vk::ResolveModeFlagBits::eAverage);
+            
+            RegisterImageUsage(myResolveImage, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite, vk::ImageLayout::eColorAttachmentOptimal);
         }
         
         myColorFormats.Add(inImage->GetFormat());
     }
     
-    void AddDynamicColorAttachment(vk::Format inFormat, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myResolveImage = nullptr)
+    /*
+     * Should be called inside GetDynamicColorAttachments.
+     */
+    void AddDynamicColorAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp)
+    {
+        myDynamicColorAttachments.Add(vk::RenderingAttachmentInfo().setLoadOp(vk::AttachmentLoadOp::eDontCare)
+            .setImageLayout(inLayout)
+            .setLoadOp(inLoadOp)
+            .setStoreOp(inStoreOp)
+            .setImageView(inImage->GetImageView())
+            .setClearValue(vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} }))));  
+        
+        RegisterImageUsage(inImage, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite, inLayout);
+    }
+    
+    /*
+     * Should be called inside SetupAttachments if this pass uses dynamic attachments.
+     */
+    void RegisterDynamicColorAttachment(vk::Format inFormat, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myResolveImage = nullptr)
     {
         myColorAttachments.Emplace()
             .setLoadOp(inLoadOp)
@@ -71,8 +95,8 @@ public:
         if (myResolveImage)
         {
             myColorAttachments.Last()
-                .setResolveImageLayout(vk::ImageLayout::eColorAttachmentOptimal).
-                setResolveImageView(myResolveImage->GetImageView())
+                .setResolveImageLayout(vk::ImageLayout::eColorAttachmentOptimal)
+                .setResolveImageView(myResolveImage->GetImageView())
                 .setResolveMode(vk::ResolveModeFlagBits::eAverage);
         }
         
@@ -95,19 +119,28 @@ public:
             .setImageView(inImage->GetImageView())
             .setClearValue(vk::ClearDepthStencilValue(1.0f, 0u));
         
+        RegisterImageUsage(inImage, 
+            vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests, 
+            vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead, 
+            inLayout);
+        
         if (myDepthResolveImage)
         {
             myDepthAttachment
                 .setResolveImageLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal)
                 .setResolveImageView(myDepthResolveImage->GetImageView())
                 .setResolveMode(vk::ResolveModeFlagBits::eAverage);
+            
+            RegisterImageUsage(myDepthResolveImage, 
+                vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests, 
+                vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead, 
+                inLayout);
         }
         
         myDepthFormat = inImage->GetFormat();
     }
     
 protected:
-    VulkanDescriptorSet myDescriptorSet;
     vk::PipelineLayout myPipelineLayout;
     vk::Pipeline myPipeline;
     
@@ -122,10 +155,12 @@ private:
     bool myNeedsBindlessTextureDescriptor = true;
     
     List<vk::RenderingAttachmentInfo> myColorAttachments;
+    List<vk::RenderingAttachmentInfo> myDynamicColorAttachments;
     List<vk::Format> myColorFormats;
     
     vk::PushConstantRange myPushConstantRange{};
     
     vk::RenderingAttachmentInfo myDepthAttachment;
+    vk::RenderingAttachmentInfo myDynamicDepthAttachment;
     vk::Format myDepthFormat;
 };

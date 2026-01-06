@@ -44,11 +44,13 @@ public:
 		return createInfo;
 	}
 
+	static VulkanImage* CreateFromSwapchainImage(vk::Image inImage, vk::Format inFormat);
+	static void DestroySwapchainImage(VulkanImage* inImage);
+	
 public:
 	vk::Image GetAPIResource() const;
 	vk::ImageView GetImageView() const;
 	vk::Format GetFormat() const;
-
 
 	bool HasImageView() const;
 	void CreateView(vk::ImageViewType inViewType);
@@ -59,6 +61,8 @@ public:
 	const glm::vec2& GetSize() const;
 	uint GetNumMipLevels() const;
 	vk::SampleCountFlagBits GetNumMSAASamples() const;
+	
+	vk::ImageSubresourceRange GetSubresourceRange() const;
 	
 private:
 	// Only create & destroy via allocator.
@@ -77,6 +81,8 @@ private:
 	vk::ImageView myView;
 	vk::Format myFormat;
 	glm::vec2 mySize;
+	
+	vk::ImageSubresourceRange mySubresourceRange;
 	
     uint myNumMipLevels = 1;
 	vk::SampleCountFlagBits myNumMSAASamples = vk::SampleCountFlagBits::e1;

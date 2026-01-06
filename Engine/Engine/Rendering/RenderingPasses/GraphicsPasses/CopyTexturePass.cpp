@@ -16,8 +16,8 @@ void CopyTexturePass::SetupAttachments()
 void CopyTexturePass::SetupDescriptors()
 {
     // Should this be linear sampling instead? I don't think so?
-    myDescriptorSet.BindImage(mySourceTexture, VulkanUtils::GetSampler(SamplerMode::PointWrap), 0, vk::ShaderStageFlagBits::eFragment);
-    myDescriptorSet.Build();
+    BindImage(mySourceTexture, VulkanUtils::GetSampler(SamplerMode::PointWrap), 0, vk::ShaderStageFlagBits::eFragment);
+    Build();
 }
 
 void CopyTexturePass::DrawCall(vk::CommandBuffer inCommandBuffer)

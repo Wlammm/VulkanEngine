@@ -15,37 +15,37 @@ NoDepthPass::NoDepthPass()
 
 void NoDepthPass::SetupDescriptors()
 {
-    myDescriptorSet.BindBuffer(
+    BindBuffer(
             GPUResourceManager::Get()->GetBuffer<CameraBuffer>(), 
             vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
             0, 
             vk::DescriptorType::eUniformBuffer);
 	
-    myDescriptorSet.BindBuffer(
+    BindBuffer(
         GPUResourceManager::Get()->GetBuffer<PointLightData>(), 
         vk::ShaderStageFlagBits::eFragment, 
         1, 
         vk::DescriptorType::eStorageBuffer);
 	
-    myDescriptorSet.BindBuffer(
+    BindBuffer(
         GPUResourceManager::Get()->GetBuffer<DirectionalLightBuffer>(),
         vk::ShaderStageFlagBits::eFragment, 
         2, 
         vk::DescriptorType::eUniformBuffer);
 
-    myDescriptorSet.BindBuffer(
+    BindBuffer(
         GPUResourceManager::Get()->GetBuffer<PerDrawData>(),
         vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 
         4, 
         vk::DescriptorType::eStorageBuffer);
     
-    myDescriptorSet.BindBuffer(
+    BindBuffer(
        GPUResourceManager::Get()->GetBuffer<SceneHeader>(),
        vk::ShaderStageFlagBits::eFragment, 
        5, 
        vk::DescriptorType::eUniformBuffer);
 	
-    myDescriptorSet.Build();
+    Build();
     
     SetPushConstantToType<ShadingBinHeader>(vk::ShaderStageFlagBits::eVertex);
 }

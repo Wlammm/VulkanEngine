@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Delegates/MulticastDelegate.hpp"
 
+class VulkanImage;
 class VulkanDevice;
 
 class VulkanSwapChain
@@ -13,7 +14,6 @@ public:
 	void EndFrame();
 
 	const vk::CommandBuffer& GetCommandBuffer() const;
-	const vk::Image& GetImage() const;
 	const vk::SurfaceKHR& GetSurface() const;
 	const vk::Format& GetFormat() const;
 
@@ -25,7 +25,9 @@ public:
 
 	uint GetMinImageCount() const;
 
-	const vk::ImageView& GetImageView(const uint inIndex) const;
+	vk::ImageView GetImageView(const uint inIndex) const;
+	VulkanImage* GetImage(const uint inIndex) const;
+	VulkanImage* GetImage() const;
 
 	inline static MulticastDelegate<void()> OnSwapChainResized;
 
@@ -65,8 +67,9 @@ private:
 
 	uint myMinImageCount = 0;
 	
-	List<vk::Image> myImages;
-	List<vk::ImageView> myImageViews;
+	List<VulkanImage*> myImages; 
+	// List<vk::Image> myImages;
+	// List<vk::ImageView> myImageViews;
 
 	vk::CommandPool myCommandPool;
 	List<vk::CommandBuffer> myCommandBuffers;
