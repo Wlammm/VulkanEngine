@@ -37,5 +37,6 @@ private:
     
     MeshInstanceIndex myMeshInstance = -1;
     
+    META(SerializeField, OnInspectorChangedEvent(MarkRenderStateDirty))
     SharedPtr<Material> myMaterial = nullptr;
 };

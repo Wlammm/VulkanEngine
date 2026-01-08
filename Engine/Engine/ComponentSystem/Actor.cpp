@@ -169,7 +169,6 @@ void Actor::MarkRenderStateDirty()
 
 void Actor::SetName(const std::string& inName)
 {
-    check(!inName.empty() && "Actor name cannot be empty.");
     myName = inName;
 }
 

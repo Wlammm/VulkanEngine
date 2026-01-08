@@ -29,3 +29,29 @@ GPUResourceManager::~GPUResourceManager()
     
     myBuffers.Clear();
 }
+
+void GPUResourceManager::Tick()
+{
+    for (BufferResource& buffer : myTickableBuffers)
+    {
+        buffer.myTickFunction(buffer);
+    }
+}
+
+IGPUBuffer* GPUResourceManager::GetBuffer(const std::string& inBufferTypeName) const
+{
+    const Type* type = ReflectionSystem::GetTypeByName(inBufferTypeName);
+    return GetBuffer(type);
+}
+
+IGPUBuffer* GPUResourceManager::GetBuffer(const Type* inType) const
+{
+    for (const BufferResource& buffer : myBuffers)
+    {
+        if (buffer.myType == inType)
+            return buffer.myBuffer;
+    }
+        
+    check(false && "Failed to find buffer for this type.");
+    return nullptr;
+}

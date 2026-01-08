@@ -34,11 +34,11 @@ LandscapeRenderComponent::~LandscapeRenderComponent()
 
 void LandscapeRenderComponent::OnCreate()
 {
-    Engine::GetEngineSystem<AssetRegistry>().GetAssetAsync<Material>("Assets/Materials/LandscapeGrass/LandscapeGrass.mat", [this](SharedPtr<Material> inMaterial)
-    {
-        myMaterial = inMaterial;    
-        MarkRenderStateDirty();
-    });
+    //Engine::GetEngineSystem<AssetRegistry>().GetAssetAsync<Material>("Assets/Materials/LandscapeGrass/LandscapeGrass.mat", [this](SharedPtr<Material> inMaterial)
+    //{
+    //    myMaterial = inMaterial;    
+    //    MarkRenderStateDirty();
+    //});
     CreateLandscapeMesh();
 }
 
@@ -62,9 +62,12 @@ void LandscapeRenderComponent::OnRenderStateDirty()
 
     if(myMaterial)
     {
-        data.myAlbedoIndex = myMaterial->GetAlbedo()->GetBindlessIndex();
-        data.myNormalIndex = myMaterial->GetNormal()->GetBindlessIndex();
-        data.myMaterialIndex = myMaterial->GetMaterial()->GetBindlessIndex();
+        if (myMaterial->GetAlbedo())
+            data.myAlbedoIndex = myMaterial->GetAlbedo()->GetBindlessIndex();
+        if (myMaterial->GetNormal())
+            data.myNormalIndex = myMaterial->GetNormal()->GetBindlessIndex();
+        if (myMaterial->GetMaterial())
+            data.myMaterialIndex = myMaterial->GetMaterial()->GetBindlessIndex();
     }
     
     myMeshInstance = Engine::GetEngineSystem<GPUSceneSystem>().AddMeshInstance(data);

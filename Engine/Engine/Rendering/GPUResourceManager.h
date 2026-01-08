@@ -19,13 +19,7 @@ public:
         Delegate<void(BufferResource& inResource)> myTickFunction;
     };
     
-    void Tick()
-    {
-        for (BufferResource& buffer : myTickableBuffers)
-        {
-            buffer.myTickFunction(buffer);
-        }
-    }
+    void Tick();
     
     /*
      * The resource system takes ownership of the buffer and its lifetime from here on.
@@ -58,23 +52,9 @@ public:
         return GetBuffer(type);
     }
 
-    IGPUBuffer* GetBuffer(const std::string& inBufferTypeName) const
-    {
-        const Type* type = ReflectionSystem::GetTypeByName(inBufferTypeName);
-        return GetBuffer(type);
-    }
+    IGPUBuffer* GetBuffer(const std::string& inBufferTypeName) const;
     
-    IGPUBuffer* GetBuffer(const Type* inType) const
-    {
-        for (const BufferResource& buffer : myBuffers)
-        {
-            if (buffer.myType == inType)
-                return buffer.myBuffer;
-        }
-        
-        check(false && "Failed to find buffer for this type.");
-        return nullptr;
-    }
+    IGPUBuffer* GetBuffer(const Type* inType) const;
     
 private:
     List<BufferResource> myBuffers;

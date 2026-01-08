@@ -148,6 +148,7 @@
 #include "../Engine/Rendering/RenderingPasses/GraphicsPasses/DebugPass.h"
 #include "../Engine/Rendering/RenderingPasses/GraphicsPasses/ImGuiPass.h"
 #include "../Engine/Rendering/RenderingPasses/GraphicsPasses/MainPass.h"
+#include "../Engine/Rendering/RenderingPasses/GraphicsPasses/PresentPass.h"
 #include "../Engine/Rendering/RenderingPasses/GraphicsPasses/SkyboxPass.h"
 #include "../Engine/Rendering/RenderingPasses/TransitionPasses/TransitionImagePass.h"
 #include "../Engine/Rendering/RenderingPasses/TransitionPasses/TransitionSwapchainImagePass.h"
@@ -205,7 +206,6 @@
 #include "../Game/GamePch.h"
 #include "../Game/GameTags.h"
 #include "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/include/memory"
-#include "../Engine/Rendering/RenderingPasses/GraphicsPasses/PresentPass.h"
 
 
 // END INCLUDES FOR REFLECTED TYPES
@@ -452,6 +452,7 @@ ReflectionSystem::AddType<CopyToSwapchainPass>("CopyToSwapchainPass", typeid(Cop
 ReflectionSystem::AddType<DebugPass>("DebugPass", typeid(DebugPass).name());
 ReflectionSystem::AddType<ImGuiPass>("ImGuiPass", typeid(ImGuiPass).name());
 ReflectionSystem::AddType<MainPass>("MainPass", typeid(MainPass).name());
+ReflectionSystem::AddType<PresentPass>("PresentPass", typeid(PresentPass).name());
 ReflectionSystem::AddType<SkyboxPass>("SkyboxPass", typeid(SkyboxPass).name());
 ReflectionSystem::AddType<TransitionImagePass>("TransitionImagePass", typeid(TransitionImagePass).name());
 ReflectionSystem::AddType<TransitionSwapchainImagePass>("TransitionSwapchainImagePass", typeid(TransitionSwapchainImagePass).name());
@@ -508,7 +509,6 @@ ReflectionSystem::AddType<std::shared_ptr<Material>>("std::shared_ptr<Material>"
 ReflectionSystem::AddType<std::shared_ptr<Model>>("std::shared_ptr<Model>", typeid(std::shared_ptr<Model>).name());
 ReflectionSystem::AddType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>", typeid(std::shared_ptr<Shader>).name());
 ReflectionSystem::AddType<std::shared_ptr<Asset>>("std::shared_ptr<Asset>", typeid(std::shared_ptr<Asset>).name());
-ReflectionSystem::AddType<PresentPass>("PresentPass", typeid(PresentPass).name());
 
         }
         
@@ -5748,22 +5748,24 @@ Method& currentMethod = currentClass->AddMethod(Method("GetWorld", ReflectionSys
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<LandscapeRenderComponent>();
 	{
-		Field& currentField = currentClass->AddField(Field("myHeightfield", -1, ReflectionSystem::GetOrCreateType<Heightfield>("Heightfield"), false, false));
+		Field& currentField = currentClass->AddField(Field("myHeightfield", offsetof(LandscapeRenderComponent, myHeightfield), ReflectionSystem::GetOrCreateType<Heightfield>("Heightfield"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myVertexBuffer", -1, ReflectionSystem::GetOrCreateType<VertexBufferHandle>("VertexBufferHandle"), true, false));
+		Field& currentField = currentClass->AddField(Field("myVertexBuffer", offsetof(LandscapeRenderComponent, myVertexBuffer), ReflectionSystem::GetOrCreateType<VertexBufferHandle>("VertexBufferHandle"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myIndexBuffer", -1, ReflectionSystem::GetOrCreateType<IndexBufferHandle>("IndexBufferHandle"), true, false));
+		Field& currentField = currentClass->AddField(Field("myIndexBuffer", offsetof(LandscapeRenderComponent, myIndexBuffer), ReflectionSystem::GetOrCreateType<IndexBufferHandle>("IndexBufferHandle"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMesh", -1, ReflectionSystem::GetOrCreateType<Mesh>("Mesh"), true, false));
+		Field& currentField = currentClass->AddField(Field("myMesh", offsetof(LandscapeRenderComponent, myMesh), ReflectionSystem::GetOrCreateType<Mesh>("Mesh"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMeshInstance", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMeshInstance", offsetof(LandscapeRenderComponent, myMeshInstance), ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myMaterial", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Material>>("std::shared_ptr<Material>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMaterial", offsetof(LandscapeRenderComponent, myMaterial), ReflectionSystem::GetOrCreateType<std::shared_ptr<Material>>("std::shared_ptr<Material>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+		currentField.AddMetadata(R"delim(OnInspectorChangedEvent(MarkRenderStateDirty))delim");
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<Component>());
 {
@@ -5805,6 +5807,16 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetHeightfield", ReflectionSystem::GetOrCreateType<const Heightfield &>("const Heightfield &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+LandscapeRenderComponent* instance = static_cast<LandscapeRenderComponent*>(inInstance);
+instance->CreateLandscapeMesh();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("CreateLandscapeMesh", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -10089,6 +10101,52 @@ Method& currentMethod = currentClass->AddMethod(Method("DrawCall", ReflectionSys
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<PresentPass>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IRenderPass>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PresentPass* instance = static_cast<PresentPass*>(inInstance);
+instance->CreateResources();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("CreateResources", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PresentPass* instance = static_cast<PresentPass*>(inInstance);
+instance->DestroyResources();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DestroyResources", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PresentPass* instance = static_cast<PresentPass*>(inInstance);
+instance->PreExecute();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("PreExecute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PresentPass* instance = static_cast<PresentPass*>(inInstance);
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
+instance->Execute(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<SkyboxPass>();
 	{
 		Field& currentField = currentClass->AddField(Field("mySkyboxModel", -1, ReflectionSystem::GetOrCreateType<std::shared_ptr<Model>>("std::shared_ptr<Model>"), false, false));
@@ -12848,52 +12906,6 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<std::shared_ptr<Asset>>();
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Asset>("Asset"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<PresentPass>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IRenderPass>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PresentPass* instance = static_cast<PresentPass*>(inInstance);
-instance->CreateResources();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("CreateResources", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PresentPass* instance = static_cast<PresentPass*>(inInstance);
-instance->DestroyResources();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("DestroyResources", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PresentPass* instance = static_cast<PresentPass*>(inInstance);
-instance->PreExecute();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("PreExecute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-PresentPass* instance = static_cast<PresentPass*>(inInstance);
-vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
-instance->Execute(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
-Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
 }
 
         }

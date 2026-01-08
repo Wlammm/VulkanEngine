@@ -41,67 +41,20 @@ public:
     
     void OnShaderRecompiled();
     
-    void AddColorAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myResolveImage = nullptr)
-    {
-        myColorAttachments.Emplace()
-            .setLoadOp(inLoadOp)
-            .setStoreOp(inStoreOp)
-            .setImageLayout(inLayout)
-            .setImageView(inImage->GetImageView())
-            .setClearValue(vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })));
-        
-        RegisterImageUsage(inImage, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite, inLayout);
-        
-        if (myResolveImage)
-        {
-            myColorAttachments.Last()
-                .setResolveImageLayout(vk::ImageLayout::eColorAttachmentOptimal).
-                setResolveImageView(myResolveImage->GetImageView())
-                .setResolveMode(vk::ResolveModeFlagBits::eAverage);
-            
-            RegisterImageUsage(myResolveImage, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite, vk::ImageLayout::eColorAttachmentOptimal);
-        }
-        
-        myColorFormats.Add(inImage->GetFormat());
-    }
+    /*
+     * Should be called inside SetupAttachments.
+     */
+    void AddColorAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myResolveImage = nullptr);
     
     /*
      * Should be called inside GetDynamicColorAttachments.
      */
-    void AddDynamicColorAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp)
-    {
-        myDynamicColorAttachments.Add(vk::RenderingAttachmentInfo().setLoadOp(vk::AttachmentLoadOp::eDontCare)
-            .setImageLayout(inLayout)
-            .setLoadOp(inLoadOp)
-            .setStoreOp(inStoreOp)
-            .setImageView(inImage->GetImageView())
-            .setClearValue(vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} }))));  
-        
-        RegisterImageUsage(inImage, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite, inLayout);
-    }
+    void AddDynamicColorAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp);
     
     /*
      * Should be called inside SetupAttachments if this pass uses dynamic attachments.
      */
-    void RegisterDynamicColorAttachment(vk::Format inFormat, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myResolveImage = nullptr)
-    {
-        myColorAttachments.Emplace()
-            .setLoadOp(inLoadOp)
-            .setStoreOp(inStoreOp)
-            .setImageLayout(inLayout)
-            .setImageView(nullptr)
-            .setClearValue(vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })));
-        
-        if (myResolveImage)
-        {
-            myColorAttachments.Last()
-                .setResolveImageLayout(vk::ImageLayout::eColorAttachmentOptimal)
-                .setResolveImageView(myResolveImage->GetImageView())
-                .setResolveMode(vk::ResolveModeFlagBits::eAverage);
-        }
-        
-        myColorFormats.Add(inFormat);
-    }
+    void RegisterDynamicColorAttachment(vk::Format inFormat, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myResolveImage = nullptr);
     
     template<typename Type>
     void SetPushConstantToType(vk::ShaderStageFlags inShaderStages)
@@ -109,36 +62,10 @@ public:
         myPushConstantRange.setSize(sizeof(Type)).setOffset(0).setStageFlags(inShaderStages);
     }
     
-    void AddDepthAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myDepthResolveImage = nullptr)
-    {
-        myHasDepthAttachment = true;
-        myDepthAttachment
-            .setLoadOp(inLoadOp)
-            .setStoreOp(inStoreOp)
-            .setImageLayout(inLayout)
-            .setImageView(inImage->GetImageView())
-            .setClearValue(vk::ClearDepthStencilValue(1.0f, 0u));
-        
-        RegisterImageUsage(inImage, 
-            vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests, 
-            vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead, 
-            inLayout);
-        
-        if (myDepthResolveImage)
-        {
-            myDepthAttachment
-                .setResolveImageLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal)
-                .setResolveImageView(myDepthResolveImage->GetImageView())
-                .setResolveMode(vk::ResolveModeFlagBits::eAverage);
-            
-            RegisterImageUsage(myDepthResolveImage, 
-                vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests, 
-                vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead, 
-                inLayout);
-        }
-        
-        myDepthFormat = inImage->GetFormat();
-    }
+    /*
+     * Should be called inside SetupAttachments.
+     */
+    void AddDepthAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myDepthResolveImage = nullptr);
     
 protected:
     vk::PipelineLayout myPipelineLayout;

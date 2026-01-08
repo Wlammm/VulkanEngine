@@ -19,6 +19,7 @@ void RenderGraph::AddPass(IRenderPass* inRenderPass)
 
 void RenderGraph::Execute(vk::CommandBuffer inCommandBuffer)
 {
+    ZoneScoped;
     for (IRenderPass* pass : myPasses)
     {
         pass->PreExecute();
