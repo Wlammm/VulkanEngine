@@ -125,21 +125,10 @@ float RenderSystem::ReadDepthAtScreenPos(const glm::vec2& inNormalizedScreenPos)
 
 	VulkanCommandBuffer* commandBuffer = VulkanContext::GetDevice().CreateCommandBuffer(true, false);
 
-	vk::ImageMemoryBarrier barrier = vk::ImageMemoryBarrier()
-		.setOldLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal)
-		.setNewLayout(vk::ImageLayout::eTransferSrcOptimal)
-		.setSrcAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentWrite)
-		.setDstAccessMask(vk::AccessFlagBits::eTransferRead)
-		.setImage(myResolvedDepthTexture->GetAPIResource())
-		.setSubresourceRange(vk::ImageSubresourceRange()
-			.setAspectMask(vk::ImageAspectFlagBits::eDepth)
-			.setBaseMipLevel(0).setLevelCount(1)
-			.setBaseArrayLayer(0).setLayerCount(1));
+	List<ResourceUsage> resourceUsages{};
+	resourceUsages.Emplace().SetToImage(myResolvedDepthTexture, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead, vk::ImageLayout::eTransferSrcOptimal);
 
-	commandBuffer->GetAPIResource().pipelineBarrier(
-		vk::PipelineStageFlagBits::eLateFragmentTests,
-		vk::PipelineStageFlagBits::eTransfer,
-		{}, nullptr, nullptr, barrier);
+	myRenderGraph->InsertResourceBarriers(commandBuffer->GetAPIResource(), resourceUsages);
 
 	vk::BufferImageCopy copyRegion = vk::BufferImageCopy()
 		.setBufferOffset(0)
@@ -147,7 +136,7 @@ float RenderSystem::ReadDepthAtScreenPos(const glm::vec2& inNormalizedScreenPos)
 		.setBufferImageHeight(0)
 		.setImageOffset(vk::Offset3D{pixelX, pixelY,0 })
 		.setImageExtent(vk::Extent3D{1, 1, 1});
-	
+
 	copyRegion.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eDepth;
 	copyRegion.imageSubresource.mipLevel = 0;
 	copyRegion.imageSubresource.baseArrayLayer = 0;
