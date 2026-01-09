@@ -176,10 +176,12 @@ VulkanCommandBuffer* RenderSystem::CreateUploadCommandBuffer_TS()
 	return commandBuffer;
 }
 
-void RenderSystem::QueueCommandBufferForUpload_TS(VulkanCommandBuffer* commandBuffer)
+void RenderSystem::QueueCommandBufferForUpload_TS(VulkanCommandBuffer* inCommandBuffer, const List<ResourceUsage>& inResourceUsages)
 {
 	std::scoped_lock lock(myUploadMutex);
-	myQueuedUploadCommandBuffers.Add(commandBuffer);
+	UploadCommand& uploadCommand = myQueuedUploadCommandBuffers.Emplace();
+	uploadCommand.myCommandBuffer = inCommandBuffer;
+	uploadCommand.myResourceUsage = inResourceUsages;
 }
 
 void RenderSystem::ExecuteRenderGraph(vk::CommandBuffer inCommandBuffer)
@@ -246,11 +248,12 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 	GPUMARK_SCOPE(inCommandBuffer, "UploadPass");
 
 	std::scoped_lock lock(myUploadMutex);
-	for(VulkanCommandBuffer* commandBuffer : myQueuedUploadCommandBuffers)
+	for(const UploadCommand& uploadCommand : myQueuedUploadCommandBuffers)
 	{
-		commandBuffer->GetAPIResource().end();
-		inCommandBuffer.executeCommands(commandBuffer->GetAPIResource());
-		VulkanAllocator::QueueDestroyCommand([commandBuffer]()
+		myRenderGraph->InsertResourceBarriers(inCommandBuffer, uploadCommand.myResourceUsage);
+		uploadCommand.myCommandBuffer->GetAPIResource().end();
+		inCommandBuffer.executeCommands(uploadCommand.myCommandBuffer->GetAPIResource());
+		VulkanAllocator::QueueDestroyCommand([commandBuffer = uploadCommand.myCommandBuffer]()
 		{
 			delete commandBuffer;
 		});
@@ -261,7 +264,20 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 void RenderSystem::FlushUploadCommands()
 {
 	std::scoped_lock lock(myUploadMutex);
-	VulkanContext::GetDevice().FlushSecondaryCommandBuffers(myQueuedUploadCommandBuffers);
+	VulkanCommandBuffer* commandBuffer = VulkanContext::GetDevice().CreateCommandBuffer(true);
+	for (UploadCommand& uploadCommand : myQueuedUploadCommandBuffers)
+	{
+		myRenderGraph->InsertResourceBarriers(commandBuffer->GetAPIResource(), uploadCommand.myResourceUsage);
+		uploadCommand.myCommandBuffer->GetAPIResource().end();
+		commandBuffer->GetAPIResource().executeCommands(uploadCommand.myCommandBuffer->GetAPIResource());
+	}
+
+	VulkanContext::GetDevice().FlushCommandBuffer(commandBuffer);
+
+	for (UploadCommand& uploadCommand : myQueuedUploadCommandBuffers)
+	{
+		del(uploadCommand.myCommandBuffer);
+	}
 	myQueuedUploadCommandBuffers.Clear();
 }
 
@@ -336,26 +352,11 @@ void RenderSystem::RegisterRenderResources()
 			
 			// TODO: We probably shouldnt have this command buffer here.
 			VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
-
-			vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
-				.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-				.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
-				.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-				.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-				.setBuffer(resizableBuffer->GetBuffer()->GetAPIResource())
-				.setOffset(0)
-				.setSize(VK_WHOLE_SIZE);
-			// Insert the pipeline barrier
-			commandBuffer->GetAPIResource().pipelineBarrier(
-				vk::PipelineStageFlagBits::eTransfer,
-				vk::PipelineStageFlagBits::eComputeShader,
-				vk::DependencyFlags(),
-				nullptr,
-				bufferMemoryBarrier,
-				nullptr
-			);
 			
-			RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+			List<ResourceUsage> resourceUsages{};
+			resourceUsages.Emplace().SetToBuffer(resizableBuffer, vk::PipelineStageFlagBits::eTransfer,vk::AccessFlagBits::eTransferWrite);
+			
+			RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 		}
 	});
 	
@@ -375,26 +376,11 @@ void RenderSystem::RegisterRenderResources()
 			indirectCommandsBuffer->Resize(requiredSize);
 			
 			VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
-
-			vk::BufferMemoryBarrier bufferMemoryBarrier = vk::BufferMemoryBarrier()
-				.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-				.setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)
-				.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-				.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-				.setBuffer(indirectCommandsBuffer->GetBuffer()->GetAPIResource())
-				.setOffset(0)
-				.setSize(VK_WHOLE_SIZE);
-
-			// Insert the pipeline barrier
-			commandBuffer->GetAPIResource().pipelineBarrier(
-				vk::PipelineStageFlagBits::eTransfer,
-				vk::PipelineStageFlagBits::eComputeShader,
-				vk::DependencyFlags(),
-				nullptr,
-				bufferMemoryBarrier,
-				nullptr
-			);
-			RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+			
+			List<ResourceUsage> resourceUsages{};
+			resourceUsages.Emplace().SetToBuffer(indirectCommandsBuffer, vk::PipelineStageFlagBits::eTransfer,vk::AccessFlagBits::eTransferWrite);
+			
+			RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 		}
 	});
 }

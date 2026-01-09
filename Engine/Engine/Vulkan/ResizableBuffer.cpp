@@ -38,23 +38,11 @@ void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const ui
 
     VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
     
-    vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
-        .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-        .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
-        .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-        .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-        .setBuffer(myBuffer->GetAPIResource())
-        .setOffset(0)
-        .setSize(VK_WHOLE_SIZE);
-
-    commandBuffer->GetAPIResource().pipelineBarrier(
-                vk::PipelineStageFlagBits::eTransfer,
-                vk::PipelineStageFlagBits::eTransfer,
-                vk::DependencyFlags{},
-                nullptr,
-                barrier,
-                nullptr);
-	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+    List<ResourceUsage> resourceUsages{};
+    resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+    resourceUsages.Emplace().SetToBuffer(inStagingBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+    
+	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 }
 
 void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffset)
@@ -67,23 +55,10 @@ void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffs
     {
         VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
         
-        vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
-        .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-        .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
-        .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-        .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-        .setBuffer(myBuffer->GetAPIResource())
-        .setOffset(0)
-        .setSize(VK_WHOLE_SIZE);
-
-        commandBuffer->GetAPIResource().pipelineBarrier(
-                    vk::PipelineStageFlagBits::eTransfer,
-                    vk::PipelineStageFlagBits::eTransfer,
-                    vk::DependencyFlags{},
-                    nullptr,
-                    barrier,
-                    nullptr);
-	    RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+        List<ResourceUsage> resourceUsages{};
+        resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+        
+	    RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
     }
 }
 
@@ -95,27 +70,10 @@ void ResizableBuffer::MoveData(const uint inSourceOffset, const uint inDstOffset
     vk::BufferCopy copy = vk::BufferCopy().setSize(inSize).setSrcOffset(inSourceOffset).setDstOffset(inDstOffset);
     commandBuffer->GetAPIResource().copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
     
-    vk::BufferMemoryBarrier bufferMemoryBarrier{};
-    bufferMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-    bufferMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
-    bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    bufferMemoryBarrier.buffer = myBuffer->GetAPIResource();
-    bufferMemoryBarrier.offset = inDstOffset;
-    bufferMemoryBarrier.size = inSize;
+    List<ResourceUsage> resourceUsages{};
+    resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
     
-    vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eTransfer;
-    vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eComputeShader;
-
-    commandBuffer->GetAPIResource().pipelineBarrier(
-        srcStageMask,              
-        dstStageMask,              
-        {},                        
-        nullptr,                   
-        bufferMemoryBarrier,       
-        nullptr                    
-    );
-	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 }
 
 void ResizableBuffer::Resize(const uint inRequiredSize)
@@ -137,24 +95,11 @@ void ResizableBuffer::Resize(const uint inRequiredSize)
     vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize());
     commandBuffer->GetAPIResource().copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
 
-    // Ensure the copy is finished before any further copies to this buffer
-    vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
-        .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-        .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
-        .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-        .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-        .setBuffer(myBuffer->GetAPIResource())
-        .setOffset(0)
-        .setSize(VK_WHOLE_SIZE);
-
-    commandBuffer->GetAPIResource().pipelineBarrier(
-                vk::PipelineStageFlagBits::eTransfer,
-                vk::PipelineStageFlagBits::eTransfer,
-                vk::DependencyFlags{},
-                nullptr,
-                barrier,
-                nullptr);
-	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+    List<ResourceUsage> resourceUsages{};
+    resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+    resourceUsages.Emplace().SetToBuffer(oldBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+    
+	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 
     VulkanAllocator::DestroyBuffer_TS(oldBuffer);
     OnBufferResized();

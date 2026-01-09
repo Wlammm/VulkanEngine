@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Engine/System/System.h"
+#include "RenderGraph/RenderGraphTypes.hpp"
 
 #if !SHIPPING
 #define GPUMARK_SCOPE(inCommandBuffer, inString) inCommandBuffer.beginDebugUtilsLabelEXT(inString); ON_SCOPE_EXIT([inCommandBuffer](){ inCommandBuffer.endDebugUtilsLabelEXT(); })
@@ -37,7 +38,7 @@ public:
     float ReadDepthAtScreenPos(const glm::vec2& inNormalizedScreenPos) const;
     
     static VulkanCommandBuffer* CreateUploadCommandBuffer_TS();
-    static void QueueCommandBufferForUpload_TS(VulkanCommandBuffer* commandBuffer);
+    static void QueueCommandBufferForUpload_TS(VulkanCommandBuffer* inCommandBuffer, const List<ResourceUsage>& inResourceUsages);
 
     // TODO: Refactor these so they're not public like this.
     class VulkanImage* myDepthBuffer = nullptr;
@@ -67,8 +68,14 @@ private:
     void DestroyRenderPasses();
 
 private:
+    struct UploadCommand
+    {
+        VulkanCommandBuffer* myCommandBuffer;
+        List<ResourceUsage> myResourceUsage;
+    };
+    
     inline static std::recursive_mutex myUploadMutex;
-    inline static List<VulkanCommandBuffer*> myQueuedUploadCommandBuffers;
+    inline static List<UploadCommand> myQueuedUploadCommandBuffers;
     
     // This is a resolved render texture that has a MSAA count of 1. This is required so we can use it as input to imgui for the editor viewport. 
     class VulkanImage* myResolvedRenderTexture = nullptr;

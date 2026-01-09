@@ -24,7 +24,11 @@ void VulkanBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const uint 
 	vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset);
 	commandBuffer->GetAPIResource().copyBuffer(inStagingBuffer->GetAPIResource(), GetAPIResource(), { copyRegion });
 	
-	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+	List<ResourceUsage> resourceUsages{};
+	resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+	resourceUsages.Emplace().SetToBuffer(inStagingBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+	
+	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 }
 
 void VulkanBuffer::SetData(const void* inData, const uint inSize, uint inOffset)
@@ -90,9 +94,7 @@ void VulkanBuffer::UploadMapped(const void* inData, uint inSize, uint inOffset)
 void VulkanBuffer::UploadStaged(const void* inData, uint inSize, uint inOffset)
 {
 	ZoneScoped;
-	//VulkanBuffer* stagingBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer::UploadStaged Staging buffer", VulkanBuffer::StagingCreateInfo(inSize), VMA_MEMORY_USAGE_AUTO, true);
-	//stagingBuffer->SetData(inData, inSize);
-
+	
 	StagingBuffer stagingBuffer = StagingSystem::GetStagingBufferWithSize_TS(inSize);
 	stagingBuffer.SetData(inData, inSize);
 	
@@ -100,5 +102,9 @@ void VulkanBuffer::UploadStaged(const void* inData, uint inSize, uint inOffset)
 	vk::BufferCopy copyRegion = vk::BufferCopy().setSize(inSize).setDstOffset(inOffset).setSrcOffset(stagingBuffer.GetOffset());
 	commandBuffer->GetAPIResource().copyBuffer(stagingBuffer.GetUnderlyingBuffer()->GetAPIResource(), GetAPIResource(), { copyRegion });
 	
-	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+	List<ResourceUsage> resourceUsages{};
+	resourceUsages.Emplace().SetToBuffer(stagingBuffer.GetUnderlyingBuffer(), vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+	resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+	
+	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 }

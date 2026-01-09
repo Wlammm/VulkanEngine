@@ -14,6 +14,11 @@ public:
     
     void Execute(vk::CommandBuffer inCommandBuffer);
     
+    /*
+     * Will insert resource barriers for the specified resource into the command list.
+     */
+    void InsertResourceBarriers(vk::CommandBuffer inCommandBuffer, const List<ResourceUsage>& inResourceUsages);
+    
 private:
     void HandleImageBarrier(const ResourceUsage& inUsage, List<vk::ImageMemoryBarrier>& outBarriers, vk::PipelineStageFlags& inOutSrcGlobal, vk::PipelineStageFlags& inOutDstGlobal);
     

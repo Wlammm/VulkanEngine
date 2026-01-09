@@ -73,28 +73,11 @@ public:
         VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
         vk::BufferCopy copy = vk::BufferCopy().setSize(sizeof(ElementType)).setSrcOffset(GetOffsetToIndex(mySize - 1)).setDstOffset(GetOffsetToIndex(inIndex));
         commandBuffer->GetAPIResource().copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
-    
-        vk::BufferMemoryBarrier bufferMemoryBarrier{};
-        bufferMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-        bufferMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eMemoryRead;
-        bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        bufferMemoryBarrier.buffer = myBuffer->GetAPIResource();
-        bufferMemoryBarrier.offset = GetOffsetToIndex(inIndex);
-        bufferMemoryBarrier.size = sizeof(ElementType);
-    
-        vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eTransfer;
-        vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eComputeShader;
-
-        commandBuffer->GetAPIResource().pipelineBarrier(
-            srcStageMask,              
-            dstStageMask,              
-            {},                        
-            nullptr,                   
-            bufferMemoryBarrier,       
-            nullptr                    
-        );
-        RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+        
+        List<ResourceUsage> resourceUsages{};
+        resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+        
+        RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
         
         SetSize(mySize - 1);
         
@@ -170,27 +153,13 @@ private:
         VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
         vk::BufferCopy copy = vk::BufferCopy().setSize(mySize * sizeof(ElementType));
         commandBuffer->GetAPIResource().copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
-
-        // Ensure the copy is finished before any further copies to this buffer
-        vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
-            .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-            .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
-            .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-            .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-            .setBuffer(myBuffer->GetAPIResource())
-            .setOffset(0)
-            .setSize(VK_WHOLE_SIZE);
-        commandBuffer->GetAPIResource().pipelineBarrier(
-                    vk::PipelineStageFlagBits::eTransfer,
-                    vk::PipelineStageFlagBits::eTransfer,
-                    vk::DependencyFlags{},
-                    nullptr,
-                    barrier,
-                    nullptr);
         
+        List<ResourceUsage> resourceUsages{};
+        resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+        resourceUsages.Emplace().SetToBuffer(oldBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
         
         // Queue uploads to render system and destroy old buffer. 
-        RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+        RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
         VulkanAllocator::DestroyBuffer_TS(oldBuffer);
         OnGPUBufferResized.Invoke();
     }

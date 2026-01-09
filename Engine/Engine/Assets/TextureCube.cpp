@@ -101,7 +101,10 @@ void TextureCube::PostPropertiesSerialized()
     bufferCopyRegion.setBufferOffset(0);
 	
     commandBuffer->GetAPIResource().copyBufferToImage(stagingBuffer->GetAPIResource(), myImage->GetAPIResource(), vk::ImageLayout::eTransferDstOptimal, { bufferCopyRegion });
-    RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+    
+    List<ResourceUsage> resourceUsages{};
+    
+    RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 	VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 
     TextureSystem::RegisterTextureCube_TS(this);

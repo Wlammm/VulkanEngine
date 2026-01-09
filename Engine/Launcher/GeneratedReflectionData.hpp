@@ -7736,11 +7736,13 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
 VulkanCommandBuffer * arg0 = (VulkanCommandBuffer*)inArguments[0];
-instance->QueueCommandBufferForUpload_TS(arg0);
+const List<ResourceUsage> & arg1 = *(const List<ResourceUsage>*)inArguments[1];
+instance->QueueCommandBufferForUpload_TS(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("commandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *")));
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *")));
+arguments.Add(MethodArgument("inResourceUsages", ReflectionSystem::GetOrCreateType<const List<ResourceUsage> &>("const List<ResourceUsage> &")));
 Method& currentMethod = currentClass->AddMethod(Method("QueueCommandBufferForUpload_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
@@ -9135,6 +9137,20 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
 Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderGraph* instance = static_cast<RenderGraph*>(inInstance);
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
+const List<ResourceUsage> & arg1 = *(const List<ResourceUsage>*)inArguments[1];
+instance->InsertResourceBarriers(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+arguments.Add(MethodArgument("inResourceUsages", ReflectionSystem::GetOrCreateType<const List<ResourceUsage> &>("const List<ResourceUsage> &")));
+Method& currentMethod = currentClass->AddMethod(Method("InsertResourceBarriers", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<ResourceState>();
@@ -9165,6 +9181,40 @@ Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSyst
 	{
 		Field& currentField = currentClass->AddField(Field("myIsReadOnly", -1, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ResourceUsage* instance = static_cast<ResourceUsage*>(inInstance);
+VulkanImage * arg0 = (VulkanImage*)inArguments[0];
+vk::Flags<vk::PipelineStageFlagBits>& arg1 = *(vk::Flags<vk::PipelineStageFlagBits>*)inArguments[1];
+vk::Flags<vk::AccessFlagBits>& arg2 = *(vk::Flags<vk::AccessFlagBits>*)inArguments[2];
+vk::ImageLayout& arg3 = *(vk::ImageLayout*)inArguments[3];
+instance->SetToImage(arg0, arg1, arg2, arg3);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inImage", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *")));
+arguments.Add(MethodArgument("inStageFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::PipelineStageFlagBits>>("vk::Flags<vk::PipelineStageFlagBits>")));
+arguments.Add(MethodArgument("inAccess", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
+arguments.Add(MethodArgument("inLayout", ReflectionSystem::GetOrCreateType<vk::ImageLayout>("vk::ImageLayout")));
+Method& currentMethod = currentClass->AddMethod(Method("SetToImage", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ResourceUsage* instance = static_cast<ResourceUsage*>(inInstance);
+IGPUBuffer * arg0 = (IGPUBuffer*)inArguments[0];
+vk::Flags<vk::PipelineStageFlagBits>& arg1 = *(vk::Flags<vk::PipelineStageFlagBits>*)inArguments[1];
+vk::Flags<vk::AccessFlagBits>& arg2 = *(vk::Flags<vk::AccessFlagBits>*)inArguments[2];
+instance->SetToBuffer(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<IGPUBuffer *>("IGPUBuffer *")));
+arguments.Add(MethodArgument("inStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::PipelineStageFlagBits>>("vk::Flags<vk::PipelineStageFlagBits>")));
+arguments.Add(MethodArgument("inAccessFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
+Method& currentMethod = currentClass->AddMethod(Method("SetToBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<ComputePass>();
@@ -12239,18 +12289,6 @@ return nullptr;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *")));
 Method& currentMethod = currentClass->AddMethod(Method("FlushCommandBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VulkanDevice* instance = static_cast<VulkanDevice*>(inInstance);
-const List<VulkanCommandBuffer *> & arg0 = *(const List<VulkanCommandBuffer *>*)inArguments[0];
-instance->FlushSecondaryCommandBuffers(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inCommandBuffers", ReflectionSystem::GetOrCreateType<const List<VulkanCommandBuffer *> &>("const List<VulkanCommandBuffer *> &")));
-Method& currentMethod = currentClass->AddMethod(Method("FlushSecondaryCommandBuffers", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 

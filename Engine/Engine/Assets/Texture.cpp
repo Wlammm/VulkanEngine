@@ -129,26 +129,15 @@ void Texture::PostPropertiesSerialized()
     commandBuffer->GetAPIResource().copyBufferToImage(stagingBuffer->GetAPIResource(), myImage->GetAPIResource(),
                                     vk::ImageLayout::eTransferDstOptimal, {bufferCopyRegion});
 
-    // Not needed as generate mip levels will transition it to correct layout.
-    //inCommandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer, vk::PipelineStageFlagBits::eFragmentShader, vk::DependencyFlagBits(), {}, {},
-    //							  vk::ImageMemoryBarrier()
-    //							  .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-    //							  .setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eInputAttachmentRead)
-    //							  .setOldLayout(vk::ImageLayout::eTransferDstOptimal)
-    //							  .setNewLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-    //							  .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-    //							  .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-    //							  .setImage(myImage->GetAPIResource())
-    //							  .setSubresourceRange(vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1)));
-
-
     GenerateMipLevels(commandBuffer->GetAPIResource());
-    RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer);
+    
+    List<ResourceUsage> resourceUsages{};
+    
+    RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
     VulkanAllocator::DestroyBuffer_TS(stagingBuffer);
 #if DEBUG
     VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
-                                                           .setObjectHandle(
-                                                               VulkanContext::GetVulkanHandle(myImage->GetImageView()))
+                                                           .setObjectHandle(VulkanContext::GetVulkanHandle(myImage->GetImageView()))
                                                            .setPObjectName(GetSourcePath().string().c_str())
                                                            .setObjectType(vk::ObjectType::eImageView));
 #endif

@@ -24,45 +24,45 @@ void RenderGraph::Execute(vk::CommandBuffer inCommandBuffer)
     {
         pass->PreExecute();
         
-        List<vk::ImageMemoryBarrier> imageBarriers;
-        List<vk::BufferMemoryBarrier> bufferBarriers;
-            
-        // TODO(performance): These should be remembered from last passes use but for now this is fine.
-        vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eTopOfPipe;
-        vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eBottomOfPipe;
-        
-        for (const ResourceUsage& usage : pass->GetResourceUsage())
-        {
-            if (usage.myImage)
-            {
-                HandleImageBarrier(usage, imageBarriers, srcStageMask, dstStageMask);
-            }
-            else if (usage.myBuffer)
-            {
-                HandleBufferBarrier(usage, bufferBarriers, srcStageMask, dstStageMask);
-            }
-        }
-        
-        for (const ResourceUsage& usage : pass->GetDynamicResourceUsages())
-        {
-            if (usage.myImage) 
-                HandleImageBarrier(usage, imageBarriers, srcStageMask, dstStageMask);
-        }
-            
-        if (!imageBarriers.IsEmpty() || !bufferBarriers.IsEmpty())
-        {
-            // Optimization: You can refine stage masks here based on the collected barriers
-            inCommandBuffer.pipelineBarrier(
-                srcStageMask, // Calculated in Handle functions
-                dstStageMask, 
-                vk::DependencyFlags(),
-                0, nullptr,
-                static_cast<uint32_t>(bufferBarriers.size()), bufferBarriers.data(),
-                static_cast<uint32_t>(imageBarriers.size()), imageBarriers.data()
-            );
-        }
+        InsertResourceBarriers(inCommandBuffer, pass->GetResourceUsage());
+        InsertResourceBarriers(inCommandBuffer, pass->GetDynamicResourceUsages());
         
         pass->Execute(inCommandBuffer);
+    }
+}
+
+void RenderGraph::InsertResourceBarriers(vk::CommandBuffer inCommandBuffer, const List<ResourceUsage>& inResourceUsages)
+{
+    List<vk::ImageMemoryBarrier> imageBarriers;
+    List<vk::BufferMemoryBarrier> bufferBarriers;
+            
+    // TODO(performance): These should be remembered from last passes use but for now this is fine.
+    vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eTopOfPipe;
+    vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eBottomOfPipe;
+        
+    for (const ResourceUsage& usage : inResourceUsages)
+    {
+        if (usage.myImage)
+        {
+            HandleImageBarrier(usage, imageBarriers, srcStageMask, dstStageMask);
+        }
+        else if (usage.myBuffer)
+        {
+            HandleBufferBarrier(usage, bufferBarriers, srcStageMask, dstStageMask);
+        }
+    }
+        
+    if (!imageBarriers.IsEmpty() || !bufferBarriers.IsEmpty())
+    {
+        // Optimization: You can refine stage masks here based on the collected barriers
+        inCommandBuffer.pipelineBarrier(
+            srcStageMask, // Calculated in Handle functions
+            dstStageMask, 
+            vk::DependencyFlags(),
+            0, nullptr,
+            static_cast<uint32_t>(bufferBarriers.size()), bufferBarriers.data(),
+            static_cast<uint32_t>(imageBarriers.size()), imageBarriers.data()
+        );
     }
 }
 
@@ -122,7 +122,7 @@ void RenderGraph::HandleBufferBarrier(
     vk::PipelineStageFlags& inOutSrcGlobal, 
     vk::PipelineStageFlags& inOutDstGlobal)
 {
-    ResourceState& currentState = myGlobalResourceState[inUsage.myBuffer];
+    ResourceState& currentState = myGlobalResourceState[inUsage.myBuffer->GetBuffer()];
     
     bool accessHazard = false;
     if (currentState.myAccessFlags != vk::AccessFlagBits::eNone) // If previously accessed

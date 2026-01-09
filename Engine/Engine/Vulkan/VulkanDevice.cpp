@@ -138,23 +138,6 @@ void VulkanDevice::FlushCommandBuffer(VulkanCommandBuffer* inCommandBuffer)
 	del(inCommandBuffer);
 }
 
-void VulkanDevice::FlushSecondaryCommandBuffers(const List<VulkanCommandBuffer*>& inCommandBuffers)
-{
-	VulkanCommandBuffer* commandBuffer = CreateCommandBuffer(true);
-	for (VulkanCommandBuffer* secondaryBuffer : inCommandBuffers)
-	{
-		secondaryBuffer->GetAPIResource().end();
-		commandBuffer->GetAPIResource().executeCommands(secondaryBuffer->GetAPIResource());
-	}
-
-	FlushCommandBuffer(commandBuffer);
-
-	for (VulkanCommandBuffer* secondaryBuffer : inCommandBuffers)
-	{
-		del(secondaryBuffer);
-	}
-}
-
 List<vk::DeviceQueueCreateInfo> VulkanDevice::GetQueueFamilyCreateInfos()
 {
 	float priorities = 0.0f;

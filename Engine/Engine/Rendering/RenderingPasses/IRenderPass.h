@@ -51,25 +51,19 @@ protected:
     void RegisterDynamicImageUsage(VulkanImage* inImage, vk::PipelineStageFlags inStageFlags, vk::AccessFlags inAccess, vk::ImageLayout inLayout)
     {
         ResourceUsage& usage = myDynamicResourceUsages.Emplace();
-        usage.myImage = inImage;
-        usage.myRequiredState = { inStageFlags, inAccess, inLayout };
-        usage.myIsReadOnly = (inAccess & (vk::AccessFlagBits::eMemoryWrite | vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite)) == vk::AccessFlagBits::eNone;
+        usage.SetToImage(inImage, inStageFlags, inAccess, inLayout);
     }
     
     void RegisterImageUsage(VulkanImage* inImage, vk::PipelineStageFlags inStageFlags, vk::AccessFlags inAccess, vk::ImageLayout inLayout)
     {
         ResourceUsage& usage = myResourceUsages.Emplace();
-        usage.myImage = inImage;
-        usage.myRequiredState = { inStageFlags, inAccess, inLayout };
-        usage.myIsReadOnly = (inAccess & (vk::AccessFlagBits::eMemoryWrite | vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite)) == vk::AccessFlagBits::eNone;
+        usage.SetToImage(inImage, inStageFlags, inAccess, inLayout);    
     }
     
     void RegisterBufferUsage(IGPUBuffer* inBuffer, vk::PipelineStageFlags inStages, vk::AccessFlags inAccessFlags)
     {
         ResourceUsage& usage = myResourceUsages.Emplace();
-        usage.myBuffer = inBuffer;
-        usage.myRequiredState = { inStages, inAccessFlags, vk::ImageLayout::eUndefined };
-        usage.myIsReadOnly = (inAccessFlags & (vk::AccessFlagBits::eMemoryWrite | vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eTransferWrite)) == vk::AccessFlagBits::eNone;
+        usage.SetToBuffer(inBuffer, inStages, inAccessFlags);
     }
     
 private:
