@@ -58,6 +58,8 @@ public:
     // This will resave the asset to cache.
     void ResaveAsset();
     
+    void SetClassDefaultAsset(SharedPtr<Asset> inAsset);
+    
 private:
     META(SerializeField, HideInEditor)
     SourcePath myAssetPath;
@@ -67,6 +69,9 @@ private:
 
     AssetRegistry* myAssetRegistry = nullptr;
     const Type* myType = nullptr;
+    
+    // This is used to keep the base asset alive for instances
+    SharedPtr<Asset> myClassDefaultAsset = nullptr;
     
     bool myIsValid = false;
 };

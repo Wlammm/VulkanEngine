@@ -111,16 +111,24 @@ bool Editor::IsPIE()
 
 void Editor::StartPIE()
 {
+    LOG("Start PIE");
+    if (!Engine::GetWorld())
+    {
+        ImGui::NotifyError("Play In Editor", "Cannot start play in editor without a world open.");
+        return;
+    }
     myIsPIE = true;
-
-    Engine::SetWorld(MakeShared<GameWorld>());
+    
+    Engine::SetWorld(AssetRegistry::Get()->CreateAssetInstance<GameWorld>(Engine::GetWorld()->GetSourcePath()));
 }
 
 void Editor::StopPIE()
 {
+    LOG("Stop PIE");
     myIsPIE = false;
 
-    Engine::SetWorld(MakeShared<EditorWorld>());
+    // TODO: This should probably be done at first initialization also..
+    Engine::SetWorld(AssetRegistry::Get()->CreateAssetInstance<EditorWorld>(Engine::GetWorld()->GetSourcePath()));
 }
 
 SharedPtr<EditorWorld> Editor::GetEditorWorld()

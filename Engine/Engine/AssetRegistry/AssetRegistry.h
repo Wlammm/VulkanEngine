@@ -49,6 +49,8 @@ public:
         return std::static_pointer_cast<AssetType>(GetAssetSynchronous(inSourcePath, type));
     }
     
+    // TODO: maybe we should only return const Asset's here as we dont want anything changing them. 
+    // If you want to change it you have to make your own instance of it. This instance can then be saved back in explicitly.
     SharedPtr<Asset> GetAssetSynchronous(const SourcePath& inSourcePath, const Type* inType);
 
     SharedPtr<Asset> LoadExternalAsset(const SourcePath& inSourcePath, const Type* inType)
@@ -184,6 +186,31 @@ public:
     }
     
     void OnAssetRemoved(Asset* inAsset);
+    
+    
+    template<typename AssetType>
+    SharedPtr<AssetType> CreateAssetInstance(const SourcePath& inSourcePath)
+    {
+        const Type* type = ReflectionSystem::GetType<AssetType>();
+        
+        SharedPtr<AssetType> asset = type->CreateSharedPtr<AssetType>();
+        
+        SharedPtr<Asset> existingAsset = GetAssetSynchronous(inSourcePath, type);
+        if (existingAsset)
+        {
+            asset->SetClassDefaultAsset(existingAsset);
+            ReflectionSystem::CopyProperties(existingAsset.get(), asset.get(), type);
+        }
+        else
+        {
+            check(false && "failed to create asset instance. Could not get type");
+        }
+        
+        asset->DoFirstTimeAssetInitialization(inSourcePath);
+        asset->PostPropertiesSerialized();
+        asset->SetIsValid(true);
+        return asset;
+    }
     
 private:
     void AddLoadedAsset(SharedPtr<Asset> inAsset, const Type* inType);

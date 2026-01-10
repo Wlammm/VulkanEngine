@@ -503,12 +503,12 @@ ReflectionSystem::AddType<PlayerActor>("PlayerActor", typeid(PlayerActor).name()
 ReflectionSystem::AddType<PlayerComponent>("PlayerComponent", typeid(PlayerComponent).name());
 ReflectionSystem::AddType<SpringArmComponent>("SpringArmComponent", typeid(SpringArmComponent).name());
 ReflectionSystem::AddType<Game>("Game", typeid(Game).name());
+ReflectionSystem::AddType<std::shared_ptr<Asset>>("std::shared_ptr<Asset>", typeid(std::shared_ptr<Asset>).name());
 ReflectionSystem::AddType<std::shared_ptr<World>>("std::shared_ptr<World>", typeid(std::shared_ptr<World>).name());
 ReflectionSystem::AddType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>", typeid(std::shared_ptr<Texture>).name());
 ReflectionSystem::AddType<std::shared_ptr<Material>>("std::shared_ptr<Material>", typeid(std::shared_ptr<Material>).name());
 ReflectionSystem::AddType<std::shared_ptr<Model>>("std::shared_ptr<Model>", typeid(std::shared_ptr<Model>).name());
 ReflectionSystem::AddType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>", typeid(std::shared_ptr<Shader>).name());
-ReflectionSystem::AddType<std::shared_ptr<Asset>>("std::shared_ptr<Asset>", typeid(std::shared_ptr<Asset>).name());
 
         }
         
@@ -3056,6 +3056,9 @@ Method& currentMethod = currentClass->AddMethod(Method("TickInput", ReflectionSy
 		Field& currentField = currentClass->AddField(Field("myType", offsetof(Asset, myType), ReflectionSystem::GetOrCreateType<const Type>("const Type"), true, false));
 	}
 	{
+		Field& currentField = currentClass->AddField(Field("myClassDefaultAsset", offsetof(Asset, myClassDefaultAsset), ReflectionSystem::GetOrCreateType<std::shared_ptr<Asset>>("std::shared_ptr<Asset>"), false, false));
+	}
+	{
 		Field& currentField = currentClass->AddField(Field("myIsValid", offsetof(Asset, myIsValid), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<std::enable_shared_from_this<Asset>>());
@@ -3228,6 +3231,18 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("ResaveAsset", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Asset* instance = static_cast<Asset*>(inInstance);
+std::shared_ptr<Asset>& arg0 = *(std::shared_ptr<Asset>*)inArguments[0];
+instance->SetClassDefaultAsset(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inAsset", ReflectionSystem::GetOrCreateType<std::shared_ptr<Asset>>("std::shared_ptr<Asset>")));
+Method& currentMethod = currentClass->AddMethod(Method("SetClassDefaultAsset", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -8545,6 +8560,22 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inFullName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("GetTypeByFullName", ReflectionSystem::GetOrCreateType<const Type *>("const Type *"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ReflectionSystem* instance = static_cast<ReflectionSystem*>(inInstance);
+void * arg0 = (void*)inArguments[0];
+void * arg1 = (void*)inArguments[1];
+const Type * arg2 = (const Type*)inArguments[2];
+static thread_local bool result = instance->CopyProperties(arg0, arg1, arg2);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSource", ReflectionSystem::GetOrCreateType<void *>("void *")));
+arguments.Add(MethodArgument("inTarget", ReflectionSystem::GetOrCreateType<void *>("void *")));
+arguments.Add(MethodArgument("inType", ReflectionSystem::GetOrCreateType<const Type *>("const Type *")));
+Method& currentMethod = currentClass->AddMethod(Method("CopyProperties", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<TypeTemplateArgument>();
@@ -12922,6 +12953,10 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<std::shared_ptr<Asset>>();
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Asset>("Asset"), false, false);
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<std::shared_ptr<World>>();
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<World>("World"), false, false);
 }
@@ -12940,10 +12975,6 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<std::shared_ptr<Shader>>();
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Shader>("Shader"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<std::shared_ptr<Asset>>();
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Asset>("Asset"), false, false);
 }
 
         }

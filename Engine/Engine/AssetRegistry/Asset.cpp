@@ -5,7 +5,7 @@
 
 Asset::~Asset()
 {
-    if (myIsValid)
+    if (myIsValid && myAssetRegistry)
         myAssetRegistry->OnAssetRemoved(this);
 }
 
@@ -75,4 +75,9 @@ const Type* Asset::GetType() const
 void Asset::ResaveAsset()
 {
     myAssetRegistry->SaveAsset(shared_from_this());
+}
+
+void Asset::SetClassDefaultAsset(SharedPtr<Asset> inAsset)
+{
+    myClassDefaultAsset = inAsset;
 }

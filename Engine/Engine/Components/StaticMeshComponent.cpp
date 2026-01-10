@@ -31,6 +31,7 @@ void StaticMeshComponent::OnCreate()
 
 StaticMeshComponent::~StaticMeshComponent()
 {
+    LOG("destructor");
     if(!myModel)
         return;
     
@@ -64,7 +65,9 @@ void StaticMeshComponent::SetMaterialAsync(const std::filesystem::path& inMateri
 
 void StaticMeshComponent::SetMaterial(SharedPtr<Material> inMaterial, const uint inIndex)
 {
-    // TODO: This might in some rare occasions happen before the mesh has loaded. We should probably add checks for that.
+    if (static_cast<int>(inIndex) >= myMaterials.size())
+        myMaterials.Resize(inIndex + 1);
+    
     myMaterials[inIndex] = inMaterial;
     MarkRenderStateDirty();
 }
@@ -174,6 +177,9 @@ void StaticMeshComponent::RemoveFromGPUScene()
 
 void StaticMeshComponent::UpdateMaterialsForNewMesh()
 {
+    if (!myModel)
+        return;
+        
     // Update materials for the new mesh.
     myMaterials.Resize(myModel->GetMeshes().size());
     for(int meshIndex = 0; meshIndex < myModel->GetMeshes().size(); meshIndex++)

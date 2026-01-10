@@ -56,6 +56,11 @@ public:
         }
         return nullptr;
     }
+    
+    /*
+     * Copies all serializable properties from one instance to another.
+     */
+    static bool CopyProperties(void* inSource, void* inTarget, const Type* inType);
 
 private:
     friend class GeneratedReflectionData;

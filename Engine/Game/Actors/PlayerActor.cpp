@@ -4,9 +4,8 @@
 #include "Game/GameTags.h"
 
 PlayerActor::PlayerActor()
+    : myStaticMesh("Assets/Characters/PlayerCharacter/Character.fbx")
 {
-    //myStaticMesh = StaticMeshComponent("Assets/Characters/PlayerCharacter/Character.fbx");
-
     AddTags(GameTags::Player);
 }
 
@@ -14,5 +13,5 @@ void PlayerActor::OnCreate()
 {
     Actor::OnCreate();
 
-    // myStaticMesh.SetMaterialAsync("Assets/Characters/PlayerCharacter/Character.mat", 0);
+    myStaticMesh.SetMaterialAsync("Assets/Characters/PlayerCharacter/CharacterMaterial.mat", 0);
 }
