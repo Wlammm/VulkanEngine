@@ -1,0 +1,409 @@
+[
+  {
+    "Base info": {
+      "Application name": "launcher.exe",
+      "Dump date": "Sat Jan 10 14:50:26 2026",
+      "Dump tick count": 8140588,
+      "Graphics API": "Vulkan",
+      "PID": 27988
+    }
+  },
+  {
+    "Display driver info": {
+      "Version": "581.80"
+    }
+  },
+  {
+    "OS info": {
+      "Build number": 26200,
+      "Service pack major version": 0,
+      "Service pack minor version": 0,
+      "Windows major version": 10,
+      "Windows minor version": 0,
+      "Windows product type": 1
+    }
+  },
+  {
+    "GPU info": {
+      "Adapter LUID": 97880,
+      "Adapter name": "GB203-A"
+    }
+  },
+  {
+    "Page fault info": {
+      "Access Type": "Unknown",
+      "Client": "Unknown",
+      "Engine": "Unknown",
+      "Fault Type": "The MMU returned an unknown reason.",
+      "GPU virtual address": 17942331392
+    }
+  },
+  {
+    "Device info": {
+      "Adapter reset occurred": false,
+      "Device state": "Error_DMA_PageFault",
+      "Engine reset occurred": true
+    }
+  },
+  {
+    "Aftermath markers": {
+      "Context": {
+        "Events": [
+          {
+            "Event": {
+              "Callstack": {
+                "Stack": [
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140715345189991
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140715346282674
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "VkLayer_khronos_validation.dll",
+                      "Pointer": 140715014018489
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "vulkan-1.dll",
+                      "Pointer": 140718834407712
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671590463
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671587009
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671685692
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671567306
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671628331
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702670108581
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702670118240
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702670057110
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702669852739
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702674209321
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702674209038
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702674208718
+                    }
+                  }
+                ]
+              },
+              "Pipe": "Unknown",
+              "Status": "NotStarted",
+              "Type": "Automatic"
+            }
+          },
+          {
+            "Event": {
+              "Callstack": {
+                "Stack": [
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140715345189991
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140715346284874
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "VkLayer_khronos_validation.dll",
+                      "Pointer": 140715013941215
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "vulkan-1.dll",
+                      "Pointer": 140718834408667
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671659449
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671656504
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671657590
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671628331
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702670108581
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702670118240
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702670057110
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702669852739
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702674209321
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702674209038
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702674208718
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702674209470
+                    }
+                  }
+                ]
+              },
+              "Pipe": "Unknown",
+              "Status": "Finished",
+              "Type": "Automatic"
+            }
+          },
+          {
+            "Event": {
+              "Callstack": {
+                "Stack": [
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140715345189991
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140715346281458
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "VkLayer_khronos_validation.dll",
+                      "Pointer": 140715013968039
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "vulkan-1.dll",
+                      "Pointer": 140718834406925
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671655630
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671650730
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671651340
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671647939
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702671628331
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702670108581
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702670118240
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702670057110
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702669852739
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702674209321
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702674209038
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140702674208718
+                    }
+                  }
+                ]
+              },
+              "Pipe": "Unknown",
+              "Status": "Executing",
+              "Type": "Automatic"
+            }
+          }
+        ],
+        "Type": "CommandQueue"
+      }
+    }
+  },
+  {
+    "Shader infos": {
+      "Info": {
+        "Shader hash": 5311637900166545731,
+        "Shader name": "compute_02",
+        "Shader size": 3072,
+        "Shader type": "Compute"
+      }
+    }
+  },
+  {
+    "ApplicationName": "VkHelloNsightAftermath"
+  },
+  {
+    "ApplicationVersion": "v1.0"
+  },
+  {
+    "UserDefined+0": "This is a GPU crash dump example."
+  },
+  {
+    "UserDefined+1": "Engine State: Rendering."
+  },
+  {
+    "UserDefined+2": "More user-defined information..."
+  },
+  {
+    "Fingerprint": {
+      "Hash": 17319188383084551331,
+      "Quality": 0
+    }
+  }
+]

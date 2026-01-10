@@ -55,6 +55,7 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 		aftermathInfo.setFlags(aftermathFlags);
 	}
 	
+	
 	myDevice = myPhysicalDevice->createDevice(createInfo);
 
 	myGraphicsQueue = myDevice.getQueue(myPhysicalDevice.GetGraphicsQueueIndex(), 0);
