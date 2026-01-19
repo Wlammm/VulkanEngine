@@ -332,6 +332,17 @@ void Shader::InitFromBinary(const List<uint32_t>& inData)
 {
     ZoneScoped;
 
+#if !SHIPPING
+    if (ShaderDatabase::Get() && !inData.IsEmpty())
+    {
+        ShaderDatabase::Get()->AddShaderWithDebugInfo(
+            inData.data(),
+            inData.size() * sizeof(uint32_t),
+            GetSourcePath().string().c_str()
+        );
+    }
+#endif
+    
     if(myShaderModule)
     {
         LOG_WARNING("VulkanShader waits for device idle. Fix");

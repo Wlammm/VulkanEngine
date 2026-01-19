@@ -1,27 +1,4 @@
-﻿//*********************************************************
-//
-// Copyright (c) 2019-2022, NVIDIA CORPORATION. All rights reserved.
-//
-//  Permission is hereby granted, free of charge, to any person obtaining a
-//  copy of this software and associated documentation files (the "Software"),
-//  to deal in the Software without restriction, including without limitation
-//  the rights to use, copy, modify, merge, publish, distribute, sublicense,
-//  and/or sell copies of the Software, and to permit persons to whom the
-//  Software is furnished to do so, subject to the following conditions:
-//
-//  The above copyright notice and this permission notice shall be included in
-//  all copies or substantial portions of the Software.
-//
-//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-//  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-//  DEALINGS IN THE SOFTWARE.
-//
-//*********************************************************
-#include "EnginePch.h"
+﻿#include "EnginePch.h"
 #include "NvidiaAftermathTracker.h"
 #include <fstream>
 #include <iomanip>
@@ -30,6 +7,7 @@
 
 //*********************************************************
 // GpuCrashTracker implementation
+// MODIFIED SOURCE FROM NVIDIA'S EXAMPLE CODE.
 //*********************************************************
 
 NvidiaAftermathTracker::NvidiaAftermathTracker(const AfterMathMarkerMap& markerMap)
@@ -280,11 +258,9 @@ void NvidiaAftermathTracker::OnShaderLookup(
     const GFSDK_Aftermath_ShaderBinaryHash& shaderHash,
     PFN_GFSDK_Aftermath_SetData setShaderBinary) const
 {
-    // Find shader binary data for the shader hash in the shader database.
-    std::vector<uint8_t> shaderBinary;
+    List<uint8_t> shaderBinary;
     if (!m_shaderDatabase.FindShaderBinary(shaderHash, shaderBinary))
     {
-        // Early exit, nothing found. No need to call setShaderBinary.
         return;
     }
 
@@ -302,7 +278,7 @@ void NvidiaAftermathTracker::OnShaderSourceDebugInfoLookup(
     PFN_GFSDK_Aftermath_SetData setShaderBinary) const
 {
     // Find source debug info for the shader DebugName in the shader database.
-    std::vector<uint8_t> shaderBinary;
+    List<uint8_t> shaderBinary;
     if (!m_shaderDatabase.FindShaderBinaryWithDebugData(shaderDebugName, shaderBinary))
     {
         // Early exit, nothing found. No need to call setShaderBinary.

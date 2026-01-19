@@ -35,93 +35,50 @@
 
 ShaderDatabase::ShaderDatabase()
     : myShaderBinaries()
-    , m_shaderBinariesWithDebugInfo()
 {
-    // Add shader binaries to database
-    AddShaderBinary("cube.vert.spirv");
-    AddShaderBinary("cube.frag.spirv");
-
-    // Add the not stripped shader binaries to the database, too.
-    AddShaderBinaryWithDebugInfo("cube.vert.spirv", "cube.vert.full.spirv");
-    AddShaderBinaryWithDebugInfo("cube.frag.spirv", "cube.frag.full.spirv");
+    myInstance = this;
 }
 
 ShaderDatabase::~ShaderDatabase()
 {
+    myInstance = nullptr;
 }
 
-bool ShaderDatabase::ReadFile(const char* filename, std::vector<uint8_t>& data)
+bool ShaderDatabase::FindShaderBinary(const GFSDK_Aftermath_ShaderBinaryHash& inShaderHash, List<uint8_t>& outShader) const
 {
-    std::ifstream fs(filename, std::ios::in | std::ios::binary);
-    if (!fs)
-    {
+    std::lock_guard<std::mutex> lock(myMutex);
+
+    auto it = myShaderBinaries.find(inShaderHash);
+    if (it == myShaderBinaries.end())
         return false;
-    }
 
-    fs.seekg(0, std::ios::end);
-    data.resize(fs.tellg());
-    fs.seekg(0, std::ios::beg);
-    fs.read(reinterpret_cast<char*>(data.data()), data.size());
-    fs.close();
-
+    outShader = it->second;
     return true;
 }
 
-// Find a shader binary by shader hash.
-bool ShaderDatabase::FindShaderBinary(const GFSDK_Aftermath_ShaderBinaryHash& shaderHash, std::vector<uint8_t>& shader) const
+bool ShaderDatabase::FindShaderBinaryWithDebugData(const GFSDK_Aftermath_ShaderDebugName& inShaderDebugName, List<uint8_t>& outShader) const
 {
-    // Find shader binary data for the shader hash
-    auto i_shader = myShaderBinaries.find(shaderHash);
-    if (i_shader == myShaderBinaries.end())
-    {
-        // Nothing found.
-        return false;
-    }
+    std::lock_guard<std::mutex> lock(myMutex);
 
-    shader = i_shader->second;
+    auto it = myShaderBinariesWithDebugInfo.find(inShaderDebugName);
+    if (it == myShaderBinariesWithDebugInfo.end())
+        return false;
+
+    outShader = it->second;
     return true;
 }
 
-// Find a shader binary with debug information by shader debug name.
-bool ShaderDatabase::FindShaderBinaryWithDebugData(const GFSDK_Aftermath_ShaderDebugName& shaderDebugName, std::vector<uint8_t>& shader) const
+void ShaderDatabase::AddShaderWithDebugInfo(const void* inSpirvData, size_t inSpirvSize, const char* inDebugName)
 {
-    // Find shader binary for the shader debug name.
-    auto i_shader = m_shaderBinariesWithDebugInfo.find(shaderDebugName);
-    if (i_shader == m_shaderBinariesWithDebugInfo.end())
-    {
-        // Nothing found.
-        return false;
-    }
+    std::lock_guard<std::mutex> lock(myMutex);
 
-    shader = i_shader->second;
-    return true;
-}
+    GFSDK_Aftermath_ShaderDebugName shaderDebugName{};
+    strncpy_s(shaderDebugName.name, inDebugName, sizeof(shaderDebugName.name) - 1);
 
-void ShaderDatabase::AddShaderBinary(const List<uint8_t>& inShaderBinary)
-{
-    const GFSDK_Aftermath_SpirvCode shader{ inShaderBinary.data(), uint32_t(inShaderBinary.size()) };
-    GFSDK_Aftermath_ShaderBinaryHash shaderHash;
-    AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_GetShaderHashSpirv(
-        GFSDK_Aftermath_Version_API,
-        &shader,
-        &shaderHash));
+    std::vector<uint8_t> binary(
+        reinterpret_cast<const uint8_t*>(inSpirvData),
+        reinterpret_cast<const uint8_t*>(inSpirvData) + inSpirvSize
+    );
 
-    myShaderBinaries[shaderHash] = inShaderBinary;
-}
-
-void ShaderDatabase::AddShaderWithDebugInfo(const List<uint8_t>& inShaderBinary)
-{
-    // Generate shader debug name.
-    GFSDK_Aftermath_ShaderDebugName debugName;
-    const GFSDK_Aftermath_SpirvCode shader{ inShaderBinary.data(), uint32_t(inShaderBinary.size()) };
-    const GFSDK_Aftermath_SpirvCode strippedShader{ strippedData.data(), uint32_t(strippedData.size()) };
-    AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_GetShaderDebugNameSpirv(
-        GFSDK_Aftermath_Version_API,
-        &shader,
-        &strippedShader,
-        &debugName));
-
-    // Store the data for shader instruction address mapping when decoding GPU crash dumps.
-    // cf. FindShaderBinaryWithDebugData()
-    m_shaderBinariesWithDebugInfo[debugName].swap(data);
+    myShaderBinariesWithDebugInfo[shaderDebugName] = std::move(binary);
 }

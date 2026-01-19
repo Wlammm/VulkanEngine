@@ -11388,23 +11388,36 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAftermathFlags", Refl
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<ShaderDatabase>();
 	{
-		Field& currentField = currentClass->AddField(Field("m_shaderBinaries", -1, ReflectionSystem::GetOrCreateType<std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>>("std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<unsigned char>>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myMutex", -1, ReflectionSystem::GetOrCreateType<std::mutex>("std::mutex"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("m_shaderBinariesWithDebugInfo", -1, ReflectionSystem::GetOrCreateType<std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>>("std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<unsigned char>>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myShaderBinaries", -1, ReflectionSystem::GetOrCreateType<std::map<GFSDK_Aftermath_ShaderBinaryHash, List<unsigned char>>>("std::map<GFSDK_Aftermath_ShaderBinaryHash, List<unsigned char>>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShaderBinariesWithDebugInfo", -1, ReflectionSystem::GetOrCreateType<std::map<GFSDK_Aftermath_ShaderDebugName, List<unsigned char>>>("std::map<GFSDK_Aftermath_ShaderDebugName, List<unsigned char>>"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ShaderDatabase* instance = static_cast<ShaderDatabase*>(inInstance);
+ShaderDatabase * result = instance->Get();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Get", ReflectionSystem::GetOrCreateType<ShaderDatabase *>("ShaderDatabase *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ShaderDatabase* instance = static_cast<ShaderDatabase*>(inInstance);
 const GFSDK_Aftermath_ShaderBinaryHash & arg0 = *(const GFSDK_Aftermath_ShaderBinaryHash*)inArguments[0];
-std::vector<unsigned char> & arg1 = *(std::vector<unsigned char>*)inArguments[1];
+List<unsigned char> & arg1 = *(List<unsigned char>*)inArguments[1];
 static thread_local bool result = instance->FindShaderBinary(arg0, arg1);
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("shaderHash", ReflectionSystem::GetOrCreateType<const GFSDK_Aftermath_ShaderBinaryHash &>("const GFSDK_Aftermath_ShaderBinaryHash &")));
-arguments.Add(MethodArgument("shader", ReflectionSystem::GetOrCreateType<std::vector<unsigned char> &>("std::vector<unsigned char> &")));
+arguments.Add(MethodArgument("inShaderHash", ReflectionSystem::GetOrCreateType<const GFSDK_Aftermath_ShaderBinaryHash &>("const GFSDK_Aftermath_ShaderBinaryHash &")));
+arguments.Add(MethodArgument("outShader", ReflectionSystem::GetOrCreateType<List<unsigned char> &>("List<unsigned char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("FindShaderBinary", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 {
@@ -11412,14 +11425,30 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 ShaderDatabase* instance = static_cast<ShaderDatabase*>(inInstance);
 const GFSDK_Aftermath_ShaderDebugName & arg0 = *(const GFSDK_Aftermath_ShaderDebugName*)inArguments[0];
-std::vector<unsigned char> & arg1 = *(std::vector<unsigned char>*)inArguments[1];
+List<unsigned char> & arg1 = *(List<unsigned char>*)inArguments[1];
 static thread_local bool result = instance->FindShaderBinaryWithDebugData(arg0, arg1);
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("shaderDebugName", ReflectionSystem::GetOrCreateType<const GFSDK_Aftermath_ShaderDebugName &>("const GFSDK_Aftermath_ShaderDebugName &")));
-arguments.Add(MethodArgument("shader", ReflectionSystem::GetOrCreateType<std::vector<unsigned char> &>("std::vector<unsigned char> &")));
+arguments.Add(MethodArgument("inShaderDebugName", ReflectionSystem::GetOrCreateType<const GFSDK_Aftermath_ShaderDebugName &>("const GFSDK_Aftermath_ShaderDebugName &")));
+arguments.Add(MethodArgument("outShader", ReflectionSystem::GetOrCreateType<List<unsigned char> &>("List<unsigned char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("FindShaderBinaryWithDebugData", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ShaderDatabase* instance = static_cast<ShaderDatabase*>(inInstance);
+const void * arg0 = (const void*)inArguments[0];
+unsigned long long& arg1 = *(unsigned long long*)inArguments[1];
+const char * arg2 = (const char*)inArguments[2];
+instance->AddShaderWithDebugInfo(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inSpirvData", ReflectionSystem::GetOrCreateType<const void *>("const void *")));
+arguments.Add(MethodArgument("inSpirvSize", ReflectionSystem::GetOrCreateType<unsigned long long>("unsigned long long")));
+arguments.Add(MethodArgument("inDebugName", ReflectionSystem::GetOrCreateType<const char *>("const char *")));
+Method& currentMethod = currentClass->AddMethod(Method("AddShaderWithDebugInfo", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
