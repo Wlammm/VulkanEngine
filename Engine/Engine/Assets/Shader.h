@@ -27,9 +27,12 @@ struct DescriptorBindingInfo
     
     META(SerializeField)
     std::string myName;
-    
+
     META(SerializeField)
     std::string myTypeName;
+
+    META(SerializeField)
+    bool myIsReadOnly = true;
 };
 
 struct DescriptorSetInfo

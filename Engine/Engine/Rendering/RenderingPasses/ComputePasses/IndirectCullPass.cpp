@@ -14,15 +14,9 @@ IndirectCullPass::IndirectCullPass()
 
 void IndirectCullPass::SetupDescriptors()
 {
-    BindBuffer(GPUResourceManager::Get()->GetBuffer<MeshData>(), vk::ShaderStageFlagBits::eCompute, 0, vk::DescriptorType::eStorageBuffer);
-    BindBuffer(GPUResourceManager::Get()->GetBuffer<VertexBufferData>(), vk::ShaderStageFlagBits::eCompute, 6, vk::DescriptorType::eStorageBuffer);
-    BindBuffer(GPUResourceManager::Get()->GetBuffer<IndexBufferData>(), vk::ShaderStageFlagBits::eCompute, 7, vk::DescriptorType::eStorageBuffer);
-    BindBuffer(GPUResourceManager::Get()->GetBuffer<MeshInstanceData>(), vk::ShaderStageFlagBits::eCompute, 1, vk::DescriptorType::eStorageBuffer);
-    BindBuffer(GPUResourceManager::Get()->GetBuffer<vk::DrawIndexedIndirectCommand>(), vk::ShaderStageFlagBits::eCompute, 2, vk::DescriptorType::eStorageBuffer, vk::AccessFlagBits::eShaderWrite);
+    // The count buffer (binding 3) is a plain uint buffer not registered in GPUResourceManager,
+    // so it must be bound manually after auto-binding.
     BindBuffer(RenderSystem::Get()->myCountBuffer, vk::ShaderStageFlagBits::eCompute, 3, vk::DescriptorType::eStorageBuffer, vk::AccessFlagBits::eShaderWrite);
-    BindBuffer(GPUResourceManager::Get()->GetBuffer<PerDrawData>(), vk::ShaderStageFlagBits::eCompute, 4, vk::DescriptorType::eStorageBuffer, vk::AccessFlagBits::eShaderWrite);
-	BindBuffer(GPUResourceManager::Get()->GetBuffer<SceneHeader>(), vk::ShaderStageFlagBits::eCompute, 11, vk::DescriptorType::eUniformBuffer);
-    Build();
 }
 
 void IndirectCullPass::DispatchCall(vk::CommandBuffer inCommandBuffer)

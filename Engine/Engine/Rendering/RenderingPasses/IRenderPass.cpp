@@ -1,6 +1,9 @@
 ﻿#include "EnginePch.h"
 #include "IRenderPass.h"
 
+#include "Engine/Assets/Shader.h"
+#include "Engine/Rendering/GPUResourceManager.h"
+
 void IRenderPass::BindBuffer(
     class IGPUBuffer* inBuffer, 
     vk::ShaderStageFlags inShaderStages, 
@@ -36,7 +39,32 @@ void IRenderPass::Build()
 
 void IRenderPass::BuildDescriptors(const List<SharedPtr<Shader>>& inShaders)
 {
-    
+    for (const SharedPtr<Shader>& shader : inShaders)
+    {
+        for (const DescriptorSetInfo& setInfo : shader->GetDescriptorSetInfos())
+        {
+            for (const DescriptorBindingInfo& binding : setInfo.myBindings)
+            {
+                const bool isBuffer = binding.myDescriptorType == vk::DescriptorType::eStorageBuffer
+                                   || binding.myDescriptorType == vk::DescriptorType::eUniformBuffer;
+                if (!isBuffer || binding.myTypeName.empty())
+                    continue;
+
+                IGPUBuffer* buffer = GPUResourceManager::Get()->TryGetBuffer(binding.myTypeName);
+                if (!buffer)
+                    continue;
+
+                const vk::AccessFlags access = binding.myIsReadOnly
+                    ? vk::AccessFlagBits::eShaderRead
+                    : vk::AccessFlagBits::eShaderWrite;
+
+                BindBuffer(buffer, binding.myShaderStageFlags, binding.myBindingIndex, binding.myDescriptorType, access);
+            }
+        }
+    }
+
+    SetupDescriptors();
+    Build();
 }
 
 void IRenderPass::RegisterDynamicImageUsage(

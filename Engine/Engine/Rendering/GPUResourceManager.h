@@ -53,7 +53,8 @@ public:
     }
 
     IGPUBuffer* GetBuffer(const std::string& inBufferTypeName) const;
-    
+    IGPUBuffer* TryGetBuffer(const std::string& inBufferTypeName) const;
+
     IGPUBuffer* GetBuffer(const Type* inType) const;
     
 private:

@@ -950,6 +950,16 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inShaders", ReflectionSystem::GetOrCreateType<const List<std::shared_ptr<Shader>> &>("const List<std::shared_ptr<Shader>> &")));
 Method& currentMethod = currentClass->AddMethod(Method("BuildDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+IRenderPass* instance = static_cast<IRenderPass*>(inInstance);
+instance->SetupDescriptors();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<RigidbodyComponent>();
@@ -3972,6 +3982,10 @@ Method& currentMethod = currentClass->AddMethod(Method("GetSerializationMeshData
 		Field& currentField = currentClass->AddField(Field("myTypeName", offsetof(DescriptorBindingInfo, myTypeName), ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsReadOnly", offsetof(DescriptorBindingInfo, myIsReadOnly), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<DescriptorSetInfo>();
@@ -6907,6 +6921,18 @@ return (void*)result;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inBufferTypeName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSystem::GetOrCreateType<IGPUBuffer *>("IGPUBuffer *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUResourceManager* instance = static_cast<GPUResourceManager*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+IGPUBuffer * result = instance->TryGetBuffer(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inBufferTypeName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("TryGetBuffer", ReflectionSystem::GetOrCreateType<IGPUBuffer *>("IGPUBuffer *"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

@@ -44,8 +44,12 @@ public:
         vk::AccessFlags inAccessFlags = vk::AccessFlagBits::eShaderRead);
     
     void Build();
-    
+
     void BuildDescriptors(const List<SharedPtr<Shader>>& inShaders);
+
+    // Called from BuildDescriptors after auto-binding. Override to bind resources
+    // that cannot be resolved automatically (e.g. buffers not in GPUResourceManager).
+    virtual void SetupDescriptors() {}
     
 protected:
     void RegisterDynamicImageUsage(VulkanImage* inImage, vk::PipelineStageFlags inStageFlags, vk::AccessFlags inAccess, vk::ImageLayout inLayout);

@@ -322,8 +322,14 @@ void Shader::GenerateReflectionInfo()
             bindingInfo.myDescriptorType = static_cast<vk::DescriptorType>(binding->descriptor_type);
             bindingInfo.myShaderStageFlags = GetStageFromModule(module);
             bindingInfo.myName = binding->name;
+            bindingInfo.myIsReadOnly = (binding->decoration_flags & SPV_REFLECT_DECORATION_NON_WRITABLE) != 0;
             if (binding->type_description && binding->type_description->type_name)
-                bindingInfo.myTypeName = binding->type_description->type_name;
+            {
+                // DXC emits names like "type.StructuredBuffer.MeshData" — extract just the struct name.
+                std::string fullName = binding->type_description->type_name;
+                size_t lastDot = fullName.rfind('.');
+                bindingInfo.myTypeName = (lastDot != std::string::npos) ? fullName.substr(lastDot + 1) : fullName;
+            }
         }
     }
 }

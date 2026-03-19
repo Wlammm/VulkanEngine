@@ -44,6 +44,20 @@ IGPUBuffer* GPUResourceManager::GetBuffer(const std::string& inBufferTypeName) c
     return GetBuffer(type);
 }
 
+IGPUBuffer* GPUResourceManager::TryGetBuffer(const std::string& inBufferTypeName) const
+{
+    const Type* type = ReflectionSystem::GetTypeByName(inBufferTypeName);
+    if (!type)
+        return nullptr;
+
+    for (const BufferResource& buffer : myBuffers)
+    {
+        if (buffer.myType == type)
+            return buffer.myBuffer;
+    }
+    return nullptr;
+}
+
 IGPUBuffer* GPUResourceManager::GetBuffer(const Type* inType) const
 {
     for (const BufferResource& buffer : myBuffers)

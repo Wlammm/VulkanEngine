@@ -11,8 +11,6 @@ public:
     ComputePass(const SourcePath& inShaderPath);
     ~ComputePass();
 
-    virtual void SetupDescriptors() = 0;
-    
     // Dispatch how many we want the shader to use. Everything else is already setup.
     virtual void DispatchCall(vk::CommandBuffer inCommandBuffer) = 0;
     
