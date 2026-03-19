@@ -22,7 +22,7 @@ public:
     void Execute(vk::CommandBuffer inCommandBuffer) override;
     
     void OnShaderRecompiled();
-    
+
 protected:
     std::string myPassName = "";
     

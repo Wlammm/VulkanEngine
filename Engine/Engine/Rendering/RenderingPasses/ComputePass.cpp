@@ -20,7 +20,7 @@ ComputePass::~ComputePass()
 void ComputePass::CreateResources()
 {
     myDescriptorSet = {};
-    SetupDescriptors();
+    BuildDescriptors({ myShader });
 
     vk::DescriptorSetLayout descriptorSetLayout = myDescriptorSet.GetLayout();
     myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(vk::PipelineLayoutCreateInfo().setSetLayouts(descriptorSetLayout));

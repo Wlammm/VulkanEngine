@@ -938,6 +938,18 @@ return nullptr;
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Build", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+IRenderPass* instance = static_cast<IRenderPass*>(inInstance);
+const List<std::shared_ptr<Shader>> & arg0 = *(const List<std::shared_ptr<Shader>>*)inArguments[0];
+instance->BuildDescriptors(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inShaders", ReflectionSystem::GetOrCreateType<const List<std::shared_ptr<Shader>> &>("const List<std::shared_ptr<Shader>> &")));
+Method& currentMethod = currentClass->AddMethod(Method("BuildDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<RigidbodyComponent>();

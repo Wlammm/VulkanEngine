@@ -52,7 +52,7 @@ public:
     void LoadPropertiesFromSource() override;
     void PostPropertiesSerialized() override;
 
-    static bool IsExternalAsset() { return true;};
+    static bool IsExternalAsset() { return true; };
     
     bool IsCacheValid() const override;
     
@@ -64,7 +64,7 @@ public:
     
     const List<DescriptorSetInfo>& GetDescriptorSetInfos() const;
 
-    // Called whenever the shader gets hot reloaded due to the the file being changed.
+    // Called whenever the shader gets hot reloaded due to the file being changed.
     MulticastDelegate<void()> OnShaderRecompiled;
     
 private:
