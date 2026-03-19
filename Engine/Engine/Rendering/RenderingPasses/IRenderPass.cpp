@@ -47,12 +47,29 @@ void IRenderPass::BuildDescriptors(const List<SharedPtr<Shader>>& inShaders)
             {
                 const bool isBuffer = binding.myDescriptorType == vk::DescriptorType::eStorageBuffer
                                    || binding.myDescriptorType == vk::DescriptorType::eUniformBuffer;
-                if (!isBuffer || binding.myTypeName.empty())
+                if (!isBuffer)
                     continue;
 
-                IGPUBuffer* buffer = GPUResourceManager::Get()->TryGetBuffer(binding.myTypeName);
+                GPUResourceManager* resourceManager = GPUResourceManager::Get();
+
+                IGPUBuffer* buffer = resourceManager->TryGetBuffer(binding.myTypeName);
+
                 if (!buffer)
+                    buffer = resourceManager->TryGetBufferByAlias(binding.myTypeName);
+
+                if (!buffer)
+                    buffer = resourceManager->TryGetBufferByAlias(binding.myName);
+
+                if (!buffer)
+                {
+                    LOG_ERROR("Shader '%s': binding %u '%s' (type '%s') could not be auto-bound. "
+                              "Register it in GPUResourceManager with a matching type alias or shader variable name.",
+                              shader->GetSourcePath().filename().string().c_str(),
+                              binding.myBindingIndex,
+                              binding.myName.c_str(),
+                              binding.myTypeName.c_str());
                     continue;
+                }
 
                 const vk::AccessFlags access = binding.myIsReadOnly
                     ? vk::AccessFlagBits::eShaderRead

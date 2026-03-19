@@ -5,9 +5,7 @@ class IndirectCullPass : public ComputePass
 {
 public:
     IndirectCullPass();
-    
-    void SetupDescriptors() override;
-    
+
     void DispatchCall(vk::CommandBuffer inCommandBuffer) override;
     
 private:

@@ -16,6 +16,8 @@ public:
     {
         IGPUBuffer* myBuffer;
         const Type* myType = nullptr;
+        List<std::string> myShaderAliases;
+        bool myIsOwned = true;
         Delegate<void(BufferResource& inResource)> myTickFunction;
     };
     
@@ -27,23 +29,34 @@ public:
     template <typename T>
     void RegisterBuffer(IGPUBuffer* inBuffer, Delegate<void(BufferResource& inResource)> inTickFunction = nullptr)
     {
+        RegisterBuffer<T>(inBuffer, {}, inTickFunction);
+    }
+
+    template <typename T>
+    void RegisterBuffer(IGPUBuffer* inBuffer, List<std::string> inShaderAliases, Delegate<void(BufferResource& inResource)> inTickFunction = nullptr)
+    {
         const Type* type = ReflectionSystem::GetType<T>();
 
         for (BufferResource& buffer : myBuffers)
         {
             check(buffer.myType != type);
         }
-        
+
         BufferResource& buffer = myBuffers.Emplace();
         buffer.myBuffer = inBuffer;
         buffer.myType = type;
+        buffer.myShaderAliases = std::move(inShaderAliases);
         buffer.myTickFunction = inTickFunction;
-        
+
         if (inTickFunction.IsValid())
         {
             myTickableBuffers.Add(buffer);
         }
     }
+
+    // Register a buffer that is not reflected (e.g. primitive-typed or Vulkan-struct buffers).
+    // Lifetime is managed by the caller — GPUResourceManager will NOT destroy it.
+    void RegisterBuffer(IGPUBuffer* inBuffer, List<std::string> inShaderAliases);
 
     template <typename T>
     IGPUBuffer* GetBuffer() const
@@ -54,6 +67,7 @@ public:
 
     IGPUBuffer* GetBuffer(const std::string& inBufferTypeName) const;
     IGPUBuffer* TryGetBuffer(const std::string& inBufferTypeName) const;
+    IGPUBuffer* TryGetBufferByAlias(const std::string& inAlias) const;
 
     IGPUBuffer* GetBuffer(const Type* inType) const;
     

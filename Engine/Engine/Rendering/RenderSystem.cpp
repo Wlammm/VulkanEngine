@@ -353,7 +353,7 @@ void RenderSystem::RegisterRenderResources()
 		vk::BufferCreateInfo()
 		.setSize(sizeof(vk::DrawIndexedIndirectCommand) * 16)
 		.setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst),
-		VMA_MEMORY_USAGE_AUTO)), [](GPUResourceManager::BufferResource& inResource)
+		VMA_MEMORY_USAGE_AUTO)), {"DrawIndexedIndirectCommand"}, [](GPUResourceManager::BufferResource& inResource)
 	{
 		ResizableBuffer* indirectCommandsBuffer = static_cast<ResizableBuffer*>(inResource.myBuffer);
 		
@@ -472,6 +472,10 @@ void RenderSystem::CreateBuffers()
         .setSize(sizeof(uint) * EShadingBin::ShadingBin_Count)
         .setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst),
         VMA_MEMORY_USAGE_AUTO);
+
+    // Count buffer is a plain uint array — not reflected, so register by shader variable name.
+    // Shaders must name it 'outCountBuffer' or 'inCountBuffer' for auto-binding to resolve it.
+    GPUResourceManager::Get()->RegisterBuffer(myCountBuffer, {"outCountBuffer", "inCountBuffer"});
     
     const uint numObjects = objectSystem.GetNumObjects() != 0 ? objectSystem.GetNumObjects() : 4;
 }

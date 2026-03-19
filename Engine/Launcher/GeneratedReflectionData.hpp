@@ -6914,6 +6914,20 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GPUResourceManager* instance = static_cast<GPUResourceManager*>(inInstance);
+IGPUBuffer * arg0 = (IGPUBuffer*)inArguments[0];
+List<std::basic_string<char>>& arg1 = *(List<std::basic_string<char>>*)inArguments[1];
+instance->RegisterBuffer(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<IGPUBuffer *>("IGPUBuffer *")));
+arguments.Add(MethodArgument("inShaderAliases", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>")));
+Method& currentMethod = currentClass->AddMethod(Method("RegisterBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUResourceManager* instance = static_cast<GPUResourceManager*>(inInstance);
 const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
 IGPUBuffer * result = instance->GetBuffer(arg0);
 return (void*)result;
@@ -6938,6 +6952,18 @@ Method& currentMethod = currentClass->AddMethod(Method("TryGetBuffer", Reflectio
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GPUResourceManager* instance = static_cast<GPUResourceManager*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+IGPUBuffer * result = instance->TryGetBufferByAlias(arg0);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inAlias", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("TryGetBufferByAlias", ReflectionSystem::GetOrCreateType<IGPUBuffer *>("IGPUBuffer *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUResourceManager* instance = static_cast<GPUResourceManager*>(inInstance);
 const Type * arg0 = (const Type*)inArguments[0];
 IGPUBuffer * result = instance->GetBuffer(arg0);
 return (void*)result;
@@ -6954,6 +6980,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSy
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myType", -1, ReflectionSystem::GetOrCreateType<const Type>("const Type"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShaderAliases", -1, ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsOwned", -1, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myTickFunction", -1, ReflectionSystem::GetOrCreateType<Delegate<void (GPUResourceManager::BufferResource &)>>("Delegate<void (GPUResourceManager::BufferResource &)>"), false, false));
@@ -9666,16 +9698,6 @@ Method& currentMethod = currentClass->AddMethod(Method("InitActor", ReflectionSy
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<IndirectCullPass>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<ComputePass>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-IndirectCullPass* instance = static_cast<IndirectCullPass*>(inInstance);
-instance->SetupDescriptors();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {

@@ -16,6 +16,9 @@ GPUResourceManager::~GPUResourceManager()
     
     for (BufferResource& buffer : myBuffers)
     {
+        if (!buffer.myIsOwned)
+            continue;
+
         // TODO: Fix this hack later on.
         if (VulkanBuffer* vulkanBuffer = dynamic_cast<VulkanBuffer*>(buffer.myBuffer))
         {
@@ -56,6 +59,30 @@ IGPUBuffer* GPUResourceManager::TryGetBuffer(const std::string& inBufferTypeName
             return buffer.myBuffer;
     }
     return nullptr;
+}
+
+IGPUBuffer* GPUResourceManager::TryGetBufferByAlias(const std::string& inAlias) const
+{
+    if (inAlias.empty())
+        return nullptr;
+
+    for (const BufferResource& buffer : myBuffers)
+    {
+        for (const std::string& alias : buffer.myShaderAliases)
+        {
+            if (alias == inAlias)
+                return buffer.myBuffer;
+        }
+    }
+    return nullptr;
+}
+
+void GPUResourceManager::RegisterBuffer(IGPUBuffer* inBuffer, List<std::string> inShaderAliases)
+{
+    BufferResource& buffer = myBuffers.Emplace();
+    buffer.myBuffer = inBuffer;
+    buffer.myShaderAliases = std::move(inShaderAliases);
+    buffer.myIsOwned = false;
 }
 
 IGPUBuffer* GPUResourceManager::GetBuffer(const Type* inType) const

@@ -12,16 +12,6 @@ IndirectCullPass::IndirectCullPass()
 {
 }
 
-void IndirectCullPass::SetupDescriptors()
-{
-    // vk::DrawIndexedIndirectCommand is a Vulkan struct not in the reflection system,
-    // so it cannot be auto-bound and must be bound manually.
-    BindBuffer(GPUResourceManager::Get()->GetBuffer<vk::DrawIndexedIndirectCommand>(), vk::ShaderStageFlagBits::eCompute, 2, vk::DescriptorType::eStorageBuffer, vk::AccessFlagBits::eShaderWrite);
-
-    // The count buffer (binding 3) is a plain uint buffer not registered in GPUResourceManager,
-    // so it must be bound manually after auto-binding.
-    BindBuffer(RenderSystem::Get()->myCountBuffer, vk::ShaderStageFlagBits::eCompute, 3, vk::DescriptorType::eStorageBuffer, vk::AccessFlagBits::eShaderWrite);
-}
 
 void IndirectCullPass::DispatchCall(vk::CommandBuffer inCommandBuffer)
 {
