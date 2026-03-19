@@ -3,6 +3,7 @@
 
 #include "Engine/Assets/Shader.h"
 #include "Engine/Rendering/GPUResourceManager.h"
+#include "Engine/Vulkan/VulkanUtils.hpp"
 
 void IRenderPass::BindBuffer(
     class IGPUBuffer* inBuffer, 
@@ -43,8 +44,36 @@ void IRenderPass::BuildDescriptors(const List<SharedPtr<Shader>>& inShaders)
     {
         for (const DescriptorSetInfo& setInfo : shader->GetDescriptorSetInfos())
         {
+            if (setInfo.mySetIndex != 0)
+                continue;  // Set 1+ are bindless/external — managed by TextureSystem
+
             for (const DescriptorBindingInfo& binding : setInfo.myBindings)
             {
+                // Pass-specific image bindings are always handled manually in SetupDescriptors.
+                if (binding.myDescriptorType == vk::DescriptorType::eCombinedImageSampler ||
+                    binding.myDescriptorType == vk::DescriptorType::eSampledImage)
+                    continue;
+
+                // Pure sampler — resolve by HLSL variable name from the sampler registry.
+                if (binding.myDescriptorType == vk::DescriptorType::eSampler)
+                {
+                    vk::Sampler sampler = VulkanUtils::TryGetSampler(binding.myName);
+                    if (!sampler)
+                    {
+                        LOG_ERROR("Shader '%s': sampler binding %u '%s' not found in sampler registry. "
+                                  "Rename the HLSL SamplerState to match a registered name "
+                                  "(linearWrapSampler, linearClampSampler, pointWrapSampler, pointClampSampler).",
+                                  shader->GetSourcePath().filename().string().c_str(),
+                                  binding.myBindingIndex,
+                                  binding.myName.c_str());
+                    }
+                    else
+                    {
+                        BindSampler(sampler, binding.myShaderStageFlags, binding.myBindingIndex);
+                    }
+                    continue;
+                }
+
                 const bool isBuffer = binding.myDescriptorType == vk::DescriptorType::eStorageBuffer
                                    || binding.myDescriptorType == vk::DescriptorType::eUniformBuffer;
                 if (!isBuffer)

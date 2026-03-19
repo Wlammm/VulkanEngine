@@ -44,6 +44,16 @@ vk::DescriptorSet VulkanDescriptorSet::GetSet() const
 void VulkanDescriptorSet::BindBuffer(const class IGPUBuffer* inBuffer, vk::ShaderStageFlags inShaderStages,
 	uint inBindingIndex, vk::DescriptorType inDescriptorType)
 {
+	// If this binding index already exists (e.g. shared between VS and PS), just merge stage flags.
+	for (BindingData<const IGPUBuffer*>& existing : myBuffers)
+	{
+		if (existing.myBindingIndex == inBindingIndex)
+		{
+			existing.myShaderStages |= inShaderStages;
+			return;
+		}
+	}
+
 	BindingData<const IGPUBuffer*> data{};
 	data.myData = inBuffer;
 	data.myShaderStages = inShaderStages;
@@ -57,6 +67,15 @@ void VulkanDescriptorSet::BindBuffer(const class IGPUBuffer* inBuffer, vk::Shade
 
 void VulkanDescriptorSet::BindSampler(vk::Sampler inSampler, vk::ShaderStageFlags inShaderStages, uint inBindingIndex)
 {
+	for (BindingData<vk::Sampler>& existing : mySamplers)
+	{
+		if (existing.myBindingIndex == inBindingIndex)
+		{
+			existing.myShaderStages |= inShaderStages;
+			return;
+		}
+	}
+
 	BindingData<vk::Sampler> data{};
 	data.myData = inSampler;
 	data.myBindingIndex = inBindingIndex;

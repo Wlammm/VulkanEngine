@@ -129,7 +129,7 @@ void GraphicsPass::CreateResources()
 {
     myDescriptorSet = {};
     SetupAttachments();
-    SetupDescriptors();
+    BuildDescriptors({myVertexShader, myFragmentShader});
  
     // TODO: We should probably create some uniform descriptor set layouts both in shaders and in engine to make it easier to keep track of what is needed where.
     TextureSystem& textureSystem = Engine::GetEngineSystem<TextureSystem>();

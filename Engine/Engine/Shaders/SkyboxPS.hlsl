@@ -8,7 +8,7 @@ struct PSInput
 Texture2D textures[];
 
 [[vk::binding(2, 0)]]
-SamplerState linearSampler;
+SamplerState linearWrapSampler;
 
 static const float2 invAtan = float2(0.1591, 0.3183);
 
@@ -26,5 +26,5 @@ float4 PSMain(PSInput input) : SV_Target
 {
     float3 viewDir = normalize(input.inModelFragPos);
     float2 uv = SampleSphericalMap(viewDir);
-    return textures[1].Sample(linearSampler, uv);
+    return textures[1].Sample(linearWrapSampler, uv);
 }

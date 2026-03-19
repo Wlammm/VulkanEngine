@@ -6,7 +6,6 @@
 #include "Engine/Assets/Texture.h"
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Components/TransformComponent.h"
-#include "Engine/Rendering/GPUResourceManager.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
 #include "Engine/Rendering/Mesh.h"
 #include "Engine/Rendering/VertexBufferSystem.h"
@@ -28,17 +27,6 @@ void SkyboxPass::SetupAttachments()
     AddColorAttachment(RenderSystem::Get()->myRenderTexture, vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eClear, vk::AttachmentStoreOp::eStore);
 }
 
-void SkyboxPass::SetupDescriptors()
-{
-    BindBuffer(
-        GPUResourceManager::Get()->GetBuffer<CameraBuffer>(),
-        vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
-        0, 
-        vk::DescriptorType::eUniformBuffer);
-    
-    BindSampler(VulkanUtils::GetSampler(SamplerMode::LinearWrap), vk::ShaderStageFlagBits::eFragment, 2);
-    Build();
-}
 
 void SkyboxPass::DrawCall(vk::CommandBuffer inCommandBuffer)
 {

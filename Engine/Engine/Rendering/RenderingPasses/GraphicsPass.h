@@ -20,8 +20,9 @@ public:
     virtual void GetDynamicColorAttachments() { check(false && "Dynamic passes needs to override this function"); };
     virtual void GetDynamicDepthAttachments() { check(false && "Dynamic passes needs to override this function"); }
     
-    // Setup what buffers and textures should be bound to read from during this pass.
-    virtual void SetupDescriptors() = 0;
+    // Override to bind pass-specific resources that cannot be auto-bound (e.g. render textures,
+    // combined image-samplers). Do NOT call Build() here — BuildDescriptors owns that.
+    virtual void SetupDescriptors() override {}
     
     virtual vk::SampleCountFlagBits GetNumSamples() const;
     

@@ -2,10 +2,7 @@
 #include "MainPass.h"
 
 #include "Engine/Rendering/GPUResourceManager.h"
-#include "Engine/Systems/PointLightSystem.h"
 #include "Engine/Vulkan/GPUSceneSystem.h"
-#include "Engine/Vulkan/ResizableBuffer.h"
-#include "Engine/Vulkan/Containers/ConstantBuffer.h"
 
 MainPass::MainPass()
     : GraphicsPass("Shaders/MainVS.hlsl", "Shaders/MainPS.hlsl")
@@ -14,38 +11,6 @@ MainPass::MainPass()
 
 void MainPass::SetupDescriptors()
 {
-    BindBuffer(
-        GPUResourceManager::Get()->GetBuffer<CameraBuffer>(), 
-        vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
-        0, 
-        vk::DescriptorType::eUniformBuffer);
-	
-    BindBuffer(
-        GPUResourceManager::Get()->GetBuffer<PointLightData>(), 
-        vk::ShaderStageFlagBits::eFragment, 
-        1, 
-        vk::DescriptorType::eStorageBuffer);
-	
-    BindBuffer(
-        GPUResourceManager::Get()->GetBuffer<DirectionalLightBuffer>(),
-        vk::ShaderStageFlagBits::eFragment, 
-        2, 
-        vk::DescriptorType::eUniformBuffer);
-
-    BindBuffer(
-        GPUResourceManager::Get()->GetBuffer<PerDrawData>(),
-        vk::ShaderStageFlagBits::eFragment | vk::ShaderStageFlagBits::eVertex, 
-        4, 
-        vk::DescriptorType::eStorageBuffer);
-    
-    BindBuffer(
-        GPUResourceManager::Get()->GetBuffer<SceneHeader>(),
-        vk::ShaderStageFlagBits::eFragment, 
-        5, 
-        vk::DescriptorType::eUniformBuffer);
-	
-    Build();
-    
     SetPushConstantToType<ShadingBinHeader>(vk::ShaderStageFlagBits::eVertex);
 }
 

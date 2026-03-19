@@ -112,11 +112,19 @@ public:
 
 			mySamplers[SamplerMode::PointWrap] = VulkanContext::GetDevice()->createSampler(samplerInfo);
 		}
+
+		RegisterNamedSamplers();
 	}
 
 	static vk::Sampler GetSampler(const SamplerMode inMode)
 	{
 		return mySamplers[inMode];
+	}
+
+	static vk::Sampler TryGetSampler(const std::string& inName)
+	{
+		auto it = myNamedSamplers.find(inName);
+		return it != myNamedSamplers.end() ? it->second : vk::Sampler{};
 	}
 
 	static void DestroySamplers()
@@ -129,5 +137,14 @@ public:
 	}
 
 private:
+	static void RegisterNamedSamplers()
+	{
+		myNamedSamplers["linearWrapSampler"]  = mySamplers[SamplerMode::LinearWrap];
+		myNamedSamplers["linearClampSampler"] = mySamplers[SamplerMode::LinearClamp];
+		myNamedSamplers["pointWrapSampler"]   = mySamplers[SamplerMode::PointWrap];
+		myNamedSamplers["pointClampSampler"]  = mySamplers[SamplerMode::PointClamp];
+	}
+
 	static inline std::map<SamplerMode, vk::Sampler> mySamplers{};
+	static inline std::unordered_map<std::string, vk::Sampler> myNamedSamplers{};
 };

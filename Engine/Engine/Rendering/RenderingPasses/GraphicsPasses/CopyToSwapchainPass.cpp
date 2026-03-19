@@ -13,7 +13,6 @@ void CopyToSwapchainPass::SetupDescriptors()
 {
     // Should this be linear sampling instead? I don't think so?
     BindImage(mySourceTexture, VulkanUtils::GetSampler(SamplerMode::PointWrap), 0, vk::ShaderStageFlagBits::eFragment, vk::ImageLayout::eShaderReadOnlyOptimal);
-    Build();
 }
 
 void CopyToSwapchainPass::SetupAttachments()

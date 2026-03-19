@@ -3,7 +3,6 @@
 
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Components/TransformComponent.h"
-#include "Engine/Rendering/GPUResourceManager.h"
 #include "Engine/Shaders/Shared/MeshStructs.hpp"
 #include "Engine/Utils/Debug.h"
 #include "Engine/World/World.h"
@@ -23,12 +22,6 @@ void DebugPass::SetupAttachments()
     AddDepthAttachment(RenderSystem::Get()->myDepthBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);
 }
 
-void DebugPass::SetupDescriptors()
-{
-    BindBuffer(GPUResourceManager::Get()->GetBuffer<CameraBuffer>(), vk::ShaderStageFlagBits::eVertex, 0, vk::DescriptorType::eUniformBuffer);
-    
-    Build();
-}
 
 List<vk::VertexInputBindingDescription>& DebugPass::GetVertexBindingDescriptor() const
 {

@@ -9819,6 +9819,16 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDynamicDepthAttachmen
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
+instance->SetupDescriptors();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
 static thread_local vk::SampleCountFlagBits result = instance->GetNumSamples();
 return (void*)&result;
 });
@@ -10114,16 +10124,6 @@ Method& currentMethod = currentClass->AddMethod(Method("SetupAttachments", Refle
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 DebugPass* instance = static_cast<DebugPass*>(inInstance);
-instance->SetupDescriptors();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-DebugPass* instance = static_cast<DebugPass*>(inInstance);
 List<vk::VertexInputBindingDescription> & result = instance->GetVertexBindingDescriptor();
 return (void*)&result;
 });
@@ -10305,16 +10305,6 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("SetupAttachments", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-SkyboxPass* instance = static_cast<SkyboxPass*>(inInstance);
-instance->SetupDescriptors();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -11205,6 +11195,18 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inMode", ReflectionSystem::GetOrCreateType<const SamplerMode>("const SamplerMode")));
 Method& currentMethod = currentClass->AddMethod(Method("GetSampler", ReflectionSystem::GetOrCreateType<vk::Sampler>("vk::Sampler"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanUtils* instance = static_cast<VulkanUtils*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local vk::Sampler result = instance->TryGetSampler(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("TryGetSampler", ReflectionSystem::GetOrCreateType<vk::Sampler>("vk::Sampler"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

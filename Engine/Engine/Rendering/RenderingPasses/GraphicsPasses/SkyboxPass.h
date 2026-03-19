@@ -11,7 +11,6 @@ public:
     ~SkyboxPass();
     
     void SetupAttachments() override;
-    void SetupDescriptors() override;
     
     void DrawCall(vk::CommandBuffer inCommandBuffer) override;
     
