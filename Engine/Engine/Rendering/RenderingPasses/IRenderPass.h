@@ -63,6 +63,7 @@ private:
     
 protected:
     VulkanDescriptorSet myDescriptorSet;
+    vk::PushConstantRange myPushConstantRange{};
     
 private:
     List<ResourceUsage> myResourceUsages;

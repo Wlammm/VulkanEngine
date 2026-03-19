@@ -10,11 +10,6 @@ NoDepthPass::NoDepthPass()
     
 }
 
-void NoDepthPass::SetupDescriptors()
-{
-    SetPushConstantToType<ShadingBinHeader>(vk::ShaderStageFlagBits::eVertex);
-}
-
 void NoDepthPass::SetupAttachments()
 {
     AddColorAttachment(RenderSystem::Get()->myRenderTexture, vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore);

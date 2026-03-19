@@ -127,6 +127,11 @@ const List<DescriptorSetInfo>& Shader::GetDescriptorSetInfos() const
     return myDescriptorSets;
 }
 
+const List<PushConstantInfo>& Shader::GetPushConstants() const
+{
+    return myPushConstants;
+}
+
 void Shader::CompileGlslToSpv(const std::string& inShaderSource)
 {
     myEntryPoint = "main";
@@ -295,32 +300,36 @@ void Shader::RemoveFilewatcherCallbacks()
 void Shader::GenerateReflectionInfo()
 {
     myDescriptorSets.Clear();
+    myPushConstants.Clear();
+
     SpvReflectShaderModule module{};
-    
+
     SpvReflectResult result = spvReflectCreateShaderModule(myShaderBinary.size() * sizeof(uint32_t), myShaderBinary.data(), &module);
     check(result == SPV_REFLECT_RESULT_SUCCESS && "Failed to generate reflection information for shader.");
-    
+
+    const vk::ShaderStageFlagBits stage = GetStageFromModule(module);
+
     uint32_t setCount = 0;
     spvReflectEnumerateDescriptorSets(&module, &setCount, nullptr);
-    
+
     List<SpvReflectDescriptorSet*> sets;
     sets.Resize(setCount);
-    
+
     spvReflectEnumerateDescriptorSets(&module, &setCount, sets.data());
-    
+
     for (SpvReflectDescriptorSet* set : sets)
     {
         DescriptorSetInfo& setInfo = myDescriptorSets.Emplace();
         setInfo.mySetIndex = set->set;
-        
+
         for (uint32_t bindingIndex = 0; bindingIndex < set->binding_count; ++bindingIndex)
         {
             SpvReflectDescriptorBinding* binding = set->bindings[bindingIndex];
             DescriptorBindingInfo& bindingInfo = setInfo.myBindings.Emplace();
-            
+
             bindingInfo.myBindingIndex = binding->binding;
             bindingInfo.myDescriptorType = static_cast<vk::DescriptorType>(binding->descriptor_type);
-            bindingInfo.myShaderStageFlags = GetStageFromModule(module);
+            bindingInfo.myShaderStageFlags = stage;
             bindingInfo.myName = binding->name;
             bindingInfo.myIsReadOnly = (binding->decoration_flags & SPV_REFLECT_DECORATION_NON_WRITABLE) != 0;
             if (binding->type_description && binding->type_description->type_name)
@@ -332,6 +341,26 @@ void Shader::GenerateReflectionInfo()
             }
         }
     }
+
+    uint32_t pushConstantCount = 0;
+    spvReflectEnumeratePushConstantBlocks(&module, &pushConstantCount, nullptr);
+
+    if (pushConstantCount > 0)
+    {
+        List<SpvReflectBlockVariable*> blocks;
+        blocks.Resize(pushConstantCount);
+        spvReflectEnumeratePushConstantBlocks(&module, &pushConstantCount, blocks.data());
+
+        for (SpvReflectBlockVariable* block : blocks)
+        {
+            PushConstantInfo& info = myPushConstants.Emplace();
+            info.mySize = block->size;
+            info.myOffset = block->offset;
+            info.myShaderStageFlags = stage;
+        }
+    }
+
+    spvReflectDestroyShaderModule(&module);
 }
 
 void Shader::InitFromBinary(const List<uint32_t>& inData)

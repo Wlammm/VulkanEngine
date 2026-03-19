@@ -6,7 +6,6 @@ class MainPass : public GraphicsPass
 public:
     MainPass();
     
-    void SetupDescriptors() override;
     void SetupAttachments() override;
     
     void DrawCall(vk::CommandBuffer inCommandBuffer) override;

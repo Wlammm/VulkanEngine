@@ -297,6 +297,7 @@ ReflectionSystem::AddType<Model>("Model", typeid(Model).name());
 ReflectionSystem::AddType<IncludeData>("IncludeData", typeid(IncludeData).name());
 ReflectionSystem::AddType<DescriptorBindingInfo>("DescriptorBindingInfo", typeid(DescriptorBindingInfo).name());
 ReflectionSystem::AddType<DescriptorSetInfo>("DescriptorSetInfo", typeid(DescriptorSetInfo).name());
+ReflectionSystem::AddType<PushConstantInfo>("PushConstantInfo", typeid(PushConstantInfo).name());
 ReflectionSystem::AddType<Shader>("Shader", typeid(Shader).name());
 ReflectionSystem::AddType<MethodArgument>("MethodArgument", typeid(MethodArgument).name());
 ReflectionSystem::AddType<Method>("Method", typeid(Method).name());
@@ -337,6 +338,7 @@ ReflectionSystem::AddType<List<Filewatcher::CallbackHandle>>("List<Filewatcher::
 ReflectionSystem::AddType<List<std::function<void ()>>>("List<std::function<void ()>>", typeid(List<std::function<void ()>>).name());
 ReflectionSystem::AddType<List<DescriptorBindingInfo>>("List<DescriptorBindingInfo>", typeid(List<DescriptorBindingInfo>).name());
 ReflectionSystem::AddType<List<DescriptorSetInfo>>("List<DescriptorSetInfo>", typeid(List<DescriptorSetInfo>).name());
+ReflectionSystem::AddType<List<PushConstantInfo>>("List<PushConstantInfo>", typeid(List<PushConstantInfo>).name());
 ReflectionSystem::AddType<List<IncludeData>>("List<IncludeData>", typeid(List<IncludeData>).name());
 ReflectionSystem::AddType<List<float>>("List<float>", typeid(List<float>).name());
 ReflectionSystem::AddType<List<std::shared_ptr<Material>>>("List<std::shared_ptr<Material>>", typeid(List<std::shared_ptr<Material>>).name());
@@ -833,6 +835,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetNumObjects", Reflecti
 	Type* currentClass = ReflectionSystem::GetMutableType<IRenderPass>();
 	{
 		Field& currentField = currentClass->AddField(Field("myDescriptorSet", -1, ReflectionSystem::GetOrCreateType<VulkanDescriptorSet>("VulkanDescriptorSet"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPushConstantRange", -1, ReflectionSystem::GetOrCreateType<vk::PushConstantRange>("vk::PushConstantRange"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myResourceUsages", -1, ReflectionSystem::GetOrCreateType<List<ResourceUsage>>("List<ResourceUsage>"), false, false));
@@ -3999,6 +4004,21 @@ Method& currentMethod = currentClass->AddMethod(Method("GetSerializationMeshData
 	}
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<PushConstantInfo>();
+	{
+		Field& currentField = currentClass->AddField(Field("mySize", offsetof(PushConstantInfo, mySize), ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myOffset", offsetof(PushConstantInfo, myOffset), ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShaderStageFlags", offsetof(PushConstantInfo, myShaderStageFlags), ReflectionSystem::GetOrCreateType<vk::Flags<vk::ShaderStageFlagBits>>("vk::Flags<vk::ShaderStageFlagBits>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<Shader>();
 	{
 		Field& currentField = currentClass->AddField(Field("OnShaderRecompiled", offsetof(Shader, OnShaderRecompiled), ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
@@ -4019,6 +4039,10 @@ Method& currentMethod = currentClass->AddMethod(Method("GetSerializationMeshData
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDescriptorSets", offsetof(Shader, myDescriptorSets), ReflectionSystem::GetOrCreateType<List<DescriptorSetInfo>>("List<DescriptorSetInfo>"), false, false));
+		currentField.AddMetadata(R"delim(SerializeField)delim");
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myPushConstants", offsetof(Shader, myPushConstants), ReflectionSystem::GetOrCreateType<List<PushConstantInfo>>("List<PushConstantInfo>"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
 	{
@@ -4115,6 +4139,16 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetDescriptorSetInfos", ReflectionSystem::GetOrCreateType<const List<DescriptorSetInfo> &>("const List<DescriptorSetInfo> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Shader* instance = static_cast<Shader*>(inInstance);
+const List<PushConstantInfo> & result = instance->GetPushConstants();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetPushConstants", ReflectionSystem::GetOrCreateType<const List<PushConstantInfo> &>("const List<PushConstantInfo> &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -6506,6 +6540,11 @@ Method& currentMethod = currentClass->AddMethod(Method("OnModelChangedFromInspec
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<DescriptorSetInfo>("DescriptorSetInfo"), false, false);
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<PushConstantInfo>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<PushConstantInfo>("PushConstantInfo"), false, false);
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<IncludeData>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<IncludeData>("IncludeData"), false, false);
@@ -8354,16 +8393,6 @@ Method& currentMethod = currentClass->AddMethod(Method("reportError", Reflection
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 NoDepthPass* instance = static_cast<NoDepthPass*>(inInstance);
-instance->SetupDescriptors();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-NoDepthPass* instance = static_cast<NoDepthPass*>(inInstance);
 instance->SetupAttachments();
 return nullptr;
 });
@@ -9783,9 +9812,6 @@ Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSyst
 		Field& currentField = currentClass->AddField(Field("myColorFormats", -1, ReflectionSystem::GetOrCreateType<List<vk::Format>>("List<vk::Format>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myPushConstantRange", -1, ReflectionSystem::GetOrCreateType<vk::PushConstantRange>("vk::PushConstantRange"), false, false));
-	}
-	{
 		Field& currentField = currentClass->AddField(Field("myDepthAttachment", -1, ReflectionSystem::GetOrCreateType<vk::RenderingAttachmentInfo>("vk::RenderingAttachmentInfo"), false, false));
 	}
 	{
@@ -10208,16 +10234,6 @@ Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSyst
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<MainPass>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<GraphicsPass>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-MainPass* instance = static_cast<MainPass*>(inInstance);
-instance->SetupDescriptors();
-return nullptr;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {

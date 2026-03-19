@@ -43,6 +43,18 @@ struct DescriptorSetInfo
     List<DescriptorBindingInfo> myBindings;
 };
 
+struct PushConstantInfo
+{
+    META(SerializeField)
+    uint32_t mySize = 0;
+
+    META(SerializeField)
+    uint32_t myOffset = 0;
+
+    META(SerializeField)
+    vk::ShaderStageFlags myShaderStageFlags;
+};
+
 
 class VulkanShader;
 class Shader : public Asset
@@ -66,6 +78,7 @@ public:
     const std::string& GetEntryPoint() const { return myEntryPoint; }
     
     const List<DescriptorSetInfo>& GetDescriptorSetInfos() const;
+    const List<PushConstantInfo>& GetPushConstants() const;
 
     // Called whenever the shader gets hot reloaded due to the file being changed.
     MulticastDelegate<void()> OnShaderRecompiled;
@@ -95,6 +108,9 @@ private:
     
     META(SerializeField)
     List<DescriptorSetInfo> myDescriptorSets;
+
+    META(SerializeField)
+    List<PushConstantInfo> myPushConstants;
     
     META(SerializeField)
     List<IncludeData> myIncludes;

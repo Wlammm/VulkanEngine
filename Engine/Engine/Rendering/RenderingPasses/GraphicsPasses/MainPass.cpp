@@ -9,11 +9,6 @@ MainPass::MainPass()
 {
 }
 
-void MainPass::SetupDescriptors()
-{
-    SetPushConstantToType<ShadingBinHeader>(vk::ShaderStageFlagBits::eVertex);
-}
-
 void MainPass::SetupAttachments()
 {
     AddColorAttachment(RenderSystem::Get()->myRenderTexture, vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore, RenderSystem::Get()->GetResolvedRenderTexture());

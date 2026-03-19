@@ -109,6 +109,31 @@ void IRenderPass::BuildDescriptors(const List<SharedPtr<Shader>>& inShaders)
         }
     }
 
+    // Auto-detect push constants from all shaders and merge stage flags for shared blocks.
+    myPushConstantRange = vk::PushConstantRange{};
+    for (const SharedPtr<Shader>& shader : inShaders)
+    {
+        for (const PushConstantInfo& pc : shader->GetPushConstants())
+        {
+            if (myPushConstantRange.size == 0)
+            {
+                myPushConstantRange.setSize(pc.mySize).setOffset(pc.myOffset).setStageFlags(pc.myShaderStageFlags);
+            }
+            else if (myPushConstantRange.size == pc.mySize && myPushConstantRange.offset == pc.myOffset)
+            {
+                myPushConstantRange.stageFlags |= pc.myShaderStageFlags;
+            }
+            else
+            {
+                LOG_ERROR("Shader '%s': push constant block size/offset mismatch (expected size=%u offset=%u, got size=%u offset=%u). "
+                          "All shaders in a pass must share the same push constant layout.",
+                          shader->GetSourcePath().filename().string().c_str(),
+                          myPushConstantRange.size, myPushConstantRange.offset,
+                          pc.mySize, pc.myOffset);
+            }
+        }
+    }
+
     SetupDescriptors();
     Build();
 }

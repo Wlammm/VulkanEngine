@@ -57,6 +57,7 @@ public:
      */
     void RegisterDynamicColorAttachment(vk::Format inFormat, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myResolveImage = nullptr);
     
+    // Manual override for push constants — use only when auto-detection from SPIR-V is insufficient.
     template<typename Type>
     void SetPushConstantToType(vk::ShaderStageFlags inShaderStages)
     {
@@ -85,8 +86,6 @@ private:
     List<vk::RenderingAttachmentInfo> myColorAttachments;
     List<vk::RenderingAttachmentInfo> myDynamicColorAttachments;
     List<vk::Format> myColorFormats;
-    
-    vk::PushConstantRange myPushConstantRange{};
     
     vk::RenderingAttachmentInfo myDepthAttachment;
     vk::RenderingAttachmentInfo myDynamicDepthAttachment;
