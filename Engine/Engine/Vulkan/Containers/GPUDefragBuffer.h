@@ -69,10 +69,11 @@ public:
         const std::string&          inSparseBufferName,
         const VmaMemoryUsage        inMemoryUsage,
         const uint                  inInitialSparseCapacity = 4)
-        : mySparseBuffer(inSparseCreateInfo, inSparseBufferName, inMemoryUsage, inInitialSparseCapacity)
     {
         myDenseBuffer = new ResizableBuffer(
             VulkanAllocator::AllocateBuffer_TS(inDenseBufferName, inDenseCreateInfo, inMemoryUsage, false));
+        
+        mySparseBuffer = new GPUList<SparseEntryType>(inSparseCreateInfo, inSparseBufferName, inMemoryUsage, inInitialSparseCapacity);
     }
 
     ~GPUDefragBuffer() override
@@ -89,7 +90,7 @@ public:
     MulticastDelegate<void()>* GetOnBufferResized() const override { return myDenseBuffer->GetOnBufferResized(); }
 
     // Returns the sparse buffer (bind as storage buffer for shader reads)
-    IGPUBuffer* GetSparseBuffer() { return &mySparseBuffer; }
+    IGPUBuffer* GetSparseBuffer() { return mySparseBuffer; }
 
     /*
      * Allocates inByteSize bytes in the dense buffer, uploads inData, and returns a stable Handle.
@@ -112,13 +113,13 @@ public:
         {
             sparseIndex = static_cast<uint>(mySparseEntries_CPU.size());
             mySparseEntries_CPU.Emplace();       // grow CPU mirror
-            mySparseBuffer.Add(SparseEntryType{}); // grow GPU list
+            mySparseBuffer->Add(SparseEntryType{}); // grow GPU list
         }
 
         // Write sparse entry (only myByteOffset; size is tracked CPU-only)
         SparseEntryType& entry = mySparseEntries_CPU[sparseIndex];
         entry.myByteOffset = denseOffset;
-        mySparseBuffer.SetDataAtIndex(entry, sparseIndex);
+        mySparseBuffer->SetDataAtIndex(entry, sparseIndex);
 
         // Upload dense data (ResizableBuffer::SetData handles capacity growth)
         myDenseBuffer->SetData(inData, inByteSize, denseOffset);
@@ -149,12 +150,12 @@ public:
         {
             sparseIndex = static_cast<uint>(mySparseEntries_CPU.size());
             mySparseEntries_CPU.Emplace();
-            mySparseBuffer.Add(SparseEntryType{});
+            mySparseBuffer->Add(SparseEntryType{});
         }
 
         SparseEntryType& entry = mySparseEntries_CPU[sparseIndex];
         entry.myByteOffset = denseOffset;
-        mySparseBuffer.SetDataAtIndex(entry, sparseIndex);
+        mySparseBuffer->SetDataAtIndex(entry, sparseIndex);
 
         myDenseBuffer->CopyDataFromBuffer(inStagingBuffer, inByteSize, denseOffset);
 
@@ -191,7 +192,7 @@ public:
 
         // Invalidate the GPU sparse entry (zero sentinel)
         mySparseEntries_CPU[inHandle.mySparseIndex] = SparseEntryType{};
-        mySparseBuffer.SetDataAtIndex(SparseEntryType{}, inHandle.mySparseIndex);
+        mySparseBuffer->SetDataAtIndex(SparseEntryType{}, inHandle.mySparseIndex);
 
         myFreeSparseIndices.Add(inHandle.mySparseIndex);
     }
@@ -261,7 +262,7 @@ public:
             // Update the sparse entry so the handle still resolves correctly
             SparseEntryType& entry = mySparseEntries_CPU[sparseIdx];
             entry.myByteOffset = dstOffset;
-            mySparseBuffer.SetDataAtIndex(entry, sparseIdx);
+            mySparseBuffer->SetDataAtIndex(entry, sparseIdx);
 
             // Remove the consumed free block (swap-and-pop is fine — we re-search next iteration)
             myFreeBlocks.RemoveIndex(bestFreeIdx);
@@ -402,7 +403,7 @@ private:
 
     // GPU buffers
     ResizableBuffer*         myDenseBuffer  = nullptr;  // raw byte data (vertex/index)
-    GPUList<SparseEntryType> mySparseBuffer;             // stable-index sparse table
+    GPUList<SparseEntryType>* mySparseBuffer;             // stable-index sparse table
 
     // CPU-side state
     List<SparseEntryType> mySparseEntries_CPU;  // CPU mirror, indexed by sparse index

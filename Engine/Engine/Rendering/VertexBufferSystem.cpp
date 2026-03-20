@@ -26,8 +26,8 @@ VertexBufferSystem::VertexBufferSystem()
         sparseInfo, "Global Sparse Vertex Data Buffer",
         VMA_MEMORY_USAGE_AUTO);
 
-    GPUResourceManager::Get()->RegisterBuffer<Vertex>(myBuffer);
     GPUResourceManager::Get()->RegisterBuffer<VertexBufferData>(myBuffer->GetSparseBuffer());
+    GPUResourceManager::Get()->RegisterBuffer<Vertex>(myBuffer);
 }
 
 VertexBufferSystem::~VertexBufferSystem()
@@ -37,8 +37,8 @@ VertexBufferSystem::~VertexBufferSystem()
 
     myVertexBuffers.Clear();
 
-    delete myBuffer;
-    myBuffer = nullptr;
+    //delete myBuffer;
+    //myBuffer = nullptr;
 }
 
 VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount)
