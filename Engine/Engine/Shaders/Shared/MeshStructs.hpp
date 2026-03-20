@@ -49,10 +49,10 @@ static bool ShouldDrawForShadingBin(EDrawFlags inDrawFlags, EShadingBin inShadin
 }
 
 // ----------- PushConstants -----------
-struct ALIGNAS(16) ShadingBinHeader
+struct ShadingBinHeader
 {
-    ALIGNAS(4) uint myElementsPerBin;
-    ALIGNAS(4) EShadingBin myShadingBin;
+    uint myElementsPerBin;
+    EShadingBin myShadingBin;
 };
 
 // ----------- ConstantBuffers -----------

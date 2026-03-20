@@ -12,6 +12,104 @@
 #include "Engine/Vulkan/VulkanShaderIncluder.h"
 #include "Spirv-Reflect/spirv_reflect.h"
 
+// Scans raw SPIR-V words to find a push constant block and return its byte size.
+// Used as a fallback because spirv-reflect does not reliably detect push constants
+// in DXC-generated SPIR-V.
+static uint32_t ComputeSpirVPushConstantSize(const List<uint32_t>& spirv)
+{
+    // SPIR-V header is 5 words: magic, version, generator, bound, schema
+    if (spirv.size() < 5 || spirv[0] != 0x07230203u)
+        return 0;
+
+    struct TypeInfo
+    {
+        uint32_t size = 0;
+        std::vector<uint32_t> memberTypes;
+    };
+
+    std::unordered_map<uint32_t, TypeInfo> types;
+    std::unordered_map<uint32_t, uint32_t> typePointers;  // pointer type id -> base type id
+    std::unordered_map<uint64_t, uint32_t> memberOffsets; // (structId<<32)|memberIdx -> offset
+    uint32_t pushConstPtrTypeId = 0;
+
+    auto memberKey = [](uint32_t s, uint32_t m) -> uint64_t
+    {
+        return ((uint64_t)s << 32) | m;
+    };
+
+    int i = 5;
+    while (i < spirv.size())
+    {
+        uint16_t opcode    = (uint16_t)(spirv[i] & 0xFFFF);
+        uint16_t wordCount = (uint16_t)(spirv[i] >> 16);
+        if (wordCount == 0 || i + wordCount > spirv.size())
+            break;
+
+        switch (opcode)
+        {
+        case 21: // OpTypeInt [result, width, signedness]
+            types[spirv[i + 1]].size = spirv[i + 2] / 8;
+            break;
+        case 22: // OpTypeFloat [result, width]
+            types[spirv[i + 1]].size = spirv[i + 2] / 8;
+            break;
+        case 23: { // OpTypeVector [result, compType, count]
+            uint32_t compSize = types.count(spirv[i + 2]) ? types[spirv[i + 2]].size : 4;
+            types[spirv[i + 1]].size = compSize * spirv[i + 3];
+            break;
+        }
+        case 24: { // OpTypeMatrix [result, colType, colCount]
+            uint32_t colSize = types.count(spirv[i + 2]) ? types[spirv[i + 2]].size : 16;
+            types[spirv[i + 1]].size = colSize * spirv[i + 3];
+            break;
+        }
+        case 30: { // OpTypeStruct [result, member0, member1, ...]
+            uint32_t structId = spirv[i + 1];
+            for (uint16_t m = 2; m < wordCount; ++m)
+                types[structId].memberTypes.push_back(spirv[i + m]);
+            break;
+        }
+        case 32: // OpTypePointer [result, storageClass, baseType]
+            typePointers[spirv[i + 1]] = spirv[i + 3];
+            break;
+        case 72: // OpMemberDecorate [structType, member, decoration, ...]
+            if (wordCount >= 5 && spirv[i + 3] == 35) // decoration 35 = Offset
+                memberOffsets[memberKey(spirv[i + 1], spirv[i + 2])] = spirv[i + 4];
+            break;
+        case 59: // OpVariable [typeId, resultId, storageClass, ...]
+            if (spirv[i + 3] == 9) // StorageClass::PushConstant = 9
+                pushConstPtrTypeId = spirv[i + 1];
+            break;
+        }
+
+        i += wordCount;
+    }
+
+    if (!pushConstPtrTypeId)
+        return 0;
+
+    auto ptrIt = typePointers.find(pushConstPtrTypeId);
+    if (ptrIt == typePointers.end())
+        return 0;
+
+    uint32_t structId = ptrIt->second;
+    TypeInfo& structType = types[structId];
+    if (structType.memberTypes.empty())
+        return 0;
+
+    // Size = offset of last member + size of last member's type
+    uint32_t lastMemberIdx  = (uint32_t)structType.memberTypes.size() - 1;
+    auto     offsetIt       = memberOffsets.find(memberKey(structId, lastMemberIdx));
+    if (offsetIt == memberOffsets.end())
+        return 0;
+
+    uint32_t lastOffset         = offsetIt->second;
+    uint32_t lastMemberTypeId   = structType.memberTypes[lastMemberIdx];
+    uint32_t lastMemberSize     = types.count(lastMemberTypeId) ? types[lastMemberTypeId].size : 4;
+
+    return lastOffset + lastMemberSize;
+}
+
 vk::ShaderStageFlagBits GetStageFromModule(const SpvReflectShaderModule& module)
 {
     switch (module.spirv_execution_model)
@@ -93,6 +191,7 @@ void Shader::PostPropertiesSerialized()
     CreateFilewatcherCallbacks(myIncludes);
 
     InitFromBinary(myShaderBinary);
+    GenerateReflectionInfo();
 
     OnShaderRecompiled();
 }
@@ -342,22 +441,15 @@ void Shader::GenerateReflectionInfo()
         }
     }
 
-    uint32_t pushConstantCount = 0;
-    spvReflectEnumeratePushConstantBlocks(&module, &pushConstantCount, nullptr);
-
-    if (pushConstantCount > 0)
+    // spirv-reflect does not reliably detect push constants in DXC-generated SPIR-V,
+    // so we scan the raw binary directly.
+    uint32_t pushConstantSize = ComputeSpirVPushConstantSize(myShaderBinary);
+    if (pushConstantSize > 0)
     {
-        List<SpvReflectBlockVariable*> blocks;
-        blocks.Resize(pushConstantCount);
-        spvReflectEnumeratePushConstantBlocks(&module, &pushConstantCount, blocks.data());
-
-        for (SpvReflectBlockVariable* block : blocks)
-        {
-            PushConstantInfo& info = myPushConstants.Emplace();
-            info.mySize = block->size;
-            info.myOffset = block->offset;
-            info.myShaderStageFlags = stage;
-        }
+        PushConstantInfo& info = myPushConstants.Emplace();
+        info.mySize             = pushConstantSize;
+        info.myOffset           = 0;
+        info.myShaderStageFlags = stage;
     }
 
     spvReflectDestroyShaderModule(&module);
