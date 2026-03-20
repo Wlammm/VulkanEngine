@@ -20,18 +20,5 @@ void MainPass::DrawCall(vk::CommandBuffer inCommandBuffer)
 {
     inCommandBuffer.setDepthWriteEnable(true);
     
-    uint maxNumDraws = Engine::GetEngineSystem<GPUSceneSystem>().GetNumObjects();
-    
-    ShadingBinHeader header;
-    header.myShadingBin = EShadingBin::ShadingBin_Default;
-    header.myElementsPerBin = maxNumDraws;
-    inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(ShadingBinHeader), &header);
-    
-    inCommandBuffer.drawIndexedIndirectCount(
-        GPUResourceManager::Get()->GetBuffer<vk::DrawIndexedIndirectCommand>()->GetBuffer()->GetAPIResource(), 
-        maxNumDraws * EShadingBin::ShadingBin_Default * sizeof(vk::DrawIndexedIndirectCommand),
-        RenderSystem::Get()->myCountBuffer->GetAPIResource(), 
-        EShadingBin::ShadingBin_Default * 4,
-        maxNumDraws,
-        sizeof(vk::DrawIndexedIndirectCommand));
+    DrawToShadingBin(inCommandBuffer, EShadingBin::ShadingBin_Default);
 }

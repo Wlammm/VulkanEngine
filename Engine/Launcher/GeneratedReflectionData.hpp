@@ -10017,6 +10017,20 @@ arguments.Add(MethodArgument("inStoreOp", ReflectionSystem::GetOrCreateType<vk::
 arguments.Add(MethodArgument("myDepthResolveImage", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *")));
 Method& currentMethod = currentClass->AddMethod(Method("AddDepthAttachment", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
+const EShadingBin& arg1 = *(const EShadingBin*)inArguments[1];
+instance->DrawToShadingBin(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+arguments.Add(MethodArgument("inShadingBin", ReflectionSystem::GetOrCreateType<const EShadingBin>("const EShadingBin")));
+Method& currentMethod = currentClass->AddMethod(Method("DrawToShadingBin", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<CopyTexturePass>();

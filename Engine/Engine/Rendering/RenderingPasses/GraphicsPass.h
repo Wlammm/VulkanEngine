@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "IRenderPass.h"
 #include "Engine/AssetRegistry/AssetDefines.h"
+#include "Engine/Shaders/Shared/MeshStructs.hpp"
 #include "Engine/Vulkan/VulkanDescriptorSet.h"
 #include "Engine/Vulkan/VulkanImage.h"
 
@@ -68,6 +69,9 @@ public:
      * Should be called inside SetupAttachments.
      */
     void AddDepthAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myDepthResolveImage = nullptr);
+    
+    
+    void DrawToShadingBin(vk::CommandBuffer inCommandBuffer, const EShadingBin inShadingBin);
     
 protected:
     vk::PipelineLayout myPipelineLayout;

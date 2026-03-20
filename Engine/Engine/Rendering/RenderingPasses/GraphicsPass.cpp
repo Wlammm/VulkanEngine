@@ -7,6 +7,7 @@
 #include "Engine/Rendering/IndexBufferSystem.h"
 #include "Engine/Rendering/TextureSystem.h"
 #include "Engine/Rendering/VertexBufferSystem.h"
+#include "Engine/Vulkan/GPUSceneSystem.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
 #include "Engine/Vulkan/VulkanPhysicalDevice.h"
@@ -329,4 +330,22 @@ void GraphicsPass::AddDepthAttachment(
     }
         
     myDepthFormat = inImage->GetFormat();
+}
+
+void GraphicsPass::DrawToShadingBin(vk::CommandBuffer inCommandBuffer, const EShadingBin inShadingBin)
+{
+    uint maxNumDraws = Engine::GetEngineSystem<GPUSceneSystem>().GetNumObjects();
+    
+    ShadingBinHeader header;
+    header.myShadingBin = inShadingBin;
+    header.myElementsPerBin = maxNumDraws;
+    inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(ShadingBinHeader), &header);
+    
+    inCommandBuffer.drawIndexedIndirectCount(
+        GPUResourceManager::Get()->GetBuffer<vk::DrawIndexedIndirectCommand>()->GetBuffer()->GetAPIResource(), 
+        maxNumDraws * inShadingBin * sizeof(vk::DrawIndexedIndirectCommand),
+        RenderSystem::Get()->myCountBuffer->GetAPIResource(), 
+        inShadingBin * 4,
+        maxNumDraws,
+        sizeof(vk::DrawIndexedIndirectCommand));
 }
