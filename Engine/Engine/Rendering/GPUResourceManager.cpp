@@ -79,6 +79,23 @@ IGPUBuffer* GPUResourceManager::TryGetBufferByAlias(const std::string& inAlias) 
 
 void GPUResourceManager::RegisterBuffer(IGPUBuffer* inBuffer, List<std::string> inShaderAliases)
 {
+    // If an existing non-owned entry shares any alias, update it in-place so that
+    // lookups immediately return the new buffer (e.g. after a resize recreates it).
+    for (BufferResource& existing : myBuffers)
+    {
+        if (existing.myIsOwned)
+            continue;
+        for (const std::string& alias : inShaderAliases)
+        {
+            if (existing.myShaderAliases.Contains(alias))
+            {
+                existing.myBuffer = inBuffer;
+                existing.myShaderAliases = std::move(inShaderAliases);
+                return;
+            }
+        }
+    }
+
     BufferResource& buffer = myBuffers.Emplace();
     buffer.myBuffer = inBuffer;
     buffer.myShaderAliases = std::move(inShaderAliases);
