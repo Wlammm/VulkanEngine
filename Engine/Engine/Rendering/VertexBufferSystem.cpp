@@ -46,7 +46,7 @@ VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(VulkanBuffer* inStagi
     check(inVertexCount > 0);
 
     const uint byteSize = inVertexCount * sizeof(Vertex);
-    const auto handle   = myBuffer->AllocateFromStagingBuffer(inStagingBuffer, byteSize, sizeof(Vertex));
+    const auto handle   = myBuffer->AllocateFromStagingBuffer(inStagingBuffer, byteSize);
 
     VertexBufferHandle* bufferHandle = new VertexBufferHandle();
     bufferHandle->myIndex = handle.mySparseIndex;

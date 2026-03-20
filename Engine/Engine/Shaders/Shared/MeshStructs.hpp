@@ -96,7 +96,6 @@ static const uint VERTEX_STRIDE_BYTES = 68;
 struct VertexBufferData
 {
     ALIGNAS(4) uint myByteOffset DEFAULT_TO(0); // byte offset into the global vertex buffer
-    ALIGNAS(4) uint myByteSize   DEFAULT_TO(0); // byte size of this mesh's vertex data
 };
 
 struct IndexBufferData

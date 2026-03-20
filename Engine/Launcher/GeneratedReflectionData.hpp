@@ -7277,9 +7277,6 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSys
 	{
 		Field& currentField = currentClass->AddField(Field("myByteOffset", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
-	{
-		Field& currentField = currentClass->AddField(Field("myByteSize", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<IndexBufferData>();
@@ -11507,9 +11504,6 @@ Method& currentMethod = currentClass->AddMethod(Method("AddShaderWithDebugInfo",
 	Type* currentClass = ReflectionSystem::GetMutableType<SparseBufferEntry>();
 	{
 		Field& currentField = currentClass->AddField(Field("myByteOffset", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myByteSize", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
 }
 { 

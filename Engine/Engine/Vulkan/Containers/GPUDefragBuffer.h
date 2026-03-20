@@ -4,14 +4,15 @@
 #include "Engine/Vulkan/VulkanAllocator.h"
 
 /*
- * Default sparse entry type. SparseEntryType must expose these two fields.
- * Users can define their own struct with additional fields for shader use
- * (e.g. an element count or stride), as long as myByteOffset and myByteSize are present.
+ * Default sparse entry type. SparseEntryType must expose myByteOffset.
+ * Users can define their own struct with additional shader fields (e.g. element count,
+ * stride) as long as myByteOffset is present.
+ * NOTE: myByteSize is NOT required here — allocation sizes are tracked CPU-only in
+ * AllocatedBlock, so the GPU-facing struct stays as small as possible.
  */
 struct SparseBufferEntry
 {
     uint myByteOffset = 0;
-    uint myByteSize   = 0;
 };
 
 /*
@@ -40,7 +41,7 @@ struct SparseBufferEntry
  * --- SparseEntryType requirements ---
  * Must be default-constructible and expose:
  *   uint myByteOffset;
- *   uint myByteSize;
+ * myByteSize is NOT required — sizes are tracked CPU-only inside AllocatedBlock.
  */
 template<typename SparseEntryType = SparseBufferEntry>
 class GPUDefragBuffer : public IGPUBuffer
@@ -114,10 +115,9 @@ public:
             mySparseBuffer.Add(SparseEntryType{}); // grow GPU list
         }
 
-        // Write sparse entry
+        // Write sparse entry (only myByteOffset; size is tracked CPU-only)
         SparseEntryType& entry = mySparseEntries_CPU[sparseIndex];
         entry.myByteOffset = denseOffset;
-        entry.myByteSize   = inByteSize;
         mySparseBuffer.SetDataAtIndex(entry, sparseIndex);
 
         // Upload dense data (ResizableBuffer::SetData handles capacity growth)
@@ -154,7 +154,6 @@ public:
 
         SparseEntryType& entry = mySparseEntries_CPU[sparseIndex];
         entry.myByteOffset = denseOffset;
-        entry.myByteSize   = inByteSize;
         mySparseBuffer.SetDataAtIndex(entry, sparseIndex);
 
         myDenseBuffer->CopyDataFromBuffer(inStagingBuffer, inByteSize, denseOffset);
@@ -172,21 +171,22 @@ public:
     {
         check(inHandle.IsValid());
 
-        const SparseEntryType& entry = mySparseEntries_CPU[inHandle.mySparseIndex];
-        const uint offset = entry.myByteOffset;
-        const uint size   = entry.myByteSize;
-
-        // Remove from allocated list (swap-and-pop is fine — list is unsorted)
+        // Find and remove the allocated block — get byte size from it (not the sparse entry)
+        uint offset = 0;
+        uint size   = 0;
         for (int i = 0; i < static_cast<int>(myAllocatedBlocks.size()); ++i)
         {
             if (myAllocatedBlocks[i].mySparseIndex == inHandle.mySparseIndex)
             {
+                offset = myAllocatedBlocks[i].myByteOffset;
+                size   = myAllocatedBlocks[i].myByteSize;
                 myAllocatedBlocks.RemoveIndex(i);
                 break;
             }
         }
+        check(size > 0 && "Deallocate called with a handle not found in allocated blocks");
 
-        // Return dense region to the free pool (sorted insertion + coalescing)
+        // Return dense region to the free pool (coalesced on insert)
         InsertFreeBlock({ offset, size });
 
         // Invalidate the GPU sparse entry (zero sentinel)
