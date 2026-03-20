@@ -182,6 +182,7 @@
 #include "../Engine/Vulkan/Aftermath/NvidiaAftermathTracker.h"
 #include "../Engine/Vulkan/Aftermath/ShaderDatabase.h"
 #include "../Engine/Vulkan/Containers/ConstantBuffer.h"
+#include "../Engine/Vulkan/Containers/GPUDefragBuffer.h"
 #include "../Engine/Vulkan/Containers/GPUPooledBuffer.h"
 #include "../Engine/Vulkan/Containers/IGPUBuffer.hpp"
 #include "../Engine/Vulkan/ResizableBuffer.h"
@@ -206,7 +207,6 @@
 #include "../Game/GamePch.h"
 #include "../Game/GameTags.h"
 #include "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/include/memory"
-#include "../Engine/Vulkan/Containers/GPUDefragBuffer.h"
 
 
 // END INCLUDES FOR REFLECTED TYPES
@@ -486,6 +486,7 @@ ReflectionSystem::AddType<MathUtils>("MathUtils", typeid(MathUtils).name());
 ReflectionSystem::AddType<OnScopeExit>("OnScopeExit", typeid(OnScopeExit).name());
 ReflectionSystem::AddType<NvidiaAftermathTracker>("NvidiaAftermathTracker", typeid(NvidiaAftermathTracker).name());
 ReflectionSystem::AddType<ShaderDatabase>("ShaderDatabase", typeid(ShaderDatabase).name());
+ReflectionSystem::AddType<SparseBufferEntry>("SparseBufferEntry", typeid(SparseBufferEntry).name());
 ReflectionSystem::AddType<IGPUBuffer>("IGPUBuffer", typeid(IGPUBuffer).name());
 ReflectionSystem::AddType<ResizableBuffer>("ResizableBuffer", typeid(ResizableBuffer).name());
 ReflectionSystem::AddType<StagingBuffer>("StagingBuffer", typeid(StagingBuffer).name());
@@ -512,7 +513,6 @@ ReflectionSystem::AddType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>", 
 ReflectionSystem::AddType<std::shared_ptr<Material>>("std::shared_ptr<Material>", typeid(std::shared_ptr<Material>).name());
 ReflectionSystem::AddType<std::shared_ptr<Model>>("std::shared_ptr<Model>", typeid(std::shared_ptr<Model>).name());
 ReflectionSystem::AddType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>", typeid(std::shared_ptr<Shader>).name());
-ReflectionSystem::AddType<SparseBufferEntry>("SparseBufferEntry", typeid(SparseBufferEntry).name());
 
         }
         
@@ -11532,6 +11532,15 @@ Method& currentMethod = currentClass->AddMethod(Method("AddShaderWithDebugInfo",
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<SparseBufferEntry>();
+	{
+		Field& currentField = currentClass->AddField(Field("myByteOffset", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myByteSize", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<IGPUBuffer>();
 }
 { 
@@ -13084,15 +13093,6 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<std::shared_ptr<Shader>>();
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Shader>("Shader"), false, false);
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<SparseBufferEntry>();
-	{
-		Field& currentField = currentClass->AddField(Field("myByteOffset", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myByteSize", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
 }
 
         }

@@ -181,33 +181,33 @@ public:
             int  bestAllocIdx    = -1;
             uint bestFreeOffset  = UINT_MAX;
 
-            for (int fi = 0; fi < static_cast<int>(myFreeBlocks.size()); ++fi)
+            for (int freeBlockIndex = 0; freeBlockIndex < static_cast<int>(myFreeBlocks.size()); ++freeBlockIndex)
             {
-                const FreeBlock& fb = myFreeBlocks[fi];
-                if (fb.myByteOffset >= bestFreeOffset)
+                const FreeBlock& freeBlock = myFreeBlocks[freeBlockIndex];
+                if (freeBlock.myByteOffset >= bestFreeOffset)
                     continue;
 
                 // Find the leftmost allocation that starts after this free block and fits in it
                 int  candidateAllocIdx    = -1;
                 uint candidateAllocOffset = UINT_MAX;
 
-                for (int ai = 0; ai < static_cast<int>(myAllocatedBlocks.size()); ++ai)
+                for (int allocationIndex = 0; allocationIndex < myAllocatedBlocks.size(); ++allocationIndex)
                 {
-                    const AllocatedBlock& alloc = myAllocatedBlocks[ai];
-                    if (alloc.myByteOffset >= fb.myByteOffset + fb.myByteSize &&
-                        alloc.myByteSize   <= fb.myByteSize &&
-                        alloc.myByteOffset < candidateAllocOffset)
+                    const AllocatedBlock& allocation = myAllocatedBlocks[allocationIndex];
+                    if (allocation.myByteOffset >= freeBlock.myByteOffset + freeBlock.myByteSize &&
+                        allocation.myByteSize   <= freeBlock.myByteSize &&
+                        allocation.myByteOffset < candidateAllocOffset)
                     {
-                        candidateAllocOffset = alloc.myByteOffset;
-                        candidateAllocIdx    = ai;
+                        candidateAllocOffset = allocation.myByteOffset;
+                        candidateAllocIdx    = allocationIndex;
                     }
                 }
 
                 if (candidateAllocIdx != -1)
                 {
-                    bestFreeIdx    = fi;
+                    bestFreeIdx    = freeBlockIndex;
                     bestAllocIdx   = candidateAllocIdx;
-                    bestFreeOffset = fb.myByteOffset;
+                    bestFreeOffset = freeBlock.myByteOffset;
                 }
             }
 
