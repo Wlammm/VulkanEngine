@@ -102,6 +102,8 @@ class VulkanImage* RenderSystem::GetResolvedDepthTexture() const
 
 void RenderSystem::OnSwapChainResize()
 {
+	FlushUploadCommands();
+	VulkanContext::GetDevice()->waitIdle();
 	DestroyRenderResources();
 	CreateRenderResources();
 }

@@ -7,9 +7,9 @@
 Texture2D inTexture;
 
 [[vk::binding(0, 0)]]
-SamplerState textureSampler;
+SamplerState pointWrapSampler;
 
 float4 PSMain(PSInput input) : SV_Target
 {
-    return inTexture.Sample(textureSampler, input.inTexCoord);
+    return inTexture.Sample(pointWrapSampler, input.inTexCoord);
 }
