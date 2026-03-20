@@ -206,6 +206,7 @@
 #include "../Game/GamePch.h"
 #include "../Game/GameTags.h"
 #include "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.43.34808/include/memory"
+#include "../Engine/Vulkan/Containers/GPUDefragBuffer.h"
 
 
 // END INCLUDES FOR REFLECTED TYPES
@@ -511,6 +512,7 @@ ReflectionSystem::AddType<std::shared_ptr<Texture>>("std::shared_ptr<Texture>", 
 ReflectionSystem::AddType<std::shared_ptr<Material>>("std::shared_ptr<Material>", typeid(std::shared_ptr<Material>).name());
 ReflectionSystem::AddType<std::shared_ptr<Model>>("std::shared_ptr<Model>", typeid(std::shared_ptr<Model>).name());
 ReflectionSystem::AddType<std::shared_ptr<Shader>>("std::shared_ptr<Shader>", typeid(std::shared_ptr<Shader>).name());
+ReflectionSystem::AddType<SparseBufferEntry>("SparseBufferEntry", typeid(SparseBufferEntry).name());
 
         }
         
@@ -13082,6 +13084,15 @@ Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem:
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<std::shared_ptr<Shader>>();
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<Shader>("Shader"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<SparseBufferEntry>();
+	{
+		Field& currentField = currentClass->AddField(Field("myByteOffset", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myByteSize", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
 }
 
         }
