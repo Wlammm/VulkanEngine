@@ -133,6 +133,21 @@ void VulkanDescriptorSet::BuildLayoutAndAllocate()
 	
 	for (const BindingData<vk::Sampler>& binding : mySamplers)
 	{
+		// Skip if an image binding already occupies this slot (e.g. combined image sampler
+		// set up manually in SetupDescriptors while SPIR-V reflection also surfaces the
+		// sampler component as a separate eSampler descriptor at the same index).
+		bool conflict = false;
+		for (const vk::DescriptorSetLayoutBinding& existing : layoutBindings)
+		{
+			if (existing.binding == binding.myBindingIndex)
+			{
+				conflict = true;
+				break;
+			}
+		}
+		if (conflict)
+			continue;
+
 		layoutBindings.Add(
 			vk::DescriptorSetLayoutBinding()
 				.setDescriptorCount(1)
@@ -140,7 +155,7 @@ void VulkanDescriptorSet::BuildLayoutAndAllocate()
 				.setDescriptorType(binding.myDescriptorType)
 				.setStageFlags(binding.myShaderStages));
 	}
-	
+
 	// Create layout
 	if(!myLayout)
 	{
@@ -203,6 +218,19 @@ void VulkanDescriptorSet::UpdateDescriptors()
 	
 	for (const BindingData<vk::Sampler>& binding : mySamplers)
 	{
+		// Skip if a combined image sampler already occupies this binding slot.
+		bool conflict = false;
+		for (const BindingData<const VulkanImage*>& img : mySampledImages)
+		{
+			if (img.myBindingIndex == binding.myBindingIndex)
+			{
+				conflict = true;
+				break;
+			}
+		}
+		if (conflict)
+			continue;
+
 		vk::DescriptorImageInfo samplerInfo{};
 		samplerInfo.setSampler(binding.myData);
 		setWrites.Emplace()
