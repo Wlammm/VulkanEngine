@@ -357,7 +357,6 @@ ReflectionSystem::AddType<List<vk::RenderingAttachmentInfo>>("List<vk::Rendering
 ReflectionSystem::AddType<List<vk::Format>>("List<vk::Format>", typeid(List<vk::Format>).name());
 ReflectionSystem::AddType<List<vk::Framebuffer>>("List<vk::Framebuffer>", typeid(List<vk::Framebuffer>).name());
 ReflectionSystem::AddType<List<VertexBufferHandle *>>("List<VertexBufferHandle *>", typeid(List<VertexBufferHandle *>).name());
-ReflectionSystem::AddType<List<VertexBufferData>>("List<VertexBufferData>", typeid(List<VertexBufferData>).name());
 ReflectionSystem::AddType<List<std::filesystem::path>>("List<std::filesystem::path>", typeid(List<std::filesystem::path>).name());
 ReflectionSystem::AddType<List<vk::QueueFamilyProperties>>("List<vk::QueueFamilyProperties>", typeid(List<vk::QueueFamilyProperties>).name());
 ReflectionSystem::AddType<List<vk::Fence>>("List<vk::Fence>", typeid(List<vk::Fence>).name());
@@ -6632,11 +6631,6 @@ Method& currentMethod = currentClass->AddMethod(Method("OnModelChangedFromInspec
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VertexBufferHandle>("VertexBufferHandle"), true, false);
 }
 { 
-	Type* currentClass = ReflectionSystem::GetMutableType<List<VertexBufferData>>();
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
-	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<VertexBufferData>("VertexBufferData"), false, false);
-}
-{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<std::filesystem::path>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<std::filesystem::path>("std::filesystem::path"), false, false);
@@ -7281,7 +7275,10 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSys
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<VertexBufferData>();
 	{
-		Field& currentField = currentClass->AddField(Field("myOffset", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		Field& currentField = currentClass->AddField(Field("myByteOffset", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myByteSize", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
 }
 { 
@@ -10598,25 +10595,10 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAttributeDescriptions
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<VertexBufferSystem>();
 	{
-		Field& currentField = currentClass->AddField(Field("myUsedBufferSize", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myCurrentVertexOffset", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+		Field& currentField = currentClass->AddField(Field("myBuffer", -1, ReflectionSystem::GetOrCreateType<GPUDefragBuffer<VertexBufferData>>("GPUDefragBuffer<VertexBufferData>"), true, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myVertexBuffers", -1, ReflectionSystem::GetOrCreateType<List<VertexBufferHandle *>>("List<VertexBufferHandle *>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySparseVertexDataBuffer", -1, ReflectionSystem::GetOrCreateType<ResizableBuffer>("ResizableBuffer"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("mySparseVertexData_CPURepresentation", -1, ReflectionSystem::GetOrCreateType<List<VertexBufferData>>("List<VertexBufferData>"), false, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myFreeSparseIndices", -1, ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 {
@@ -10624,25 +10606,13 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
 VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
-const unsigned int& arg1 = *(const unsigned int*)inArguments[1];
+unsigned int& arg1 = *(unsigned int*)inArguments[1];
 VertexBufferHandle * result = instance->UploadVertexBuffer(arg0, arg1);
 return (void*)result;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inStagingBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *")));
-arguments.Add(MethodArgument("inVertexCount", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("UploadVertexBuffer", ReflectionSystem::GetOrCreateType<VertexBufferHandle *>("VertexBufferHandle *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
-const List<Vertex> & arg0 = *(const List<Vertex>*)inArguments[0];
-VertexBufferHandle * result = instance->UploadVertexBuffer(arg0);
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inVertices", ReflectionSystem::GetOrCreateType<const List<Vertex> &>("const List<Vertex> &")));
+arguments.Add(MethodArgument("inVertexCount", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
 Method& currentMethod = currentClass->AddMethod(Method("UploadVertexBuffer", ReflectionSystem::GetOrCreateType<VertexBufferHandle *>("VertexBufferHandle *"), invoker, arguments));
 }
 {
@@ -10661,16 +10631,6 @@ Method& currentMethod = currentClass->AddMethod(Method("RemoveVertexBuffer", Ref
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
-static thread_local unsigned int result = instance->GetUsedBufferSize();
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetUsedBufferSize", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
 VertexBufferHandle * arg0 = (VertexBufferHandle*)inArguments[0];
 static thread_local unsigned int result = instance->GetVertexOffsetFromVertexHandle(arg0);
 return (void*)&result;
@@ -10678,6 +10638,18 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<VertexBufferHandle *>("VertexBufferHandle *")));
 Method& currentMethod = currentClass->AddMethod(Method("GetVertexOffsetFromVertexHandle", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
+instance->Defrag(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMaxMoves", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("Defrag", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 

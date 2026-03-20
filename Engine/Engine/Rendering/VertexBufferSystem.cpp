@@ -1,127 +1,72 @@
-﻿#include "EnginePch.h"
+#include "EnginePch.h"
 #include "VertexBufferSystem.h"
 
 #include "GPUResourceManager.h"
-#include "Engine/Engine.h"
-#include "RenderSystem.h"
 #include "VertexBufferHandle.h"
-#include "Engine/Utils/MathUtils.hpp"
-#include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
+
+static_assert(sizeof(Vertex) == VERTEX_STRIDE_BYTES, "VERTEX_STRIDE_BYTES in MeshStructs.hpp is out of date. Update it to match sizeof(Vertex).");
 
 VertexBufferSystem::VertexBufferSystem()
 {
-    myBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("Global Vertex Buffer",
-        vk::BufferCreateInfo()
+    const vk::BufferCreateInfo denseInfo = vk::BufferCreateInfo()
         .setSize(sizeof(Vertex) * 16)
-        .setUsage(vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst| vk::BufferUsageFlagBits::eTransferSrc)
-        , VMA_MEMORY_USAGE_AUTO,
-        false));
+        .setUsage(vk::BufferUsageFlagBits::eVertexBuffer
+                | vk::BufferUsageFlagBits::eTransferDst
+                | vk::BufferUsageFlagBits::eTransferSrc); // eTransferSrc required for defrag MoveData
 
-    mySparseVertexDataBuffer = new ResizableBuffer(VulkanAllocator::AllocateBuffer_TS("Global Sparse Vertex Data Buffer",
-      vk::BufferCreateInfo()
-      .setSize(sizeof(VertexBufferData) * 16)
-      .setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst| vk::BufferUsageFlagBits::eTransferSrc)
-      , VMA_MEMORY_USAGE_AUTO,
-      false));
-    
+    const vk::BufferCreateInfo sparseInfo = vk::BufferCreateInfo()
+        .setSize(sizeof(VertexBufferData) * 16)
+        .setUsage(vk::BufferUsageFlagBits::eStorageBuffer
+                | vk::BufferUsageFlagBits::eTransferDst
+                | vk::BufferUsageFlagBits::eTransferSrc);
+
+    myBuffer = new GPUDefragBuffer<VertexBufferData>(
+        denseInfo,  "Global Vertex Buffer",
+        sparseInfo, "Global Sparse Vertex Data Buffer",
+        VMA_MEMORY_USAGE_AUTO);
+
     GPUResourceManager::Get()->RegisterBuffer<Vertex>(myBuffer);
-    GPUResourceManager::Get()->RegisterBuffer<VertexBufferData>(mySparseVertexDataBuffer);
+    GPUResourceManager::Get()->RegisterBuffer<VertexBufferData>(myBuffer->GetSparseBuffer());
 }
 
 VertexBufferSystem::~VertexBufferSystem()
 {
-    myUsedBufferSize = 0;
+    for (VertexBufferHandle* handle : myVertexBuffers)
+        del(handle);
 
-    for(VertexBufferHandle* vertexBuffer : myVertexBuffers)
-    {
-        del(vertexBuffer);
-    }
     myVertexBuffers.Clear();
+
+    delete myBuffer;
+    myBuffer = nullptr;
 }
 
 VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount)
 {
     check(inVertexCount > 0);
 
-    // Updload the new data to the vertex data buffer.
-    uint dataIndex = -1;
-    if(!myFreeSparseIndices.IsEmpty())
-    {
-        dataIndex = myFreeSparseIndices.Last();
-        myFreeSparseIndices.RemoveLast();
-    }
-    else
-    {
-        dataIndex = mySparseVertexData_CPURepresentation.size();
-        mySparseVertexData_CPURepresentation.Emplace();
-    }
-    
-    VertexBufferData& data = mySparseVertexData_CPURepresentation[dataIndex];
-    data.myOffset = myCurrentVertexOffset;
+    const uint byteSize = inVertexCount * sizeof(Vertex);
+    const auto handle   = myBuffer->AllocateFromStagingBuffer(inStagingBuffer, byteSize, sizeof(Vertex));
 
-    // Upload the new vertices.
-    const uint sizeIncrease = inVertexCount * sizeof(Vertex);
-    const uint requiredSize = myUsedBufferSize + sizeIncrease;
-    
-    myBuffer->CopyDataFromBuffer(inStagingBuffer, sizeIncrease, myUsedBufferSize);
-    mySparseVertexDataBuffer->SetData(&data, sizeof(VertexBufferData), sizeof(VertexBufferData) * dataIndex);
-    
-    myUsedBufferSize += sizeIncrease;
-    myCurrentVertexOffset += inVertexCount;
-
-    VertexBufferHandle* buffer = new VertexBufferHandle();
-    myVertexBuffers.Add(buffer);
-    buffer->myIndex = dataIndex;
-    
-    return buffer;
-}
-
-VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(const List<Vertex>& inVertices)
-{
-    ZoneScoped;
-    check(false && "Not sure this is working with the new sparse buffer system. Check and fix before using.");
-
-    // Upload the new data to the vertex data buffer.
-    uint dataIndex = -1;
-    if(!myFreeSparseIndices.IsEmpty())
-    {
-        dataIndex = myFreeSparseIndices.Last();
-        myFreeSparseIndices.RemoveLast();
-    }
-    else
-    {
-        dataIndex = mySparseVertexData_CPURepresentation.size();
-        mySparseVertexData_CPURepresentation.Emplace();
-    }
-    
-    VertexBufferData& data = mySparseVertexData_CPURepresentation[dataIndex];
-    data.myOffset = myCurrentVertexOffset;
-    
-    const uint sizeIncrease = inVertices.size() * sizeof(Vertex);
-    const uint requiredSize = myUsedBufferSize + sizeIncrease;
-    myBuffer->SetData(inVertices.data(), sizeIncrease, myUsedBufferSize);
-
-    myUsedBufferSize += sizeIncrease;
-    myCurrentVertexOffset += static_cast<uint>(inVertices.size());
-
-    VertexBufferHandle* buffer = new VertexBufferHandle();
-    myVertexBuffers.Add(buffer);
-    buffer->myIndex = dataIndex;
-    return buffer;
+    VertexBufferHandle* bufferHandle = new VertexBufferHandle();
+    bufferHandle->myIndex = handle.mySparseIndex;
+    myVertexBuffers.Add(bufferHandle);
+    return bufferHandle;
 }
 
 void VertexBufferSystem::RemoveVertexBuffer(const VertexBufferHandle* inBuffer)
 {
-    LOG_WARNING("VertexBufferSubsystem::RemoveVertexBuffer not implemented.");
-}
-
-uint VertexBufferSystem::GetUsedBufferSize() const
-{
-    return myUsedBufferSize;    
+    myBuffer->Deallocate({ inBuffer->myIndex });
+    myVertexBuffers.Remove(const_cast<VertexBufferHandle*>(inBuffer));
+    del(inBuffer);
 }
 
 uint VertexBufferSystem::GetVertexOffsetFromVertexHandle(VertexBufferHandle* inBuffer) const
 {
-    return mySparseVertexData_CPURepresentation[inBuffer->myIndex].myOffset;
+    return myBuffer->GetSparseEntry({ inBuffer->myIndex }).myByteOffset / sizeof(Vertex);
+}
+
+void VertexBufferSystem::Defrag(const uint inMaxMoves)
+{
+    myBuffer->Defrag(inMaxMoves);
 }

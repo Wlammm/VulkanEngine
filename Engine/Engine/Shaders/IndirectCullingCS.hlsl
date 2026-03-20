@@ -61,7 +61,7 @@ void CSMain(uint3 dispatchThreadID : SV_DispatchThreadID)
             outIndirectBuffer[renderIndex].firstInstance = 0;
             outIndirectBuffer[renderIndex].instanceCount = 1;
             outIndirectBuffer[renderIndex].indexCount    = indexData.myCount;
-            outIndirectBuffer[renderIndex].vertexOffset = (int)vertexData.myOffset;
+            outIndirectBuffer[renderIndex].vertexOffset = (int)(vertexData.myByteOffset / VERTEX_STRIDE_BYTES);
             outIndirectBuffer[renderIndex].firstIndex   = indexData.myOffset;
         
             outPerDrawData[renderIndex].myAlbedoIndex   = instanceData.myAlbedoIndex;

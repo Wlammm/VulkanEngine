@@ -89,9 +89,14 @@ struct MeshData
     ALIGNAS(4) uint myMaterialIndex; // TODO: Is this even used?
 };
 
+// Byte stride of a single Vertex. Must match sizeof(Vertex) — enforced by static_assert in VertexBufferSystem.cpp.
+// Used in shaders to convert myByteOffset to a vertex-count firstVertex.
+static const uint VERTEX_STRIDE_BYTES = 68;
+
 struct VertexBufferData
 {
-    ALIGNAS(4) uint myOffset;
+    ALIGNAS(4) uint myByteOffset DEFAULT_TO(0); // byte offset into the global vertex buffer
+    ALIGNAS(4) uint myByteSize   DEFAULT_TO(0); // byte size of this mesh's vertex data
 };
 
 struct IndexBufferData

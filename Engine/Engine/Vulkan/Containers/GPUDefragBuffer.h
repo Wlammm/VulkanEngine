@@ -130,6 +130,41 @@ public:
     }
 
     /*
+     * Same as Allocate but copies from a GPU staging buffer instead of CPU memory.
+     * Use this when the source data is already in a VulkanBuffer (e.g. from the StagingSystem).
+     */
+    Handle AllocateFromStagingBuffer(VulkanBuffer* inStagingBuffer, const uint inByteSize, const uint inAlignment = 4)
+    {
+        check(inByteSize > 0);
+
+        const uint denseOffset = FindOrGrowDense(inByteSize, inAlignment);
+
+        uint sparseIndex;
+        if (!myFreeSparseIndices.IsEmpty())
+        {
+            sparseIndex = myFreeSparseIndices.Last();
+            myFreeSparseIndices.RemoveLast();
+        }
+        else
+        {
+            sparseIndex = static_cast<uint>(mySparseEntries_CPU.size());
+            mySparseEntries_CPU.Emplace();
+            mySparseBuffer.Add(SparseEntryType{});
+        }
+
+        SparseEntryType& entry = mySparseEntries_CPU[sparseIndex];
+        entry.myByteOffset = denseOffset;
+        entry.myByteSize   = inByteSize;
+        mySparseBuffer.SetDataAtIndex(entry, sparseIndex);
+
+        myDenseBuffer->CopyDataFromBuffer(inStagingBuffer, inByteSize, denseOffset);
+
+        myAllocatedBlocks.Add({ denseOffset, inByteSize, sparseIndex });
+
+        return Handle{ sparseIndex };
+    }
+
+    /*
      * Frees the allocation associated with the handle.
      * The handle becomes invalid and must not be used again.
      */

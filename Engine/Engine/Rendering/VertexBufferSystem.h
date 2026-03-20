@@ -1,40 +1,31 @@
-﻿#pragma once
+#pragma once
 #include "Vertex.hpp"
 #include "Engine/System/System.h"
-#include "Engine/Vulkan/ResizableBuffer.h"
 #include "Engine/Shaders/Shared/MeshStructs.hpp"
+#include "Engine/Vulkan/Containers/GPUDefragBuffer.h"
 
 class VertexBufferHandle;
 class VulkanBuffer;
 
 /*
- *  This systems handles all vertex buffers for the game. It works by storing all vertex buffers in one big vertex buffer and then using offsets and count when rendering.
- *  It also has another sparse buffer which keeps track of this data. This buffer can then update the offsets in that buffer whenever we remove a vertex buffer and copy
- *  move the vertices in the big buffer. The data are set on a specific index which is why its a sparse buffer.
+ *  This system manages all vertex data for the game in a single GPU buffer.
+ *  Backed by a GPUDefragBuffer which provides stable handles, free-list allocation,
+ *  and incremental defragmentation.
  */
 class VertexBufferSystem : public System
 {
 public:
     VertexBufferSystem();
     ~VertexBufferSystem();
-    
-    VertexBufferHandle* UploadVertexBuffer(VulkanBuffer* inStagingBuffer, const uint inVertexCount);
-    VertexBufferHandle* UploadVertexBuffer(const List<Vertex>& inVertices);
+
+    VertexBufferHandle* UploadVertexBuffer(VulkanBuffer* inStagingBuffer, uint inVertexCount);
     void RemoveVertexBuffer(const VertexBufferHandle* inBuffer);
 
-    uint GetUsedBufferSize() const;
-
     uint GetVertexOffsetFromVertexHandle(VertexBufferHandle* inBuffer) const;
-    
-private:
-    uint myUsedBufferSize = 0;
-    uint myCurrentVertexOffset = 0;
 
+    void Defrag(uint inMaxMoves);
+
+private:
+    GPUDefragBuffer<VertexBufferData>* myBuffer = nullptr;
     List<VertexBufferHandle*> myVertexBuffers;
-    ResizableBuffer* myBuffer = nullptr;
-    
-    // This buffer contains the offsets & sizes for different meshes. This is a sparse buffer.
-    ResizableBuffer* mySparseVertexDataBuffer;
-    List<VertexBufferData> mySparseVertexData_CPURepresentation;
-    List<uint> myFreeSparseIndices;
 };
