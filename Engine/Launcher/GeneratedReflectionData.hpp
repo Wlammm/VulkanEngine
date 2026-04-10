@@ -9265,6 +9265,16 @@ Method& currentMethod = currentClass->AddMethod(Method("CalculateSphereBounds", 
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 RenderGraph* instance = static_cast<RenderGraph*>(inInstance);
+instance->DestroyRenderPasses();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("DestroyRenderPasses", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderGraph* instance = static_cast<RenderGraph*>(inInstance);
 IRenderPass * arg0 = (IRenderPass*)inArguments[0];
 instance->AddPass(arg0);
 return nullptr;

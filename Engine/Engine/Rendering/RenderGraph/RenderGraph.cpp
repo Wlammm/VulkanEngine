@@ -1,7 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "RenderGraph.h"
 
-RenderGraph::~RenderGraph()
+void RenderGraph::DestroyRenderPasses()
 {
     for (IRenderPass* pass : myPasses)
     {

@@ -8,7 +8,7 @@ class IRenderPass;
 class RenderGraph
 {
 public:
-    ~RenderGraph();
+    void DestroyRenderPasses();
     
     void AddPass(IRenderPass* inRenderPass);
     

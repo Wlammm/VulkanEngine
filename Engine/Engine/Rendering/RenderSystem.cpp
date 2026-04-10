@@ -1,5 +1,8 @@
 ﻿#include "EnginePch.h"
 #include "RenderSystem.h"
+#if DEBUG
+#include <stacktrace>
+#endif
 
 #include "GPUResourceManager.h"
 #include "Engine/Engine.h"
@@ -44,6 +47,8 @@ RenderSystem::~RenderSystem()
 {
 	myInstance = nullptr;
 	VulkanSwapChain::OnSwapChainResized.UnBind(&RenderSystem::OnSwapChainResize,this);
+
+	DestroyRenderPasses();
 	
 	// Flush out remaining upload commands as there might still be buffers waiting destruction in them.
 	FlushUploadCommands();
@@ -101,6 +106,7 @@ void RenderSystem::OnSwapChainResize()
 {
 	FlushUploadCommands();
 	VulkanContext::GetDevice()->waitIdle();
+	DestroyRenderPasses();
 	DestroyRenderResources();
 	CreateRenderResources();
 }
@@ -155,12 +161,18 @@ VulkanCommandBuffer* RenderSystem::CreateUploadCommandBuffer_TS()
 {
 	VulkanCommandBuffer* commandBuffer = VulkanContext::GetDevice().CreateCommandBuffer(true, true);
 #if DEBUG
+	std::string debugName = "Upload command buffer";
+	if (myCaptureUploadCmdBufferCallstacks)
+	{
+		debugName += '\n';
+		debugName += std::to_string(std::stacktrace::current(1));
+	}
 	VulkanContext::GetDevice()->setDebugUtilsObjectNameEXT(vk::DebugUtilsObjectNameInfoEXT()
 														   .setObjectHandle(VulkanContext::GetVulkanHandle(commandBuffer->GetAPIResource()))
-														   .setPObjectName("Upload command buffer")
+														   .setPObjectName(debugName.c_str())
 														   .setObjectType(vk::ObjectType::eCommandBuffer));
 #endif
-	
+
 	return commandBuffer;
 }
 
@@ -382,8 +394,7 @@ void RenderSystem::DestroyRenderResources()
 	VulkanAllocator::DestroyImage_TS(myResolvedRenderTexture);
 	VulkanAllocator::DestroyImage_TS(myDepthBuffer);
 	VulkanAllocator::DestroyImage_TS(myResolvedDepthTexture);
-	DestroyRenderPasses();
-	
+	del(myRenderGraph);
 	VulkanAllocator::DestroyBuffer_TS(myCountBuffer);
 }
 
@@ -404,7 +415,7 @@ void RenderSystem::CreateRenderPasses()
 
 void RenderSystem::DestroyRenderPasses()
 {
-	del(myRenderGraph);
+	myRenderGraph->DestroyRenderPasses();
 }
 
 void RenderSystem::CreateRenderTextures()

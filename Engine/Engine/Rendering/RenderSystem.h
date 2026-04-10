@@ -76,6 +76,14 @@ private:
     
     inline static std::recursive_mutex myUploadMutex;
     inline static List<UploadCommand> myQueuedUploadCommandBuffers;
+
+#if DEBUG
+public:
+    // When enabled, the creation callstack is appended to the Vulkan debug name of each upload
+    // command buffer so you can identify which allocation is leaking at shutdown.
+    inline static bool myCaptureUploadCmdBufferCallstacks = false;
+private:
+#endif
     
     // This is a resolved render texture that has a MSAA count of 1. This is required so we can use it as input to imgui for the editor viewport. 
     class VulkanImage* myResolvedRenderTexture = nullptr;
