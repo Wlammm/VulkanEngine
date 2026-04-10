@@ -11,6 +11,7 @@
 #include "Engine/Utils/ActorUtils.h"
 #include "Engine/Utils/String.hpp"
 #include "Engine/World/World.h"
+#include "Engine/Vulkan/VulkanImGui.h"
 #include "World/EditorWorld.h"
 
 HierarchyWindow::HierarchyWindow()
@@ -20,7 +21,7 @@ HierarchyWindow::HierarchyWindow()
 
 void HierarchyWindow::Tick()
 {
-    ImGui::BeginChild("##HierarchySearchField", ImVec2(0, 20), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    ImGui::BeginChild("##HierarchySearchField", ImVec2(0, 20.f * VulkanImGui::GetCurrentDpiScale()), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
     
     static std::string searchField = "";
     ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 0.5f);
