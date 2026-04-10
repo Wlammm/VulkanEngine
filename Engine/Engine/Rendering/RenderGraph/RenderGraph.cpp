@@ -35,11 +35,12 @@ void RenderGraph::InsertResourceBarriers(vk::CommandBuffer inCommandBuffer, cons
 {
     List<vk::ImageMemoryBarrier> imageBarriers;
     List<vk::BufferMemoryBarrier> bufferBarriers;
-            
+    List<vk::MemoryBarrier> memoryBarriers;
+
     // TODO(performance): These should be remembered from last passes use but for now this is fine.
     vk::PipelineStageFlags srcStageMask = vk::PipelineStageFlagBits::eTopOfPipe;
     vk::PipelineStageFlags dstStageMask = vk::PipelineStageFlagBits::eBottomOfPipe;
-        
+
     for (const ResourceUsage& usage : inResourceUsages)
     {
         if (usage.myImage)
@@ -50,16 +51,19 @@ void RenderGraph::InsertResourceBarriers(vk::CommandBuffer inCommandBuffer, cons
         {
             HandleBufferBarrier(usage, bufferBarriers, srcStageMask, dstStageMask);
         }
+        else if (usage.myAccelerationStructure)
+        {
+            HandleAccelerationStructureBarrier(usage, memoryBarriers, srcStageMask, dstStageMask);
+        }
     }
-        
-    if (!imageBarriers.IsEmpty() || !bufferBarriers.IsEmpty())
+
+    if (!imageBarriers.IsEmpty() || !bufferBarriers.IsEmpty() || !memoryBarriers.IsEmpty())
     {
-        // Optimization: You can refine stage masks here based on the collected barriers
         inCommandBuffer.pipelineBarrier(
-            srcStageMask, // Calculated in Handle functions
-            dstStageMask, 
+            srcStageMask,
+            dstStageMask,
             vk::DependencyFlags(),
-            0, nullptr,
+            static_cast<uint32_t>(memoryBarriers.size()), memoryBarriers.data(),
             static_cast<uint32_t>(bufferBarriers.size()), bufferBarriers.data(),
             static_cast<uint32_t>(imageBarriers.size()), imageBarriers.data()
         );
@@ -117,29 +121,28 @@ void RenderGraph::HandleImageBarrier(
     }
 
 void RenderGraph::HandleBufferBarrier(
-    const ResourceUsage& inUsage, 
+    const ResourceUsage& inUsage,
     List<vk::BufferMemoryBarrier>& outBarriers,
-    vk::PipelineStageFlags& inOutSrcGlobal, 
+    vk::PipelineStageFlags& inOutSrcGlobal,
     vk::PipelineStageFlags& inOutDstGlobal)
 {
     ResourceState& currentState = myGlobalResourceState[inUsage.myBuffer->GetBuffer()];
-    
+
     bool accessHazard = false;
-    if (currentState.myAccessFlags != vk::AccessFlagBits::eNone) // If previously accessed
+    if (currentState.myAccessFlags != vk::AccessFlagBits::eNone)
     {
-        // Simplified hazard check: If either new or old was a write, we need a barrier.
         bool prevWasWrite = (currentState.myAccessFlags & (vk::AccessFlagBits::eMemoryWrite | vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eTransferWrite)) != vk::AccessFlagBits::eNone;
         bool newIsWrite = !inUsage.myIsReadOnly;
-             
-        if (prevWasWrite || newIsWrite) 
+
+        if (prevWasWrite || newIsWrite)
             accessHazard = true;
     }
-        
+
     if (accessHazard)
     {
         vk::BufferMemoryBarrier barrier{};
-        barrier.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED) // Future: currentState.queueFamily
-               .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED) // Future: inUsage.requiredState.queueFamily
+        barrier.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+               .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
                .setBuffer(inUsage.myBuffer->GetBuffer()->GetAPIResource())
                .setSrcAccessMask(currentState.myAccessFlags)
                .setDstAccessMask(inUsage.myRequiredState.myAccessFlags)
@@ -147,12 +150,51 @@ void RenderGraph::HandleBufferBarrier(
 
         outBarriers.Add(barrier);
 
-        if(currentState.myStage == vk::PipelineStageFlags(0))
+        if (currentState.myStage == vk::PipelineStageFlags(0))
             currentState.myStage = vk::PipelineStageFlagBits::eTopOfPipe;
-            
+
         inOutSrcGlobal |= currentState.myStage;
         inOutDstGlobal |= inUsage.myRequiredState.myStage;
     }
-    
+
+    currentState = inUsage.myRequiredState;
+}
+
+void RenderGraph::HandleAccelerationStructureBarrier(
+    const ResourceUsage& inUsage,
+    List<vk::MemoryBarrier>& outBarriers,
+    vk::PipelineStageFlags& inOutSrcGlobal,
+    vk::PipelineStageFlags& inOutDstGlobal)
+{
+    // Acceleration structures have no dedicated barrier type — use a global memory barrier.
+    // The state is keyed on the raw VkAccelerationStructureKHR handle.
+    void* key = static_cast<VkAccelerationStructureKHR>(inUsage.myAccelerationStructure);
+    ResourceState& currentState = myGlobalResourceState[key];
+
+    bool accessHazard = false;
+    if (currentState.myAccessFlags != vk::AccessFlagBits::eNone)
+    {
+        bool prevWasWrite = (currentState.myAccessFlags & vk::AccessFlagBits::eAccelerationStructureWriteKHR) != vk::AccessFlagBits::eNone;
+        bool newIsWrite   = !inUsage.myIsReadOnly;
+
+        if (prevWasWrite || newIsWrite)
+            accessHazard = true;
+    }
+
+    if (accessHazard)
+    {
+        vk::MemoryBarrier barrier{};
+        barrier.setSrcAccessMask(currentState.myAccessFlags)
+               .setDstAccessMask(inUsage.myRequiredState.myAccessFlags);
+
+        outBarriers.Add(barrier);
+
+        if (currentState.myStage == vk::PipelineStageFlags(0))
+            currentState.myStage = vk::PipelineStageFlagBits::eTopOfPipe;
+
+        inOutSrcGlobal |= currentState.myStage;
+        inOutDstGlobal |= inUsage.myRequiredState.myStage;
+    }
+
     currentState = inUsage.myRequiredState;
 }

@@ -3,15 +3,17 @@
 #include "Engine/System/System.h"
 #include "Engine/Vulkan/Containers/IGPUBuffer.hpp"
 
+class VulkanBuffer;
+
 class GPUResourceManager : public System
 {
     inline static GPUResourceManager* myInstance = nullptr;
 public:
     static GPUResourceManager* Get() { return myInstance; }
-    
+
     GPUResourceManager();
     ~GPUResourceManager();
-    
+
     struct BufferResource
     {
         IGPUBuffer* myBuffer;
@@ -20,7 +22,15 @@ public:
         bool myIsOwned = true;
         Delegate<void(BufferResource& inResource)> myTickFunction;
     };
-    
+
+    struct AccelerationStructureResource
+    {
+        vk::AccelerationStructureKHR myAccelerationStructure{};
+        VulkanBuffer* myBuffer = nullptr;
+        List<std::string> myShaderAliases;
+        bool myIsOwned = false;
+    };
+
     void Tick();
     
     /*
@@ -58,6 +68,14 @@ public:
     // Lifetime is managed by the caller — GPUResourceManager will NOT destroy it.
     void RegisterBuffer(IGPUBuffer* inBuffer, List<std::string> inShaderAliases);
 
+    // Register an acceleration structure. When inIsOwned is true, the manager will destroy
+    // the AS and its backing buffer on shutdown.
+    void RegisterAccelerationStructure(vk::AccelerationStructureKHR inAS, VulkanBuffer* inBuffer,
+                                       List<std::string> inShaderAliases, bool inIsOwned = false);
+
+    vk::AccelerationStructureKHR GetAccelerationStructure(const std::string& inAlias) const;
+    vk::AccelerationStructureKHR TryGetAccelerationStructure(const std::string& inAlias) const;
+
     template <typename T>
     IGPUBuffer* GetBuffer() const
     {
@@ -74,4 +92,5 @@ public:
 private:
     List<BufferResource> myBuffers;
     List<BufferResource> myTickableBuffers;
+    List<AccelerationStructureResource> myAccelerationStructures;
 };

@@ -21,8 +21,10 @@ public:
     
 private:
     void HandleImageBarrier(const ResourceUsage& inUsage, List<vk::ImageMemoryBarrier>& outBarriers, vk::PipelineStageFlags& inOutSrcGlobal, vk::PipelineStageFlags& inOutDstGlobal);
-    
+
     void HandleBufferBarrier(const ResourceUsage& inUsage, List<vk::BufferMemoryBarrier>& outBarriers, vk::PipelineStageFlags& inOutSrcGlobal, vk::PipelineStageFlags& inOutDstGlobal);
+
+    void HandleAccelerationStructureBarrier(const ResourceUsage& inUsage, List<vk::MemoryBarrier>& outBarriers, vk::PipelineStageFlags& inOutSrcGlobal, vk::PipelineStageFlags& inOutDstGlobal);
     
 private:
     List<IRenderPass*> myPasses;

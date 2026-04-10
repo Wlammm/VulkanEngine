@@ -292,6 +292,7 @@ ReflectionSystem::AddType<List<Component *>>("List<Component *>", typeid(List<Co
 ReflectionSystem::AddType<List<std::thread>>("List<std::thread>", typeid(List<std::thread>).name());
 ReflectionSystem::AddType<List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>>("List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>", typeid(List<Delegate<void (physx::PxPhysics *, physx::PxScene *)>>).name());
 ReflectionSystem::AddType<List<GPUResourceManager::BufferResource>>("List<GPUResourceManager::BufferResource>", typeid(List<GPUResourceManager::BufferResource>).name());
+ReflectionSystem::AddType<List<GPUResourceManager::AccelerationStructureResource>>("List<GPUResourceManager::AccelerationStructureResource>", typeid(List<GPUResourceManager::AccelerationStructureResource>).name());
 ReflectionSystem::AddType<List<IndexBufferHandle *>>("List<IndexBufferHandle *>", typeid(List<IndexBufferHandle *>).name());
 ReflectionSystem::AddType<List<IndexBufferData>>("List<IndexBufferData>", typeid(List<IndexBufferData>).name());
 ReflectionSystem::AddType<List<ResourceUsage>>("List<ResourceUsage>", typeid(List<ResourceUsage>).name());
@@ -422,6 +423,7 @@ ReflectionSystem::AddType<AutoInitManager>("AutoInitManager", typeid(AutoInitMan
 ReflectionSystem::AddType<Input>("Input", typeid(Input).name());
 ReflectionSystem::AddType<GPUResourceManager>("GPUResourceManager", typeid(GPUResourceManager).name());
 ReflectionSystem::AddType<GPUResourceManager::BufferResource>("GPUResourceManager::BufferResource", typeid(GPUResourceManager::BufferResource).name());
+ReflectionSystem::AddType<GPUResourceManager::AccelerationStructureResource>("GPUResourceManager::AccelerationStructureResource", typeid(GPUResourceManager::AccelerationStructureResource).name());
 ReflectionSystem::AddType<Random>("Random", typeid(Random).name());
 ReflectionSystem::AddType<Time>("Time", typeid(Time).name());
 ReflectionSystem::AddType<Awaitable>("Awaitable", typeid(Awaitable).name());
@@ -1539,6 +1541,11 @@ Method& currentMethod = currentClass->AddMethod(Method("HasStartupArgument", Ref
 	Type* currentClass = ReflectionSystem::GetMutableType<List<GPUResourceManager::BufferResource>>();
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
 	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<GPUResourceManager::BufferResource>("GPUResourceManager::BufferResource"), false, false);
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<List<GPUResourceManager::AccelerationStructureResource>>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IList>());
+	currentClass->AddTemplateArgument(ReflectionSystem::GetOrCreateType<GPUResourceManager::AccelerationStructureResource>("GPUResourceManager::AccelerationStructureResource"), false, false);
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<List<IndexBufferHandle *>>();
@@ -4815,6 +4822,9 @@ Method& currentMethod = currentClass->AddMethod(Method("IsOnMainThread", Reflect
 		Field& currentField = currentClass->AddField(Field("myBuffer", -1, ReflectionSystem::GetOrCreateType<IGPUBuffer>("IGPUBuffer"), true, false));
 	}
 	{
+		Field& currentField = currentClass->AddField(Field("myAccelerationStructure", -1, ReflectionSystem::GetOrCreateType<vk::AccelerationStructureKHR>("vk::AccelerationStructureKHR"), false, false));
+	}
+	{
 		Field& currentField = currentClass->AddField(Field("myRequiredState", -1, ReflectionSystem::GetOrCreateType<ResourceState>("ResourceState"), false, false));
 	}
 	{
@@ -4853,6 +4863,22 @@ arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<IGPUB
 arguments.Add(MethodArgument("inStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::PipelineStageFlagBits>>("vk::Flags<vk::PipelineStageFlagBits>")));
 arguments.Add(MethodArgument("inAccessFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
 Method& currentMethod = currentClass->AddMethod(Method("SetToBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ResourceUsage* instance = static_cast<ResourceUsage*>(inInstance);
+vk::AccelerationStructureKHR& arg0 = *(vk::AccelerationStructureKHR*)inArguments[0];
+vk::Flags<vk::PipelineStageFlagBits>& arg1 = *(vk::Flags<vk::PipelineStageFlagBits>*)inArguments[1];
+vk::Flags<vk::AccessFlagBits>& arg2 = *(vk::Flags<vk::AccessFlagBits>*)inArguments[2];
+instance->SetToAccelerationStructure(arg0, arg1, arg2);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inAS", ReflectionSystem::GetOrCreateType<vk::AccelerationStructureKHR>("vk::AccelerationStructureKHR")));
+arguments.Add(MethodArgument("inStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::PipelineStageFlagBits>>("vk::Flags<vk::PipelineStageFlagBits>")));
+arguments.Add(MethodArgument("inAccessFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
+Method& currentMethod = currentClass->AddMethod(Method("SetToAccelerationStructure", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -8241,6 +8267,9 @@ Method& currentMethod = currentClass->AddMethod(Method("EndFrame", ReflectionSys
 	{
 		Field& currentField = currentClass->AddField(Field("myTickableBuffers", -1, ReflectionSystem::GetOrCreateType<List<GPUResourceManager::BufferResource>>("List<GPUResourceManager::BufferResource>"), false, false));
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAccelerationStructures", -1, ReflectionSystem::GetOrCreateType<List<GPUResourceManager::AccelerationStructureResource>>("List<GPUResourceManager::AccelerationStructureResource>"), false, false));
+	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8275,6 +8304,48 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<IGPUBuffer *>("IGPUBuffer *")));
 arguments.Add(MethodArgument("inShaderAliases", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>")));
 Method& currentMethod = currentClass->AddMethod(Method("RegisterBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUResourceManager* instance = static_cast<GPUResourceManager*>(inInstance);
+vk::AccelerationStructureKHR& arg0 = *(vk::AccelerationStructureKHR*)inArguments[0];
+VulkanBuffer * arg1 = (VulkanBuffer*)inArguments[1];
+List<std::basic_string<char>>& arg2 = *(List<std::basic_string<char>>*)inArguments[2];
+bool& arg3 = *(bool*)inArguments[3];
+instance->RegisterAccelerationStructure(arg0, arg1, arg2, arg3);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inAS", ReflectionSystem::GetOrCreateType<vk::AccelerationStructureKHR>("vk::AccelerationStructureKHR")));
+arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *")));
+arguments.Add(MethodArgument("inShaderAliases", ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>")));
+arguments.Add(MethodArgument("inIsOwned", ReflectionSystem::GetOrCreateType<bool>("bool")));
+Method& currentMethod = currentClass->AddMethod(Method("RegisterAccelerationStructure", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUResourceManager* instance = static_cast<GPUResourceManager*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local vk::AccelerationStructureKHR result = instance->GetAccelerationStructure(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inAlias", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("GetAccelerationStructure", ReflectionSystem::GetOrCreateType<vk::AccelerationStructureKHR>("vk::AccelerationStructureKHR"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GPUResourceManager* instance = static_cast<GPUResourceManager*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+static thread_local vk::AccelerationStructureKHR result = instance->TryGetAccelerationStructure(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inAlias", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("TryGetAccelerationStructure", ReflectionSystem::GetOrCreateType<vk::AccelerationStructureKHR>("vk::AccelerationStructureKHR"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8341,6 +8412,21 @@ Method& currentMethod = currentClass->AddMethod(Method("GetBuffer", ReflectionSy
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myTickFunction", -1, ReflectionSystem::GetOrCreateType<Delegate<void (GPUResourceManager::BufferResource &)>>("Delegate<void (GPUResourceManager::BufferResource &)>"), false, false));
+	}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<GPUResourceManager::AccelerationStructureResource>();
+	{
+		Field& currentField = currentClass->AddField(Field("myAccelerationStructure", -1, ReflectionSystem::GetOrCreateType<vk::AccelerationStructureKHR>("vk::AccelerationStructureKHR"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffer", -1, ReflectionSystem::GetOrCreateType<VulkanBuffer>("VulkanBuffer"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShaderAliases", -1, ReflectionSystem::GetOrCreateType<List<std::basic_string<char>>>("List<std::basic_string<char>>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myIsOwned", -1, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 }
 { 
