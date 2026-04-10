@@ -46,6 +46,36 @@ VKAPI_ATTR void VKAPI_CALL vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuf
 	return pfnVkCmdEndDebugUtilsLabelEXT(commandBuffer);
 }
 
+PFN_vkCreateAccelerationStructureKHR pfnVkCreateAccelerationStructureKHR;
+VKAPI_ATTR VkResult VKAPI_CALL vkCreateAccelerationStructureKHR(VkDevice device, const VkAccelerationStructureCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkAccelerationStructureKHR* pAccelerationStructure)
+{
+	return pfnVkCreateAccelerationStructureKHR(device, pCreateInfo, pAllocator, pAccelerationStructure);
+}
+
+PFN_vkDestroyAccelerationStructureKHR pfnVkDestroyAccelerationStructureKHR;
+VKAPI_ATTR void VKAPI_CALL vkDestroyAccelerationStructureKHR(VkDevice device, VkAccelerationStructureKHR accelerationStructure, const VkAllocationCallbacks* pAllocator)
+{
+	return pfnVkDestroyAccelerationStructureKHR(device, accelerationStructure, pAllocator);
+}
+
+PFN_vkCmdBuildAccelerationStructuresKHR pfnVkCmdBuildAccelerationStructuresKHR;
+VKAPI_ATTR void VKAPI_CALL vkCmdBuildAccelerationStructuresKHR(VkCommandBuffer commandBuffer, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos, const VkAccelerationStructureBuildRangeInfoKHR* const* ppBuildRangeInfos)
+{
+	return pfnVkCmdBuildAccelerationStructuresKHR(commandBuffer, infoCount, pInfos, ppBuildRangeInfos);
+}
+
+PFN_vkGetAccelerationStructureDeviceAddressKHR pfnVkGetAccelerationStructureDeviceAddressKHR;
+VKAPI_ATTR VkDeviceAddress VKAPI_CALL vkGetAccelerationStructureDeviceAddressKHR(VkDevice device, const VkAccelerationStructureDeviceAddressInfoKHR* pInfo)
+{
+	return pfnVkGetAccelerationStructureDeviceAddressKHR(device, pInfo);
+}
+
+PFN_vkGetAccelerationStructureBuildSizesKHR pfnVkGetAccelerationStructureBuildSizesKHR;
+VKAPI_ATTR void VKAPI_CALL vkGetAccelerationStructureBuildSizesKHR(VkDevice device, VkAccelerationStructureBuildTypeKHR buildType, const VkAccelerationStructureBuildGeometryInfoKHR* pBuildInfo, const uint32_t* pMaxPrimitiveCounts, VkAccelerationStructureBuildSizesInfoKHR* pSizeInfo)
+{
+	return pfnVkGetAccelerationStructureBuildSizesKHR(device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo);
+}
+
 VulkanContext::VulkanContext()
 {
 	check(!myInstance && "There can only be one vulkan context at the same time.");
@@ -67,6 +97,7 @@ VulkanContext::VulkanContext()
 	}
 	
 	myDevice = MakeUnique<VulkanDevice>(*myPhysicalDevice);
+	LoadAccelerationStructureFunctions();
 	myAllocator = MakeUnique<VulkanAllocator>(myVulkanInstance, *myPhysicalDevice, *myDevice);
 	mySwapChain = MakeUnique<VulkanSwapChain>(*myDevice);
 
@@ -265,6 +296,22 @@ void VulkanContext::CreateDescriptorPool()
 	vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo().setPoolSizes(poolSizes).setMaxSets(1000).setFlags(vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind);
 
 	myDescriptorPool = GetDevice()->createDescriptorPool(createInfo);
+}
+
+void VulkanContext::LoadAccelerationStructureFunctions()
+{
+	vk::Device device = myDevice->GetDevice();
+	pfnVkCreateAccelerationStructureKHR             = reinterpret_cast<PFN_vkCreateAccelerationStructureKHR>(device.getProcAddr("vkCreateAccelerationStructureKHR"));
+	pfnVkDestroyAccelerationStructureKHR            = reinterpret_cast<PFN_vkDestroyAccelerationStructureKHR>(device.getProcAddr("vkDestroyAccelerationStructureKHR"));
+	pfnVkCmdBuildAccelerationStructuresKHR          = reinterpret_cast<PFN_vkCmdBuildAccelerationStructuresKHR>(device.getProcAddr("vkCmdBuildAccelerationStructuresKHR"));
+	pfnVkGetAccelerationStructureDeviceAddressKHR   = reinterpret_cast<PFN_vkGetAccelerationStructureDeviceAddressKHR>(device.getProcAddr("vkGetAccelerationStructureDeviceAddressKHR"));
+	pfnVkGetAccelerationStructureBuildSizesKHR      = reinterpret_cast<PFN_vkGetAccelerationStructureBuildSizesKHR>(device.getProcAddr("vkGetAccelerationStructureBuildSizesKHR"));
+
+	check(pfnVkCreateAccelerationStructureKHR           && "Failed to load vkCreateAccelerationStructureKHR");
+	check(pfnVkDestroyAccelerationStructureKHR          && "Failed to load vkDestroyAccelerationStructureKHR");
+	check(pfnVkCmdBuildAccelerationStructuresKHR        && "Failed to load vkCmdBuildAccelerationStructuresKHR");
+	check(pfnVkGetAccelerationStructureDeviceAddressKHR && "Failed to load vkGetAccelerationStructureDeviceAddressKHR");
+	check(pfnVkGetAccelerationStructureBuildSizesKHR    && "Failed to load vkGetAccelerationStructureBuildSizesKHR");
 }
 
 vk::Bool32 VulkanContext::DebugMessageCallback(vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity, vk::DebugUtilsMessageTypeFlagsEXT messageType, const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)

@@ -25,13 +25,14 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	vulkan12Features.descriptorBindingPartiallyBound = VK_TRUE;
 	vulkan12Features.runtimeDescriptorArray = VK_TRUE;
 	vulkan12Features.descriptorBindingVariableDescriptorCount = VK_TRUE;
-	
+
 	vulkan12Features.scalarBlockLayout = VK_TRUE;
 	vulkan12Features.descriptorBindingStorageBufferUpdateAfterBind = VK_TRUE;
 	vulkan12Features.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
 	vulkan12Features.descriptorBindingUniformBufferUpdateAfterBind = VK_TRUE;
 	vulkan12Features.descriptorBindingStorageTexelBufferUpdateAfterBind = VK_TRUE;
 	vulkan12Features.descriptorBindingUniformTexelBufferUpdateAfterBind = VK_TRUE;
+	vulkan12Features.bufferDeviceAddress = VK_TRUE;
 	
 	vk::PhysicalDeviceVulkan13Features vulkan13Features{};
 	vulkan12Features.pNext = &vulkan13Features;
@@ -41,12 +42,16 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	vk::PhysicalDeviceVulkan11Features vulkan11Features{};
 	vulkan13Features.pNext = &vulkan11Features;
 	vulkan11Features.shaderDrawParameters = VK_TRUE;
-	
-	
+
+	vk::PhysicalDeviceAccelerationStructureFeaturesKHR accelerationStructureFeatures{};
+	vulkan11Features.pNext = &accelerationStructureFeatures;
+	accelerationStructureFeatures.accelerationStructure = VK_TRUE;
+
+
 	vk::DeviceDiagnosticsConfigCreateInfoNV aftermathInfo = {};
 	if(VulkanContext::GetAftermathTracker())
 	{
-		vulkan11Features.pNext = &aftermathInfo;
+		accelerationStructureFeatures.pNext = &aftermathInfo;
 		vk::DeviceDiagnosticsConfigFlagsNV aftermathFlags =
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableResourceTracking |
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableAutomaticCheckpoints |

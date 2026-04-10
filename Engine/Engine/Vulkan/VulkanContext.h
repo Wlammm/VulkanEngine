@@ -40,6 +40,7 @@ private:
 	void DestroyDebugLayer();
 
 	void CreateDescriptorPool();
+	void LoadAccelerationStructureFunctions();
 
 private:
 	inline static VulkanContext* myInstance = nullptr;

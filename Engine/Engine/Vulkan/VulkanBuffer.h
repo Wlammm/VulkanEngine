@@ -51,6 +51,33 @@ public:
 			.setUsage(vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eTransferSrc)
 			.setSharingMode(vk::SharingMode::eExclusive);
 	}
+
+	static vk::BufferCreateInfo BLASInputCreateInfo(uint inSize)
+	{
+		return vk::BufferCreateInfo()
+			.setSize(inSize)
+			.setUsage(vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
+			          vk::BufferUsageFlagBits::eShaderDeviceAddress)
+			.setSharingMode(vk::SharingMode::eExclusive);
+	}
+
+	static vk::BufferCreateInfo BLASStorageCreateInfo(uint inSize)
+	{
+		return vk::BufferCreateInfo()
+			.setSize(inSize)
+			.setUsage(vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR |
+			          vk::BufferUsageFlagBits::eShaderDeviceAddress)
+			.setSharingMode(vk::SharingMode::eExclusive);
+	}
+
+	static vk::BufferCreateInfo BLASScratchCreateInfo(uint inSize)
+	{
+		return vk::BufferCreateInfo()
+			.setSize(inSize)
+			.setUsage(vk::BufferUsageFlagBits::eStorageBuffer |
+			          vk::BufferUsageFlagBits::eShaderDeviceAddress)
+			.setSharingMode(vk::SharingMode::eExclusive);
+	}
 	
 public:
 	VulkanBuffer* GetBuffer() const override

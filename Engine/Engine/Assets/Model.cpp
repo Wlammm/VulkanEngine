@@ -6,6 +6,7 @@
 #include <assimp/scene.h>
 
 #include "Engine/Engine.h"
+#include "Engine/Rendering/BLAS.h"
 #include "Engine/Rendering/IndexBufferSystem.h"
 #include "Engine/Rendering/Mesh.h"
 #include "Engine/Rendering/MeshSystem.h"
@@ -23,6 +24,10 @@ Model::~Model()
 		Engine::GetEngineSystem<MeshSystem>().RemoveMesh(mesh);
 	}
 	myMeshes.Clear();
+
+	for (BLAS* blas : myBLASes)
+		del(blas);
+	myBLASes.Clear();
 }
 
 void Model::PostPropertiesSerialized()
@@ -56,6 +61,14 @@ void Model::PostPropertiesSerialized()
 		myMeshes.Last()->myAlbedoPath = meshData.myAlbedoPath;
 		myMeshes.Last()->myNormalPath = meshData.myNormalPath;
 		myMeshes.Last()->myMaterialPath = meshData.myMaterialPath;
+
+		// Build BLAS for this mesh using only vertex positions.
+		List<glm::vec3> positions;
+		positions.Reserve(meshData.myVertices.size());
+		for (const Vertex& vertex : meshData.myVertices)
+			positions.Add(vertex.myPosition);
+
+		myBLASes.Add(BLAS::Build(positions, meshData.myIndices));
 	}
 }
 
@@ -170,6 +183,11 @@ const List<Mesh*>& Model::GetMeshes() const
 const List<SerializationMeshData>& Model::GetSerializationMeshDatas() const
 {
 	return myMeshDatas;
+}
+
+const List<BLAS*>& Model::GetBLASes() const
+{
+	return myBLASes;
 }
 
 /*

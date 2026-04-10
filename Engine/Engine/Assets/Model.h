@@ -7,6 +7,7 @@ class IndexBufferHandle;
 class VertexBufferHandle;
 class VulkanBuffer;
 class Mesh;
+class BLAS;
 
 struct SerializationMeshData
 {
@@ -43,12 +44,15 @@ public:
 	static constexpr bool IsExternalAsset() { return true; };
 	
 	const List<Mesh*>& GetMeshes() const;
-	
+
 	// TODO: We currently have mesh datas always loaded. But in the future it might cost too much memory so find solution to load on demand instead. This is needed for mesh colliders.
 	const List<SerializationMeshData>& GetSerializationMeshDatas() const;
 
+	const List<BLAS*>& GetBLASes() const;
+
 private:
 	List<Mesh*> myMeshes{};
+	List<BLAS*> myBLASes{};
 
 	META(SerializeField)
 	List<SerializationMeshData> myMeshDatas{};
