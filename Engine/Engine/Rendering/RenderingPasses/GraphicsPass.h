@@ -71,7 +71,7 @@ public:
     void AddDepthAttachment(VulkanImage* inImage, vk::ImageLayout inLayout, vk::AttachmentLoadOp inLoadOp, vk::AttachmentStoreOp inStoreOp, VulkanImage* myDepthResolveImage = nullptr);
     
     
-    void DrawToShadingBin(vk::CommandBuffer inCommandBuffer, const EShadingBin inShadingBin);
+    void DrawFromShadingBin(vk::CommandBuffer inCommandBuffer, const EShadingBin inShadingBin);
     
 protected:
     vk::PipelineLayout myPipelineLayout;

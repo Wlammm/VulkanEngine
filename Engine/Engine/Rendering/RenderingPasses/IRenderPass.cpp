@@ -42,6 +42,9 @@ void IRenderPass::BuildDescriptors(const List<SharedPtr<Shader>>& inShaders)
 {
     for (const SharedPtr<Shader>& shader : inShaders)
     {
+        if (!shader)
+            continue;
+        
         for (const DescriptorSetInfo& setInfo : shader->GetDescriptorSetInfos())
         {
             if (setInfo.mySetIndex != 0)
@@ -113,6 +116,9 @@ void IRenderPass::BuildDescriptors(const List<SharedPtr<Shader>>& inShaders)
     myPushConstantRange = vk::PushConstantRange{};
     for (const SharedPtr<Shader>& shader : inShaders)
     {
+        if (!shader)
+            continue;
+        
         for (const PushConstantInfo& pc : shader->GetPushConstants())
         {
             if (myPushConstantRange.size == 0)

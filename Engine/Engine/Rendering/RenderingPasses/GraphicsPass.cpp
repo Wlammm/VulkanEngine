@@ -21,14 +21,19 @@ GraphicsPass::GraphicsPass(const SourcePath& inVertexShaderPath, const SourcePat
     myVertexShader = AssetRegistry::Get()->GetAssetSynchronous<Shader>(inVertexShaderPath);
     myVertexShader->OnShaderRecompiled.Bind(&GraphicsPass::OnShaderRecompiled, this);
     
-    myFragmentShader = AssetRegistry::Get()->GetAssetSynchronous<Shader>(inFragmentShaderPath);
-    myFragmentShader->OnShaderRecompiled.Bind(&GraphicsPass::OnShaderRecompiled, this);
+    if (!inFragmentShaderPath.empty())
+    {
+        myFragmentShader = AssetRegistry::Get()->GetAssetSynchronous<Shader>(inFragmentShaderPath);
+        myFragmentShader->OnShaderRecompiled.Bind(&GraphicsPass::OnShaderRecompiled, this);
+    }
 }
 
 GraphicsPass::~GraphicsPass()
 {
     myVertexShader->OnShaderRecompiled.UnBind(&GraphicsPass::OnShaderRecompiled, this);
-    myFragmentShader->OnShaderRecompiled.UnBind(&GraphicsPass::OnShaderRecompiled, this);
+    
+    if (myFragmentShader)
+        myFragmentShader->OnShaderRecompiled.UnBind(&GraphicsPass::OnShaderRecompiled, this);
 }
 
 vk::SampleCountFlagBits GraphicsPass::GetNumSamples() const
@@ -147,10 +152,11 @@ void GraphicsPass::CreateResources()
     
     myPipelineLayout = VulkanContext::GetDevice()->createPipelineLayout(pipelineLayoutCreateInfo);
     
-    const std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStageInfo = {
-        vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eVertex).setModule(myVertexShader->GetAPIResource()).setPName(myVertexShader->GetEntryPoint().c_str()),
-        vk::PipelineShaderStageCreateInfo().setStage(vk::ShaderStageFlagBits::eFragment).setModule(myFragmentShader->GetAPIResource()).setPName(myFragmentShader->GetEntryPoint().c_str()),
-    };
+    List<vk::PipelineShaderStageCreateInfo> shaderStageInfo;
+    shaderStageInfo.Emplace().setStage(vk::ShaderStageFlagBits::eVertex).setModule(myVertexShader->GetAPIResource()).setPName(myVertexShader->GetEntryPoint().c_str());
+    
+    if (myFragmentShader)
+        shaderStageInfo.Emplace().setStage(vk::ShaderStageFlagBits::eFragment).setModule(myFragmentShader->GetAPIResource()).setPName(myFragmentShader->GetEntryPoint().c_str());
     
     vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo().setVertexAttributeDescriptions(GetVertexAttributeDescriptions()).setVertexBindingDescriptions(GetVertexBindingDescriptor());
 
@@ -332,7 +338,7 @@ void GraphicsPass::AddDepthAttachment(
     myDepthFormat = inImage->GetFormat();
 }
 
-void GraphicsPass::DrawToShadingBin(vk::CommandBuffer inCommandBuffer, const EShadingBin inShadingBin)
+void GraphicsPass::DrawFromShadingBin(vk::CommandBuffer inCommandBuffer, const EShadingBin inShadingBin)
 {
     uint maxNumDraws = Engine::GetEngineSystem<GPUSceneSystem>().GetNumObjects();
     

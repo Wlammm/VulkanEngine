@@ -21,5 +21,5 @@ void NoDepthPass::DrawCall(vk::CommandBuffer inCommandBuffer)
 {
     inCommandBuffer.setDepthWriteEnable(false);
 
-    DrawToShadingBin(inCommandBuffer, EShadingBin::ShadingBin_NoDepth);
+    DrawFromShadingBin(inCommandBuffer, EShadingBin::ShadingBin_NoDepth);
 }

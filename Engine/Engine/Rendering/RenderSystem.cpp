@@ -31,6 +31,7 @@
 #include "RenderingPasses/GraphicsPasses/ImGuiPass.h"
 #include "RenderingPasses/GraphicsPasses/MainPass.h"
 #include "RenderingPasses/GraphicsPasses/NoDepthPass.h"
+#include "RenderingPasses/GraphicsPasses/PrePass.h"
 #include "RenderingPasses/GraphicsPasses/PresentPass.h"
 #include "RenderingPasses/GraphicsPasses/SkyboxPass.h"
 
@@ -405,6 +406,8 @@ void RenderSystem::CreateRenderPasses()
 	myRenderGraph->AddPass(new SkyboxPass());
 	myRenderGraph->AddPass(new IndirectPrePass());
 	myRenderGraph->AddPass(new IndirectCullPass());
+	
+	myRenderGraph->AddPass(new PrePass());
 	myRenderGraph->AddPass(new MainPass());
 	myRenderGraph->AddPass(new NoDepthPass());
 	myRenderGraph->AddPass(new DebugPass());
