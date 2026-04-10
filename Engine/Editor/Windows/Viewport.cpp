@@ -6,6 +6,7 @@
 #include "EditorSystem/GuizmoSystem.h"
 #include "EditorSystem/SelectionSystem.h"
 #include "Engine/Vulkan/VulkanContext.h"
+#include "Engine/Vulkan/VulkanImGui.h"
 #include "Engine/Vulkan/VulkanSwapChain.h"
 #include "Engine/Vulkan/VulkanUtils.hpp"
 #include "Engine/Vulkan/VulkanImage.h"
@@ -152,9 +153,10 @@ void Viewport::UpdateCaptureMouse()
 
 void Viewport::DrawPIEHUD()
 {
-	const float hudWidth = 80.0f;
-	const float hudHeight = 30.0f;
-	const float padding = 8.0f;
+	const float dpiScale = VulkanImGui::GetCurrentDpiScale();
+	const float hudWidth = 80.0f * dpiScale;
+	const float hudHeight = 30.0f * dpiScale;
+	const float padding = 8.0f * dpiScale;
 
 	ImVec2 hudPos;
 	hudPos.x = myP0.x + ((myP1.x - myP0.x) - hudWidth) * 0.5f;
@@ -162,20 +164,20 @@ void Viewport::DrawPIEHUD()
 
 	ImGui::SetNextWindowPos(hudPos, ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(hudWidth, hudHeight));
-	ImGui::SetNextWindowBgAlpha(0.35f); 
+	ImGui::SetNextWindowBgAlpha(0.35f);
 
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f * dpiScale);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
 
-	ImGuiWindowFlags windowFlags = 
-		ImGuiWindowFlags_NoDecoration | 
+	ImGuiWindowFlags windowFlags =
+		ImGuiWindowFlags_NoDecoration |
 		ImGuiWindowFlags_NoDocking |
 		ImGuiWindowFlags_AlwaysAutoResize |
-		ImGuiWindowFlags_NoNav | 
+		ImGuiWindowFlags_NoNav |
 		ImGuiWindowFlags_NoMove |
 		ImGuiWindowFlags_NoSavedSettings |
-		ImGuiWindowFlags_NoFocusOnAppearing | 
+		ImGuiWindowFlags_NoFocusOnAppearing |
 		ImGuiWindowFlags_NoScrollbar;
 
 	ImGui::Begin("##PIEOverlay", nullptr, windowFlags);
@@ -185,10 +187,11 @@ void Viewport::DrawPIEHUD()
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1, 1, 1, 0.2f));
 
 	ImVec2 pos = ImGui::GetCursorPos();
-	pos.y -= 5;
+	pos.y -= 5.0f * dpiScale;
 	ImGui::SetCursorPos(pos);
 	
-	if (ImGui::ImageButton(myPlayButtonDescriptor, {20, 20}))
+	const float buttonSize = 20.f * VulkanImGui::GetCurrentDpiScale();
+	if (ImGui::ImageButton(myPlayButtonDescriptor, {buttonSize, buttonSize}))
 	{
 		if (!Editor::IsPIE())
 			Editor::TogglePIE();
@@ -196,7 +199,7 @@ void Viewport::DrawPIEHUD()
 
 	ImGui::SameLine();
 
-	if (ImGui::ImageButton(myStopButtonDescriptor, {20, 20}))
+	if (ImGui::ImageButton(myStopButtonDescriptor, {buttonSize, buttonSize}))
 	{
 		if (Editor::IsPIE())
 			Editor::TogglePIE();

@@ -3331,6 +3331,16 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inDpiScale", ReflectionSystem::GetOrCreateType<float>("float")));
 Method& currentMethod = currentClass->AddMethod(Method("ReloadFonts", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
+static thread_local float result = instance->GetCurrentDpiScale();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetCurrentDpiScale", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<ConvexColliderComponent>();

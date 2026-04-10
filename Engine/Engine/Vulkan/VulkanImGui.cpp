@@ -79,6 +79,8 @@ void VulkanImGui::Start(vk::RenderPass inRenderPass)
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 
 	ImGui::GetStyle().ScaleAllSizes(dpiScale);
+	ImGui::GetStyle().WindowMenuButtonPosition = ImGuiDir_None;
+	
 	myCurrentDpiScale = dpiScale;
 
 	myDescriptorPool = imguiPool;

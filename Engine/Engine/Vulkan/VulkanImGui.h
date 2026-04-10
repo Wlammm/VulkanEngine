@@ -12,6 +12,8 @@ public:
 	static void ReloadFonts(float inDpiScale);
 
 	inline static ImFont* SourceSansPro_Regular = nullptr;
+	
+	static float GetCurrentDpiScale() { return myCurrentDpiScale;}
 
 private:
 	static int ImGuiCreateWindowSurfaceImpl(ImGuiViewport* viewport, ImU64 vk_instance, const void* vk_allocator, ImU64* out_vk_surface);
