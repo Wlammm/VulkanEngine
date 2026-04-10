@@ -3319,6 +3319,18 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
 Method& currentMethod = currentClass->AddMethod(Method("Render", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
+float& arg0 = *(float*)inArguments[0];
+instance->ReloadFonts(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inDpiScale", ReflectionSystem::GetOrCreateType<float>("float")));
+Method& currentMethod = currentClass->AddMethod(Method("ReloadFonts", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<ConvexColliderComponent>();
@@ -12862,6 +12874,18 @@ return (void*)result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetHInstance", ReflectionSystem::GetOrCreateType<HINSTANCE__ *>("HINSTANCE__ *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+WindowHandler* instance = static_cast<WindowHandler*>(inInstance);
+float & arg0 = *(float*)inArguments[0];
+static thread_local bool result = instance->ConsumeDpiChange(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("outDpiScale", ReflectionSystem::GetOrCreateType<float &>("float &")));
+Method& currentMethod = currentClass->AddMethod(Method("ConsumeDpiChange", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 }
 { 

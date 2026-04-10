@@ -6,7 +6,6 @@
 #include "IndexBufferSystem.h"
 #include "VertexBufferSystem.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
-#include "Engine/Assets/TextureCube.h"
 #include "Engine/Components/CameraComponent.h"
 #include "Engine/Components/DirectionalLightComponent.h"
 #include "Engine/Components/TransformComponent.h"
@@ -31,8 +30,6 @@
 #include "RenderingPasses/GraphicsPasses/NoDepthPass.h"
 #include "RenderingPasses/GraphicsPasses/PresentPass.h"
 #include "RenderingPasses/GraphicsPasses/SkyboxPass.h"
-#include "RenderingPasses/TransitionPasses/TransitionImagePass.h"
-#include "RenderingPasses/TransitionPasses/TransitionSwapchainImagePass.h"
 
 class GPUSceneSystem;
 
@@ -179,10 +176,6 @@ void RenderSystem::ExecuteRenderGraph(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
 
-	VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
-	IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
-	PointLightSystem& pointLightSystem = Engine::GetEngineSystem<PointLightSystem>();
-	
 	// If you've done buffer copies for vertex/index buffers before this:
 	vk::BufferMemoryBarrier vertexBufferBarrier{};
 	vertexBufferBarrier

@@ -67,13 +67,19 @@ void VulkanImGui::Start(vk::RenderPass inRenderPass)
 
 	ImGui_ImplVulkan_Init(&createInfo, inRenderPass);
 
+	HWND hwnd = Engine::GetWindowHandler().GetHWND();
+	float dpiScale = GetDpiForWindow(hwnd) / 96.0f;
+
 	VulkanCommandBuffer* cmd = VulkanContext::GetDevice().CreateCommandBuffer(true, false);
-	
-	LoadFonts();
-	
+
+	LoadFonts(dpiScale);
+
 	ImGui_ImplVulkan_CreateFontsTexture(cmd->GetAPIResource());
 	VulkanContext::GetDevice().FlushCommandBuffer(cmd);
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
+
+	ImGui::GetStyle().ScaleAllSizes(dpiScale);
+	myCurrentDpiScale = dpiScale;
 
 	myDescriptorPool = imguiPool;
 }
@@ -88,6 +94,10 @@ void VulkanImGui::Destroy()
 
 void VulkanImGui::BeginFrame()
 {
+	float newDpiScale;
+	if (WindowHandler::ConsumeDpiChange(newDpiScale))
+		ReloadFonts(newDpiScale);
+
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 
@@ -122,15 +132,33 @@ void VulkanImGui::VulkanCheckResult(VkResult result)
 	check(result == VkResult::VK_SUCCESS);
 }
 
-void VulkanImGui::LoadFonts()
+void VulkanImGui::ReloadFonts(float inDpiScale)
+{
+	vkDeviceWaitIdle(VulkanContext::GetDevice().GetDevice());
+
+	ImGui_ImplVulkan_DestroyFontTexture();
+	ImGui::GetIO().Fonts->Clear();
+
+	VulkanCommandBuffer* cmd = VulkanContext::GetDevice().CreateCommandBuffer(true, false);
+	LoadFonts(inDpiScale);
+	ImGui_ImplVulkan_CreateFontsTexture(cmd->GetAPIResource());
+	VulkanContext::GetDevice().FlushCommandBuffer(cmd);
+	ImGui_ImplVulkan_DestroyFontUploadObjects();
+
+	ImGui::GetStyle().ScaleAllSizes(inDpiScale / myCurrentDpiScale);
+	myCurrentDpiScale = inDpiScale;
+}
+
+void VulkanImGui::LoadFonts(float inDpiScale)
 {
 	ImGuiIO& io = ImGui::GetIO();
-	SourceSansPro_Regular = io.Fonts->AddFontFromFileTTF("Editor/Fonts/SourceSansPro-Regular.ttf", 16.0f);
+
+	float baseFontSize = 16.0f * inDpiScale;
+
+	SourceSansPro_Regular = io.Fonts->AddFontFromFileTTF("Editor/Fonts/SourceSansPro-Regular.ttf", baseFontSize);
 	io.Fonts->AddFontDefault();
 
-
 	// ImGuiNotify init...
-	float baseFontSize = 16.0f;
 	float iconFontSize = baseFontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
 
 	// Check if FONT_ICON_FILE_NAME_FAS is a valid path
