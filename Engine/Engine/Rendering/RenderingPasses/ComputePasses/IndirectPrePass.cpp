@@ -23,7 +23,7 @@ void IndirectPrePass::Execute(vk::CommandBuffer inCommandBuffer)
     {
         // Insert memory barrier to ensure that the count buffer is synchronized before cull pass
         vk::BufferMemoryBarrier barrier = vk::BufferMemoryBarrier()
-            .setSrcAccessMask(vk::AccessFlagBits::eShaderWrite)  // Pre-pass writes
+            .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)  // fillBuffer is a transfer operation
             .setDstAccessMask(vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite)   // Cull pass reads & writes
             .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
             .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
@@ -32,7 +32,7 @@ void IndirectPrePass::Execute(vk::CommandBuffer inCommandBuffer)
             .setSize(VK_WHOLE_SIZE);
 
         inCommandBuffer.pipelineBarrier(
-                vk::PipelineStageFlagBits::eComputeShader,
+                vk::PipelineStageFlagBits::eTransfer,
                 vk::PipelineStageFlagBits::eComputeShader,
                 vk::DependencyFlags{},
                 nullptr,

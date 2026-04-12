@@ -8,7 +8,6 @@
 #define GPUMARK_SCOPE(inCommandBuffer, inString)
 #endif
 
-
 class VulkanCommandBuffer;
 class ResizableBuffer;
 class VulkanBuffer;
@@ -93,7 +92,7 @@ private:
     // This is used for editor depth reading as readback is not supported on multisampled textures.
     class VulkanImage* myResolvedDepthTexture = nullptr;
     
-    RenderGraph* myRenderGraph;
+    RenderGraph* myRenderGraph = nullptr;
     
     TLAS* myTLAS = nullptr;
 

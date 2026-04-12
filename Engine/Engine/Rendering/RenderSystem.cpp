@@ -230,10 +230,10 @@ void RenderSystem::ExecuteRenderGraph(vk::CommandBuffer inCommandBuffer)
 	vk::BufferMemoryBarrier pointLightBarrier{};
 	pointLightBarrier
 		.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite) // Buffer copy writes
-		.setDstAccessMask(vk::AccessFlagBits::eShaderRead) // Vertex shader reads index buffer
+		.setDstAccessMask(vk::AccessFlagBits::eShaderRead) // Fragment shader reads point light buffer
 		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setBuffer(GPUResourceManager::Get()->GetBuffer<Index>()->GetBuffer()->GetAPIResource())
+		.setBuffer(GPUResourceManager::Get()->GetBuffer<PointLightData>()->GetBuffer()->GetAPIResource())
 		.setOffset(0)
 		.setSize(VK_WHOLE_SIZE);
 
@@ -290,7 +290,6 @@ void RenderSystem::RegisterRenderResources()
 {
 	GPUResourceManager* resourceManager = GPUResourceManager::Get();
 	
-	
 	// ---------- ConstantBuffers ----------
 	resourceManager->RegisterBuffer<CameraBuffer>(new ConstantBuffer<CameraBuffer>("CameraBuffer"), [](GPUResourceManager::BufferResource& inResource)
 	{
@@ -311,7 +310,7 @@ void RenderSystem::RegisterRenderResources()
 	
 	resourceManager->RegisterBuffer<SceneHeader>(new ConstantBuffer<SceneHeader>("SceneHeader"), [](GPUResourceManager::BufferResource& inResource)
 	{
-		SceneHeader data;
+		SceneHeader data{};
 		data.myNumMeshInstances = Engine::GetEngineSystem<GPUSceneSystem>().GetNumObjects();
 		data.myNumPointLights = Engine::GetEngineSystem<PointLightSystem>().GetNumPointLights();
 
@@ -329,7 +328,7 @@ void RenderSystem::RegisterRenderResources()
 		
 		TransformComponent& transform = light->GetTransform();
 		
-		DirectionalLightBuffer data;
+		DirectionalLightBuffer data{};
 		data.myColor = light->GetColor();
 		data.myDirection = transform.GetForward();
 		data.myLightView = glm::affineInverse(transform.GetMatrix());
