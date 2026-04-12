@@ -262,9 +262,9 @@ void GraphicsPass::AddColorAttachment(
 }
 
 void GraphicsPass::AddDynamicColorAttachment(
-    VulkanImage* inImage, 
+    VulkanImage* inImage,
     vk::ImageLayout inLayout,
-    vk::AttachmentLoadOp inLoadOp, 
+    vk::AttachmentLoadOp inLoadOp,
     vk::AttachmentStoreOp inStoreOp)
 {
     myDynamicColorAttachments.Add(vk::RenderingAttachmentInfo().setLoadOp(vk::AttachmentLoadOp::eDontCare)
@@ -272,9 +272,9 @@ void GraphicsPass::AddDynamicColorAttachment(
         .setLoadOp(inLoadOp)
         .setStoreOp(inStoreOp)
         .setImageView(inImage->GetImageView())
-        .setClearValue(vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} }))));  
-        
-    RegisterImageUsage(inImage, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite, inLayout);
+        .setClearValue(vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} }))));
+
+    RegisterDynamicImageUsage(inImage, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite, inLayout);
 }
 
 void GraphicsPass::RegisterDynamicColorAttachment(

@@ -16,8 +16,12 @@ IndirectCullPass::IndirectCullPass()
 void IndirectCullPass::DispatchCall(vk::CommandBuffer inCommandBuffer)
 {
     GPUSceneSystem& objectSystem = Engine::GetEngineSystem<GPUSceneSystem>();
-	
-    inCommandBuffer.dispatch(static_cast<uint32_t>(std::ceil(objectSystem.GetNumObjects() / 256.0f)), 1, 1);
+
+    const uint numObjects = objectSystem.GetNumObjects();
+    if (numObjects == 0)
+        return;
+
+    inCommandBuffer.dispatch(static_cast<uint32_t>(std::ceil(numObjects / 256.0f)), 1, 1);
     
     // Memory barrier to ensure the compute shader writes are visible to subsequent draw calls
 	vk::BufferMemoryBarrier bufferMemoryBarriers[] = {

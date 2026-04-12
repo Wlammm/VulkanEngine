@@ -9,6 +9,7 @@ public:
     void CreateResources() override;
     void DestroyResources() override;
     
+    void PreExecute() override;
     void Execute(vk::CommandBuffer inCommandBuffer) override;
     
 private:

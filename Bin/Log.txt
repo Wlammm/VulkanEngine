@@ -1,3 +1,235 @@
-[LOG]: Creating threadpool with 9 threads
+Creating class unsigned char
+Creating class std::basic_string<char>
+Creating class int
+Creating class unsigned int
+Creating class void
+Creating class bool
+Creating class VulkanImage *
+Creating class vk::ImageView
+Creating class vk::CommandBuffer
+Creating class const Type *
+Creating class float
+Creating class std::filesystem::path
+Creating class vk::SurfaceKHR
+Creating class vk::Format
+Creating class vk::SwapchainKHR
+Creating class vk::CommandPool
+Creating class std::basic_ofstream<char>
+Creating class std::basic_streambuf<char>
+Creating class std::function<void ()>
+Creating class glm::vec<3, float>
+Creating class glm::vec<2, float>[2]
+Creating class const glm::vec<4, float> &
+Creating class List<vk::VertexInputBindingDescription> &
+Creating class List<vk::VertexInputAttributeDescription> &
+Creating class SystemManager<System>
+Creating class SystemManager<WorldSystem>
+Creating class std::basic_string<wchar_t>
+Creating class std::unordered_set<std::basic_string<char>>
+Creating class char **
+Creating class std::thread
+Creating class const char
+Creating class vk::RenderingAttachmentInfo
+Creating class vk::Framebuffer
+Creating class vk::QueueFamilyProperties
+Creating class vk::Fence
+Creating class vk::Semaphore
+Creating class vk::DescriptorSet
+Creating class glm::qua<float>
+Creating class std::chrono::time_point<std::filesystem::_File_time_clock>
+Creating class AssetRegistry *
+Creating class std::mutex
+Creating class std::atomic<bool>
+Creating class std::unordered_map<std::filesystem::path, Filewatcher::FileData>
+Creating class std::set<Filewatcher::FileData *>
+Creating class std::weak_ptr<World>
+Creating class glm::vec<2, float>
+Creating class void *
+Creating class void *(void *, const List<void *> &)
+Creating class void *()
+Creating class void (void *)
+Creating class void (IUniquePtr *)
+Creating class std::shared_ptr<void> ()
+Creating class void (physx::PxPhysics *, physx::PxScene *)
+Creating class void (GPUResourceManager::BufferResource &)
+Creating class void ()
+Creating class Actor *
+Creating class World *
+Creating class const Field *
+Creating class const Method *
+Creating class IUniquePtr *
+Creating class physx::PxTransformT<float>
+Creating class const physx::PxVec3T<float> &
+Creating class const physx::PxQuatT<float> &
+Creating class glm::mat<4, 4, float>
+Creating class TransformComponent *
+Creating class const List<Type *> &
+Creating class std::basic_ostream<char>
+Creating class unsigned long long
+Creating class BinarySerializer::Mode
+Creating class std::condition_variable
+Creating class std::queue<std::function<void ()>>
+Creating class EShadingBin
+Creating class Mesh *
+Creating class BinarySerializer *
+Creating class vk::Flags<vk::PipelineStageFlagBits>
+Creating class vk::Flags<vk::AccessFlagBits>
+Creating class vk::ImageLayout
+Creating class vk::AccelerationStructureKHR
+Creating class IGPUBuffer *
+Creating class std::recursive_mutex
+Creating class std::unordered_map<std::filesystem::path, std::weak_ptr<Asset>>
+Creating class const Delegate<void (std::shared_ptr<Asset>)> &
+Creating class Asset *
+Creating class Model *
+Creating class nlohmann::basic_json<>
+Creating class vk::DescriptorType
+Creating class vk::Flags<vk::ShaderStageFlagBits>
+Creating class vk::ShaderModule
+Creating class VmaAllocator
+Creating class const vk::BufferCreateInfo &
+Creating class VmaMemoryUsage
+Creating class VulkanBuffer *
+Creating class const vk::ImageCreateInfo &
+Creating class physx::PxController
+Creating class physx::PxFlags<physx::PxControllerCollisionFlag::Enum, unsigned char>
+Creating class physx::PxControllerFilters
+Creating class vk::PushConstantRange
+Creating class const char *
+Creating class vk::Sampler
+Creating class const IGPUAccelerationStructure *
+Creating class const List<std::shared_ptr<Shader>> &
+Creating class physx::PxRigidDynamic
+Creating class const ForceMode
+Creating class ColliderComponent *
+Creating class GPUSparseDenseBuffer<MeshInstanceData>
+Creating class physx::PxShape
+Creating class physx::PxRigidStatic
+Creating class physx::PxShape *
+Creating class RenderSystem *
+Creating class VulkanCommandBuffer *
+Creating class TLAS *
+Creating class siv::BasicPerlinNoise<float>
+Creating class physx::PxTolerancesScale
+Creating class physx::PxMaterial
+Creating class physx::PxPhysics
+Creating class physx::PxScene
+Creating class physx::PxControllerManager
+Creating class physx::PxTolerancesScale *
+Creating class physx::PxMaterial *
+Creating class physx::PxScene *
+Creating class physx::PxControllerManager *
+Creating class PhysicsListener *
+Creating class VmaAllocation
+Creating class vk::Buffer
+Creating class MulticastDelegate<void ()> *
+Creating class const void *
+Creating class TypeSerializer *
+Creating class std::atomic<unsigned long>
+Creating class IDxcUtils
+Creating class const _GUID &
+Creating class void **
+Creating class long
+Creating class unsigned long
+Creating class const wchar_t *
+Creating class IDxcBlob **
+Creating class AutoInit *
+Creating class const Input::KeyCode
+Creating class const Input::MouseButton
+Creating class long long
+Creating class GPUResourceManager *
+Creating class IGPUAccelerationStructure *
+Creating class std::mersenne_twister_engine<unsigned int, 32, 624, 397, 31, 2567483615, 11, 4294967295, 7, 2636928640, 15, 4022730752, 18, 1812433253>
+Creating class double
+Creating class std::coroutine_handle<void>
+Creating class Coroutine<void, void>
+Creating class physx::PxErrorCode::Enum
+Creating class physx::PxTriggerPair *
+Creating class const physx::PxContactPairHeader &
+Creating class const physx::PxContactPair *
+Creating class physx::PxConstraintInfo *
+Creating class physx::PxActor **
+Creating class const physx::PxRigidBody *const *
+Creating class const physx::PxTransformT<float> *
+Creating class const physx::PxControllerShapeHit &
+Creating class const physx::PxControllersHit &
+Creating class const physx::PxControllerObstacleHit &
+Creating class const physx::PxActor &
+Creating class physx::PxFlags<physx::PxControllerBehaviorFlag::Enum, unsigned char>
+Creating class const physx::PxObstacle &
+Creating class const List<glm::vec<3, float>> &
+Creating class BLAS *
+Creating class VertexBufferHandle *
+Creating class IndexBufferHandle *
+Creating class const IndexBufferHandle *
+Creating class vk::DescriptorSetLayout
+Creating class const IGPUBuffer *
+Creating class const VulkanImage *
+Creating class std::map<GFSDK_Aftermath_ShaderBinaryHash, List<unsigned char>>
+Creating class std::map<GFSDK_Aftermath_ShaderDebugName, List<unsigned char>>
+Creating class ShaderDatabase *
+Creating class const GFSDK_Aftermath_ShaderBinaryHash &
+Creating class const GFSDK_Aftermath_ShaderDebugName &
+Creating class std::map<GFSDK_Aftermath_ShaderDebugInfoIdentifier, std::vector<unsigned char>>
+Creating class const std::array<std::map<unsigned long long, std::basic_string<char>>, 4>
+Creating class vk::Instance
+Creating class vk::DebugUtilsMessengerEXT
+Creating class vk::PipelineCache
+Creating class vk::DescriptorPool
+Creating class NvidiaAftermathTracker *
+Creating class vk::Device
+Creating class vk::Queue
+Creating class vk::Device *
+Creating class const vk::Device *
+Creating class const SamplerMode
+Creating class GPUSparseDenseBuffer<PointLightData>
+Creating class vk::Image
+Creating class vk::ImageSubresourceRange
+Creating class vk::SampleCountFlagBits
+Creating class vk::ImageViewType
+Creating class std::map<void *, ResourceState>
+Creating class IRenderPass *
+Creating class vk::PipelineLayout
+Creating class vk::Pipeline
+Creating class List<RaycastHit> &
+Creating class DirectionalLightComponent *
+Creating class CameraComponent *
+Creating class vk::PrimitiveTopology
+Creating class vk::AttachmentLoadOp
+Creating class vk::AttachmentStoreOp
+Creating class vk::RenderPass
+Creating class vk::Flags<vk::ImageAspectFlagBits>
+Creating class vk::AccessFlagBits
+Creating class vk::PipelineStageFlagBits
+Creating class Texture *
+Creating class TextureCube *
+Creating class const List<VkAccelerationStructureInstanceKHR> &
+Creating class GPUDefragBuffer<VertexBufferData>
+Creating class const VertexBufferHandle *
+Creating class const List<Debug::DrawLineInfos> &
+Creating class vk::PhysicalDevice
+Creating class vk::PhysicalDeviceFeatures2
+Creating class vk::PhysicalDeviceMemoryProperties
+Creating class vk::PhysicalDevice *
+Creating class const vk::PhysicalDevice *
+Creating class shaderc_include_type
+Creating class shaderc_include_result *
+Creating class HWND__
+Creating class HINSTANCE__
+Creating class HWND__ *
+Creating class HINSTANCE__ *
+Creating class AssetEditor *
+Creating class std::map<std::filesystem::path, List<std::filesystem::path>>
+Creating class std::deque<std::filesystem::path>
+Creating class std::array<std::shared_ptr<Texture>, 5>
+Creating class std::array<vk::DescriptorSet, 5>
+Creating class EditorWindow *
+Creating class std::shared_ptr<EditorWorld>
+Creating class ImGuizmo::OPERATION
+Creating class ImGuizmo::MODE
+Creating class EditorCameraActor *
+Creating class ImVec2
+[LOG]: AssetRegistry - Scanned 251 files
+[LOG]: Creating threadpool with 24 threads
 [LOG]: Vulkan instance created successfully.
 [LOG]: Vulkan debug layer attached.

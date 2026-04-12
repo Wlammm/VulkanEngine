@@ -52,9 +52,9 @@ private:
 	vk::SurfaceKHR myWindowSurface;
 	vk::Format myFormat;
 
-	List<vk::Fence> myFences;
-	List<vk::Semaphore> myImageAcquiredSemaphores;
-	List<vk::Semaphore> myDrawCompleteSemaphores;
+	List<vk::Fence> myFences{};
+	List<vk::Semaphore> myImageAcquiredSemaphores{};
+	List<vk::Semaphore> myDrawCompleteSemaphores{};
 
 	uint myFrameIndex = 0; 
 	// We need a unique index for fences & semaphores that handles gpu waiting, since we need to wait for the correct fence before retreiving a new FrameIndex.
@@ -62,8 +62,8 @@ private:
 
 	vk::SwapchainKHR mySwapChain;
 
-	uint mySwapChainWidth;
-	uint mySwapChainHeight;
+	uint mySwapChainWidth = 0;
+	uint mySwapChainHeight = 0;
 
 	uint myMinImageCount = 0;
 	
@@ -72,5 +72,5 @@ private:
 	// List<vk::ImageView> myImageViews;
 
 	vk::CommandPool myCommandPool;
-	List<vk::CommandBuffer> myCommandBuffers;
+	List<vk::CommandBuffer> myCommandBuffers{};
 };

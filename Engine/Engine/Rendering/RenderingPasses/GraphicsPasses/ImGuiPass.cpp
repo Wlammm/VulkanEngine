@@ -32,7 +32,7 @@ void ImGuiPass::CreateResources()
                 .setDstSubpass(0)
                 .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
                 .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput)
-                .setSrcAccessMask(vk::AccessFlagBits())
+                .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
                 .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead)
                 .setDependencyFlags(vk::DependencyFlags()),
         };
@@ -66,6 +66,19 @@ void ImGuiPass::DestroyResources()
         VulkanContext::GetDevice()->destroyFramebuffer(myFrameBuffers[i]);
     }
     myFrameBuffers.Clear();
+}
+
+void ImGuiPass::PreExecute()
+{
+    IRenderPass::PreExecute();
+    // Register the current swapchain image so the render graph issues a write-after-write
+    // barrier between CopyToSwapchainPass and this pass. Without this, ImGui's loadOp=eLoad
+    // reads CopyToSwapchain output with no memory visibility guarantee.
+    RegisterDynamicImageUsage(
+        VulkanContext::GetSwapChain().GetImage(),
+        vk::PipelineStageFlagBits::eColorAttachmentOutput,
+        vk::AccessFlagBits::eColorAttachmentWrite,
+        vk::ImageLayout::eColorAttachmentOptimal);
 }
 
 void ImGuiPass::Execute(vk::CommandBuffer inCommandBuffer)

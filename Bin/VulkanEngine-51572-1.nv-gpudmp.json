@@ -1,0 +1,159 @@
+[
+  {
+    "Base info": {
+      "Application name": "launcher.exe",
+      "Dump date": "Sun Apr 12 22:19:21 2026",
+      "Dump tick count": 40801879,
+      "Graphics API": "Vulkan",
+      "PID": 51572
+    }
+  },
+  {
+    "Display driver info": {
+      "Version": "595.79"
+    }
+  },
+  {
+    "OS info": {
+      "Build number": 26200,
+      "Service pack major version": 0,
+      "Service pack minor version": 0,
+      "Windows major version": 10,
+      "Windows minor version": 0,
+      "Windows product type": 1
+    }
+  },
+  {
+    "GPU info": {
+      "Adapter LUID": 102755,
+      "Adapter name": "GB203-A"
+    }
+  },
+  {
+    "Page fault info": {
+      "Access Type": "Unknown",
+      "Client": "Unknown",
+      "Engine": "Unknown",
+      "Fault Type": "The MMU returned an unknown reason.",
+      "GPU virtual address": 83148800
+    }
+  },
+  {
+    "Device info": {
+      "Adapter reset occurred": false,
+      "Device state": "Error_DMA_PageFault",
+      "Engine reset occurred": true
+    }
+  },
+  {
+    "Aftermath markers": {
+      "Context": {
+        "Events": [
+          {
+            "Event": {
+              "Callstack": {
+                "Stack": [
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140712304261479
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140712305361247
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140712304826799
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "nvoglv64.dll",
+                      "Pointer": 140712305361566
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696581134195
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696580743858
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696580754243
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696580607724
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "Launcher.exe",
+                      "Pointer": 140696582027412
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "KERNEL32.DLL",
+                      "Pointer": 140716649670871
+                    }
+                  },
+                  {
+                    "Entry": {
+                      "Module name": "ntdll.dll",
+                      "Pointer": 140716668797948
+                    }
+                  }
+                ]
+              },
+              "Pipe": "Unknown",
+              "Status": "NotStarted",
+              "Type": "Automatic"
+            }
+          },
+          {
+            "Event": {
+              "Library": {
+                "Data": {
+                  "Data chunk": 1
+                },
+                "Pointer": 836616188896
+              },
+              "Pipe": "Unknown",
+              "Status": "NotStarted",
+              "Type": "User"
+            }
+          }
+        ],
+        "Type": "CommandQueue"
+      }
+    }
+  },
+  {
+    "ApplicationName": "VulkanEngine"
+  },
+  {
+    "ApplicationVersion": "1.0"
+  },
+  {
+    "Fingerprint": {
+      "Hash": 17319188383084551331,
+      "Quality": 0
+    }
+  }
+]

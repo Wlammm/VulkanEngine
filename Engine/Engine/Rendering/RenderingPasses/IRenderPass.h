@@ -15,7 +15,7 @@ public:
     
     virtual void Execute(vk::CommandBuffer inCommandBuffer) = 0;
     
-    virtual void PreExecute() {}
+    virtual void PreExecute() { myDynamicResourceUsages.Clear(); }
 
     virtual const char* GetName() const { return ""; }
     

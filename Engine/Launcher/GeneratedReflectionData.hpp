@@ -10944,6 +10944,16 @@ Method& currentMethod = currentClass->AddMethod(Method("DestroyResources", Refle
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ImGuiPass* instance = static_cast<ImGuiPass*>(inInstance);
+instance->PreExecute();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("PreExecute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ImGuiPass* instance = static_cast<ImGuiPass*>(inInstance);
 vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
 instance->Execute(arg0);
 return nullptr;
