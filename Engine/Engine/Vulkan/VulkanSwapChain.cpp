@@ -175,10 +175,17 @@ void VulkanSwapChain::CreateSyncObjects()
 	vk::FenceCreateInfo fenceCreateInfo = vk::FenceCreateInfo().setFlags(vk::FenceCreateFlagBits::eSignaled);
 	vk::SemaphoreCreateInfo semaCreateInfo = vk::SemaphoreCreateInfo();
 
+	// Fences and acquire semaphores are per-frame-in-flight (FrameLag).
 	for(int i = 0; i < VulkanContext::FrameLag; ++i)
 	{
 		myFences.Add(myDevice->createFence(fenceCreateInfo));
 		myImageAcquiredSemaphores.Add(myDevice->createSemaphore(semaCreateInfo));
+	}
+
+	// Draw-complete semaphores are per-swapchain-image: myFrameIndex (from acquireNextImageKHR)
+	// ranges 0..(numImages-1), so we need one semaphore per image, not one per FrameLag.
+	for(int i = 0; i < static_cast<int>(myImages.size()); ++i)
+	{
 		myDrawCompleteSemaphores.Add(myDevice->createSemaphore(semaCreateInfo));
 	}
 }
@@ -299,12 +306,12 @@ void VulkanSwapChain::CreateCommandPoolAndBuffers()
 
 void VulkanSwapChain::Init()
 {
-	CreateSyncObjects();
 	CreateSwapChain();
+	CreateSyncObjects();  // must come after CreateSwapChain so myImages.size() is known
 	CreateCommandPoolAndBuffers();
 
 	myFrameIndex = 0;
-	myFrameIndex = 0;
+	mySyncIndex = 0;
 }
 
 void VulkanSwapChain::DestroySwapChainRelatedObjects()
@@ -313,6 +320,9 @@ void VulkanSwapChain::DestroySwapChainRelatedObjects()
 	{
 		myDevice->destroyFence(myFences[i]);
 		myDevice->destroySemaphore(myImageAcquiredSemaphores[i]);
+	}
+	for (int i = 0; i < myDrawCompleteSemaphores.size(); ++i)
+	{
 		myDevice->destroySemaphore(myDrawCompleteSemaphores[i]);
 	}
 	myFences.Clear();
@@ -332,7 +342,7 @@ void VulkanSwapChain::DestroySwapChainRelatedObjects()
 
 
 	myFrameIndex = 0;
-	myFrameIndex = 0;
+	mySyncIndex = 0;
 }
 
 void VulkanSwapChain::Resize()
