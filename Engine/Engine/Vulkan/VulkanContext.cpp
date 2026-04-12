@@ -76,6 +76,12 @@ VKAPI_ATTR void VKAPI_CALL vkGetAccelerationStructureBuildSizesKHR(VkDevice devi
 	return pfnVkGetAccelerationStructureBuildSizesKHR(device, buildType, pBuildInfo, pMaxPrimitiveCounts, pSizeInfo);
 }
 
+PFN_vkCmdSetCheckpointNV pfnVkCmdSetCheckpointNV;
+VKAPI_ATTR void VKAPI_CALL vkCmdSetCheckpointNV(VkCommandBuffer commandBuffer, const void* pCheckpointMarker)
+{
+	return pfnVkCmdSetCheckpointNV(commandBuffer, pCheckpointMarker);
+}
+
 VulkanContext::VulkanContext()
 {
 	check(!myInstance && "There can only be one vulkan context at the same time.");
@@ -292,6 +298,7 @@ void VulkanContext::CreateDescriptorPool()
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eStorageBuffer);
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eStorageBufferDynamic);
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eSampler);
+	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eAccelerationStructureKHR);
 	
 	vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo().setPoolSizes(poolSizes).setMaxSets(1000).setFlags(vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind);
 
@@ -310,6 +317,12 @@ void VulkanContext::LoadAccelerationStructureFunctions()
 	check(pfnVkCreateAccelerationStructureKHR           && "Failed to load vkCreateAccelerationStructureKHR");
 	check(pfnVkDestroyAccelerationStructureKHR          && "Failed to load vkDestroyAccelerationStructureKHR");
 	check(pfnVkCmdBuildAccelerationStructuresKHR        && "Failed to load vkCmdBuildAccelerationStructuresKHR");
+
+	if (myNvidiaAftermathDebugger)
+	{
+		pfnVkCmdSetCheckpointNV = reinterpret_cast<PFN_vkCmdSetCheckpointNV>(device.getProcAddr("vkCmdSetCheckpointNV"));
+		check(pfnVkCmdSetCheckpointNV && "Failed to load vkCmdSetCheckpointNV");
+	}
 	check(pfnVkGetAccelerationStructureDeviceAddressKHR && "Failed to load vkGetAccelerationStructureDeviceAddressKHR");
 	check(pfnVkGetAccelerationStructureBuildSizesKHR    && "Failed to load vkGetAccelerationStructureBuildSizesKHR");
 }

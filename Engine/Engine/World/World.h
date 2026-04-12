@@ -87,9 +87,8 @@ public:
 
 private:
     void CreateWorldSystems();
-
     void TickActorDeletes();
-    
+    void RebuildTLAS();
     void InitActor(Actor* inActor, const std::string& inName);
 
 protected:
@@ -97,7 +96,7 @@ protected:
 
     META(SerializeField)
     List<UniquePtr<Actor>> myActors{};
-    
+
     List<Actor*> myActorsToDelete{};
 
     mutable DirectionalLightActor* myCachedDirectionalLightActor;

@@ -7,6 +7,5 @@ public:
     MainPass();
     
     void SetupAttachments() override;
-    
     void DrawCall(vk::CommandBuffer inCommandBuffer) override;
 };

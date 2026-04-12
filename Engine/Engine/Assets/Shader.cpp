@@ -323,7 +323,7 @@ void Shader::CompileHlslToSpv(const std::string& inShaderSource)
         L"-HV",
         L"2021",
         L"-WX",
-#if DEBUG
+#if !SHIPPING
         L"-Zi",
         L"-Qembed_debug",
 #endif
@@ -370,10 +370,6 @@ void Shader::CompileHlslToSpv(const std::string& inShaderSource)
     myShaderBinary.Resize(static_cast<ListSizeType>(spirvBlob->GetBufferSize() / sizeof(uint32_t)));
     memcpy(myShaderBinary.data(), spirvBlob->GetBufferPointer(), spirvBlob->GetBufferSize());
     
-    if (GetSourcePath().string().contains("MainPS"))
-    {
-        int a = 10;
-    }
 }
 
 void Shader::CreateFilewatcherCallbacks(const List<IncludeData>& inIncludePaths)

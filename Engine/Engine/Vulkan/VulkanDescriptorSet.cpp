@@ -1,5 +1,6 @@
 #include "EnginePch.h"
 #include "VulkanDescriptorSet.h"
+#include <set>
 
 #include "ResizableBuffer.h"
 #include "VulkanContext.h"
@@ -27,6 +28,12 @@ VulkanDescriptorSet::~VulkanDescriptorSet()
 	{
 		if (binding.myData->GetOnBufferResized())
 			binding.myData->GetOnBufferResized()->UnBind(&VulkanDescriptorSet::Rebuild, this);
+	}
+
+	for (const BindingData<const IGPUAccelerationStructure*>& binding : myAccelerationStructures)
+	{
+		if (binding.myData && binding.myData->GetOnRebuilt())
+			binding.myData->GetOnRebuilt()->UnBind(&VulkanDescriptorSet::Rebuild, this);
 	}
 }
 
@@ -82,6 +89,29 @@ void VulkanDescriptorSet::BindSampler(vk::Sampler inSampler, vk::ShaderStageFlag
 	data.myShaderStages = inShaderStages;
 	data.myDescriptorType = vk::DescriptorType::eSampler;
 	mySamplers.Add(data);
+}
+
+void VulkanDescriptorSet::BindAccelerationStructure(const IGPUAccelerationStructure* inAS, vk::ShaderStageFlags inShaderStages, uint inBindingIndex)
+{
+	for (BindingData<const IGPUAccelerationStructure*>& existing : myAccelerationStructures)
+	{
+		if (existing.myBindingIndex == inBindingIndex)
+		{
+			existing.myShaderStages |= inShaderStages;
+			existing.myData = inAS;
+			return;
+		}
+	}
+
+	BindingData<const IGPUAccelerationStructure*> data{};
+	data.myData = inAS;
+	data.myShaderStages = inShaderStages;
+	data.myBindingIndex = inBindingIndex;
+	data.myDescriptorType = vk::DescriptorType::eAccelerationStructureKHR;
+	myAccelerationStructures.Add(data);
+
+	if (inAS && inAS->GetOnRebuilt() && !inAS->GetOnRebuilt()->IsBound(Delegate<void()>(&VulkanDescriptorSet::Rebuild, this)))
+		inAS->GetOnRebuilt()->Bind(&VulkanDescriptorSet::Rebuild, this);
 }
 
 void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags, const vk::ImageLayout inImageLayout)
@@ -156,13 +186,32 @@ void VulkanDescriptorSet::BuildLayoutAndAllocate()
 				.setStageFlags(binding.myShaderStages));
 	}
 
+	for (const BindingData<const IGPUAccelerationStructure*>& binding : myAccelerationStructures)
+	{
+		layoutBindings.Emplace()
+			.setDescriptorCount(1)
+			.setDescriptorType(vk::DescriptorType::eAccelerationStructureKHR)
+			.setStageFlags(binding.myShaderStages)
+			.setBinding(binding.myBindingIndex);
+	}
+
 	// Create layout
 	if(!myLayout)
 	{
-		std::vector<vk::DescriptorBindingFlags> bindingFlags(
-			layoutBindings.size(),
-			vk::DescriptorBindingFlagBits::eUpdateAfterBind
-		);
+		// AS bindings may be null initially (not yet built) — mark them as partially bound.
+		std::set<uint32_t> asBindingIndices;
+		for (const BindingData<const IGPUAccelerationStructure*>& binding : myAccelerationStructures)
+			asBindingIndices.insert(binding.myBindingIndex);
+
+		std::vector<vk::DescriptorBindingFlags> bindingFlags;
+		bindingFlags.reserve(layoutBindings.size());
+		for (const vk::DescriptorSetLayoutBinding& lb : layoutBindings)
+		{
+			vk::DescriptorBindingFlags flags = vk::DescriptorBindingFlagBits::eUpdateAfterBind;
+			if (asBindingIndices.count(lb.binding))
+				flags |= vk::DescriptorBindingFlagBits::ePartiallyBound;
+			bindingFlags.push_back(flags);
+		}
 		
 		vk::DescriptorSetLayoutBindingFlagsCreateInfo flagsInfo{};
 		flagsInfo.setBindingFlags(bindingFlags);
@@ -239,10 +288,41 @@ void VulkanDescriptorSet::UpdateDescriptors()
 			.setImageInfo(samplerInfo);
 	}
 	
+	// Acceleration structures need pNext chaining. Pre-reserve so the List never reallocates
+	// (keeping &w.handle stable for the ArrayProxy pointer stored in w.info).
+	// Skip bindings whose AS is not yet built (ePartiallyBound allows null slots in the layout).
+	struct ASWrite { vk::AccelerationStructureKHR handle; vk::WriteDescriptorSetAccelerationStructureKHR info; uint bindingIndex; };
+	List<ASWrite> asWrites;
+	asWrites.Reserve(myAccelerationStructures.size());
+	for (const BindingData<const IGPUAccelerationStructure*>& binding : myAccelerationStructures)
+	{
+		if (!binding.myData)
+			continue;
+		vk::AccelerationStructureKHR handle = binding.myData->GetAccelerationStructure();
+		if (!handle)
+			continue;
+		ASWrite& w = asWrites.Emplace();
+		w.handle       = handle;
+		w.bindingIndex = binding.myBindingIndex;
+		w.info.setAccelerationStructures(w.handle);
+	}
+	List<vk::WriteDescriptorSet> asDescriptorWrites;
+	asDescriptorWrites.Reserve(asWrites.size());
+	for (ASWrite& w : asWrites)
+	{
+		asDescriptorWrites.Emplace()
+			.setDstSet(mySet)
+			.setDstBinding(w.bindingIndex)
+			.setDescriptorType(vk::DescriptorType::eAccelerationStructureKHR)
+			.setDescriptorCount(1)
+			.setPNext(&w.info);
+	}
+
 	// Update set
 	for(vk::WriteDescriptorSet& write : setWrites)
 	{
 		write.setDstSet(mySet);
 	}
 	VulkanContext::GetDevice()->updateDescriptorSets(setWrites, {});
+	VulkanContext::GetDevice()->updateDescriptorSets(asDescriptorWrites, {});
 }

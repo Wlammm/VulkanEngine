@@ -15,6 +15,7 @@ class VulkanBuffer;
 class TextureCube;
 class IRenderPass;
 class RenderGraph;
+class TLAS;
 
 class RenderSystem : public System
 {
@@ -40,6 +41,8 @@ public:
     static VulkanCommandBuffer* CreateUploadCommandBuffer_TS();
     static void QueueCommandBufferForUpload_TS(VulkanCommandBuffer* inCommandBuffer, const List<ResourceUsage>& inResourceUsages);
 
+    static TLAS* GetTLAS();
+    
     // TODO: Refactor these so they're not public like this.
     class VulkanImage* myDepthBuffer = nullptr;
     class VulkanImage* myRenderTexture = nullptr;
@@ -91,4 +94,7 @@ private:
     class VulkanImage* myResolvedDepthTexture = nullptr;
     
     RenderGraph* myRenderGraph;
+    
+    TLAS* myTLAS = nullptr;
+
 };

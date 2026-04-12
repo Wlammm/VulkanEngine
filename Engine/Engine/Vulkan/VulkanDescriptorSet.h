@@ -1,5 +1,6 @@
 #pragma once
 #include "VulkanDynamicBuffer.hpp"
+#include "Containers/IGPUAccelerationStructure.hpp"
 
 class ResizableBuffer;
 class VulkanDescriptorSet
@@ -16,6 +17,7 @@ public:
 	void BindBuffer(const class IGPUBuffer* inBuffer, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::DescriptorType inDescriptorType);
 	void BindSampler(vk::Sampler inSampler, vk::ShaderStageFlags inShaderStages, uint inBindingIndex);
 	void BindImage(const class VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags, const vk::ImageLayout inImageLayout = vk::ImageLayout::eReadOnlyOptimal);
+	void BindAccelerationStructure(const IGPUAccelerationStructure* inAS, vk::ShaderStageFlags inShaderStages, uint inBindingIndex);
 	
 	void Build();
 
@@ -41,6 +43,7 @@ private:
 	List<BindingData<const IGPUBuffer*>> myBuffers{};
 	List<BindingData<const VulkanImage*>> mySampledImages{};
 	List<BindingData<vk::Sampler>> mySamplers{};
+	List<BindingData<const IGPUAccelerationStructure*>> myAccelerationStructures{};
 	
 	// If a layout is passed in as constructor we do not want to handle deletion of it.
 	bool myUsesSharedLayout = false;

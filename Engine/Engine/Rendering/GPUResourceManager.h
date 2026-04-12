@@ -2,6 +2,7 @@
 #include "Engine/Reflection/ReflectionSystem.h"
 #include "Engine/System/System.h"
 #include "Engine/Vulkan/Containers/IGPUBuffer.hpp"
+#include "Engine/Vulkan/Containers/IGPUAccelerationStructure.hpp"
 
 class VulkanBuffer;
 
@@ -25,14 +26,12 @@ public:
 
     struct AccelerationStructureResource
     {
-        vk::AccelerationStructureKHR myAccelerationStructure{};
-        VulkanBuffer* myBuffer = nullptr;
+        IGPUAccelerationStructure* myAccelerationStructure = nullptr;
         List<std::string> myShaderAliases;
-        bool myIsOwned = false;
     };
 
     void Tick();
-    
+
     /*
      * The resource system takes ownership of the buffer and its lifetime from here on.
      */
@@ -68,13 +67,11 @@ public:
     // Lifetime is managed by the caller — GPUResourceManager will NOT destroy it.
     void RegisterBuffer(IGPUBuffer* inBuffer, List<std::string> inShaderAliases);
 
-    // Register an acceleration structure. When inIsOwned is true, the manager will destroy
-    // the AS and its backing buffer on shutdown.
-    void RegisterAccelerationStructure(vk::AccelerationStructureKHR inAS, VulkanBuffer* inBuffer,
-                                       List<std::string> inShaderAliases, bool inIsOwned = false);
+    // Register an acceleration structure resource by alias. The caller retains ownership of inAS.
+    void RegisterAccelerationStructure(IGPUAccelerationStructure* inAS, List<std::string> inShaderAliases);
 
-    vk::AccelerationStructureKHR GetAccelerationStructure(const std::string& inAlias) const;
-    vk::AccelerationStructureKHR TryGetAccelerationStructure(const std::string& inAlias) const;
+    IGPUAccelerationStructure* GetAccelerationStructure(const std::string& inAlias) const;
+    IGPUAccelerationStructure* TryGetAccelerationStructure(const std::string& inAlias) const;
 
     template <typename T>
     IGPUBuffer* GetBuffer() const

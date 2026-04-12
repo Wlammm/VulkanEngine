@@ -7,6 +7,7 @@
 #include "GPUResourceManager.h"
 #include "Engine/Engine.h"
 #include "IndexBufferSystem.h"
+#include "TLAS.h"
 #include "VertexBufferSystem.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Components/CameraComponent.h"
@@ -57,11 +58,13 @@ RenderSystem::~RenderSystem()
 	LOG_WARNING("RenderSubsystem::~RenderSubsystem waits for gpu idle.");
 	VulkanContext::GetDevice()->waitIdle();
 
+	del(myTLAS);
 	DestroyRenderResources();
 }
 
 void RenderSystem::Init()
 {
+	myTLAS = new TLAS();
 	RegisterRenderResources();
 	CreateRenderResources();
 }
@@ -185,6 +188,11 @@ void RenderSystem::QueueCommandBufferForUpload_TS(VulkanCommandBuffer* inCommand
 	uploadCommand.myResourceUsage = inResourceUsages;
 }
 
+TLAS* RenderSystem::GetTLAS()
+{
+	return myInstance->myTLAS;
+}
+
 void RenderSystem::ExecuteRenderGraph(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
@@ -306,7 +314,7 @@ void RenderSystem::RegisterRenderResources()
 		SceneHeader data;
 		data.myNumMeshInstances = Engine::GetEngineSystem<GPUSceneSystem>().GetNumObjects();
 		data.myNumPointLights = Engine::GetEngineSystem<PointLightSystem>().GetNumPointLights();
-		
+
 		static_cast<ConstantBuffer<SceneHeader>*>(inResource.myBuffer)->SetData(data);
 	});
 	
@@ -380,6 +388,9 @@ void RenderSystem::RegisterRenderResources()
 			RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 		}
 	});
+	
+	// ---------- AccelerationStructures ----------
+	resourceManager->RegisterAccelerationStructure(myTLAS, {"TLAS"});
 }
 
 void RenderSystem::CreateRenderResources()

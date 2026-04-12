@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Engine/Rendering/RenderGraph/RenderGraphTypes.hpp"
+#include "Engine/Vulkan/Containers/IGPUAccelerationStructure.hpp"
 #include "Engine/Vulkan/VulkanDescriptorSet.h"
 
 class Shader;
@@ -15,6 +16,8 @@ public:
     virtual void Execute(vk::CommandBuffer inCommandBuffer) = 0;
     
     virtual void PreExecute() {}
+
+    virtual const char* GetName() const { return ""; }
     
     const List<ResourceUsage>& GetResourceUsage() const
     {
@@ -34,6 +37,8 @@ public:
         vk::AccessFlags inAccessFlags = vk::AccessFlagBits::eShaderRead);
     
     void BindSampler(vk::Sampler inSampler, vk::ShaderStageFlags inShaderStages, uint inBindingIndex);
+
+    void BindAccelerationStructure(const IGPUAccelerationStructure* inAS, vk::ShaderStageFlags inShaderStages, uint inBindingIndex);
     
     void BindImage(
         class VulkanImage* inImage, 

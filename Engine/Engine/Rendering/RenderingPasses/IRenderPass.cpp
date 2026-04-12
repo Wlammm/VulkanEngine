@@ -21,6 +21,11 @@ void IRenderPass::BindSampler(vk::Sampler inSampler, vk::ShaderStageFlags inShad
     myDescriptorSet.BindSampler(inSampler, inShaderStages, inBindingIndex);
 }
 
+void IRenderPass::BindAccelerationStructure(const IGPUAccelerationStructure* inAS, vk::ShaderStageFlags inShaderStages, uint inBindingIndex)
+{
+    myDescriptorSet.BindAccelerationStructure(inAS, inShaderStages, inBindingIndex);
+}
+
 void IRenderPass::BindImage(
     class VulkanImage* inImage, 
     const vk::Sampler inSampler, 
@@ -77,12 +82,30 @@ void IRenderPass::BuildDescriptors(const List<SharedPtr<Shader>>& inShaders)
                     continue;
                 }
 
+                GPUResourceManager* resourceManager = GPUResourceManager::Get();
+
+                if (binding.myDescriptorType == vk::DescriptorType::eAccelerationStructureKHR)
+                {
+                    IGPUAccelerationStructure* as = resourceManager->TryGetAccelerationStructure(binding.myName);
+                    if (!as)
+                        as = resourceManager->TryGetAccelerationStructure(binding.myTypeName);
+
+                    if (!as)
+                    {
+                        LOG_ERROR("Shader '%s': acceleration structure binding %u '%s' not found in GPUResourceManager.",
+                                  shader->GetSourcePath().filename().string().c_str(),
+                                  binding.myBindingIndex,
+                                  binding.myName.c_str());
+                        continue;
+                    }
+                    BindAccelerationStructure(as, binding.myShaderStageFlags, binding.myBindingIndex);
+                    continue;
+                }
+
                 const bool isBuffer = binding.myDescriptorType == vk::DescriptorType::eStorageBuffer
                                    || binding.myDescriptorType == vk::DescriptorType::eUniformBuffer;
                 if (!isBuffer)
                     continue;
-
-                GPUResourceManager* resourceManager = GPUResourceManager::Get();
 
                 IGPUBuffer* buffer = resourceManager->TryGetBuffer(binding.myTypeName);
 
@@ -165,13 +188,14 @@ void IRenderPass::RegisterImageUsage(
 }
 
 void IRenderPass::RegisterBufferUsage(
-    IGPUBuffer* inBuffer, 
+    IGPUBuffer* inBuffer,
     vk::PipelineStageFlags inStages,
     vk::AccessFlags inAccessFlags)
 {
     ResourceUsage& usage = myResourceUsages.Emplace();
     usage.SetToBuffer(inBuffer, inStages, inAccessFlags);
 }
+
 
 vk::PipelineStageFlags IRenderPass::PipelineFlagsFromShaderStages(vk::ShaderStageFlags inShaderStages)
 {

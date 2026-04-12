@@ -20,6 +20,10 @@ ComputePass::~ComputePass()
 void ComputePass::CreateResources()
 {
     myDescriptorSet = {};
+#if !SHIPPING
+    if (myPassName.empty())
+        myPassName = ReflectionSystem::GetType(this)->GetName();
+#endif
     BuildDescriptors({ myShader });
 
     vk::DescriptorSetLayout descriptorSetLayout = myDescriptorSet.GetLayout();
@@ -49,10 +53,6 @@ void ComputePass::DestroyResources()
 
 void ComputePass::Execute(vk::CommandBuffer inCommandBuffer)
 {
-#if !SHIPPING
-    if (myPassName == "")
-        myPassName = ReflectionSystem::GetType(this)->GetName();
-#endif
     
     GPUMARK_SCOPE(inCommandBuffer, myPassName.c_str());
     

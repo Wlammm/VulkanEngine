@@ -33,17 +33,6 @@ GPUResourceManager::~GPUResourceManager()
     }
     myBuffers.Clear();
 
-    for (AccelerationStructureResource& asResource : myAccelerationStructures)
-    {
-        if (!asResource.myIsOwned)
-            continue;
-
-        if (asResource.myAccelerationStructure)
-            VulkanContext::GetDevice().GetDevice().destroyAccelerationStructureKHR(asResource.myAccelerationStructure);
-
-        if (asResource.myBuffer)
-            VulkanAllocator::DestroyBuffer_TS(asResource.myBuffer);
-    }
     myAccelerationStructures.Clear();
 }
 
@@ -128,10 +117,8 @@ IGPUBuffer* GPUResourceManager::GetBuffer(const Type* inType) const
     return nullptr;
 }
 
-void GPUResourceManager::RegisterAccelerationStructure(vk::AccelerationStructureKHR inAS, VulkanBuffer* inBuffer,
-                                                        List<std::string> inShaderAliases, bool inIsOwned)
+void GPUResourceManager::RegisterAccelerationStructure(IGPUAccelerationStructure* inAS, List<std::string> inShaderAliases)
 {
-    // Update in-place if any alias already exists (e.g. TLAS rebuilt each frame).
     for (AccelerationStructureResource& existing : myAccelerationStructures)
     {
         for (const std::string& alias : inShaderAliases)
@@ -139,9 +126,7 @@ void GPUResourceManager::RegisterAccelerationStructure(vk::AccelerationStructure
             if (existing.myShaderAliases.Contains(alias))
             {
                 existing.myAccelerationStructure = inAS;
-                existing.myBuffer = inBuffer;
                 existing.myShaderAliases = std::move(inShaderAliases);
-                existing.myIsOwned = inIsOwned;
                 return;
             }
         }
@@ -149,19 +134,17 @@ void GPUResourceManager::RegisterAccelerationStructure(vk::AccelerationStructure
 
     AccelerationStructureResource& resource = myAccelerationStructures.Emplace();
     resource.myAccelerationStructure = inAS;
-    resource.myBuffer = inBuffer;
     resource.myShaderAliases = std::move(inShaderAliases);
-    resource.myIsOwned = inIsOwned;
 }
 
-vk::AccelerationStructureKHR GPUResourceManager::GetAccelerationStructure(const std::string& inAlias) const
+IGPUAccelerationStructure* GPUResourceManager::GetAccelerationStructure(const std::string& inAlias) const
 {
-    vk::AccelerationStructureKHR result = TryGetAccelerationStructure(inAlias);
+    IGPUAccelerationStructure* result = TryGetAccelerationStructure(inAlias);
     check(result && "Failed to find acceleration structure for this alias.");
     return result;
 }
 
-vk::AccelerationStructureKHR GPUResourceManager::TryGetAccelerationStructure(const std::string& inAlias) const
+IGPUAccelerationStructure* GPUResourceManager::TryGetAccelerationStructure(const std::string& inAlias) const
 {
     for (const AccelerationStructureResource& resource : myAccelerationStructures)
     {
@@ -171,5 +154,5 @@ vk::AccelerationStructureKHR GPUResourceManager::TryGetAccelerationStructure(con
                 return resource.myAccelerationStructure;
         }
     }
-    return {};
+    return nullptr;
 }

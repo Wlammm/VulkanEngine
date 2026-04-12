@@ -45,13 +45,17 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 
 	vk::PhysicalDeviceAccelerationStructureFeaturesKHR accelerationStructureFeatures{};
 	vulkan11Features.pNext = &accelerationStructureFeatures;
+	accelerationStructureFeatures.descriptorBindingAccelerationStructureUpdateAfterBind = VK_TRUE;
 	accelerationStructureFeatures.accelerationStructure = VK_TRUE;
-
+	
+	vk::PhysicalDeviceRayQueryFeaturesKHR raytracingFeatures{};
+	accelerationStructureFeatures.pNext = &raytracingFeatures;
+	raytracingFeatures.rayQuery = VK_TRUE;
 
 	vk::DeviceDiagnosticsConfigCreateInfoNV aftermathInfo = {};
 	if(VulkanContext::GetAftermathTracker())
 	{
-		accelerationStructureFeatures.pNext = &aftermathInfo;
+		raytracingFeatures.pNext = &aftermathInfo;
 		vk::DeviceDiagnosticsConfigFlagsNV aftermathFlags =
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableResourceTracking |
 			vk::DeviceDiagnosticsConfigFlagBitsNV::eEnableAutomaticCheckpoints |

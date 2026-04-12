@@ -98,7 +98,7 @@ float3 CalculatePointLight(float3 inLightPosition, float3 inLightColor, float in
     return (kD * inAlbedo / PI + specular) * radiance * NdotL;
 }
 
-float3 CalculateDirectionalLight(float3 inLightDirection, float3 inLightColor, float3 inNormal, float3 inCamPos, float3 inFragWorldPos, float3 inAlbedo, float inMetallic, float inRoughness)
+float3 CalculateDirectionalLight(float3 inLightDirection, float3 inLightColor, float3 inNormal, float3 inCamPos, float3 inFragWorldPos, float3 inAlbedo, float inMetallic, float inRoughness, RaytracingAccelerationStructure inTLAS)
 {
     float3 N = normalize(inNormal);
     float3 V = normalize(inCamPos - inFragWorldPos);
@@ -106,6 +106,9 @@ float3 CalculateDirectionalLight(float3 inLightDirection, float3 inLightColor, f
     float3 F0 = float3(0.0f, 0.0f, 0.0f);
     F0 = lerp(F0, inAlbedo, inMetallic);
 
+    if (length(inLightDirection) == 0)
+        inLightDirection = float3(1, 0, 0);
+    
     // calculate per-light radiance
     float3 L = normalize(inLightDirection);
     float3 H = normalize(V + L);
@@ -126,5 +129,18 @@ float3 CalculateDirectionalLight(float3 inLightDirection, float3 inLightColor, f
     // add to outgoing radiance Lo
     float NdotL = max(dot(N, L), 0.0);
 
-    return inLightColor * (kD * inAlbedo / PI + specular) * NdotL;
+    // Shadow ray: offset origin along normal to avoid self-intersection
+    RayDesc shadowRay;
+    shadowRay.Origin    = inFragWorldPos + N * 0.01;
+    shadowRay.Direction = normalize(-inLightDirection);
+    shadowRay.TMin      = 0.001;
+    shadowRay.TMax      = 10000.0;
+
+    RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER | RAY_FLAG_FORCE_OPAQUE> q;
+    q.TraceRayInline(inTLAS, 0, 0xFF, shadowRay);
+    q.Proceed();
+    float shadow = (q.CommittedStatus() == COMMITTED_TRIANGLE_HIT) ? 0.0 : 1.0;
+    // float shadow = 0;
+
+    return inLightColor * (kD * inAlbedo / PI + specular) * NdotL * shadow;
 }

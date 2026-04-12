@@ -26,6 +26,8 @@ StructuredBuffer<PointLightData> inPointLightBuffer;
 [[vk::binding(2)]]
 ConstantBuffer<DirectionalLightBuffer> inDirectionalLightBuffer : register(b2);
 
+[[vk::binding(3, 0)]] RaytracingAccelerationStructure TLAS;
+
 [[vk::binding(4)]]
 StructuredBuffer<PerDrawData> inPerDrawData;
 
@@ -100,7 +102,7 @@ float4 PSMain(PSInput input) : SV_Target
         pointLightColor += CalculatePointLight(inPointLightBuffer[i].myPosition, lightColor, inPointLightBuffer[i].myRange, normalColor, inCameraBuffer.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness);
     }
     float3 lightDir = inDirectionalLightBuffer.myDirection;
-    float3 directionalLightColor = CalculateDirectionalLight(inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor.xyz, normalColor, inCameraBuffer.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness);
+    float3 directionalLightColor = CalculateDirectionalLight(inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor.xyz, normalColor, inCameraBuffer.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness, TLAS);
     
     directionalLightColor *= inDirectionalLightBuffer.myColor.a * 10;
     float3 ambientLight = albedoColor.rgb * ambientLightStrength;

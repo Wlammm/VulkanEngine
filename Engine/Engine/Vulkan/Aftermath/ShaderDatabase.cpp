@@ -72,13 +72,20 @@ void ShaderDatabase::AddShaderWithDebugInfo(const void* inSpirvData, size_t inSp
 {
     std::lock_guard<std::mutex> lock(myMutex);
 
+    List<uint8_t> binary;
+    
+    binary.Resize(static_cast<int>(inSpirvSize));
+    memcpy(binary.data(), inSpirvData, inSpirvSize);
+
     GFSDK_Aftermath_ShaderDebugName shaderDebugName{};
     strncpy_s(shaderDebugName.name, inDebugName, sizeof(shaderDebugName.name) - 1);
+    myShaderBinariesWithDebugInfo[shaderDebugName] = binary;
 
-    std::vector<uint8_t> binary(
-        reinterpret_cast<const uint8_t*>(inSpirvData),
-        reinterpret_cast<const uint8_t*>(inSpirvData) + inSpirvSize
-    );
+    GFSDK_Aftermath_SpirvCode spirvCode{};
+    spirvCode.pData = inSpirvData;
+    spirvCode.size  = static_cast<uint32_t>(inSpirvSize);
 
-    myShaderBinariesWithDebugInfo[shaderDebugName] = std::move(binary);
+    GFSDK_Aftermath_ShaderBinaryHash shaderHash{};
+    if (GFSDK_Aftermath_SUCCEED(GFSDK_Aftermath_GetShaderHashSpirv(GFSDK_Aftermath_Version_API, &spirvCode, &shaderHash)))
+        myShaderBinaries[shaderHash] = std::move(binary);
 }

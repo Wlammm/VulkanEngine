@@ -1,5 +1,7 @@
 ﻿#include "EnginePch.h"
 #include "RenderGraph.h"
+#include "Engine/Vulkan/VulkanContext.h"
+#include "Engine/Vulkan/Aftermath/NvidiaAftermathTracker.h"
 
 void RenderGraph::DestroyRenderPasses()
 {
@@ -23,10 +25,13 @@ void RenderGraph::Execute(vk::CommandBuffer inCommandBuffer)
     for (IRenderPass* pass : myPasses)
     {
         pass->PreExecute();
-        
+
         InsertResourceBarriers(inCommandBuffer, pass->GetResourceUsage());
         InsertResourceBarriers(inCommandBuffer, pass->GetDynamicResourceUsages());
-        
+
+        if (VulkanContext::GetAftermathTracker())
+            inCommandBuffer.setCheckpointNV(pass->GetName());
+
         pass->Execute(inCommandBuffer);
     }
 }

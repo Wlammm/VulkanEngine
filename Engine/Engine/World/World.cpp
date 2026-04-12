@@ -4,9 +4,10 @@
 #include <PxRigidActor.h>
 #include <PxScene.h>
 
-#include "Engine/Engine.h"
+#include "Engine/Assets/Model.h"
 #include "Engine/Components/DirectionalLightComponent.h"
 #include "Engine/Components/PointLightComponent.h"
+#include "Engine/Components/StaticMeshComponent.h"
 #include "Engine/Components/TransformComponent.h"
 #include "Engine/ComponentSystem/Actor.h"
 #include "Engine/ComponentSystem/GameObjectTag.hpp"
@@ -15,8 +16,12 @@
 #include "Engine/ComponentSystem/Actors/PhysicsCubeActor.h"
 #include "Engine/ComponentSystem/Actors/PointLightActor.h"
 #include "Engine/ComponentSystem/Actors/StaticMeshActor.h"
+#include "Engine/Engine.h"
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Reflection/Type.h"
+#include "Engine/Rendering/BLAS.h"
+#include "Engine/Rendering/GPUResourceManager.h"
+#include "Engine/Rendering/TLAS.h"
 #include "Engine/Serialization/BinarySerializer.h"
 #include "Engine/Systems/LandscapeSystem.h"
 
@@ -55,8 +60,8 @@ void World::PostPropertiesSerialized()
 void World::DoTick()
 {
 	Tick();
-
 	TickActorDeletes();
+	RebuildTLAS();
 }
 
 void World::Destroy()
@@ -270,6 +275,49 @@ void World::TickActorDeletes()
 		}
 	}
 	myActorsToDelete.Clear();
+}
+
+void World::RebuildTLAS()
+{
+	List<VkAccelerationStructureInstanceKHR> instances;
+
+	for (const UniquePtr<Actor>& actor : myActors)
+	{
+		StaticMeshComponent* smc = actor->GetComponent<StaticMeshComponent>();
+		if (!smc)
+			continue;
+
+		SharedPtr<Model> model = smc->GetModel();
+		if (!model)
+			continue;
+
+		const List<BLAS*>& blases = model->GetBLASes();
+		if (blases.IsEmpty())
+			continue;
+
+		const glm::mat4 worldMatrix = actor->GetTransform().GetMatrix();
+
+		for (const BLAS* blas : blases)
+		{
+			VkAccelerationStructureInstanceKHR& instance = instances.Emplace();
+
+			// GLM is column-major (mat[col][row]); Vulkan expects a 3x4 row-major matrix.
+			for (int row = 0; row < 3; ++row)
+				for (int col = 0; col < 4; ++col)
+					instance.transform.matrix[row][col] = worldMatrix[col][row];
+
+			instance.instanceCustomIndex                    = 0;
+			instance.mask                                   = 0xFF;
+			instance.instanceShaderBindingTableRecordOffset = 0;
+			instance.flags = static_cast<uint32_t>(VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR);
+			instance.accelerationStructureReference         = blas->GetDeviceAddress();
+		}
+	}
+
+	if (instances.IsEmpty())
+		return;
+
+	RenderSystem::GetTLAS()->Build(instances);
 }
 
 void World::InitActor(Actor* inActor, const std::string& inName)

@@ -98,11 +98,8 @@ void NvidiaAftermathTracker::OnDescription(PFN_GFSDK_Aftermath_AddGpuCrashDumpDe
     // Add some basic description about the crash. This is called after the GPU crash happens, but before
     // the actual GPU crash dump callback. The provided data is included in the crash dump and can be
     // retrieved using GFSDK_Aftermath_GpuCrashDump_GetDescription().
-    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationName, "VkHelloNsightAftermath");
-    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationVersion, "v1.0");
-    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_UserDefined, "This is a GPU crash dump example.");
-    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_UserDefined + 1, "Engine State: Rendering.");
-    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_UserDefined + 2, "More user-defined information...");
+    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationName, "VulkanEngine");
+    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationVersion, "1.0");
 }
 
 // Handler for app-managed marker resolve callback
@@ -116,12 +113,18 @@ void NvidiaAftermathTracker::OnResolveMarker(const void* pMarkerData, const uint
         if (foundMarker != map.end())
         {
             const std::string& foundMarkerData = foundMarker->second;
-            // std::string::data() will return a valid pointer until the string is next modified
-            // we don't modify the string after calling data() here, so the pointer should remain valid
             *ppResolvedMarkerData = (void*)foundMarkerData.data();
             *pResolvedMarkerDataSize = (uint32_t)foundMarkerData.length();
             return;
         }
+    }
+
+    // Fall back: treat as a null-terminated string (used for static pass name pointers
+    // set via vkCmdSetCheckpointNV directly with a const char*).
+    if (pMarkerData)
+    {
+        *ppResolvedMarkerData = const_cast<void*>(pMarkerData);
+        *pResolvedMarkerDataSize = (uint32_t)strlen(static_cast<const char*>(pMarkerData));
     }
 }
 
@@ -178,6 +181,7 @@ void NvidiaAftermathTracker::WriteGpuCrashDumpToFile(const void* pGpuCrashDump, 
         dumpFile.write((const char*)pGpuCrashDump, gpuCrashDumpSize);
         dumpFile.close();
     }
+    LOG_ERROR("[Aftermath] GPU crash dump written to: %s", crashDumpFileName.c_str());
 
     // Decode the crash dump to a JSON string.
     // Step 1: Generate the JSON and get the size.

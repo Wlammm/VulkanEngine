@@ -21,6 +21,8 @@ public:
     
     void OnShaderRecompiled();
 
+    const char* GetName() const override { return myPassName.c_str(); }
+
 protected:
     std::string myPassName = "";
     

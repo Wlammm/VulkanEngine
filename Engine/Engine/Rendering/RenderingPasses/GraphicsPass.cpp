@@ -58,10 +58,6 @@ vk::PrimitiveTopology GraphicsPass::GetPrimitiveTopology() const
 
 void GraphicsPass::Execute(vk::CommandBuffer inCommandBuffer)
 {
-#if !SHIPPING
-    if (myPassName == "")
-        myPassName = ReflectionSystem::GetType(this)->GetName();
-#endif
     
     GPUMARK_SCOPE(inCommandBuffer, myPassName.c_str());
     
@@ -134,6 +130,10 @@ void GraphicsPass::PreExecute()
 void GraphicsPass::CreateResources()
 {
     myDescriptorSet = {};
+#if !SHIPPING
+    if (myPassName.empty())
+        myPassName = ReflectionSystem::GetType(this)->GetName();
+#endif
     SetupAttachments();
     BuildDescriptors({myVertexShader, myFragmentShader});
  

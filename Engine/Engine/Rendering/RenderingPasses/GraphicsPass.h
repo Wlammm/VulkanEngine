@@ -42,6 +42,8 @@ public:
     void DestroyResources() override;
     
     void OnShaderRecompiled();
+
+    const char* GetName() const override { return myPassName.c_str(); }
     
     /*
      * Should be called inside SetupAttachments.
