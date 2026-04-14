@@ -24,7 +24,9 @@ public:
 	void Rebuild();
 	
 private:
-	void BuildLayoutAndAllocate();
+	void BuildLayout();
+	void AllocateDescriptorSet();
+	void DestroyDescriptorSet();
 	void UpdateDescriptors();
 	
 	template<typename Type>

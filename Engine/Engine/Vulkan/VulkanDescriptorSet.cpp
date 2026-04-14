@@ -129,16 +129,19 @@ void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sample
 void VulkanDescriptorSet::Build()
 {
 	ZoneScoped;
-	BuildLayoutAndAllocate();
+	BuildLayout();
+	AllocateDescriptorSet();
 	UpdateDescriptors();
 }
 
 void VulkanDescriptorSet::Rebuild()
 {
+	DestroyDescriptorSet();
+	AllocateDescriptorSet();
 	UpdateDescriptors();
 }
 
-void VulkanDescriptorSet::BuildLayoutAndAllocate()
+void VulkanDescriptorSet::BuildLayout()
 {
 	List<vk::DescriptorSetLayoutBinding> layoutBindings{};
 	
@@ -219,14 +222,23 @@ void VulkanDescriptorSet::BuildLayoutAndAllocate()
 		vk::DescriptorSetLayoutCreateInfo createInfo = vk::DescriptorSetLayoutCreateInfo().setBindings(layoutBindings).setFlags(vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool).setPNext(&flagsInfo);
 		myLayout = VulkanContext::GetDevice()->createDescriptorSetLayout(createInfo);
 	}
-	
-	// Create set
+}
+
+void VulkanDescriptorSet::AllocateDescriptorSet()
+{
 	vk::DescriptorSetAllocateInfo allocInfo = vk::DescriptorSetAllocateInfo()
 		.setDescriptorPool(VulkanContext::GetDescriptorPool())
 		.setSetLayouts(myLayout);
-
 	
 	mySet = VulkanContext::GetDevice()->allocateDescriptorSets(allocInfo).front();
+}
+
+void VulkanDescriptorSet::DestroyDescriptorSet()
+{
+	VulkanAllocator::QueueDestroyCommand([setCopy = mySet]()
+	{
+		VulkanContext::GetDevice()->freeDescriptorSets(VulkanContext::GetDescriptorPool(), setCopy);
+	});
 }
 
 void VulkanDescriptorSet::UpdateDescriptors()
