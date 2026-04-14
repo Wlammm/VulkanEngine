@@ -29,6 +29,8 @@ private:
 	void DestroyDescriptorSet();
 	void UpdateDescriptors();
 	
+	int GetNumDescriptors();
+	
 	template<typename Type>
 	struct BindingData
 	{

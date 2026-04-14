@@ -244,13 +244,16 @@ void VulkanDescriptorSet::DestroyDescriptorSet()
 void VulkanDescriptorSet::UpdateDescriptors()
 {
 	List<vk::WriteDescriptorSet> setWrites{};
-	setWrites.Reserve(16);
+	setWrites.Reserve(GetNumDescriptors());
 	
 	List<vk::DescriptorBufferInfo> bufferInfos{};
 	bufferInfos.Reserve(myBuffers.size());
 	
 	List<vk::DescriptorImageInfo> imageInfos{};
 	imageInfos.Reserve(mySampledImages.size());
+	
+	List<vk::WriteDescriptorSetAccelerationStructureKHR> accelerationStructureInfos{};
+	accelerationStructureInfos.Reserve(myAccelerationStructures.size());
 
 	for(const BindingData<const IGPUBuffer*>& binding : myBuffers)
 	{
@@ -300,41 +303,35 @@ void VulkanDescriptorSet::UpdateDescriptors()
 			.setImageInfo(samplerInfo);
 	}
 	
-	// Acceleration structures need pNext chaining. Pre-reserve so the List never reallocates
-	// (keeping &w.handle stable for the ArrayProxy pointer stored in w.info).
-	// Skip bindings whose AS is not yet built (ePartiallyBound allows null slots in the layout).
-	struct ASWrite { vk::AccelerationStructureKHR handle; vk::WriteDescriptorSetAccelerationStructureKHR info; uint bindingIndex; };
-	List<ASWrite> asWrites;
-	asWrites.Reserve(myAccelerationStructures.size());
+	
 	for (const BindingData<const IGPUAccelerationStructure*>& binding : myAccelerationStructures)
 	{
 		if (!binding.myData)
 			continue;
+		
 		vk::AccelerationStructureKHR handle = binding.myData->GetAccelerationStructure();
 		if (!handle)
 			continue;
-		ASWrite& w = asWrites.Emplace();
-		w.handle       = handle;
-		w.bindingIndex = binding.myBindingIndex;
-		w.info.setAccelerationStructures(w.handle);
-	}
-	List<vk::WriteDescriptorSet> asDescriptorWrites;
-	asDescriptorWrites.Reserve(asWrites.size());
-	for (ASWrite& w : asWrites)
-	{
-		asDescriptorWrites.Emplace()
-			.setDstSet(mySet)
-			.setDstBinding(w.bindingIndex)
+		
+		accelerationStructureInfos.Emplace().setAccelerationStructures({handle});
+
+		setWrites.Emplace()
+			.setDstBinding(binding.myBindingIndex)
 			.setDescriptorType(vk::DescriptorType::eAccelerationStructureKHR)
 			.setDescriptorCount(1)
-			.setPNext(&w.info);
+			.setPNext(&accelerationStructureInfos.Last());
 	}
-
+	
 	// Update set
 	for(vk::WriteDescriptorSet& write : setWrites)
 	{
 		write.setDstSet(mySet);
 	}
+
 	VulkanContext::GetDevice()->updateDescriptorSets(setWrites, {});
-	VulkanContext::GetDevice()->updateDescriptorSets(asDescriptorWrites, {});
+}
+
+int VulkanDescriptorSet::GetNumDescriptors()
+{
+	return mySamplers.size() + myAccelerationStructures.size() + myBuffers.size() + mySampledImages.size();
 }
