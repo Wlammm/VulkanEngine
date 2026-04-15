@@ -99,7 +99,7 @@ float4 PSMain(PSInput input) : SV_Target
     for(int i = 0; i < inSceneHeader.myNumPointLights; ++i)
     {
         float3 lightColor = inPointLightBuffer[i].myColor.rgb * inPointLightBuffer[i].myIntensity;
-        pointLightColor += CalculatePointLight(inPointLightBuffer[i].myPosition, lightColor, inPointLightBuffer[i].myRange, normalColor, inCameraBuffer.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness);
+        pointLightColor += CalculatePointLight(inPointLightBuffer[i].myPosition, lightColor, inPointLightBuffer[i].myRange, normalColor, inCameraBuffer.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness, TLAS);
     }
     float3 lightDir = inDirectionalLightBuffer.myDirection;
     float3 directionalLightColor = CalculateDirectionalLight(inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor.xyz, normalColor, inCameraBuffer.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness, TLAS);

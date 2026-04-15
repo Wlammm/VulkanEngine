@@ -300,7 +300,7 @@ void VulkanContext::CreateDescriptorPool()
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eSampler);
 	poolSizes.Emplace().setDescriptorCount(100).setType(vk::DescriptorType::eAccelerationStructureKHR);
 	
-	vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo().setPoolSizes(poolSizes).setMaxSets(1000).setFlags(vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind);
+	vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo().setPoolSizes(poolSizes).setMaxSets(1000).setFlags(vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind | vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet);
 
 	myDescriptorPool = GetDevice()->createDescriptorPool(createInfo);
 }

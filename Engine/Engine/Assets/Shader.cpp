@@ -212,6 +212,7 @@ bool Shader::IsCacheValid() const
 
 void Shader::Recompile()
 {
+    RemoveFilewatcherCallbacks();
     LoadPropertiesFromSource();
     PostPropertiesSerialized();
 }

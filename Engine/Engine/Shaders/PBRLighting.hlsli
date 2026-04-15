@@ -1,5 +1,8 @@
 ﻿#include "Common.hlsli"
 
+// Distance the shadow rays are offsetted from the normal to prevent self intersection.
+static float ShadowBias = 30;
+
 float DistributionGGX(float3 N, float3 H, float roughness)
 {
     float a      = roughness;
@@ -57,7 +60,7 @@ float3 GetNormalFromMap(float3 inNormalFromNormalTexture, float3 inVertexNormal,
     return normalize(mul(TBN, tangentNormal));
 }
 
-float3 CalculatePointLight(float3 inLightPosition, float3 inLightColor, float inLightRange, float3 inNormal, float3 inCamPos, float3 inFragWorldPos, float3 inAlbedo, float inMetallic, float inRoughness)
+float3 CalculatePointLight(float3 inLightPosition, float3 inLightColor, float inLightRange, float3 inNormal, float3 inCamPos, float3 inFragWorldPos, float3 inAlbedo, float inMetallic, float inRoughness, RaytracingAccelerationStructure inTLAS)
 {
     float3 lightDirection = inLightPosition - inFragWorldPos;
     
@@ -94,8 +97,19 @@ float3 CalculatePointLight(float3 inLightPosition, float3 inLightColor, float in
 
     // add to outgoing radiance Lo
     float NdotL = max(dot(N, L), 0.0);
+    
+    RayDesc shadowRay;
+    shadowRay.Origin    = inFragWorldPos + normalize(N) * ShadowBias;
+    shadowRay.Direction = normalize(lightDirection);
+    shadowRay.TMin      = 0.001;
+    shadowRay.TMax      = length(inLightPosition - inFragWorldPos);
+    
+    RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER | RAY_FLAG_FORCE_OPAQUE> q;
+    q.TraceRayInline(inTLAS, 0, 0xFF, shadowRay);
+    q.Proceed();
+    float shadow = (q.CommittedStatus() == COMMITTED_TRIANGLE_HIT) ? 0.0 : 1.0;
 
-    return (kD * inAlbedo / PI + specular) * radiance * NdotL;
+    return (kD * inAlbedo / PI + specular) * radiance * NdotL * shadow;
 }
 
 float3 CalculateDirectionalLight(float3 inLightDirection, float3 inLightColor, float3 inNormal, float3 inCamPos, float3 inFragWorldPos, float3 inAlbedo, float inMetallic, float inRoughness, RaytracingAccelerationStructure inTLAS)
@@ -131,8 +145,8 @@ float3 CalculateDirectionalLight(float3 inLightDirection, float3 inLightColor, f
 
     // Shadow ray: offset origin along normal to avoid self-intersection
     RayDesc shadowRay;
-    shadowRay.Origin    = inFragWorldPos + N * 0.01;
-    shadowRay.Direction = normalize(-inLightDirection);
+    shadowRay.Origin    = inFragWorldPos + normalize(N) * ShadowBias;
+    shadowRay.Direction = normalize(inLightDirection);
     shadowRay.TMin      = 0.001;
     shadowRay.TMax      = 10000.0;
     

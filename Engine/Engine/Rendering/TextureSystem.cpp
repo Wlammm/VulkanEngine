@@ -209,7 +209,7 @@ void TextureSystem::CreateDescritorPool()
     };
 
     vk::DescriptorPoolCreateInfo createInfo = vk::DescriptorPoolCreateInfo()
-    .setFlags(vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind)
+    .setFlags(vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind | vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet)
     .setMaxSets(MAX_BINDLESS_RESOURCES * sizes.size())
     .setPoolSizes(sizes);
 

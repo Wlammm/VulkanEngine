@@ -23,7 +23,7 @@ Filewatcher::CallbackHandle Filewatcher::InsertWatch_TS(const std::filesystem::p
 {
 	check(std::filesystem::exists(inPath));
 
-	std::unique_lock<std::mutex>(myLock);
+	std::unique_lock<std::mutex> lock(myLock);
 	if(!myFilesToWatch.contains(inPath))
 	{
 		FileData data;
@@ -40,7 +40,7 @@ Filewatcher::CallbackHandle Filewatcher::InsertWatch_TS(const std::filesystem::p
 
 void Filewatcher::RemoveWatch_TS(const std::filesystem::path& inPath, const CallbackHandle& inHandle)
 {
-	std::unique_lock<std::mutex>(myLock);
+	std::unique_lock<std::mutex> lock(myLock);
 
 	if (!myFilesToWatch.contains(inPath))
 		return;
@@ -60,16 +60,20 @@ void Filewatcher::RemoveWatch_TS(const std::filesystem::path& inPath, const Call
 void Filewatcher::FlushChanges()
 {
 	ZoneScoped;
-	myLock.lock();
 
-	for(FileData* fileData : myModifiedPaths)
+	List<std::function<void()>> callbacksToFire;
 	{
-		for (const std::function<void()>& callback : fileData->myCallbacks)
-			callback();
+		std::unique_lock<std::mutex> lock(myLock);
+		for (FileData* fileData : myModifiedPaths)
+		{
+			for (const std::function<void()>& callback : fileData->myCallbacks)
+				callbacksToFire.Add(callback);
+		}
+		myModifiedPaths.clear();
 	}
-	myModifiedPaths.clear();
 
-	myLock.unlock();
+	for (const std::function<void()>& callback : callbacksToFire)
+		callback();
 }
 
 void Filewatcher::WatchThread()
@@ -77,20 +81,21 @@ void Filewatcher::WatchThread()
 	ZoneScoped;
 	while(myShouldRun)
 	{
-		myLock.lock();
-		for(auto& [path, fileData] : myFilesToWatch)
 		{
-			if(!std::filesystem::exists(path))
-				continue;
-
-			const std::filesystem::file_time_type writeTime = std::filesystem::last_write_time(path);
-			if(writeTime != fileData.myLastModifiedTime)
+			std::unique_lock<std::mutex> lock(myLock);
+			for(auto& [path, fileData] : myFilesToWatch)
 			{
-				myModifiedPaths.insert(&fileData);
-				fileData.myLastModifiedTime = writeTime;
+				if(!std::filesystem::exists(path))
+					continue;
+
+				const std::filesystem::file_time_type writeTime = std::filesystem::last_write_time(path);
+				if(writeTime != fileData.myLastModifiedTime)
+				{
+					myModifiedPaths.insert(&fileData);
+					fileData.myLastModifiedTime = writeTime;
+				}
 			}
 		}
-		myLock.unlock();
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(30));
 	}
