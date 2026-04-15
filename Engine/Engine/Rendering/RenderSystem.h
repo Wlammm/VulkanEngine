@@ -41,7 +41,9 @@ public:
     static void QueueCommandBufferForUpload_TS(VulkanCommandBuffer* inCommandBuffer, const List<ResourceUsage>& inResourceUsages);
 
     static TLAS* GetTLAS();
-    
+
+    static float GetGpuFrameTime();
+
     // TODO: Refactor these so they're not public like this.
     class VulkanImage* myDepthBuffer = nullptr;
     class VulkanImage* myRenderTexture = nullptr;
@@ -69,6 +71,8 @@ private:
     void CreateRenderPasses();
     void DestroyRenderPasses();
 
+    void ReadTimestampResults(uint inSyncIndex);
+
 private:
     struct UploadCommand
     {
@@ -93,7 +97,9 @@ private:
     class VulkanImage* myResolvedDepthTexture = nullptr;
     
     RenderGraph* myRenderGraph = nullptr;
-    
+
     TLAS* myTLAS = nullptr;
 
+    vk::QueryPool myTimestampQueryPool;
+    float myGpuFrameTimeMs = 0.0f;
 };

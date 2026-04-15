@@ -33,6 +33,7 @@ VulkanDevice::VulkanDevice(const VulkanPhysicalDevice& inPhysicalDevice)
 	vulkan12Features.descriptorBindingStorageTexelBufferUpdateAfterBind = VK_TRUE;
 	vulkan12Features.descriptorBindingUniformTexelBufferUpdateAfterBind = VK_TRUE;
 	vulkan12Features.bufferDeviceAddress = VK_TRUE;
+	vulkan12Features.hostQueryReset = VK_TRUE;
 	
 	vk::PhysicalDeviceVulkan13Features vulkan13Features{};
 	vulkan12Features.pNext = &vulkan13Features;

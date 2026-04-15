@@ -17,6 +17,7 @@ enum PlotType
 {
     FrameTime = 0,
     CPU,
+    GPU,
     Count
 };
 
@@ -36,5 +37,6 @@ private:
     inline static TimingPlot myPlots[] = {
         { "FrameTime" },
         { "CPU" },
+        { "GPU" },
     };
 };

@@ -8024,6 +8024,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPointerToValue", Refl
 	{
 		Field& currentField = currentClass->AddField(Field("myTLAS", -1, ReflectionSystem::GetOrCreateType<TLAS>("TLAS"), true, false));
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myTimestampQueryPool", -1, ReflectionSystem::GetOrCreateType<vk::QueryPool>("vk::QueryPool"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myGpuFrameTimeMs", -1, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8150,6 +8156,16 @@ return (void*)result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetTLAS", ReflectionSystem::GetOrCreateType<TLAS *>("TLAS *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
+static thread_local float result = instance->GetGpuFrameTime();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetGpuFrameTime", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
 }
 }
 { 

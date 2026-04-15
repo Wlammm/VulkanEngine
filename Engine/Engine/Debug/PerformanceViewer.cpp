@@ -4,6 +4,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Core/Input.h"
 #include "Engine/Core/Time.h"
+#include "Engine/Rendering/RenderSystem.h"
 
 void TimingPlot::Push(float valueMs)
 {
@@ -51,6 +52,7 @@ void PerformanceViewer::RenderImGui()
         myDisplayedFps = 1.0f / frameTime;
         myPlots[PlotType::FrameTime].Push(frameTime * 1000.0f);
         myPlots[PlotType::CPU].Push(Engine::GetCpuFrameTime() * 1000.0f);
+        myPlots[PlotType::GPU].Push(RenderSystem::GetGpuFrameTime());
     }
 
     ImGui::Text("FPS: %.0f", myDisplayedFps);

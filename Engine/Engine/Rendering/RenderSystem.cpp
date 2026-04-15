@@ -57,6 +57,7 @@ RenderSystem::~RenderSystem()
 
 	LOG_WARNING("RenderSubsystem::~RenderSubsystem waits for gpu idle.");
 	VulkanContext::GetDevice()->waitIdle();
+	VulkanContext::GetDevice()->destroyQueryPool(myTimestampQueryPool);
 
 	del(myTLAS);
 	DestroyRenderResources();
@@ -67,14 +68,31 @@ void RenderSystem::Init()
 	myTLAS = new TLAS();
 	RegisterRenderResources();
 	CreateRenderResources();
+
+	vk::QueryPoolCreateInfo queryPoolInfo = vk::QueryPoolCreateInfo()
+		.setQueryType(vk::QueryType::eTimestamp)
+		.setQueryCount(2 * VulkanContext::FrameLag);
+	myTimestampQueryPool = VulkanContext::GetDevice()->createQueryPool(queryPoolInfo);
+
+	// Initialize all slots to "not ready" by resetting them on the host.
+	// The first FrameLag frames will return eNotReady which we handle gracefully.
+	VulkanContext::GetDevice()->resetQueryPool(myTimestampQueryPool, 0, 2 * VulkanContext::FrameLag);
 }
 
 void RenderSystem::Tick()
 {
 	ZoneScoped;
-	
+
+	const uint syncIndex = VulkanContext::GetSwapChain().GetSyncIndex();
+	const uint queryBase = syncIndex * 2;
+
+	ReadTimestampResults(syncIndex);
+
 	const vk::CommandBuffer& commandBuffer = VulkanContext::GetSwapChain().GetCommandBuffer();
 	commandBuffer.begin(vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse));
+
+	commandBuffer.resetQueryPool(myTimestampQueryPool, queryBase, 2);
+	commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eTopOfPipe, myTimestampQueryPool, queryBase);
 
 	{
 		GPUMARK_SCOPE(commandBuffer, "Frame");
@@ -83,7 +101,30 @@ void RenderSystem::Tick()
 		ExecuteRenderGraph(commandBuffer);
 	}
 
+	commandBuffer.writeTimestamp(vk::PipelineStageFlagBits::eBottomOfPipe, myTimestampQueryPool, queryBase + 1);
 	commandBuffer.end();
+}
+
+void RenderSystem::ReadTimestampResults(uint inSyncIndex)
+{
+	// The fence for inSyncIndex was just waited on in BeginFrame(), so results from
+	// the previous submission using this slot are guaranteed to be available.
+	std::array<uint64_t, 2> timestamps{};
+	vk::Result result = VulkanContext::GetDevice()->getQueryPoolResults(
+		myTimestampQueryPool, inSyncIndex * 2, 2,
+		sizeof(timestamps), timestamps.data(), sizeof(uint64_t),
+		vk::QueryResultFlagBits::e64);
+
+	if (result == vk::Result::eSuccess)
+	{
+		const float timestampPeriod = VulkanContext::GetPhysicalDevice()->getProperties().limits.timestampPeriod;
+		myGpuFrameTimeMs = static_cast<float>(timestamps[1] - timestamps[0]) * timestampPeriod * 1e-6f;
+	}
+}
+
+float RenderSystem::GetGpuFrameTime()
+{
+	return myInstance->myGpuFrameTimeMs;
 }
 
 VulkanImage* RenderSystem::GetRenderTexture()
