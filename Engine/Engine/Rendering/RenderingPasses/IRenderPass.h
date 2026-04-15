@@ -15,7 +15,7 @@ public:
     
     virtual void Execute(vk::CommandBuffer inCommandBuffer) = 0;
     
-    virtual void PreExecute() { myDynamicResourceUsages.Clear(); }
+    virtual void PreExecute();
 
     virtual const char* GetName() const { return ""; }
     
@@ -38,7 +38,7 @@ public:
     
     void BindSampler(vk::Sampler inSampler, vk::ShaderStageFlags inShaderStages, uint inBindingIndex);
 
-    void BindAccelerationStructure(const IGPUAccelerationStructure* inAS, vk::ShaderStageFlags inShaderStages, uint inBindingIndex);
+    void BindAccelerationStructure(IGPUAccelerationStructure* inAS, vk::ShaderStageFlags inShaderStages, uint inBindingIndex,vk::AccessFlags inAccessFlags);
     
     void BindImage(
         class VulkanImage* inImage, 
@@ -63,14 +63,22 @@ protected:
     
     void RegisterBufferUsage(IGPUBuffer* inBuffer, vk::PipelineStageFlags inStages, vk::AccessFlags inAccessFlags);
     
+    void RegisterAccelerationStructureUsage(IGPUAccelerationStructure* inAS, vk::PipelineStageFlags inStages, vk::AccessFlags inAccessFlags);
+    
 private:
     vk::PipelineStageFlags PipelineFlagsFromShaderStages(vk::ShaderStageFlags inShaderStages);
-    
+
 protected:
     VulkanDescriptorSet myDescriptorSet;
     vk::PushConstantRange myPushConstantRange{};
-    
+
 private:
+    struct BoundAccelerationStructure
+    {
+        const IGPUAccelerationStructure* myAS;
+        vk::ShaderStageFlags myShaderStages;
+    };
+
     List<ResourceUsage> myResourceUsages;
     List<ResourceUsage> myDynamicResourceUsages;
 };

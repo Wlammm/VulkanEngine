@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class IGPUAccelerationStructure;
 class IGPUBuffer;
 class VulkanImage;
 
@@ -15,7 +16,7 @@ struct ResourceUsage
 {
     VulkanImage* myImage = nullptr;
     IGPUBuffer* myBuffer = nullptr;
-    vk::AccelerationStructureKHR myAccelerationStructure{};
+    IGPUAccelerationStructure* myAccelerationStructure = nullptr;
 
     ResourceState myRequiredState;
 
@@ -35,7 +36,7 @@ struct ResourceUsage
         myIsReadOnly = (inAccessFlags & (vk::AccessFlagBits::eMemoryWrite | vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eTransferWrite)) == vk::AccessFlagBits::eNone;
     }
 
-    void SetToAccelerationStructure(vk::AccelerationStructureKHR inAS, vk::PipelineStageFlags inStages, vk::AccessFlags inAccessFlags)
+    void SetToAccelerationStructure(IGPUAccelerationStructure* inAS, vk::PipelineStageFlags inStages, vk::AccessFlags inAccessFlags)
     {
         myAccelerationStructure = inAS;
         myRequiredState = { inStages, inAccessFlags, vk::ImageLayout::eUndefined };

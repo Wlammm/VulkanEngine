@@ -171,10 +171,8 @@ void RenderGraph::HandleAccelerationStructureBarrier(
     vk::PipelineStageFlags& inOutSrcGlobal,
     vk::PipelineStageFlags& inOutDstGlobal)
 {
-    // Acceleration structures have no dedicated barrier type — use a global memory barrier.
-    // The state is keyed on the raw VkAccelerationStructureKHR handle.
-    void* key = static_cast<VkAccelerationStructureKHR>(inUsage.myAccelerationStructure);
-    ResourceState& currentState = myGlobalResourceState[key];
+    IGPUAccelerationStructure* accelerationStructure = inUsage.myAccelerationStructure;
+    ResourceState& currentState = myGlobalResourceState[accelerationStructure];
 
     bool accessHazard = false;
     if (currentState.myAccessFlags != vk::AccessFlagBits::eNone)

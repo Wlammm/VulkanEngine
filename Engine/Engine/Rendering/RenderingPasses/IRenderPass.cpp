@@ -21,9 +21,15 @@ void IRenderPass::BindSampler(vk::Sampler inSampler, vk::ShaderStageFlags inShad
     myDescriptorSet.BindSampler(inSampler, inShaderStages, inBindingIndex);
 }
 
-void IRenderPass::BindAccelerationStructure(const IGPUAccelerationStructure* inAS, vk::ShaderStageFlags inShaderStages, uint inBindingIndex)
+void IRenderPass::PreExecute()
+{
+    myDynamicResourceUsages.Clear();
+}
+
+void IRenderPass::BindAccelerationStructure(IGPUAccelerationStructure* inAS, vk::ShaderStageFlags inShaderStages, uint inBindingIndex,vk::AccessFlags inAccessFlags)
 {
     myDescriptorSet.BindAccelerationStructure(inAS, inShaderStages, inBindingIndex);
+    RegisterAccelerationStructureUsage(inAS, PipelineFlagsFromShaderStages(inShaderStages), inAccessFlags);
 }
 
 void IRenderPass::BindImage(
@@ -98,7 +104,7 @@ void IRenderPass::BuildDescriptors(const List<SharedPtr<Shader>>& inShaders)
                                   binding.myName.c_str());
                         continue;
                     }
-                    BindAccelerationStructure(as, binding.myShaderStageFlags, binding.myBindingIndex);
+                    BindAccelerationStructure(as, binding.myShaderStageFlags, binding.myBindingIndex,vk::AccessFlagBits::eShaderRead);
                     continue;
                 }
 
@@ -194,6 +200,15 @@ void IRenderPass::RegisterBufferUsage(
 {
     ResourceUsage& usage = myResourceUsages.Emplace();
     usage.SetToBuffer(inBuffer, inStages, inAccessFlags);
+}
+
+void IRenderPass::RegisterAccelerationStructureUsage(
+    IGPUAccelerationStructure* inAS,
+    vk::PipelineStageFlags inStages, 
+    vk::AccessFlags inAccessFlags)
+{
+    ResourceUsage& usage = myResourceUsages.Emplace();
+    usage.SetToAccelerationStructure(inAS, inStages, inAccessFlags);
 }
 
 

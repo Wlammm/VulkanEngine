@@ -264,22 +264,6 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 		});
 	}
 	myQueuedUploadCommandBuffers.Clear();
-
-	// Ensure all acceleration structure builds from the upload pass are fully visible
-	// to subsequent shader reads (e.g. TraceRayInline in the fragment shader).
-	// The render graph does not track TLAS reads in graphics passes, so this global
-	// barrier bridges the gap every frame.
-	vk::MemoryBarrier asBarrier{};
-	asBarrier
-		.setSrcAccessMask(vk::AccessFlagBits::eAccelerationStructureWriteKHR)
-		.setDstAccessMask(vk::AccessFlagBits::eAccelerationStructureReadKHR);
-	inCommandBuffer.pipelineBarrier(
-		vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
-		vk::PipelineStageFlagBits::eFragmentShader,
-		vk::DependencyFlags{},
-		asBarrier,
-		{},
-		{});
 }
 
 void RenderSystem::FlushUploadCommands()

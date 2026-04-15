@@ -1,7 +1,7 @@
 ﻿#include "Common.hlsli"
 
 // Distance the shadow rays are offsetted from the normal to prevent self intersection.
-static float ShadowBias = 30;
+static float ShadowBias = 1;
 
 float DistributionGGX(float3 N, float3 H, float roughness)
 {

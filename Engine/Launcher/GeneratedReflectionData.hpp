@@ -937,16 +937,18 @@ Method& currentMethod = currentClass->AddMethod(Method("BindSampler", Reflection
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 IRenderPass* instance = static_cast<IRenderPass*>(inInstance);
-const IGPUAccelerationStructure * arg0 = (const IGPUAccelerationStructure*)inArguments[0];
+IGPUAccelerationStructure * arg0 = (IGPUAccelerationStructure*)inArguments[0];
 vk::Flags<vk::ShaderStageFlagBits>& arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
 unsigned int& arg2 = *(unsigned int*)inArguments[2];
-instance->BindAccelerationStructure(arg0, arg1, arg2);
+vk::Flags<vk::AccessFlagBits>& arg3 = *(vk::Flags<vk::AccessFlagBits>*)inArguments[3];
+instance->BindAccelerationStructure(arg0, arg1, arg2, arg3);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inAS", ReflectionSystem::GetOrCreateType<const IGPUAccelerationStructure *>("const IGPUAccelerationStructure *")));
+arguments.Add(MethodArgument("inAS", ReflectionSystem::GetOrCreateType<IGPUAccelerationStructure *>("IGPUAccelerationStructure *")));
 arguments.Add(MethodArgument("inShaderStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::ShaderStageFlagBits>>("vk::Flags<vk::ShaderStageFlagBits>")));
 arguments.Add(MethodArgument("inBindingIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+arguments.Add(MethodArgument("inAccessFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
 Method& currentMethod = currentClass->AddMethod(Method("BindAccelerationStructure", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
@@ -9532,7 +9534,7 @@ Method& currentMethod = currentClass->AddMethod(Method("InsertResourceBarriers",
 		Field& currentField = currentClass->AddField(Field("myBuffer", -1, ReflectionSystem::GetOrCreateType<IGPUBuffer>("IGPUBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myAccelerationStructure", -1, ReflectionSystem::GetOrCreateType<vk::AccelerationStructureKHR>("vk::AccelerationStructureKHR"), false, false));
+		Field& currentField = currentClass->AddField(Field("myAccelerationStructure", -1, ReflectionSystem::GetOrCreateType<IGPUAccelerationStructure>("IGPUAccelerationStructure"), true, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myRequiredState", -1, ReflectionSystem::GetOrCreateType<ResourceState>("ResourceState"), false, false));
@@ -9578,14 +9580,14 @@ Method& currentMethod = currentClass->AddMethod(Method("SetToBuffer", Reflection
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ResourceUsage* instance = static_cast<ResourceUsage*>(inInstance);
-vk::AccelerationStructureKHR& arg0 = *(vk::AccelerationStructureKHR*)inArguments[0];
+IGPUAccelerationStructure * arg0 = (IGPUAccelerationStructure*)inArguments[0];
 vk::Flags<vk::PipelineStageFlagBits>& arg1 = *(vk::Flags<vk::PipelineStageFlagBits>*)inArguments[1];
 vk::Flags<vk::AccessFlagBits>& arg2 = *(vk::Flags<vk::AccessFlagBits>*)inArguments[2];
 instance->SetToAccelerationStructure(arg0, arg1, arg2);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inAS", ReflectionSystem::GetOrCreateType<vk::AccelerationStructureKHR>("vk::AccelerationStructureKHR")));
+arguments.Add(MethodArgument("inAS", ReflectionSystem::GetOrCreateType<IGPUAccelerationStructure *>("IGPUAccelerationStructure *")));
 arguments.Add(MethodArgument("inStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::PipelineStageFlagBits>>("vk::Flags<vk::PipelineStageFlagBits>")));
 arguments.Add(MethodArgument("inAccessFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
 Method& currentMethod = currentClass->AddMethod(Method("SetToAccelerationStructure", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
