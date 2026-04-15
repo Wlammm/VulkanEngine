@@ -33,10 +33,12 @@ void TLAS::Build(const List<VkAccelerationStructureInstanceKHR>& inInstances)
 			myInstanceBuffer = nullptr;
 		}
 
+		// TODO: Maybe this would be better of mapped? In that case we need to make sure we're not writing to it 
+		// while its used which non-mappable already solve. 
 		myInstanceBuffer = VulkanAllocator::AllocateBuffer_TS(
 			"TLAS_InstanceBuffer",
 			VulkanBuffer::BLASInputCreateInfo(instanceDataSize),
-			VMA_MEMORY_USAGE_AUTO, true);
+			VMA_MEMORY_USAGE_AUTO, false);
 	}
 
 	myInstanceBuffer->SetData(inInstances.data(), instanceDataSize);

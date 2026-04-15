@@ -57,7 +57,7 @@ public:
 		return vk::BufferCreateInfo()
 			.setSize(inSize)
 			.setUsage(vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
-			          vk::BufferUsageFlagBits::eShaderDeviceAddress)
+			          vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eTransferDst)
 			.setSharingMode(vk::SharingMode::eExclusive);
 	}
 

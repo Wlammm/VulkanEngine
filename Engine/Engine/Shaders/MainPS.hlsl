@@ -101,8 +101,8 @@ float4 PSMain(PSInput input) : SV_Target
         float3 lightColor = inPointLightBuffer[i].myColor.rgb * inPointLightBuffer[i].myIntensity;
         pointLightColor += CalculatePointLight(inPointLightBuffer[i].myPosition, lightColor, inPointLightBuffer[i].myRange, normalColor, inCameraBuffer.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness, TLAS);
     }
-    float3 lightDir = inDirectionalLightBuffer.myDirection;
-    float3 directionalLightColor = CalculateDirectionalLight(inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor.xyz, normalColor, inCameraBuffer.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness, TLAS);
+    
+    float3 directionalLightColor = CalculateDirectionalLight(inDirectionalLightBuffer.myDirection, inDirectionalLightBuffer.myColor.xyz, normalColor, inCameraBuffer.myCameraPosition, input.inFragPos, albedoColor.rgb, metalness, roughness, input.inNormal, TLAS);
     
     directionalLightColor *= inDirectionalLightBuffer.myColor.a * 10;
     float3 ambientLight = albedoColor.rgb * ambientLightStrength;

@@ -112,7 +112,7 @@ float3 CalculatePointLight(float3 inLightPosition, float3 inLightColor, float in
     return (kD * inAlbedo / PI + specular) * radiance * NdotL * shadow;
 }
 
-float3 CalculateDirectionalLight(float3 inLightDirection, float3 inLightColor, float3 inNormal, float3 inCamPos, float3 inFragWorldPos, float3 inAlbedo, float inMetallic, float inRoughness, RaytracingAccelerationStructure inTLAS)
+float3 CalculateDirectionalLight(float3 inLightDirection, float3 inLightColor, float3 inNormal, float3 inCamPos, float3 inFragWorldPos, float3 inAlbedo, float inMetallic, float inRoughness, float3 vertexNormal, RaytracingAccelerationStructure inTLAS)
 {
     float3 N = normalize(inNormal);
     float3 V = normalize(inCamPos - inFragWorldPos);
@@ -145,7 +145,7 @@ float3 CalculateDirectionalLight(float3 inLightDirection, float3 inLightColor, f
 
     // Shadow ray: offset origin along normal to avoid self-intersection
     RayDesc shadowRay;
-    shadowRay.Origin    = inFragWorldPos + normalize(N) * ShadowBias;
+    shadowRay.Origin    = inFragWorldPos + normalize(vertexNormal) * ShadowBias;
     shadowRay.Direction = normalize(inLightDirection);
     shadowRay.TMin      = 0.001;
     shadowRay.TMax      = 10000.0;
