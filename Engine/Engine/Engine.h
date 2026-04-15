@@ -28,6 +28,9 @@ public:
 
 	bool ShouldRun() const;
 
+	static float GetCpuFrameTime();
+	static void ExcludeTimeFromCpuFrameTime(const float inTimeToExclude);
+	
 	static uint GetFrameIndex();
 	
 	static void SetIsRunning(const bool inIsRunning);
@@ -64,6 +67,9 @@ private:
 	void CreateSystems();
 
 private:
+	float myCpuFrameTime = 0.0f;
+	float myAccumulatedExclusionTimeFromCpuFrameTime = 0.0f;
+	
 	uint myFrameIndex = 0;
 
 	bool myIsRunning = true;

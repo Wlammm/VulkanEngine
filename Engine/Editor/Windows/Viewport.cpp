@@ -218,10 +218,12 @@ void Viewport::HandleDragDrop()
 	if (ImGui::BeginDragDropTarget())
 	{
 		const ImGuiPayload* payload = ImGui::GetDragDropPayload();
-		std::filesystem::path path = *(std::string*)payload->Data;
-
+		
+		
 		if (ImGui::AcceptDragDropPayload(".fbx") || ImGui::AcceptDragDropPayload(".gltf"))
 		{
+			std::filesystem::path path = *(std::string*)payload->Data;
+
 			StaticMeshActor* actor = Engine::GetWorld()->SpawnActor<StaticMeshActor>(path.filename().string(), path);
 			actor->GetTransform().SetPosition(myPreviewActor->GetTransform().GetPosition());
 			SelectionSystem::ClearSelection();
@@ -231,6 +233,8 @@ void Viewport::HandleDragDrop()
 		{
 			if (payload->IsDataType(".fbx") || payload->IsDataType(".gltf"))
 			{
+				std::filesystem::path path = *(std::string*)payload->Data;
+
 				isPreviewingMeshThisFrame = true;
 				if (myPreviewActor == nullptr)
 				{

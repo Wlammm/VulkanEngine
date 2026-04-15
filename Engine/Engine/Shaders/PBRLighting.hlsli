@@ -62,6 +62,9 @@ float3 GetNormalFromMap(float3 inNormalFromNormalTexture, float3 inVertexNormal,
 
 float3 CalculatePointLight(float3 inLightPosition, float3 inLightColor, float inLightRange, float3 inNormal, float3 inCamPos, float3 inFragWorldPos, float3 inAlbedo, float inMetallic, float inRoughness, RaytracingAccelerationStructure inTLAS)
 {
+    if (length(inLightPosition - inFragWorldPos) > inLightRange)
+        return float3(0, 0, 0);
+    // ffffffffff
     float3 lightDirection = inLightPosition - inFragWorldPos;
     
     float3 N = normalize(inNormal);
@@ -120,8 +123,6 @@ float3 CalculateDirectionalLight(float3 inLightDirection, float3 inLightColor, f
     float3 F0 = float3(0.0f, 0.0f, 0.0f);
     F0 = lerp(F0, inAlbedo, inMetallic);
 
-    if (length(inLightDirection) == 0)
-        inLightDirection = float3(1, 0, 0);
     
     // calculate per-light radiance
     float3 L = normalize(inLightDirection);

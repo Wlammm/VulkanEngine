@@ -130,6 +130,9 @@ void GraphicsPass::PreExecute()
 void GraphicsPass::CreateResources()
 {
     myDescriptorSet = {};
+    myColorAttachments.Clear();
+    myColorFormats.Clear();
+    
 #if !SHIPPING
     if (myPassName.empty())
         myPassName = ReflectionSystem::GetType(this)->GetName();

@@ -92,11 +92,13 @@ void Engine::Tick()
 	Time::Tick();
 	
 #if !TRACY_ENABLE // Disable fps limit when we're profiling.
-	constexpr double targetFPS = 144.f;
+	constexpr double targetFPS = 166.f;
 	long long sleepTimeMicroseconds = static_cast<long long>((1.0 / targetFPS - Time::GetDeltaTime()) * 1000000);
 	std::this_thread::sleep_for(std::chrono::microseconds(sleepTimeMicroseconds));
 #endif
 
+	double frameStartTime = Time::GetSeconds();
+	
 	myWindowHandler->Tick();
 
 	if (Input::IsKeyDown(KeyCode::Escape))
@@ -132,11 +134,24 @@ void Engine::Tick()
 
 	ImGui::UpdatePlatformWindows();
 	ImGui::RenderPlatformWindowsDefault();
+	
+	myCpuFrameTime = static_cast<float>(Time::GetSeconds() - frameStartTime) - myAccumulatedExclusionTimeFromCpuFrameTime;
+	myAccumulatedExclusionTimeFromCpuFrameTime = 0.0f;
 }
 
 bool Engine::ShouldRun() const
 {
 	return myIsRunning;
+}
+
+float Engine::GetCpuFrameTime()
+{
+	return myInstance->myCpuFrameTime;
+}
+
+void Engine::ExcludeTimeFromCpuFrameTime(const float inTimeToExclude)
+{
+	myInstance->myAccumulatedExclusionTimeFromCpuFrameTime += inTimeToExclude;
 }
 
 uint Engine::GetFrameIndex()

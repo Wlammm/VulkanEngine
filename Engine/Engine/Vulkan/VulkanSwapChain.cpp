@@ -7,6 +7,7 @@
 #include "VulkanImage.h"
 #include "VulkanUtils.hpp"
 #include "Engine/Engine.h"
+#include "Engine/Core/Time.h"
 
 VulkanSwapChain::VulkanSwapChain(const VulkanDevice& inDevice)
 	: myDevice{ inDevice }
@@ -29,7 +30,13 @@ VulkanSwapChain::~VulkanSwapChain()
 void VulkanSwapChain::BeginFrame()
 {
 	// Wait for gpu to finish.
+	const double startWaitTime = Time::GetSeconds();
+	
 	vk::Result result = myDevice->waitForFences(myFences[mySyncIndex], VK_TRUE, UINT64_MAX);
+	
+	const float gpuWaitTime = static_cast<float>(Time::GetSeconds() - startWaitTime);
+	Engine::ExcludeTimeFromCpuFrameTime(gpuWaitTime);
+	
 	check(result == vk::Result::eSuccess);
 	myDevice->resetFences({ myFences[mySyncIndex] });
 

@@ -54,6 +54,8 @@
 #include "../Engine/Vulkan/Containers/GPUSparseDenseBuffer.h"
 #include "../Editor/Windows/InspectorWindow.h"
 #include "../Editor/Windows/EditorWindow.h"
+#include "../Engine/Rendering/VertexBufferSystem.h"
+#include "../Editor/Windows/PerformanceEditorWindow.h"
 #include "../Engine/AssetRegistry/Asset.h"
 #include "../Engine/Vulkan/VulkanImGui.h"
 #include "../Engine/AssetRegistry/AssetDefines.h"
@@ -105,6 +107,7 @@
 #include "../Engine/Core/UniquePtr.h"
 #include "../Engine/Coroutines/Awaitable.h"
 #include "../Engine/Coroutines/CoroutineManager.h"
+#include "../Engine/Debug/PerformanceViewer.h"
 #include "../Engine/Reflection/Field.h"
 #include "../Engine/Delegates/Delegate.hpp"
 #include "../Engine/Delegates/Internal/ConstMemberFuncCtor.hpp"
@@ -158,7 +161,6 @@
 #include "../Engine/Rendering/TLAS.h"
 #include "../Engine/Rendering/TextureSystem.h"
 #include "../Engine/Rendering/Vertex.hpp"
-#include "../Engine/Rendering/VertexBufferSystem.h"
 #include "../Engine/Serialization/BinarySerializer.h"
 #include "../Engine/Serialization/TypeSerializers/AssetSerializer.h"
 #include "../Engine/Serialization/TypeSerializers/FileTimeSerializer.h"
@@ -289,6 +291,8 @@ ReflectionSystem::AddType<ImGuiTextureUtils>("ImGuiTextureUtils", typeid(ImGuiTe
 ReflectionSystem::AddType<GPUSparseDenseBuffer<MeshInstanceData>>("GPUSparseDenseBuffer<MeshInstanceData>", typeid(GPUSparseDenseBuffer<MeshInstanceData>).name());
 ReflectionSystem::AddType<InspectorWindow>("InspectorWindow", typeid(InspectorWindow).name());
 ReflectionSystem::AddType<EditorWindow>("EditorWindow", typeid(EditorWindow).name());
+ReflectionSystem::AddType<VertexBufferSystem>("VertexBufferSystem", typeid(VertexBufferSystem).name());
+ReflectionSystem::AddType<PerformanceEditorWindow>("PerformanceEditorWindow", typeid(PerformanceEditorWindow).name());
 ReflectionSystem::AddType<Asset>("Asset", typeid(Asset).name());
 ReflectionSystem::AddType<VulkanImGui>("VulkanImGui", typeid(VulkanImGui).name());
 ReflectionSystem::AddType<ConvexColliderComponent>("ConvexColliderComponent", typeid(ConvexColliderComponent).name());
@@ -417,6 +421,8 @@ ReflectionSystem::AddType<UniquePtr<SystemManager<WorldSystem>>>("UniquePtr<Syst
 ReflectionSystem::AddType<UniquePtr<Actor>>("UniquePtr<Actor>", typeid(UniquePtr<Actor>).name());
 ReflectionSystem::AddType<Awaitable>("Awaitable", typeid(Awaitable).name());
 ReflectionSystem::AddType<CoroutineManager>("CoroutineManager", typeid(CoroutineManager).name());
+ReflectionSystem::AddType<TimingPlot>("TimingPlot", typeid(TimingPlot).name());
+ReflectionSystem::AddType<PerformanceViewer>("PerformanceViewer", typeid(PerformanceViewer).name());
 ReflectionSystem::AddType<Field>("Field", typeid(Field).name());
 ReflectionSystem::AddType<Delegate<void *(void *, const List<void *> &)>>("Delegate<void *(void *, const List<void *> &)>", typeid(Delegate<void *(void *, const List<void *> &)>).name());
 ReflectionSystem::AddType<Delegate<void *()>>("Delegate<void *()>", typeid(Delegate<void *()>).name());
@@ -471,7 +477,6 @@ ReflectionSystem::AddType<TransitionSwapchainImagePass>("TransitionSwapchainImag
 ReflectionSystem::AddType<TLAS>("TLAS", typeid(TLAS).name());
 ReflectionSystem::AddType<TextureSystem>("TextureSystem", typeid(TextureSystem).name());
 ReflectionSystem::AddType<Vertex>("Vertex", typeid(Vertex).name());
-ReflectionSystem::AddType<VertexBufferSystem>("VertexBufferSystem", typeid(VertexBufferSystem).name());
 ReflectionSystem::AddType<BinarySerializer>("BinarySerializer", typeid(BinarySerializer).name());
 ReflectionSystem::AddType<AssetSerializer>("AssetSerializer", typeid(AssetSerializer).name());
 ReflectionSystem::AddType<FileTimeSerializer>("FileTimeSerializer", typeid(FileTimeSerializer).name());
@@ -3102,6 +3107,80 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("TickInput", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<VertexBufferSystem>();
+	{
+		Field& currentField = currentClass->AddField(Field("myBuffer", -1, ReflectionSystem::GetOrCreateType<GPUDefragBuffer<VertexBufferData>>("GPUDefragBuffer<VertexBufferData>"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myVertexBuffers", -1, ReflectionSystem::GetOrCreateType<List<VertexBufferHandle *>>("List<VertexBufferHandle *>"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
+VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
+unsigned int& arg1 = *(unsigned int*)inArguments[1];
+VertexBufferHandle * result = instance->UploadVertexBuffer(arg0, arg1);
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inStagingBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *")));
+arguments.Add(MethodArgument("inVertexCount", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("UploadVertexBuffer", ReflectionSystem::GetOrCreateType<VertexBufferHandle *>("VertexBufferHandle *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
+const VertexBufferHandle * arg0 = (const VertexBufferHandle*)inArguments[0];
+instance->RemoveVertexBuffer(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<const VertexBufferHandle *>("const VertexBufferHandle *")));
+Method& currentMethod = currentClass->AddMethod(Method("RemoveVertexBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
+VertexBufferHandle * arg0 = (VertexBufferHandle*)inArguments[0];
+static thread_local unsigned int result = instance->GetVertexOffsetFromVertexHandle(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<VertexBufferHandle *>("VertexBufferHandle *")));
+Method& currentMethod = currentClass->AddMethod(Method("GetVertexOffsetFromVertexHandle", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
+unsigned int& arg0 = *(unsigned int*)inArguments[0];
+instance->Defrag(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inMaxMoves", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+Method& currentMethod = currentClass->AddMethod(Method("Defrag", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PerformanceEditorWindow>();
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<EditorWindow>());
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PerformanceEditorWindow* instance = static_cast<PerformanceEditorWindow*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -7711,6 +7790,66 @@ Method& currentMethod = currentClass->AddMethod(Method("Load", ReflectionSystem:
 }
 }
 { 
+	Type* currentClass = ReflectionSystem::GetMutableType<TimingPlot>();
+	{
+		Field& currentField = currentClass->AddField(Field("label", -1, ReflectionSystem::GetOrCreateType<const char>("const char"), true, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("samples", -1, ReflectionSystem::GetOrCreateType<float[128]>("float[128]"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("offset", -1, ReflectionSystem::GetOrCreateType<int>("int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("displayedValue", -1, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+TimingPlot* instance = static_cast<TimingPlot*>(inInstance);
+float& arg0 = *(float*)inArguments[0];
+instance->Push(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("valueMs", ReflectionSystem::GetOrCreateType<float>("float")));
+Method& currentMethod = currentClass->AddMethod(Method("Push", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+TimingPlot* instance = static_cast<TimingPlot*>(inInstance);
+instance->Render();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Render", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
+	Type* currentClass = ReflectionSystem::GetMutableType<PerformanceViewer>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PerformanceViewer* instance = static_cast<PerformanceViewer*>(inInstance);
+instance->Tick();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+PerformanceViewer* instance = static_cast<PerformanceViewer*>(inInstance);
+instance->RenderImGui();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("RenderImGui", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+}
+{ 
 	Type* currentClass = ReflectionSystem::GetMutableType<Field>();
 	{
 		Field& currentField = currentClass->AddField(Field("myName", -1, ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), false, false));
@@ -8031,6 +8170,12 @@ Method& currentMethod = currentClass->AddMethod(Method("GetTLAS", ReflectionSyst
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<Engine>();
 	{
+		Field& currentField = currentClass->AddField(Field("myCpuFrameTime", -1, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAccumulatedExclusionTimeFromCpuFrameTime", -1, ReflectionSystem::GetOrCreateType<float>("float"), false, false));
+	}
+	{
 		Field& currentField = currentClass->AddField(Field("myFrameIndex", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
 	}
 	{
@@ -8079,6 +8224,28 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("ShouldRun", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+static thread_local float result = instance->GetCpuFrameTime();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetCpuFrameTime", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Engine* instance = static_cast<Engine*>(inInstance);
+const float& arg0 = *(const float*)inArguments[0];
+instance->ExcludeTimeFromCpuFrameTime(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inTimeToExclude", ReflectionSystem::GetOrCreateType<const float>("const float")));
+Method& currentMethod = currentClass->AddMethod(Method("ExcludeTimeFromCpuFrameTime", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -10972,66 +11139,6 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetAttributeDescriptions", ReflectionSystem::GetOrCreateType<List<vk::VertexInputAttributeDescription> &>("List<vk::VertexInputAttributeDescription> &"), invoker, arguments));
-}
-}
-{ 
-	Type* currentClass = ReflectionSystem::GetMutableType<VertexBufferSystem>();
-	{
-		Field& currentField = currentClass->AddField(Field("myBuffer", -1, ReflectionSystem::GetOrCreateType<GPUDefragBuffer<VertexBufferData>>("GPUDefragBuffer<VertexBufferData>"), true, false));
-	}
-	{
-		Field& currentField = currentClass->AddField(Field("myVertexBuffers", -1, ReflectionSystem::GetOrCreateType<List<VertexBufferHandle *>>("List<VertexBufferHandle *>"), false, false));
-	}
-	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
-VulkanBuffer * arg0 = (VulkanBuffer*)inArguments[0];
-unsigned int& arg1 = *(unsigned int*)inArguments[1];
-VertexBufferHandle * result = instance->UploadVertexBuffer(arg0, arg1);
-return (void*)result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inStagingBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *")));
-arguments.Add(MethodArgument("inVertexCount", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("UploadVertexBuffer", ReflectionSystem::GetOrCreateType<VertexBufferHandle *>("VertexBufferHandle *"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
-const VertexBufferHandle * arg0 = (const VertexBufferHandle*)inArguments[0];
-instance->RemoveVertexBuffer(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<const VertexBufferHandle *>("const VertexBufferHandle *")));
-Method& currentMethod = currentClass->AddMethod(Method("RemoveVertexBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
-VertexBufferHandle * arg0 = (VertexBufferHandle*)inArguments[0];
-static thread_local unsigned int result = instance->GetVertexOffsetFromVertexHandle(arg0);
-return (void*)&result;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<VertexBufferHandle *>("VertexBufferHandle *")));
-Method& currentMethod = currentClass->AddMethod(Method("GetVertexOffsetFromVertexHandle", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), invoker, arguments));
-}
-{
-Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
-{
-VertexBufferSystem* instance = static_cast<VertexBufferSystem*>(inInstance);
-unsigned int& arg0 = *(unsigned int*)inArguments[0];
-instance->Defrag(arg0);
-return nullptr;
-});
-List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inMaxMoves", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
-Method& currentMethod = currentClass->AddMethod(Method("Defrag", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
