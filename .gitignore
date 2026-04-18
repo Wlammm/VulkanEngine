@@ -29,3 +29,11 @@ Log.txt
 .claude/
 Debug_ReflectionCache.json
 Engine.sln.DotSettings.user
+
+
+*.nv-gpudmp
+*.nv-gpudmp.json
+*.registered-shaders.txt
+*.shader-resolution.txt
+*.spv
+*.nvdbg

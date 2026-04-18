@@ -251,9 +251,48 @@ void NvidiaAftermathTracker::WriteCrashDumpAugmentationReport(GFSDK_Aftermath_Gp
         return;
 
     f << "Aftermath: shader resolution vs ShaderDatabase\n";
-    f << "If JSON shows only a name like compute_01 @ 0x..., mapping failed: the decoder needs\n";
-    f << "shaderLookupCb to return the same SPIR-V bytes whose GFSDK_Aftermath_GetShaderHashSpirv\n";
-    f << "matches GetShaderHashForShaderInfo for this dump.\n\n";
+    f << "If JSON shows only a name like compute_01 @ 0x..., PC -> line mapping still needs\n";
+    f << "matching SPIR-V (shaderLookupCb) + driver shader debug blobs (ShaderDebugInfoLookup),\n";
+    f << "and DXC debug mode that emits line tables Aftermath understands (see Shader.cpp / -aftermath).\n\n";
+
+    f << "--- Page fault / candidate resources (often pinpoints bad buffer/image) ---\n";
+    GFSDK_Aftermath_GpuCrashDump_PageFaultInfo pageFault{};
+    if (GFSDK_Aftermath_SUCCEED(GFSDK_Aftermath_GpuCrashDump_GetPageFaultInfo(decoder, &pageFault)))
+    {
+        f << "faultingGpuVA=0x" << std::hex << pageFault.faultingGpuVA << std::dec
+          << " faultType=" << static_cast<int>(pageFault.faultType)
+          << " accessType=" << static_cast<int>(pageFault.accessType)
+          << " engine=" << static_cast<int>(pageFault.engine)
+          << " client=" << static_cast<int>(pageFault.client)
+          << " resourceInfoCount=" << pageFault.resourceInfoCount << "\n";
+
+        if (pageFault.resourceInfoCount > 0u)
+        {
+            std::vector<GFSDK_Aftermath_GpuCrashDump_ResourceInfo> resources(pageFault.resourceInfoCount);
+            if (GFSDK_Aftermath_SUCCEED(GFSDK_Aftermath_GpuCrashDump_GetPageFaultResourceInfo(
+                    decoder, pageFault.resourceInfoCount, resources.data())))
+            {
+                for (uint32_t ri = 0; ri < pageFault.resourceInfoCount; ++ri)
+                {
+                    const GFSDK_Aftermath_GpuCrashDump_ResourceInfo& r = resources[ri];
+                    f << "  [" << ri << "] gpuVa=0x" << std::hex << r.gpuVa << std::dec
+                      << " size=" << r.size
+                      << " WxHxD=" << r.width << "x" << r.height << "x" << r.depth
+                      << " mips=" << r.mipLevels
+                      << " VkFormat=" << r.format
+                      << " apiResource=0x" << std::hex << r.apiResource << std::dec
+                      << " debugName=\"" << r.debugName << "\""
+                      << " bufferHeap=" << (r.bIsBufferHeap ? 1 : 0)
+                      << " destroyed=" << (r.bWasDestroyed ? 1 : 0)
+                      << "\n";
+                }
+            }
+        }
+    }
+    else
+        f << "(no page fault block in dump or query failed — not all faults include this)\n";
+
+    f << "\n";
 
     uint32_t shaderCount = 0;
     if (GFSDK_Aftermath_SUCCEED(GFSDK_Aftermath_GpuCrashDump_GetActiveShadersInfoCount(decoder, &shaderCount)) && shaderCount > 0)
