@@ -11,6 +11,7 @@
 #include "VulkanUtils.hpp"
 #include "Aftermath/NvidiaAftermathTracker.h"
 #include "Engine/Rendering/DXCompiler.h"
+#include <filesystem>
 
 PFN_vkCreateDebugUtilsMessengerEXT pfnVkCreateDebugUtilsMessengerEXT;
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateDebugUtilsMessengerEXT(VkInstance instance,
@@ -168,6 +169,22 @@ NvidiaAftermathTracker* VulkanContext::GetAftermathTracker()
 	return myInstance->myNvidiaAftermathDebugger.Get();
 }
 
+void VulkanContext::SetAftermathCheckpoint(vk::CommandBuffer inCommandBuffer, std::string_view inLabel)
+{
+	if (!myInstance || !myInstance->myNvidiaAftermathDebugger)
+		return;
+
+	// Keep marker strings alive for at least `AftermathMarkerHistory` frames.
+	const uint32_t syncIndex = myInstance->mySwapChain ? myInstance->mySwapChain->GetSyncIndex() : 0u;
+	auto& frameMarkers = myInstance->markerMap[syncIndex % c_markerFrameHistory];
+
+	const uint64_t id = myInstance->myAftermathMarkerId.fetch_add(1, std::memory_order_relaxed);
+	frameMarkers[id] = std::string(inLabel);
+
+	// Use the numeric id as the marker payload; the resolve callback maps it back to the string.
+	vkCmdSetCheckpointNV(inCommandBuffer, reinterpret_cast<const void*>(id));
+}
+
 glm::vec2 VulkanContext::GetRenderResolution()
 {
 	return glm::vec2{ static_cast<float>(GetSwapChain().GetWidth()), static_cast<float>(GetSwapChain().GetHeight()) };
@@ -177,6 +194,15 @@ void VulkanContext::BeginFrame()
 {
 	ZoneScoped;
 	myInstance->mySwapChain->BeginFrame();
+
+	// Rotate/clear the marker bucket for this in-flight frame so crash dumps
+	// don't resolve to stale labels.
+	if (myInstance->myNvidiaAftermathDebugger)
+	{
+		const uint32_t syncIndex = myInstance->mySwapChain->GetSyncIndex();
+		myInstance->markerMap[syncIndex % c_markerFrameHistory].clear();
+	}
+
 	VulkanImGui::BeginFrame();
 	myInstance->myAllocator->Tick();
 }

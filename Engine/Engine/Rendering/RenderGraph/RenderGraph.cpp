@@ -29,8 +29,11 @@ void RenderGraph::Execute(vk::CommandBuffer inCommandBuffer)
         InsertResourceBarriers(inCommandBuffer, pass->GetResourceUsage());
         InsertResourceBarriers(inCommandBuffer, pass->GetDynamicResourceUsages());
 
-        if (VulkanContext::GetAftermathTracker())
-            vkCmdSetCheckpointNV(inCommandBuffer, pass->GetName());
+        if (VulkanContext::IsAftermathEnabled())
+        {
+            // Use app-managed marker resolution for stable, owned strings.
+            VulkanContext::SetAftermathCheckpoint(inCommandBuffer, pass->GetName());
+        }
 
         pass->Execute(inCommandBuffer);
     }

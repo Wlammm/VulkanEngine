@@ -11934,6 +11934,18 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inShaderHash", ReflectionSystem::GetOrCreateType<const GFSDK_Aftermath_ShaderBinaryHash &>("const GFSDK_Aftermath_ShaderBinaryHash &")));
 Method& currentMethod = currentClass->AddMethod(Method("FindShaderSourcePath", ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), invoker, arguments));
 }
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ShaderDatabase* instance = static_cast<ShaderDatabase*>(inInstance);
+const std::basic_string<char> & arg0 = *(const std::basic_string<char>*)inArguments[0];
+instance->WriteRegisteredSnapshot(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inPathUtf8", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
+Method& currentMethod = currentClass->AddMethod(Method("WriteRegisteredSnapshot", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<SparseBufferEntry>();
@@ -12535,6 +12547,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetPtr", ReflectionSyste
 		Field& currentField = currentClass->AddField(Field("markerMap", -1, ReflectionSystem::GetOrCreateType<std::array<std::map<unsigned long long, std::basic_string<char>>, 4>>("std::array<std::map<unsigned long long, std::basic_string<char>>, 4>"), false, false));
 	}
 	{
+		Field& currentField = currentClass->AddField(Field("myAftermathMarkerId", -1, ReflectionSystem::GetOrCreateType<std::atomic<unsigned long long>>("std::atomic<unsigned long long>"), false, false));
+	}
+	{
 		Field& currentField = currentClass->AddField(Field("myNvidiaAftermathDebugger", -1, ReflectionSystem::GetOrCreateType<UniquePtr<NvidiaAftermathTracker>>("UniquePtr<NvidiaAftermathTracker>"), false, false));
 	}
 	{
@@ -12615,6 +12630,30 @@ return (void*)result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetAftermathTracker", ReflectionSystem::GetOrCreateType<NvidiaAftermathTracker *>("NvidiaAftermathTracker *"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanContext* instance = static_cast<VulkanContext*>(inInstance);
+static thread_local bool result = instance->IsAftermathEnabled();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsAftermathEnabled", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanContext* instance = static_cast<VulkanContext*>(inInstance);
+vk::CommandBuffer& arg0 = *(vk::CommandBuffer*)inArguments[0];
+std::basic_string_view<char>& arg1 = *(std::basic_string_view<char>*)inArguments[1];
+instance->SetAftermathCheckpoint(arg0, arg1);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
+arguments.Add(MethodArgument("inLabel", ReflectionSystem::GetOrCreateType<std::basic_string_view<char>>("std::basic_string_view<char>")));
+Method& currentMethod = currentClass->AddMethod(Method("SetAftermathCheckpoint", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*

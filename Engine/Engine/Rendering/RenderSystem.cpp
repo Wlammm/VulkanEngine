@@ -96,6 +96,7 @@ void RenderSystem::Tick()
 
 	{
 		GPUMARK_SCOPE(commandBuffer, "Frame");
+		VulkanContext::SetAftermathCheckpoint(commandBuffer, "Frame");
 
 		AddUploadPass(commandBuffer);
 		ExecuteRenderGraph(commandBuffer);
@@ -245,6 +246,7 @@ void RenderSystem::AddUploadPass(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
 	GPUMARK_SCOPE(inCommandBuffer, "UploadPass");
+	VulkanContext::SetAftermathCheckpoint(inCommandBuffer, "UploadPass");
 
 	std::scoped_lock lock(myUploadMutex);
 	for(const UploadCommand& uploadCommand : myQueuedUploadCommandBuffers)

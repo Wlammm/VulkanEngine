@@ -27,6 +27,7 @@
 #include <vector>
 #include <map>
 #include <mutex>
+#include <string>
 
 #include "aftermath/NsightAftermathHelpers.h"
 
@@ -49,6 +50,9 @@ public:
 
     // Returns the source path for a shader hash, or empty string if not found.
     std::string FindShaderSourcePath(const GFSDK_Aftermath_ShaderBinaryHash& inShaderHash) const;
+
+    // Writes all registered shader hashes and source paths (for correlating crash dumps).
+    void WriteRegisteredSnapshot(const std::string& inPathUtf8) const;
 
 private:
     mutable std::mutex myMutex;

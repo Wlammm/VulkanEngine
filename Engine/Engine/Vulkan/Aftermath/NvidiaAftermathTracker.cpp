@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <string>
 #include <array>
+#include <filesystem>
 
 //*********************************************************
 // GpuCrashTracker implementation
@@ -104,6 +105,11 @@ void NvidiaAftermathTracker::OnDescription(PFN_GFSDK_Aftermath_AddGpuCrashDumpDe
     // retrieved using GFSDK_Aftermath_GpuCrashDump_GetDescription().
     addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationName, "VulkanEngine");
     addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationVersion, "1.0");
+
+#if !SHIPPING
+    // Helpful toggles visible directly in the dump.
+    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_UserDefined, "StartupArg:-aftermath=1");
+#endif
 }
 
 // Handler for app-managed marker resolve callback
@@ -135,6 +141,11 @@ void NvidiaAftermathTracker::OnResolveMarker(const void* pMarkerData, const uint
 // Helper for writing a GPU crash dump to a file
 void NvidiaAftermathTracker::WriteGpuCrashDumpToFile(const void* pGpuCrashDump, const uint32_t gpuCrashDumpSize)
 {
+    // Prefer writing to a dedicated folder to keep working directory clean.
+    const std::filesystem::path outDir = std::filesystem::path("Bin") / "Aftermath";
+    std::error_code ec;
+    std::filesystem::create_directories(outDir, ec);
+
     // Create a GPU crash dump decoder object for the GPU crash dump.
     GFSDK_Aftermath_GpuCrashDump_Decoder decoder = {};
     AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_GpuCrashDump_CreateDecoder(
@@ -178,14 +189,19 @@ void NvidiaAftermathTracker::WriteGpuCrashDumpToFile(const void* pGpuCrashDump, 
 
     // Write the crash dump data to a file using the .nv-gpudmp extension
     // registered with Nsight Graphics.
-    const std::string crashDumpFileName = baseFileName + ".nv-gpudmp";
-    std::ofstream dumpFile(crashDumpFileName, std::ios::out | std::ios::binary);
+    const std::filesystem::path crashDumpFilePath = outDir / (baseFileName + ".nv-gpudmp");
+    std::ofstream dumpFile(crashDumpFilePath, std::ios::out | std::ios::binary);
     if (dumpFile)
     {
         dumpFile.write((const char*)pGpuCrashDump, gpuCrashDumpSize);
         dumpFile.close();
     }
-    LOG_ERROR("[Aftermath] GPU crash dump written to: %s", crashDumpFileName.c_str());
+    LOG_ERROR("[Aftermath] GPU crash dump written to: %s", crashDumpFilePath.string().c_str());
+
+    const std::string augmentationPath = crashDumpFilePath.string() + ".shader-resolution.txt";
+    WriteCrashDumpAugmentationReport(decoder, augmentationPath);
+    m_shaderDatabase.WriteRegisteredSnapshot((outDir / (baseFileName + ".registered-shaders.txt")).string());
+    LOG_ERROR("[Aftermath] Shader resolution report: %s", augmentationPath.c_str());
 
     // Decode the crash dump to a JSON string.
     // Step 1: Generate the JSON and get the size.
@@ -193,7 +209,7 @@ void NvidiaAftermathTracker::WriteGpuCrashDumpToFile(const void* pGpuCrashDump, 
     GFSDK_Aftermath_Result jsonResult = GFSDK_Aftermath_GpuCrashDump_GenerateJSON(
         decoder,
         GFSDK_Aftermath_GpuCrashDumpDecoderFlags_ALL_INFO,
-        GFSDK_Aftermath_GpuCrashDumpFormatterFlags_NONE,
+        GFSDK_Aftermath_GpuCrashDumpFormatterFlags_UTF8_OUTPUT,
         ShaderDebugInfoLookupCallback,
         ShaderLookupCallback,
         ShaderSourceDebugInfoLookupCallback,
@@ -210,14 +226,14 @@ void NvidiaAftermathTracker::WriteGpuCrashDumpToFile(const void* pGpuCrashDump, 
             json.data()));
 
         // Write the crash dump data as JSON to a file.
-        const std::string jsonFileName = crashDumpFileName + ".json";
-        std::ofstream jsonFile(jsonFileName, std::ios::out | std::ios::binary);
+        const std::filesystem::path jsonFilePath = crashDumpFilePath.string() + ".json";
+        std::ofstream jsonFile(jsonFilePath, std::ios::out | std::ios::binary);
         if (jsonFile)
         {
            jsonFile.write(json.data(), json.size() - 1);
            jsonFile.close();
         }
-        LOG_ERROR("[Aftermath] JSON crash dump written to: %s (%u bytes)", jsonFileName.c_str(), jsonSize);
+        LOG_ERROR("[Aftermath] JSON crash dump written to: %s (%u bytes)", jsonFilePath.string().c_str(), jsonSize);
     }
     else
     {
@@ -228,14 +244,89 @@ void NvidiaAftermathTracker::WriteGpuCrashDumpToFile(const void* pGpuCrashDump, 
     AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_GpuCrashDump_DestroyDecoder(decoder));
 }
 
+void NvidiaAftermathTracker::WriteCrashDumpAugmentationReport(GFSDK_Aftermath_GpuCrashDump_Decoder decoder, const std::string& reportPathUtf8) const
+{
+    std::ofstream f(reportPathUtf8, std::ios::out);
+    if (!f)
+        return;
+
+    f << "Aftermath: shader resolution vs ShaderDatabase\n";
+    f << "If JSON shows only a name like compute_01 @ 0x..., mapping failed: the decoder needs\n";
+    f << "shaderLookupCb to return the same SPIR-V bytes whose GFSDK_Aftermath_GetShaderHashSpirv\n";
+    f << "matches GetShaderHashForShaderInfo for this dump.\n\n";
+
+    uint32_t shaderCount = 0;
+    if (GFSDK_Aftermath_SUCCEED(GFSDK_Aftermath_GpuCrashDump_GetActiveShadersInfoCount(decoder, &shaderCount)) && shaderCount > 0)
+    {
+        std::vector<GFSDK_Aftermath_GpuCrashDump_ShaderInfo> infos(shaderCount);
+        if (GFSDK_Aftermath_SUCCEED(GFSDK_Aftermath_GpuCrashDump_GetActiveShadersInfo(decoder, shaderCount, infos.data())))
+        {
+            f << "Active shaders in dump: " << shaderCount << "\n\n";
+            for (uint32_t i = 0; i < shaderCount; ++i)
+            {
+                GFSDK_Aftermath_ShaderBinaryHash binaryHash{};
+                const GFSDK_Aftermath_Result hashRes = GFSDK_Aftermath_GetShaderHashForShaderInfo(decoder, &infos[i], &binaryHash);
+                const std::string path = GFSDK_Aftermath_SUCCEED(hashRes) ? m_shaderDatabase.FindShaderSourcePath(binaryHash) : std::string{};
+                f << "[" << i << "] shaderType=" << static_cast<int>(infos[i].shaderType)
+                  << " shaderHashField=0x" << std::hex << infos[i].shaderHash << std::dec
+                  << " instance=0x" << std::hex << infos[i].shaderInstance << std::dec;
+                if (GFSDK_Aftermath_SUCCEED(hashRes))
+                    f << " GetShaderHashForShaderInfo=" << std::to_string(binaryHash)
+                      << " database=" << (path.empty() ? "MISSING" : "OK")
+                      << " source=" << (path.empty() ? "(unknown)" : path);
+                else
+                    f << " GetShaderHashForShaderInfo=FAILED(" << std::to_string(hashRes) << ")";
+                f << "\n";
+            }
+        }
+        else
+            f << "GetActiveShadersInfo failed.\n";
+    }
+    else
+        f << "No active shader info (or GetActiveShadersInfoCount failed).\n";
+
+    f << "\n--- Checkpoints / markers ---\n";
+    uint32_t markerCount = 0;
+    if (GFSDK_Aftermath_SUCCEED(GFSDK_Aftermath_GpuCrashDump_GetEventMarkersInfoCount(decoder, &markerCount)) && markerCount > 0)
+    {
+        std::vector<GFSDK_Aftermath_GpuCrashDump_EventMarkerInfo> markers(markerCount);
+        if (GFSDK_Aftermath_SUCCEED(GFSDK_Aftermath_GpuCrashDump_GetEventMarkersInfo(decoder, markerCount, markers.data())))
+        {
+            for (uint32_t i = 0; i < markerCount; ++i)
+            {
+                f << "[" << i << "] contextStatus=" << static_cast<int>(markers[i].contextStatus)
+                  << " markerSize=" << markers[i].markerDataSize;
+                if (markers[i].markerData && markers[i].markerDataSize > 0)
+                {
+                    f << " ";
+                    const auto* p = static_cast<const unsigned char*>(markers[i].markerData);
+                    const uint32_t n = markers[i].markerDataSize < 256u ? markers[i].markerDataSize : 256u;
+                    for (uint32_t j = 0; j < n; ++j)
+                    {
+                        const unsigned char c = p[j];
+                        f << (c >= 32u && c < 127u ? static_cast<char>(c) : '.');
+                    }
+                }
+                f << "\n";
+            }
+        }
+    }
+    else
+        f << "(none or query failed)\n";
+}
+
 // Helper for writing shader debug information to a file
 void NvidiaAftermathTracker::WriteShaderDebugInformationToFile(
     GFSDK_Aftermath_ShaderDebugInfoIdentifier identifier,
     const void* pShaderDebugInfo,
     const uint32_t shaderDebugInfoSize)
 {
+    const std::filesystem::path outDir = std::filesystem::path("Bin") / "Aftermath" / "Shaders";
+    std::error_code ec;
+    std::filesystem::create_directories(outDir, ec);
+
     // Create a unique file name.
-    const std::string filePath = "shader-" + std::to_string(identifier) + ".nvdbg";
+    const std::filesystem::path filePath = outDir / ("shader-" + std::to_string(identifier) + ".nvdbg");
 
     std::ofstream f(filePath, std::ios::out | std::ios::binary);
     if (f)

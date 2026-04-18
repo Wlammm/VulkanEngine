@@ -83,6 +83,9 @@ private:
         const void* pShaderDebugInfo,
         const uint32_t shaderDebugInfoSize);
 
+    // Active shaders + checkpoint markers from the decoder vs our ShaderDatabase (debug aid).
+    void WriteCrashDumpAugmentationReport(GFSDK_Aftermath_GpuCrashDump_Decoder decoder, const std::string& reportPathUtf8) const;
+
     //*********************************************************
     // Helpers for decoding GPU crash dump to JSON.
     //

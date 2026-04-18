@@ -9,6 +9,7 @@ public:
 	~VulkanContext();
 
 	inline static constexpr int FrameLag = 3;
+	inline static constexpr uint32_t AftermathMarkerHistory = c_markerFrameHistory;
 
 	static vk::Instance& GetInstance();
 	static class VulkanPhysicalDevice& GetPhysicalDevice();
@@ -17,6 +18,12 @@ public:
 	static vk::PipelineCache& GetPipelineCache();
 	static class VulkanAllocator& GetAllocator();
 	static class NvidiaAftermathTracker* GetAftermathTracker();
+	static bool IsAftermathEnabled() { return GetAftermathTracker() != nullptr; }
+
+	// Inserts an NVIDIA diagnostic checkpoint whose contents are resolved via the
+	// app-managed marker callback (so crash dumps show the string).
+	// Only active when `-aftermath` is enabled.
+	static void SetAftermathCheckpoint(vk::CommandBuffer inCommandBuffer, std::string_view inLabel);
 
 	static glm::vec2 GetRenderResolution();
 
@@ -55,6 +62,7 @@ private:
 	UniquePtr<class VulkanSwapChain> mySwapChain = nullptr;
 	
 	AfterMathMarkerMap markerMap;
+	std::atomic<uint64_t> myAftermathMarkerId = 1;
 	UniquePtr<class NvidiaAftermathTracker> myNvidiaAftermathDebugger = nullptr;
 
 	vk::DescriptorPool myDescriptorPool;

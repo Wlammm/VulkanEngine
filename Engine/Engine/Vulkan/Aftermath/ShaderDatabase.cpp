@@ -79,6 +79,21 @@ std::string ShaderDatabase::FindShaderSourcePath(const GFSDK_Aftermath_ShaderBin
     return it->second;
 }
 
+void ShaderDatabase::WriteRegisteredSnapshot(const std::string& inPathUtf8) const
+{
+    std::lock_guard<std::mutex> lock(myMutex);
+
+    std::ofstream f(inPathUtf8, std::ios::out);
+    if (!f)
+        return;
+
+    f << "SPIR-V shaders registered for Aftermath (hash from GFSDK_Aftermath_GetShaderHashSpirv):\n";
+    f << "count=" << myShaderHashToSourcePath.size() << "\n\n";
+
+    for (const auto& e : myShaderHashToSourcePath)
+        f << std::to_string(e.first) << '\t' << e.second << '\n';
+}
+
 void ShaderDatabase::AddShaderWithDebugInfo(const void* inSpirvData, size_t inSpirvSize, const char* inDebugName)
 {
     std::lock_guard<std::mutex> lock(myMutex);

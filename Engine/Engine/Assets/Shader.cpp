@@ -320,7 +320,6 @@ void Shader::CompileHlslToSpv(const std::string& inShaderSource)
         L"-fspv-target-env=vulkan1.3",
         L"-E", wideEntryPointString.c_str(),
         L"-T", profile.c_str(),
-        L"-O3",
         L"-HV",
         L"2021",
         L"-WX",
@@ -330,20 +329,50 @@ void Shader::CompileHlslToSpv(const std::string& inShaderSource)
 #endif
     };
 
+#if !SHIPPING
+    // When running with `-aftermath`, prefer debuggability over performance:
+    // - `-fspv-debug=vulkan-with-source` emits NonSemantic.Shader.DebugInfo.100 + source text,
+    //   which Aftermath can use to resolve instruction locations back to source/line.
+    // - `-Od` avoids optimizer reordering that can make crash locations harder to interpret.
+    //
+    // Note: DXC has had bugs with this mode in some shader patterns (esp. ray queries).
+    // If you hit DXC failures, you can remove `-aftermath` or adjust these flags.
+    if (Engine::GetEngineProperties().HasStartupArgument("-aftermath"))
+    {
+        args.push_back(L"-Od");
+        // `-fspv-extension` acts as an allow-list in DXC, so include every
+        // extension needed by our shader set.
+        args.push_back(L"-fspv-extension=SPV_EXT_descriptor_indexing");
+        args.push_back(L"-fspv-extension=SPV_KHR_ray_query");
+        args.push_back(L"-fspv-extension=SPV_KHR_non_semantic_info");
+        args.push_back(L"-fspv-debug=vulkan-with-source");
+    }
+    else
+    {
+        args.push_back(L"-O3");
+    }
+#else
+    args.push_back(L"-O3");
+#endif
+
     ComPtr<IDxcUtils> utils = DXCompiler::gDxcUtils;
 
     std::filesystem::path shaderDir = GetSourcePath().parent_path();
     ComPtr<IDxcIncludeHandler> includeHandler = new HlslShaderIncluder(utils.Get(), shaderDir);
     
+    auto CompileWithArgs = [&](std::vector<LPCWSTR>& inArgs, ComPtr<IDxcResult>& outResult)
+    {
+        return DXCompiler::gDxcCompiler->Compile(
+            &sourceBuffer,
+            inArgs.data(),
+            (uint32_t)inArgs.size(),
+            includeHandler.Get(),
+            IID_PPV_ARGS(&outResult)
+        );
+    };
+
     ComPtr<IDxcResult> result;
-    HRESULT hr = DXCompiler::gDxcCompiler->Compile(
-        &sourceBuffer,
-        args.data(),
-        (uint32_t)args.size(),
-        includeHandler.Get(),
-        IID_PPV_ARGS(&result)
-    );
-    
+    HRESULT hr = CompileWithArgs(args, result);
     check(SUCCEEDED(hr));
     
     myIncludes.Clear();
@@ -358,8 +387,61 @@ void Shader::CompileHlslToSpv(const std::string& inShaderSource)
 
     if (errors && errors->GetStringLength() > 0)
     {
-        LOG_ERROR("Failed to compile hlsl shader [%s]: %s", GetSourcePath().string().c_str(), errors->GetStringPointer());
-        check(false);
+        const std::string errorString = errors->GetStringPointer();
+
+#if !SHIPPING
+        // DXC has known bugs in `-fspv-debug=vulkan-with-source` mode for some shader
+        // patterns (notably some ray query / acceleration structure paths). If that hits,
+        // retry with a safer Aftermath-compatible mode that still keeps debug symbols.
+        const bool isAftermathMode = Engine::GetEngineProperties().HasStartupArgument("-aftermath");
+        const bool shouldRetryWithSafeFlags =
+            isAftermathMode &&
+            (errorString.contains("fatal error: generated SPIR-V is invalid") ||
+             errorString.contains("OpTypeAccelerationStructureKHR"));
+
+        if (shouldRetryWithSafeFlags)
+        {
+            LOG_WARNING("[Aftermath] DXC source-line debug mode failed for '%s'. Retrying with fallback debug flags. Original error: %s",
+                GetSourcePath().string().c_str(), errorString.c_str());
+
+            std::vector<LPCWSTR> fallbackArgs = {
+                L"-spirv",
+                L"-fspv-target-env=vulkan1.3",
+                L"-E", wideEntryPointString.c_str(),
+                L"-T", profile.c_str(),
+                L"-HV", 
+                L"2021",
+                L"-WX",
+                L"-Od",
+                L"-Zi",
+                L"-Qembed_debug",
+                L"-fspv-extension=SPV_EXT_descriptor_indexing",
+                L"-fspv-extension=SPV_KHR_ray_query"
+            };
+
+            result.Reset();
+            hr = CompileWithArgs(fallbackArgs, result);
+            check(SUCCEEDED(hr));
+
+            errors.Reset();
+            result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr);
+            if (!errors || errors->GetStringLength() == 0)
+            {
+                LOG_WARNING("[Aftermath] Fallback shader compile succeeded for '%s' (without -fspv-debug=vulkan-with-source).",
+                    GetSourcePath().string().c_str());
+            }
+            else
+            {
+                LOG_ERROR("Failed to compile hlsl shader [%s]: %s", GetSourcePath().string().c_str(), errors->GetStringPointer());
+                check(false);
+            }
+        }
+        else
+#endif
+        {
+            LOG_ERROR("Failed to compile hlsl shader [%s]: %s", GetSourcePath().string().c_str(), errorString.c_str());
+            check(false);
+        }
     }
 
     // Get SPIR-V
@@ -456,7 +538,8 @@ void Shader::InitFromBinary(const List<uint32_t>& inData)
 {
     ZoneScoped;
 
-#if !SHIPPING
+    // Register SPIR-V for Aftermath crash-dump decoding whenever the tracker is active
+    // (not only non-SHIPPING — Release + `-aftermath` still needs hashes for line mapping).
     if (ShaderDatabase::Get() && !inData.IsEmpty())
     {
         ShaderDatabase::Get()->AddShaderWithDebugInfo(
@@ -465,7 +548,6 @@ void Shader::InitFromBinary(const List<uint32_t>& inData)
             GetSourcePath().string().c_str()
         );
     }
-#endif
     
     if(myShaderModule)
     {
