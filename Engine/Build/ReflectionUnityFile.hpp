@@ -103,8 +103,6 @@
 #include "../Engine/Rendering\RenderingPasses\GraphicsPasses\PresentPass.h"
 #include "../Engine/Rendering\RenderingPasses\GraphicsPasses\SkyboxPass.h"
 #include "../Engine/Rendering\RenderingPasses\IRenderPass.h"
-#include "../Engine/Rendering\RenderingPasses\TransitionPasses\TransitionImagePass.h"
-#include "../Engine/Rendering\RenderingPasses\TransitionPasses\TransitionSwapchainImagePass.h"
 #include "../Engine/Rendering\RenderSystem.h"
 #include "../Engine/Rendering\TextureSystem.h"
 #include "../Engine/Rendering\TLAS.h"

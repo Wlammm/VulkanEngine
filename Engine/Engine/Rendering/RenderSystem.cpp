@@ -238,53 +238,6 @@ void RenderSystem::ExecuteRenderGraph(vk::CommandBuffer inCommandBuffer)
 {
 	ZoneScoped;
 
-	// If you've done buffer copies for vertex/index buffers before this:
-	vk::BufferMemoryBarrier vertexBufferBarrier{};
-	vertexBufferBarrier
-		.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite) // Buffer copy writes
-		.setDstAccessMask(vk::AccessFlagBits::eVertexAttributeRead) // Vertex shader reads
-		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setBuffer(GPUResourceManager::Get()->GetBuffer<Vertex>()->GetBuffer()->GetAPIResource())
-		.setOffset(0)
-		.setSize(VK_WHOLE_SIZE);
-
-	vk::BufferMemoryBarrier indexBufferBarrier{};
-	indexBufferBarrier
-		.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite) // Buffer copy writes
-		.setDstAccessMask(vk::AccessFlagBits::eIndexRead) // Vertex shader reads index buffer
-		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setBuffer(GPUResourceManager::Get()->GetBuffer<Index>()->GetBuffer()->GetAPIResource())
-		.setOffset(0)
-		.setSize(VK_WHOLE_SIZE);
-	
-	inCommandBuffer.pipelineBarrier(
-		vk::PipelineStageFlagBits::eTransfer, // Buffer copies stage
-		vk::PipelineStageFlagBits::eVertexInput, // Vertex input stage
-		{},                                      // Dependency flags
-		nullptr,                                 // Memory barriers
-		{ vertexBufferBarrier, indexBufferBarrier }, // Buffer barriers
-		nullptr                                  // Image barriers
-	);
-
-	vk::BufferMemoryBarrier pointLightBarrier{};
-	pointLightBarrier
-		.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite) // Buffer copy writes
-		.setDstAccessMask(vk::AccessFlagBits::eShaderRead) // Fragment shader reads point light buffer
-		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setBuffer(GPUResourceManager::Get()->GetBuffer<PointLightData>()->GetBuffer()->GetAPIResource())
-		.setOffset(0)
-		.setSize(VK_WHOLE_SIZE);
-
-	inCommandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
-		vk::PipelineStageFlagBits::eFragmentShader,
-		{},
-		nullptr,
-		pointLightBarrier,
-		nullptr);
-
 	myRenderGraph->Execute(inCommandBuffer);
 }
 

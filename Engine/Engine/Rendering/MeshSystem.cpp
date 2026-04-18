@@ -19,7 +19,6 @@ MeshSystem::MeshSystem()
             .setSize(sizeof(MeshData) * 4),
             VMA_MEMORY_USAGE_AUTO));
     
-    
     GPUResourceManager::Get()->RegisterBuffer<MeshData>(myBuffer);
 }
 
