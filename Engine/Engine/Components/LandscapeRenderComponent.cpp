@@ -140,10 +140,13 @@ void LandscapeRenderComponent::CreateLandscapeMesh()
 
             glm::vec3 tangent1 = ComputeTangent(edge1, edge2, uv1, uv2, uv3);
 
-            
-            vertices[bottomLeft].myNormal += normal1;
             vertices[topLeft].myNormal += normal1;
-            vertices[bottomRight].myNormal += normal1;
+            vertices[bottomLeft].myNormal += normal1;
+            vertices[topRight].myNormal += normal1;
+
+            vertices[topLeft].myTangents += tangent1;
+            vertices[bottomLeft].myTangents += tangent1;
+            vertices[topRight].myTangents += tangent1;
 
             indices.Add(topRight);
             indices.Add(bottomLeft);
@@ -152,21 +155,20 @@ void LandscapeRenderComponent::CreateLandscapeMesh()
             edge1 = vertices[bottomLeft].myPosition - vertices[topRight].myPosition;
             edge2 = vertices[topRight].myPosition - vertices[bottomRight].myPosition;
             glm::vec3 normal2 = glm::normalize(glm::cross(edge2, edge1));
-            
 
             uv1 = vertices[topRight].myTexCoords[0];
             uv2 = vertices[bottomLeft].myTexCoords[0];
             uv3 = vertices[bottomRight].myTexCoords[0];
 
             glm::vec3 tangent2 = ComputeTangent(edge1, edge2, uv1, uv2, uv3);
-            
+
             vertices[topRight].myNormal += normal2;
+            vertices[bottomLeft].myNormal += normal2;
             vertices[bottomRight].myNormal += normal2;
-            vertices[topLeft].myNormal += normal2;
 
             vertices[topRight].myTangents += tangent2;
-            vertices[bottomRight].myTangents += tangent2;
             vertices[bottomLeft].myTangents += tangent2;
+            vertices[bottomRight].myTangents += tangent2;
         }
     }
     
