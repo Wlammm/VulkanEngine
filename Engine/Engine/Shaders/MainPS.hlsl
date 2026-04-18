@@ -93,7 +93,7 @@ float4 PSMain(PSInput input) : SV_Target
     float roughness = materialColor.g;
     float metalness = materialColor.b;
     
-    float ambientLightStrength = 0.1;
+    float ambientLightStrength = 0.05;
     float3 pointLightColor = float3(0, 0, 0);
 
     for(int i = 0; i < inSceneHeader.myNumPointLights; ++i)

@@ -30,7 +30,7 @@ void RenderGraph::Execute(vk::CommandBuffer inCommandBuffer)
         InsertResourceBarriers(inCommandBuffer, pass->GetDynamicResourceUsages());
 
         if (VulkanContext::GetAftermathTracker())
-            inCommandBuffer.setCheckpointNV(pass->GetName());
+            vkCmdSetCheckpointNV(inCommandBuffer, pass->GetName());
 
         pass->Execute(inCommandBuffer);
     }
@@ -89,7 +89,7 @@ void RenderGraph::HandleImageBarrier(
         if (currentState.myAccessFlags != vk::AccessFlagBits::eNone) // If previously accessed
         {
             // Simplified hazard check: If either new or old was a write, we need a barrier.
-            bool prevWasWrite = (currentState.myAccessFlags & (vk::AccessFlagBits::eMemoryWrite | vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eTransferWrite)) != vk::AccessFlagBits::eNone;
+            bool prevWasWrite = (currentState.myAccessFlags & (vk::AccessFlagBits::eMemoryWrite | vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eTransferWrite)) != vk::AccessFlagBits::eNone;
             bool newIsWrite = !inUsage.myIsReadOnly;
              
             if (prevWasWrite || newIsWrite) 

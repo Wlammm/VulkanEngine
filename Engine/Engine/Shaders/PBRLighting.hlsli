@@ -64,7 +64,7 @@ float3 CalculatePointLight(float3 inLightPosition, float3 inLightColor, float in
 {
     if (length(inLightPosition - inFragWorldPos) > inLightRange)
         return float3(0, 0, 0);
-    // ffffffffff
+    
     float3 lightDirection = inLightPosition - inFragWorldPos;
     
     float3 N = normalize(inNormal);

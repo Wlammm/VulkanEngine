@@ -18,7 +18,7 @@ void MainPass::SetupAttachments()
 
 void MainPass::DrawCall(vk::CommandBuffer inCommandBuffer)
 {
-    inCommandBuffer.setDepthWriteEnable(true);
+    inCommandBuffer.setDepthWriteEnable(false);
     
     DrawFromShadingBin(inCommandBuffer, EShadingBin::ShadingBin_Default);
 }
