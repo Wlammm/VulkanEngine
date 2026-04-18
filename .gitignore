@@ -21,3 +21,11 @@ PVD*.dll
 Engine/Launcher/VTune Profiler Results/
 Engine/GPUCache/
 Engine/debug.log
+
+Bin/Editor/PreviousWorldsSystem.info
+*.cache
+imgui.ini
+Log.txt
+.claude/
+Debug_ReflectionCache.json
+Engine.sln.DotSettings.user
