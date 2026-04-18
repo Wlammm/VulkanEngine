@@ -33,18 +33,17 @@ void NvidiaAftermathTracker::Initialize()
 {
     // Enable GPU crash dumps and set up the callbacks for crash dump notifications,
     // shader debug information notifications, and providing additional crash
-    // dump description data.Only the crash dump callback is mandatory. The other two
+    // dump description data. Only the crash dump callback is mandatory. The other two
     // callbacks are optional and can be omitted, by passing nullptr, if the corresponding
     // functionality is not used.
-    // The DeferDebugInfoCallbacks flag enables caching of shader debug information data
-    // in memory. If the flag is set, ShaderDebugInfoCallback will be called only
-    // in the event of a crash, right before GpuCrashDumpCallback. If the flag is not set,
-    // ShaderDebugInfoCallback will be called for every shader that is compiled..
+    // We use NONE (not DeferDebugInfoCallbacks) so that ShaderDebugInfoCallback fires
+    // eagerly for every shader as it's compiled. This ensures debug info is always
+    // available at crash time — deferred delivery can miss shaders for some crash types.
     
     AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_EnableGpuCrashDumps(
         GFSDK_Aftermath_Version_API,
         GFSDK_Aftermath_GpuCrashDumpWatchedApiFlags_Vulkan,
-        GFSDK_Aftermath_GpuCrashDumpFeatureFlags_DeferDebugInfoCallbacks,           // Let the Nsight Aftermath library cache shader debug information.
+        GFSDK_Aftermath_GpuCrashDumpFeatureFlags_Default,                           // Collect shader debug info eagerly for every shader, not deferred to crash time.
         GpuCrashDumpCallback,                                                       // Register callback for GPU crash dumps.
         ShaderDebugInfoCallback,                                                    // Register callback for shader debug information.
         CrashDumpDescriptionCallback,                                               // Register callback for GPU crash dump description.
@@ -64,6 +63,9 @@ void NvidiaAftermathTracker::OnCrashDump(const void* pGpuCrashDump, const uint32
 {
     // Make sure only one thread at a time...
     std::lock_guard<std::mutex> lock(m_mutex);
+
+    LOG_ERROR("[Aftermath] GPU crash dump received (%u bytes). ShaderDatabase has %zu binaries, %zu debug info entries. Driver debug info blobs: %zu",
+        gpuCrashDumpSize, m_shaderDatabase.GetShaderBinaryCount(), m_shaderDatabase.GetShaderDebugInfoCount(), m_shaderDebugInfo.size());
 
     // Write to file for later in-depth analysis with Nsight Graphics.
     WriteGpuCrashDumpToFile(pGpuCrashDump, gpuCrashDumpSize);
@@ -87,6 +89,8 @@ void NvidiaAftermathTracker::OnShaderDebugInfo(const void* pShaderDebugInfo, con
     // from within the application.
     std::vector<uint8_t> data((uint8_t*)pShaderDebugInfo, (uint8_t*)pShaderDebugInfo + shaderDebugInfoSize);
     m_shaderDebugInfo[identifier].swap(data);
+
+    LOG("[Aftermath] Received shader debug info: %s (%u bytes)", std::to_string(identifier).c_str(), shaderDebugInfoSize);
 
     // Write to file for later in-depth analysis of crash dumps with Nsight Graphics
     WriteShaderDebugInformationToFile(identifier, pShaderDebugInfo, shaderDebugInfoSize);
@@ -186,7 +190,7 @@ void NvidiaAftermathTracker::WriteGpuCrashDumpToFile(const void* pGpuCrashDump, 
     // Decode the crash dump to a JSON string.
     // Step 1: Generate the JSON and get the size.
     uint32_t jsonSize = 0;
-    AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_GpuCrashDump_GenerateJSON(
+    GFSDK_Aftermath_Result jsonResult = GFSDK_Aftermath_GpuCrashDump_GenerateJSON(
         decoder,
         GFSDK_Aftermath_GpuCrashDumpDecoderFlags_ALL_INFO,
         GFSDK_Aftermath_GpuCrashDumpFormatterFlags_NONE,
@@ -194,22 +198,30 @@ void NvidiaAftermathTracker::WriteGpuCrashDumpToFile(const void* pGpuCrashDump, 
         ShaderLookupCallback,
         ShaderSourceDebugInfoLookupCallback,
         this,
-        &jsonSize));
-    // Step 2: Allocate a buffer and fetch the generated JSON.
-    std::vector<char> json(jsonSize);
-    AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_GpuCrashDump_GetJSON(
-        decoder,
-        uint32_t(json.size()),
-        json.data()));
+        &jsonSize);
 
-    // Write the crash dump data as JSON to a file.
-    const std::string jsonFileName = crashDumpFileName + ".json";
-    std::ofstream jsonFile(jsonFileName, std::ios::out | std::ios::binary);
-    if (jsonFile)
+    if (GFSDK_Aftermath_SUCCEED(jsonResult))
     {
-       // Write the JSON to the file (excluding string termination)
-       jsonFile.write(json.data(), json.size() - 1);
-       jsonFile.close();
+        // Step 2: Allocate a buffer and fetch the generated JSON.
+        std::vector<char> json(jsonSize);
+        AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_GpuCrashDump_GetJSON(
+            decoder,
+            uint32_t(json.size()),
+            json.data()));
+
+        // Write the crash dump data as JSON to a file.
+        const std::string jsonFileName = crashDumpFileName + ".json";
+        std::ofstream jsonFile(jsonFileName, std::ios::out | std::ios::binary);
+        if (jsonFile)
+        {
+           jsonFile.write(json.data(), json.size() - 1);
+           jsonFile.close();
+        }
+        LOG_ERROR("[Aftermath] JSON crash dump written to: %s (%u bytes)", jsonFileName.c_str(), jsonSize);
+    }
+    else
+    {
+        LOG_ERROR("[Aftermath] Failed to generate JSON from crash dump (result: %s)", std::to_string(jsonResult).c_str());
     }
 
     // Destroy the GPU crash dump decoder object.
@@ -243,12 +255,13 @@ void NvidiaAftermathTracker::OnShaderDebugInfoLookup(
     auto i_debugInfo = m_shaderDebugInfo.find(identifier);
     if (i_debugInfo == m_shaderDebugInfo.end())
     {
-        // Early exit, nothing found. No need to call setShaderDebugInfo.
+        LOG_ERROR("[Aftermath] Shader debug info lookup FAILED for identifier %s (have %zu entries)",
+            std::to_string(identifier).c_str(), m_shaderDebugInfo.size());
         return;
     }
 
-    // Let the GPU crash dump decoder know about the shader debug information
-    // that was found.
+    LOG("[Aftermath] Shader debug info lookup succeeded for identifier %s (%u bytes)",
+        std::to_string(identifier).c_str(), uint32_t(i_debugInfo->second.size()));
     setShaderDebugInfo(i_debugInfo->second.data(), uint32_t(i_debugInfo->second.size()));
 }
 
@@ -265,11 +278,13 @@ void NvidiaAftermathTracker::OnShaderLookup(
     List<uint8_t> shaderBinary;
     if (!m_shaderDatabase.FindShaderBinary(shaderHash, shaderBinary))
     {
+        LOG_ERROR("[Aftermath] Shader binary lookup FAILED for hash %s (have %zu registered shaders)",
+            std::to_string(shaderHash).c_str(), m_shaderDatabase.GetShaderBinaryCount());
         return;
     }
 
-    // Let the GPU crash dump decoder know about the shader data
-    // that was found.
+    LOG("[Aftermath] Shader binary lookup succeeded for hash %s (%u bytes)",
+        std::to_string(shaderHash).c_str(), uint32_t(shaderBinary.size()));
     setShaderBinary(shaderBinary.data(), uint32_t(shaderBinary.size()));
 }
 
@@ -285,12 +300,13 @@ void NvidiaAftermathTracker::OnShaderSourceDebugInfoLookup(
     List<uint8_t> shaderBinary;
     if (!m_shaderDatabase.FindShaderBinaryWithDebugData(shaderDebugName, shaderBinary))
     {
-        // Early exit, nothing found. No need to call setShaderBinary.
+        LOG_ERROR("[Aftermath] Shader source debug info lookup FAILED for debug name '%s' (have %zu entries)",
+            shaderDebugName.name, m_shaderDatabase.GetShaderDebugInfoCount());
         return;
     }
 
-    // Let the GPU crash dump decoder know about the shader debug data that was
-    // found.
+    LOG("[Aftermath] Shader source debug info lookup succeeded for debug name '%s' (%u bytes)",
+        shaderDebugName.name, uint32_t(shaderBinary.size()));
     setShaderBinary(shaderBinary.data(), uint32_t(shaderBinary.size()));
 }
 

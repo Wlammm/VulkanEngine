@@ -43,9 +43,16 @@ public:
     bool FindShaderBinaryWithDebugData(const GFSDK_Aftermath_ShaderDebugName& inShaderDebugName, List<uint8_t>& outShader) const;
     
     void AddShaderWithDebugInfo(const void* inSpirvData, size_t inSpirvSize, const char* inDebugName);
-    
+
+    size_t GetShaderBinaryCount() const { return myShaderBinaries.size(); }
+    size_t GetShaderDebugInfoCount() const { return myShaderBinariesWithDebugInfo.size(); }
+
+    // Returns the source path for a shader hash, or empty string if not found.
+    std::string FindShaderSourcePath(const GFSDK_Aftermath_ShaderBinaryHash& inShaderHash) const;
+
 private:
     mutable std::mutex myMutex;
     std::map<GFSDK_Aftermath_ShaderBinaryHash, List<uint8_t>> myShaderBinaries;
     std::map<GFSDK_Aftermath_ShaderDebugName, List<uint8_t>> myShaderBinariesWithDebugInfo;
+    std::map<GFSDK_Aftermath_ShaderBinaryHash, std::string> myShaderHashToSourcePath;
 };

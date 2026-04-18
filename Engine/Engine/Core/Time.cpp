@@ -10,6 +10,7 @@ void Time::Tick()
 	myDeltaTime = (now - lastTime).count() / 1000000000.0f;
 	lastTime = now;
 
+	// TODO: Should this clamp be here? 
 	myDeltaTime = std::clamp(myDeltaTime, 0.0f, 0.5f);
 	myTimeSinceStart += myDeltaTime;
 }

@@ -15,7 +15,7 @@ TLAS::~TLAS()
 	DestroyResources();
 }
 
-void TLAS::Build(const List<VkAccelerationStructureInstanceKHR>& inInstances)
+void TLAS::Build(const List<VkAccelerationStructureInstanceKHR>& inInstances, const List<BLAS*>& inBLASes)
 {
 	check(!inInstances.IsEmpty());
 
@@ -90,6 +90,17 @@ void TLAS::Build(const List<VkAccelerationStructureInstanceKHR>& inInstances)
 		myInstanceBuffer,
 		vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
 		vk::AccessFlagBits::eShaderRead);
+	// Declare a read dependency on every referenced BLAS. If any of them were built in the
+	// same upload pass (e.g. on first load), InsertResourceBarriers will emit a
+	// eAccelerationStructureWriteKHR → eAccelerationStructureReadKHR global memory barrier
+	// in the primary command buffer before this TLAS build secondary CB executes.
+	for (BLAS* blas : inBLASes)
+	{
+		resourceUsages.Emplace().SetToAccelerationStructure(
+			blas,
+			vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
+			vk::AccessFlagBits::eAccelerationStructureReadKHR);
+	}
 
 	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 }

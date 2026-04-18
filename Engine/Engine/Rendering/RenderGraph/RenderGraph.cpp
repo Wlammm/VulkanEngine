@@ -136,7 +136,7 @@ void RenderGraph::HandleBufferBarrier(
     bool accessHazard = false;
     if (currentState.myAccessFlags != vk::AccessFlagBits::eNone)
     {
-        bool prevWasWrite = (currentState.myAccessFlags & (vk::AccessFlagBits::eMemoryWrite | vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eTransferWrite)) != vk::AccessFlagBits::eNone;
+        bool prevWasWrite = (currentState.myAccessFlags & (vk::AccessFlagBits::eMemoryWrite | vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eTransferWrite | vk::AccessFlagBits::eAccelerationStructureWriteKHR)) != vk::AccessFlagBits::eNone;
         bool newIsWrite = !inUsage.myIsReadOnly;
 
         if (prevWasWrite || newIsWrite)

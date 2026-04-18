@@ -280,6 +280,7 @@ void World::TickActorDeletes()
 void World::RebuildTLAS()
 {
 	List<VkAccelerationStructureInstanceKHR> instances;
+	List<BLAS*> allBLASes;
 
 	for (const UniquePtr<Actor>& actor : myActors)
 	{
@@ -297,7 +298,7 @@ void World::RebuildTLAS()
 
 		const glm::mat4 worldMatrix = actor->GetTransform().GetMatrix();
 
-		for (const BLAS* blas : blases)
+		for (BLAS* blas : blases)
 		{
 			VkAccelerationStructureInstanceKHR& instance = instances.Emplace();
 
@@ -311,13 +312,16 @@ void World::RebuildTLAS()
 			instance.instanceShaderBindingTableRecordOffset = 0;
 			instance.flags = static_cast<uint32_t>(VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR);
 			instance.accelerationStructureReference         = blas->GetDeviceAddress();
+
+			if (!allBLASes.Contains(blas))
+				allBLASes.Add(blas);
 		}
 	}
 
 	if (instances.IsEmpty())
 		return;
 
-	RenderSystem::GetTLAS()->Build(instances);
+	RenderSystem::GetTLAS()->Build(instances, allBLASes);
 }
 
 void World::InitActor(Actor* inActor, const std::string& inName)

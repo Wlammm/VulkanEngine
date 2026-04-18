@@ -94,7 +94,7 @@ void Engine::Tick()
 #if !TRACY_ENABLE // Disable fps limit when we're profiling.
 	constexpr double targetFPS = 166.f;
 	long long sleepTimeMicroseconds = static_cast<long long>((1.0 / targetFPS - Time::GetDeltaTime()) * 1000000);
-	std::this_thread::sleep_for(std::chrono::microseconds(sleepTimeMicroseconds));
+	// std::this_thread::sleep_for(std::chrono::microseconds(sleepTimeMicroseconds));
 #endif
 
 	double frameStartTime = Time::GetSeconds();

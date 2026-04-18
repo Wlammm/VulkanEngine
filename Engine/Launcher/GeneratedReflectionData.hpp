@@ -9305,6 +9305,10 @@ Method& currentMethod = currentClass->AddMethod(Method("AddTemplateArgument", Re
 	{
 		Field& currentField = currentClass->AddField(Field("myDeviceAddress", -1, ReflectionSystem::GetOrCreateType<unsigned long long>("unsigned long long"), false, false));
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myOnRebuilt", -1, ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()>>("MulticastDelegate<void ()>"), false, false));
+	}
+	currentClass->AddBaseType(ReflectionSystem::GetMutableType<IGPUAccelerationStructure>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
@@ -9314,6 +9318,16 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetAccelerationStructure", ReflectionSystem::GetOrCreateType<vk::AccelerationStructureKHR>("vk::AccelerationStructureKHR"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+BLAS* instance = static_cast<BLAS*>(inInstance);
+MulticastDelegate<void ()> * result = instance->GetOnRebuilt();
+return (void*)result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetOnRebuilt", ReflectionSystem::GetOrCreateType<MulticastDelegate<void ()> *>("MulticastDelegate<void ()> *"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -10841,11 +10855,13 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 TLAS* instance = static_cast<TLAS*>(inInstance);
 const List<VkAccelerationStructureInstanceKHR> & arg0 = *(const List<VkAccelerationStructureInstanceKHR>*)inArguments[0];
-instance->Build(arg0);
+const List<BLAS *> & arg1 = *(const List<BLAS *>*)inArguments[1];
+instance->Build(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inInstances", ReflectionSystem::GetOrCreateType<const List<VkAccelerationStructureInstanceKHR> &>("const List<VkAccelerationStructureInstanceKHR> &")));
+arguments.Add(MethodArgument("inBLASes", ReflectionSystem::GetOrCreateType<const List<BLAS *> &>("const List<BLAS *> &")));
 Method& currentMethod = currentClass->AddMethod(Method("Build", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
@@ -11829,6 +11845,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetAftermathFlags", Refl
 	{
 		Field& currentField = currentClass->AddField(Field("myShaderBinariesWithDebugInfo", -1, ReflectionSystem::GetOrCreateType<std::map<GFSDK_Aftermath_ShaderDebugName, List<unsigned char>>>("std::map<GFSDK_Aftermath_ShaderDebugName, List<unsigned char>>"), false, false));
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myShaderHashToSourcePath", -1, ReflectionSystem::GetOrCreateType<std::map<GFSDK_Aftermath_ShaderBinaryHash, std::basic_string<char>>>("std::map<GFSDK_Aftermath_ShaderBinaryHash, std::basic_string<char>>"), false, false));
+	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
@@ -11882,6 +11901,38 @@ arguments.Add(MethodArgument("inSpirvData", ReflectionSystem::GetOrCreateType<co
 arguments.Add(MethodArgument("inSpirvSize", ReflectionSystem::GetOrCreateType<unsigned long long>("unsigned long long")));
 arguments.Add(MethodArgument("inDebugName", ReflectionSystem::GetOrCreateType<const char *>("const char *")));
 Method& currentMethod = currentClass->AddMethod(Method("AddShaderWithDebugInfo", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ShaderDatabase* instance = static_cast<ShaderDatabase*>(inInstance);
+static thread_local unsigned long long result = instance->GetShaderBinaryCount();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetShaderBinaryCount", ReflectionSystem::GetOrCreateType<unsigned long long>("unsigned long long"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ShaderDatabase* instance = static_cast<ShaderDatabase*>(inInstance);
+static thread_local unsigned long long result = instance->GetShaderDebugInfoCount();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetShaderDebugInfoCount", ReflectionSystem::GetOrCreateType<unsigned long long>("unsigned long long"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+ShaderDatabase* instance = static_cast<ShaderDatabase*>(inInstance);
+const GFSDK_Aftermath_ShaderBinaryHash & arg0 = *(const GFSDK_Aftermath_ShaderBinaryHash*)inArguments[0];
+static thread_local std::basic_string<char> result = instance->FindShaderSourcePath(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inShaderHash", ReflectionSystem::GetOrCreateType<const GFSDK_Aftermath_ShaderBinaryHash &>("const GFSDK_Aftermath_ShaderBinaryHash &")));
+Method& currentMethod = currentClass->AddMethod(Method("FindShaderSourcePath", ReflectionSystem::GetOrCreateType<std::basic_string<char>>("std::basic_string<char>"), invoker, arguments));
 }
 }
 { 

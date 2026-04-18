@@ -68,6 +68,17 @@ bool ShaderDatabase::FindShaderBinaryWithDebugData(const GFSDK_Aftermath_ShaderD
     return true;
 }
 
+std::string ShaderDatabase::FindShaderSourcePath(const GFSDK_Aftermath_ShaderBinaryHash& inShaderHash) const
+{
+    std::lock_guard<std::mutex> lock(myMutex);
+
+    auto it = myShaderHashToSourcePath.find(inShaderHash);
+    if (it == myShaderHashToSourcePath.end())
+        return {};
+
+    return it->second;
+}
+
 void ShaderDatabase::AddShaderWithDebugInfo(const void* inSpirvData, size_t inSpirvSize, const char* inDebugName)
 {
     std::lock_guard<std::mutex> lock(myMutex);
@@ -80,16 +91,27 @@ void ShaderDatabase::AddShaderWithDebugInfo(const void* inSpirvData, size_t inSp
     spirvCode.pData = inSpirvData;
     spirvCode.size  = static_cast<uint32_t>(inSpirvSize);
 
-    // Key by the debug name Aftermath derives from the SPIR-V itself, so it
-    // matches what Aftermath will pass to OnShaderSourceDebugInfoLookup.
+    GFSDK_Aftermath_ShaderBinaryHash shaderHash{};
+    GFSDK_Aftermath_Result hashResult = GFSDK_Aftermath_GetShaderHashSpirv(GFSDK_Aftermath_Version_API, &spirvCode, &shaderHash);
+    if (GFSDK_Aftermath_SUCCEED(hashResult))
+    {
+        myShaderBinaries[shaderHash] = binary;
+        myShaderHashToSourcePath[shaderHash] = inDebugName;
+        LOG("[Aftermath] Registered shader '%s' (hash: %s, size: %zu bytes)", inDebugName, std::to_string(shaderHash).c_str(), inSpirvSize);
+    }
+    else
+    {
+        LOG_ERROR("[Aftermath] Failed to get shader hash for '%s' (result: %s)", inDebugName, std::to_string(hashResult).c_str());
+    }
+
+    // GetShaderDebugNameSpirv only works with standard SPIR-V debug instructions (OpSource/OpLine).
+    // DXC-generated SPIR-V uses NonSemantic.Shader.DebugInfo.100 instead, so this will fail for
+    // HLSL shaders — that's expected. Source mapping still works via OnShaderLookup (Variant 1)
+    // since the full binary with embedded debug info is provided through shaderLookupCb.
     GFSDK_Aftermath_ShaderDebugName shaderDebugName{};
     if (GFSDK_Aftermath_SUCCEED(GFSDK_Aftermath_GetShaderDebugNameSpirv(
         GFSDK_Aftermath_Version_API, &spirvCode, nullptr, &shaderDebugName)))
     {
-        myShaderBinariesWithDebugInfo[shaderDebugName] = binary;
+        myShaderBinariesWithDebugInfo[shaderDebugName] = std::move(binary);
     }
-
-    GFSDK_Aftermath_ShaderBinaryHash shaderHash{};
-    if (GFSDK_Aftermath_SUCCEED(GFSDK_Aftermath_GetShaderHashSpirv(GFSDK_Aftermath_Version_API, &spirvCode, &shaderHash)))
-        myShaderBinaries[shaderHash] = std::move(binary);
 }

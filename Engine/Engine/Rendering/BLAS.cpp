@@ -120,6 +120,16 @@ BLAS* BLAS::Build(const List<glm::vec3>& inPositions, const List<uint>& inIndice
 		vk::BufferDeviceAddressInfo().setBuffer(scratchBuffer->GetAPIResource()));
 	scratchAddress = (scratchAddress + scratchAlignment - 1) & ~(scratchAlignment - 1);
 
+	// ---- Build BLAS object early so we can register it as a resource dependency ----
+	// Device address can be queried immediately (CPU-side call on an already-created handle).
+	const VkDeviceAddress blasDeviceAddress = device.getAccelerationStructureAddressKHR(
+		vk::AccelerationStructureDeviceAddressInfoKHR().setAccelerationStructure(accelerationStructure));
+
+	BLAS* blas = new BLAS();
+	blas->myAccelerationStructure = accelerationStructure;
+	blas->myBLASBuffer = blasBuffer;
+	blas->myDeviceAddress = blasDeviceAddress;
+
 	// ---- Record build command ----
 	buildInfo.setDstAccelerationStructure(accelerationStructure);
 	buildInfo.setScratchData(vk::DeviceOrHostAddressKHR().setDeviceAddress(scratchAddress));
@@ -133,8 +143,11 @@ BLAS* BLAS::Build(const List<glm::vec3>& inPositions, const List<uint>& inIndice
 	VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
 	commandBuffer->GetAPIResource().buildAccelerationStructuresKHR(buildInfo, &rangeInfo);
 
+	// Declare the BLAS itself as an AS resource (not a buffer) so that the render graph
+	// emits a proper global memory barrier (eAccelerationStructureWriteKHR) that TLAS
+	// read dependencies can synchronize against.
 	List<ResourceUsage> resourceUsages{};
-	resourceUsages.Emplace().SetToBuffer(blasBuffer,
+	resourceUsages.Emplace().SetToAccelerationStructure(blas,
 		vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
 		vk::AccessFlagBits::eAccelerationStructureWriteKHR);
 	resourceUsages.Emplace().SetToBuffer(vertexInputBuffer,
@@ -151,13 +164,5 @@ BLAS* BLAS::Build(const List<glm::vec3>& inPositions, const List<uint>& inIndice
 	VulkanAllocator::DestroyBuffer_TS(vertexInputBuffer);
 	VulkanAllocator::DestroyBuffer_TS(indexInputBuffer);
 
-	// ---- Retrieve device address ----
-	const VkDeviceAddress blasDeviceAddress = device.getAccelerationStructureAddressKHR(
-		vk::AccelerationStructureDeviceAddressInfoKHR().setAccelerationStructure(accelerationStructure));
-
-	BLAS* blas = new BLAS();
-	blas->myAccelerationStructure = accelerationStructure;
-	blas->myBLASBuffer = blasBuffer;
-	blas->myDeviceAddress = blasDeviceAddress;
 	return blas;
 }

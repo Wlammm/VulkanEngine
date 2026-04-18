@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Vulkan/Containers/IGPUAccelerationStructure.hpp"
+#include "BLAS.h"
 
 class VulkanBuffer;
 
@@ -8,10 +9,10 @@ class TLAS : public IGPUAccelerationStructure
 public:
 	~TLAS();
 
-	// Rebuilds (or creates) the TLAS from the given set of instances. Persistent GPU
-	// resources are reused across frames; they are only reallocated when the instance
-	// count exceeds the previously allocated capacity.
-	void Build(const List<VkAccelerationStructureInstanceKHR>& inInstances);
+	// Rebuilds (or creates) the TLAS from the given set of instances. inBLASes must list
+	// every BLAS referenced by inInstances so the render graph can insert the required
+	// BLAS-write → TLAS-read memory barrier when both builds land in the same upload pass.
+	void Build(const List<VkAccelerationStructureInstanceKHR>& inInstances, const List<BLAS*>& inBLASes);
 
 	vk::AccelerationStructureKHR GetAccelerationStructure() const override { return myAS; }
 	MulticastDelegate<void()>* GetOnRebuilt() const override { return &myOnRebuilt; }
