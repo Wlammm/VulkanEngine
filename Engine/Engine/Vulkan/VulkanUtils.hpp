@@ -15,6 +15,25 @@ enum class SamplerMode
 class VulkanUtils
 {
 public:
+	static vk::PipelineStageFlags PipelineFlagsFromShaderStages(vk::ShaderStageFlags inShaderStages)
+	{
+		vk::PipelineStageFlags flags;
+        
+		if (inShaderStages & vk::ShaderStageFlagBits::eVertex)
+			flags |= vk::PipelineStageFlagBits::eVertexShader;
+        
+		if (inShaderStages & vk::ShaderStageFlagBits::eFragment)
+			flags |= vk::PipelineStageFlagBits::eFragmentShader;
+        
+		if (inShaderStages & vk::ShaderStageFlagBits::eGeometry)
+			flags |= vk::PipelineStageFlagBits::eGeometryShader;
+        
+		if (inShaderStages & vk::ShaderStageFlagBits::eCompute)
+			flags |= vk::PipelineStageFlagBits::eComputeShader;
+        
+		return flags;
+	}
+	
 	static void CreateSamplers()
 	{
 		{

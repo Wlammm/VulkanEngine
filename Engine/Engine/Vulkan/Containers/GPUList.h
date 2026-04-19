@@ -75,7 +75,7 @@ public:
         commandBuffer->GetAPIResource().copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
         
         List<ResourceUsage> resourceUsages{};
-        resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+        resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
         
         RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
         
@@ -155,7 +155,7 @@ private:
         commandBuffer->GetAPIResource().copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
         
         List<ResourceUsage> resourceUsages{};
-        resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+        resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
         resourceUsages.Emplace().SetToBuffer(oldBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
         
         // Queue uploads to render system and destroy old buffer. 

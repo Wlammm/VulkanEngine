@@ -3,17 +3,10 @@
 
 #include "Engine/Shaders/Shared/MeshStructs.hpp"
 
-IndirectPrePass::IndirectPrePass()
+void IndirectPrePass::PreExecute()
 {
-}
-
-void IndirectPrePass::CreateResources()
-{
-    RegisterBufferUsage(RenderSystem::Get()->myCountBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
-}
-
-void IndirectPrePass::DestroyResources()
-{
+    IRenderPass::PreExecute();
+    RegisterDynamicBufferUsage(RenderSystem::Get()->myCountBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
 }
 
 void IndirectPrePass::Execute(vk::CommandBuffer inCommandBuffer)

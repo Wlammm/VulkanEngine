@@ -33,5 +33,5 @@ private:
     List<IRenderPass*> myPasses;
     
     // TODO: This only grows. Whenever a resource is destroyed, it should be removed from here.
-    std::map<void*, ResourceState> myGlobalResourceState;
+    std::map<const void*, ResourceState> myGlobalResourceState;
 };

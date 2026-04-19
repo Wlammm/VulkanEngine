@@ -1,7 +1,7 @@
 ﻿#pragma once
 
+class VulkanBuffer;
 class IGPUAccelerationStructure;
-class IGPUBuffer;
 class VulkanImage;
 
 struct ResourceState
@@ -14,29 +14,29 @@ struct ResourceState
 
 struct ResourceUsage
 {
-    VulkanImage* myImage = nullptr;
-    IGPUBuffer* myBuffer = nullptr;
-    IGPUAccelerationStructure* myAccelerationStructure = nullptr;
+    const VulkanImage* myImage = nullptr;
+    const VulkanBuffer* myBuffer = nullptr;
+    vk::AccelerationStructureKHR myAccelerationStructure = nullptr;
 
     ResourceState myRequiredState;
 
     bool myIsReadOnly = true;
 
-    void SetToImage(VulkanImage* inImage, vk::PipelineStageFlags inStageFlags, vk::AccessFlags inAccess, vk::ImageLayout inLayout)
+    void SetToImage(const VulkanImage* inImage, vk::PipelineStageFlags inStageFlags, vk::AccessFlags inAccess, vk::ImageLayout inLayout)
     {
         myImage = inImage;
         myRequiredState = { inStageFlags, inAccess, inLayout };
         myIsReadOnly = (inAccess & (vk::AccessFlagBits::eMemoryWrite | vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite)) == vk::AccessFlagBits::eNone;
     }
 
-    void SetToBuffer(IGPUBuffer* inBuffer, vk::PipelineStageFlags inStages, vk::AccessFlags inAccessFlags)
+    void SetToBuffer(const VulkanBuffer* inBuffer, vk::PipelineStageFlags inStages, vk::AccessFlags inAccessFlags)
     {
         myBuffer = inBuffer;
         myRequiredState = { inStages, inAccessFlags, vk::ImageLayout::eUndefined };
         myIsReadOnly = (inAccessFlags & (vk::AccessFlagBits::eMemoryWrite | vk::AccessFlagBits::eShaderWrite | vk::AccessFlagBits::eTransferWrite)) == vk::AccessFlagBits::eNone;
     }
 
-    void SetToAccelerationStructure(IGPUAccelerationStructure* inAS, vk::PipelineStageFlags inStages, vk::AccessFlags inAccessFlags)
+    void SetToAccelerationStructure(const vk::AccelerationStructureKHR inAS, vk::PipelineStageFlags inStages, vk::AccessFlags inAccessFlags)
     {
         myAccelerationStructure = inAS;
         myRequiredState = { inStages, inAccessFlags, vk::ImageLayout::eUndefined };

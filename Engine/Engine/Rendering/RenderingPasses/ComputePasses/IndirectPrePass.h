@@ -4,12 +4,10 @@
 class IndirectPrePass : public IRenderPass
 {
 public:
-    IndirectPrePass();
-
-    void CreateResources() override;
-    void DestroyResources() override;
+    void PreExecute() override;
     
-    
+    void CreateResources() override {}
+    void DestroyResources() override {}
     
     void Execute(vk::CommandBuffer inCommandBuffer) override;
 };

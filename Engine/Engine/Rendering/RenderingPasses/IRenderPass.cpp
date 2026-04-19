@@ -12,8 +12,7 @@ void IRenderPass::BindBuffer(
     vk::DescriptorType inDescriptorType, 
     vk::AccessFlags inAccessFlags)
 {
-    myDescriptorSet.BindBuffer(inBuffer, inShaderStages, inBindingIndex, inDescriptorType);
-    RegisterBufferUsage(inBuffer, PipelineFlagsFromShaderStages(inShaderStages), inAccessFlags);
+    myDescriptorSet.BindBuffer(inBuffer, inShaderStages, inBindingIndex, inDescriptorType, inAccessFlags);
 }
 
 void IRenderPass::BindSampler(vk::Sampler inSampler, vk::ShaderStageFlags inShaderStages, uint inBindingIndex)
@@ -26,10 +25,14 @@ void IRenderPass::PreExecute()
     myDynamicResourceUsages.Clear();
 }
 
+const VulkanDescriptorSet& IRenderPass::GetDescriptorSet() const
+{
+    return myDescriptorSet;
+}
+
 void IRenderPass::BindAccelerationStructure(IGPUAccelerationStructure* inAS, vk::ShaderStageFlags inShaderStages, uint inBindingIndex,vk::AccessFlags inAccessFlags)
 {
-    myDescriptorSet.BindAccelerationStructure(inAS, inShaderStages, inBindingIndex);
-    RegisterAccelerationStructureUsage(inAS, PipelineFlagsFromShaderStages(inShaderStages), inAccessFlags);
+    myDescriptorSet.BindAccelerationStructure(inAS, inShaderStages, inBindingIndex, inAccessFlags);
 }
 
 void IRenderPass::BindImage(
@@ -40,8 +43,7 @@ void IRenderPass::BindImage(
     const vk::ImageLayout inImageLayout, 
     vk::AccessFlags inAccessFlags)
 {
-    myDescriptorSet.BindImage(inImage, inSampler, inBinding, inShaderFlags, inImageLayout);
-    RegisterImageUsage(inImage, PipelineFlagsFromShaderStages(inShaderFlags), inAccessFlags, inImageLayout);
+    myDescriptorSet.BindImage(inImage, inSampler, inBinding, inShaderFlags, inAccessFlags, inImageLayout);
 }
 
 void IRenderPass::Build()
@@ -51,6 +53,7 @@ void IRenderPass::Build()
 
 void IRenderPass::BuildDescriptors(const List<SharedPtr<Shader>>& inShaders)
 {
+    myDescriptorSet = {};
     for (const SharedPtr<Shader>& shader : inShaders)
     {
         if (!shader)
@@ -193,50 +196,8 @@ void IRenderPass::RegisterDynamicImageUsage(
     usage.SetToImage(inImage, inStageFlags, inAccess, inLayout);
 }
 
-void IRenderPass::RegisterImageUsage(
-    VulkanImage* inImage, 
-    vk::PipelineStageFlags inStageFlags,
-    vk::AccessFlags inAccess, 
-    vk::ImageLayout inLayout)
+void IRenderPass::RegisterDynamicBufferUsage(VulkanBuffer* inBuffer, vk::PipelineStageFlagBits inStageFlags,
+    vk::AccessFlags inAccess)
 {
-    ResourceUsage& usage = myResourceUsages.Emplace();
-    usage.SetToImage(inImage, inStageFlags, inAccess, inLayout);    
-}
-
-void IRenderPass::RegisterBufferUsage(
-    IGPUBuffer* inBuffer,
-    vk::PipelineStageFlags inStages,
-    vk::AccessFlags inAccessFlags)
-{
-    ResourceUsage& usage = myResourceUsages.Emplace();
-    usage.SetToBuffer(inBuffer, inStages, inAccessFlags);
-}
-
-void IRenderPass::RegisterAccelerationStructureUsage(
-    IGPUAccelerationStructure* inAS,
-    vk::PipelineStageFlags inStages, 
-    vk::AccessFlags inAccessFlags)
-{
-    ResourceUsage& usage = myResourceUsages.Emplace();
-    usage.SetToAccelerationStructure(inAS, inStages, inAccessFlags);
-}
-
-
-vk::PipelineStageFlags IRenderPass::PipelineFlagsFromShaderStages(vk::ShaderStageFlags inShaderStages)
-{
-    vk::PipelineStageFlags flags;
-        
-    if (inShaderStages & vk::ShaderStageFlagBits::eVertex)
-        flags |= vk::PipelineStageFlagBits::eVertexShader;
-        
-    if (inShaderStages & vk::ShaderStageFlagBits::eFragment)
-        flags |= vk::PipelineStageFlagBits::eFragmentShader;
-        
-    if (inShaderStages & vk::ShaderStageFlagBits::eGeometry)
-        flags |= vk::PipelineStageFlagBits::eGeometryShader;
-        
-    if (inShaderStages & vk::ShaderStageFlagBits::eCompute)
-        flags |= vk::PipelineStageFlagBits::eComputeShader;
-        
-    return flags;
+    myDynamicResourceUsages.Emplace().SetToBuffer(inBuffer, inStageFlags, inAccess);
 }

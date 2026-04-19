@@ -349,14 +349,6 @@ void RenderSystem::RegisterRenderResources()
 		if(drawCallRequiredSize > resizableBuffer->GetBuffer()->GetSize())
 		{
 			resizableBuffer->Resize(drawCallRequiredSize);
-			
-			// TODO: We probably shouldnt have this command buffer here.
-			VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
-			
-			List<ResourceUsage> resourceUsages{};
-			resourceUsages.Emplace().SetToBuffer(resizableBuffer, vk::PipelineStageFlagBits::eTransfer,vk::AccessFlagBits::eTransferWrite);
-			
-			RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 		}
 	});
 	
@@ -374,13 +366,6 @@ void RenderSystem::RegisterRenderResources()
 		if(requiredSize > indirectCommandsBuffer->GetBuffer()->GetSize())
 		{
 			indirectCommandsBuffer->Resize(requiredSize);
-			
-			VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
-			
-			List<ResourceUsage> resourceUsages{};
-			resourceUsages.Emplace().SetToBuffer(indirectCommandsBuffer, vk::PipelineStageFlagBits::eTransfer,vk::AccessFlagBits::eTransferWrite);
-			
-			RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 		}
 	});
 	

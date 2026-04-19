@@ -75,6 +75,8 @@ public:
     
     void DrawFromShadingBin(vk::CommandBuffer inCommandBuffer, const EShadingBin inShadingBin);
     
+    void RegisterAttachmentUsage(VulkanImage* inImage, vk::PipelineStageFlags inPipelineStageFlags, vk::AccessFlags inAccessFlags, vk::ImageLayout inLayout);
+    
 protected:
     vk::PipelineLayout myPipelineLayout;
     vk::Pipeline myPipeline;
@@ -92,6 +94,8 @@ private:
     List<vk::RenderingAttachmentInfo> myColorAttachments;
     List<vk::RenderingAttachmentInfo> myDynamicColorAttachments;
     List<vk::Format> myColorFormats;
+    
+    List<ResourceUsage> myAttachmentResourceUsages{};
     
     vk::RenderingAttachmentInfo myDepthAttachment;
     vk::RenderingAttachmentInfo myDynamicDepthAttachment;

@@ -49,7 +49,7 @@ vk::DescriptorSet VulkanDescriptorSet::GetSet() const
 
 
 void VulkanDescriptorSet::BindBuffer(const class IGPUBuffer* inBuffer, vk::ShaderStageFlags inShaderStages,
-	uint inBindingIndex, vk::DescriptorType inDescriptorType)
+	uint inBindingIndex, vk::DescriptorType inDescriptorType, vk::AccessFlags inAccessFlags)
 {
 	// If this binding index already exists (e.g. shared between VS and PS), just merge stage flags.
 	for (BindingData<const IGPUBuffer*>& existing : myBuffers)
@@ -66,6 +66,8 @@ void VulkanDescriptorSet::BindBuffer(const class IGPUBuffer* inBuffer, vk::Shade
 	data.myShaderStages = inShaderStages;
 	data.myBindingIndex = inBindingIndex;
 	data.myDescriptorType = inDescriptorType;
+	data.myAccessFlags = inAccessFlags;
+
 	myBuffers.Add(data);
 
 	if(inBuffer->GetOnBufferResized() && !inBuffer->GetOnBufferResized()->IsBound(Delegate<void()>(&VulkanDescriptorSet::Rebuild, this)))
@@ -91,7 +93,7 @@ void VulkanDescriptorSet::BindSampler(vk::Sampler inSampler, vk::ShaderStageFlag
 	mySamplers.Add(data);
 }
 
-void VulkanDescriptorSet::BindAccelerationStructure(const IGPUAccelerationStructure* inAS, vk::ShaderStageFlags inShaderStages, uint inBindingIndex)
+void VulkanDescriptorSet::BindAccelerationStructure(const IGPUAccelerationStructure* inAS, vk::ShaderStageFlags inShaderStages, uint inBindingIndex, vk::AccessFlags inAccessFlags)
 {
 	for (BindingData<const IGPUAccelerationStructure*>& existing : myAccelerationStructures)
 	{
@@ -108,13 +110,14 @@ void VulkanDescriptorSet::BindAccelerationStructure(const IGPUAccelerationStruct
 	data.myShaderStages = inShaderStages;
 	data.myBindingIndex = inBindingIndex;
 	data.myDescriptorType = vk::DescriptorType::eAccelerationStructureKHR;
+	data.myAccessFlags = inAccessFlags;
 	myAccelerationStructures.Add(data);
 
 	if (inAS && inAS->GetOnRebuilt() && !inAS->GetOnRebuilt()->IsBound(Delegate<void()>(&VulkanDescriptorSet::Rebuild, this)))
 		inAS->GetOnRebuilt()->Bind(&VulkanDescriptorSet::Rebuild, this);
 }
 
-void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags, const vk::ImageLayout inImageLayout)
+void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sampler inSampler, const uint inBinding, const vk::ShaderStageFlags inShaderFlags, vk::AccessFlags inAccessFlags, const vk::ImageLayout inImageLayout)
 {
 	BindingData<const VulkanImage*> data;
 	data.myData = inImage;
@@ -123,6 +126,8 @@ void VulkanDescriptorSet::BindImage(const VulkanImage* inImage, const vk::Sample
 	data.myDescriptorType = vk::DescriptorType::eCombinedImageSampler;
 	data.myImageLayout = inImageLayout;
 	data.mySampler = inSampler;
+	data.myAccessFlags = inAccessFlags;
+
 	mySampledImages.Add(data);
 }
 
@@ -136,9 +141,15 @@ void VulkanDescriptorSet::Build()
 
 void VulkanDescriptorSet::Rebuild()
 {
+	myResourceUsages.Clear();
 	DestroyDescriptorSet();
 	AllocateDescriptorSet();
 	UpdateDescriptors();
+}
+
+const List<ResourceUsage>& VulkanDescriptorSet::GetResourceUsages() const
+{
+	return myResourceUsages;
 }
 
 void VulkanDescriptorSet::BuildLayout()
@@ -265,6 +276,8 @@ void VulkanDescriptorSet::UpdateDescriptors()
 			.setDescriptorType(binding.myDescriptorType)
 			.setDstBinding(binding.myBindingIndex)
 			.setBufferInfo(bufferInfos.Last());
+		
+		myResourceUsages.Emplace().SetToBuffer(binding.myData->GetBuffer(), VulkanUtils::PipelineFlagsFromShaderStages(binding.myShaderStages), binding.myAccessFlags);
 	}
 	
 	for(const BindingData<const VulkanImage*>& binding : mySampledImages)
@@ -278,6 +291,8 @@ void VulkanDescriptorSet::UpdateDescriptors()
 			.setDstBinding(binding.myBindingIndex)
 			.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
 			.setImageInfo(imageInfos.Last());
+		
+		myResourceUsages.Emplace().SetToImage(binding.myData, VulkanUtils::PipelineFlagsFromShaderStages(binding.myShaderStages), binding.myAccessFlags, binding.myImageLayout);
 	}
 	
 	for (const BindingData<vk::Sampler>& binding : mySamplers)
@@ -320,6 +335,8 @@ void VulkanDescriptorSet::UpdateDescriptors()
 			.setDescriptorType(vk::DescriptorType::eAccelerationStructureKHR)
 			.setDescriptorCount(1)
 			.setPNext(&accelerationStructureInfos.Last());
+		
+		myResourceUsages.Emplace().SetToAccelerationStructure(handle, VulkanUtils::PipelineFlagsFromShaderStages(binding.myShaderStages), binding.myAccessFlags);
 	}
 	
 	// Update set

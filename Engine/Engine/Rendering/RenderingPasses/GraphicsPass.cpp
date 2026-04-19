@@ -79,6 +79,7 @@ void GraphicsPass::Execute(vk::CommandBuffer inCommandBuffer)
     resourceUsages.Emplace().SetToBuffer(vertexBuffer, vk::PipelineStageFlagBits::eVertexInput, vk::AccessFlagBits::eVertexAttributeRead);
     resourceUsages.Emplace().SetToBuffer(indexBuffer, vk::PipelineStageFlagBits::eVertexInput, vk::AccessFlagBits::eIndexRead);
     GetRenderGraph()->InsertResourceBarriers(inCommandBuffer, resourceUsages);
+    GetRenderGraph()->InsertResourceBarriers(inCommandBuffer, myAttachmentResourceUsages);
     
     vk::RenderingInfo renderingInfo = vk::RenderingInfo()
         .setColorAttachments(colorAttachment)
@@ -254,7 +255,7 @@ void GraphicsPass::AddColorAttachment(
         .setImageView(inImage->GetImageView())
         .setClearValue(vk::ClearColorValue(std::array<float, 4>({ {0.1f, 0.1f, 0.1f, 1.0f} })));
         
-    RegisterImageUsage(inImage, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite, inLayout);
+    RegisterAttachmentUsage(inImage, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite, inLayout);
         
     if (myResolveImage)
     {
@@ -263,7 +264,7 @@ void GraphicsPass::AddColorAttachment(
             setResolveImageView(myResolveImage->GetImageView())
             .setResolveMode(vk::ResolveModeFlagBits::eAverage);
             
-        RegisterImageUsage(myResolveImage, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite, vk::ImageLayout::eColorAttachmentOptimal);
+        RegisterAttachmentUsage(myResolveImage, vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::AccessFlagBits::eColorAttachmentWrite, vk::ImageLayout::eColorAttachmentOptimal);
     }
         
     myColorFormats.Add(inImage->GetFormat());
@@ -325,7 +326,7 @@ void GraphicsPass::AddDepthAttachment(
         .setImageView(inImage->GetImageView())
         .setClearValue(vk::ClearDepthStencilValue(1.0f, 0u));
         
-    RegisterImageUsage(inImage, 
+    RegisterAttachmentUsage(inImage, 
         vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests, 
         vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead, 
         inLayout);
@@ -337,7 +338,7 @@ void GraphicsPass::AddDepthAttachment(
             .setResolveImageView(myDepthResolveImage->GetImageView())
             .setResolveMode(vk::ResolveModeFlagBits::eAverage);
             
-        RegisterImageUsage(myDepthResolveImage, 
+        RegisterAttachmentUsage(myDepthResolveImage, 
             vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests, 
             vk::AccessFlagBits::eDepthStencilAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentRead, 
             inLayout);
@@ -362,4 +363,10 @@ void GraphicsPass::DrawFromShadingBin(vk::CommandBuffer inCommandBuffer, const E
         inShadingBin * 4,
         maxNumDraws,
         sizeof(vk::DrawIndexedIndirectCommand));
+}
+
+void GraphicsPass::RegisterAttachmentUsage(VulkanImage* inImage, vk::PipelineStageFlags inPipelineStageFlags,
+    vk::AccessFlags inAccessFlags, vk::ImageLayout inLayout)
+{
+    myAttachmentResourceUsages.Emplace().SetToImage(inImage, inPipelineStageFlags, inAccessFlags, inLayout);
 }

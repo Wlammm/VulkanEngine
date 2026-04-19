@@ -147,7 +147,7 @@ BLAS* BLAS::Build(const List<glm::vec3>& inPositions, const List<uint>& inIndice
 	// emits a proper global memory barrier (eAccelerationStructureWriteKHR) that TLAS
 	// read dependencies can synchronize against.
 	List<ResourceUsage> resourceUsages{};
-	resourceUsages.Emplace().SetToAccelerationStructure(blas,
+	resourceUsages.Emplace().SetToAccelerationStructure(blas->GetAccelerationStructure(),
 		vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
 		vk::AccessFlagBits::eAccelerationStructureWriteKHR);
 	resourceUsages.Emplace().SetToBuffer(vertexInputBuffer,

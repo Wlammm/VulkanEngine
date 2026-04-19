@@ -27,7 +27,7 @@ void RenderGraph::Execute(vk::CommandBuffer inCommandBuffer)
     {
         pass->PreExecute();
 
-        InsertResourceBarriers(inCommandBuffer, pass->GetResourceUsage());
+        InsertResourceBarriers(inCommandBuffer, pass->GetDescriptorSet().GetResourceUsages());
         InsertResourceBarriers(inCommandBuffer, pass->GetDynamicResourceUsages());
 
         if (VulkanContext::IsAftermathEnabled())
@@ -135,7 +135,7 @@ void RenderGraph::HandleBufferBarrier(
     vk::PipelineStageFlags& inOutSrcGlobal,
     vk::PipelineStageFlags& inOutDstGlobal)
 {
-    ResourceState& currentState = myGlobalResourceState[inUsage.myBuffer->GetBuffer()];
+    ResourceState& currentState = myGlobalResourceState[inUsage.myBuffer];
 
     bool accessHazard = false;
     if (currentState.myAccessFlags != vk::AccessFlagBits::eNone)
@@ -147,7 +147,7 @@ void RenderGraph::HandleBufferBarrier(
             accessHazard = true;
     }
     
-    accessHazard = true;
+    // accessHazard = true;
 
     if (accessHazard)
     {
@@ -188,7 +188,7 @@ void RenderGraph::HandleAccelerationStructureBarrier(
     vk::PipelineStageFlags& inOutSrcGlobal,
     vk::PipelineStageFlags& inOutDstGlobal)
 {
-    IGPUAccelerationStructure* accelerationStructure = inUsage.myAccelerationStructure;
+    vk::AccelerationStructureKHR accelerationStructure = inUsage.myAccelerationStructure;
     ResourceState& currentState = myGlobalResourceState[accelerationStructure];
 
     bool accessHazard = false;

@@ -853,9 +853,6 @@ Method& currentMethod = currentClass->AddMethod(Method("GetNumObjects", Reflecti
 		Field& currentField = currentClass->AddField(Field("myPushConstantRange", -1, ReflectionSystem::GetOrCreateType<vk::PushConstantRange>("vk::PushConstantRange"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myResourceUsages", -1, ReflectionSystem::GetOrCreateType<List<ResourceUsage>>("List<ResourceUsage>"), false, false));
-	}
-	{
 		Field& currentField = currentClass->AddField(Field("myDynamicResourceUsages", -1, ReflectionSystem::GetOrCreateType<List<ResourceUsage>>("List<ResourceUsage>"), false, false));
 	}
 	{
@@ -885,11 +882,11 @@ Method& currentMethod = currentClass->AddMethod(Method("GetName", ReflectionSyst
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 IRenderPass* instance = static_cast<IRenderPass*>(inInstance);
-const List<ResourceUsage> & result = instance->GetResourceUsage();
+const VulkanDescriptorSet & result = instance->GetDescriptorSet();
 return (void*)&result;
 });
 List<MethodArgument> arguments{};
-Method& currentMethod = currentClass->AddMethod(Method("GetResourceUsage", ReflectionSystem::GetOrCreateType<const List<ResourceUsage> &>("const List<ResourceUsage> &"), invoker, arguments));
+Method& currentMethod = currentClass->AddMethod(Method("GetDescriptorSet", ReflectionSystem::GetOrCreateType<const VulkanDescriptorSet &>("const VulkanDescriptorSet &"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -9662,7 +9659,7 @@ Method& currentMethod = currentClass->AddMethod(Method("CalculateSphereBounds", 
 		Field& currentField = currentClass->AddField(Field("myPasses", -1, ReflectionSystem::GetOrCreateType<List<IRenderPass *>>("List<IRenderPass *>"), false, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myGlobalResourceState", -1, ReflectionSystem::GetOrCreateType<std::map<void *, ResourceState>>("std::map<void *, ResourceState>"), false, false));
+		Field& currentField = currentClass->AddField(Field("myGlobalResourceState", -1, ReflectionSystem::GetOrCreateType<std::map<const void *, ResourceState>>("std::map<const void *, ResourceState>"), false, false));
 	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -9731,13 +9728,13 @@ Method& currentMethod = currentClass->AddMethod(Method("InsertResourceBarriers",
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<ResourceUsage>();
 	{
-		Field& currentField = currentClass->AddField(Field("myImage", -1, ReflectionSystem::GetOrCreateType<VulkanImage>("VulkanImage"), true, false));
+		Field& currentField = currentClass->AddField(Field("myImage", -1, ReflectionSystem::GetOrCreateType<const VulkanImage>("const VulkanImage"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myBuffer", -1, ReflectionSystem::GetOrCreateType<IGPUBuffer>("IGPUBuffer"), true, false));
+		Field& currentField = currentClass->AddField(Field("myBuffer", -1, ReflectionSystem::GetOrCreateType<const VulkanBuffer>("const VulkanBuffer"), true, false));
 	}
 	{
-		Field& currentField = currentClass->AddField(Field("myAccelerationStructure", -1, ReflectionSystem::GetOrCreateType<IGPUAccelerationStructure>("IGPUAccelerationStructure"), true, false));
+		Field& currentField = currentClass->AddField(Field("myAccelerationStructure", -1, ReflectionSystem::GetOrCreateType<vk::AccelerationStructureKHR>("vk::AccelerationStructureKHR"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myRequiredState", -1, ReflectionSystem::GetOrCreateType<ResourceState>("ResourceState"), false, false));
@@ -9749,7 +9746,7 @@ Method& currentMethod = currentClass->AddMethod(Method("InsertResourceBarriers",
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ResourceUsage* instance = static_cast<ResourceUsage*>(inInstance);
-VulkanImage * arg0 = (VulkanImage*)inArguments[0];
+const VulkanImage * arg0 = (const VulkanImage*)inArguments[0];
 vk::Flags<vk::PipelineStageFlagBits>& arg1 = *(vk::Flags<vk::PipelineStageFlagBits>*)inArguments[1];
 vk::Flags<vk::AccessFlagBits>& arg2 = *(vk::Flags<vk::AccessFlagBits>*)inArguments[2];
 vk::ImageLayout& arg3 = *(vk::ImageLayout*)inArguments[3];
@@ -9757,7 +9754,7 @@ instance->SetToImage(arg0, arg1, arg2, arg3);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inImage", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *")));
+arguments.Add(MethodArgument("inImage", ReflectionSystem::GetOrCreateType<const VulkanImage *>("const VulkanImage *")));
 arguments.Add(MethodArgument("inStageFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::PipelineStageFlagBits>>("vk::Flags<vk::PipelineStageFlagBits>")));
 arguments.Add(MethodArgument("inAccess", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
 arguments.Add(MethodArgument("inLayout", ReflectionSystem::GetOrCreateType<vk::ImageLayout>("vk::ImageLayout")));
@@ -9767,14 +9764,14 @@ Method& currentMethod = currentClass->AddMethod(Method("SetToImage", ReflectionS
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ResourceUsage* instance = static_cast<ResourceUsage*>(inInstance);
-IGPUBuffer * arg0 = (IGPUBuffer*)inArguments[0];
+const VulkanBuffer * arg0 = (const VulkanBuffer*)inArguments[0];
 vk::Flags<vk::PipelineStageFlagBits>& arg1 = *(vk::Flags<vk::PipelineStageFlagBits>*)inArguments[1];
 vk::Flags<vk::AccessFlagBits>& arg2 = *(vk::Flags<vk::AccessFlagBits>*)inArguments[2];
 instance->SetToBuffer(arg0, arg1, arg2);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<IGPUBuffer *>("IGPUBuffer *")));
+arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<const VulkanBuffer *>("const VulkanBuffer *")));
 arguments.Add(MethodArgument("inStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::PipelineStageFlagBits>>("vk::Flags<vk::PipelineStageFlagBits>")));
 arguments.Add(MethodArgument("inAccessFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
 Method& currentMethod = currentClass->AddMethod(Method("SetToBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
@@ -9783,14 +9780,14 @@ Method& currentMethod = currentClass->AddMethod(Method("SetToBuffer", Reflection
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 ResourceUsage* instance = static_cast<ResourceUsage*>(inInstance);
-IGPUAccelerationStructure * arg0 = (IGPUAccelerationStructure*)inArguments[0];
+const vk::AccelerationStructureKHR& arg0 = *(const vk::AccelerationStructureKHR*)inArguments[0];
 vk::Flags<vk::PipelineStageFlagBits>& arg1 = *(vk::Flags<vk::PipelineStageFlagBits>*)inArguments[1];
 vk::Flags<vk::AccessFlagBits>& arg2 = *(vk::Flags<vk::AccessFlagBits>*)inArguments[2];
 instance->SetToAccelerationStructure(arg0, arg1, arg2);
 return nullptr;
 });
 List<MethodArgument> arguments{};
-arguments.Add(MethodArgument("inAS", ReflectionSystem::GetOrCreateType<IGPUAccelerationStructure *>("IGPUAccelerationStructure *")));
+arguments.Add(MethodArgument("inAS", ReflectionSystem::GetOrCreateType<const vk::AccelerationStructureKHR>("const vk::AccelerationStructureKHR")));
 arguments.Add(MethodArgument("inStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::PipelineStageFlagBits>>("vk::Flags<vk::PipelineStageFlagBits>")));
 arguments.Add(MethodArgument("inAccessFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
 Method& currentMethod = currentClass->AddMethod(Method("SetToAccelerationStructure", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
@@ -10217,6 +10214,16 @@ Method& currentMethod = currentClass->AddMethod(Method("DispatchCall", Reflectio
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
 IndirectPrePass* instance = static_cast<IndirectPrePass*>(inInstance);
+instance->PreExecute();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("PreExecute", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+IndirectPrePass* instance = static_cast<IndirectPrePass*>(inInstance);
 instance->CreateResources();
 return nullptr;
 });
@@ -10280,6 +10287,9 @@ Method& currentMethod = currentClass->AddMethod(Method("Execute", ReflectionSyst
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myColorFormats", -1, ReflectionSystem::GetOrCreateType<List<vk::Format>>("List<vk::Format>"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myAttachmentResourceUsages", -1, ReflectionSystem::GetOrCreateType<List<ResourceUsage>>("List<ResourceUsage>"), false, false));
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myDepthAttachment", -1, ReflectionSystem::GetOrCreateType<vk::RenderingAttachmentInfo>("vk::RenderingAttachmentInfo"), false, false));
@@ -10514,6 +10524,24 @@ List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<vk::CommandBuffer>("vk::CommandBuffer")));
 arguments.Add(MethodArgument("inShadingBin", ReflectionSystem::GetOrCreateType<const EShadingBin>("const EShadingBin")));
 Method& currentMethod = currentClass->AddMethod(Method("DrawFromShadingBin", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+GraphicsPass* instance = static_cast<GraphicsPass*>(inInstance);
+VulkanImage * arg0 = (VulkanImage*)inArguments[0];
+vk::Flags<vk::PipelineStageFlagBits>& arg1 = *(vk::Flags<vk::PipelineStageFlagBits>*)inArguments[1];
+vk::Flags<vk::AccessFlagBits>& arg2 = *(vk::Flags<vk::AccessFlagBits>*)inArguments[2];
+vk::ImageLayout& arg3 = *(vk::ImageLayout*)inArguments[3];
+instance->RegisterAttachmentUsage(arg0, arg1, arg2, arg3);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inImage", ReflectionSystem::GetOrCreateType<VulkanImage *>("VulkanImage *")));
+arguments.Add(MethodArgument("inPipelineStageFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::PipelineStageFlagBits>>("vk::Flags<vk::PipelineStageFlagBits>")));
+arguments.Add(MethodArgument("inAccessFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
+arguments.Add(MethodArgument("inLayout", ReflectionSystem::GetOrCreateType<vk::ImageLayout>("vk::ImageLayout")));
+Method& currentMethod = currentClass->AddMethod(Method("RegisterAttachmentUsage", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
@@ -11577,6 +11605,18 @@ Method& currentMethod = currentClass->AddMethod(Method("Init", ReflectionSystem:
 }
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<VulkanUtils>();
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanUtils* instance = static_cast<VulkanUtils*>(inInstance);
+vk::Flags<vk::ShaderStageFlagBits>& arg0 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[0];
+static thread_local vk::Flags<vk::PipelineStageFlagBits> result = instance->PipelineFlagsFromShaderStages(arg0);
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inShaderStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::ShaderStageFlagBits>>("vk::Flags<vk::ShaderStageFlagBits>")));
+Method& currentMethod = currentClass->AddMethod(Method("PipelineFlagsFromShaderStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::PipelineStageFlagBits>>("vk::Flags<vk::PipelineStageFlagBits>"), invoker, arguments));
+}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
@@ -12715,6 +12755,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetDescriptorPool", Refl
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<VulkanDescriptorSet>();
 	{
+		Field& currentField = currentClass->AddField(Field("myResourceUsages", -1, ReflectionSystem::GetOrCreateType<List<ResourceUsage>>("List<ResourceUsage>"), false, false));
+	}
+	{
 		Field& currentField = currentClass->AddField(Field("myUsesSharedLayout", -1, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	{
@@ -12751,7 +12794,8 @@ const IGPUBuffer * arg0 = (const IGPUBuffer*)inArguments[0];
 vk::Flags<vk::ShaderStageFlagBits>& arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
 unsigned int& arg2 = *(unsigned int*)inArguments[2];
 vk::DescriptorType& arg3 = *(vk::DescriptorType*)inArguments[3];
-instance->BindBuffer(arg0, arg1, arg2, arg3);
+vk::Flags<vk::AccessFlagBits>& arg4 = *(vk::Flags<vk::AccessFlagBits>*)inArguments[4];
+instance->BindBuffer(arg0, arg1, arg2, arg3, arg4);
 return nullptr;
 });
 List<MethodArgument> arguments{};
@@ -12759,6 +12803,7 @@ arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<const
 arguments.Add(MethodArgument("inShaderStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::ShaderStageFlagBits>>("vk::Flags<vk::ShaderStageFlagBits>")));
 arguments.Add(MethodArgument("inBindingIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
 arguments.Add(MethodArgument("inDescriptorType", ReflectionSystem::GetOrCreateType<vk::DescriptorType>("vk::DescriptorType")));
+arguments.Add(MethodArgument("inAccessFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
 Method& currentMethod = currentClass->AddMethod(Method("BindBuffer", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
@@ -12785,8 +12830,9 @@ const VulkanImage * arg0 = (const VulkanImage*)inArguments[0];
 const vk::Sampler& arg1 = *(const vk::Sampler*)inArguments[1];
 const unsigned int& arg2 = *(const unsigned int*)inArguments[2];
 const vk::Flags<vk::ShaderStageFlagBits>& arg3 = *(const vk::Flags<vk::ShaderStageFlagBits>*)inArguments[3];
-const vk::ImageLayout& arg4 = *(const vk::ImageLayout*)inArguments[4];
-instance->BindImage(arg0, arg1, arg2, arg3, arg4);
+vk::Flags<vk::AccessFlagBits>& arg4 = *(vk::Flags<vk::AccessFlagBits>*)inArguments[4];
+const vk::ImageLayout& arg5 = *(const vk::ImageLayout*)inArguments[5];
+instance->BindImage(arg0, arg1, arg2, arg3, arg4, arg5);
 return nullptr;
 });
 List<MethodArgument> arguments{};
@@ -12794,6 +12840,7 @@ arguments.Add(MethodArgument("inImage", ReflectionSystem::GetOrCreateType<const 
 arguments.Add(MethodArgument("inSampler", ReflectionSystem::GetOrCreateType<const vk::Sampler>("const vk::Sampler")));
 arguments.Add(MethodArgument("inBinding", ReflectionSystem::GetOrCreateType<const unsigned int>("const unsigned int")));
 arguments.Add(MethodArgument("inShaderFlags", ReflectionSystem::GetOrCreateType<const vk::Flags<vk::ShaderStageFlagBits>>("const vk::Flags<vk::ShaderStageFlagBits>")));
+arguments.Add(MethodArgument("inAccessFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
 arguments.Add(MethodArgument("inImageLayout", ReflectionSystem::GetOrCreateType<const vk::ImageLayout>("const vk::ImageLayout")));
 Method& currentMethod = currentClass->AddMethod(Method("BindImage", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
@@ -12804,13 +12851,15 @@ VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
 const IGPUAccelerationStructure * arg0 = (const IGPUAccelerationStructure*)inArguments[0];
 vk::Flags<vk::ShaderStageFlagBits>& arg1 = *(vk::Flags<vk::ShaderStageFlagBits>*)inArguments[1];
 unsigned int& arg2 = *(unsigned int*)inArguments[2];
-instance->BindAccelerationStructure(arg0, arg1, arg2);
+vk::Flags<vk::AccessFlagBits>& arg3 = *(vk::Flags<vk::AccessFlagBits>*)inArguments[3];
+instance->BindAccelerationStructure(arg0, arg1, arg2, arg3);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inAS", ReflectionSystem::GetOrCreateType<const IGPUAccelerationStructure *>("const IGPUAccelerationStructure *")));
 arguments.Add(MethodArgument("inShaderStages", ReflectionSystem::GetOrCreateType<vk::Flags<vk::ShaderStageFlagBits>>("vk::Flags<vk::ShaderStageFlagBits>")));
 arguments.Add(MethodArgument("inBindingIndex", ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int")));
+arguments.Add(MethodArgument("inAccessFlags", ReflectionSystem::GetOrCreateType<vk::Flags<vk::AccessFlagBits>>("vk::Flags<vk::AccessFlagBits>")));
 Method& currentMethod = currentClass->AddMethod(Method("BindAccelerationStructure", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
@@ -12832,6 +12881,16 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Rebuild", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanDescriptorSet* instance = static_cast<VulkanDescriptorSet*>(inInstance);
+const List<ResourceUsage> & result = instance->GetResourceUsages();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetResourceUsages", ReflectionSystem::GetOrCreateType<const List<ResourceUsage> &>("const List<ResourceUsage> &"), invoker, arguments));
 }
 }
 { 

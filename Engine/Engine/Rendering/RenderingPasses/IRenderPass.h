@@ -19,10 +19,7 @@ public:
 
     virtual const char* GetName() const { return ""; }
     
-    const List<ResourceUsage>& GetResourceUsage() const
-    {
-        return myResourceUsages;
-    }
+    const VulkanDescriptorSet& GetDescriptorSet() const;
     
     const List<ResourceUsage>& GetDynamicResourceUsages() const
     {
@@ -63,16 +60,8 @@ protected:
     RenderGraph* GetRenderGraph() const;
     
     void RegisterDynamicImageUsage(VulkanImage* inImage, vk::PipelineStageFlags inStageFlags, vk::AccessFlags inAccess, vk::ImageLayout inLayout);
+    void RegisterDynamicBufferUsage(VulkanBuffer* inBuffer, vk::PipelineStageFlagBits inStageFlags, vk::AccessFlags inAccess);
     
-    void RegisterImageUsage(VulkanImage* inImage, vk::PipelineStageFlags inStageFlags, vk::AccessFlags inAccess, vk::ImageLayout inLayout);
-    
-    void RegisterBufferUsage(IGPUBuffer* inBuffer, vk::PipelineStageFlags inStages, vk::AccessFlags inAccessFlags);
-    
-    void RegisterAccelerationStructureUsage(IGPUAccelerationStructure* inAS, vk::PipelineStageFlags inStages, vk::AccessFlags inAccessFlags);
-    
-private:
-    vk::PipelineStageFlags PipelineFlagsFromShaderStages(vk::ShaderStageFlags inShaderStages);
-
 protected:
     VulkanDescriptorSet myDescriptorSet;
     vk::PushConstantRange myPushConstantRange{};
@@ -84,7 +73,6 @@ private:
         vk::ShaderStageFlags myShaderStages;
     };
 
-    List<ResourceUsage> myResourceUsages;
     List<ResourceUsage> myDynamicResourceUsages;
     
     RenderGraph* myRenderGraph = nullptr;

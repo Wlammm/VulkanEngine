@@ -39,7 +39,7 @@ void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const ui
     VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
     
     List<ResourceUsage> resourceUsages{};
-    resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+    resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
     resourceUsages.Emplace().SetToBuffer(inStagingBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
     
 	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
@@ -49,17 +49,6 @@ void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffs
 {
     CheckCapacity(inSize + inOffset);
     myBuffer->SetData(inData, inSize, inOffset);
-
-    // If the buffer isnt writable we need to insert a barrier for other copies to wait for this to finish or we cant guarantee that the memory is correct.
-    if(!myBuffer->IsMappable())
-    {
-        VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
-        
-        List<ResourceUsage> resourceUsages{};
-        resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
-        
-	    RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
-    }
 }
 
 void ResizableBuffer::MoveData(const uint inSourceOffset, const uint inDstOffset, const uint inSize)
@@ -71,7 +60,7 @@ void ResizableBuffer::MoveData(const uint inSourceOffset, const uint inDstOffset
     commandBuffer->GetAPIResource().copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
     
     List<ResourceUsage> resourceUsages{};
-    resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+    resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
     
 	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 }
@@ -96,7 +85,7 @@ void ResizableBuffer::Resize(const uint inRequiredSize)
     commandBuffer->GetAPIResource().copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
 
     List<ResourceUsage> resourceUsages{};
-    resourceUsages.Emplace().SetToBuffer(this, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+    resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
     resourceUsages.Emplace().SetToBuffer(oldBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
     
 	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);

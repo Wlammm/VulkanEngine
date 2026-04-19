@@ -83,7 +83,7 @@ void TLAS::Build(const List<VkAccelerationStructureInstanceKHR>& inInstances, co
 
 	List<ResourceUsage> resourceUsages{};
 	resourceUsages.Emplace().SetToAccelerationStructure(
-		this,
+		GetAccelerationStructure(),
 		vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
 		vk::AccessFlagBits::eAccelerationStructureWriteKHR);
 	resourceUsages.Emplace().SetToBuffer(
@@ -97,7 +97,7 @@ void TLAS::Build(const List<VkAccelerationStructureInstanceKHR>& inInstances, co
 	for (BLAS* blas : inBLASes)
 	{
 		resourceUsages.Emplace().SetToAccelerationStructure(
-			blas,
+			blas->GetAccelerationStructure(),
 			vk::PipelineStageFlagBits::eAccelerationStructureBuildKHR,
 			vk::AccessFlagBits::eAccelerationStructureReadKHR);
 	}
