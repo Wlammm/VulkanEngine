@@ -403,7 +403,7 @@ private:
 
     // GPU buffers
     ResizableBuffer*         myDenseBuffer  = nullptr;  // raw byte data (vertex/index)
-    GPUList<SparseEntryType>* mySparseBuffer;             // stable-index sparse table
+    GPUList<SparseEntryType>* mySparseBuffer = nullptr; // stable-index sparse table
 
     // CPU-side state
     List<SparseEntryType> mySparseEntries_CPU;  // CPU mirror, indexed by sparse index

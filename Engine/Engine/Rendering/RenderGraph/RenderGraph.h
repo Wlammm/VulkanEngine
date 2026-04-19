@@ -16,6 +16,9 @@ public:
     
     /*
      * Will insert resource barriers for the specified resource into the command list.
+     *
+     * Specify the state you want to use the resource in and the render graph will make sure 
+     * it is valid for that.
      */
     void InsertResourceBarriers(vk::CommandBuffer inCommandBuffer, const List<ResourceUsage>& inResourceUsages);
     

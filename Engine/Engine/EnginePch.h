@@ -93,12 +93,12 @@ using Microsoft::WRL::ComPtr;
 
 #include "Engine/Core/SharedPtr.h"
 
+#include "Engine/Core/Console.h"
 #include "Engine/Core/EngineDefines.hpp"
 #include "Engine/Utils/HashUtils.hpp"
 #include "Engine/Math/Color.h"
 #include "Engine/Math/LinearColor.h"
 
-#include "Engine/Core/Console.h"
 #include "Engine/Core/UniqueID.h"
 #include "Engine/Core/UniquePtr.h"
 

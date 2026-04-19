@@ -56,7 +56,12 @@ public:
     // that cannot be resolved automatically (e.g. buffers not in GPUResourceManager).
     virtual void SetupDescriptors() {}
     
+    // Called from RenderGraph during setup.
+    void SetRenderGraph(RenderGraph* inRenderGraph);
+    
 protected:
+    RenderGraph* GetRenderGraph() const;
+    
     void RegisterDynamicImageUsage(VulkanImage* inImage, vk::PipelineStageFlags inStageFlags, vk::AccessFlags inAccess, vk::ImageLayout inLayout);
     
     void RegisterImageUsage(VulkanImage* inImage, vk::PipelineStageFlags inStageFlags, vk::AccessFlags inAccess, vk::ImageLayout inLayout);
@@ -81,4 +86,6 @@ private:
 
     List<ResourceUsage> myResourceUsages;
     List<ResourceUsage> myDynamicResourceUsages;
+    
+    RenderGraph* myRenderGraph = nullptr;
 };

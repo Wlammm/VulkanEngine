@@ -20,7 +20,6 @@ public:
     // This is useful for models, textures, audio files etc, but will not be used for in engine assets such as materials, animation graph etc.
     static constexpr bool IsExternalAsset() { return false; }
     
-    
     // This will be called once all properties on the asset have been serialized. Either via the cache or via Asset::LoadPropertiesFromSource.
     // We can remove all data not required for runtime in here as it would've already been serialized to cache before this.
     virtual void PostPropertiesSerialized() {};

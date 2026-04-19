@@ -15,6 +15,7 @@ void RenderGraph::DestroyRenderPasses()
 
 void RenderGraph::AddPass(IRenderPass* inRenderPass)
 {
+    inRenderPass->SetRenderGraph(this);
     inRenderPass->CreateResources();
     myPasses.Add(inRenderPass);
 }
@@ -145,6 +146,8 @@ void RenderGraph::HandleBufferBarrier(
         if (prevWasWrite || newIsWrite)
             accessHazard = true;
     }
+    
+    accessHazard = true;
 
     if (accessHazard)
     {
@@ -163,6 +166,17 @@ void RenderGraph::HandleBufferBarrier(
 
         inOutSrcGlobal |= currentState.myStage;
         inOutDstGlobal |= inUsage.myRequiredState.myStage;
+        
+        if (inUsage.myBuffer->GetBuffer()->GetName() == "Global Sparse Vertex Data Buffer")
+        {
+            LOG("SparseVertexData[%i, %i]: Inserted write barrier: SrcStage = %s, DstStage = %s, SrcAccess = %s, DstAccess = %s", 
+                Engine::GetFrameIndex(),
+                inUsage.myBuffer,
+                vk::to_string(inOutSrcGlobal).c_str(), 
+                vk::to_string(inOutDstGlobal).c_str(),
+                vk::to_string(currentState.myAccessFlags).c_str(),
+                vk::to_string(inUsage.myRequiredState.myStage).c_str());
+        }
     }
 
     currentState = inUsage.myRequiredState;

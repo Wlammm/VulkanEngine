@@ -4,9 +4,12 @@
 #undef min
 #undef max
 
+#include "Console.h"
+
 #define check(x)\
 if(!(x))\
 {\
+    LOG_ERROR("Check failed in file: %s on line: %i: %s", __FILE__, __LINE__, #x);\
     if(IsDebuggerPresent())\
     {\
         __debugbreak();\

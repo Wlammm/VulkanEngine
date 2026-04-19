@@ -2,7 +2,6 @@
 #include <vector>
 #include <External/tracy/tracy/Tracy.hpp>
 
-#include "Engine/Core/CheckDefine.hpp"
 #include "ContainerTypes.hpp"
 
 #define CanCopy std::is_trivially_copyable<ElementType>::value || IsCopyable<ElementType>::value

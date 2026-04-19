@@ -5,7 +5,7 @@
 #ifdef DEBUG
 #define THROW(x) { __debugbreak(); throw std::runtime_error(x); }
 #else
-#define THROW(x) throw std::runtime_error(x);
+#define THROW(x) {LOG_ERROR(x); throw std::runtime_error(x); }
 #endif
 
 #define THROW_IF(x, message) if(x) THROW(message)

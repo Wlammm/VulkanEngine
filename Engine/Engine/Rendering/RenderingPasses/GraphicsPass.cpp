@@ -7,6 +7,7 @@
 #include "Engine/Rendering/IndexBufferSystem.h"
 #include "Engine/Rendering/TextureSystem.h"
 #include "Engine/Rendering/VertexBufferSystem.h"
+#include "Engine/Rendering/RenderGraph/RenderGraph.h"
 #include "Engine/Vulkan/GPUSceneSystem.h"
 #include "Engine/Vulkan/VulkanContext.h"
 #include "Engine/Vulkan/VulkanDevice.h"
@@ -58,7 +59,6 @@ vk::PrimitiveTopology GraphicsPass::GetPrimitiveTopology() const
 
 void GraphicsPass::Execute(vk::CommandBuffer inCommandBuffer)
 {
-    
     GPUMARK_SCOPE(inCommandBuffer, myPassName.c_str());
     
     List<vk::RenderingAttachmentInfo> colorAttachment = myColorAttachments;
@@ -71,15 +71,21 @@ void GraphicsPass::Execute(vk::CommandBuffer inCommandBuffer)
         depthAttachment = myDynamicDepthAttachment;
     }
     
+    VulkanBuffer* vertexBuffer = GPUResourceManager::Get()->GetBuffer<Vertex>()->GetBuffer();
+    VulkanBuffer* indexBuffer = GPUResourceManager::Get()->GetBuffer<Index>()->GetBuffer();
+    
+    // Insert barriers here because you're not allowed to do it by default inside a dynamic render pass in vulkan.
+    List<ResourceUsage> resourceUsages{};
+    resourceUsages.Emplace().SetToBuffer(vertexBuffer, vk::PipelineStageFlagBits::eVertexInput, vk::AccessFlagBits::eVertexAttributeRead);
+    resourceUsages.Emplace().SetToBuffer(indexBuffer, vk::PipelineStageFlagBits::eVertexInput, vk::AccessFlagBits::eIndexRead);
+    GetRenderGraph()->InsertResourceBarriers(inCommandBuffer, resourceUsages);
+    
     vk::RenderingInfo renderingInfo = vk::RenderingInfo()
         .setColorAttachments(colorAttachment)
         .setPDepthAttachment(myHasDepthAttachment ? &depthAttachment : nullptr)
         .setLayerCount(1)
         .setRenderArea(vk::Rect2D(vk::Offset2D{}, vk::Extent2D(VulkanContext::GetSwapChain().GetWidth(), VulkanContext::GetSwapChain().GetHeight())));
     inCommandBuffer.beginRendering(renderingInfo);
-    
-    VertexBufferSystem& vertexBufferSystem = Engine::GetEngineSystem<VertexBufferSystem>();
-    IndexBufferSystem& indexBufferSystem = Engine::GetEngineSystem<IndexBufferSystem>();
     
     inCommandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, myPipeline);
     inCommandBuffer.bindDescriptorSets(
@@ -106,10 +112,9 @@ void GraphicsPass::Execute(vk::CommandBuffer inCommandBuffer)
     
     if (myNeedsBindlessTextureDescriptor)
         inCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, myPipelineLayout, 1, textureSystem.GetDescriptorSet(), {});
-
-    inCommandBuffer.bindVertexBuffers(0, {GPUResourceManager::Get()->GetBuffer<Vertex>()->GetBuffer()->GetAPIResource()}, {0});
-	inCommandBuffer.bindIndexBuffer(GPUResourceManager::Get()->GetBuffer<Index>()->GetBuffer()->GetAPIResource(),0, vk::IndexType::eUint32);
-
+    
+    inCommandBuffer.bindVertexBuffers(0, {vertexBuffer->GetAPIResource()}, {0});
+	inCommandBuffer.bindIndexBuffer(indexBuffer->GetAPIResource(),0, vk::IndexType::eUint32);
     
     DrawCall(inCommandBuffer);
     

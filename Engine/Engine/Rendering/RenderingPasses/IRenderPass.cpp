@@ -173,6 +173,16 @@ void IRenderPass::BuildDescriptors(const List<SharedPtr<Shader>>& inShaders)
     Build();
 }
 
+void IRenderPass::SetRenderGraph(RenderGraph* inRenderGraph)
+{
+    myRenderGraph = inRenderGraph;
+}
+
+RenderGraph* IRenderPass::GetRenderGraph() const
+{
+    return myRenderGraph;
+}
+
 void IRenderPass::RegisterDynamicImageUsage(
     VulkanImage* inImage, 
     vk::PipelineStageFlags inStageFlags,

@@ -93,8 +93,12 @@ bool VulkanPhysicalDevice::CheckDeviceExtensionSupport(const vk::PhysicalDevice&
 	for (const auto& requiredExtension : myDeviceExtensions)
 	{
 		bool found = false;
-		for (const auto& extension : availableExtensions)
+		
+		LOG("\nAvailable extensions for gpu: ");
+		
+		for (const vk::ExtensionProperties& extension : availableExtensions)
 		{
+			LOG(extension.extensionName.data());
 			if (!strcmp(requiredExtension, extension.extensionName))
 				found = true;
 		}

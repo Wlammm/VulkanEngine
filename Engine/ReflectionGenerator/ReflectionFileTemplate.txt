@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Engine/Utils/StdIncludes.hpp"
+#include "Engine/Core/EngineDefines.hpp"
 #include "Engine/Reflection/Type.h"
 #include "Engine/Reflection/Field.h"
 #include "Engine/Reflection/ReflectionSystem.h"

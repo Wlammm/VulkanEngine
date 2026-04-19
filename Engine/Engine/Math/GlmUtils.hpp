@@ -1,5 +1,5 @@
 #pragma once
-
+//
 namespace std {
 	template <>
 	struct hash<glm::vec3> {

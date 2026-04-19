@@ -52,7 +52,7 @@ void LandscapeRenderComponent::OnRenderStateDirty()
     if(!myMesh)
         return;
     
-    LOG("Adding Landscape on frame: %i", VulkanContext::GetSwapChain().GetFrameIndex());
+    LOG("Adding Landscape on frame: %i", Engine::GetFrameIndex());
     if(myMeshInstance != (uint)-1)
     {
         Engine::GetEngineSystem<GPUSceneSystem>().RemoveMeshInstance(myMeshInstance);

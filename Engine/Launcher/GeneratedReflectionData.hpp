@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Engine/Utils/StdIncludes.hpp"
+#include "Engine/Core/EngineDefines.hpp"
 #include "Engine/Reflection/Type.h"
 #include "Engine/Reflection/Field.h"
 #include "Engine/Reflection/ReflectionSystem.h"
@@ -857,6 +858,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetNumObjects", Reflecti
 	{
 		Field& currentField = currentClass->AddField(Field("myDynamicResourceUsages", -1, ReflectionSystem::GetOrCreateType<List<ResourceUsage>>("List<ResourceUsage>"), false, false));
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myRenderGraph", -1, ReflectionSystem::GetOrCreateType<RenderGraph>("RenderGraph"), true, false));
+	}
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
 {
@@ -1004,6 +1008,18 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("SetupDescriptors", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+IRenderPass* instance = static_cast<IRenderPass*>(inInstance);
+RenderGraph * arg0 = (RenderGraph*)inArguments[0];
+instance->SetRenderGraph(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inRenderGraph", ReflectionSystem::GetOrCreateType<RenderGraph *>("RenderGraph *")));
+Method& currentMethod = currentClass->AddMethod(Method("SetRenderGraph", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 
