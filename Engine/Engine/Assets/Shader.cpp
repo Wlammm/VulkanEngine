@@ -22,7 +22,7 @@ static void WriteHlslSpirvDumpIfEnabled(const std::filesystem::path& inSourcePat
         !Engine::GetEngineProperties().HasStartupArgument("-aftermath"))
         return;
 
-    const std::filesystem::path outRoot = std::filesystem::path("Bin") / "CompiledSpirv";
+    const std::filesystem::path outRoot = std::filesystem::path("Crashes") / "CompiledSpirv";
     std::error_code ec;
     std::filesystem::create_directories(outRoot, ec);
 

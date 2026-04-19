@@ -142,7 +142,7 @@ void NvidiaAftermathTracker::OnResolveMarker(const void* pMarkerData, const uint
 void NvidiaAftermathTracker::WriteGpuCrashDumpToFile(const void* pGpuCrashDump, const uint32_t gpuCrashDumpSize)
 {
     // Prefer writing to a dedicated folder to keep working directory clean.
-    const std::filesystem::path outDir = std::filesystem::path("Bin") / "Aftermath";
+    const std::filesystem::path outDir = std::filesystem::path("Crashes") / "Aftermath";
     std::error_code ec;
     std::filesystem::create_directories(outDir, ec);
 
@@ -360,7 +360,7 @@ void NvidiaAftermathTracker::WriteShaderDebugInformationToFile(
     const void* pShaderDebugInfo,
     const uint32_t shaderDebugInfoSize)
 {
-    const std::filesystem::path outDir = std::filesystem::path("Bin") / "Aftermath" / "Shaders";
+    const std::filesystem::path outDir = std::filesystem::path("Crashes") / "Aftermath" / "Shaders";
     std::error_code ec;
     std::filesystem::create_directories(outDir, ec);
 
