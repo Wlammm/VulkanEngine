@@ -8142,12 +8142,14 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
 VulkanCommandBuffer * arg0 = (VulkanCommandBuffer*)inArguments[0];
 const List<ResourceUsage> & arg1 = *(const List<ResourceUsage>*)inArguments[1];
-instance->QueueCommandBufferForUpload_TS(arg0, arg1);
+VulkanBuffer * arg2 = (VulkanBuffer*)inArguments[2];
+instance->QueueCommandBufferForUpload_TS(arg0, arg1, arg2);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *")));
 arguments.Add(MethodArgument("inResourceUsages", ReflectionSystem::GetOrCreateType<const List<ResourceUsage> &>("const List<ResourceUsage> &")));
+arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *")));
 Method& currentMethod = currentClass->AddMethod(Method("QueueCommandBufferForUpload_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
@@ -12015,9 +12017,6 @@ Method& currentMethod = currentClass->AddMethod(Method("WriteRegisteredSnapshot"
 { 
 	Type* currentClass = ReflectionSystem::GetMutableType<ResizableBuffer>();
 	{
-		Field& currentField = currentClass->AddField(Field("myHasActiveUpload", -1, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
-	}
-	{
 		Field& currentField = currentClass->AddField(Field("myHasRegisteredForTick", -1, ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
 	}
 	{
@@ -12278,11 +12277,13 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
 const Delegate<void ()> & arg0 = *(const Delegate<void ()>*)inArguments[0];
-instance->QueueDestroyCommand(arg0);
+const std::basic_string<char> & arg1 = *(const std::basic_string<char>*)inArguments[1];
+instance->QueueDestroyCommand(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommand", ReflectionSystem::GetOrCreateType<const Delegate<void ()> &>("const Delegate<void ()> &")));
+arguments.Add(MethodArgument("inDebugName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("QueueDestroyCommand", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {

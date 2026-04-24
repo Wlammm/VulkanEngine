@@ -32,11 +32,11 @@ struct SparseBufferEntry
  *
  * --- Non-overlapping copy constraint in Defrag ---
  * vkCmdCopyBuffer does NOT allow src/dst regions to overlap within the same buffer.
- * When filling a free block at dstOffset with an allocation at srcOffset (> dstOffset),
- * the copy is safe only if: allocSize <= freeBlock.size
- * (i.e. the destination range [dstOffset, dstOffset+allocSize) doesn't reach into
- *  the source range [srcOffset, srcOffset+allocSize).)
- * Defrag enforces this by only selecting allocations that fit within the target free block.
+ * When filling a free block at freeOffset with an allocation at srcOffset (> freeOffset),
+ * the aligned destination is: dstOffset = AlignUp(freeOffset, alloc.alignment).
+ * The copy is safe when: dstOffset + allocSize <= srcOffset
+ * Defrag also checks the allocation fits within the free block:
+ *   dstOffset + allocSize <= freeOffset + freeBlock.size
  *
  * --- SparseEntryType requirements ---
  * Must be default-constructible and expose:
@@ -80,6 +80,8 @@ public:
     {
         delete myDenseBuffer;
         myDenseBuffer = nullptr;
+        delete mySparseBuffer;
+        mySparseBuffer = nullptr;
     }
 
     GPUDefragBuffer(const GPUDefragBuffer&) = delete;
@@ -125,7 +127,7 @@ public:
         myDenseBuffer->SetData(inData, inByteSize, denseOffset);
 
         // Track allocation (unsorted; Defrag uses linear scans)
-        myAllocatedBlocks.Add({ denseOffset, inByteSize, sparseIndex });
+        myAllocatedBlocks.Add({ denseOffset, inByteSize, sparseIndex, inAlignment });
 
         return Handle{ sparseIndex };
     }
@@ -159,7 +161,7 @@ public:
 
         myDenseBuffer->CopyDataFromBuffer(inStagingBuffer, inByteSize, denseOffset);
 
-        myAllocatedBlocks.Add({ denseOffset, inByteSize, sparseIndex });
+        myAllocatedBlocks.Add({ denseOffset, inByteSize, sparseIndex, inAlignment });
 
         return Handle{ sparseIndex };
     }
@@ -211,17 +213,21 @@ public:
         while (movesDone < inMaxMoves)
         {
             // Find the leftmost free block that has a fitting allocation after it.
-            // "Fitting" means allocSize <= freeBlock.size (enforces non-overlapping copy,
-            // see header comment). We scan all free blocks and pick the leftmost valid one.
-            int  bestFreeIdx     = -1;
-            int  bestAllocIdx    = -1;
-            uint bestFreeOffset  = UINT_MAX;
+            // The aligned destination must satisfy:
+            //   alignedDst + allocSize <= srcOffset          (non-overlapping copy)
+            //   alignedDst + allocSize <= freeBlock.end      (fits within free block)
+            // We scan all free blocks and pick the leftmost valid one.
+            int  bestFreeIdx    = -1;
+            int  bestAllocIdx   = -1;
+            uint bestFreeOffset = UINT_MAX;
 
             for (int freeBlockIndex = 0; freeBlockIndex < static_cast<int>(myFreeBlocks.size()); ++freeBlockIndex)
             {
                 const FreeBlock& freeBlock = myFreeBlocks[freeBlockIndex];
                 if (freeBlock.myByteOffset >= bestFreeOffset)
                     continue;
+
+                const uint freeEnd = freeBlock.myByteOffset + freeBlock.myByteSize;
 
                 // Find the leftmost allocation that starts after this free block and fits in it
                 int  candidateAllocIdx    = -1;
@@ -230,9 +236,15 @@ public:
                 for (int allocationIndex = 0; allocationIndex < myAllocatedBlocks.size(); ++allocationIndex)
                 {
                     const AllocatedBlock& allocation = myAllocatedBlocks[allocationIndex];
-                    if (allocation.myByteOffset >= freeBlock.myByteOffset + freeBlock.myByteSize &&
-                        allocation.myByteSize   <= freeBlock.myByteSize &&
-                        allocation.myByteOffset < candidateAllocOffset)
+                    if (allocation.myByteOffset < freeEnd)
+                        continue; // allocation starts inside or before this free block
+
+                    const uint alignedDst = AlignUp(freeBlock.myByteOffset, allocation.myAlignment);
+                    if (alignedDst + allocation.myByteSize > allocation.myByteOffset) // would overlap src
+                        continue;
+                    if (alignedDst + allocation.myByteSize > freeEnd) // doesn't fit in free block
+                        continue;
+                    if (allocation.myByteOffset < candidateAllocOffset)
                     {
                         candidateAllocOffset = allocation.myByteOffset;
                         candidateAllocIdx    = allocationIndex;
@@ -250,11 +262,12 @@ public:
             if (bestFreeIdx == -1)
                 break; // No valid move found
 
-            const FreeBlock freeBlock = myFreeBlocks[bestFreeIdx]; // copy before mutation
-            const uint srcOffset = myAllocatedBlocks[bestAllocIdx].myByteOffset;
-            const uint dstOffset = freeBlock.myByteOffset;
-            const uint moveSize  = myAllocatedBlocks[bestAllocIdx].myByteSize;
-            const uint sparseIdx = myAllocatedBlocks[bestAllocIdx].mySparseIndex;
+            const FreeBlock      freeBlock  = myFreeBlocks[bestFreeIdx];      // copy before mutation
+            const AllocatedBlock allocBlock = myAllocatedBlocks[bestAllocIdx]; // copy before mutation
+            const uint srcOffset = allocBlock.myByteOffset;
+            const uint dstOffset = AlignUp(freeBlock.myByteOffset, allocBlock.myAlignment);
+            const uint moveSize  = allocBlock.myByteSize;
+            const uint sparseIdx = allocBlock.mySparseIndex;
 
             // GPU: copy dense data into the free block (non-overlapping guaranteed)
             myDenseBuffer->MoveData(srcOffset, dstOffset, moveSize);
@@ -267,8 +280,13 @@ public:
             // Remove the consumed free block (swap-and-pop is fine — we re-search next iteration)
             myFreeBlocks.RemoveIndex(bestFreeIdx);
 
-            // Any tail of the free block not used by the move stays free
-            const uint remainder = freeBlock.myByteSize - moveSize;
+            // Alignment padding before dstOffset stays free
+            if (dstOffset > freeBlock.myByteOffset)
+                InsertFreeBlock({ freeBlock.myByteOffset, dstOffset - freeBlock.myByteOffset });
+
+            // Tail of the free block after the move stays free
+            const uint freeEnd   = freeBlock.myByteOffset + freeBlock.myByteSize;
+            const uint remainder = freeEnd - (dstOffset + moveSize);
             if (remainder > 0)
                 InsertFreeBlock({ dstOffset + moveSize, remainder });
 
@@ -308,6 +326,7 @@ private:
         uint myByteOffset;
         uint myByteSize;
         uint mySparseIndex;
+        uint myAlignment;
     };
 
     /*
@@ -357,8 +376,11 @@ private:
             return alignedStart;
         }
 
-        // No suitable free block — grow at the high-water mark
+        // No suitable free block — grow at the high-water mark.
+        // Any padding bytes skipped for alignment are returned to the free pool.
         const uint alignedStart = AlignUp(myUsedByteSize, inAlignment);
+        if (alignedStart > myUsedByteSize)
+            InsertFreeBlock({ myUsedByteSize, alignedStart - myUsedByteSize });
         myUsedByteSize = alignedStart + inByteSize;
         return alignedStart;
     }

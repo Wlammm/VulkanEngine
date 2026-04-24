@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include <stack>
 #include "GPUList.h"
 
 /*
@@ -24,7 +23,7 @@ public:
     { }
     
     VulkanBuffer* GetBuffer() const override { return myDenseData.GetBuffer(); }
-    MulticastDelegate<void()>* GetOnBufferResized() const override { return myDenseData.GetOnBufferResized();}
+    MulticastDelegate<void()>* GetOnBufferResized() const override { return myDenseData.GetOnBufferResized(); }
     
     /*
      * Adds data to the GPU buffer and returns a stable CPU handle.
@@ -34,15 +33,15 @@ public:
     {
         uint handle;
 
-        if (!myFreeHandles.empty())
+        if (!myFreeHandles.IsEmpty())
         {
-            handle = myFreeHandles.top();
-            myFreeHandles.pop();
+            handle = myFreeHandles.Last();
+            myFreeHandles.RemoveLast();
         }
         else
         {
             handle = static_cast<uint>(mySparseIndices.size());
-            mySparseIndices.Add(0); // Placeholder, is being set below
+            mySparseIndices.Add(INVALID_INDEX); // Placeholder, is being set below
         }
 
         uint denseIndex = static_cast<uint>(myDenseToHandle.size());
@@ -91,6 +90,7 @@ public:
         }
 
         uint denseIndexToRemove = mySparseIndices[inHandle];
+        check(denseIndexToRemove != INVALID_INDEX && "Remove called on an already-removed handle");
         if (denseIndexToRemove == INVALID_INDEX) return;
 
         uint lastDenseIndex = static_cast<uint>(myDenseToHandle.size()) - 1;
@@ -119,7 +119,7 @@ public:
         // Cleanup CPU tracking
         myDenseToHandle.RemoveLast();
         mySparseIndices[inHandle] = INVALID_INDEX;
-        myFreeHandles.push(inHandle);
+        myFreeHandles.Add(inHandle);
     }
     
     uint Size() const
@@ -141,5 +141,5 @@ private:
     List<uint> myDenseToHandle;
 
     // Stack of handles that have been removed and can be reused
-    std::stack<uint> myFreeHandles;
+    List<uint> myFreeHandles;
 };

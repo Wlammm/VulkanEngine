@@ -37,7 +37,6 @@ public:
 private:
     friend class VulkanAllocator;
     
-    bool myHasActiveUpload = false;
     bool myHasRegisteredForTick = false;
     VulkanBuffer* myBuffer = nullptr;
     

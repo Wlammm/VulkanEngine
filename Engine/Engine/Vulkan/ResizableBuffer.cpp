@@ -35,14 +35,6 @@ void ResizableBuffer::CopyDataFromBuffer(VulkanBuffer* inStagingBuffer, const ui
 {
     CheckCapacity(inSize + inOffset);
     myBuffer->CopyDataFromBuffer(inStagingBuffer, inSize, inOffset);
-
-    VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
-    
-    List<ResourceUsage> resourceUsages{};
-    resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
-    resourceUsages.Emplace().SetToBuffer(inStagingBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
-    
-	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 }
 
 void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffset)
@@ -54,15 +46,30 @@ void ResizableBuffer::SetData(const void* inData, const uint inSize, uint inOffs
 void ResizableBuffer::MoveData(const uint inSourceOffset, const uint inDstOffset, const uint inSize)
 {
     CheckCapacity(inSize + std::max(inDstOffset, inSourceOffset));
-    
-    VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
-    vk::BufferCopy copy = vk::BufferCopy().setSize(inSize).setSrcOffset(inSourceOffset).setDstOffset(inDstOffset);
-    commandBuffer->GetAPIResource().copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
-    
-    List<ResourceUsage> resourceUsages{};
-    resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
-    
-	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
+
+    // vkCmdCopyBuffer requires non-overlapping regions when src == dst, so bounce through a temp buffer.
+    vk::BufferCreateInfo tmpCreateInfo = vk::BufferCreateInfo()
+        .setSize(inSize)
+        .setUsage(vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eTransferDst);
+    VulkanBuffer* tmpBuffer = VulkanAllocator::AllocateBuffer_TS(myBuffer->GetName() + "_MoveTemp", tmpCreateInfo, myBuffer->GetVmaMemoryUsage());
+
+    VulkanCommandBuffer* readCmd = RenderSystem::CreateUploadCommandBuffer_TS();
+    readCmd->GetAPIResource().copyBuffer(myBuffer->GetAPIResource(), tmpBuffer->GetAPIResource(),
+        vk::BufferCopy().setSize(inSize).setSrcOffset(inSourceOffset).setDstOffset(0));
+    List<ResourceUsage> readUsages{};
+    readUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+    readUsages.Emplace().SetToBuffer(tmpBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+    RenderSystem::QueueCommandBufferForUpload_TS(readCmd, readUsages);
+
+    VulkanCommandBuffer* writeCmd = RenderSystem::CreateUploadCommandBuffer_TS();
+    writeCmd->GetAPIResource().copyBuffer(tmpBuffer->GetAPIResource(), myBuffer->GetAPIResource(),
+        vk::BufferCopy().setSize(inSize).setSrcOffset(0).setDstOffset(inDstOffset));
+    List<ResourceUsage> writeUsages{};
+    writeUsages.Emplace().SetToBuffer(tmpBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+    writeUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+    RenderSystem::QueueCommandBufferForUpload_TS(writeCmd, writeUsages);
+
+    VulkanAllocator::DestroyBuffer_TS(tmpBuffer);
 }
 
 void ResizableBuffer::Resize(const uint inRequiredSize)
@@ -77,10 +84,8 @@ void ResizableBuffer::Resize(const uint inRequiredSize)
     vk::BufferCreateInfo createInfo = myBuffer->GetCreateInfo();
     createInfo.setSize(newSize);
     myBuffer = VulkanAllocator::AllocateBuffer_TS(myBuffer->GetName(), createInfo, myBuffer->GetVmaMemoryUsage(), myBuffer->IsMappable());
-    myHasActiveUpload = true;
-    
+
     VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
-    myHasActiveUpload = false;
     vk::BufferCopy copy = vk::BufferCopy().setSize(oldBuffer->GetSize());
     commandBuffer->GetAPIResource().copyBuffer(oldBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
 
