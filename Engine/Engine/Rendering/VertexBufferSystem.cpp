@@ -3,6 +3,7 @@
 
 #include "GPUResourceManager.h"
 #include "VertexBufferHandle.h"
+#include "Engine/Utils/ThreadUtils.hpp"
 #include "Engine/Vulkan/VulkanBuffer.h"
 
 static_assert(sizeof(Vertex) == VERTEX_STRIDE_BYTES, "VERTEX_STRIDE_BYTES in MeshStructs.hpp is out of date. Update it to match sizeof(Vertex).");
@@ -48,6 +49,11 @@ VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(VulkanBuffer* inStagi
 {
     check(inVertexCount > 0);
 
+    if (!ThreadUtils::IsOnMainThread())
+        LOG_WARNING("VertexBufferSystem::UploadVertexBuffer called off the main thread. GPU uploads should run on the main thread.");
+
+    std::scoped_lock lock(myUploadMutex);
+
     const uint byteSize = inVertexCount * sizeof(Vertex);
     const auto handle   = myBuffer->AllocateFromStagingBuffer(inStagingBuffer, byteSize);
 
@@ -59,6 +65,7 @@ VertexBufferHandle* VertexBufferSystem::UploadVertexBuffer(VulkanBuffer* inStagi
 
 void VertexBufferSystem::RemoveVertexBuffer(const VertexBufferHandle* inBuffer)
 {
+    std::scoped_lock lock(myUploadMutex);
     myBuffer->Deallocate({ inBuffer->myIndex });
     myVertexBuffers.Remove(const_cast<VertexBufferHandle*>(inBuffer));
     del(inBuffer);
@@ -71,5 +78,8 @@ uint VertexBufferSystem::GetVertexOffsetFromVertexHandle(VertexBufferHandle* inB
 
 void VertexBufferSystem::Defrag(const uint inMaxMoves)
 {
+    // Defrag moves dense allocations and rewrites sparse entries — the same state UploadVertexBuffer
+    // mutates — so it must take the same lock to avoid aliasing with a concurrent upload.
+    std::scoped_lock lock(myUploadMutex);
     myBuffer->Defrag(inMaxMoves);
 }

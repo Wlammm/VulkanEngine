@@ -6,6 +6,7 @@
 #include "IndexBufferHandle.h"
 #include "RenderSystem.h"
 #include "Engine/Utils/MathUtils.hpp"
+#include "Engine/Utils/ThreadUtils.hpp"
 #include "Engine/Vulkan/ResizableBuffer.h"
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
@@ -49,6 +50,11 @@ IndexBufferHandle* IndexBufferSystem::UploadIndexBuffer(const List<uint>& inIndi
         return nullptr;
     }
 
+    if (!ThreadUtils::IsOnMainThread())
+        LOG_WARNING("IndexBufferSystem::UploadIndexBuffer called off the main thread. GPU uploads should run on the main thread.");
+
+    std::scoped_lock lock(myUploadMutex);
+
     // Upload the new data to the index data buffer.
     uint dataIndex = -1;
     if(!myFreeSparseIndices.IsEmpty())
@@ -87,6 +93,11 @@ IndexBufferHandle* IndexBufferSystem::UploadIndexBuffer(VulkanBuffer* inStagingB
         LOG_WARNING("IndexBufferSystem::UploadIndexBuffer - Empty indices list");
         return nullptr;
     }
+
+    if (!ThreadUtils::IsOnMainThread())
+        LOG_WARNING("IndexBufferSystem::UploadIndexBuffer called off the main thread. GPU uploads should run on the main thread.");
+
+    std::scoped_lock lock(myUploadMutex);
 
     // Upload the new data to the index data buffer.
     uint dataIndex = -1;

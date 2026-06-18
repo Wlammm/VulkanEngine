@@ -17,18 +17,21 @@ GPUSceneSystem::GPUSceneSystem()
 MeshInstanceIndex GPUSceneSystem::AddMeshInstance(const MeshInstanceData& inMeshInstanceData)
 {
     ZoneScoped;
+    std::scoped_lock lock(myMutex);
     return myMeshes->Add(inMeshInstanceData);
 }
 
 void GPUSceneSystem::UpdateMeshInstance(const MeshInstanceIndex inMeshIndex, const MeshInstanceData& inMeshInstanceData)
 {
     ZoneScoped;
+    std::scoped_lock lock(myMutex);
     myMeshes->Update(inMeshInstanceData, inMeshIndex);
 }
 
 void GPUSceneSystem::RemoveMeshInstance(const MeshInstanceIndex inMeshInstance)
 {
     ZoneScoped;
+    std::scoped_lock lock(myMutex);
     myMeshes->Remove(inMeshInstance);
 }
 

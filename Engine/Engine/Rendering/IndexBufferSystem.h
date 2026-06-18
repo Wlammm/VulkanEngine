@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <mutex>
+
 #include "Engine/Shaders/Shared/MeshStructs.hpp"
 #include "Engine/System/System.h"
 
@@ -33,4 +35,9 @@ private:
     ResizableBuffer* mySparseIndexDataBuffer;
     List<IndexBufferData> mySparseIndexData_CPURepresentation;
     List<uint> myFreeSparseIndices;
+
+    // Serializes both UploadIndexBuffer overloads: they share myUsedBufferSize / myCurrentIndexOffset
+    // / the sparse table / the free list, and an unsynchronized read-modify-write there aliases index
+    // ranges and sparse handles (same class of bug as MeshSystem::UploadMesh).
+    std::mutex myUploadMutex;
 };
