@@ -36,13 +36,16 @@ public:
      * The resource system takes ownership of the buffer and its lifetime from here on.
      */
     template <typename T>
-    void RegisterBuffer(IGPUBuffer* inBuffer, Delegate<void(BufferResource& inResource)> inTickFunction = nullptr)
+    void RegisterBuffer(IGPUBuffer* inBuffer, Delegate<void(BufferResource& inResource)> inTickFunction = nullptr, bool inIsOwned = true)
     {
-        RegisterBuffer<T>(inBuffer, {}, inTickFunction);
+        RegisterBuffer<T>(inBuffer, {}, inTickFunction, inIsOwned);
     }
 
+    // inIsOwned controls whether GPUResourceManager destroys the buffer on shutdown.
+    // Pass false for sub-resources whose lifetime is owned elsewhere (e.g. the sparse
+    // buffer inside a GPUDefragBuffer) — registering them here is for shader lookup only.
     template <typename T>
-    void RegisterBuffer(IGPUBuffer* inBuffer, List<std::string> inShaderAliases, Delegate<void(BufferResource& inResource)> inTickFunction = nullptr)
+    void RegisterBuffer(IGPUBuffer* inBuffer, List<std::string> inShaderAliases, Delegate<void(BufferResource& inResource)> inTickFunction = nullptr, bool inIsOwned = true)
     {
         const Type* type = ReflectionSystem::GetType<T>();
 
@@ -56,6 +59,7 @@ public:
         buffer.myType = type;
         buffer.myShaderAliases = std::move(inShaderAliases);
         buffer.myTickFunction = inTickFunction;
+        buffer.myIsOwned = inIsOwned;
 
         if (inTickFunction.IsValid())
         {

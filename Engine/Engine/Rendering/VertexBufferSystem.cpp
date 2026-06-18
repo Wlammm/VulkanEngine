@@ -26,7 +26,10 @@ VertexBufferSystem::VertexBufferSystem()
         sparseInfo, "Global Sparse Vertex Data Buffer",
         VMA_MEMORY_USAGE_AUTO);
 
-    GPUResourceManager::Get()->RegisterBuffer<VertexBufferData>(myBuffer->GetSparseBuffer());
+    // The sparse buffer is owned by the GPUDefragBuffer (destroyed in its destructor),
+    // so register it non-owned here — otherwise GPUResourceManager would also delete it,
+    // double-freeing it via ~GPUDefragBuffer() on shutdown.
+    GPUResourceManager::Get()->RegisterBuffer<VertexBufferData>(myBuffer->GetSparseBuffer(), nullptr, false);
     GPUResourceManager::Get()->RegisterBuffer<Vertex>(myBuffer);
 }
 
