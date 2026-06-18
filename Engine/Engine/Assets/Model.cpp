@@ -70,6 +70,10 @@ void Model::PostPropertiesSerialized()
 
 		myBLASes.Add(BLAS::Build(positions, meshData.myIndices));
 	}
+
+	// GPU resources are now created — the model is safe to render. Consumers gate on this (see
+	// Model::IsRenderReady) because this function may run a frame after the model is handed out.
+	myIsRenderReady = true;
 }
 
 void Model::LoadPropertiesFromSource()

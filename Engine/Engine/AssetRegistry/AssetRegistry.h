@@ -75,7 +75,21 @@ public:
 
             if (isCachedFileValid)
             {
-                asset->PostPropertiesSerialized();
+                // PostPropertiesSerialized creates GPU resources (vertex/index/mesh buffers, BLAS),
+                // which must only happen on the main thread. When loading async on a worker we defer
+                // it, exactly like the source-load path below. Previously this cached path ran it
+                // inline on the worker, racing the render thread (Vulkan/GPU-container data race).
+                if (ThreadUtils::IsOnMainThread())
+                {
+                    asset->PostPropertiesSerialized();
+                }
+                else
+                {
+                    Engine::TickNextFrame.Bind([asset]()
+                    {
+                        asset->PostPropertiesSerialized();
+                    });
+                }
                 AddLoadedAsset(asset, inType);
                 return asset;
             }

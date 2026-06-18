@@ -107,7 +107,16 @@ void StaticMeshComponent::OnRenderStateDirty()
         // We need to remove all active mesh instances on the gpu.
         if(!myMeshInstances.IsEmpty())
             RemoveFromGPUScene();
-        
+
+        return;
+    }
+
+    // The model may have been handed to us (async load) before its GPU resources exist — its meshes
+    // and handles are not valid until PostPropertiesSerialized runs on the main thread. Reading them
+    // now would register nothing and the mesh would silently never render. Retry next frame instead.
+    if(!myModel->IsRenderReady())
+    {
+        MarkRenderStateDirty();
         return;
     }
 
