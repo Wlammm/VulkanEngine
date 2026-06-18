@@ -25,9 +25,12 @@
 #include "Engine/World/World.h"
 #include "RenderGraph/RenderGraph.h"
 #include "RenderingPasses/IRenderPass.h"
+#include "RenderingPasses/ComputePasses/FoliageCullPass.h"
+#include "RenderingPasses/ComputePasses/FoliagePrePass.h"
 #include "RenderingPasses/ComputePasses/IndirectCullPass.h"
 #include "RenderingPasses/ComputePasses/IndirectPrePass.h"
 #include "RenderingPasses/GraphicsPasses/CopyToSwapchainPass.h"
+#include "RenderingPasses/GraphicsPasses/FoliagePass.h"
 #include "RenderingPasses/GraphicsPasses/DebugPass.h"
 #include "RenderingPasses/GraphicsPasses/ImGuiPass.h"
 #include "RenderingPasses/GraphicsPasses/MainPass.h"
@@ -400,6 +403,12 @@ void RenderSystem::CreateRenderPasses()
 	
 	myRenderGraph->AddPass(new PrePass());
 	myRenderGraph->AddPass(new MainPass());
+
+	// GPU-driven foliage: clear counter -> build indirect commands -> indirect draw.
+	myRenderGraph->AddPass(new FoliagePrePass());
+	myRenderGraph->AddPass(new FoliageCullPass());
+	myRenderGraph->AddPass(new FoliagePass());
+
 	myRenderGraph->AddPass(new NoDepthPass());
 	myRenderGraph->AddPass(new DebugPass());
 	myRenderGraph->AddPass(new CopyToSwapchainPass(RenderSystem::Get()->GetResolvedRenderTexture()));
