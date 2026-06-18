@@ -106,10 +106,13 @@ void Engine::Tick()
 
 	{
 		ZoneScopedN("TicksNextFrame");
-		// Move the data so that we can bind the same function for the next frame inside this invocation.
-		MulticastDelegate<void()> ticksThisFrame = std::move(TickNextFrame);
-		TickNextFrame.Clear();
-		ticksThisFrame.Invoke();
+		// Atomically drain and invoke pending callbacks. Worker threads (e.g. async asset loads) Bind to
+		// TickNextFrame concurrently, so the take-and-clear must happen in a single locked step. The old
+		// `move + Clear()` did it in two separate critical sections; a Bind landing in the gap was silently
+		// dropped, losing that frame's work (e.g. registering a freshly-loaded mesh for rendering, which
+		// manifested as meshes intermittently not showing up on world load). Callbacks may re-Bind for the
+		// next frame during invocation — InvokeAndClear invokes outside the lock so that stays safe.
+		TickNextFrame.InvokeAndClear();
 	}
 	
 	Debug::DrawSphere(glm::vec3(0, 0, 0), 100);

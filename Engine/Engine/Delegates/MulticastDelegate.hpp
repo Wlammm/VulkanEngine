@@ -167,7 +167,36 @@ public:
     {
         Invoke(std::forward<ArgTypes>(inArgs)...);
     }
-   
+
+    /*
+     * Atomically takes ownership of all currently-bound delegates under a single lock, leaving this
+     * delegate empty, then invokes them after the lock is released.
+     *
+     * This is the safe way to "drain" a delegate that other threads may Bind to concurrently (e.g.
+     * async asset loads on the thread pool binding completion callbacks). Doing the take-and-clear in
+     * one critical section means a Bind racing the drain is never silently dropped: it simply lands in
+     * the now-empty delegate and fires on the next drain. Invoking outside the lock also lets callbacks
+     * re-Bind to this same delegate during invocation without deadlocking.
+     *
+     * NOTE: prefer this over `move + Clear()` — MutexList has no move assignment, so moving a
+     * MulticastDelegate actually copies and leaves the source intact, forcing a second, separate
+     * Clear() whose gap is exactly the window where concurrent Binds get lost.
+     */
+    void InvokeAndClear(ArgTypes... inArgs)
+    {
+        List<Delegate<void(ArgTypes...)>> toInvoke;
+        {
+            std::scoped_lock lock(myBoundDelegates.GetMutex());
+            toInvoke.Reserve(myBoundDelegates.size());
+            for(int i = 0; i < myBoundDelegates.size(); ++i)
+                toInvoke.Add(myBoundDelegates[i]);
+            myBoundDelegates.Clear();
+        }
+
+        for(int i = 0; i < toInvoke.size(); ++i)
+            toInvoke[i].Invoke(std::forward<ArgTypes>(inArgs)...);
+    }
+
 private:
     MutexList<Delegate<void(ArgTypes...)>> myBoundDelegates{};
 };
