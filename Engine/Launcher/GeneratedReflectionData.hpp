@@ -794,6 +794,9 @@ Method& currentMethod = currentClass->AddMethod(Method("ResetMouseDelta", Reflec
 	{
 		Field& currentField = currentClass->AddField(Field("myMeshes", -1, ReflectionSystem::GetOrCreateType<GPUSparseDenseBuffer<MeshInstanceData>>("GPUSparseDenseBuffer<MeshInstanceData>"), true, false));
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myMutex", -1, ReflectionSystem::GetOrCreateType<std::mutex>("std::mutex"), false, false));
+	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -1930,6 +1933,16 @@ return nullptr;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("Tick", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+EditorToolbar* instance = static_cast<EditorToolbar*>(inInstance);
+instance->RenderTitleBar();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("RenderTitleBar", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -3120,6 +3133,9 @@ Method& currentMethod = currentClass->AddMethod(Method("TickInput", ReflectionSy
 	{
 		Field& currentField = currentClass->AddField(Field("myVertexBuffers", -1, ReflectionSystem::GetOrCreateType<List<VertexBufferHandle *>>("List<VertexBufferHandle *>"), false, false));
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myUploadMutex", -1, ReflectionSystem::GetOrCreateType<std::mutex>("std::mutex"), false, false));
+	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -3461,6 +3477,28 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetCurrentDpiScale", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
+float& arg0 = *(float*)inArguments[0];
+instance->RequestUserScale(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inUserScale", ReflectionSystem::GetOrCreateType<float>("float")));
+Method& currentMethod = currentClass->AddMethod(Method("RequestUserScale", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+VulkanImGui* instance = static_cast<VulkanImGui*>(inInstance);
+static thread_local float result = instance->GetUserScale();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("GetUserScale", ReflectionSystem::GetOrCreateType<float>("float"), invoker, arguments));
 }
 }
 { 
@@ -4033,6 +4071,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetJson", ReflectionSyst
 		Field& currentField = currentClass->AddField(Field("myBLASes", offsetof(Model, myBLASes), ReflectionSystem::GetOrCreateType<List<BLAS *>>("List<BLAS *>"), false, false));
 	}
 	{
+		Field& currentField = currentClass->AddField(Field("myIsRenderReady", offsetof(Model, myIsRenderReady), ReflectionSystem::GetOrCreateType<bool>("bool"), false, false));
+	}
+	{
 		Field& currentField = currentClass->AddField(Field("myMeshDatas", offsetof(Model, myMeshDatas), ReflectionSystem::GetOrCreateType<List<SerializationMeshData>>("List<SerializationMeshData>"), false, false));
 		currentField.AddMetadata(R"delim(SerializeField)delim");
 	}
@@ -4086,6 +4127,16 @@ return (void*)&result;
 });
 List<MethodArgument> arguments{};
 Method& currentMethod = currentClass->AddMethod(Method("GetMeshes", ReflectionSystem::GetOrCreateType<const List<Mesh *> &>("const List<Mesh *> &"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+Model* instance = static_cast<Model*>(inInstance);
+static thread_local bool result = instance->IsRenderReady();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsRenderReady", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
 }
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -8142,14 +8193,12 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 RenderSystem* instance = static_cast<RenderSystem*>(inInstance);
 VulkanCommandBuffer * arg0 = (VulkanCommandBuffer*)inArguments[0];
 const List<ResourceUsage> & arg1 = *(const List<ResourceUsage>*)inArguments[1];
-VulkanBuffer * arg2 = (VulkanBuffer*)inArguments[2];
-instance->QueueCommandBufferForUpload_TS(arg0, arg1, arg2);
+instance->QueueCommandBufferForUpload_TS(arg0, arg1);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommandBuffer", ReflectionSystem::GetOrCreateType<VulkanCommandBuffer *>("VulkanCommandBuffer *")));
 arguments.Add(MethodArgument("inResourceUsages", ReflectionSystem::GetOrCreateType<const List<ResourceUsage> &>("const List<ResourceUsage> &")));
-arguments.Add(MethodArgument("inBuffer", ReflectionSystem::GetOrCreateType<VulkanBuffer *>("VulkanBuffer *")));
 Method& currentMethod = currentClass->AddMethod(Method("QueueCommandBufferForUpload_TS", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
@@ -9408,6 +9457,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetIndex", ReflectionSys
 	{
 		Field& currentField = currentClass->AddField(Field("myFreeSparseIndices", -1, ReflectionSystem::GetOrCreateType<List<unsigned int>>("List<unsigned int>"), false, false));
 	}
+	{
+		Field& currentField = currentClass->AddField(Field("myUploadMutex", -1, ReflectionSystem::GetOrCreateType<std::mutex>("std::mutex"), false, false));
+	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 {
 Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
@@ -9593,6 +9645,9 @@ Method& currentMethod = currentClass->AddMethod(Method("GetMaterialPath", Reflec
 	}
 	{
 		Field& currentField = currentClass->AddField(Field("myNumObjects", -1, ReflectionSystem::GetOrCreateType<unsigned int>("unsigned int"), false, false));
+	}
+	{
+		Field& currentField = currentClass->AddField(Field("myUploadMutex", -1, ReflectionSystem::GetOrCreateType<std::mutex>("std::mutex"), false, false));
 	}
 	currentClass->AddBaseType(ReflectionSystem::GetMutableType<System>());
 {
@@ -12277,13 +12332,11 @@ Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (voi
 {
 VulkanAllocator* instance = static_cast<VulkanAllocator*>(inInstance);
 const Delegate<void ()> & arg0 = *(const Delegate<void ()>*)inArguments[0];
-const std::basic_string<char> & arg1 = *(const std::basic_string<char>*)inArguments[1];
-instance->QueueDestroyCommand(arg0, arg1);
+instance->QueueDestroyCommand(arg0);
 return nullptr;
 });
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("inCommand", ReflectionSystem::GetOrCreateType<const Delegate<void ()> &>("const Delegate<void ()> &")));
-arguments.Add(MethodArgument("inDebugName", ReflectionSystem::GetOrCreateType<const std::basic_string<char> &>("const std::basic_string<char> &")));
 Method& currentMethod = currentClass->AddMethod(Method("QueueDestroyCommand", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 {
@@ -13462,6 +13515,82 @@ return (void*)&result;
 List<MethodArgument> arguments{};
 arguments.Add(MethodArgument("outDpiScale", ReflectionSystem::GetOrCreateType<float &>("float &")));
 Method& currentMethod = currentClass->AddMethod(Method("ConsumeDpiChange", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+WindowHandler* instance = static_cast<WindowHandler*>(inInstance);
+bool& arg0 = *(bool*)inArguments[0];
+instance->EnableCustomTitleBar(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inEnable", ReflectionSystem::GetOrCreateType<bool>("bool")));
+Method& currentMethod = currentClass->AddMethod(Method("EnableCustomTitleBar", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+WindowHandler* instance = static_cast<WindowHandler*>(inInstance);
+int& arg0 = *(int*)inArguments[0];
+instance->SetTitleBarHeight(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inHeightPx", ReflectionSystem::GetOrCreateType<int>("int")));
+Method& currentMethod = currentClass->AddMethod(Method("SetTitleBarHeight", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+WindowHandler* instance = static_cast<WindowHandler*>(inInstance);
+bool& arg0 = *(bool*)inArguments[0];
+instance->SetTitleBarDragHovered(arg0);
+return nullptr;
+});
+List<MethodArgument> arguments{};
+arguments.Add(MethodArgument("inHovered", ReflectionSystem::GetOrCreateType<bool>("bool")));
+Method& currentMethod = currentClass->AddMethod(Method("SetTitleBarDragHovered", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+WindowHandler* instance = static_cast<WindowHandler*>(inInstance);
+static thread_local bool result = instance->IsWindowMaximized();
+return (void*)&result;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("IsWindowMaximized", ReflectionSystem::GetOrCreateType<bool>("bool"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+WindowHandler* instance = static_cast<WindowHandler*>(inInstance);
+instance->Minimize();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("Minimize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+WindowHandler* instance = static_cast<WindowHandler*>(inInstance);
+instance->ToggleMaximize();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("ToggleMaximize", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
+}
+{
+Method::InvokerType invoker = Delegate<void*(void*, const List<void*>&)>([] (void* inInstance, const List<void*>& inArguments) -> void*
+{
+WindowHandler* instance = static_cast<WindowHandler*>(inInstance);
+instance->RequestClose();
+return nullptr;
+});
+List<MethodArgument> arguments{};
+Method& currentMethod = currentClass->AddMethod(Method("RequestClose", ReflectionSystem::GetOrCreateType<void>("void"), invoker, arguments));
 }
 }
 { 

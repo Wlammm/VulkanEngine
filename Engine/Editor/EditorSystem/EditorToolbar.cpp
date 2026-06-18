@@ -108,7 +108,7 @@ void EditorToolbar::DrawTitleBarBackground()
 
     // Centered application name (subtle, like an IDE).
     const std::wstring& wideTitle = Engine::GetEngineProperties().Title;
-    const std::string title(wideTitle.begin(), wideTitle.end());
+    const std::string title = String::ToString(wideTitle);
     if (!title.empty())
     {
         const ImVec2 textSize = ImGui::CalcTextSize(title.c_str());
