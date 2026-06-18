@@ -1,4 +1,6 @@
 #pragma once
+#include <mutex>
+
 #include "Vertex.hpp"
 #include "Engine/System/System.h"
 #include "Engine/Shaders/Shared/MeshStructs.hpp"
@@ -28,4 +30,9 @@ public:
 private:
     GPUDefragBuffer<VertexBufferData>* myBuffer = nullptr;
     List<VertexBufferHandle*> myVertexBuffers;
+
+    // Serializes UploadVertexBuffer / RemoveVertexBuffer / Defrag — all mutate the same
+    // GPUDefragBuffer free-lists, sparse entries and high-water mark. Unsynchronized access aliases
+    // vertex allocations (same class of bug as MeshSystem::UploadMesh).
+    std::mutex myUploadMutex;
 };

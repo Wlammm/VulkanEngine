@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <mutex>
+
 #include "Containers/GPUSparseDenseBuffer.h"
 #include "Engine/Shaders/Shared/MeshStructs.hpp"
 #include "Engine/System/System.h"
@@ -23,4 +25,9 @@ public:
     
 private:
     GPUSparseDenseBuffer<MeshInstanceData>* myMeshes;
+
+    // Serializes Add/Update/Remove of mesh instances. Add/Remove do swap-and-pop over shared sparse
+    // mapping arrays; an unsynchronized access aliases instance indices. Currently only called on the
+    // main thread, so this is defense-in-depth against future off-main callers.
+    std::mutex myMutex;
 };

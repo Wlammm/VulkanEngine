@@ -5,6 +5,7 @@
 #include "IndexBufferHandle.h"
 #include "Mesh.h"
 #include "VertexBufferHandle.h"
+#include "Engine/Utils/ThreadUtils.hpp"
 #include "Engine/Vulkan/ResizableBuffer.h"
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
@@ -29,6 +30,14 @@ MeshSystem::~MeshSystem()
 Mesh* MeshSystem::UploadMesh(VertexBufferHandle* inVertexBuffer, IndexBufferHandle* inIndexBuffer, const glm::vec4& inBoundingSphere)
 {
     ZoneScoped;
+
+    if (!ThreadUtils::IsOnMainThread())
+        LOG_WARNING("MeshSystem::UploadMesh called off the main thread. The lock below prevents mesh-handle corruption, but concurrent GPU buffer resize / descriptor updates with the renderer are still unsafe — GPU uploads should run on the main thread.");
+
+    // Serialize the handle allocation + slot write + counter increment so concurrent uploads can
+    // never take the same handle or overwrite the same MeshData slot. See myUploadMutex doc comment.
+    std::scoped_lock lock(myUploadMutex);
+
     Mesh* mesh = new Mesh();
     MeshData meshData{};
     meshData.myBoundingSphereModelSpace = inBoundingSphere;
