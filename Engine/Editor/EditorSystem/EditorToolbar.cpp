@@ -49,6 +49,12 @@ List<std::string> SplitPath(const std::string& inInput)
 
 void EditorToolbar::Tick()
 {
+    // The title bar is rendered from Editor::BeginMainDockSpace via RenderTitleBar()
+    // (inside a taller frame-padding scope), so nothing to do in the systems tick.
+}
+
+void EditorToolbar::RenderTitleBar()
+{
     if (ImGui::BeginMenuBar())
     {
         // Drawn first so the menus + buttons render on top of the gradient.
@@ -99,6 +105,18 @@ void EditorToolbar::DrawTitleBarBackground()
         winPos,
         ImVec2(winPos.x + width, winPos.y + barHeight),
         topColor, topColor, bottomColor, bottomColor);
+
+    // Centered application name (subtle, like an IDE).
+    const std::wstring& wideTitle = Engine::GetEngineProperties().Title;
+    const std::string title(wideTitle.begin(), wideTitle.end());
+    if (!title.empty())
+    {
+        const ImVec2 textSize = ImGui::CalcTextSize(title.c_str());
+        const ImVec2 textPos(
+            winPos.x + (width - textSize.x) * 0.5f,
+            winPos.y + (barHeight - textSize.y) * 0.5f);
+        drawList->AddText(textPos, IM_COL32(0x93, 0x98, 0xA0, 255), title.c_str());
+    }
 }
 
 void EditorToolbar::DrawWindowControls()
@@ -154,9 +172,14 @@ void EditorToolbar::DrawWindowButton(const char* inId, WindowButton inButton, fl
     case WindowButton::Maximize:
         if (WindowHandler::IsWindowMaximized())
         {
-            const float o = s * 0.35f; // restore: two offset squares
-            drawList->AddRect(ImVec2(cx - s + o, cy - s - o), ImVec2(cx + s + o, cy + s - o), fg, 0.0f, 0, th);
-            drawList->AddRect(ImVec2(cx - s - o, cy - s + o), ImVec2(cx + s - o, cy + s + o), fg, 0.0f, 0, th);
+            // Classic "restore" glyph: a front square (lower-left) plus the visible
+            // top-right corner of a square behind it.
+            const float o = s * 0.5f;
+            // Back square: only the top edge and right edge peek out behind the front.
+            drawList->AddLine(ImVec2(cx - s + o, cy - s), ImVec2(cx + s, cy - s), fg, th);     // top
+            drawList->AddLine(ImVec2(cx + s, cy - s), ImVec2(cx + s, cy + s - o), fg, th);     // right
+            // Front square: full outline.
+            drawList->AddRect(ImVec2(cx - s, cy - s + o), ImVec2(cx + s - o, cy + s), fg, 0.0f, 0, th);
         }
         else
         {
