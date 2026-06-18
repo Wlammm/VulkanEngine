@@ -5,6 +5,7 @@
 #define AllowPrivateAccess
 #define HideInEditor
 #define SerializeField
+#define Cheat
 #else
 #define EXPAND(x) x
 #define CAT(a, b) a##b
@@ -44,6 +45,10 @@ EXPAND(COUNT_ARGS_IMPL(__VA_ARGS__, \
 
 // Hides this property from editors and inspectors.
 #define HideInEditor
+
+// Marks a static method as a console cheat command. Tagged methods are auto-registered with the
+// CVarSystem and can be invoked by name from the console. Example: META(Cheat) static void GodMode();
+#define Cheat
 #endif
 
 // Called whenever the field was modified in the inspector

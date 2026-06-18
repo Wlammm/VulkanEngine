@@ -34,6 +34,13 @@ public:
     // Returns the arguments of a metadata tag. Example META(SomeMeta(Arg1, Arg2)) returns Arg1 and Arg2
     List<std::string> GetMetadataArgs(const std::string& inMetadata) const;
 
+    const List<MethodArgument>& GetArguments() const;
+
+    // Invokes the method with a pre-built argument list. Each entry must point to a value of the
+    // matching argument type. Use this when the argument types are only known at runtime (e.g. when
+    // dispatching from a console command). For static methods pass nullptr as the instance.
+    void* InvokeRaw(void* inInstance, const List<void*>& inArguments) const;
+
     template<typename ReturnType = void, typename... Args>
     ReturnType Invoke(void* inInstance, Args&&... inArgs) const
     {
