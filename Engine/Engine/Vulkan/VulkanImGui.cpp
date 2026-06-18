@@ -108,9 +108,9 @@ void VulkanImGui::BeginFrame()
 
 void VulkanImGui::Render(vk::CommandBuffer inCommandBuffer)
 {
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f); // Disable round borders
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f); // Disable borders
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.10f, 0.10f, 0.10f, 1.00f)); // Background color
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 6.f); // Soft rounded toast corners
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.f); // Hairline border
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.169f, 0.176f, 0.188f, 1.00f)); // Panel background
 	ImGui::RenderNotifications();
 	ImGui::PopStyleVar(2);
 	ImGui::PopStyleColor(1);
@@ -155,9 +155,17 @@ void VulkanImGui::LoadFonts(float inDpiScale)
 {
 	ImGuiIO& io = ImGui::GetIO();
 
-	float baseFontSize = 16.0f * inDpiScale;
+	float baseFontSize = 17.0f * inDpiScale;
 
-	SourceSansPro_Regular = io.Fonts->AddFontFromFileTTF("Editor/Fonts/SourceSansPro-Regular.ttf", baseFontSize);
+	// Crisper text: extra oversampling and light snapping. RasterizerMultiply
+	// thickens the stems slightly so the regular weight stays legible at small sizes.
+	ImFontConfig textConfig;
+	textConfig.OversampleH = 3;
+	textConfig.OversampleV = 2;
+	textConfig.PixelSnapH = false;
+	textConfig.RasterizerMultiply = 1.1f;
+
+	SourceSansPro_Regular = io.Fonts->AddFontFromFileTTF("Editor/Fonts/SourceSansPro-Regular.ttf", baseFontSize, &textConfig);
 	io.Fonts->AddFontDefault();
 
 	// ImGuiNotify init...
