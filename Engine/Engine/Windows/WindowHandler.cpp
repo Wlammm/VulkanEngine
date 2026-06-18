@@ -3,6 +3,9 @@
 #include "Engine/Engine.h"
 #include "Engine/Core/Input.h"
 
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 WindowHandler::WindowHandler()
@@ -80,6 +83,14 @@ void WindowHandler::EnableCustomTitleBar(bool inEnable)
 	myUseCustomTitleBar = inEnable;
 	if (myInstance && myInstance->myHWND)
 	{
+		if (inEnable)
+		{
+			// A small non-zero frame margin re-enables the native drop shadow (and the
+			// Windows 11 rounded corners) on the otherwise-borderless window.
+			const MARGINS margins = { 0, 0, 1, 0 };
+			DwmExtendFrameIntoClientArea(myInstance->myHWND, &margins);
+		}
+
 		// Force the non-client area to be recalculated so WM_NCCALCSIZE takes effect.
 		SetWindowPos(myInstance->myHWND, nullptr, 0, 0, 0, 0,
 			SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);

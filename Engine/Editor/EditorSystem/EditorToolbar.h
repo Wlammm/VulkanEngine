@@ -8,8 +8,13 @@ class EditorToolbar : public EditorSystem
 {
 public:
     EditorToolbar();
-    
+
     void Tick() override;
+
+    // Draws the custom title bar (menus, app name, window controls) into the
+    // dockspace host's menu bar. Called by the editor while a taller frame
+    // padding is active so the bar reads as a proper title bar.
+    void RenderTitleBar();
 
     void AddToolbarButton(const std::string& inPath, const Delegate<void()>& inCallback);
     
