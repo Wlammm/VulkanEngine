@@ -8,6 +8,7 @@
 #include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 #include "Engine/Vulkan/VulkanImGui.h"
+#include "Engine/Windows/WindowHandler.h"
 #include "Engine/World/GameWorld.h"
 #include "ImGui/ImGuiPropertyDrawer.h"
 #include "Toolbar/Themes/EditorThemes.h"
@@ -25,6 +26,10 @@ Editor::Editor()
     AddEditorWindows();
 
     EditorThemes::DefaultTheme();
+
+    // Go borderless so the editor draws its own Rider-style title bar (menus +
+    // window controls live in the menu bar). The game build keeps OS chrome.
+    WindowHandler::EnableCustomTitleBar(true);
 
     Engine::SetWorld(AssetRegistry::Get()->CreateNewAsset<EditorWorld>(World::EmptyWorldPath));
 }
