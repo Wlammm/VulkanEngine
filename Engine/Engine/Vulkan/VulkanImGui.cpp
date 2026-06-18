@@ -80,8 +80,10 @@ void VulkanImGui::Start(vk::RenderPass inRenderPass)
 
 	ImGui::GetStyle().ScaleAllSizes(dpiScale);
 	ImGui::GetStyle().WindowMenuButtonPosition = ImGuiDir_None;
-	
-	myCurrentDpiScale = dpiScale;
+
+	myDpiScale = dpiScale;
+	myUserScale = 1.0f;
+	myAppliedScale = dpiScale;
 
 	myDescriptorPool = imguiPool;
 }
@@ -99,6 +101,11 @@ void VulkanImGui::BeginFrame()
 	float newDpiScale;
 	if (WindowHandler::ConsumeDpiChange(newDpiScale))
 		ReloadFonts(newDpiScale);
+	else if (myUserScaleDirty)
+	{
+		myUserScaleDirty = false;
+		ApplyScale(myDpiScale * myUserScale);
+	}
 
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -110,7 +117,7 @@ void VulkanImGui::Render(vk::CommandBuffer inCommandBuffer)
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 6.f); // Soft rounded toast corners
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.f); // Hairline border
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.169f, 0.176f, 0.188f, 1.00f)); // Panel background
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.125f, 0.133f, 0.149f, 1.00f)); // Panel background (#202226)
 	ImGui::RenderNotifications();
 	ImGui::PopStyleVar(2);
 	ImGui::PopStyleColor(1);
@@ -136,19 +143,42 @@ void VulkanImGui::VulkanCheckResult(VkResult result)
 
 void VulkanImGui::ReloadFonts(float inDpiScale)
 {
+	// A monitor DPI change keeps the user's zoom and re-derives the effective scale.
+	myDpiScale = inDpiScale;
+	ApplyScale(myDpiScale * myUserScale);
+}
+
+void VulkanImGui::RequestUserScale(float inUserScale)
+{
+	if (inUserScale < 0.5f)
+		inUserScale = 0.5f;
+	if (inUserScale > 3.0f)
+		inUserScale = 3.0f;
+
+	myUserScale = inUserScale;
+	myUserScaleDirty = true;
+}
+
+void VulkanImGui::ApplyScale(float inEffectiveScale)
+{
+	if (inEffectiveScale <= 0.0f || inEffectiveScale == myAppliedScale)
+		return;
+
 	vkDeviceWaitIdle(VulkanContext::GetDevice().GetDevice());
 
 	ImGui_ImplVulkan_DestroyFontTexture();
 	ImGui::GetIO().Fonts->Clear();
 
 	VulkanCommandBuffer* cmd = VulkanContext::GetDevice().CreateCommandBuffer(true, false);
-	LoadFonts(inDpiScale);
+	LoadFonts(inEffectiveScale);
 	ImGui_ImplVulkan_CreateFontsTexture(cmd->GetAPIResource());
 	VulkanContext::GetDevice().FlushCommandBuffer(cmd);
 	ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-	ImGui::GetStyle().ScaleAllSizes(inDpiScale / myCurrentDpiScale);
-	myCurrentDpiScale = inDpiScale;
+	// Rescale all style metrics relative to the previously applied scale so padding,
+	// rounding and spacing track the new font size.
+	ImGui::GetStyle().ScaleAllSizes(inEffectiveScale / myAppliedScale);
+	myAppliedScale = inEffectiveScale;
 }
 
 void VulkanImGui::LoadFonts(float inDpiScale)

@@ -57,6 +57,7 @@ public:
 private:
     void Tick();
     void BeginMainDockSpace();
+    void HandleZoomShortcuts();
 
     void AddEditorWindows();
     void AddEditorSystems();
