@@ -45,6 +45,12 @@ public:
 	
 	const List<Mesh*>& GetMeshes() const;
 
+	// True once PostPropertiesSerialized has created this model's GPU resources (vertex/index/mesh
+	// buffers, BLAS). Until then GetMeshes() is empty and the handles are not valid for rendering.
+	// Consumers loaded asynchronously may receive this model before that happens (PostPropertiesSerialized
+	// is deferred to the main thread), so they must gate rendering on this flag.
+	bool IsRenderReady() const { return myIsRenderReady; }
+
 	// TODO: We currently have mesh datas always loaded. But in the future it might cost too much memory so find solution to load on demand instead. This is needed for mesh colliders.
 	const List<SerializationMeshData>& GetSerializationMeshDatas() const;
 
@@ -53,6 +59,9 @@ public:
 private:
 	List<Mesh*> myMeshes{};
 	List<BLAS*> myBLASes{};
+
+	// Set true at the end of PostPropertiesSerialized once GPU resources exist. Runtime-only, not serialized.
+	bool myIsRenderReady = false;
 
 	META(SerializeField)
 	List<SerializationMeshData> myMeshDatas{};

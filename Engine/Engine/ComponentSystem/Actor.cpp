@@ -50,11 +50,15 @@ void Actor::TickRenderState()
 {
     if (myRenderStateDirty)
     {
+        // Clear before dispatching so a component that re-marks the render state dirty from inside
+        // OnRenderStateDirty (e.g. to retry once an async-loaded model becomes render-ready) is
+        // honoured next frame instead of being cleared away by this call.
+        myRenderStateDirty = false;
+
         for (Component* comp : myComponents)
         {
             comp->OnRenderStateDirty();
         }
-        myRenderStateDirty = false;
     }
 }
 
