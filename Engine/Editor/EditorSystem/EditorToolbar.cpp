@@ -3,6 +3,7 @@
 
 #include "Engine/Engine.h"
 #include "Engine/Reflection/ReflectionSystem.h"
+#include "Engine/Windows/WindowHandler.h"
 
 EditorToolbar::EditorToolbar()
 {
@@ -50,14 +51,17 @@ void EditorToolbar::Tick()
 {
     if (ImGui::BeginMenuBar())
     {
+        // Drawn first so the menus + buttons render on top of the gradient.
+        DrawTitleBarBackground();
+
         for (const Method* method : myToolbarMethods)
         {
             List<std::string> args = method->GetMetadataArgs("EditorMenuItem");
             check(args.size() >= 1);
-            
+
             std::string pathArg = args[0];
             const List<std::string> pathParts = SplitPath(pathArg);
-            
+
            if (pathParts.size() > 1)
                RenderMultipleParts(pathParts, [method](){ method->Invoke(nullptr);} );
            else
@@ -73,9 +77,125 @@ void EditorToolbar::Tick()
             else
                 RenderSinglePart(pathParts, [button](){ button.myCallback(); });
         }
-        
+
+        DrawWindowControls();
+        UpdateDragRegion();
+
         ImGui::EndMenuBar();
     }
+}
+
+void EditorToolbar::DrawTitleBarBackground()
+{
+    // Subtle vertical fade so the bar melts into the dark editor below it.
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    const ImVec2 winPos = ImGui::GetWindowPos();
+    const float width = ImGui::GetWindowWidth();
+    const float barHeight = ImGui::GetFrameHeight();
+
+    const ImU32 topColor = IM_COL32(0x28, 0x2A, 0x30, 255);
+    const ImU32 bottomColor = IM_COL32(0x1B, 0x1C, 0x1E, 255);
+    drawList->AddRectFilledMultiColor(
+        winPos,
+        ImVec2(winPos.x + width, winPos.y + barHeight),
+        topColor, topColor, bottomColor, bottomColor);
+}
+
+void EditorToolbar::DrawWindowControls()
+{
+    const float barHeight = ImGui::GetFrameHeight();
+    const float buttonWidth = barHeight * 1.4f;
+
+    // Right-align the three window buttons.
+    ImGui::SameLine(ImGui::GetWindowWidth() - buttonWidth * 3.0f);
+
+    DrawWindowButton("##win_minimize", WindowButton::Minimize, barHeight, buttonWidth);
+    ImGui::SameLine(0.0f, 0.0f);
+    DrawWindowButton("##win_maximize", WindowButton::Maximize, barHeight, buttonWidth);
+    ImGui::SameLine(0.0f, 0.0f);
+    DrawWindowButton("##win_close", WindowButton::Close, barHeight, buttonWidth);
+}
+
+void EditorToolbar::DrawWindowButton(const char* inId, WindowButton inButton, float inHeight, float inWidth)
+{
+    const ImVec2 pos = ImGui::GetCursorScreenPos();
+    ImGui::InvisibleButton(inId, ImVec2(inWidth, inHeight));
+    const bool hovered = ImGui::IsItemHovered();
+    const bool held = ImGui::IsItemActive();
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    if (hovered)
+    {
+        ImU32 bg;
+        if (inButton == WindowButton::Close)
+            bg = held ? IM_COL32(0xB3, 0x0F, 0x18, 255) : IM_COL32(0xE8, 0x11, 0x23, 255);
+        else
+            bg = held ? IM_COL32(0x3B, 0x3E, 0x45, 255) : IM_COL32(0x31, 0x34, 0x3A, 255);
+        drawList->AddRectFilled(pos, ImVec2(pos.x + inWidth, pos.y + inHeight), bg);
+    }
+
+    const ImU32 fg = (hovered && inButton == WindowButton::Close)
+        ? IM_COL32(255, 255, 255, 255)
+        : IM_COL32(0xDC, 0xDE, 0xE3, 255);
+
+    const float cx = pos.x + inWidth * 0.5f;
+    const float cy = pos.y + inHeight * 0.5f;
+    const float s = ImGui::GetFontSize() * 0.30f;          // glyph half-size
+    float th = ImGui::GetFontSize() * 0.07f;               // glyph stroke thickness
+    if (th < 1.0f)
+        th = 1.0f;
+
+    switch (inButton)
+    {
+    case WindowButton::Minimize:
+        drawList->AddLine(ImVec2(cx - s, cy), ImVec2(cx + s, cy), fg, th);
+        break;
+    case WindowButton::Maximize:
+        if (WindowHandler::IsWindowMaximized())
+        {
+            const float o = s * 0.35f; // restore: two offset squares
+            drawList->AddRect(ImVec2(cx - s + o, cy - s - o), ImVec2(cx + s + o, cy + s - o), fg, 0.0f, 0, th);
+            drawList->AddRect(ImVec2(cx - s - o, cy - s + o), ImVec2(cx + s - o, cy + s + o), fg, 0.0f, 0, th);
+        }
+        else
+        {
+            drawList->AddRect(ImVec2(cx - s, cy - s), ImVec2(cx + s, cy + s), fg, 0.0f, 0, th);
+        }
+        break;
+    case WindowButton::Close:
+        drawList->AddLine(ImVec2(cx - s, cy - s), ImVec2(cx + s, cy + s), fg, th);
+        drawList->AddLine(ImVec2(cx - s, cy + s), ImVec2(cx + s, cy - s), fg, th);
+        break;
+    }
+
+    if (ImGui::IsItemClicked())
+    {
+        switch (inButton)
+        {
+        case WindowButton::Minimize: WindowHandler::Minimize(); break;
+        case WindowButton::Maximize: WindowHandler::ToggleMaximize(); break;
+        case WindowButton::Close:    WindowHandler::RequestClose(); break;
+        }
+    }
+}
+
+void EditorToolbar::UpdateDragRegion()
+{
+    // Tell the Win32 layer which part of the bar is empty (and therefore draggable).
+    const ImGuiIO& io = ImGui::GetIO();
+    const ImVec2 winPos = ImGui::GetWindowPos();
+    const float width = ImGui::GetWindowWidth();
+    const float barHeight = ImGui::GetFrameHeight();
+
+    const bool inBar =
+        io.MousePos.x >= winPos.x && io.MousePos.x < winPos.x + width &&
+        io.MousePos.y >= winPos.y && io.MousePos.y < winPos.y + barHeight;
+
+    const bool overDrag = inBar && !ImGui::IsAnyItemHovered() && !ImGui::IsAnyItemActive();
+
+    WindowHandler::SetTitleBarHeight(static_cast<int>(barHeight));
+    WindowHandler::SetTitleBarDragHovered(overDrag);
 }
 
 void EditorToolbar::AddToolbarButton(const std::string& inPath, const Delegate<void()>& inCallback)

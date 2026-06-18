@@ -7,6 +7,8 @@
 #include "Engine/Engine.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
 #include "Engine/Reflection/ReflectionSystem.h"
+#include "Engine/Vulkan/VulkanImGui.h"
+#include "Engine/Windows/WindowHandler.h"
 #include "Engine/World/GameWorld.h"
 #include "ImGui/ImGuiPropertyDrawer.h"
 #include "Toolbar/Themes/EditorThemes.h"
@@ -24,6 +26,10 @@ Editor::Editor()
     AddEditorWindows();
 
     EditorThemes::DefaultTheme();
+
+    // Go borderless so the editor draws its own Rider-style title bar (menus +
+    // window controls live in the menu bar). The game build keeps OS chrome.
+    WindowHandler::EnableCustomTitleBar(true);
 
     Engine::SetWorld(AssetRegistry::Get()->CreateNewAsset<EditorWorld>(World::EmptyWorldPath));
 }
@@ -53,7 +59,9 @@ void Editor::Tick()
 {
     // TODO: This should probably be removed whenever we implement play in editor.
     check(myGameTickFunction.IsValid());
-    
+
+    HandleZoomShortcuts();
+
     BeginMainDockSpace();
 
     for (const auto& window : myWindows)
@@ -67,6 +75,24 @@ void Editor::Tick()
     }
 
     ImGui::End();
+}
+
+void Editor::HandleZoomShortcuts()
+{
+    // Ctrl + '=' / '-' zooms the whole UI; Ctrl + '0' resets to 100%. Like an IDE.
+    const ImGuiIO& io = ImGui::GetIO();
+    if (!io.KeyCtrl)
+        return;
+
+    const float step = 0.1f;
+    const float user = VulkanImGui::GetUserScale();
+
+    if (ImGui::IsKeyPressed(ImGuiKey_Equal, false) || ImGui::IsKeyPressed(ImGuiKey_KeypadAdd, false))
+        VulkanImGui::RequestUserScale(user + step);
+    else if (ImGui::IsKeyPressed(ImGuiKey_Minus, false) || ImGui::IsKeyPressed(ImGuiKey_KeypadSubtract, false))
+        VulkanImGui::RequestUserScale(user - step);
+    else if (ImGui::IsKeyPressed(ImGuiKey_0, false) || ImGui::IsKeyPressed(ImGuiKey_Keypad0, false))
+        VulkanImGui::RequestUserScale(1.0f);
 }
 
 void Editor::RemoveWindow(EditorWindow* inEditorWindow, const bool inIsShutdown)
