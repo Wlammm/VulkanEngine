@@ -24,17 +24,19 @@ namespace
         return static_cast<float>(inSeed & 0xFFFFFFu) / static_cast<float>(0x1000000u);
     }
 
+    float Clamp01(float inValue)
+    {
+        return inValue < 0.0f ? 0.0f : (inValue > 1.0f ? 1.0f : inValue);
+    }
+
     uint PackColorRGBA8(const glm::vec3& inColor)
     {
         auto to8 = [](float inValue) -> uint
         {
-            const float clamped = inValue < 0.0f ? 0.0f : (inValue > 1.0f ? 1.0f : inValue);
-            return static_cast<uint>(clamped * 255.0f + 0.5f);
+            return static_cast<uint>(Clamp01(inValue) * 255.0f + 0.5f);
         };
         return to8(inColor.r) | (to8(inColor.g) << 8) | (to8(inColor.b) << 16) | (255u << 24);
     }
-
-    constexpr float fieldSize = 6000.0f; // world-space extent the foliage field covers
 }
 
 FoliageSystem::FoliageSystem() = default;
@@ -53,7 +55,7 @@ void FoliageSystem::Init()
 {
     CreateBuffers();
     CreateFoliageTypes();
-    GenerateInstances();
+    RegenerateInstances();
 }
 
 void FoliageSystem::CreateBuffers()
@@ -102,30 +104,50 @@ void FoliageSystem::CreateFoliageTypes()
     // Three visually distinct demo types: short dense grass, taller sparser ferns,
     // and small sparse flowers. They differ by mesh size, tint and density. Real
     // materials are assigned per type once the editor/asset work lands.
+    auto initType = [](FoliageType& inType, float inDefaultDensity)
+    {
+        inType.myDensityMap.Resize(FoliageSystem::myDensityRes * FoliageSystem::myDensityRes);
+        for (int i = 0; i < inType.myDensityMap.size(); ++i)
+            inType.myDensityMap[i] = inDefaultDensity;
+    };
+
     {
         FoliageType& grass = myTypes.Emplace();
+        grass.myName = "Grass";
         grass.myTint = { 0.22f, 0.55f, 0.16f };
         grass.myMinScale = 60.0f;
         grass.myMaxScale = 120.0f;
-        grass.myInstancesPerAxis = 48;
+        grass.myDensityMultiplier = 1.0f;
+        initType(grass, 0.45f);
         CreateCrossQuadMesh(0.6f, 1.0f, grass);
     }
     {
         FoliageType& fern = myTypes.Emplace();
+        fern.myName = "Fern";
         fern.myTint = { 0.14f, 0.40f, 0.22f };
         fern.myMinScale = 150.0f;
         fern.myMaxScale = 260.0f;
-        fern.myInstancesPerAxis = 26;
+        fern.myDensityMultiplier = 0.5f;
+        initType(fern, 0.25f);
         CreateCrossQuadMesh(1.2f, 1.4f, fern);
     }
     {
         FoliageType& flower = myTypes.Emplace();
+        flower.myName = "Flower";
         flower.myTint = { 0.85f, 0.35f, 0.65f };
         flower.myMinScale = 50.0f;
         flower.myMaxScale = 90.0f;
-        flower.myInstancesPerAxis = 18;
+        flower.myDensityMultiplier = 0.3f;
+        initType(flower, 0.2f);
         CreateCrossQuadMesh(0.5f, 0.8f, flower);
     }
+}
+
+glm::vec2 FoliageSystem::CellToWorld(int inCellX, int inCellZ) const
+{
+    const float u = (static_cast<float>(inCellX) + 0.5f) / static_cast<float>(myDensityRes);
+    const float v = (static_cast<float>(inCellZ) + 0.5f) / static_cast<float>(myDensityRes);
+    return { (u - 0.5f) * myFieldSize, (v - 0.5f) * myFieldSize };
 }
 
 void FoliageSystem::CreateCrossQuadMesh(float inWidth, float inHeight, FoliageType& outType)
@@ -191,42 +213,128 @@ void FoliageSystem::CreateCrossQuadMesh(float inWidth, float inHeight, FoliageTy
     outType.myMesh = Engine::GetEngineSystem<MeshSystem>().UploadMesh(outType.myVertexBuffer, outType.myIndexBuffer, sphereBounds);
 }
 
-void FoliageSystem::GenerateInstances()
+void FoliageSystem::PaintDensity(int inTypeIndex, const glm::vec2& inWorldXZ, float inWorldRadius, float inStrength, bool inAdditive)
+{
+    if (inTypeIndex < 0 || inTypeIndex >= myTypes.size() || inWorldRadius <= 0.0f)
+        return;
+
+    FoliageType& type = myTypes[inTypeIndex];
+    const float cellSize = myFieldSize / static_cast<float>(myDensityRes);
+    const int radiusCells = static_cast<int>(inWorldRadius / cellSize) + 1;
+
+    const float cu = inWorldXZ.x / myFieldSize + 0.5f;
+    const float cv = inWorldXZ.y / myFieldSize + 0.5f;
+    const int centerX = static_cast<int>(std::floor(cu * myDensityRes));
+    const int centerZ = static_cast<int>(std::floor(cv * myDensityRes));
+
+    const float sign = inAdditive ? 1.0f : -1.0f;
+
+    for (int cz = centerZ - radiusCells; cz <= centerZ + radiusCells; ++cz)
+    {
+        if (cz < 0 || cz >= myDensityRes)
+            continue;
+
+        for (int cx = centerX - radiusCells; cx <= centerX + radiusCells; ++cx)
+        {
+            if (cx < 0 || cx >= myDensityRes)
+                continue;
+
+            const glm::vec2 cellWorld = CellToWorld(cx, cz);
+            const float dist = glm::length(cellWorld - inWorldXZ);
+            if (dist > inWorldRadius)
+                continue;
+
+            const float falloff = 1.0f - dist / inWorldRadius;
+            const int idx = cz * myDensityRes + cx;
+            type.myDensityMap[idx] = Clamp01(type.myDensityMap[idx] + sign * inStrength * falloff);
+        }
+    }
+}
+
+bool FoliageSystem::RaycastHeightfield(const glm::vec3& inOrigin, const glm::vec3& inDirection, glm::vec3& outHitPos) const
+{
+    const glm::vec3 dir = glm::normalize(inDirection);
+
+    constexpr float maxDistance = 100000.0f;
+    constexpr float step = 100.0f;
+
+    glm::vec3 prevP = inOrigin;
+    float prevDiff = inOrigin.y - myHeightfield.GetHeight({ inOrigin.x, inOrigin.z });
+
+    for (float t = step; t <= maxDistance; t += step)
+    {
+        const glm::vec3 p = inOrigin + dir * t;
+        const float diff = p.y - myHeightfield.GetHeight({ p.x, p.z });
+
+        if (prevDiff > 0.0f && diff <= 0.0f)
+        {
+            // Refine the crossing between prevP (above) and p (below) with a binary search.
+            glm::vec3 a = prevP;
+            glm::vec3 b = p;
+            for (int i = 0; i < 16; ++i)
+            {
+                const glm::vec3 mid = (a + b) * 0.5f;
+                const float midDiff = mid.y - myHeightfield.GetHeight({ mid.x, mid.z });
+                if (midDiff > 0.0f)
+                    a = mid;
+                else
+                    b = mid;
+            }
+            outHitPos = (a + b) * 0.5f;
+            return true;
+        }
+
+        prevP = p;
+        prevDiff = diff;
+    }
+
+    return false;
+}
+
+void FoliageSystem::RegenerateInstances()
 {
     List<FoliageInstanceData> instances;
     instances.Reserve(myCapacity);
 
-    for (int typeIndex = 0; typeIndex < myTypes.size(); ++typeIndex)
+    bool full = false;
+
+    for (int typeIndex = 0; typeIndex < myTypes.size() && !full; ++typeIndex)
     {
         const FoliageType& type = myTypes[typeIndex];
         if (!type.myMesh)
             continue;
 
-        const int side = type.myInstancesPerAxis;
         const uint tintPacked = PackColorRGBA8(type.myTint);
         const uint meshHandle = type.myMesh->GetHandle();
-        const uint typeSeed = static_cast<uint>(typeIndex) * 9176u;
+        const uint typeSeed = static_cast<uint>(typeIndex) * 0x9E3779B1u;
+        const float cellSize = myFieldSize / static_cast<float>(myDensityRes);
 
-        for (int z = 0; z < side; ++z)
+        for (int cz = 0; cz < myDensityRes && !full; ++cz)
         {
-            for (int x = 0; x < side; ++x)
+            for (int cx = 0; cx < myDensityRes; ++cx)
             {
                 if (instances.size() >= static_cast<int>(myCapacity))
+                {
+                    full = true;
                     break;
+                }
 
-                const uint seed = typeSeed + static_cast<uint>(z * side + x);
-                const float cellU = side > 1 ? static_cast<float>(x) / static_cast<float>(side - 1) : 0.5f;
-                const float cellV = side > 1 ? static_cast<float>(z) / static_cast<float>(side - 1) : 0.5f;
-                const float jitter = fieldSize / static_cast<float>(side) * 0.4f;
+                const int cellIdx = cz * myDensityRes + cx;
+                const float probability = type.myDensityMap[cellIdx] * type.myDensityMultiplier;
+                const uint seed = typeSeed + static_cast<uint>(cellIdx);
+
+                if (Hash01(seed) >= probability)
+                    continue;
+
+                const glm::vec2 cellWorld = CellToWorld(cx, cz);
+                const float px = cellWorld.x + (Hash01(seed * 3u + 0u) - 0.5f) * cellSize;
+                const float pz = cellWorld.y + (Hash01(seed * 3u + 1u) - 0.5f) * cellSize;
+                const float py = myHeightfield.GetHeight({ px, pz });
 
                 FoliageInstanceData instance{};
-                instance.myPosition = {
-                    (cellU - 0.5f) * fieldSize + (Hash01(seed * 3u + 0u) - 0.5f) * 2.0f * jitter,
-                    0.0f,
-                    (cellV - 0.5f) * fieldSize + (Hash01(seed * 3u + 1u) - 0.5f) * 2.0f * jitter,
-                };
+                instance.myPosition = { px, py, pz };
                 instance.myScale = type.myMinScale + Hash01(seed * 3u + 2u) * (type.myMaxScale - type.myMinScale);
-                instance.myRotationY = Hash01(seed) * 6.28318530718f;
+                instance.myRotationY = Hash01(seed * 7u) * 6.28318530718f;
                 instance.myMeshIndex = meshHandle;
                 instance.myTintPacked = tintPacked;
                 instances.Add(instance);
