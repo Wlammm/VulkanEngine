@@ -7,7 +7,7 @@
 NoDepthPass::NoDepthPass()
 : GraphicsPass("Shaders/MainVS.hlsl", "Shaders/MainPS.hlsl")
 {
-    
+    RegisterShadingBinIndirectBuffers();
 }
 
 void NoDepthPass::SetupAttachments()

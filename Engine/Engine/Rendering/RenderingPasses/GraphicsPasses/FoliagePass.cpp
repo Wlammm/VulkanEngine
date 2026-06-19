@@ -9,6 +9,11 @@
 FoliagePass::FoliagePass()
     : GraphicsPass("Shaders/FoliageVS.hlsl", "Shaders/FoliagePS.hlsl", false, false)
 {
+    // The cull pass writes these via storage access; declaring them here lets the
+    // RenderGraph insert the indirect-read barrier automatically each frame.
+    FoliageSystem& foliageSystem = Engine::GetEngineSystem<FoliageSystem>();
+    RegisterIndirectDrawBuffer(foliageSystem.GetIndirectBuffer());
+    RegisterIndirectDrawBuffer(foliageSystem.GetCountBuffer());
 }
 
 void FoliagePass::SetupAttachments()
@@ -16,16 +21,6 @@ void FoliagePass::SetupAttachments()
     AddColorAttachment(RenderSystem::Get()->myRenderTexture, vk::ImageLayout::eColorAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore, RenderSystem::Get()->GetResolvedRenderTexture());
 
     AddDepthAttachment(RenderSystem::Get()->myDepthBuffer, vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::AttachmentLoadOp::eLoad, vk::AttachmentStoreOp::eStore, RenderSystem::Get()->GetResolvedDepthTexture());
-}
-
-void FoliagePass::PreExecute()
-{
-    GraphicsPass::PreExecute();
-
-    // The cull pass wrote these via storage access; transition them for indirect-draw reads.
-    FoliageSystem& foliageSystem = Engine::GetEngineSystem<FoliageSystem>();
-    RegisterDynamicBufferUsage(foliageSystem.GetIndirectBuffer(), vk::PipelineStageFlagBits::eDrawIndirect, vk::AccessFlagBits::eIndirectCommandRead);
-    RegisterDynamicBufferUsage(foliageSystem.GetCountBuffer(), vk::PipelineStageFlagBits::eDrawIndirect, vk::AccessFlagBits::eIndirectCommandRead);
 }
 
 void FoliagePass::DrawCall(vk::CommandBuffer inCommandBuffer)

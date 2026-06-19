@@ -356,13 +356,23 @@ void GraphicsPass::DrawFromShadingBin(vk::CommandBuffer inCommandBuffer, const E
     header.myElementsPerBin = maxNumDraws;
     inCommandBuffer.pushConstants(myPipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(ShadingBinHeader), &header);
     
+    // vk::DrawIndexedIndirectCommand is not reflected, so resolve the indirect buffer by
+    // its alias rather than GetBuffer<T>() (which would resolve ambiguously by null type).
+    IGPUBuffer* indirectBuffer = GPUResourceManager::Get()->TryGetBufferByAlias("DrawIndexedIndirectCommand");
+
     inCommandBuffer.drawIndexedIndirectCount(
-        GPUResourceManager::Get()->GetBuffer<vk::DrawIndexedIndirectCommand>()->GetBuffer()->GetAPIResource(), 
+        indirectBuffer->GetBuffer()->GetAPIResource(),
         maxNumDraws * inShadingBin * sizeof(vk::DrawIndexedIndirectCommand),
-        RenderSystem::Get()->myCountBuffer->GetAPIResource(), 
+        RenderSystem::Get()->myCountBuffer->GetAPIResource(),
         inShadingBin * 4,
         maxNumDraws,
         sizeof(vk::DrawIndexedIndirectCommand));
+}
+
+void GraphicsPass::RegisterShadingBinIndirectBuffers()
+{
+    RegisterIndirectDrawBuffer(GPUResourceManager::Get()->TryGetBufferByAlias("DrawIndexedIndirectCommand"));
+    RegisterIndirectDrawBuffer(RenderSystem::Get()->myCountBuffer);
 }
 
 void GraphicsPass::RegisterAttachmentUsage(VulkanImage* inImage, vk::PipelineStageFlags inPipelineStageFlags,

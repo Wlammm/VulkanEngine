@@ -7,6 +7,7 @@
 MainPass::MainPass()
     : GraphicsPass("Shaders/MainVS.hlsl", "Shaders/MainPS.hlsl")
 {
+    RegisterShadingBinIndirectBuffers();
 }
 
 void MainPass::SetupAttachments()

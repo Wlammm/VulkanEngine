@@ -8,6 +8,5 @@ public:
     FoliagePass();
 
     void SetupAttachments() override;
-    void PreExecute() override;
     void DrawCall(vk::CommandBuffer inCommandBuffer) override;
 };

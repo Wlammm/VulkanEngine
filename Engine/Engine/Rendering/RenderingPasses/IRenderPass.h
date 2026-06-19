@@ -5,6 +5,7 @@
 
 class Shader;
 class VulkanImage;
+class IGPUBuffer;
 
 class IRenderPass
 {
@@ -25,6 +26,11 @@ public:
     {
         return myDynamicResourceUsages;
     }
+
+    // Barrier usages for buffers this pass consumes as indirect-draw command/count
+    // sources. Rebuilt each frame from the registered buffers so that resize-recreated
+    // buffers resolve to their current VulkanBuffer.
+    List<ResourceUsage> GetIndirectDrawUsages() const;
     
     void BindBuffer(
         class IGPUBuffer* inBuffer, 
@@ -61,6 +67,11 @@ protected:
     
     void RegisterDynamicImageUsage(VulkanImage* inImage, vk::PipelineStageFlags inStageFlags, vk::AccessFlags inAccess, vk::ImageLayout inLayout);
     void RegisterDynamicBufferUsage(VulkanBuffer* inBuffer, vk::PipelineStageFlagBits inStageFlags, vk::AccessFlags inAccess);
+
+    // Declare (once, during pass setup) a buffer this pass reads as an indirect-draw
+    // source. The RenderGraph then inserts the indirect-read barrier automatically each
+    // frame — there is no need to register it as a dynamic usage per frame.
+    void RegisterIndirectDrawBuffer(IGPUBuffer* inBuffer);
     
 protected:
     VulkanDescriptorSet myDescriptorSet;
@@ -74,6 +85,7 @@ private:
     };
 
     List<ResourceUsage> myDynamicResourceUsages;
-    
+    List<IGPUBuffer*> myIndirectDrawBuffers;
+
     RenderGraph* myRenderGraph = nullptr;
 };

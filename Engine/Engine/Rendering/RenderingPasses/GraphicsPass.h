@@ -74,6 +74,11 @@ public:
     
     
     void DrawFromShadingBin(vk::CommandBuffer inCommandBuffer, const EShadingBin inShadingBin);
+
+    // Declares the global shading-bin indirect command + count buffers as this pass's
+    // indirect-draw source so the RenderGraph barriers them after the cull pass. Call
+    // once from the constructor of any pass that uses DrawFromShadingBin.
+    void RegisterShadingBinIndirectBuffers();
     
     void RegisterAttachmentUsage(VulkanImage* inImage, vk::PipelineStageFlags inPipelineStageFlags, vk::AccessFlags inAccessFlags, vk::ImageLayout inLayout);
     
