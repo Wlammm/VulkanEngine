@@ -274,6 +274,27 @@ void VulkanContext::CreateInstance()
 		.setEnabledLayerCount(static_cast<uint32_t>(myLayers.size()))
 		.setPpEnabledLayerNames(myLayers.data());
 
+	// Diagnostic: opt-in GPU-Assisted Validation. Standard validation cannot see the parameters of a
+	// GPU-computed indirect draw (firstIndex/indexCount/vertexOffset come from IndirectCullingCS), so a
+	// bad MeshData slot causing an out-of-bounds index/vertex fetch (the DMA page fault) is invisible to
+	// it. GPU-AV instruments the draws/shaders and reports the exact offending access through the normal
+	// debug messenger. Enable by launching with -gpuav (requires the validation layer, i.e. DEBUG).
+	std::vector<vk::ValidationFeatureEnableEXT> enabledValidationFeatures;
+#ifdef DEBUG
+	if (Engine::GetEngineProperties().HasStartupArgument("-gpuav"))
+	{
+		enabledValidationFeatures.push_back(vk::ValidationFeatureEnableEXT::eGpuAssisted);
+		enabledValidationFeatures.push_back(vk::ValidationFeatureEnableEXT::eGpuAssistedReserveBindingSlot);
+		LOG_WARNING("GPU-Assisted Validation enabled (-gpuav). Expect a large performance cost; this is a diagnostic mode.");
+	}
+#endif
+	vk::ValidationFeaturesEXT validationFeatures{};
+	if (!enabledValidationFeatures.empty())
+	{
+		validationFeatures.setEnabledValidationFeatures(enabledValidationFeatures);
+		instInfo.setPNext(&validationFeatures);
+	}
+
 	myVulkanInstance = vk::createInstance(instInfo);
 	LOG("Vulkan instance created successfully.");
 }
@@ -292,7 +313,9 @@ void VulkanContext::CreateDebugLayer()
 		vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose);
 
 	vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
-		//vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+		// eGeneral is enabled so GPU-Assisted Validation / debug-printf output (reported as General) is
+		// captured in the log — needed to see GPU-side out-of-bounds reports when diagnosing with -gpuav.
+		vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
 		vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
 		vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
 

@@ -60,6 +60,18 @@ void LandscapeRenderComponent::OnRenderStateDirty()
     
     MeshInstanceData data{ GetTransform().GetMatrix(), myMesh->GetHandle() };
 
+    // [Diag] Log the exact GPU draw-arg chain the cull shader will build for this landscape mesh.
+    // If these values are sane (non-zero vertexOffset, indexCount ~= (chunkSize-1)^2*6) but it still
+    // renders as the slot-0 sphere or page-faults, the CPU bookkeeping is correct and the corruption is
+    // GPU-side (upload ordering / buffer resize / lifetime). If vertexOffset==0 or indexCount looks wrong,
+    // it's a CPU-side handle/allocator bug. Correlate the frame number with any "Resizing buffer" logs.
+    {
+        const uint vertexOffset = Engine::GetEngineSystem<VertexBufferSystem>().GetVertexOffsetFromVertexHandle(myVertexBuffer);
+        const IndexBufferData indexData = Engine::GetEngineSystem<IndexBufferSystem>().GetIndexBufferDataFromIndexHandle(myIndexBuffer);
+        LOG("[LandscapeDiag] frame=%i meshHandle=%u vertexOffset=%u firstIndex=%u indexCount=%u",
+            Engine::GetFrameIndex(), myMesh->GetHandle(), vertexOffset, indexData.myOffset, indexData.myCount);
+    }
+
     if(myMaterial)
     {
         if (myMaterial->GetAlbedo())
