@@ -3,6 +3,29 @@
 // Distance the shadow rays are offsetted from the normal to prevent self intersection.
 static float ShadowBias = 1;
 
+// normalize() of a zero-length or NaN vector returns NaN. Feeding a NaN/Inf ray origin or direction
+// into a ray query is undefined behaviour and crashes the GPU (device loss), reported by GPU-Assisted
+// Validation as VUID-RuntimeSpirv-OpRayQueryInitializeKHR-06351 and seen as an Error_DMA_PageFault.
+// These helpers keep ray inputs finite so a degenerate normal / world position degrades gracefully
+// (no shadow) instead of taking down the device.
+float3 SafeNormalize(float3 inVector, float3 inFallback)
+{
+    float lengthSquared = dot(inVector, inVector);
+    // NaN fails the comparison too (NaN > x is always false), so this also catches NaN inputs.
+    return lengthSquared > 1e-12f ? inVector * rsqrt(lengthSquared) : inFallback;
+}
+
+bool IsFinite(float inValue)
+{
+    // Avoids relying on isnan/isinf (which fast-math may fold away): clamp(NaN/Inf) != original value.
+    return clamp(inValue, -3.402823466e+38f, 3.402823466e+38f) == inValue;
+}
+
+bool IsFinite(float3 inVector)
+{
+    return IsFinite(inVector.x) && IsFinite(inVector.y) && IsFinite(inVector.z);
+}
+
 float DistributionGGX(float3 N, float3 H, float roughness)
 {
     float a      = roughness;
@@ -102,15 +125,20 @@ float3 CalculatePointLight(float3 inLightPosition, float3 inLightColor, float in
     float NdotL = max(dot(N, L), 0.0);
     
     RayDesc shadowRay;
-    shadowRay.Origin    = inFragWorldPos + normalize(N) * ShadowBias;
-    shadowRay.Direction = normalize(lightDirection);
+    shadowRay.Origin    = inFragWorldPos + SafeNormalize(N, float3(0, 1, 0)) * ShadowBias;
+    shadowRay.Direction = SafeNormalize(lightDirection, float3(0, 1, 0));
     shadowRay.TMin      = 0.001;
     shadowRay.TMax      = length(inLightPosition - inFragWorldPos);
-    
-    RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER | RAY_FLAG_FORCE_OPAQUE> q;
-    q.TraceRayInline(inTLAS, 0, 0xFF, shadowRay);
-    q.Proceed();
-    float shadow = (q.CommittedStatus() == COMMITTED_TRIANGLE_HIT) ? 0.0 : 1.0;
+
+    // Only trace with finite inputs — a NaN origin/direction here is what crashed the GPU.
+    float shadow = 1.0;
+    if (IsFinite(shadowRay.Origin) && IsFinite(shadowRay.Direction) && shadowRay.TMax > shadowRay.TMin)
+    {
+        RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER | RAY_FLAG_FORCE_OPAQUE> q;
+        q.TraceRayInline(inTLAS, 0, 0xFF, shadowRay);
+        q.Proceed();
+        shadow = (q.CommittedStatus() == COMMITTED_TRIANGLE_HIT) ? 0.0 : 1.0;
+    }
 
     return (kD * inAlbedo / PI + specular) * radiance * NdotL * shadow;
 }
@@ -146,15 +174,20 @@ float3 CalculateDirectionalLight(float3 inLightDirection, float3 inLightColor, f
 
     // Shadow ray: offset origin along normal to avoid self-intersection
     RayDesc shadowRay;
-    shadowRay.Origin    = inFragWorldPos + normalize(vertexNormal) * ShadowBias;
-    shadowRay.Direction = normalize(inLightDirection);
+    shadowRay.Origin    = inFragWorldPos + SafeNormalize(vertexNormal, float3(0, 1, 0)) * ShadowBias;
+    shadowRay.Direction = SafeNormalize(inLightDirection, float3(0, 1, 0));
     shadowRay.TMin      = 0.001;
     shadowRay.TMax      = 10000.0;
-    
-    RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER | RAY_FLAG_FORCE_OPAQUE> q;
-    q.TraceRayInline(inTLAS, 0, 0xFF, shadowRay);
-    q.Proceed();
-    float shadow = (q.CommittedStatus() == COMMITTED_TRIANGLE_HIT) ? 0.0 : 1.0;
+
+    // Only trace with finite inputs — a NaN origin/direction crashes the GPU (device loss).
+    float shadow = 1.0;
+    if (IsFinite(shadowRay.Origin) && IsFinite(shadowRay.Direction))
+    {
+        RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_CLOSEST_HIT_SHADER | RAY_FLAG_FORCE_OPAQUE> q;
+        q.TraceRayInline(inTLAS, 0, 0xFF, shadowRay);
+        q.Proceed();
+        shadow = (q.CommittedStatus() == COMMITTED_TRIANGLE_HIT) ? 0.0 : 1.0;
+    }
 
     return inLightColor * (kD * inAlbedo / PI + specular) * NdotL * shadow;
 }
