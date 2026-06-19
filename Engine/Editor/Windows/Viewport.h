@@ -23,7 +23,10 @@ public:
 	void TickInput() override;
 
 	glm::vec2 GetNormalizedMousePositionInViewport() const;
-	
+
+	// True when the OS cursor is over the rendered viewport image (not other panels).
+	bool IsMouseOverViewport() const;
+
 	const ImVec2& GetViewportPos() const;
 	const ImVec2& GetViewportSize() const;
 

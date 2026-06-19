@@ -1,8 +1,39 @@
 # Foliage Rendering — Design Plan
 
-Status: **In progress** (Phase 1)
+Status: **In progress** (Phase 1 done; multiple types added)
 Owner: rendering
 Last updated: 2026-06-19
+
+## Progress log
+
+- **Phase 1 (done, verified rendering):** self-contained GPU-driven path —
+  compact instance pool → `FoliageCullPass` (compute) builds indirect commands →
+  `FoliagePass` indirect draw. Indirect-draw buffers are barriered automatically
+  via `IRenderPass::RegisterIndirectDrawBuffer` (no manual dynamic usages).
+- **Multiple foliage types (done):** `FoliageType` (mesh + density + scale range +
+  tint) drives a per-type scatter into the shared instance pool. The renderer is
+  already heterogeneous (each instance carries its own mesh + material indices), so
+  N types render in one indirect multi-draw. Per-type tint flows instance → cull →
+  per-draw → PS. Shaders are material-ready (albedo/normal indices reserved) but
+  shading is tint + directional/ambient for now; real `.mat` assignment lands with
+  the editor/asset work.
+- **Terrain + density placement (done):** `FoliageSystem` owns a procedural
+  `Heightfield`; per-type density maps drive CPU generation with terrain-conforming
+  Y. Placement is CPU-side (density map + heightfield → instances); rendering stays
+  GPU-driven. (GPU scatter via storage images isn't supported by the descriptor
+  system and is deferred as a streaming optimization.)
+- **Editor painting (done):** `FoliagePaintWindow` (settings) + `FoliagePaintTool`
+  (EditorSystem) — raycasts the heightfield under the cursor, paints the active
+  type's density map (LMB paint / Shift erase), throttled regenerate, fill/clear,
+  brush cursor ring.
+- **GPU culling + scalability (done):** `FoliageCullCS` does frustum culling
+  (planes from `proj*view`), distance culling vs `maxDrawDistance`, and
+  distance-based density fade. A `FoliageScalabilitySettings` cbuffer
+  (`globalMaxDistanceScale`, `globalDensityScale`, max/fade distances) is tunable
+  live from the editor.
+- **Next:** LOD mesh-swap (needs a per-type LOD-mesh GPU table + instance typeIndex);
+  real `.mat` materials per type; `.foliage` asset + serialization; GPU scatter for
+  streaming large worlds.
 
 ## Goal
 
