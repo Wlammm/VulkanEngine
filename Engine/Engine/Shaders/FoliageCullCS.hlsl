@@ -59,5 +59,5 @@ void CSMain(uint3 dispatchThreadID : SV_DispatchThreadID)
     outFoliagePerDrawData[renderIndex].myAlbedoIndex    = instance.myAlbedoIndex;
     outFoliagePerDrawData[renderIndex].myNormalIndex    = instance.myNormalIndex;
     outFoliagePerDrawData[renderIndex].myMaterialIndex  = instance.myMaterialIndex;
-    outFoliagePerDrawData[renderIndex].myPadding        = 0;
+    outFoliagePerDrawData[renderIndex].myTintPacked     = instance.myTintPacked;
 }

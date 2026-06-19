@@ -11,6 +11,32 @@
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
 
+namespace
+{
+    // Deterministic per-instance pseudo-random in [0,1).
+    float Hash01(uint inSeed)
+    {
+        inSeed = (inSeed ^ 61u) ^ (inSeed >> 16);
+        inSeed *= 9u;
+        inSeed = inSeed ^ (inSeed >> 4);
+        inSeed *= 0x27d4eb2du;
+        inSeed = inSeed ^ (inSeed >> 15);
+        return static_cast<float>(inSeed & 0xFFFFFFu) / static_cast<float>(0x1000000u);
+    }
+
+    uint PackColorRGBA8(const glm::vec3& inColor)
+    {
+        auto to8 = [](float inValue) -> uint
+        {
+            const float clamped = inValue < 0.0f ? 0.0f : (inValue > 1.0f ? 1.0f : inValue);
+            return static_cast<uint>(clamped * 255.0f + 0.5f);
+        };
+        return to8(inColor.r) | (to8(inColor.g) << 8) | (to8(inColor.b) << 16) | (255u << 24);
+    }
+
+    constexpr float fieldSize = 6000.0f; // world-space extent the foliage field covers
+}
+
 FoliageSystem::FoliageSystem() = default;
 
 FoliageSystem::~FoliageSystem()
@@ -26,8 +52,8 @@ FoliageSystem::~FoliageSystem()
 void FoliageSystem::Init()
 {
     CreateBuffers();
-    CreateFoliageMesh();
-    GenerateTestInstances();
+    CreateFoliageTypes();
+    GenerateInstances();
 }
 
 void FoliageSystem::CreateBuffers()
@@ -64,31 +90,62 @@ void FoliageSystem::CreateBuffers()
         VMA_MEMORY_USAGE_AUTO);
     resourceManager->RegisterBuffer(myCountBuffer, {"outFoliageCountBuffer"});
 
-    // Per-draw payload (world matrix + material indices) produced by cull, read by the foliage VS/PS.
+    // Per-draw payload (world matrix + material indices + tint) produced by cull, read by the foliage VS/PS.
     myPerDrawBuffer = VulkanAllocator::AllocateBuffer_TS("Foliage PerDraw Buffer",
         VulkanBuffer::StorageBufferCreateInfo(sizeof(FoliagePerDrawData) * myCapacity),
         VMA_MEMORY_USAGE_AUTO);
     resourceManager->RegisterBuffer(myPerDrawBuffer, {"FoliagePerDrawData", "outFoliagePerDrawData"});
 }
 
-void FoliageSystem::CreateFoliageMesh()
+void FoliageSystem::CreateFoliageTypes()
 {
-    // A "grass" cross: two perpendicular vertical quads, made double-sided so the
-    // foliage shows regardless of the pass's front-face cull mode.
+    // Three visually distinct demo types: short dense grass, taller sparser ferns,
+    // and small sparse flowers. They differ by mesh size, tint and density. Real
+    // materials are assigned per type once the editor/asset work lands.
+    {
+        FoliageType& grass = myTypes.Emplace();
+        grass.myTint = { 0.22f, 0.55f, 0.16f };
+        grass.myMinScale = 60.0f;
+        grass.myMaxScale = 120.0f;
+        grass.myInstancesPerAxis = 48;
+        CreateCrossQuadMesh(0.6f, 1.0f, grass);
+    }
+    {
+        FoliageType& fern = myTypes.Emplace();
+        fern.myTint = { 0.14f, 0.40f, 0.22f };
+        fern.myMinScale = 150.0f;
+        fern.myMaxScale = 260.0f;
+        fern.myInstancesPerAxis = 26;
+        CreateCrossQuadMesh(1.2f, 1.4f, fern);
+    }
+    {
+        FoliageType& flower = myTypes.Emplace();
+        flower.myTint = { 0.85f, 0.35f, 0.65f };
+        flower.myMinScale = 50.0f;
+        flower.myMaxScale = 90.0f;
+        flower.myInstancesPerAxis = 18;
+        CreateCrossQuadMesh(0.5f, 0.8f, flower);
+    }
+}
+
+void FoliageSystem::CreateCrossQuadMesh(float inWidth, float inHeight, FoliageType& outType)
+{
     List<Vertex> vertices;
     List<uint> indices;
+
+    const float halfWidth = inWidth * 0.5f;
 
     auto addQuad = [&](const glm::vec3& inRight, const glm::vec3& inNormal)
     {
         const uint base = static_cast<uint>(vertices.size());
-        const glm::vec3 up = { 0.0f, 1.0f, 0.0f };
+        const glm::vec3 up = { 0.0f, inHeight, 0.0f };
 
-        // 0:bottom-left 1:bottom-right 2:top-right 3:top-left, height 0..1.
+        // 0:bottom-left 1:bottom-right 2:top-right 3:top-left.
         const glm::vec3 corners[4] = {
-            -0.5f * inRight,
-             0.5f * inRight,
-             0.5f * inRight + up,
-            -0.5f * inRight + up,
+            -halfWidth * inRight,
+             halfWidth * inRight,
+             halfWidth * inRight + up,
+            -halfWidth * inRight + up,
         };
         const glm::vec2 uvs[4] = { {0, 1}, {1, 1}, {1, 0}, {0, 0} };
 
@@ -99,7 +156,7 @@ void FoliageSystem::CreateFoliageMesh()
             vertex.myColor = 0;
             vertex.myNormal = inNormal;
             vertex.myTangents = inRight;
-            vertex.myBinormals = up;
+            vertex.myBinormals = { 0.0f, 1.0f, 0.0f };
             vertex.myTexCoords[0] = uvs[i];
             vertex.myTexCoords[1] = uvs[i];
             vertices.Add(vertex);
@@ -124,61 +181,67 @@ void FoliageSystem::CreateFoliageMesh()
     VulkanBuffer* stagingIndexBuffer = VulkanAllocator::AllocateBuffer_TS("VulkanBuffer-Staging", VulkanBuffer::StagingCreateInfo(indexSize), VMA_MEMORY_USAGE_AUTO, true);
     stagingIndexBuffer->SetData(indices.data(), indexSize);
 
-    myVertexBuffer = Engine::GetEngineSystem<VertexBufferSystem>().UploadVertexBuffer(stagingVertexBuffer, vertices.size());
+    outType.myVertexBuffer = Engine::GetEngineSystem<VertexBufferSystem>().UploadVertexBuffer(stagingVertexBuffer, vertices.size());
     VulkanAllocator::DestroyBuffer_TS(stagingVertexBuffer);
 
-    myIndexBuffer = Engine::GetEngineSystem<IndexBufferSystem>().UploadIndexBuffer(stagingIndexBuffer, indices.size());
+    outType.myIndexBuffer = Engine::GetEngineSystem<IndexBufferSystem>().UploadIndexBuffer(stagingIndexBuffer, indices.size());
     VulkanAllocator::DestroyBuffer_TS(stagingIndexBuffer);
 
     const glm::vec4 sphereBounds = MeshUtils::CalculateSphereBounds(vertices);
-    myMesh = Engine::GetEngineSystem<MeshSystem>().UploadMesh(myVertexBuffer, myIndexBuffer, sphereBounds);
+    outType.myMesh = Engine::GetEngineSystem<MeshSystem>().UploadMesh(outType.myVertexBuffer, outType.myIndexBuffer, sphereBounds);
 }
 
-void FoliageSystem::GenerateTestInstances()
+void FoliageSystem::GenerateInstances()
 {
-    // Deterministic per-instance pseudo-random in [0,1).
-    auto hash01 = [](uint inSeed) -> float
-    {
-        inSeed = (inSeed ^ 61u) ^ (inSeed >> 16);
-        inSeed *= 9u;
-        inSeed = inSeed ^ (inSeed >> 4);
-        inSeed *= 0x27d4eb2du;
-        inSeed = inSeed ^ (inSeed >> 15);
-        return static_cast<float>(inSeed & 0xFFFFFFu) / static_cast<float>(0x1000000u);
-    };
-
-    constexpr int gridSide = 60;          // 60x60 = 3600 instances (<= myCapacity)
-    constexpr float spacing = 100.0f;     // world units between instances
-    constexpr float jitter = 40.0f;       // random offset within a cell
-    const float halfExtent = (gridSide - 1) * spacing * 0.5f;
-
     List<FoliageInstanceData> instances;
-    instances.Reserve(gridSide * gridSide);
+    instances.Reserve(myCapacity);
 
-    for (int z = 0; z < gridSide; ++z)
+    for (int typeIndex = 0; typeIndex < myTypes.size(); ++typeIndex)
     {
-        for (int x = 0; x < gridSide; ++x)
-        {
-            const uint seed = static_cast<uint>(z * gridSide + x);
+        const FoliageType& type = myTypes[typeIndex];
+        if (!type.myMesh)
+            continue;
 
-            FoliageInstanceData instance{};
-            instance.myPosition = {
-                x * spacing - halfExtent + (hash01(seed * 3u + 0u) - 0.5f) * 2.0f * jitter,
-                0.0f,
-                z * spacing - halfExtent + (hash01(seed * 3u + 1u) - 0.5f) * 2.0f * jitter,
-            };
-            instance.myScale = 80.0f + hash01(seed * 3u + 2u) * 80.0f;        // 80..160 tall
-            instance.myRotationY = hash01(seed) * 6.28318530718f;             // 0..2pi yaw
-            instance.myMeshIndex = myMesh->GetHandle();
-            instances.Add(instance);
+        const int side = type.myInstancesPerAxis;
+        const uint tintPacked = PackColorRGBA8(type.myTint);
+        const uint meshHandle = type.myMesh->GetHandle();
+        const uint typeSeed = static_cast<uint>(typeIndex) * 9176u;
+
+        for (int z = 0; z < side; ++z)
+        {
+            for (int x = 0; x < side; ++x)
+            {
+                if (instances.size() >= static_cast<int>(myCapacity))
+                    break;
+
+                const uint seed = typeSeed + static_cast<uint>(z * side + x);
+                const float cellU = side > 1 ? static_cast<float>(x) / static_cast<float>(side - 1) : 0.5f;
+                const float cellV = side > 1 ? static_cast<float>(z) / static_cast<float>(side - 1) : 0.5f;
+                const float jitter = fieldSize / static_cast<float>(side) * 0.4f;
+
+                FoliageInstanceData instance{};
+                instance.myPosition = {
+                    (cellU - 0.5f) * fieldSize + (Hash01(seed * 3u + 0u) - 0.5f) * 2.0f * jitter,
+                    0.0f,
+                    (cellV - 0.5f) * fieldSize + (Hash01(seed * 3u + 1u) - 0.5f) * 2.0f * jitter,
+                };
+                instance.myScale = type.myMinScale + Hash01(seed * 3u + 2u) * (type.myMaxScale - type.myMinScale);
+                instance.myRotationY = Hash01(seed) * 6.28318530718f;
+                instance.myMeshIndex = meshHandle;
+                instance.myTintPacked = tintPacked;
+                instances.Add(instance);
+            }
         }
     }
 
     myNumInstances = static_cast<uint>(instances.size());
     check(myNumInstances <= myCapacity);
 
-    const uint instanceDataSize = myNumInstances * sizeof(FoliageInstanceData);
-    myInstanceBuffer->SetData(instances.data(), instanceDataSize);
+    if (myNumInstances > 0)
+    {
+        const uint instanceDataSize = myNumInstances * sizeof(FoliageInstanceData);
+        myInstanceBuffer->SetData(instances.data(), instanceDataSize);
+    }
 
     FoliageSceneHeader header{};
     header.myNumInstances = myNumInstances;

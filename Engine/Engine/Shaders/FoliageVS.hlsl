@@ -15,6 +15,8 @@ struct VSOutput
 {
     float4 outPosition : SV_Position;
     [[vk::location(0)]] float3 outNormal : NORMAL;
+    [[vk::location(1)]] float2 outTexCoord : TEXCOORD;
+    [[vk::location(2)]] int outDrawID : DRAWID;
 };
 
 [[vk::binding(0, 0)]] ConstantBuffer<CameraBuffer> inCameraBuffer : register(b0);
@@ -30,6 +32,8 @@ VSOutput VSMain(VSInput input, [[vk::builtin("DrawIndex")]] uint inDrawID : SV_I
 
     float3x3 toWorldRotation = (float3x3)drawData.myToWorld;
     output.outNormal = normalize(mul(toWorldRotation, input.inNormal));
+    output.outTexCoord = input.inTexCoords[0];
+    output.outDrawID = inDrawID;
 
     return output;
 }

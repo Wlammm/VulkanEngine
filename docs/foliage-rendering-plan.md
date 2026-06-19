@@ -1,8 +1,24 @@
 # Foliage Rendering — Design Plan
 
-Status: **In progress** (Phase 1)
+Status: **In progress** (Phase 1 done; multiple types added)
 Owner: rendering
 Last updated: 2026-06-19
+
+## Progress log
+
+- **Phase 1 (done, verified rendering):** self-contained GPU-driven path —
+  compact instance pool → `FoliageCullPass` (compute) builds indirect commands →
+  `FoliagePass` indirect draw. Indirect-draw buffers are barriered automatically
+  via `IRenderPass::RegisterIndirectDrawBuffer` (no manual dynamic usages).
+- **Multiple foliage types (done):** `FoliageType` (mesh + density + scale range +
+  tint) drives a per-type scatter into the shared instance pool. The renderer is
+  already heterogeneous (each instance carries its own mesh + material indices), so
+  N types render in one indirect multi-draw. Per-type tint flows instance → cull →
+  per-draw → PS. Shaders are material-ready (albedo/normal indices reserved) but
+  shading is tint + directional/ambient for now; real `.mat` assignment lands with
+  the editor/asset work.
+- **Next:** density-map scatter + heightfield placement → editor painting →
+  distance/frustum culling, LOD, scalability sliders.
 
 ## Goal
 

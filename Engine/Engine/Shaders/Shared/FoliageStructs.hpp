@@ -26,7 +26,7 @@ struct ALIGNAS(16) FoliageInstanceData
     ALIGNAS(4)  uint   myAlbedoIndex    DEFAULT_TO((uint)-1);
     ALIGNAS(4)  uint   myNormalIndex    DEFAULT_TO((uint)-1);
     ALIGNAS(4)  uint   myMaterialIndex  DEFAULT_TO((uint)-1);
-    ALIGNAS(4)  uint   myPadding        DEFAULT_TO(0);
+    ALIGNAS(4)  uint   myTintPacked     DEFAULT_TO(0xFFFFFFFF); // per-type tint, RGBA8
 };
 
 // Number of live foliage instances this frame, fed to the cull dispatch.
@@ -42,7 +42,7 @@ struct FoliagePerDrawData
     ALIGNAS(4) uint myAlbedoIndex;
     ALIGNAS(4) uint myNormalIndex;
     ALIGNAS(4) uint myMaterialIndex;
-    ALIGNAS(4) uint myPadding;
+    ALIGNAS(4) uint myTintPacked; // RGBA8
 };
 
 // Layout-identical to VkDrawIndexedIndirectCommand. Declared with a distinct name
