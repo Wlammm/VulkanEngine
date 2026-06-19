@@ -1,8 +1,8 @@
 #pragma once
 #include "System/System.h"
 #include "Containers/List.hpp"
+#include "Delegates/Delegate.hpp"
 
-#include <functional>
 #include <string>
 
 class Type;
@@ -19,8 +19,8 @@ struct ConsoleCommand
     const Type* myOwningType = nullptr;
     const Method* myMethod = nullptr;
 
-    // Native source. Empty for reflected commands.
-    std::function<void(const List<std::string>&)> myNativeCallback;
+    // Native source. Unbound for reflected commands.
+    Delegate<void(const List<std::string>&)> myNativeCallback;
 };
 
 // Drives the console / cheat command system.
@@ -48,7 +48,7 @@ public:
 
     // Registers a native (non-reflected) command.
     void RegisterCommand(const std::string& inName, const std::string& inHelp,
-        const std::function<void(const List<std::string>&)>& inCallback);
+        const Delegate<void(const List<std::string>&)>& inCallback);
 
     const ConsoleCommand* FindCommand(const std::string& inName) const;
     const List<ConsoleCommand>& GetCommands() const { return myCommands; }

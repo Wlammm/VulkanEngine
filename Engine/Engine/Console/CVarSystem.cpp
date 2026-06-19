@@ -138,7 +138,7 @@ void CVarSystem::RegisterBuiltInCommands()
 }
 
 void CVarSystem::RegisterCommand(const std::string& inName, const std::string& inHelp,
-    const std::function<void(const List<std::string>&)>& inCallback)
+    const Delegate<void(const List<std::string>&)>& inCallback)
 {
     if (FindCommand(inName))
     {
@@ -193,7 +193,7 @@ void CVarSystem::Execute(const std::string& inCommandLine)
         return;
     }
 
-    if (command->myNativeCallback)
+    if (command->myNativeCallback.IsValid())
     {
         command->myNativeCallback(args);
         return;
