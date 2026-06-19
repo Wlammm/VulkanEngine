@@ -49,6 +49,7 @@ FoliageSystem::~FoliageSystem()
     VulkanAllocator::DestroyBuffer_TS(myIndirectBuffer);
     VulkanAllocator::DestroyBuffer_TS(myCountBuffer);
     VulkanAllocator::DestroyBuffer_TS(myPerDrawBuffer);
+    VulkanAllocator::DestroyBuffer_TS(myScalabilityBuffer);
 }
 
 void FoliageSystem::Init()
@@ -97,6 +98,31 @@ void FoliageSystem::CreateBuffers()
         VulkanBuffer::StorageBufferCreateInfo(sizeof(FoliagePerDrawData) * myCapacity),
         VMA_MEMORY_USAGE_AUTO);
     resourceManager->RegisterBuffer(myPerDrawBuffer, {"FoliagePerDrawData", "outFoliagePerDrawData"});
+
+    // Runtime scalability knobs, read by the cull pass.
+    myScalabilityBuffer = VulkanAllocator::AllocateBuffer_TS("Foliage Scalability Buffer",
+        VulkanBuffer::UniformBufferCreateInfo(sizeof(FoliageScalabilitySettings)),
+        VMA_MEMORY_USAGE_AUTO);
+    resourceManager->RegisterBuffer(myScalabilityBuffer, {"FoliageScalabilitySettings", "inFoliageScalability"});
+    myScalabilityBuffer->SetData(&mySettings, sizeof(FoliageScalabilitySettings));
+}
+
+void FoliageSystem::SetTypeDensity(int inTypeIndex, float inValue)
+{
+    if (inTypeIndex < 0 || inTypeIndex >= myTypes.size())
+        return;
+
+    const float clamped = Clamp01(inValue);
+    List<float>& density = myTypes[inTypeIndex].myDensityMap;
+    for (int i = 0; i < density.size(); ++i)
+        density[i] = clamped;
+}
+
+void FoliageSystem::SetScalability(float inMaxDistanceScale, float inDensityScale)
+{
+    mySettings.myGlobalMaxDistanceScale = inMaxDistanceScale;
+    mySettings.myGlobalDensityScale = inDensityScale;
+    myScalabilityBuffer->SetData(&mySettings, sizeof(FoliageScalabilitySettings));
 }
 
 void FoliageSystem::CreateFoliageTypes()

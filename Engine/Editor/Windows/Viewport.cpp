@@ -292,8 +292,15 @@ glm::vec2 Viewport::GetNormalizedMousePositionInViewport() const
 	mousePos /= imageSize;
 
 	mousePos = glm::clamp(mousePos, glm::vec2(0, 0), glm::vec2(1, 1));
-	
+
 	return mousePos;
+}
+
+bool Viewport::IsMouseOverViewport() const
+{
+	const ImVec2 mousePos = ImGui::GetMousePos();
+	return mousePos.x >= myP0.x && mousePos.x <= myP1.x &&
+	       mousePos.y >= myP0.y && mousePos.y <= myP1.y;
 }
 
 void Viewport::TickEditorCamera()

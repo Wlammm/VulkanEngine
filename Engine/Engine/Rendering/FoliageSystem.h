@@ -70,8 +70,14 @@ public:
     // March a ray against the procedural heightfield. Returns false if it never hits.
     bool RaycastHeightfield(const glm::vec3& inOrigin, const glm::vec3& inDirection, glm::vec3& outHitPos) const;
 
+    // Fill one type's density map with a uniform value (used by the editor's fill/clear).
+    void SetTypeDensity(int inTypeIndex, float inValue);
+
     // Rebuild the instance pool from the current density maps + heightfield and upload it.
     void RegenerateInstances();
+
+    // Push runtime scalability knobs to the GPU cull pass.
+    void SetScalability(float inMaxDistanceScale, float inDensityScale);
 
 private:
     void CreateBuffers();
@@ -92,6 +98,9 @@ private:
     VulkanBuffer* myIndirectBuffer = nullptr;
     VulkanBuffer* myCountBuffer = nullptr;
     VulkanBuffer* myPerDrawBuffer = nullptr;
+    VulkanBuffer* myScalabilityBuffer = nullptr;
+
+    FoliageScalabilitySettings mySettings{};
 
     uint myNumInstances = 0;
 };

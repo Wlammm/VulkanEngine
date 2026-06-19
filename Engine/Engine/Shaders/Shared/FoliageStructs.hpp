@@ -35,6 +35,16 @@ struct ALIGNAS(16) FoliageSceneHeader
     ALIGNAS(4) uint myNumInstances DEFAULT_TO(0);
 };
 
+// Runtime scalability knobs read by the cull pass. All adjustable live with no
+// rebuild, since culling/density decisions are made per-frame on the GPU.
+struct ALIGNAS(16) FoliageScalabilitySettings
+{
+    ALIGNAS(4) float myGlobalMaxDistanceScale DEFAULT_TO(1.0f); // multiplies max + fade distances
+    ALIGNAS(4) float myGlobalDensityScale     DEFAULT_TO(1.0f); // 0..1 fraction of instances kept
+    ALIGNAS(4) float myMaxDrawDistance        DEFAULT_TO(14000.0f);
+    ALIGNAS(4) float myFadeStartDistance      DEFAULT_TO(7000.0f); // density thins from here to max
+};
+
 // Per-draw payload produced by the cull pass and consumed by the foliage VS/PS.
 struct FoliagePerDrawData
 {

@@ -17,8 +17,23 @@ Last updated: 2026-06-19
   per-draw → PS. Shaders are material-ready (albedo/normal indices reserved) but
   shading is tint + directional/ambient for now; real `.mat` assignment lands with
   the editor/asset work.
-- **Next:** density-map scatter + heightfield placement → editor painting →
-  distance/frustum culling, LOD, scalability sliders.
+- **Terrain + density placement (done):** `FoliageSystem` owns a procedural
+  `Heightfield`; per-type density maps drive CPU generation with terrain-conforming
+  Y. Placement is CPU-side (density map + heightfield → instances); rendering stays
+  GPU-driven. (GPU scatter via storage images isn't supported by the descriptor
+  system and is deferred as a streaming optimization.)
+- **Editor painting (done):** `FoliagePaintWindow` (settings) + `FoliagePaintTool`
+  (EditorSystem) — raycasts the heightfield under the cursor, paints the active
+  type's density map (LMB paint / Shift erase), throttled regenerate, fill/clear,
+  brush cursor ring.
+- **GPU culling + scalability (done):** `FoliageCullCS` does frustum culling
+  (planes from `proj*view`), distance culling vs `maxDrawDistance`, and
+  distance-based density fade. A `FoliageScalabilitySettings` cbuffer
+  (`globalMaxDistanceScale`, `globalDensityScale`, max/fade distances) is tunable
+  live from the editor.
+- **Next:** LOD mesh-swap (needs a per-type LOD-mesh GPU table + instance typeIndex);
+  real `.mat` materials per type; `.foliage` asset + serialization; GPU scatter for
+  streaming large worlds.
 
 ## Goal
 
