@@ -184,10 +184,21 @@ void LandscapeRenderComponent::CreateLandscapeMesh()
         }
     }
     
+    // glm::normalize of a zero-length or NaN vector yields NaN, which would be baked into the vertex
+    // buffer. The landscape has no material, so the shader uses this raw vertex normal directly, and a
+    // NaN normal produces a NaN PBR shadow-ray origin -> GPU device loss. Fall back to a valid vector
+    // for degenerate normals/tangents (flat or degenerate triangles, or vertices whose face normals
+    // cancel out).
+    auto SafeNormalize = [](const glm::vec3& inVector, const glm::vec3& inFallback)
+    {
+        const float lengthSquared = glm::dot(inVector, inVector);
+        return lengthSquared > 1e-12f ? inVector * glm::inversesqrt(lengthSquared) : inFallback;
+    };
+
     for(Vertex& vertex : vertices)
     {
-        vertex.myNormal = glm::normalize(vertex.myNormal);
-        vertex.myTangents = glm::normalize(vertex.myTangents);
+        vertex.myNormal = SafeNormalize(vertex.myNormal, glm::vec3(0.0f, 1.0f, 0.0f));
+        vertex.myTangents = SafeNormalize(vertex.myTangents, glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
     // Upload staging buffers.
