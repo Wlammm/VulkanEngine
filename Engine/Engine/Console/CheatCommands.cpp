@@ -1,8 +1,7 @@
 #include "EnginePch.h"
-#include "Console/CheatCommands.h"
+#include "Engine/Console/CheatCommands.h"
 
-#include "Core/Console.h"
-#include "Core/Time.h"
+#include "Engine/Core/Time.h"
 
 namespace
 {

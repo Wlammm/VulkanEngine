@@ -1,15 +1,12 @@
 #include "EnginePch.h"
-#include "Console/CVarSystem.h"
-
-#include "Engine.h"
-#include "Core/Console.h"
-#include "Reflection/ReflectionSystem.h"
-#include "Reflection/Type.h"
-#include "Reflection/Method.h"
-#include "Utils/String.hpp"
+#include "Engine/Console/CVarSystem.h"
+#include "Engine/Utils/String.hpp"
 
 #include <charconv>
 #include <vector>
+
+#include "Engine/Engine.h"
+#include "Engine/Reflection/ReflectionSystem.h"
 
 namespace
 {

@@ -1,9 +1,5 @@
 #pragma once
-#include "System/System.h"
-#include "Containers/List.hpp"
-#include "Delegates/Delegate.hpp"
-
-#include <string>
+#include "Engine/System/System.h"
 
 class Type;
 class Method;
