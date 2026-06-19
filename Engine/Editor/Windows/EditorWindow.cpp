@@ -12,6 +12,7 @@ void EditorWindow::DoTick()
 {
 	bool open = true;
 	const std::string name = myWindowName + "##" + std::to_string(myID);
+	ImGui::SetNextWindowSize(ImVec2(500, 500));
 	if(myIsClosable)
 		ImGui::Begin(name.c_str(), &open);
 	else

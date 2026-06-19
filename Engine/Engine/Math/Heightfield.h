@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <PerlinNoise.hpp>
+#include <../External/PerlinNoise/PerlinNoise.hpp>
 
 // This class is used for sampling height data on the landscape.
 class Heightfield
