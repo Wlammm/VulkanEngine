@@ -11,6 +11,10 @@ public:
 	void CreateOrthographic(const glm::vec2& inResolution, const float inNearPlane = 1.0f, const float inFarPlane = 100000.0f);
 	void CreatePerspective(const glm::vec2& inResolution, const float inFov = 90.0f, const float inNearPlane = 1.0f, const float inFarPlane = 100000.0f);
 
+	// Rebuilds the projection for a new render resolution, preserving the current fov/near/far and projection type.
+	void SetResolution(const glm::vec2& inResolution);
+	const glm::vec2& GetResolution() const;
+
 	void SetAsMainCamera();
 	
     bool ScreenToWorldPos(const glm::vec2& inNormalizedScreenPos, glm::vec3& outWorldPos) const;

@@ -61,7 +61,9 @@ void Viewport::Tick()
 {
 	UpdateCurrentTexture();
 	UpdateViewportImageSize();
+	UpdateCameraResolution();
 	DrawPIEHUD();
+	DrawViewportSettings();
 	HandleDragDrop();
 }
 
@@ -96,7 +98,10 @@ void Viewport::UpdateViewportImageSize()
 	constexpr ImVec2 viewportOffset = ImVec2(8, 18);
 
 	ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-	myViewportSize = ClampToAspectRatio(viewportPanelSize, ImVec2(16, 9));
+	if (myDisplayMode == DisplayMode::Fill)
+		myViewportSize = viewportPanelSize;
+	else
+		myViewportSize = ClampToAspectRatio(viewportPanelSize, ImVec2(16, 9));
 
 	myP0 = { (viewportPanelSize.x - myViewportSize.x) * 0.5f, (viewportPanelSize.y - myViewportSize.y) * 0.5f };
 
@@ -111,8 +116,59 @@ void Viewport::UpdateViewportImageSize()
 	myP0.y += windowPos.y;
 
 	myP1 = { myP0.x + myViewportSize.x, myP0.y + myViewportSize.y };
-	
+
 	Editor::GetSystem<GuizmoSystem>()->DrawGuizmo();
+}
+
+void Viewport::UpdateCameraResolution()
+{
+	// Keep the rendering camera's aspect ratio in sync with the actual displayed image so the
+	// scene isn't stretched. Without this the projection stays fixed at the resolution it was
+	// created with (the swap chain size), which rarely matches the viewport panel.
+	CameraComponent* mainCamera = Engine::GetWorld()->GetMainCamera();
+	if (!mainCamera)
+		return;
+
+	mainCamera->SetResolution({ myViewportSize.x, myViewportSize.y });
+}
+
+void Viewport::DrawViewportSettings()
+{
+	const float dpiScale = VulkanImGui::GetCurrentDpiScale();
+	const float padding = 8.0f * dpiScale;
+
+	// Anchor to the top-right corner of the rendered image.
+	ImVec2 hudPos;
+	hudPos.x = myP1.x - padding;
+	hudPos.y = myP0.y + padding;
+
+	ImGui::SetNextWindowPos(hudPos, ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+	ImGui::SetNextWindowBgAlpha(0.35f);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f * dpiScale);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+	ImGuiWindowFlags windowFlags =
+		ImGuiWindowFlags_NoDecoration |
+		ImGuiWindowFlags_NoDocking |
+		ImGuiWindowFlags_AlwaysAutoResize |
+		ImGuiWindowFlags_NoNav |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_NoFocusOnAppearing |
+		ImGuiWindowFlags_NoScrollbar;
+
+	ImGui::Begin("##ViewportSettings", nullptr, windowFlags);
+
+	const char* modeNames[] = { "16:9", "Fill" };
+	int modeIndex = static_cast<int>(myDisplayMode);
+	ImGui::SetNextItemWidth(60.0f * dpiScale);
+	if (ImGui::Combo("##ViewportMode", &modeIndex, modeNames, IM_ARRAYSIZE(modeNames)))
+		myDisplayMode = static_cast<DisplayMode>(modeIndex);
+
+	ImGui::End();
+
+	ImGui::PopStyleVar(2);
 }
 
 void Viewport::UpdateCaptureMouse()
