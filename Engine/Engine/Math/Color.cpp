@@ -32,6 +32,15 @@ LinearColor Color::ToLinearColor() const
     return {myR / 255.0f, myG / 255.0f, myB / 255.0f, myA / 255.0f};
 }
 
+int Color::ToPackedInt() const
+{
+    const uint32_t packed = static_cast<uint32_t>(myR)
+        | (static_cast<uint32_t>(myG) << 8)
+        | (static_cast<uint32_t>(myB) << 16)
+        | (static_cast<uint32_t>(myA) << 24);
+    return static_cast<int>(packed);
+}
+
 std::string Color::ToString() const
 {
     std::string val =

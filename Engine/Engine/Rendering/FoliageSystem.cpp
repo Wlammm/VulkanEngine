@@ -8,6 +8,8 @@
 #include "MeshUtils.h"
 #include "VertexBufferSystem.h"
 #include "Engine/Engine.h"
+#include "Engine/Math/Color.h"
+#include "Engine/Math/LinearColor.h"
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
 
@@ -29,13 +31,10 @@ namespace
         return inValue < 0.0f ? 0.0f : (inValue > 1.0f ? 1.0f : inValue);
     }
 
-    uint PackColorRGBA8(const glm::vec3& inColor)
+    uint PackTint(const glm::vec3& inColor)
     {
-        auto to8 = [](float inValue) -> uint
-        {
-            return static_cast<uint>(Clamp01(inValue) * 255.0f + 0.5f);
-        };
-        return to8(inColor.r) | (to8(inColor.g) << 8) | (to8(inColor.b) << 16) | (255u << 24);
+        const LinearColor linear(Clamp01(inColor.r), Clamp01(inColor.g), Clamp01(inColor.b), 1.0f);
+        return static_cast<uint>(linear.ToColor().ToPackedInt());
     }
 }
 
@@ -330,7 +329,7 @@ void FoliageSystem::RegenerateInstances()
         if (!type.myMesh)
             continue;
 
-        const uint tintPacked = PackColorRGBA8(type.myTint);
+        const uint tintPacked = PackTint(type.myTint);
         const uint meshHandle = type.myMesh->GetHandle();
         const uint typeSeed = static_cast<uint>(typeIndex) * 0x9E3779B1u;
         const float cellSize = myFieldSize / static_cast<float>(myDensityRes);

@@ -1,5 +1,6 @@
 #include "Shared/MeshStructs.hpp"
 #include "Shared/FoliageStructs.hpp"
+#include "Common.hlsli"
 
 struct PSInput
 {
@@ -11,14 +12,6 @@ struct PSInput
 [[vk::binding(1, 0)]] StructuredBuffer<FoliagePerDrawData> inFoliagePerDrawData;
 [[vk::binding(2, 0)]] ConstantBuffer<DirectionalLightBuffer> inDirectionalLightBuffer : register(b2);
 
-float3 UnpackColorRGBA8(uint inPacked)
-{
-    float r = float(inPacked & 0xFF);
-    float g = float((inPacked >> 8) & 0xFF);
-    float b = float((inPacked >> 16) & 0xFF);
-    return float3(r, g, b) / 255.0;
-}
-
 // Phase 2 shading: per-type tint with simple directional + ambient lighting.
 // Material/texture sampling slots (myAlbedoIndex/myNormalIndex) are reserved on the
 // per-draw data and wired up when foliage types gain real materials.
@@ -26,7 +19,7 @@ float4 PSMain(PSInput input) : SV_Target
 {
     FoliagePerDrawData drawData = inFoliagePerDrawData[input.inDrawID];
 
-    float3 baseColor = UnpackColorRGBA8(drawData.myTintPacked);
+    float3 baseColor = LinearColorFromColor((int)drawData.myTintPacked).rgb;
 
     float3 normal = normalize(input.inNormal);
     float3 lightDir = normalize(-inDirectionalLightBuffer.myDirection);

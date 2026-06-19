@@ -11,6 +11,10 @@ public:
 
     LinearColor ToLinearColor() const;
 
+    // RGBA8 packed into an int (R in the low byte), matching the HLSL
+    // LinearColorFromColor() unpack and Vertex::myColor convention.
+    int ToPackedInt() const;
+
     std::string ToString() const;
 
     static Color White();
