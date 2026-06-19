@@ -41,6 +41,26 @@ void CameraComponent::CreatePerspective(const glm::vec2& inResolution, const flo
     myIsOrthographic = false;
 }
 
+void CameraComponent::SetResolution(const glm::vec2& inResolution)
+{
+    // Guard against degenerate sizes (e.g. a collapsed viewport) which would produce a NaN aspect ratio.
+    if (inResolution.x <= 0.0f || inResolution.y <= 0.0f)
+        return;
+
+    if (inResolution == myResolution)
+        return;
+
+    if (myIsOrthographic)
+        CreateOrthographic(inResolution, myNearPlane, myFarPlane);
+    else
+        CreatePerspective(inResolution, myFov, myNearPlane, myFarPlane);
+}
+
+const glm::vec2& CameraComponent::GetResolution() const
+{
+    return myResolution;
+}
+
 void CameraComponent::SetAsMainCamera()
 {
     GetWorld()->SetMainCamera(this);

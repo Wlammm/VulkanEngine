@@ -9,6 +9,13 @@ class EditorCameraMovementComponent;
 class Viewport : public EditorWindow
 {
 public:
+	// How the rendered image is fit inside the viewport panel.
+	enum class DisplayMode
+	{
+		AspectRatio16x9,	// Letterboxed to a fixed 16:9 aspect ratio.
+		Fill,				// Fills the entire viewport panel.
+	};
+
 	Viewport();
 	~Viewport();
 
@@ -31,9 +38,11 @@ private:
 
 	void UpdateCurrentTexture();
 	void UpdateViewportImageSize();
+	void UpdateCameraResolution();
 	void UpdateCaptureMouse();
 
 	void DrawPIEHUD();
+	void DrawViewportSettings();
 	void HandleDragDrop();
 
 	ImVec2 ClampToAspectRatio(const ImVec2& inSize, const ImVec2& inAspectRatio) const;
@@ -54,9 +63,11 @@ private:
 	List<vk::DescriptorSet> myDescriptorSets;
 	vk::Sampler mySampler;
 	
+	DisplayMode myDisplayMode = DisplayMode::AspectRatio16x9;
+
 	// image size
 	ImVec2 myP0;
 	ImVec2 myP1;
-	
+
 	ImVec2 myViewportSize;
 };
