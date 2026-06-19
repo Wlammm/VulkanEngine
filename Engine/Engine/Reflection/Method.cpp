@@ -66,6 +66,17 @@ List<std::string> Method::GetMetadataArgs(const std::string& inMetadata) const
     return {};
 }
 
+const List<MethodArgument>& Method::GetArguments() const
+{
+    return myArguments;
+}
+
+void* Method::InvokeRaw(void* inInstance, const List<void*>& inArguments) const
+{
+    check(myInvoker.IsValid());
+    return myInvoker(inInstance, inArguments);
+}
+
 Method::Method(const std::string& inMethodName, const Type* inReturnType, const Delegate<void*(void*, const List<void*>&)>& inInvoker, const List<MethodArgument>& inArguments)
 {
     myMethodName = inMethodName;

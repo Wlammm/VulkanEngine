@@ -10,6 +10,7 @@
 
 #include "World/World.h"
 #include "AssetRegistry/AssetRegistry.h"
+#include "Console/CVarSystem.h"
 #include "AssetRegistry/AssetUtils.h"
 #include "Core/ThreadPool.h"
 #include "Core/Filewatcher.h"
@@ -216,6 +217,7 @@ void Engine::SetExternalTickFunction(const std::function<void()> inExternalTickF
 
 void Engine::CreateSystems()
 {
+	mySystemManager->AddSystem<CVarSystem>();
 	mySystemManager->AddSystem<AssetRegistry>();
 	mySystemManager->AddSystem<GPUResourceManager>();
 	mySystemManager->AddSystem<StagingSystem>();
