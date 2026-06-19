@@ -20,6 +20,7 @@
 #include "Core/AutoInitManager.h"
 #include "Physics/PhysicsSystem.h"
 #include "Rendering/GPUResourceManager.h"
+#include "Rendering/FoliageSystem.h"
 #include "Rendering/IndexBufferSystem.h"
 #include "Rendering/MeshSystem.h"
 #include "Rendering/RenderSystem.h"
@@ -227,6 +228,7 @@ void Engine::CreateSystems()
 	mySystemManager->AddSystem<IndexBufferSystem>();
 	mySystemManager->AddSystem<VertexBufferSystem>();
 	mySystemManager->AddSystem<PointLightSystem>();
+	mySystemManager->AddSystem<FoliageSystem>();
 	mySystemManager->AddSystem<RenderSystem>();
 
 	mySystemManager->InitAllSystems();

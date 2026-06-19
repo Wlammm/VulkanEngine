@@ -49,9 +49,16 @@ public:
     {
         const Type* type = ReflectionSystem::GetType<T>();
 
-        for (BufferResource& buffer : myBuffers)
+        // Reflected types must be unique so GetBuffer<T>() resolves unambiguously.
+        // Unreflected types resolve to nullptr and are looked up by alias instead, so
+        // several alias-only buffers may legitimately share a null type — skip the
+        // uniqueness check for them.
+        if (type != nullptr)
         {
-            check(buffer.myType != type);
+            for (BufferResource& buffer : myBuffers)
+            {
+                check(buffer.myType != type);
+            }
         }
 
         BufferResource& buffer = myBuffers.Emplace();

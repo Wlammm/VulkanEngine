@@ -4,6 +4,7 @@
 PrePass::PrePass()
     : GraphicsPass("Shaders/MainVS.hlsl", "")
 {
+    RegisterShadingBinIndirectBuffers();
 }
 
 void PrePass::SetupAttachments()

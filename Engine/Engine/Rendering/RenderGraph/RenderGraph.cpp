@@ -29,6 +29,7 @@ void RenderGraph::Execute(vk::CommandBuffer inCommandBuffer)
 
         InsertResourceBarriers(inCommandBuffer, pass->GetDescriptorSet().GetResourceUsages());
         InsertResourceBarriers(inCommandBuffer, pass->GetDynamicResourceUsages());
+        InsertResourceBarriers(inCommandBuffer, pass->GetIndirectDrawUsages());
 
         if (VulkanContext::IsAftermathEnabled())
         {

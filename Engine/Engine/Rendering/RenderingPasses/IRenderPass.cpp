@@ -3,6 +3,7 @@
 
 #include "Engine/Assets/Shader.h"
 #include "Engine/Rendering/GPUResourceManager.h"
+#include "Engine/Vulkan/Containers/IGPUBuffer.hpp"
 #include "Engine/Vulkan/VulkanUtils.hpp"
 
 void IRenderPass::BindBuffer(
@@ -200,4 +201,19 @@ void IRenderPass::RegisterDynamicBufferUsage(VulkanBuffer* inBuffer, vk::Pipelin
     vk::AccessFlags inAccess)
 {
     myDynamicResourceUsages.Emplace().SetToBuffer(inBuffer, inStageFlags, inAccess);
+}
+
+void IRenderPass::RegisterIndirectDrawBuffer(IGPUBuffer* inBuffer)
+{
+    myIndirectDrawBuffers.Add(inBuffer);
+}
+
+List<ResourceUsage> IRenderPass::GetIndirectDrawUsages() const
+{
+    List<ResourceUsage> usages;
+    for (IGPUBuffer* buffer : myIndirectDrawBuffers)
+    {
+        usages.Emplace().SetToBuffer(buffer->GetBuffer(), vk::PipelineStageFlagBits::eDrawIndirect, vk::AccessFlagBits::eIndirectCommandRead);
+    }
+    return usages;
 }
