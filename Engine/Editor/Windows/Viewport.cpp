@@ -210,16 +210,15 @@ void Viewport::UpdateCaptureMouse()
 void Viewport::DrawPIEHUD()
 {
 	const float dpiScale = VulkanImGui::GetCurrentDpiScale();
-	const float hudWidth = 80.0f * dpiScale;
-	const float hudHeight = 30.0f * dpiScale;
 	const float padding = 8.0f * dpiScale;
 
+	// Anchor to the top-center of the rendered image. Let the window auto-resize to its
+	// contents (set below) so the play/stop buttons are never clipped at any DPI/zoom.
 	ImVec2 hudPos;
-	hudPos.x = myP0.x + ((myP1.x - myP0.x) - hudWidth) * 0.5f;
+	hudPos.x = (myP0.x + myP1.x) * 0.5f;
 	hudPos.y = myP0.y + padding;
 
-	ImGui::SetNextWindowPos(hudPos, ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(hudWidth, hudHeight));
+	ImGui::SetNextWindowPos(hudPos, ImGuiCond_Always, ImVec2(0.5f, 0.0f));
 	ImGui::SetNextWindowBgAlpha(0.35f);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f * dpiScale);
@@ -242,11 +241,7 @@ void Viewport::DrawPIEHUD()
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1, 1, 1, 0.1f));
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1, 1, 1, 0.2f));
 
-	ImVec2 pos = ImGui::GetCursorPos();
-	pos.y -= 5.0f * dpiScale;
-	ImGui::SetCursorPos(pos);
-	
-	const float buttonSize = 20.f * VulkanImGui::GetCurrentDpiScale();
+	const float buttonSize = 20.f * dpiScale;
 	if (ImGui::ImageButton(myPlayButtonDescriptor, {buttonSize, buttonSize}))
 	{
 		if (!Editor::IsPIE())

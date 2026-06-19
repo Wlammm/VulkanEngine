@@ -21,7 +21,8 @@ HierarchyWindow::HierarchyWindow()
 
 void HierarchyWindow::Tick()
 {
-    ImGui::BeginChild("##HierarchySearchField", ImVec2(0, 20.f * VulkanImGui::GetCurrentDpiScale()), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    // Use the actual input frame height so the search field isn't clipped when DPI/zoom scaled.
+    ImGui::BeginChild("##HierarchySearchField", ImVec2(0, ImGui::GetFrameHeight()), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
     
     static std::string searchField = "";
     ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 0.5f);

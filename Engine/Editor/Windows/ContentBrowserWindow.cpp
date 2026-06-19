@@ -10,6 +10,7 @@
 #include "Engine/Assets/Texture.h"
 #include "Engine/Core/Input.h"
 #include "Engine/Core/Time.h"
+#include "Engine/Vulkan/VulkanImGui.h"
 
 ContentBrowserWindow::ContentBrowserWindow()
     : EditorWindow("Content Browser", true)
@@ -62,7 +63,9 @@ void ContentBrowserWindow::Tick()
     ImGui::SameLine();
 
     ImGui::BeginChild("##ContentBrowserNestled");
-    ImGui::BeginChild("##ContentBrowserControls", ImVec2(0, 25));
+    // Size the controls bar from the actual widget height so its contents (breadcrumbs,
+    // search field, texture-size slider) aren't clipped when the UI is DPI/zoom scaled.
+    ImGui::BeginChild("##ContentBrowserControls", ImVec2(0, ImGui::GetFrameHeightWithSpacing()));
 
     RenderBreadcrumbs();
 
@@ -158,12 +161,15 @@ void ContentBrowserWindow::RenderBreadcrumbs()
     bool backButtonEnabled = !myHistory.empty();
 	bool forwardButtonEnabled = !myForwardHistory.empty();
 
+	const float dpiScale = VulkanImGui::GetCurrentDpiScale();
+	const ImVec2 navButtonSize = ImVec2(20.0f * dpiScale, 20.0f * dpiScale);
+
 	if (!backButtonEnabled)
 	{
 		ImGui::BeginDisabled();
 	}
 
-	if (ImGui::Button("<", ImVec2(20, 20)))
+	if (ImGui::Button("<", navButtonSize))
 	{
 		if (!myHistory.empty())
 		{
@@ -186,7 +192,7 @@ void ContentBrowserWindow::RenderBreadcrumbs()
 		ImGui::BeginDisabled();
 	}
 
-	if (ImGui::Button(">", ImVec2(20, 20)))
+	if (ImGui::Button(">", navButtonSize))
 	{
 		if (!myForwardHistory.empty())
 		{
@@ -262,9 +268,13 @@ void ContentBrowserWindow::RenderBreadcrumbs()
 
 	ImGui::SameLine();
 
+	const float searchWidth = 300.0f * dpiScale;
+	const float sliderWidth = 150.0f * dpiScale;
+	const float controlSpacing = 10.0f * dpiScale;
+
 	std::string text;
-	ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 460.0f - 4.0f);
-	ImGui::SetNextItemWidth(300.0f);
+	ImGui::SetCursorPosX(ImGui::GetWindowWidth() - searchWidth - sliderWidth - controlSpacing - 4.0f);
+	ImGui::SetNextItemWidth(searchWidth);
 	if (ImGui::InputTextWithHint("##ContentBrowserSearchField", "Search", &mySearchString))
 	{
 		mySearchPaths.Clear();
@@ -293,8 +303,8 @@ void ContentBrowserWindow::RenderBreadcrumbs()
 
 	ImGui::SameLine();
 
-	ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 150.0f - 4.0f);
-	ImGui::SetNextItemWidth(150.0f);
+	ImGui::SetCursorPosX(ImGui::GetWindowWidth() - sliderWidth - 4.0f);
+	ImGui::SetNextItemWidth(sliderWidth);
 	if (ImGui::SliderFloat("##ContentBrowserTextureSize", &myTextureSize, myTextureSizeMin, myTextureSizeMax, "%.0f"))
 	{
 		myTextureSize = std::clamp(myTextureSize, myTextureSizeMin, myTextureSizeMax);
