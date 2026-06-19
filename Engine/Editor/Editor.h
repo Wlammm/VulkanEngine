@@ -63,6 +63,9 @@ private:
 
     void AddWindow(const Type* inWindowClass);
 
+    // Opens the console window if it is closed, closes it if it is open.
+    void ToggleConsoleWindow();
+
 private:
     List<class EditorWindow*> myWindows{};
     List<class EditorSystem*> mySystems{};

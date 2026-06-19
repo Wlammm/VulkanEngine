@@ -141,6 +141,9 @@ public:
 		LaunchApplication1 = 0xb6,
 		LaunchApplication2 = 0xb7,
 
+		// '§ ½' key below Escape on Nordic/ISO layouts (VK_OEM_5). Commonly used as a console toggle.
+		Section = 0xdc,
+
 		Play = 0xfa,
 		Zoom = 0xfb,
 	};

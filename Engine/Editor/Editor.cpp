@@ -6,10 +6,12 @@
 #include "EditorSystem/SelectionSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/AssetRegistry/AssetRegistry.h"
+#include "Engine/Core/Input.h"
 #include "Engine/Reflection/ReflectionSystem.h"
 #include "Engine/World/GameWorld.h"
 #include "ImGui/ImGuiPropertyDrawer.h"
 #include "Toolbar/Themes/EditorThemes.h"
+#include "Windows/ConsoleWindow.h"
 #include "Windows/EditorWindow.h"
 #include "World/EditorWorld.h"
 
@@ -53,7 +55,10 @@ void Editor::Tick()
 {
     // TODO: This should probably be removed whenever we implement play in editor.
     check(myGameTickFunction.IsValid());
-    
+
+    if (Input::IsKeyDown(KeyCode::Section))
+        ToggleConsoleWindow();
+
     BeginMainDockSpace();
 
     for (const auto& window : myWindows)
@@ -205,4 +210,12 @@ void Editor::AddWindow(const Type* inWindowClass)
     EditorWindow* window = inWindowClass->CreateInstance<EditorWindow>();
     window->myID = myNextID++;
     myWindows.Add(window);
+}
+
+void Editor::ToggleConsoleWindow()
+{
+    if (ConsoleWindow* console = GetWindow<ConsoleWindow>())
+        RemoveWindow(console);
+    else
+        OpenEditorWindow<ConsoleWindow>();
 }
