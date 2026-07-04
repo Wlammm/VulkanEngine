@@ -9,6 +9,7 @@
 #include "VulkanCommandBuffer.h"
 #include "Engine/Rendering/RenderSystem.h"
 #include "Engine/Utils/MathUtils.hpp"
+#include "Engine/Utils/ThreadUtils.hpp"
 
 ResizableBuffer::ResizableBuffer(VulkanBuffer* inBuffer)
 {
@@ -96,7 +97,19 @@ void ResizableBuffer::Resize(const uint inRequiredSize)
 	RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
 
     VulkanAllocator::DestroyBuffer_TS(oldBuffer);
-    OnBufferResized();
+
+    // OnBufferResized rebuilds VulkanDescriptorSets (allocate + update + swap of the set and its
+    // resource-usage list). Doing that from a worker thread (async model loads upload meshes off the
+    // main thread and can trigger a resize) races the main thread mid render-graph recording, which
+    // iterates those same lists and binds the set. Defer the notification to the pre-render
+    // main-thread tick instead. The frame in flight keeps rendering from the old buffer, which stays
+    // alive via frame-delayed destruction; listeners that die before the callback fires unbind
+    // themselves from this delegate in their destructor. Note this requires the ResizableBuffer
+    // itself to outlive the deferred call — GPU buffers that resize are engine-lifetime systems.
+    if (ThreadUtils::IsOnMainThread())
+        OnBufferResized();
+    else
+        Engine::TickNextFrame.Bind([this]() { OnBufferResized(); });
 }
 
 void ResizableBuffer::CheckCapacity(const uint inRequiredSize)

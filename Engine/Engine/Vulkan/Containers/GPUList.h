@@ -6,6 +6,7 @@
 #include "Engine/Delegates/MulticastDelegate.hpp"
 #include "Engine/Rendering/RenderSystem.h"
 #include "Engine/Utils/MathUtils.hpp"
+#include "Engine/Utils/ThreadUtils.hpp"
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
 #include "Engine/Vulkan/VulkanCommandBuffer.h"
@@ -73,9 +74,15 @@ public:
         VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
         vk::BufferCopy copy = vk::BufferCopy().setSize(sizeof(ElementType)).setSrcOffset(GetOffsetToIndex(mySize - 1)).setDstOffset(GetOffsetToIndex(inIndex));
         commandBuffer->GetAPIResource().copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
-        
+
+        // This self-copy READS the last element as well as writing the removed slot. The read must be
+        // declared: the barrier's dstAccessMask is built from these flags, and without eTransferRead a
+        // preceding queued write to the last element (e.g. the staged SetData that added it this frame)
+        // is not made visible to this copy's read. The copy then moves stale bytes into the surviving
+        // slot — an instance ends up with another instance's old data (mesh rendered with the wrong
+        // mesh index) until its next update.
         List<ResourceUsage> resourceUsages{};
-        resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+        resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead | vk::AccessFlagBits::eTransferWrite);
         
         RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
         
@@ -158,10 +165,18 @@ private:
         resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
         resourceUsages.Emplace().SetToBuffer(oldBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
         
-        // Queue uploads to render system and destroy old buffer. 
+        // Queue uploads to render system and destroy old buffer.
         RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
         VulkanAllocator::DestroyBuffer_TS(oldBuffer);
-        OnGPUBufferResized.Invoke();
+
+        // Same as ResizableBuffer::Resize: descriptor-set rebuilds triggered by this notification
+        // must not run on a worker thread while the main thread records the frame. Defer to the
+        // pre-render main-thread tick; the in-flight frame keeps using the old (frame-delay
+        // destroyed) buffer until then.
+        if (ThreadUtils::IsOnMainThread())
+            OnGPUBufferResized.Invoke();
+        else
+            Engine::TickNextFrame.Bind([this]() { OnGPUBufferResized.Invoke(); });
     }
     
     uint Size() const
