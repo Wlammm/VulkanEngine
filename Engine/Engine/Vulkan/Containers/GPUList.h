@@ -73,9 +73,15 @@ public:
         VulkanCommandBuffer* commandBuffer = RenderSystem::CreateUploadCommandBuffer_TS();
         vk::BufferCopy copy = vk::BufferCopy().setSize(sizeof(ElementType)).setSrcOffset(GetOffsetToIndex(mySize - 1)).setDstOffset(GetOffsetToIndex(inIndex));
         commandBuffer->GetAPIResource().copyBuffer(myBuffer->GetAPIResource(), myBuffer->GetAPIResource(), copy);
-        
+
+        // This self-copy READS the last element as well as writing the removed slot. The read must be
+        // declared: the barrier's dstAccessMask is built from these flags, and without eTransferRead a
+        // preceding queued write to the last element (e.g. the staged SetData that added it this frame)
+        // is not made visible to this copy's read. The copy then moves stale bytes into the surviving
+        // slot — an instance ends up with another instance's old data (mesh rendered with the wrong
+        // mesh index) until its next update.
         List<ResourceUsage> resourceUsages{};
-        resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+        resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead | vk::AccessFlagBits::eTransferWrite);
         
         RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
         
