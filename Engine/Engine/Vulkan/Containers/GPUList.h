@@ -6,6 +6,7 @@
 #include "Engine/Delegates/MulticastDelegate.hpp"
 #include "Engine/Rendering/RenderSystem.h"
 #include "Engine/Utils/MathUtils.hpp"
+#include "Engine/Utils/ThreadUtils.hpp"
 #include "Engine/Vulkan/VulkanAllocator.h"
 #include "Engine/Vulkan/VulkanBuffer.h"
 #include "Engine/Vulkan/VulkanCommandBuffer.h"
@@ -164,10 +165,18 @@ private:
         resourceUsages.Emplace().SetToBuffer(myBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
         resourceUsages.Emplace().SetToBuffer(oldBuffer, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
         
-        // Queue uploads to render system and destroy old buffer. 
+        // Queue uploads to render system and destroy old buffer.
         RenderSystem::QueueCommandBufferForUpload_TS(commandBuffer, resourceUsages);
         VulkanAllocator::DestroyBuffer_TS(oldBuffer);
-        OnGPUBufferResized.Invoke();
+
+        // Same as ResizableBuffer::Resize: descriptor-set rebuilds triggered by this notification
+        // must not run on a worker thread while the main thread records the frame. Defer to the
+        // pre-render main-thread tick; the in-flight frame keeps using the old (frame-delay
+        // destroyed) buffer until then.
+        if (ThreadUtils::IsOnMainThread())
+            OnGPUBufferResized.Invoke();
+        else
+            Engine::TickNextFrame.Bind([this]() { OnGPUBufferResized.Invoke(); });
     }
     
     uint Size() const
