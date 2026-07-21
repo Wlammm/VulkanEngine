@@ -1,38 +1,25 @@
-// GPU-driven foliage culling. One thread per instance: frustum + distance cull,
-// distance-based density fade, then (for survivors) reconstruct the world matrix and
-// emit an indirect draw command plus per-draw payload. Mirrors IndirectCullingCS.
+// GPU-driven foliage culling. One thread per instance: frustum + distance cull and
+// distance-based density fade, then (for survivors) pick a LOD by distance, derive a
+// compact per-blade record, and append it into that LOD's bin while bumping the bin's
+// indirect draw count. Blade geometry itself is generated procedurally in FoliageVS.
 // See docs/foliage-rendering-plan.md.
 #include "Shared/MeshStructs.hpp"
 #include "Shared/FoliageStructs.hpp"
 
 // -------------------- Input Buffers --------------------
 [[vk::binding(0)]] StructuredBuffer<FoliageInstanceData> inFoliageInstances;
-[[vk::binding(1)]] StructuredBuffer<MeshData> inMeshBuffer;
-[[vk::binding(2)]] StructuredBuffer<VertexBufferData> inVertexDataBuffer;
-[[vk::binding(3)]] StructuredBuffer<IndexBufferData> inIndexDataBuffer;
 
 // -------------------- Output Buffers --------------------
+// One indirect command per LOD bin (instanceCount accumulated here via InterlockedAdd).
 [[vk::binding(4)]] RWStructuredBuffer<FoliageDrawCommand> outFoliageIndirectBuffer;
-[[vk::binding(5)]] RWStructuredBuffer<uint> outFoliageCountBuffer;
-[[vk::binding(6)]] RWStructuredBuffer<FoliagePerDrawData> outFoliagePerDrawData;
+// Per-blade records, laid out as FOLIAGE_LOD_COUNT contiguous regions of myBinCapacity each.
+[[vk::binding(6)]] RWStructuredBuffer<FoliageBladeData> outFoliageBladeBuffer;
 
 [[vk::binding(7)]] ConstantBuffer<FoliageSceneHeader> inFoliageHeader : register(b0);
 [[vk::binding(8)]] ConstantBuffer<CameraBuffer> inCameraBuffer : register(b1);
 [[vk::binding(9)]] ConstantBuffer<FoliageScalabilitySettings> inFoliageScalability : register(b2);
 
-float4x4 BuildWorldMatrix(float3 inPosition, float inScale, float inYaw)
-{
-    float s = sin(inYaw);
-    float c = cos(inYaw);
-
-    return float4x4(
-        c * inScale, 0.0,     s * inScale, inPosition.x,
-        0.0,         inScale, 0.0,         inPosition.y,
-       -s * inScale, 0.0,     c * inScale, inPosition.z,
-        0.0,         0.0,     0.0,         1.0);
-}
-
-// Stable per-instance pseudo-random in [0,1), used for distance density fade.
+// Stable per-instance pseudo-random in [0,1), used for density fade and blade variation.
 float Hash01(uint inSeed)
 {
     inSeed ^= inSeed >> 16;
@@ -77,13 +64,13 @@ void CSMain(uint3 dispatchThreadID : SV_DispatchThreadID)
 
     FoliageInstanceData instance = inFoliageInstances[instanceIndex];
 
-    MeshData meshData = inMeshBuffer[instance.myMeshIndex];
+    // The per-instance scale is the blade height in world units.
+    float height = instance.myScale;
+    float3 rootPos = instance.myPosition;
 
-    // Conservative world-space bounding sphere (centre at the instance origin so we
-    // can ignore rotation): radius covers the model sphere offset + radius, scaled.
-    float modelRadius = length(meshData.myBoundingSphereModelSpace.xyz) + meshData.myBoundingSphereModelSpace.w;
-    float worldRadius = modelRadius * instance.myScale;
-    float3 worldCenter = instance.myPosition;
+    // Conservative bounding sphere around the blade (centre at mid-height).
+    float3 worldCenter = rootPos + float3(0.0, height * 0.5, 0.0);
+    float worldRadius = height;
 
     // Frustum cull.
     float4x4 viewProj = mul(inCameraBuffer.myProjection, inCameraBuffer.myToView);
@@ -104,22 +91,31 @@ void CSMain(uint3 dispatchThreadID : SV_DispatchThreadID)
     if (Hash01(instanceIndex * 2654435761u) > keepProbability)
         return;
 
-    // Survivor: emit the draw.
-    VertexBufferData vertexData = inVertexDataBuffer[meshData.myVertexIndex];
-    IndexBufferData indexData = inIndexDataBuffer[meshData.myIndexDataIndex];
+    // LOD select by distance as a fraction of the max draw distance (near -> LOD0).
+    float distFrac = distanceToCamera / max(maxDistance, 1.0);
+    uint lod = 0;
+    if (distFrac > 0.5)
+        lod = 2;
+    else if (distFrac > 0.2)
+        lod = 1;
 
-    uint renderIndex;
-    InterlockedAdd(outFoliageCountBuffer[0], 1, renderIndex);
+    // Per-blade randomised shaping so a field of identical instances still varies.
+    float r0 = Hash01(instanceIndex * 747796405u + 1u);
+    float r1 = Hash01(instanceIndex * 2891336453u + 2u);
 
-    outFoliageIndirectBuffer[renderIndex].indexCount    = indexData.myCount;
-    outFoliageIndirectBuffer[renderIndex].instanceCount = 1;
-    outFoliageIndirectBuffer[renderIndex].firstIndex    = indexData.myOffset;
-    outFoliageIndirectBuffer[renderIndex].vertexOffset  = (int)(vertexData.myByteOffset / VERTEX_STRIDE_BYTES);
-    outFoliageIndirectBuffer[renderIndex].firstInstance = 0;
+    FoliageBladeData blade;
+    blade.myRootPosition = rootPos;
+    blade.myHeight = height;
+    blade.myWidth = height * 0.08;
+    blade.myBend = height * (0.15 + 0.35 * r1);
+    blade.myYaw = instance.myRotationY + (r0 - 0.5) * 0.5;
+    blade.myTintPacked = instance.myTintPacked;
 
-    outFoliagePerDrawData[renderIndex].myToWorld        = BuildWorldMatrix(instance.myPosition, instance.myScale, instance.myRotationY);
-    outFoliagePerDrawData[renderIndex].myAlbedoIndex    = instance.myAlbedoIndex;
-    outFoliagePerDrawData[renderIndex].myNormalIndex    = instance.myNormalIndex;
-    outFoliagePerDrawData[renderIndex].myMaterialIndex  = instance.myMaterialIndex;
-    outFoliagePerDrawData[renderIndex].myTintPacked     = instance.myTintPacked;
+    // Append into this LOD's bin and bump its instanceCount.
+    uint slot;
+    InterlockedAdd(outFoliageIndirectBuffer[lod].instanceCount, 1, slot);
+    if (slot >= inFoliageHeader.myBinCapacity)
+        return; // bin full this frame, drop the blade
+
+    outFoliageBladeBuffer[lod * inFoliageHeader.myBinCapacity + slot] = blade;
 }

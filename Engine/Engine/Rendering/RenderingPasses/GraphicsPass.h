@@ -33,6 +33,7 @@ public:
     virtual List<vk::VertexInputBindingDescription>& GetVertexBindingDescriptor() const;
     virtual List<vk::VertexInputAttributeDescription>& GetVertexAttributeDescriptions() const;
     virtual vk::PrimitiveTopology GetPrimitiveTopology() const;
+    virtual vk::CullModeFlags GetCullMode() const;
     
     void Execute(vk::CommandBuffer inCommandBuffer) override;
     

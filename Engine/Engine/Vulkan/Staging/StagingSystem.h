@@ -22,8 +22,14 @@ private:
 private:
     struct BufferData
     {
-        VulkanBuffer* myBuffer = nullptr;
-        uint myOffset = 0;
+        // A constructor rather than default member initializers: the ReflectionGenerator's
+        // clang front-end rejects DMIs on a nested type used by the enclosing class's
+        // inline-static std::array below ("default member initializer needed ... outside of
+        // member functions"). MSVC accepts either; behaviour is identical (zero-init).
+        BufferData() : myBuffer(nullptr), myOffset(0) {}
+
+        VulkanBuffer* myBuffer;
+        uint myOffset;
     };
 
     // One more slot than FrameLag: an upload staged after this frame's upload drain

@@ -54,7 +54,6 @@ public:
     uint GetCapacity() const { return myCapacity; }
 
     VulkanBuffer* GetIndirectBuffer() const { return myIndirectBuffer; }
-    VulkanBuffer* GetCountBuffer() const { return myCountBuffer; }
 
     // ---- Editor-facing authoring API ----
     int GetTypeCount() const { return myTypes.size(); }
@@ -95,9 +94,8 @@ private:
 
     VulkanBuffer* myInstanceBuffer = nullptr;
     VulkanBuffer* myHeaderBuffer = nullptr;
-    VulkanBuffer* myIndirectBuffer = nullptr;
-    VulkanBuffer* myCountBuffer = nullptr;
-    VulkanBuffer* myPerDrawBuffer = nullptr;
+    VulkanBuffer* myIndirectBuffer = nullptr;   // FOLIAGE_LOD_COUNT indirect draw commands (one per LOD bin)
+    VulkanBuffer* myBladeBuffer = nullptr;      // FOLIAGE_LOD_COUNT * myCapacity blade records
     VulkanBuffer* myScalabilityBuffer = nullptr;
 
     FoliageScalabilitySettings mySettings{};

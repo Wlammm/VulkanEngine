@@ -57,6 +57,11 @@ vk::PrimitiveTopology GraphicsPass::GetPrimitiveTopology() const
     return vk::PrimitiveTopology::eTriangleList;
 }
 
+vk::CullModeFlags GraphicsPass::GetCullMode() const
+{
+    return vk::CullModeFlagBits::eFront;
+}
+
 void GraphicsPass::Execute(vk::CommandBuffer inCommandBuffer)
 {
     GPUMARK_SCOPE(inCommandBuffer, myPassName.c_str());
@@ -175,7 +180,7 @@ void GraphicsPass::CreateResources()
         .setDepthClampEnable(VK_FALSE)
         .setRasterizerDiscardEnable(VK_FALSE)
         .setPolygonMode(vk::PolygonMode::eFill)
-        .setCullMode(vk::CullModeFlagBits::eFront)
+        .setCullMode(GetCullMode())
         .setFrontFace(vk::FrontFace::eCounterClockwise)
         .setDepthBiasEnable(VK_FALSE)
         .setLineWidth(1.0f);

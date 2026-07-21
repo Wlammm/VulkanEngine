@@ -46,8 +46,7 @@ FoliageSystem::~FoliageSystem()
     VulkanAllocator::DestroyBuffer_TS(myInstanceBuffer);
     VulkanAllocator::DestroyBuffer_TS(myHeaderBuffer);
     VulkanAllocator::DestroyBuffer_TS(myIndirectBuffer);
-    VulkanAllocator::DestroyBuffer_TS(myCountBuffer);
-    VulkanAllocator::DestroyBuffer_TS(myPerDrawBuffer);
+    VulkanAllocator::DestroyBuffer_TS(myBladeBuffer);
     VulkanAllocator::DestroyBuffer_TS(myScalabilityBuffer);
 }
 
@@ -74,29 +73,23 @@ void FoliageSystem::CreateBuffers()
         VMA_MEMORY_USAGE_AUTO);
     resourceManager->RegisterBuffer(myHeaderBuffer, {"FoliageSceneHeader", "inFoliageHeader"});
 
-    // Indirect draw commands written by the cull pass, consumed by drawIndexedIndirectCount.
+    // One indirect draw command per LOD bin. The foliage pre-pass rewrites these each
+    // frame (fixed vertexCount, instanceCount reset to 0) via vkCmdUpdateBuffer; the cull
+    // pass accumulates instanceCount; FoliagePass issues one drawIndirect per bin.
     myIndirectBuffer = VulkanAllocator::AllocateBuffer_TS("Foliage Indirect Buffer",
         vk::BufferCreateInfo()
-            .setSize(sizeof(vk::DrawIndexedIndirectCommand) * myCapacity)
+            .setSize(sizeof(FoliageDrawCommand) * FOLIAGE_LOD_COUNT)
             .setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst)
             .setSharingMode(vk::SharingMode::eExclusive),
         VMA_MEMORY_USAGE_AUTO);
     resourceManager->RegisterBuffer(myIndirectBuffer, {"FoliageDrawCommand", "outFoliageIndirectBuffer"});
 
-    // Single uint draw counter. Cleared by the foliage pre-pass, incremented by the cull pass.
-    myCountBuffer = VulkanAllocator::AllocateBuffer_TS("Foliage Count Buffer",
-        vk::BufferCreateInfo()
-            .setSize(sizeof(uint))
-            .setUsage(vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst)
-            .setSharingMode(vk::SharingMode::eExclusive),
+    // Compact per-blade records produced by cull, read by the foliage VS. Partitioned into
+    // FOLIAGE_LOD_COUNT contiguous regions of myCapacity blades each (one per LOD bin).
+    myBladeBuffer = VulkanAllocator::AllocateBuffer_TS("Foliage Blade Buffer",
+        VulkanBuffer::StorageBufferCreateInfo(sizeof(FoliageBladeData) * FOLIAGE_LOD_COUNT * myCapacity),
         VMA_MEMORY_USAGE_AUTO);
-    resourceManager->RegisterBuffer(myCountBuffer, {"outFoliageCountBuffer"});
-
-    // Per-draw payload (world matrix + material indices + tint) produced by cull, read by the foliage VS/PS.
-    myPerDrawBuffer = VulkanAllocator::AllocateBuffer_TS("Foliage PerDraw Buffer",
-        VulkanBuffer::StorageBufferCreateInfo(sizeof(FoliagePerDrawData) * myCapacity),
-        VMA_MEMORY_USAGE_AUTO);
-    resourceManager->RegisterBuffer(myPerDrawBuffer, {"FoliagePerDrawData", "outFoliagePerDrawData"});
+    resourceManager->RegisterBuffer(myBladeBuffer, {"FoliageBladeData", "outFoliageBladeBuffer", "inFoliageBladeData"});
 
     // Runtime scalability knobs, read by the cull pass.
     myScalabilityBuffer = VulkanAllocator::AllocateBuffer_TS("Foliage Scalability Buffer",
@@ -378,5 +371,6 @@ void FoliageSystem::RegenerateInstances()
 
     FoliageSceneHeader header{};
     header.myNumInstances = myNumInstances;
+    header.myBinCapacity = myCapacity;
     myHeaderBuffer->SetData(&header, sizeof(FoliageSceneHeader));
 }

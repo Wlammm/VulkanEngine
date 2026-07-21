@@ -9,6 +9,19 @@
 #include "MeshStructs.hpp"
 #endif
 
+// -------------------- Blade LOD table --------------------
+// Grass blades are generated procedurally in the vertex shader (Ghost of Tsushima
+// style): the cull pass bins survivors by distance into FOLIAGE_LOD_COUNT levels of
+// detail, and each level draws blades with a fixed segment count. A blade with S
+// segments is a triangle strip of (2*S + 1) vertices (paired sides + a single tip).
+#if __cplusplus
+static constexpr uint FOLIAGE_LOD_COUNT = 3;
+static constexpr uint FOLIAGE_LOD_SEGMENTS[FOLIAGE_LOD_COUNT] = { 5u, 3u, 1u };
+#else
+static const uint FOLIAGE_LOD_COUNT = 3;
+static const uint FOLIAGE_LOD_SEGMENTS[FOLIAGE_LOD_COUNT] = { 5u, 3u, 1u };
+#endif
+
 /*
  * Compact per-instance foliage record. The full world matrix is reconstructed on
  * the GPU in the cull pass from position/scale/rotation, so this stays small
@@ -33,6 +46,7 @@ struct ALIGNAS(16) FoliageInstanceData
 struct ALIGNAS(16) FoliageSceneHeader
 {
     ALIGNAS(4) uint myNumInstances DEFAULT_TO(0);
+    ALIGNAS(4) uint myBinCapacity  DEFAULT_TO(0); // max blades per LOD bin (blade-buffer stride between bins)
 };
 
 // Runtime scalability knobs read by the cull pass. All adjustable live with no
@@ -45,25 +59,27 @@ struct ALIGNAS(16) FoliageScalabilitySettings
     ALIGNAS(4) float myFadeStartDistance      DEFAULT_TO(7000.0f); // density thins from here to max
 };
 
-// Per-draw payload produced by the cull pass and consumed by the foliage VS/PS.
-struct FoliagePerDrawData
+// Compact per-blade record produced by the cull pass, consumed by the foliage VS.
+// The VS reconstructs the full blade geometry (a quadratic Bezier) from these fields;
+// no world matrix is stored. 32 bytes.
+struct ALIGNAS(16) FoliageBladeData
 {
-    ALIGNAS(16) float4x4 myToWorld;
-    ALIGNAS(4) uint myAlbedoIndex;
-    ALIGNAS(4) uint myNormalIndex;
-    ALIGNAS(4) uint myMaterialIndex;
-    ALIGNAS(4) uint myTintPacked; // RGBA8
+    ALIGNAS(16) float3 myRootPosition DEFAULT_TO(float3(0, 0, 0)); // world-space blade base
+    ALIGNAS(4)  float  myHeight       DEFAULT_TO(1.0f);
+    ALIGNAS(4)  float  myWidth        DEFAULT_TO(0.1f);            // width at the base, tapers to the tip
+    ALIGNAS(4)  float  myBend         DEFAULT_TO(0.0f);            // forward bend distance of the tip
+    ALIGNAS(4)  float  myYaw          DEFAULT_TO(0.0f);            // facing / bend direction, radians
+    ALIGNAS(4)  uint   myTintPacked   DEFAULT_TO(0xFFFFFFFF);     // RGBA8
 };
 
-// Layout-identical to VkDrawIndexedIndirectCommand. Declared with a distinct name
-// so shader auto-binding does not collide with the scene's global indirect buffer
-// (which is registered under the "DrawIndexedIndirectCommand" alias).
+// Layout-identical to VkDrawIndirectCommand (non-indexed). Blades are procedural, so
+// the draw uses no vertex/index streams. Declared with a distinct name so shader
+// auto-binding does not collide with the scene's "DrawIndexedIndirectCommand" alias.
 struct FoliageDrawCommand
 {
-    uint indexCount;
+    uint vertexCount;
     uint instanceCount;
-    uint firstIndex;
-    int  vertexOffset;
+    uint firstVertex;
     uint firstInstance;
 };
 
